@@ -1,0 +1,54 @@
+# Development files
+.vscode/**
+.vscode-test/**
+.claude/**
+.git/**
+.gitignore
+.DS_Store
+
+# Build configs
+tsconfig.json
+tsconfig.test.json
+.mocharc.json
+
+# Source files (only dist/ is needed)
+src/**
+test/**
+
+# We need to include node_modules since we're not bundling with webpack/esbuild
+# node_modules/** is commented out - dependencies must be included
+
+# Build artifacts
+*.vsix
+vsix_archive/**
+
+# Documentation (development only)
+docs/**
+saved_notes/**
+scripts/**
+CLAUDE.md
+DOCUMENTATION_REVIEW.md
+CUSTOM_RENDERER_IMPLEMENTATION.md
+HARDWARE_CONFIG_TEMPLATE.md
+INSTALL_FRESH.md
+LESSON_11_FIX.md
+LESSON_11_SUMMARY.md
+LESSON_12_TT_XLA.md
+LESSON_METADATA.md
+NEXT_STEPS.md
+PHASE_3_SUMMARY.md
+RELEASE_READINESS_CHECKLIST.md
+STYLING_GUIDE.md
+TEST_STATUS.md
+TEST_SUMMARY.md
+
+# Vendor reference repos (NOT deployed with extension)
+vendor/**
+
+# Backup files
+*.bak
+*.log
+*.tmp
+
+# Package manager
+package-lock.json

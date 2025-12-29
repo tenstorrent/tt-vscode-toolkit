@@ -1,0 +1,517 @@
+{
+  "version": "1.0.0",
+  "categories": [
+    {
+      "id": "welcome",
+      "title": "👋 Welcome to Tenstorrent",
+      "description": "Get started with resources and documentation",
+      "order": 1,
+      "icon": "home"
+    },
+    {
+      "id": "first-inference",
+      "title": "🚀 Your First Inference",
+      "description": "Set up hardware and run your first model",
+      "order": 2,
+      "icon": "rocket"
+    },
+    {
+      "id": "serving",
+      "title": "🏭 Serving Models",
+      "description": "Production deployment and serving infrastructure",
+      "order": 3,
+      "icon": "server"
+    },
+    {
+      "id": "compilers",
+      "title": "🔧 Compilers & Tools",
+      "description": "TT-Forge, TT-XLA, and compiler toolchains",
+      "order": 4,
+      "icon": "tools"
+    },
+    {
+      "id": "applications",
+      "title": "🎯 Applications",
+      "description": "Build real-world applications with AI",
+      "order": 5,
+      "icon": "lightbulb"
+    },
+    {
+      "id": "advanced",
+      "title": "🎓 Advanced Topics",
+      "description": "Low-level programming, installation, and community contributions",
+      "order": 6,
+      "icon": "mortar-board"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "tt-installer",
+      "title": "Modern Setup with tt-installer 2.0",
+      "description": "The fastest way to get started! One-command installation of the full Tenstorrent stack including drivers, firmware, tt-metalium containers, and Python environment.",
+      "category": "advanced",
+      "order": 1,
+      "markdownFile": "content/lessons/tt-installer.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runQuickInstall"
+      ],
+      "tags": [
+        "installation",
+        "setup"
+      ],
+      "nextLesson": "hardware-detection",
+      "estimatedMinutes": 15
+    },
+    {
+      "id": "hardware-detection",
+      "title": "Hardware Detection",
+      "description": "Scan for connected Tenstorrent devices and verify they're properly recognized by the system.",
+      "category": "first-inference",
+      "order": 1,
+      "markdownFile": "content/lessons/hardware-detection.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runHardwareDetection"
+      ],
+      "tags": [
+        "hardware"
+      ],
+      "previousLesson": "tt-installer",
+      "nextLesson": "verify-installation",
+      "estimatedMinutes": 5
+    },
+    {
+      "id": "verify-installation",
+      "title": "Verify tt-metal Installation",
+      "description": "Test your tt-metal installation by running a sample operation on your Tenstorrent device.",
+      "category": "first-inference",
+      "order": 2,
+      "markdownFile": "content/lessons/verify-installation.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.verifyInstallation"
+      ],
+      "tags": [
+        "installation"
+      ],
+      "previousLesson": "hardware-detection",
+      "nextLesson": "download-model",
+      "estimatedMinutes": 5
+    },
+    {
+      "id": "download-model",
+      "title": "Download Model and Run Inference",
+      "description": "Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent hardware.",
+      "category": "first-inference",
+      "order": 3,
+      "markdownFile": "content/lessons/download-model.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runInference"
+      ],
+      "tags": [
+        "hardware",
+        "inference",
+        "model"
+      ],
+      "previousLesson": "verify-installation",
+      "nextLesson": "interactive-chat",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "interactive-chat",
+      "title": "Interactive Chat with Direct API",
+      "description": "Build a custom chat application using tt-metal's Generator API directly.",
+      "category": "first-inference",
+      "order": 4,
+      "markdownFile": "content/lessons/interactive-chat.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.startChatSessionDirect"
+      ],
+      "tags": [
+        "chat",
+        "api"
+      ],
+      "previousLesson": "download-model",
+      "nextLesson": "api-server",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "api-server",
+      "title": "HTTP API Server with Direct API",
+      "description": "Create a production-ready Flask API with the model loaded in memory.",
+      "category": "first-inference",
+      "order": 5,
+      "markdownFile": "content/lessons/api-server.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.testApiBasicDirect"
+      ],
+      "tags": [
+        "production",
+        "api",
+        "flask",
+        "model"
+      ],
+      "previousLesson": "interactive-chat",
+      "nextLesson": "tt-inference-server",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "tt-inference-server",
+      "title": "Production Inference with tt-inference-server",
+      "description": "Use Tenstorrent's official inference server for production deployments with simple CLI configuration.",
+      "category": "serving",
+      "order": 6,
+      "markdownFile": "content/lessons/tt-inference-server.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "status": "blocked",
+      "validatedOn": [],
+      "blockReason": "Requires tt-vllm validation",
+      "completionEvents": [
+        "onCommand:tenstorrent.testTtInferenceServerSimple"
+      ],
+      "tags": [
+        "production",
+        "deployment",
+        "inference"
+      ],
+      "previousLesson": "api-server",
+      "nextLesson": "vllm-production",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "vllm-production",
+      "title": "Production Inference with vLLM",
+      "description": "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features.",
+      "category": "serving",
+      "order": 7,
+      "markdownFile": "content/lessons/vllm-production.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.startVllmServer"
+      ],
+      "tags": [
+        "vllm",
+        "production",
+        "api",
+        "inference"
+      ],
+      "previousLesson": "tt-inference-server",
+      "nextLesson": "image-generation",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "image-generation",
+      "title": "Image Generation with SD 3.5 Large",
+      "description": "Generate high-resolution 1024x1024 images using Stable Diffusion 3.5 Large running natively on your Tenstorrent hardware!",
+      "category": "serving",
+      "order": 8,
+      "markdownFile": "content/lessons/image-generation.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.generateRetroImage"
+      ],
+      "tags": [
+        "hardware",
+        "image",
+        "generation",
+        "diffusion",
+        "stable"
+      ],
+      "previousLesson": "vllm-production",
+      "nextLesson": "coding-assistant",
+      "estimatedMinutes": 20
+    },
+    {
+      "id": "coding-assistant",
+      "title": "Coding Assistant with Prompt Engineering",
+      "description": "Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn how to shape model behavior through system prompts - a critical real-world skill!",
+      "category": "applications",
+      "order": 9,
+      "markdownFile": "content/lessons/coding-assistant.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.startCodingAssistant"
+      ],
+      "tags": [
+        "coding",
+        "assistant",
+        "model"
+      ],
+      "previousLesson": "image-generation",
+      "nextLesson": "forge-image-classification",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "forge-image-classification",
+      "title": "Image Classification with TT-Forge",
+      "description": "Explore TT-Forge - Tenstorrent's MLIR-based compiler that brings PyTorch models to TT hardware! Start with validated models like MobileNetV2 for image classification. Learn forge.compile(), experiment with supported architectures, and understand the path to high-level model deployment.",
+      "category": "compilers",
+      "order": 10,
+      "markdownFile": "content/lessons/forge-image-classification.md",
+      "supportedHardware": [
+        "n150"
+      ],
+      "status": "blocked",
+      "validatedOn": [],
+      "blockReason": "TT-Forge experimental - requires validation",
+      "completionEvents": [
+        "onCommand:tenstorrent.runForgeClassifier"
+      ],
+      "tags": [
+        "hardware",
+        "image",
+        "forge",
+        "deployment",
+        "model"
+      ],
+      "previousLesson": "coding-assistant",
+      "nextLesson": "tt-xla-jax",
+      "estimatedMinutes": 20
+    },
+    {
+      "id": "tt-xla-jax",
+      "title": "JAX Inference with TT-XLA",
+      "description": "Master TT-XLA - Tenstorrent's production-ready XLA-based compiler! Simple wheel installation, JAX integration via PJRT, and multi-chip support. Perfect for cloud environments with locked Python/tt-metal versions. Works with Python 3.10+, no rebuilding required!",
+      "category": "compilers",
+      "order": 11,
+      "markdownFile": "content/lessons/tt-xla-jax.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.testTtXlaInstall"
+      ],
+      "tags": [
+        "production",
+        "installation",
+        "xla",
+        "jax",
+        "inference"
+      ],
+      "previousLesson": "forge-image-classification",
+      "nextLesson": "riscv-programming",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "riscv-programming",
+      "title": "RISC-V Programming on Tensix Cores",
+      "description": "Explore 880 RISC-V processors on a single chip! Program the five RISC-V cores (BRISC, NCRISC, TRISC0/1/2) inside each Tensix. Learn bare-metal programming, NoC communication, and parallel computing at scale. Includes comprehensive exploration guide.",
+      "category": "advanced",
+      "order": 12,
+      "markdownFile": "content/lessons/riscv-programming.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.runRiscvExample"
+      ],
+      "tags": [],
+      "previousLesson": "tt-xla-jax",
+      "nextLesson": "bounty-program",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "bounty-program",
+      "title": "Bounty Program: Model Bring-Up",
+      "description": "Learn how to contribute to the Tenstorrent Bounty Program by bringing up new models. Master TT-Metal while becoming part of the open-source ecosystem. Uses the successful Phi-3 contribution as a case study.",
+      "category": "advanced",
+      "order": 13,
+      "markdownFile": "content/lessons/bounty-program-model-bringup.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.browseOpenBounties"
+      ],
+      "tags": [
+        "model"
+      ],
+      "previousLesson": "riscv-programming",
+      "nextLesson": "explore-metalium",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "explore-metalium",
+      "title": "Exploring TT-Metalium",
+      "description": "Discover what's possible with TT-Metalium! Explore TTNN tutorials, browse the model zoo, and dive into programming examples. Learn the architecture, try Jupyter notebooks, and find inspiration for your own projects.",
+      "category": "advanced",
+      "order": 14,
+      "markdownFile": "content/lessons/explore-metalium.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.launchTtnnTutorials"
+      ],
+      "tags": [
+        "model"
+      ],
+      "previousLesson": "bounty-program",
+      "nextLesson": "metalium-cookbook",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "metalium-cookbook",
+      "title": "TT-Metalium Cookbook",
+      "description": "Build creative projects with TT-Metalium! Work through 4 complete cookbook recipes: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, and Image Filters. Deploy all templates with one command and start coding!",
+      "category": "advanced",
+      "order": 15,
+      "markdownFile": "content/lessons/metalium-cookbook.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.createCookbookProjects"
+      ],
+      "tags": [
+        "image",
+        "coding"
+      ],
+      "previousLesson": "explore-metalium",
+      "estimatedMinutes": 10
+    }
+  ],
+  "lastUpdated": "2025-12-29T13:00:00.000Z"
+}

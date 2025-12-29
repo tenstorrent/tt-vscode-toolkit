@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vscode-test/
+.DS_Store
+*.vsix
+
+# Vendor directory contains reference repos for lesson authoring
+# Clone repos here as needed, but don't commit them
+vendor/
+
+
+

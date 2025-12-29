@@ -1,0 +1,4 @@
+ttnn
+torch
+numpy
+matplotlib

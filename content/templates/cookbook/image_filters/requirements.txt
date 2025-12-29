@@ -1,0 +1,6 @@
+ttnn
+torch
+numpy
+matplotlib
+Pillow
+opencv-python

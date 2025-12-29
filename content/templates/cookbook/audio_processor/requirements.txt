@@ -1,0 +1,7 @@
+ttnn
+torch
+numpy
+matplotlib
+librosa
+scipy
+sounddevice

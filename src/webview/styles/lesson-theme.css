@@ -1,0 +1,409 @@
+/**
+ * Lesson Theme CSS
+ *
+ * Theme-aware styles for lesson content display.
+ * Uses VSCode CSS variables to respect user's theme.
+ */
+
+:root {
+  /* VSCode theme variables (provided by VSCode) */
+  --vscode-foreground: var(--vscode-editor-foreground);
+  --vscode-background: var(--vscode-editor-background);
+
+  /* Tenstorrent brand colors - Darker teals for better contrast */
+  --tt-cyan: #0D9488;        /* Dark teal - 7:1 contrast with white */
+  --tt-cyan-light: #14B8A6;  /* Medium teal - 5.5:1 contrast */
+  --tt-cyan-dark: #0F766E;   /* Darker teal - 8.5:1 contrast */
+  --tt-blue: #4A90E2;
+  --tt-green: #27AE60;
+
+  /* Computed theme-aware colors */
+  --tt-border: color-mix(in srgb, var(--vscode-foreground) 20%, transparent);
+  --tt-hover-bg: color-mix(in srgb, var(--tt-cyan) 10%, var(--vscode-background));
+  --tt-code-bg: var(--vscode-textCodeBlock-background);
+  --tt-muted: color-mix(in srgb, var(--vscode-foreground) 60%, transparent);
+}
+
+/* Base styles */
+body {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background: var(--vscode-background);
+  padding: 32px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.lesson-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--vscode-foreground);
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 2em;
+  border-bottom: 2px solid var(--tt-cyan);
+  padding-bottom: 8px;
+}
+
+h2 {
+  font-size: 1.6em;
+  border-bottom: 1px solid var(--tt-border);
+  padding-bottom: 6px;
+}
+
+h3 {
+  font-size: 1.3em;
+}
+
+h4 {
+  font-size: 1.1em;
+}
+
+/* Paragraphs */
+p {
+  margin: 16px 0;
+}
+
+/* Links */
+a {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Lists */
+ul, ol {
+  padding-left: 24px;
+  margin: 16px 0;
+}
+
+li {
+  margin: 8px 0;
+}
+
+/* Code blocks */
+pre {
+  background: var(--tt-code-bg);
+  border: 1px solid var(--tt-border);
+  border-radius: 4px;
+  padding: 16px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+/* Inline code */
+code {
+  background: var(--tt-code-bg);
+  border: 1px solid var(--tt-border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 0.9em;
+}
+
+/* Command buttons */
+.tt-command-button {
+  /* Gradient background for depth */
+  background: linear-gradient(
+    to bottom,
+    var(--tt-cyan),
+    var(--tt-cyan-dark)
+  );
+  color: white;
+
+  /* Thicker border for more definition */
+  border: 3px solid var(--tt-cyan-dark);
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  font-family: var(--vscode-font-family);
+  font-size: 1.05em;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin: 12px 12px 12px 0;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+
+  /* Enhanced shadow with inset highlight for 3D effect */
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  /* Text shadow for depth */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.tt-command-button:hover {
+  /* Keep gradient, lighten it */
+  background: linear-gradient(
+    to bottom,
+    var(--tt-cyan-light),
+    var(--tt-cyan)
+  );
+  border-color: var(--tt-cyan);
+
+  /* Lift more on hover */
+  transform: translateY(-3px);
+
+  /* Much stronger hover shadow with inset highlight */
+  box-shadow:
+    0 6px 16px rgba(79, 209, 197, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.tt-command-button:active {
+  /* Darker gradient when pressed */
+  background: linear-gradient(
+    to bottom,
+    var(--tt-cyan-dark),
+    #2c9a93
+  );
+  border-color: var(--tt-cyan-dark);
+
+  /* Return to baseline */
+  transform: translateY(0);
+
+  /* Pressed/inset shadow effect */
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 4px solid var(--tt-cyan);
+  background: var(--tt-hover-bg);
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+blockquote p:first-child {
+  margin-top: 0;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+}
+
+th, td {
+  border: 1px solid var(--tt-border);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+th {
+  background: var(--tt-hover-bg);
+  font-weight: 600;
+}
+
+tr:hover {
+  background: var(--tt-hover-bg);
+}
+
+/* Hardware config callouts */
+.hardware-config {
+  border-left: 4px solid var(--tt-cyan);
+  background: var(--tt-hover-bg);
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.hardware-config h4 {
+  margin-top: 0;
+  color: var(--tt-cyan);
+}
+
+.hardware-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.hardware-chip {
+  background: var(--tt-cyan);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* Prerequisites checklist */
+.prerequisites {
+  background: var(--tt-hover-bg);
+  border: 1px solid var(--tt-border);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.prerequisites h4 {
+  margin-top: 0;
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+}
+
+.checklist li {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.checklist input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  margin: 4px;
+}
+
+.status-validated {
+  background: var(--tt-green);
+  color: white;
+}
+
+.status-draft {
+  background: var(--tt-blue);
+  color: white;
+}
+
+.status-blocked {
+  background: #E74C3C;
+  color: white;
+}
+
+/* Lesson navigation */
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--tt-border);
+}
+
+.nav-prev, .nav-next {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  transition: background 0.2s ease;
+}
+
+.nav-prev:hover, .nav-next:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .lesson-content {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 1.8em;
+  }
+
+  h2 {
+    font-size: 1.4em;
+  }
+
+  .hardware-grid {
+    flex-direction: column;
+  }
+
+  .lesson-nav {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* Horizontal rules */
+hr {
+  border: none;
+  border-top: 1px solid var(--tt-border);
+  margin: 32px 0;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+/* Warning callouts */
+.warning {
+  background: color-mix(in srgb, #E74C3C 10%, var(--vscode-background));
+  border-left: 4px solid #E74C3C;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Info callouts */
+.info {
+  background: color-mix(in srgb, var(--tt-blue) 10%, var(--vscode-background));
+  border-left: 4px solid var(--tt-blue);
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Success callouts */
+.success {
+  background: color-mix(in srgb, var(--tt-green) 10%, var(--vscode-background));
+  border-left: 4px solid var(--tt-green);
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+}
