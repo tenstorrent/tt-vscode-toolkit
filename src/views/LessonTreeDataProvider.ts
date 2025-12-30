@@ -147,15 +147,9 @@ export class LessonTreeItem extends vscode.TreeItem {
   /**
    * Add progress badge to label
    */
-  addProgressBadge(status: 'not-started' | 'in-progress' | 'completed'): void {
-    const badges = {
-      'not-started': '⭕',
-      'in-progress': '🔵',
-      'completed': '✅',
-    };
-
-    const badge = badges[status];
-    this.description = badge; // Just the emoji, not the label
+  addProgressBadge(_status: 'not-started' | 'in-progress' | 'completed'): void {
+    // No visual badges - keep clean UI
+    this.description = '';
   }
 }
 

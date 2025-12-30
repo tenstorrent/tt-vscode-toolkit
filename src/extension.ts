@@ -2919,6 +2919,43 @@ async function launchTtnnTutorials(): Promise<void> {
     return;
   }
 
+  // Configure Jupyter to use tt-metal python_env
+  const vscodePath = path.join(ttMetalPath, '.vscode');
+  const settingsPath = path.join(vscodePath, 'settings.json');
+  const pythonEnvPath = path.join(ttMetalPath, 'python_env', 'bin', 'python');
+
+  try {
+    // Create .vscode directory if it doesn't exist
+    if (!fs.existsSync(vscodePath)) {
+      fs.mkdirSync(vscodePath, { recursive: true });
+    }
+
+    // Read existing settings or create new
+    let settings: any = {};
+    if (fs.existsSync(settingsPath)) {
+      const content = fs.readFileSync(settingsPath, 'utf-8');
+      settings = JSON.parse(content);
+    }
+
+    // Set Python interpreter for Jupyter notebooks
+    settings['python.defaultInterpreterPath'] = pythonEnvPath;
+    settings['jupyter.kernels.filter'] = [
+      {
+        "path": pythonEnvPath,
+        "type": "pythonEnvironment"
+      }
+    ];
+
+    // Write settings
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+
+    vscode.window.showInformationMessage(
+      `✅ Configured Jupyter to use ${pythonEnvPath}`
+    );
+  } catch (error) {
+    console.error('Failed to configure Jupyter settings:', error);
+  }
+
   // Open the tutorials folder in VS Code
   const uri = vscode.Uri.file(tutorialsPath);
   await vscode.commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: false });
@@ -3056,13 +3093,26 @@ async function exploreProgrammingExamples(): Promise<void> {
     return;
   }
 
-  // Open the examples folder
+  // Open the examples folder in file explorer
   const uri = vscode.Uri.file(examplesPath);
-  await vscode.commands.executeCommand('revealInExplorer', uri);
 
-  vscode.window.showInformationMessage(
-    `⚡ Opening programming examples. Start with hello_world_compute_kernel/ for your first kernel!`
+  // Show quick pick with options
+  const action = await vscode.window.showInformationMessage(
+    `⚡ Programming examples found at ${examplesPath}`,
+    'Open in Terminal',
+    'Show in Explorer',
+    'Open Folder'
   );
+
+  if (action === 'Open in Terminal') {
+    const terminal = getOrCreateTerminal('explore');
+    terminal.show();
+    terminal.sendText(`cd "${examplesPath}"`);
+  } else if (action === 'Show in Explorer') {
+    await vscode.commands.executeCommand('revealFileInOS', uri);
+  } else if (action === 'Open Folder') {
+    await vscode.commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: false });
+  }
 }
 
 // ============================================================================
