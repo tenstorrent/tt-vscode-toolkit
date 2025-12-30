@@ -1949,15 +1949,12 @@ async function openGeneratedImage(imagePath: string): Promise<void> {
     const imagePreviewProvider = (global as any).imagePreviewProvider;
     if (imagePreviewProvider) {
       imagePreviewProvider.showImage(imagePath);
+      vscode.window.showInformationMessage(`✅ Image displayed in Output Preview panel`);
+    } else {
+      vscode.window.showWarningMessage('Image preview panel not available');
     }
-
-    // Also open the image in VSCode editor
-    const imageUri = vscode.Uri.file(imagePath);
-    await vscode.commands.executeCommand('vscode.open', imageUri);
-
-    vscode.window.showInformationMessage(`✅ Image displayed in Output Preview panel`);
   } catch (error) {
-    vscode.window.showErrorMessage(`Failed to open image: ${error}`);
+    vscode.window.showErrorMessage(`Failed to display image: ${error}`);
   }
 }
 
@@ -3564,8 +3561,9 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async (message) => {
       if (message.command === 'openImage') {
         if (this._currentImage) {
-          const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(this._currentImage));
-          await vscode.window.showTextDocument(doc, { preview: false });
+          // Open in editor when double-clicked
+          const imageUri = vscode.Uri.file(this._currentImage);
+          await vscode.commands.executeCommand('vscode.open', imageUri, { preview: false });
         }
       }
     });
@@ -3615,52 +3613,68 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     }
 
     const clickHandler = isGeneratedImage 
-      ? 'onclick="vscode.postMessage({ command: \'openImage\' })" style="cursor: pointer;"'
+      ? 'ondblclick="vscode.postMessage({ command: \'openImage\' })" style="cursor: pointer;" title="Double-click to open in editor, right-click to save"'
       : '';
 
     return `<!DOCTYPE html>
-<html>
+<html style="height: 100%;">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
   <style>
-    * {
-      box-sizing: border-box;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
     }
     body {
-      margin: 0;
       padding: 8px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       background: transparent;
-      overflow: hidden;
+      box-sizing: border-box;
     }
     .image-container {
       text-align: center;
       width: 100%;
       max-width: ${isGeneratedImage ? '100%' : '140px'};
+      max-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     img {
       width: 100%;
       height: auto;
+      max-height: ${isGeneratedImage ? 'calc(100vh - 40px)' : '80px'};
+      object-fit: contain;
       display: block;
       ${isGeneratedImage ? 'border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);' : ''}
     }
+    ${isGeneratedImage ? `
+    img:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: box-shadow 0.2s;
+    }` : ''}
     .caption {
-      margin-top: 8px;
-      font-size: 11px;
+      margin-top: 4px;
+      padding: 2px 4px;
+      font-size: 10px;
       color: var(--vscode-descriptionForeground);
       word-wrap: break-word;
       font-family: var(--vscode-font-family);
+      max-width: 100%;
+      user-select: text;
     }
   </style>
 </head>
 <body>
   <div class="image-container">
-    <img src="${imageUri}" alt="${altText}" ${clickHandler} onerror="this.style.display='none'" title="${isGeneratedImage ? 'Click to open in editor' : ''}">
+    <img src="${imageUri}" alt="${altText}" ${clickHandler} onerror="this.style.display='none'">
     ${caption}
   </div>
   ${isGeneratedImage ? '<script>const vscode = acquireVsCodeApi();</script>' : ''}

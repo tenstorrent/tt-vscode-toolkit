@@ -45,7 +45,8 @@
         {
           "id": "tenstorrentImagePreview",
           "name": "Output Preview",
-          "type": "webview"
+          "type": "webview",
+          "visibility": "visible"
         }
       ]
     },
