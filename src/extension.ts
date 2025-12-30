@@ -2069,6 +2069,46 @@ async function startInteractiveImageGen(): Promise<void> {
   );
 }
 
+/**
+ * Command: tenstorrent.copyImageGenDemo
+ * Copies the SD 3.5 demo.py to ~/tt-scratchpad for experimentation
+ */
+async function copyImageGenDemo(): Promise<void> {
+  // Get the tt-metal path from stored state (default to ~/tt-metal if not found)
+  const os = await import('os');
+  const path = await import('path');
+  const homeDir = os.homedir();
+  const defaultPath = path.join(homeDir, 'tt-metal');
+  const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
+
+  const terminal = getOrCreateTerminal('tt-metal');
+
+  const command = replaceVariables(TERMINAL_COMMANDS.COPY_IMAGE_GEN_DEMO.template, {
+    ttMetalPath,
+  });
+
+  runInTerminal(terminal, command);
+
+  // Open the copied file for editing
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'sd35_demo.py');
+
+  // Wait a moment for the file to be copied
+  setTimeout(async () => {
+    try {
+      const doc = await vscode.workspace.openTextDocument(scratchpadPath);
+      await vscode.window.showTextDocument(doc);
+
+      vscode.window.showInformationMessage(
+        '📝 SD 3.5 demo copied to ~/tt-scratchpad/sd35_demo.py! Experiment with prompts, parameters, batch generation, and more. The original in tt-metal remains untouched.'
+      );
+    } catch (error) {
+      vscode.window.showWarningMessage(
+        `Demo copied but couldn't auto-open. Find it at: ~/tt-scratchpad/sd35_demo.py`
+      );
+    }
+  }, 500);
+}
+
 // ============================================================================
 // Lesson 9 - Coding Assistant with Prompt Engineering
 // ============================================================================
@@ -3431,6 +3471,90 @@ python filters.py examples/sample.jpg</pre>
   }
 }
 
+/**
+ * Command: tenstorrent.runGameOfLife
+ * Runs Conway's Game of Life with random initial state
+ */
+async function runGameOfLife(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_GAME_OF_LIFE.template);
+  vscode.window.showInformationMessage(
+    '🎮 Running Game of Life with random initial state. Watch the cellular automaton evolve!'
+  );
+}
+
+/**
+ * Command: tenstorrent.runGameOfLifeGlider
+ * Runs Game of Life with classic glider pattern
+ */
+async function runGameOfLifeGlider(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_GAME_OF_LIFE_GLIDER.template);
+  vscode.window.showInformationMessage(
+    '🎮 Running Game of Life with glider pattern. Watch it move diagonally across the grid!'
+  );
+}
+
+/**
+ * Command: tenstorrent.runGameOfLifeGliderGun
+ * Runs Game of Life with Gosper Glider Gun
+ */
+async function runGameOfLifeGliderGun(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_GAME_OF_LIFE_GLIDER_GUN.template);
+  vscode.window.showInformationMessage(
+    '🎮 Running Game of Life with Gosper Glider Gun. Watch it generate gliders infinitely!'
+  );
+}
+
+/**
+ * Command: tenstorrent.runMandelbrotExplorer
+ * Launches interactive Mandelbrot fractal explorer
+ */
+async function runMandelbrotExplorer(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_MANDELBROT_EXPLORER.template);
+  vscode.window.showInformationMessage(
+    '🌀 Launching Mandelbrot Explorer! Click to zoom, press R to reset, C for colors, Q to quit.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runMandelbrotJulia
+ * Displays comparison of 6 Julia set fractals
+ */
+async function runMandelbrotJulia(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_MANDELBROT_JULIA.template);
+  vscode.window.showInformationMessage(
+    '🌀 Displaying 6 classic Julia set fractals for comparison!'
+  );
+}
+
+/**
+ * Command: tenstorrent.runAudioProcessor
+ * Runs audio processor demo with mel-spectrogram
+ */
+async function runAudioProcessor(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_AUDIO_PROCESSOR.template);
+  vscode.window.showInformationMessage(
+    '🎵 Running audio processor demo. Provide your own audio file or use the example!'
+  );
+}
+
+/**
+ * Command: tenstorrent.runImageFilters
+ * Runs image filters demo showing edge detect, blur, sharpen, etc.
+ */
+async function runImageFilters(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_IMAGE_FILTERS.template);
+  vscode.window.showInformationMessage(
+    '🖼️ Running image filters demo. See edge detect, blur, sharpen, emboss, and oil painting effects!'
+  );
+}
+
 // ============================================================================
 // Command Menu
 // ============================================================================
@@ -3894,6 +4018,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Lesson 9 - Image Generation with SD 3.5 Large (previously Lesson 8)
     vscode.commands.registerCommand('tenstorrent.generateRetroImage', generateRetroImage),
     vscode.commands.registerCommand('tenstorrent.startInteractiveImageGen', startInteractiveImageGen),
+    vscode.commands.registerCommand('tenstorrent.copyImageGenDemo', copyImageGenDemo),
     vscode.commands.registerCommand('tenstorrent.openLatestImage', openLatestImage),
 
     // Lesson 10 - Coding Assistant with Prompt Engineering (previously Lesson 9)
@@ -3926,6 +4051,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // Lesson 12 - TT-Metalium Cookbook
     vscode.commands.registerCommand('tenstorrent.createCookbookProjects', createCookbookProjects),
+    vscode.commands.registerCommand('tenstorrent.runGameOfLife', runGameOfLife),
+    vscode.commands.registerCommand('tenstorrent.runGameOfLifeGlider', runGameOfLifeGlider),
+    vscode.commands.registerCommand('tenstorrent.runGameOfLifeGliderGun', runGameOfLifeGliderGun),
+    vscode.commands.registerCommand('tenstorrent.runMandelbrotExplorer', runMandelbrotExplorer),
+    vscode.commands.registerCommand('tenstorrent.runMandelbrotJulia', runMandelbrotJulia),
+    vscode.commands.registerCommand('tenstorrent.runAudioProcessor', runAudioProcessor),
+    vscode.commands.registerCommand('tenstorrent.runImageFilters', runImageFilters),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),

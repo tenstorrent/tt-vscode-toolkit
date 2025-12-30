@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.204",
+  "version": "0.0.206",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -382,6 +382,11 @@
         "category": "Tenstorrent"
       },
       {
+        "command": "tenstorrent.copyImageGenDemo",
+        "title": "Copy SD 3.5 Demo to Scratchpad",
+        "category": "Tenstorrent"
+      },
+      {
         "command": "tenstorrent.openLatestImage",
         "title": "Open Latest Generated Image",
         "category": "Tenstorrent"
@@ -489,6 +494,41 @@
       {
         "command": "tenstorrent.createCookbookProjects",
         "title": "Create Cookbook Projects",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runGameOfLife",
+        "title": "Run Game of Life (Random)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runGameOfLifeGlider",
+        "title": "Run Game of Life (Glider Pattern)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runGameOfLifeGliderGun",
+        "title": "Run Game of Life (Glider Gun)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runMandelbrotExplorer",
+        "title": "Run Mandelbrot Explorer",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runMandelbrotJulia",
+        "title": "Run Julia Sets Comparison",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runAudioProcessor",
+        "title": "Run Audio Processor Demo",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runImageFilters",
+        "title": "Run Image Filters Demo",
         "category": "Tenstorrent"
       }
     ]

@@ -318,6 +318,15 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     variables: ['ttMetalPath'],
   },
 
+  COPY_IMAGE_GEN_DEMO: {
+    id: 'copy-image-gen-demo',
+    name: 'Copy SD 3.5 Demo to Scratchpad',
+    template:
+      'mkdir -p ~/tt-scratchpad && cp "{{ttMetalPath}}"/models/experimental/stable_diffusion_35_large/demo.py ~/tt-scratchpad/sd35_demo.py && echo "✓ Demo copied to ~/tt-scratchpad/sd35_demo.py - ready to edit!"',
+    description: 'Copies the Stable Diffusion demo to ~/tt-scratchpad for experimentation and modification',
+    variables: ['ttMetalPath'],
+  },
+
   // Coding Assistant with Prompt Engineering (Lesson 9)
   VERIFY_CODING_MODEL: {
     id: 'verify-coding-model',
@@ -451,6 +460,59 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     name: 'Run RISC-V Addition Example',
     template: 'cd ~/tt-metal && export TT_METAL_DPRINT_CORES=0,0 && ./build/programming_examples/add_2_integers_in_riscv',
     description: 'Runs the RISC-V addition example on BRISC processor',
+  },
+
+  // ========================================
+  // Lesson 15: TT-Metalium Cookbook
+  // ========================================
+
+  RUN_GAME_OF_LIFE: {
+    id: 'run-game-of-life',
+    name: 'Run Game of Life',
+    template: 'cd ~/tt-scratchpad/cookbook/game_of_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 game_of_life.py',
+    description: 'Runs Conway\'s Game of Life with random initial state',
+  },
+
+  RUN_GAME_OF_LIFE_GLIDER: {
+    id: 'run-game-of-life-glider',
+    name: 'Run Game of Life (Glider)',
+    template: 'cd ~/tt-scratchpad/cookbook/game_of_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from game_of_life import GameOfLife; from visualizer import animate_game_of_life; import ttnn; device = ttnn.open_device(0); game = GameOfLife(device, grid_size=(256, 256)); initial = game.initialize_pattern(\'glider\'); history = game.simulate(initial, num_generations=200); animate_game_of_life(history, interval=50); ttnn.close_device(device)"',
+    description: 'Runs Game of Life with classic glider pattern',
+  },
+
+  RUN_GAME_OF_LIFE_GLIDER_GUN: {
+    id: 'run-game-of-life-glider-gun',
+    name: 'Run Game of Life (Glider Gun)',
+    template: 'cd ~/tt-scratchpad/cookbook/game_of_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from game_of_life import GameOfLife; from visualizer import animate_game_of_life; import ttnn; device = ttnn.open_device(0); game = GameOfLife(device, grid_size=(256, 256)); initial = game.initialize_pattern(\'glider_gun\'); history = game.simulate(initial, num_generations=500); animate_game_of_life(history, interval=50); ttnn.close_device(device)"',
+    description: 'Runs Game of Life with Gosper Glider Gun (generates gliders infinitely)',
+  },
+
+  RUN_MANDELBROT_EXPLORER: {
+    id: 'run-mandelbrot-explorer',
+    name: 'Run Mandelbrot Explorer',
+    template: 'cd ~/tt-scratchpad/cookbook/mandelbrot && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from renderer import MandelbrotRenderer; from explorer import MandelbrotVisualizer; import ttnn; device = ttnn.open_device(0); renderer = MandelbrotRenderer(device); viz = MandelbrotVisualizer(renderer); viz.interactive_explorer(width=1024, height=1024); ttnn.close_device(device)"',
+    description: 'Launches interactive Mandelbrot explorer with click-to-zoom',
+  },
+
+  RUN_MANDELBROT_JULIA: {
+    id: 'run-mandelbrot-julia',
+    name: 'Run Julia Sets Comparison',
+    template: 'cd ~/tt-scratchpad/cookbook/mandelbrot && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from renderer import MandelbrotRenderer; from explorer import MandelbrotVisualizer; import ttnn; device = ttnn.open_device(0); renderer = MandelbrotRenderer(device); viz = MandelbrotVisualizer(renderer); c_values = [(-0.4, 0.6), (0.285, 0.01), (-0.70176, -0.3842), (-0.835, -0.2321), (-0.8, 0.156), (0.0, -0.8)]; viz.compare_julia_sets(c_values); ttnn.close_device(device)"',
+    description: 'Display 6 interesting Julia set fractals side-by-side',
+  },
+
+  RUN_AUDIO_PROCESSOR: {
+    id: 'run-audio-processor',
+    name: 'Run Audio Processor Demo',
+    template: 'cd ~/tt-scratchpad/cookbook/audio_processor && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 processor.py',
+    description: 'Runs audio processor with mel-spectrogram visualization',
+  },
+
+  RUN_IMAGE_FILTERS: {
+    id: 'run-image-filters',
+    name: 'Run Image Filters Demo',
+    template: 'cd ~/tt-scratchpad/cookbook/image_filters && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 filters.py',
+    description: 'Runs image filter examples (edge detect, blur, sharpen, emboss)',
   },
 };
 

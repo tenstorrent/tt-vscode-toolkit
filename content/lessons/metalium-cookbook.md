@@ -461,8 +461,18 @@ def compare_patterns(patterns_dict):
 
 ## Running the Project
 
+**Quick Start - Click to Run:**
+
+[🎮 Run with Random Pattern](command:tenstorrent.runGameOfLife)
+
+[⬆️ Run Glider Pattern](command:tenstorrent.runGameOfLifeGlider)
+
+[♾️ Run Glider Gun (Infinite)](command:tenstorrent.runGameOfLifeGliderGun)
+
+**Manual Commands:**
+
 ```bash
-cd ~/tt-metal-projects/game_of_life
+cd ~/tt-scratchpad/cookbook/game_of_life
 
 # Install dependencies
 pip install -r requirements.txt
@@ -1273,8 +1283,14 @@ class SpectrogramVisualizer:
 
 ## Running the Project
 
+**Quick Start - Click to Run:**
+
+[🎵 Run Audio Processor Demo](command:tenstorrent.runAudioProcessor)
+
+**Manual Commands:**
+
 ```bash
-cd ~/tt-metal-projects/audio_processor
+cd ~/tt-scratchpad/cookbook/audio_processor
 
 # Install dependencies
 pip install -r requirements.txt
@@ -1904,8 +1920,16 @@ class MandelbrotVisualizer:
 
 ## Running the Project
 
+**Quick Start - Click to Run:**
+
+[🌀 Launch Interactive Explorer](command:tenstorrent.runMandelbrotExplorer)
+
+[🎨 Compare 6 Julia Sets](command:tenstorrent.runMandelbrotJulia)
+
+**Manual Commands:**
+
 ```bash
-cd ~/tt-metal-projects/mandelbrot
+cd ~/tt-scratchpad/cookbook/mandelbrot
 
 # Basic render
 python renderer.py
@@ -2267,6 +2291,26 @@ if __name__ == "__main__":
     plt.show()
 
     ttnn.close_device(device)
+```
+
+---
+
+## Running the Project
+
+**Quick Start - Click to Run:**
+
+[🖼️ Run Image Filters Demo](command:tenstorrent.runImageFilters)
+
+**Manual Commands:**
+
+```bash
+cd ~/tt-scratchpad/cookbook/image_filters
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the demo
+python filters.py
 ```
 
 ---

@@ -262,30 +262,130 @@ The model will generate a new image for each prompt and save it to `~/tt-scratch
 
 **Example prompts to try:**
 
-1. **Retro Tech:**
+### Literary & Cultural References
+
+1. **Steinbeck's Computing Dust Bowl:**
 ```text
-   "1970s computer lab with orange and brown terminals, vintage aesthetic"
+   "The Grapes of Wrath reimagined as 1970s computer lab, orange terminals, dusty atmosphere, vintage photograph, film grain"
 ```
 
-2. **Futuristic Office:**
+2. **Kerouac's Electric Highway:**
 ```text
-   "Modern tech company office with AI hardware, orange accent lighting, sleek design"
+   "On the Road meets Silicon Valley, beat generation aesthetic, vintage mainframe computers, dharma bums coding, 1960s photography"
 ```
 
-3. **Abstract Tech:**
+3. **Gertrude Stein's Repetition Machine:**
 ```text
-   "Abstract visualization of AI neural network, orange and blue colors, digital art"
+   "A rose is a rose is a processor, cubist computing, abstract geometric circuit boards, modernist aesthetic, orange and purple"
 ```
 
-4. **Historical Computing:**
+4. **Whole Earth Catalog Computer Lab:**
 ```text
-   "1960s mainframe computer room, scientists in white coats, vintage photograph"
+   "1970s alternative technology workshop, homebrew computer club, Stewart Brand aesthetic, orange and brown, democratic tools, vintage catalog photography"
 ```
 
-5. **Product Design:**
+### Classic Movie Computing Quotes
+
+5. **Chocolate-Powered AI:**
 ```text
-   "Futuristic AI accelerator card, orange accents, product photography, studio lighting"
+   "What would a computer do with a lifetime supply of chocolate? Willy Wonka meets mainframe, whimsical vintage computing, 1970s aesthetic, orange accents"
 ```
+
+6. **WarGames WOPR:**
+```text
+   "Would you like to play a game? Cold War computing aesthetic, NORAD command center, green phosphor terminals, dramatic lighting, 1980s photography"
+```
+
+### Decidedly Tenstorrent
+
+7. **Tensix Mandelbrot Dreams:**
+```text
+   "880 RISC-V cores dreaming of fractals, purple and orange silicon wafer, crystalline structure, technical diagram meets abstract art"
+```
+
+8. **Orange Silicon Valley:**
+```text
+   "AI accelerator as California poppy field, orange blooms, Tenstorrent hardware, golden hour lighting, Stanford Foothills, technical beauty"
+```
+
+9. **Network-on-Chip Landscape:**
+```text
+   "NoC topology as ancient trade routes, silicon pathways, orange and purple, cartography meets chip design, vintage map aesthetic"
+```
+
+10. **The Tensor Processing Saloon:**
+```text
+   "Wild West saloon but it's a 1970s computer lab, orange terminals, cowboys coding RISC-V assembly, vintage Americana, film photograph"
+```
+
+## Step 6: Experiment with Code (Advanced)
+
+**Ready to go beyond button-pressing?** Copy the demo to your scratchpad and modify it:
+
+[📝 Copy Demo to Scratchpad](command:tenstorrent.copyImageGenDemo)
+
+This copies `demo.py` to `~/tt-scratchpad/sd35_demo.py` and opens it for editing.
+
+**What you can experiment with:**
+
+1. **Batch generation with variations:**
+```python
+# Generate multiple images with seed variations
+prompts = [
+    "Whole Earth Catalog computer lab, 1970s",
+    "Kerouac typing on vintage terminal, beat aesthetic",
+    "Would you like to play a game? WOPR terminal"
+]
+
+for i, prompt in enumerate(prompts):
+    image = pipe(
+        prompt=prompt,
+        num_inference_steps=28,
+        guidance_scale=3.5,
+        seed=i  # Different seed for each
+    )
+    image.save(f"tenstorrent_{i:03d}.png")
+```
+
+2. **Parameter exploration:**
+```python
+# Try different guidance scales to see impact on adherence to prompt
+for scale in [2.0, 3.5, 5.0, 7.5]:
+    image = pipe(
+        prompt="Tenstorrent headquarters, orange architecture",
+        guidance_scale=scale
+    )
+    image.save(f"guidance_{scale}.png")
+```
+
+3. **Prompt interpolation:**
+```python
+# Blend between two concepts
+prompts = [
+    "1960s mainframe computer room",
+    "futuristic AI accelerator lab"
+]
+# Generate with weighted combination
+```
+
+4. **Custom resolution experiments:**
+```python
+# Try different aspect ratios (must be multiples of 64)
+image = pipe(
+    prompt="Wide cinematic shot of vintage computing",
+    width=1536,  # 16:9 aspect ratio
+    height=864
+)
+```
+
+**Tips for code experiments:**
+- Model stays loaded between generations (fast iterations!)
+- Save images with descriptive names: `prompt_seed_guidance.png`
+- Keep `num_inference_steps=28` (optimized for SD 3.5)
+- Experiment with `guidance_scale` between 2.0-7.5
+- Use seeds for reproducibility (same seed = same image)
+
+**Make it your own!** The demo is just a starting point - modify, extend, and create your own image generation workflows.
 
 ## Understanding the Generation Process
 

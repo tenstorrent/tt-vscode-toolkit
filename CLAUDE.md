@@ -335,6 +335,47 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.206** - Cookbook execution buttons
+- **NEW FEATURE:** Added 7 execution commands for cookbook projects
+- Users can now easily run all cookbook examples with one click
+- **NEW COMMANDS:**
+  - `tenstorrent.runGameOfLife` - Random initial state
+  - `tenstorrent.runGameOfLifeGlider` - Classic glider pattern
+  - `tenstorrent.runGameOfLifeGliderGun` - Gosper Glider Gun (infinite gliders)
+  - `tenstorrent.runMandelbrotExplorer` - Interactive click-to-zoom fractal explorer
+  - `tenstorrent.runMandelbrotJulia` - Compare 6 Julia set fractals side-by-side
+  - `tenstorrent.runAudioProcessor` - Mel-spectrogram visualization demo
+  - `tenstorrent.runImageFilters` - Edge detect, blur, sharpen, emboss effects
+- **CONTENT UPDATES:**
+  - Added "Quick Start" buttons to all 4 cookbook project sections
+  - Game of Life: 3 execution buttons for different patterns
+  - Mandelbrot: 2 execution buttons (explorer + Julia sets)
+  - Audio Processor: 1 execution button
+  - Image Filters: Added new "Running the Project" section with button
+- **TERMINAL COMMANDS:** All commands properly set PYTHONPATH and use ~/tt-scratchpad paths
+- **USER EXPERIENCE:** Cookbook lesson now has easy button-based execution throughout
+- Addresses user feedback: "We're missing execution buttons for the samples in the cookbook lesson"
+- All tests passing
+
+**v0.0.205** - Culturally rich prompts & code experimentation workflow
+- **NEW FEATURE:** "Copy Demo to Scratchpad" command for image generation
+- Users can now copy demo.py to ~/tt-scratchpad for experimentation
+- Enables modification without tampering with tt-metal repo
+- Command: `tenstorrent.copyImageGenDemo` auto-opens file for editing
+- **CONTENT:** Added literary & cultural references to image prompts:
+  - Steinbeck, Kerouac, Gertrude Stein references
+  - Whole Earth Catalog aesthetic
+  - Classic movie quotes: "Would you like to play a game?" (WarGames), chocolate AI
+  - Decidedly Tenstorrent prompts: Tensix cores, NoC topology, orange silicon
+- **NEW LESSON SECTION:** "Step 6: Experiment with Code (Advanced)"
+  - Batch generation examples
+  - Parameter exploration code
+  - Custom resolution experiments
+  - Tips for code-based workflows
+- **PHILOSOPHY:** Moving beyond button-pressing to code experimentation
+- All tests passing
+- Package size: 5.43 MB (1949 files)
+
 **v0.0.204** - Restored syntax highlighting in lesson webviews
 - **CRITICAL FIX:** Integrated Prism.js for syntax highlighting in code blocks
 - Added Prism.js CSS and JavaScript via CDN (cdnjs.cloudflare.com)
