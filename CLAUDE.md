@@ -335,6 +335,37 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.203** - Fixed coding assistant dependencies and added OpenMPI FAQ
+- **CRITICAL FIX:** Added missing dependencies to tt-coding-assistant.py template
+  - Added installation instructions for: safetensors, termcolor, pytest
+  - Added instructions for tt-transformers requirements.txt
+  - Added OpenMPI LD_LIBRARY_PATH setup instructions
+- **NEW FAQ ENTRY:** "Getting OpenMPI errors - how do I fix them?"
+  - Explains common OpenMPI library path errors
+  - Provides fix: `export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH`
+  - Includes instructions for making it permanent in ~/.bashrc
+  - Provides fallback steps for finding OpenMPI installation
+- All tests passing
+- Package size: 5.42 MB (1942 files)
+
+**v0.0.202** - Cleaned up lesson tree UI
+- **UI IMPROVEMENT:** Removed colored progress badges (blue 🔵, red ⭕) from lesson tree
+- Tree now has clean, minimal appearance without distracting symbols
+- Progress still tracked internally, just not shown with emoji badges
+- All tests passing
+- Package size: 5.42 MB (1942 files)
+
+**v0.0.201** - Improved command UX and Jupyter integration
+- **CRITICAL FIX:** `exploreProgrammingExamples` command now shows action menu instead of subtle revealInExplorer
+- **NEW:** Action menu with 3 options: "Open in Terminal", "Show in Explorer", "Open Folder"
+- **CRITICAL FIX:** `launchTtnnTutorials` now auto-configures Jupyter to use tt-metal Python environment
+- Auto-creates `~/tt-metal/.vscode/settings.json` with Python interpreter configuration
+- Sets `python.defaultInterpreterPath` to `~/tt-metal/python_env/bin/python`
+- Sets `jupyter.kernels.filter` to use tt-metal environment for all notebooks
+- **Result:** Jupyter notebooks no longer prompt for new pyenv - they automatically use the correct environment
+- All tests passing
+- Package size: 5.42 MB (1942 files)
+
 **v0.0.126** - Fixed dependency bundling (critical fix)
 - **ROOT CAUSE:** `Error: Cannot find module 'marked'` - dependencies not included in package
 - Extension was excluding node_modules but NOT bundling with webpack/esbuild

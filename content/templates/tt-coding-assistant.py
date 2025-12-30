@@ -10,6 +10,15 @@ Key Concept: PROMPT ENGINEERING - Shape model behavior through system prompts
 rather than model specialization. This often delivers 80%+ of the value with
 zero compatibility issues!
 
+Prerequisites:
+    1. Install required Python packages:
+       cd ~/tt-metal
+       pip install -r models/tt_transformers/requirements.txt
+       pip install safetensors termcolor pytest
+
+    2. Set up OpenMPI library path (if you encounter OpenMPI errors):
+       export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
+
 Usage:
     export LLAMA_DIR=~/models/Llama-3.1-8B-Instruct/original
     export PYTHONPATH=~/tt-metal

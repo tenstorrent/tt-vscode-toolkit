@@ -766,6 +766,44 @@ cd ~/tt-metal
 - **clang-17 required:** `sudo apt-get install clang-17`
 - **Environment variables:** Must unset TT_METAL_HOME first
 
+### Q: Getting OpenMPI errors - how do I fix them?
+
+**A:** OpenMPI library path errors are common and easy to fix.
+
+**Symptoms:**
+- Errors mentioning "libmpi.so" or "OpenMPI"
+- "ImportError: cannot open shared object file"
+- Commands fail with MPI-related errors
+
+**Fix:**
+```bash
+export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
+```
+
+**Make permanent:**
+Add to `~/.bashrc`:
+```bash
+# OpenMPI library path for Tenstorrent
+export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
+```
+
+Then reload:
+```bash
+source ~/.bashrc
+```
+
+**Why this happens:** The OpenMPI library installation isn't in the system's default library search path, so you need to explicitly tell the dynamic linker where to find it.
+
+**Alternative OpenMPI paths:**
+If the above doesn't work, try:
+```bash
+# Find your OpenMPI installation
+find /opt -name "libmpi.so*" 2>/dev/null
+
+# Use the directory containing the .so files
+export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
+```
+
 ### Q: Downloads are slow or failing
 
 **A:**
