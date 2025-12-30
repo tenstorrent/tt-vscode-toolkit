@@ -1922,27 +1922,13 @@ async function generateRetroImage(): Promise<void> {
   const scratchpadPath = path.join(homeDir, 'tt-scratchpad');
   const imagePath = path.join(scratchpadPath, 'sd35_1024_1024.png');
 
-  const message = await vscode.window.showInformationMessage(
-    '🎨 Generating 1024x1024 image with Stable Diffusion 3.5 Large on TT hardware. Image will be saved to ~/tt-scratchpad/sd35_1024_1024.png. First run downloads the model (~10 GB) and may take 5-10 minutes. Subsequent generations: ~12-15 seconds on N150.',
-    'Open Image When Done'
+  vscode.window.showInformationMessage(
+    '🎨 Generating 1024x1024 image with Stable Diffusion 3.5 Large on TT hardware. First run downloads the model (~10 GB) and may take 5-10 minutes. Subsequent generations: ~12-15 seconds on N150. Image will auto-open when ready!'
   );
 
-  // If user clicks "Open Image When Done", set up a file watcher
-  if (message === 'Open Image When Done') {
-    vscode.window.showInformationMessage(
-      `Will open ${imagePath} when generation completes. Watch the terminal for "Image saved" message.`
-    );
-
-    // Offer a manual open command since we can't reliably detect when pytest completes
-    const openNow = await vscode.window.showInformationMessage(
-      'Generation takes ~12-15 seconds. Click "Open Now" when you see the image saved in terminal.',
-      'Open Now'
-    );
-
-    if (openNow === 'Open Now') {
-      await openGeneratedImage(imagePath);
-    }
-  }
+  // Automatically watch for the image and open it when created/updated
+  const watcher = watchForImage(imagePath, 600000); // 10 minute timeout for first run
+  extensionContext.subscriptions.push(watcher);
 }
 
 /**
@@ -1959,15 +1945,107 @@ async function openGeneratedImage(imagePath: string): Promise<void> {
   }
 
   try {
-    // Open the image in VSCode
+    // Show in image preview panel
+    const imagePreviewProvider = (global as any).imagePreviewProvider;
+    if (imagePreviewProvider) {
+      imagePreviewProvider.showImage(imagePath);
+    }
+
+    // Also open the image in VSCode editor
     const imageUri = vscode.Uri.file(imagePath);
     await vscode.commands.executeCommand('vscode.open', imageUri);
 
-    vscode.window.showInformationMessage(`✅ Image opened: ${imagePath}`);
+    vscode.window.showInformationMessage(`✅ Image displayed in Output Preview panel`);
   } catch (error) {
     vscode.window.showErrorMessage(`Failed to open image: ${error}`);
   }
 }
+
+/**
+ * Watch for an image file to be created/updated and automatically open it
+ * Returns a disposable to cancel the watch
+ */
+function watchForImage(imagePath: string, timeoutMs: number = 30000): vscode.Disposable {
+  const fs = require('fs');
+  const path = require('path');
+  
+  let watcher: vscode.Disposable | undefined;
+  let timeoutHandle: NodeJS.Timeout | undefined;
+  let initialMtime: number | undefined;
+
+  // Get initial modification time if file exists
+  if (fs.existsSync(imagePath)) {
+    initialMtime = fs.statSync(imagePath).mtimeMs;
+  }
+
+  const checkAndOpen = async () => {
+    if (fs.existsSync(imagePath)) {
+      const currentMtime = fs.statSync(imagePath).mtimeMs;
+      // Only open if file is new or has been modified since we started watching
+      if (initialMtime === undefined || currentMtime > initialMtime) {
+        cleanup();
+        await openGeneratedImage(imagePath);
+      }
+    }
+  };
+
+  const cleanup = () => {
+    if (watcher) {
+      watcher.dispose();
+      watcher = undefined;
+    }
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle);
+      timeoutHandle = undefined;
+    }
+  };
+
+  // Watch the directory for changes
+  const dir = path.dirname(imagePath);
+  const filename = path.basename(imagePath);
+  
+  if (fs.existsSync(dir)) {
+    const fileSystemWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(dir, filename)
+    );
+
+    fileSystemWatcher.onDidCreate(checkAndOpen);
+    fileSystemWatcher.onDidChange(checkAndOpen);
+    
+    watcher = fileSystemWatcher;
+  }
+
+  // Set timeout
+  timeoutHandle = setTimeout(() => {
+    cleanup();
+  }, timeoutMs);
+
+  return new vscode.Disposable(cleanup);
+}
+
+/**
+ * Helper to open an image using CLI (code/code-insiders command)
+ * Useful as fallback in environments where webview APIs don't work
+ * Currently unused but available for future use
+ */
+/* 
+async function openImageViaCLI(imagePath: string): Promise<void> {
+  const fs = require('fs');
+  
+  if (!fs.existsSync(imagePath)) {
+    vscode.window.showWarningMessage(`Image not found: ${imagePath}`);
+    return;
+  }
+
+  // Try to determine which VS Code CLI is available
+  const terminal = getOrCreateTerminal('tt-metal');
+  
+  // Try code-insiders first (common for remote), then code
+  const command = `(command -v code-insiders >/dev/null 2>&1 && code-insiders "${imagePath}") || (command -v code >/dev/null 2>&1 && code "${imagePath}") || echo "⚠️  Could not find 'code' or 'code-insiders' command. Please open ${imagePath} manually."`;
+  
+  runInTerminal(terminal, command);
+}
+*/
 
 /**
  * Command: tenstorrent.startInteractiveImageGen
@@ -1997,6 +2075,57 @@ async function startInteractiveImageGen(): Promise<void> {
 // ============================================================================
 // Lesson 9 - Coding Assistant with Prompt Engineering
 // ============================================================================
+
+/**
+ * Command: tenstorrent.openLatestImage
+ * Opens the most recently generated image from ~/tt-scratchpad
+ */
+async function openLatestImage(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad');
+
+  if (!fs.existsSync(scratchpadPath)) {
+    vscode.window.showWarningMessage('No images found. Generate an image first!');
+    return;
+  }
+
+  // Find all image files
+  const files = fs.readdirSync(scratchpadPath)
+    .filter(f => /\.(png|jpg|jpeg)$/i.test(f))
+    .map(f => ({
+      name: f,
+      path: path.join(scratchpadPath, f),
+      mtime: fs.statSync(path.join(scratchpadPath, f)).mtimeMs
+    }))
+    .sort((a, b) => b.mtime - a.mtime); // Sort by modification time, newest first
+
+  if (files.length === 0) {
+    vscode.window.showWarningMessage('No images found in ~/tt-scratchpad. Generate an image first!');
+    return;
+  }
+
+  // If multiple images, let user pick
+  if (files.length > 1) {
+    const selected = await vscode.window.showQuickPick(
+      files.map(f => ({
+        label: f.name,
+        description: new Date(f.mtime).toLocaleString(),
+        path: f.path
+      })),
+      { placeHolder: 'Select an image to open' }
+    );
+
+    if (selected) {
+      await openGeneratedImage(selected.path);
+    }
+  } else {
+    // Just open the only image
+    await openGeneratedImage(files[0].path);
+  }
+}
 
 /**
  * Command: tenstorrent.verifyCodingModel
@@ -3402,6 +3531,145 @@ async function showCommandMenu(): Promise<void> {
 }
 
 // ============================================================================
+// Image Preview WebviewView Provider
+// ============================================================================
+
+/**
+ * WebviewViewProvider for displaying generated images and the Tenstorrent logo
+ */
+class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
+  private _view?: vscode.WebviewView;
+  private _currentImage?: string; // Path to currently displayed image
+
+  constructor(private readonly context: vscode.ExtensionContext) {}
+
+  resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    _context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken
+  ): void {
+    this._view = webviewView;
+
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [
+        vscode.Uri.joinPath(this.context.extensionUri, 'assets'),
+        vscode.Uri.file(require('os').homedir())
+      ]
+    };
+
+    webviewView.webview.html = this.getHtmlContent(webviewView.webview);
+
+    // Handle messages from webview
+    webviewView.webview.onDidReceiveMessage(async (message) => {
+      if (message.command === 'openImage') {
+        if (this._currentImage) {
+          const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(this._currentImage));
+          await vscode.window.showTextDocument(doc, { preview: false });
+        }
+      }
+    });
+  }
+
+  /**
+   * Update the preview to show a specific image
+   * @param imagePath Absolute path to the image file
+   */
+  public showImage(imagePath: string): void {
+    this._currentImage = imagePath;
+    if (this._view) {
+      this._view.webview.html = this.getHtmlContent(this._view.webview, imagePath);
+      this._view.show?.(true); // Reveal the view
+    }
+  }
+
+  /**
+   * Reset preview to show the default logo
+   */
+  public showLogo(): void {
+    this._currentImage = undefined;
+    if (this._view) {
+      this._view.webview.html = this.getHtmlContent(this._view.webview);
+    }
+  }
+
+  private getHtmlContent(webview: vscode.Webview, imagePath?: string): string {
+    let imageUri: vscode.Uri;
+    let altText: string;
+    let isGeneratedImage = false;
+    let caption = '';
+
+    if (imagePath) {
+      // Show generated image
+      imageUri = webview.asWebviewUri(vscode.Uri.file(imagePath));
+      const path = require('path');
+      altText = `Generated: ${path.basename(imagePath)}`;
+      isGeneratedImage = true;
+      caption = `<div class="caption">${path.basename(imagePath)}</div>`;
+    } else {
+      // Show default logo
+      imageUri = webview.asWebviewUri(
+        vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'img', 'tt_logo_color_dark_backgrounds.svg')
+      );
+      altText = 'Tenstorrent';
+    }
+
+    const clickHandler = isGeneratedImage 
+      ? 'onclick="vscode.postMessage({ command: \'openImage\' })" style="cursor: pointer;"'
+      : '';
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+      overflow: hidden;
+    }
+    .image-container {
+      text-align: center;
+      width: 100%;
+      max-width: ${isGeneratedImage ? '100%' : '140px'};
+    }
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+      ${isGeneratedImage ? 'border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);' : ''}
+    }
+    .caption {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--vscode-descriptionForeground);
+      word-wrap: break-word;
+      font-family: var(--vscode-font-family);
+    }
+  </style>
+</head>
+<body>
+  <div class="image-container">
+    <img src="${imageUri}" alt="${altText}" ${clickHandler} onerror="this.style.display='none'" title="${isGeneratedImage ? 'Click to open in editor' : ''}">
+    ${caption}
+  </div>
+  ${isGeneratedImage ? '<script>const vscode = acquireVsCodeApi();</script>' : ''}
+</body>
+</html>`;
+  }
+}
+
+// ============================================================================
 // Extension Lifecycle
 // ============================================================================
 
@@ -3440,6 +3708,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     );
     throw error; // Fail activation if registry doesn't load
   }
+
+  // Create WebviewView for image preview (globally accessible for updating from commands)
+  const imagePreviewProvider = new TenstorrentImagePreviewProvider(context);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider('tenstorrentImagePreview', imagePreviewProvider)
+  );
+  
+  // Make provider globally accessible so commands can update the preview
+  (global as any).imagePreviewProvider = imagePreviewProvider;
 
   // Create TreeView for lessons
   const treeDataProvider = new LessonTreeDataProvider(lessonRegistry, progressTracker);
@@ -3603,6 +3880,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Lesson 9 - Image Generation with SD 3.5 Large (previously Lesson 8)
     vscode.commands.registerCommand('tenstorrent.generateRetroImage', generateRetroImage),
     vscode.commands.registerCommand('tenstorrent.startInteractiveImageGen', startInteractiveImageGen),
+    vscode.commands.registerCommand('tenstorrent.openLatestImage', openLatestImage),
 
     // Lesson 10 - Coding Assistant with Prompt Engineering (previously Lesson 9)
     vscode.commands.registerCommand('tenstorrent.verifyCodingModel', verifyCodingModel),

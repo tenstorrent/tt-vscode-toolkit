@@ -335,6 +335,18 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.204** - Restored syntax highlighting in lesson webviews
+- **CRITICAL FIX:** Integrated Prism.js for syntax highlighting in code blocks
+- Added Prism.js CSS and JavaScript via CDN (cdnjs.cloudflare.com)
+- Modified CSP to allow Prism.js resources (style-src and script-src)
+- Using prism-tomorrow theme for VSCode-like dark syntax highlighting
+- Added language support for: Python, Bash, JavaScript, TypeScript, JSON, YAML, Markdown, C++
+- Modified MarkdownRenderer to output Prism.js-compatible code structure
+- Removed HTML escaping from code output (Prism handles it)
+- **Result:** Code blocks now have professional syntax highlighting with line numbers
+- All tests passing
+- Package size: 5.42 MB (1942 files)
+
 **v0.0.203** - Fixed coding assistant dependencies and added OpenMPI FAQ
 - **CRITICAL FIX:** Added missing dependencies to tt-coding-assistant.py template
   - Added installation instructions for: safetensors, termcolor, pytest

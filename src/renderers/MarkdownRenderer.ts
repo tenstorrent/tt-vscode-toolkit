@@ -66,7 +66,7 @@ export class MarkdownRenderer {
    * Configure marked with custom renderer and extensions
    */
   private configureMarked(): void {
-    // Setup marked with syntax highlighting
+    // Setup marked with Prism.js-compatible code blocks
     marked.use(
       markedHighlight({
         highlight: (code, lang) => {
@@ -74,9 +74,10 @@ export class MarkdownRenderer {
             return code;
           }
 
-          // For now, just wrap in <code> with language class
-          // VSCode's syntax highlighting will handle the rest via webview
-          return `<code class="language-${lang || 'plaintext'}">${this.escapeHtml(code)}</code>`;
+          // Output Prism.js-compatible structure
+          // Don't escape HTML - Prism needs the raw code and will handle it
+          const language = lang || 'plaintext';
+          return `<code class="language-${language}">${code}</code>`;
         }
       })
     );
