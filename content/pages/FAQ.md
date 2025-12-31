@@ -766,6 +766,64 @@ cd ~/tt-metal
 - **clang-17 required:** `sudo apt-get install clang-17`
 - **Environment variables:** Must unset TT_METAL_HOME first
 
+### Q: TTNN import errors or symbol undefined errors in cloud environments - how do I fix them?
+
+**A:** After rolling back or updating tt-metal versions, TTNN bindings may become incompatible.
+
+**Symptoms:**
+- `ImportError: undefined symbol: _ZN2tt9tt_fabric15SetFabricConfigENS0...`
+- `ImportError: undefined symbol: MPIX_Comm_revoke`
+- TTNN examples that previously worked now fail
+
+**Common Cause:**
+Rolling back or updating tt-metal versions (for example, to match specific vLLM compatibility) can break TTNN bindings.
+
+**Solution - Clean Rebuild to Known-Good Version:**
+
+1. **Note your original working commit:**
+   ```bash
+   cd ~/tt-metal
+   git log --oneline | head -5
+   # Save the commit hash that was working
+   ```
+
+2. **Checkout the known-good version:**
+   ```bash
+   cd ~/tt-metal
+   git checkout 5143b856eb  # Replace with your working commit
+   git submodule update --init --recursive
+   ```
+
+3. **Complete clean rebuild:**
+   ```bash
+   cd ~/tt-metal
+   # Clean all build artifacts
+   rm -rf build build_Release
+
+   # Reinstall dependencies
+   sudo ./install_dependencies.sh
+
+   # Rebuild from scratch
+   ./build_metal.sh
+   ```
+
+4. **Test TTNN:**
+   ```bash
+   source ~/tt-metal/python_env/bin/activate
+   export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
+   export PYTHONPATH=~/tt-metal:$PYTHONPATH
+   python3 -m ttnn.examples.usage.run_op_on_device
+   ```
+
+**Important Notes:**
+- The original/untouched tt-metal version is often the most stable
+- Rolling back to older commits can create incompatible bindings
+- Always do a **complete clean rebuild** after changing commits
+- OpenMPI library path is required: `/opt/openmpi-v5.0.7-ulfm/lib`
+
+**Known-Good Commit (as of Dec 2024):**
+- `5143b856eb` (Oct 28, 2024) - Stable TTNN, validated on N150
+
 ### Q: Getting OpenMPI errors - how do I fix them?
 
 **A:** OpenMPI library path errors are common and easy to fix.
