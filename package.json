@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.206",
+  "version": "0.0.207",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -62,8 +62,8 @@
       "properties": {
         "tenstorrent.showUnvalidatedLessons": {
           "type": "boolean",
-          "default": false,
-          "description": "Show lessons that haven't been validated on hardware yet. When disabled (default), only validated lessons are displayed in production builds."
+          "default": true,
+          "description": "Show lessons that haven't been validated on hardware yet. When enabled (default), all lessons including draft and blocked lessons are displayed. Disable to show only validated lessons in production builds."
         }
       }
     },
@@ -369,6 +369,16 @@
       {
         "command": "tenstorrent.showDeviceActions",
         "title": "Show Device Actions",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.selectPythonEnvironment",
+        "title": "Select Python Environment",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.refreshEnvironmentStatus",
+        "title": "Refresh Environment Status",
         "category": "Tenstorrent"
       },
       {

@@ -335,6 +335,35 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.207** - Python environment selector for terminals + lesson visibility default change
+- **NEW FEATURE:** Python environment status bar indicator for each terminal
+- Users can now see which venv is active and switch environments easily
+- **NEW SERVICE:** EnvironmentManager tracks and activates Python environments per terminal
+- **AUTOMATIC ACTIVATION:** Correct environment auto-activates when terminal is created
+- **6 ENVIRONMENTS SUPPORTED:**
+  - TT-Metal: PYTHONPATH + setup-metal.sh
+  - TT-Forge: ~/tt-forge-venv
+  - TT-XLA: ~/tt-xla-venv
+  - vLLM Server: ~/tt-vllm-venv
+  - API Server: TT-Metal environment
+  - Explore: System Python (no venv)
+- **NEW COMMANDS:**
+  - `tenstorrent.selectPythonEnvironment` - Switch environment for active terminal
+  - `tenstorrent.refreshEnvironmentStatus` - Refresh environment detection
+- **USER EXPERIENCE:**
+  - Status bar shows icon and environment name (e.g., "🔥 TT-Forge")
+  - Click status bar to see all available environments
+  - Prevents "environment drift" where wrong venv is active
+- **NEW FILES:**
+  - `src/types/EnvironmentConfig.ts` - Environment type definitions and registry
+  - `src/services/EnvironmentManager.ts` - Core environment management logic
+- **CONFIGURATION CHANGE:** All lessons now visible by default in sidebar
+  - Changed `tenstorrent.showUnvalidatedLessons` default from `false` to `true`
+  - Users can now see draft and blocked lessons without changing settings
+  - Provides better visibility into available content
+- Addresses user feedback: "Is there a way we can add a pyenv selector to each terminal? It's easy to drift but hard to get back on track."
+- All tests passing
+
 **v0.0.206** - Cookbook execution buttons
 - **NEW FEATURE:** Added 7 execution commands for cookbook projects
 - Users can now easily run all cookbook examples with one click

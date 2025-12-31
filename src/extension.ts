@@ -25,6 +25,7 @@ import { getModelConfig, getModelBasePath, getModelOriginalPath, DEFAULT_MODEL_K
 import { LessonRegistry } from './utils';
 import { StateManager, ProgressTracker } from './state';
 import { LessonTreeDataProvider, LessonWebviewManager } from './views';
+import { EnvironmentManager } from './services/EnvironmentManager';
 
 // ============================================================================
 // Global State
@@ -70,6 +71,11 @@ let cachedDeviceInfo: DeviceInfo = {
 let statusBarItem: vscode.StatusBarItem | undefined;
 let commandMenuStatusBarItem: vscode.StatusBarItem | undefined;
 let statusUpdateTimer: NodeJS.Timeout | undefined;
+
+/**
+ * Global EnvironmentManager for tracking Python environments per terminal
+ */
+let environmentManager: EnvironmentManager;
 
 /**
  * Parses tt-smi output to extract device information.
@@ -518,6 +524,12 @@ function getOrCreateTerminal(context: TerminalContext): vscode.Terminal {
   });
 
   terminals[context] = terminal;
+
+  // Auto-set Python environment for this terminal context
+  if (environmentManager) {
+    environmentManager.setEnvironment(terminal, context);
+  }
+
   return terminal;
 }
 
@@ -3835,6 +3847,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const progressTracker = new ProgressTracker(context, stateManager);
   const lessonRegistry = new LessonRegistry(context);
 
+  // Initialize environment manager for Python venv tracking
+  environmentManager = new EnvironmentManager(context);
+  context.subscriptions.push(environmentManager);
+
   // Load lesson registry - MUST complete before creating TreeView
   try {
     await lessonRegistry.load();
@@ -4066,6 +4082,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Device Management
     vscode.commands.registerCommand('tenstorrent.resetDevice', resetDevice),
     vscode.commands.registerCommand('tenstorrent.clearDeviceState', clearDeviceState),
+
+    // Python Environment Management
+    vscode.commands.registerCommand('tenstorrent.selectPythonEnvironment', async () => {
+      const activeTerminal = vscode.window.activeTerminal;
+      if (!activeTerminal) {
+        vscode.window.showWarningMessage('No active terminal. Open or select a terminal first.');
+        return;
+      }
+      await environmentManager.switchEnvironment(activeTerminal);
+    }),
+    vscode.commands.registerCommand('tenstorrent.refreshEnvironmentStatus', async () => {
+      const activeTerminal = vscode.window.activeTerminal;
+      if (!activeTerminal) {
+        vscode.window.showWarningMessage('No active terminal. Open or select a terminal first.');
+        return;
+      }
+      await environmentManager.detectActiveEnvironment(activeTerminal);
+      vscode.window.showInformationMessage('Environment status refreshed');
+    }),
   ];
 
   // Add all command registrations to subscriptions for proper cleanup
