@@ -321,7 +321,7 @@
       "id": "video-generation-ttmetal",
       "title": "Video Generation with Stable Diffusion 3.5",
       "description": "Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
-      "category": "advanced",
+      "category": "serving",
       "order": 9,
       "markdownFile": "content/lessons/video-generation-ttmetal.md",
       "supportedHardware": [
@@ -330,8 +330,10 @@
         "t3k",
         "p100"
       ],
-      "status": "draft",
-      "validatedOn": [],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "completionEvents": [
         "onCommand:tenstorrent.startInteractiveImageGen"
       ],
