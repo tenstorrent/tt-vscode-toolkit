@@ -20,8 +20,9 @@ export class TelemetryMonitor {
     private updateInterval: NodeJS.Timeout | undefined;
     private pythonPath: string;
     private scriptPath: string;
+    private onTelemetryUpdate?: (telemetry: TelemetryData) => void;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext, onTelemetryUpdate?: (telemetry: TelemetryData) => void) {
         // Create statusbar item (right side, high priority)
         this.statusBarItem = vscode.window.createStatusBarItem(
             vscode.StatusBarAlignment.Right,
@@ -34,6 +35,9 @@ export class TelemetryMonitor {
         this.pythonPath = 'python3';
         // Use extension path for reliable script location
         this.scriptPath = path.join(context.extensionPath, 'dist', 'src', 'telemetry', 'telemetryReader.py');
+
+        // Store callback
+        this.onTelemetryUpdate = onTelemetryUpdate;
 
         // Start monitoring
         this.startMonitoring();
@@ -59,6 +63,11 @@ export class TelemetryMonitor {
             }
 
             this.updateStatusBar(telemetry);
+
+            // Notify callback (e.g., for logo animation)
+            if (this.onTelemetryUpdate) {
+                this.onTelemetryUpdate(telemetry);
+            }
 
         } catch (error) {
             this.showError(`Telemetry error: ${error}`);

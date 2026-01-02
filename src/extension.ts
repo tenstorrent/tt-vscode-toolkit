@@ -3697,6 +3697,20 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
+   * Update telemetry data in the logo animation
+   * @param telemetry Telemetry data from hardware
+   */
+  public updateTelemetry(telemetry: any): void {
+    if (this._view && !this._currentImage) {
+      // Only animate logo when not showing an image
+      this._view.webview.postMessage({
+        command: 'updateTelemetry',
+        telemetry: telemetry
+      });
+    }
+  }
+
+  /**
    * Update the preview to show a specific image or video
    * @param imagePath Absolute path to the image or video file
    */
@@ -3737,7 +3751,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       isGeneratedImage = true;
       caption = `<div class="caption">${path.basename(imagePath)}</div>`;
     } else {
-      // Show default logo
+      // Show default logo with telemetry animation
       imageUri = webview.asWebviewUri(
         vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'img', 'tt_logo_color_dark_backgrounds.svg')
       );
@@ -3747,6 +3761,95 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     const clickHandler = isGeneratedImage
       ? 'ondblclick="vscode.postMessage({ command: \'openImage\' })" style="cursor: pointer;" title="Double-click to open in editor, right-click to save"'
       : '';
+
+    // Add telemetry animation script only for logo (not generated images)
+    const telemetryScript = !isGeneratedImage ? `
+<script>
+  const vscode = acquireVsCodeApi();
+
+  // Current and target telemetry values
+  let currentTelemetry = {
+    temp: 40,
+    power: 15,
+    clock: 1000
+  };
+  let targetTelemetry = { ...currentTelemetry };
+
+  // Animation state
+  let animationFrame = null;
+  let lastUpdate = Date.now();
+
+  // Listen for telemetry updates
+  window.addEventListener('message', event => {
+    const message = event.data;
+    if (message.command === 'updateTelemetry' && message.telemetry) {
+      targetTelemetry = {
+        temp: message.telemetry.asic_temp || 40,
+        power: message.telemetry.power || 15,
+        clock: message.telemetry.aiclk || 1000
+      };
+      lastUpdate = Date.now();
+    }
+  });
+
+  // Map telemetry to visual properties
+  function telemetryToVisuals(telemetry) {
+    // Temperature → Hue (blue when cool, orange/red when hot)
+    // 40°C = 200° (blue), 70°C = 30° (orange)
+    const tempHue = Math.max(0, Math.min(360, 200 - (telemetry.temp - 40) * 5.67));
+
+    // Power → Brightness (dim when idle, bright when active)
+    // 10W = 60% brightness, 50W = 100% brightness
+    const brightness = Math.max(60, Math.min(100, 60 + (telemetry.power - 10) * 1));
+
+    // Clock → Animation speed (slower when idle, faster when active)
+    // 500MHz = 2s, 2000MHz = 0.5s
+    const pulseSpeed = Math.max(0.5, Math.min(4, 4 - (telemetry.clock - 500) / 500));
+
+    return { hue: tempHue, brightness, pulseSpeed };
+  }
+
+  // Smooth interpolation (lerp)
+  function lerp(start, end, t) {
+    return start + (end - start) * t;
+  }
+
+  // Animation loop
+  function animate() {
+    const now = Date.now();
+    const timeSinceUpdate = (now - lastUpdate) / 1000; // seconds
+
+    // Interpolate over 5 seconds (to match telemetry update interval)
+    const t = Math.min(timeSinceUpdate / 5, 1);
+
+    // Smooth interpolation
+    currentTelemetry.temp = lerp(currentTelemetry.temp, targetTelemetry.temp, t * 0.1);
+    currentTelemetry.power = lerp(currentTelemetry.power, targetTelemetry.power, t * 0.1);
+    currentTelemetry.clock = lerp(currentTelemetry.clock, targetTelemetry.clock, t * 0.1);
+
+    // Calculate visual properties
+    const visuals = telemetryToVisuals(currentTelemetry);
+
+    // Apply to logo
+    const logo = document.querySelector('.image-container img');
+    if (logo) {
+      logo.style.filter = \`hue-rotate(\${visuals.hue - 200}deg) brightness(\${visuals.brightness}%)\`;
+      logo.style.animation = \`pulse \${visuals.pulseSpeed}s ease-in-out infinite\`;
+    }
+
+    animationFrame = requestAnimationFrame(animate);
+  }
+
+  // Start animation when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      animate();
+    });
+  } else {
+    animate();
+  }
+</script>
+    ` : '<script>const vscode = acquireVsCodeApi();</script>';
 
     return `<!DOCTYPE html>
 <html style="height: 100%;">
@@ -3786,12 +3889,24 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       object-fit: contain;
       display: block;
       ${isGeneratedImage ? 'border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);' : ''}
+      transition: filter 0.3s ease;
     }
     ${isGeneratedImage ? `
     img:hover, video:hover {
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       transition: box-shadow 0.2s;
-    }` : ''}
+    }` : `
+    /* Pulse animation for logo */
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+    }`}
     .caption {
       margin-top: 4px;
       padding: 2px 4px;
@@ -3814,7 +3929,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     }
     ${caption}
   </div>
-  ${isGeneratedImage ? '<script>const vscode = acquireVsCodeApi();</script>' : ''}
+  ${telemetryScript}
 </body>
 </html>`;
   }
@@ -3879,8 +3994,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Create Webview Manager
   const webviewManager = new LessonWebviewManager(context, lessonRegistry, progressTracker);
 
-  // Initialize telemetry monitor for hardware status (side effects only - registers statusbar)
-  void new TelemetryMonitor(context);
+  // Initialize telemetry monitor for hardware status (with logo animation callback)
+  void new TelemetryMonitor(context, (telemetry) => {
+    imagePreviewProvider.updateTelemetry(telemetry);
+  });
 
   // Note: Tree item clicks are handled via the command property set in LessonTreeDataProvider
   // No need for onDidChangeSelection handler - it would cause lessons to open twice
