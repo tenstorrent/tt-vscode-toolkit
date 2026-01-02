@@ -318,6 +318,22 @@ The model will generate a new image for each prompt and save it to `~/tt-scratch
    "Wild West saloon but it's a 1970s computer lab, orange terminals, cowboys coding RISC-V assembly, vintage Americana, film photograph"
 ```
 
+### Example Output
+
+Here's what you can create with Stable Diffusion 3.5 on Tenstorrent hardware:
+
+![Snowy Cabin - Generated with Stable Diffusion 3.5](../../assets/img/sd35_snowy_cabin.png)
+
+*Generated with prompt: "A cozy cabin in a snowy forest, warm lights in windows, winter evening, oil painting style"*
+
+**Generation details:**
+- Resolution: 1024x1024
+- Steps: 28
+- Hardware: N150 (single Wormhole chip)
+- Time: ~2-3 minutes (first run includes model load)
+
+---
+
 ## Step 6: Experiment with Code (Advanced)
 
 **Ready to go beyond button-pressing?** Copy the demo to your scratchpad and modify it:
