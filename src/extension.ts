@@ -3697,8 +3697,8 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
-   * Update the preview to show a specific image
-   * @param imagePath Absolute path to the image file
+   * Update the preview to show a specific image or video
+   * @param imagePath Absolute path to the image or video file
    */
   public showImage(imagePath: string): void {
     this._currentImage = imagePath;
@@ -3722,12 +3722,17 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     let imageUri: vscode.Uri;
     let altText: string;
     let isGeneratedImage = false;
+    let isVideo = false;
     let caption = '';
 
     if (imagePath) {
-      // Show generated image
-      imageUri = webview.asWebviewUri(vscode.Uri.file(imagePath));
+      // Check if it's a video file
       const path = require('path');
+      const ext = path.extname(imagePath).toLowerCase();
+      isVideo = ['.mp4', '.webm', '.ogg', '.mov'].includes(ext);
+
+      // Show generated image or video
+      imageUri = webview.asWebviewUri(vscode.Uri.file(imagePath));
       altText = `Generated: ${path.basename(imagePath)}`;
       isGeneratedImage = true;
       caption = `<div class="caption">${path.basename(imagePath)}</div>`;
@@ -3739,7 +3744,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       altText = 'Tenstorrent';
     }
 
-    const clickHandler = isGeneratedImage 
+    const clickHandler = isGeneratedImage
       ? 'ondblclick="vscode.postMessage({ command: \'openImage\' })" style="cursor: pointer;" title="Double-click to open in editor, right-click to save"'
       : '';
 
@@ -3748,7 +3753,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; media-src ${webview.cspSource}; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
   <style>
     html, body {
       height: 100%;
@@ -3774,7 +3779,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       flex-direction: column;
       align-items: center;
     }
-    img {
+    img, video {
       width: 100%;
       height: auto;
       max-height: ${isGeneratedImage ? 'calc(100vh - 40px)' : '80px'};
@@ -3783,7 +3788,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       ${isGeneratedImage ? 'border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);' : ''}
     }
     ${isGeneratedImage ? `
-    img:hover {
+    img:hover, video:hover {
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       transition: box-shadow 0.2s;
     }` : ''}
@@ -3801,7 +3806,12 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
   <div class="image-container">
-    <img src="${imageUri}" alt="${altText}" ${clickHandler} onerror="this.style.display='none'">
+    ${isVideo
+      ? `<video src="${imageUri}" ${clickHandler} controls autoplay loop muted style="max-width: 100%;">
+           Your browser does not support the video tag.
+         </video>`
+      : `<img src="${imageUri}" alt="${altText}" ${clickHandler} onerror="this.style.display='none'">`
+    }
     ${caption}
   </div>
   ${isGeneratedImage ? '<script>const vscode = acquireVsCodeApi();</script>' : ''}
