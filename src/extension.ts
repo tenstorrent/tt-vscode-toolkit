@@ -26,6 +26,9 @@ import { LessonRegistry } from './utils';
 import { StateManager, ProgressTracker } from './state';
 import { LessonTreeDataProvider, LessonWebviewManager } from './views';
 
+// Telemetry monitoring imports
+import { TelemetryMonitor } from './telemetry/TelemetryMonitor';
+
 // ============================================================================
 // Global State
 // ============================================================================
@@ -3866,6 +3869,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Create Webview Manager
   const webviewManager = new LessonWebviewManager(context, lessonRegistry, progressTracker);
 
+  // Initialize telemetry monitor for hardware status
+  const telemetryMonitor = new TelemetryMonitor(context);
+
   // Note: Tree item clicks are handled via the command property set in LessonTreeDataProvider
   // No need for onDidChangeSelection handler - it would cause lessons to open twice
 
@@ -3948,6 +3954,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // RISC-V Exploration Guide
     vscode.commands.registerCommand('tenstorrent.showRiscvGuide', () => showRiscvGuide(context)),
+
+    // Telemetry details
+    vscode.commands.registerCommand('tenstorrent.showTelemetryDetails', () => {
+      vscode.window.showInformationMessage(
+        'Detailed telemetry view coming soon! See statusbar for current hardware metrics.',
+        'OK'
+      );
+    }),
 
     // Walkthrough management commands
     vscode.commands.registerCommand('tenstorrent.openWalkthrough', openWalkthrough),
