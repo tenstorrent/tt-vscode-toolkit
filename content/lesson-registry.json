@@ -314,15 +314,46 @@
         "stable"
       ],
       "previousLesson": "vllm-production",
-      "nextLesson": "coding-assistant",
+      "nextLesson": "video-generation-ttmetal",
       "estimatedMinutes": 20
+    },
+    {
+      "id": "video-generation-ttmetal",
+      "title": "Video Generation with Stable Diffusion 3.5",
+      "description": "Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
+      "category": "advanced",
+      "order": 9,
+      "markdownFile": "content/lessons/video-generation-ttmetal.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.startInteractiveImageGen"
+      ],
+      "tags": [
+        "hardware",
+        "video",
+        "image",
+        "generation",
+        "diffusion",
+        "stable",
+        "scaling"
+      ],
+      "previousLesson": "image-generation",
+      "nextLesson": "coding-assistant",
+      "estimatedMinutes": 30
     },
     {
       "id": "coding-assistant",
       "title": "Coding Assistant with Prompt Engineering",
       "description": "Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn how to shape model behavior through system prompts - a critical real-world skill!",
       "category": "applications",
-      "order": 9,
+      "order": 10,
       "markdownFile": "content/lessons/coding-assistant.md",
       "supportedHardware": [
         "n150",
@@ -342,7 +373,7 @@
         "assistant",
         "model"
       ],
-      "previousLesson": "image-generation",
+      "previousLesson": "video-generation-ttmetal",
       "nextLesson": "forge-image-classification",
       "estimatedMinutes": 10
     },
@@ -351,7 +382,7 @@
       "title": "Image Classification with TT-Forge",
       "description": "Explore TT-Forge - Tenstorrent's MLIR-based compiler that brings PyTorch models to TT hardware! Start with validated models like MobileNetV2 for image classification. Learn forge.compile(), experiment with supported architectures, and understand the path to high-level model deployment.",
       "category": "compilers",
-      "order": 10,
+      "order": 11,
       "markdownFile": "content/lessons/forge-image-classification.md",
       "supportedHardware": [
         "n150"
@@ -378,7 +409,7 @@
       "title": "JAX Inference with TT-XLA",
       "description": "Master TT-XLA - Tenstorrent's production-ready XLA-based compiler! Simple wheel installation, JAX integration via PJRT, and multi-chip support. Perfect for cloud environments with locked Python/tt-metal versions. Works with Python 3.10+, no rebuilding required!",
       "category": "compilers",
-      "order": 11,
+      "order": 12,
       "markdownFile": "content/lessons/tt-xla-jax.md",
       "supportedHardware": [
         "n150",
@@ -407,7 +438,7 @@
       "title": "RISC-V Programming on Tensix Cores",
       "description": "Explore 880 RISC-V processors on a single chip! Program the five RISC-V cores (BRISC, NCRISC, TRISC0/1/2) inside each Tensix. Learn bare-metal programming, NoC communication, and parallel computing at scale. Includes comprehensive exploration guide.",
       "category": "advanced",
-      "order": 12,
+      "order": 13,
       "markdownFile": "content/lessons/riscv-programming.md",
       "supportedHardware": [
         "n150",
@@ -432,7 +463,7 @@
       "title": "Bounty Program: Model Bring-Up",
       "description": "Learn how to contribute to the Tenstorrent Bounty Program by bringing up new models. Master TT-Metal while becoming part of the open-source ecosystem. Uses the successful Phi-3 contribution as a case study.",
       "category": "advanced",
-      "order": 13,
+      "order": 14,
       "markdownFile": "content/lessons/bounty-program-model-bringup.md",
       "supportedHardware": [
         "n150",
@@ -459,7 +490,7 @@
       "title": "Exploring TT-Metalium",
       "description": "Discover what's possible with TT-Metalium! Explore TTNN tutorials, browse the model zoo, and dive into programming examples. Learn the architecture, try Jupyter notebooks, and find inspiration for your own projects.",
       "category": "advanced",
-      "order": 14,
+      "order": 15,
       "markdownFile": "content/lessons/explore-metalium.md",
       "supportedHardware": [
         "n150",
@@ -488,7 +519,7 @@
       "title": "TT-Metalium Cookbook",
       "description": "Build creative projects with TT-Metalium! Work through 4 complete cookbook recipes: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, and Image Filters. Deploy all templates with one command and start coding!",
       "category": "advanced",
-      "order": 15,
+      "order": 16,
       "markdownFile": "content/lessons/metalium-cookbook.md",
       "supportedHardware": [
         "n150",
