@@ -13,7 +13,7 @@
 import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import * as path from 'path';
-import { TelemetryData, ScaledTelemetry, TelemetryError } from './TelemetryTypes';
+import { TelemetryData, TelemetryError } from './TelemetryTypes';
 
 export class TelemetryMonitor {
     private statusBarItem: vscode.StatusBarItem;
@@ -30,9 +30,10 @@ export class TelemetryMonitor {
         this.statusBarItem.command = 'tenstorrent.showTelemetryDetails';
         context.subscriptions.push(this.statusBarItem);
 
-        // Paths (use tt-metal Python environment)
-        this.pythonPath = '/home/user/tt-metal/python_env/bin/python3';
-        this.scriptPath = path.join(__dirname, 'telemetryReader.py');
+        // Paths (use system Python - script only needs subprocess and json)
+        this.pythonPath = 'python3';
+        // Use extension path for reliable script location
+        this.scriptPath = path.join(context.extensionPath, 'dist', 'src', 'telemetry', 'telemetryReader.py');
 
         // Start monitoring
         this.startMonitoring();
@@ -57,8 +58,7 @@ export class TelemetryMonitor {
                 return;
             }
 
-            const scaled = this.scaleTelemetry(telemetry);
-            this.updateStatusBar(scaled);
+            this.updateStatusBar(telemetry);
 
         } catch (error) {
             this.showError(`Telemetry error: ${error}`);
@@ -87,33 +87,14 @@ export class TelemetryMonitor {
         });
     }
 
-    private scaleTelemetry(raw: TelemetryData): ScaledTelemetry {
-        // Apply scaling factors from tt-metal telemetry_provider.cpp
-        return {
-            asicTemp: this.scaleTemperature(raw.asic_temp),
-            boardTemp: this.scaleTemperature(raw.board_temp),
-            aiClock: (raw.aiclk & 0xffff),  // Mask to get MHz
-            power: (raw.tdp & 0xffff),      // Already in Watts
-            current: (raw.tdc & 0xffff),    // Already in Amperes
-            voltage: (raw.vcore & 0xffffffff) / 1000,  // millivolts to volts
-            fanSpeed: (raw.fan_speed & 0xffffffff),
-        };
-    }
-
-    private scaleTemperature(raw: number): number {
-        // From telemetry_provider.cpp: mask and scale
-        const masked = (raw & 0xffffffff);
-        return masked * (1.0 / 65536.0);
-    }
-
-    private updateStatusBar(telemetry: ScaledTelemetry) {
+    private updateStatusBar(telemetry: TelemetryData) {
         // Color-coded status based on temperature
-        const tempIcon = this.getTempIcon(telemetry.asicTemp);
+        const tempIcon = this.getTempIcon(telemetry.asic_temp);
 
         // Format: 🌡️ 45°C | ⚡ 12.5W | 🔊 1200MHz
-        const text = `${tempIcon} ${telemetry.asicTemp.toFixed(1)}°C | ` +
+        const text = `${tempIcon} ${telemetry.asic_temp.toFixed(1)}°C | ` +
                     `⚡ ${telemetry.power.toFixed(1)}W | ` +
-                    `🔊 ${telemetry.aiClock}MHz`;
+                    `🔊 ${telemetry.aiclk}MHz`;
 
         this.statusBarItem.text = text;
         this.statusBarItem.tooltip = this.buildTooltip(telemetry);
@@ -127,15 +108,17 @@ export class TelemetryMonitor {
         return '⚠️';                      // Critical
     }
 
-    private buildTooltip(telemetry: ScaledTelemetry): string {
+    private buildTooltip(telemetry: TelemetryData): string {
         return `Tenstorrent Hardware Status\n\n` +
-               `ASIC Temperature: ${telemetry.asicTemp.toFixed(1)}°C\n` +
-               `Board Temperature: ${telemetry.boardTemp.toFixed(1)}°C\n` +
-               `AI Clock: ${telemetry.aiClock} MHz\n` +
+               `Board: ${telemetry.board_type.toUpperCase()}\n` +
+               `ASIC Temperature: ${telemetry.asic_temp.toFixed(1)}°C\n` +
+               `Board Temperature: ${telemetry.board_temp.toFixed(1)}°C\n` +
+               `AI Clock: ${telemetry.aiclk} MHz\n` +
                `Power: ${telemetry.power.toFixed(1)} W\n` +
                `Current: ${telemetry.current.toFixed(1)} A\n` +
                `Voltage: ${telemetry.voltage.toFixed(2)} V\n` +
-               `Fan Speed: ${telemetry.fanSpeed} RPM\n\n` +
+               `PCI Bus: ${telemetry.pci_bus}\n\n` +
+               `Source: Linux sysfs (hwmon)\n` +
                `Click for details`;
     }
 

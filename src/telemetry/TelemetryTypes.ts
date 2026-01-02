@@ -1,34 +1,22 @@
 /**
  * Telemetry Types for Tenstorrent Hardware Monitoring
  *
- * Raw telemetry data from Python script needs scaling to human-readable units.
+ * Data read from Linux sysfs (hwmon + Tenstorrent driver attributes).
+ * Completely non-invasive - just reading kernel-exposed values.
  */
 
 /**
- * Raw telemetry values from tt_umd library
- * These need scaling before display
+ * Telemetry data from sysfs hwmon interface (already scaled to human-readable values)
  */
 export interface TelemetryData {
-    asic_temp: number;    // Raw value (needs masking and scaling)
-    board_temp: number;   // Raw value (needs masking and scaling)
-    aiclk: number;        // Raw value (needs masking to get MHz)
-    tdp: number;          // Raw value (needs masking to get Watts)
-    tdc: number;          // Raw value (needs masking to get Amperes)
-    vcore: number;        // Raw value in millivolts
-    fan_speed: number;    // Raw value (RPM)
-}
-
-/**
- * Scaled telemetry values ready for display
- */
-export interface ScaledTelemetry {
-    asicTemp: number;     // °C
-    boardTemp: number;    // °C
-    aiClock: number;      // MHz
-    power: number;        // Watts
-    current: number;      // Amperes
-    voltage: number;      // Volts
-    fanSpeed: number;     // RPM
+    asic_temp: number;    // °C (from hwmon temp1_input)
+    board_temp: number;   // °C (same as asic_temp)
+    aiclk: number;        // MHz (from tt_aiclk sysfs attribute)
+    power: number;        // Watts (from hwmon power1_input)
+    voltage: number;      // Volts (from hwmon in0_input)
+    current: number;      // Amperes (from hwmon curr1_input)
+    board_type: string;   // e.g., "n150", "n300", "p100" (from tt_card_type)
+    pci_bus: string;      // PCI bus ID (e.g., "0000:01:00.0")
 }
 
 /**
