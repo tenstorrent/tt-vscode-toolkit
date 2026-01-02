@@ -126,183 +126,194 @@ output = compiled_model(input_tensor)
 
 ---
 
-## Step 1: Install TT-XLA
+## Step 1: Install TT-Forge
+
+**⚠️ IMPORTANT - Read Before Starting:**
+
+This is an **experimental compiler** with a complex build process. **Expect 45-60 minutes of compilation time** including LLVM (6719 targets!). This lesson is **optional** and recommended only for advanced users comfortable with build systems.
+
+**For production workloads:**
+- Use **TT-Metal direct API** (Lessons 1-5) - stable, well-documented
+- Use **TT-XLA** (Lesson 12) - production-ready, wheel install, multi-chip
+
+**Continue with TT-Forge only if you:**
+- ✅ Want to experiment with the latest compiler technology
+- ✅ Are comfortable troubleshooting build issues
+- ✅ Have 45-60 minutes for compilation
+- ✅ Understand this is beta software
 
 **Prerequisites:**
-- tt-metal already installed and working (from Lessons 1-10)
-- tt-mlir toolchain must be built first
-- clang-17 installed (for building)
-- Build tools: `sudo apt install build-essential cmake ninja-build clang-17`
-
-**⚠️ IMPORTANT:** TT-XLA currently supports **Nebula boards only** (N150/N300/T3K). Galaxy board support is coming soon (as of December 2025).
-
----
-
-### Step 1a: Install and Build TT-MLIR Toolchain
-
-TT-XLA depends on the tt-mlir toolchain. You need to build it first:
-
-```bash
-# Clone tt-mlir
-cd ~
-git clone https://github.com/tenstorrent/tt-mlir.git
-cd tt-mlir
-
-# Create Python virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Build tt-mlir toolchain
-cmake -G Ninja -B build
-cmake --build build
-
-# Set environment variable (add to ~/.bashrc for persistence)
-export TTMLIR_TOOLCHAIN_DIR=~/tt-mlir/build
-```
-
-**Verify tt-mlir installation:**
-```bash
-ls $TTMLIR_TOOLCHAIN_DIR/bin/ttmlir-opt
-# Should show: /home/user/tt-mlir/build/bin/ttmlir-opt
-```
+- tt-metal already installed and working (Lessons 1-10)
+- Python 3.11 (we'll install it)
+- clang-17 (we'll install it)
+- At least 15GB free disk space
+- N150 hardware (single-chip only - no multi-chip support)
 
 ---
 
-### Step 1b: Build TT-XLA from Source
+### Install Required Tools
 
-Now build TT-XLA against your tt-mlir toolchain:
+**1. Install Python 3.11:**
+
+TT-Forge requires Python 3.11 (different from tt-metal's 3.10).
 
 ```bash
-# Clone tt-xla
-cd ~
-git clone https://github.com/tenstorrent/tt-xla.git
-cd tt-xla
-
-# Activate Python environment (or create new one)
-python3 -m venv venv
-source venv/bin/activate
-
-# Ensure clang-17 is used
-export CC=clang-17
-export CXX=clang++-17
-
-# Build tt-xla
-cmake -G Ninja -B build
-cmake --build build
-
-# Install Python package
-pip install -e .
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update
+sudo apt-get install -y python3.11 python3.11-venv python3.11-dev python3.11-distutils
 ```
 
-**Build time:** 15-30 minutes depending on your system.
+**2. Install clang-17:**
+
+TT-Forge must be built with clang-17.
+
+```bash
+sudo apt-get install -y clang-17
+```
+
+**3. Create compiler symlinks (CRITICAL!):**
+
+The build system looks for `clang` and `clang++` but you have `clang-17`. Create symlinks:
+
+```bash
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-17 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 100
+```
+
+**Verify:**
+```bash
+clang --version    # Should show clang version 17
+clang++ --version  # Should show clang version 17
+```
+
+---
+
+### Build TT-Forge from Source
+
+**⚠️ Expected build time: 45-60 minutes** (LLVM compilation is slow)
 - **Python 3.11** (will be installed in build steps - required by JAX 0.7.1)
 
-**Build steps:**
+**Complete build process:**
 
 ```bash
-# 0. CRITICAL: Clear environment variables first
+# 0. CRITICAL: Clear tt-metal environment variables (TT-Forge conflicts with them)
 unset TT_METAL_HOME
 unset TT_METAL_VERSION
 
-# 1. Install Python 3.11 (required by JAX 0.7.1)
-sudo apt-get update
-sudo apt-get install -y python3.11 python3.11-venv python3.11-dev
+# 1. Create toolchain directories (user-owned, no sudo needed)
+mkdir -p /home/$USER/ttforge-toolchain /home/$USER/ttmlir-toolchain
 
-# 2. Create user-owned toolchain directories (avoid permission issues)
-mkdir -p ~/ttforge-toolchain ~/ttmlir-toolchain
-
-# 3. Clone tt-forge-fe
+# 2. Clone tt-forge-fe repository
 cd ~
 git clone https://github.com/tenstorrent/tt-forge-fe.git
 cd tt-forge-fe
 
-# 4. Configure to use user directories and Python 3.11
-export TTFORGE_TOOLCHAIN_DIR=~/ttforge-toolchain
-export TTMLIR_TOOLCHAIN_DIR=~/ttmlir-toolchain
+# 3. Set environment variables (MUST use absolute paths - CMake doesn't expand ~)
+export TTFORGE_TOOLCHAIN_DIR=/home/$USER/ttforge-toolchain
+export TTMLIR_TOOLCHAIN_DIR=/home/$USER/ttmlir-toolchain
 export TTFORGE_PYTHON_VERSION=python3.11
+export CC=/usr/bin/clang-17
+export CXX=/usr/bin/clang++-17
 
-# 5. Initialize environment (sets up paths, uses env vars above)
-source env/activate
-
-# 6. Initialize submodules (includes tt-mlir)
+# 4. Initialize submodules (includes LLVM, tt-mlir, flatbuffers)
 git submodule update --init --recursive
 
-# 7. Build the environment (creates venv with python3.11, installs deps - takes 10-20 min)
+# 5. Build the environment (creates Python 3.11 venv, installs dependencies)
+# ⏰ TIME WARNING: This step takes 45-60 minutes!
+# - Builds flatbuffers (~2 minutes)
+# - Builds LLVM (~40 minutes, 6719 targets)
+# - Builds TT-MLIR (~5 minutes)
+# - Installs Python packages (~3 minutes)
 cmake -B env/build env
 cmake --build env/build
 
-# 8. Re-activate to ensure venv is active
+# 6. Activate the environment
 source env/activate
 
-# 9. Build TT-Forge-FE
-cmake -G Ninja -B build -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
-cmake --build build
-
-# 10. Install additional dependencies for our classifier
-pip install pillow requests tabulate
+# 7. Verify installation
+python -c "import forge; print('✓ TT-Forge installed successfully!')"
 ```
 
-**Note:** If you don't have clang-17, install it:
-```bash
-wget https://apt.llvm.org/llvm.sh
-chmod u+x llvm.sh
-sudo ./llvm.sh 17
-```
+**⚠️ Common Build Issues:**
 
-**Why build from source?**
-- ✅ Built against YOUR exact tt-metal version (no symbol mismatches)
-- ✅ Can update both repos in sync
-- ✅ Better for development and experimentation
-- ✅ Most reliable for teaching environments
-- ✅ Uses user directories (no permission issues)
+**Error: "CMake Error: CMAKE_C_COMPILER: clang not found"**
+→ Fix: Create symlinks (see step 3 in "Install Required Tools" above)
 
-**Build time:** 10-20 minutes (one-time cost)
+**Error: "CMAKE doesn't expand ~ in paths"**
+→ Fix: Use absolute paths `/home/$USER/` not `~/`
 
-**Note:** We use `~/ttforge-toolchain` and `~/ttmlir-toolchain` instead of `/opt/` to avoid permission issues.
+**Build hangs or takes forever:**
+→ Expected: LLVM compilation is SLOW (40+ minutes is normal)
+
+**Why use absolute paths?**
+- CMake doesn't expand `~` (tilde) in environment variables
+- Using `/home/$USER/` ensures paths work correctly
+
+**Why 45-60 minutes?**
+- LLVM has 6719 compile targets (40 minutes alone)
+- Flatbuffers: 44 targets (~2 minutes)
+- TT-MLIR: Several hundred targets (~5 minutes)
+- Python dependencies: ~3 minutes
+- **Total: 45-60 minutes depending on CPU**
+
+**Build artifacts:**
+- `~/tt-forge-fe/` - Source code and built binaries
+- `/home/$USER/ttforge-toolchain/` - Python environment
+- `/home/$USER/ttmlir-toolchain/` - MLIR compiler tools
 
 [🔨 Build TT-Forge from Source](command:tenstorrent.buildForgeFromSource)
 
-### **Option B: Wheel Installation (Quick but May Fail)**
+---
 
-If you need quick installation and are willing to troubleshoot version issues:
+### Environment Setup Helper Script
 
+**✨ Pro tip:** The extension creates `~/tt-scratchpad/setup-tt-forge.sh` to handle environment setup automatically!
+
+**What it does:**
+- Unsets tt-metal variables (prevents conflicts)
+- Sets absolute paths for toolchain directories
+- Sets compiler paths (clang-17)
+- Activates TT-Forge Python environment
+- Shows environment status
+
+**Usage:**
 ```bash
-# CRITICAL: Clear environment variables first
-unset TT_METAL_HOME
-unset TT_METAL_VERSION
-
-# Create and activate venv
-python3 -m venv ~/tt-forge-venv
-source ~/tt-forge-venv/bin/activate
-
-# Install wheels
-pip install tt_forge_fe --extra-index-url https://pypi.eng.aws.tenstorrent.com/
-pip install tt_tvm --extra-index-url https://pypi.eng.aws.tenstorrent.com/
-pip install pillow torch torchvision requests tabulate
+source ~/tt-scratchpad/setup-tt-forge.sh
+# Now your environment is ready for TT-Forge!
 ```
 
-**Note:** Wheels are built against specific tt-metal versions. If you get `ImportError: undefined symbol` errors, use Option A instead.
+**Manual equivalent:**
+```bash
+unset TT_METAL_HOME
+unset TT_METAL_VERSION
+export TTFORGE_TOOLCHAIN_DIR=/home/$USER/ttforge-toolchain
+export TTMLIR_TOOLCHAIN_DIR=/home/$USER/ttmlir-toolchain
+export TTFORGE_PYTHON_VERSION=python3.11
+export CC=/usr/bin/clang-17
+export CXX=/usr/bin/clang++-17
+source ~/tt-forge-fe/env/activate
+```
 
-[🚀 Install TT-Forge (Wheel)](command:tenstorrent.installForge)
+**When switching back to tt-metal:**
+```bash
+deactivate  # Exit TT-Forge environment
+source ~/tt-metal/python_env/bin/activate
+export TT_METAL_HOME=~/tt-metal  # Restore variable
+```
 
 ---
 
-## Step 2: Test Installation
+## Step 2: Verify Installation
 
-**Quick sanity check:**
+**Quick sanity check - does forge import?**
 
-Verify `forge` module loads:
-
-**If you built from source (Option A):**
 ```bash
+# Use the helper script (easiest)
+source ~/tt-scratchpad/setup-tt-forge.sh
+
+# OR manually set up environment
 cd ~/tt-forge-fe
 source env/activate
-python3 -c "import forge; print(f'✓ TT-Forge {forge.__version__} loaded successfully\!')"
-```
-
-**If you used wheels (Option B):**
-```bash
-source ~/tt-forge-venv/bin/activate
 python3 -c "import forge; print(f'✓ TT-Forge {forge.__version__} loaded successfully\!')"
 ```
 
@@ -311,37 +322,13 @@ Expected output (version will vary):
 ✓ TT-Forge 0.4.0.dev20250917 loaded successfully!
 ```
 
-**If you see `ImportError: undefined symbol` errors:**
-
-This usually means TT-Forge was built against a different version of TT-Metal than what's on your system. TT-Forge is under active development (as of December 2025) and version compatibility is still being stabilized.
-
-**Workaround options:**
-
-**Option 1: Skip version check (recommended for now)**
-```bash
-# Just verify the package installed
-source ~/tt-forge-venv/bin/activate
-pip list | grep forge
-```
-
-You should see `tt_forge_fe` and `tt_tvm` in the list. The actual test will be whether the classifier script works.
-
-**Option 2: Use Docker (if available)**
-Docker images have pre-matched versions:
-```bash
-docker pull ghcr.io/tenstorrent/tt-forge-fe-slim:latest
-```
-
-**Option 3: Build from source**
-For bleeding-edge compatibility, build tt-forge-fe from source against your tt-metal installation. See: https://github.com/tenstorrent/tt-forge-fe
-
 **Device detection:**
 
 ```bash
-tt-smi
+tt-smi -s
 ```
 
-Should show your N150/N300 device is detected.
+Should show your N150 device is detected (use `-s` flag for cloud environments where TUI may not work).
 
 [🔍 Test Forge Installation](command:tenstorrent.testForgeInstall)
 
@@ -456,8 +443,13 @@ for i in range(5):
 The script downloads a sample cat image and classifies it:
 
 ```bash
+# Set up TT-Forge environment
+source ~/tt-scratchpad/setup-tt-forge.sh
+
+# Navigate to scripts directory
 cd ~/tt-scratchpad
-source ~/tt-forge-venv/bin/activate
+
+# Run the classifier
 python tt-forge-classifier.py
 ```
 
@@ -505,8 +497,11 @@ Top 5 Predictions:
 **Try your own photos!**
 
 ```bash
+# Set up TT-Forge environment
+source ~/tt-scratchpad/setup-tt-forge.sh
+
+# Navigate to scripts directory
 cd ~/tt-scratchpad
-source ~/tt-forge-venv/bin/activate
 
 # Classify your dog
 python tt-forge-classifier.py --image ~/Pictures/dog.jpg
@@ -701,66 +696,80 @@ ImportError: /path/to/libTTMLIRRuntime.so: undefined symbol: _ZN4ttnn...
 
 **ROOT CAUSE #1: Environment Variable Pollution (90% of cases)**
 
-Before anything else, check if you have conflicting environment variables:
+Before anything else, use the environment setup helper script:
 
 ```bash
-# Check for problematic variables
-echo $TT_METAL_HOME
-echo $TT_METAL_VERSION
-
-# If either shows a value, UNSET THEM:
-unset TT_METAL_HOME
-unset TT_METAL_VERSION
-
-# Try running forge again
-cd ~/tt-forge-fe && source env/activate
-python3 -c "import forge; print('Success!')"
+source ~/tt-scratchpad/setup-tt-forge.sh
 ```
 
-**Why this happens:**
-- These variables cause forge to load TT-Metal from outdated system paths
-- Even if you built from source, forge ignores your build and loads the wrong version
-- See [GitHub issue #529](https://github.com/tenstorrent/tt-forge/issues/529) for details
+This script automatically:
+- Unsets `TT_METAL_HOME` and `TT_METAL_VERSION` (prevents conflicts)
+- Sets compiler paths (clang-17)
+- Sets toolchain directories with absolute paths
+- Activates the Python 3.11 environment
 
-**Make it permanent:**
+**Why this happens:**
+- TT-Forge requires unsetting tt-metal variables to avoid build conflicts
+- The setup script handles this automatically
+- See lesson Step 1 for manual environment setup if needed
+
+**Alternative - Manual setup:**
 ```bash
-# Add to ~/.bashrc to prevent future issues
-echo 'unset TT_METAL_HOME' >> ~/.bashrc
-echo 'unset TT_METAL_VERSION' >> ~/.bashrc
+unset TT_METAL_HOME
+unset TT_METAL_VERSION
+export TTFORGE_TOOLCHAIN_DIR=/home/$USER/ttforge-toolchain
+export TTMLIR_TOOLCHAIN_DIR=/home/$USER/ttmlir-toolchain
+export TTFORGE_PYTHON_VERSION=python3.11
+export CC=/usr/bin/clang-17
+export CXX=/usr/bin/clang++-17
+source ~/tt-forge-fe/env/activate
 ```
 
 ---
 
-**ROOT CAUSE #2: Version Mismatch (10% of cases)**
+**ROOT CAUSE #2: Compiler Not Found (Common during build)**
 
-If unsetting variables doesn't help, then it's a true version mismatch:
-
-**A. Skip forge import test**
-The import check is just verification - the actual model compilation might still work. Skip directly to Step 3 (creating the classifier script) and try running it. Many times the runtime compatibility is better than the import-time checks suggest.
-
-**B. Match TT-Metal version**
-Check which TT-Metal version your forge was built against:
-```bash
-# In tt-forge-venv
-pip show tt_forge_fe
+**Error:**
+```text
+CMake Error: CMAKE_C_COMPILER: clang not found
 ```
 
-Look at the release date, then checkout the corresponding tt-metal commit from around that time.
+**What it means:** Build system can't find clang/clang++ (it looks for those names, not clang-17).
 
-**C. Use Docker (if available)**
-Docker images have pre-matched versions:
+**Fix:**
 ```bash
-docker run -it --rm --device /dev/tenstorrent \
-  ghcr.io/tenstorrent/tt-forge-fe-slim:latest
+# Create symlinks so 'clang' points to 'clang-17'
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-17 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 100
+
+# Verify
+clang --version    # Should show clang version 17
+clang++ --version  # Should show clang version 17
 ```
 
-**D. Build from source**
-Clone tt-forge-fe and build against your exact tt-metal installation:
-```bash
-git clone https://github.com/tenstorrent/tt-forge-fe.git
-cd tt-forge-fe
-# Follow build instructions in README
+Then retry the build.
+
+---
+
+**ROOT CAUSE #3: CMake Path Errors**
+
+**Error:**
+```text
+CMake Error: TTFORGE_TOOLCHAIN_DIR not found at ~/ttforge-toolchain
 ```
+
+**What it means:** CMake doesn't expand tilde (`~`) in environment variables.
+
+**Fix - Use absolute paths:**
+```bash
+# WRONG (CMake won't expand ~)
+export TTFORGE_TOOLCHAIN_DIR=~/ttforge-toolchain
+
+# RIGHT (Use absolute path)
+export TTFORGE_TOOLCHAIN_DIR=/home/$USER/ttforge-toolchain
+```
+
+The setup script uses absolute paths automatically.
 
 **2. Compilation Errors**
 
@@ -807,22 +816,18 @@ ERROR: Could not find a version that satisfies the requirement jax==0.7.1
 ERROR: Ignored the following versions that require a different python version: ... Requires-Python >=3.11
 ```
 
-**Cause:** JAX 0.7.1 requires Python >=3.11. The build process needs Python 3.11 specifically.
+**Cause:** JAX 0.7.1 requires Python >=3.11. TT-Forge requires Python 3.11 specifically.
 
-**Solution:** The build steps now include Python 3.11 installation:
+**Solution:** The build steps in this lesson include Python 3.11 installation. If you see this error, verify:
+
 ```bash
-sudo apt-get update
-sudo apt-get install -y python3.11 python3.11-venv python3.11-dev
+python --version  # Should show Python 3.11.x
+
+# If not, source the setup script:
+source ~/tt-scratchpad/setup-tt-forge.sh
 ```
 
-Then set `TTFORGE_PYTHON_VERSION` BEFORE sourcing the activate script:
-```bash
-cd ~/tt-forge-fe
-export TTFORGE_PYTHON_VERSION=python3.11
-source env/activate
-```
-
-The `env/activate` script defaults to `python3.11`, but explicitly setting it ensures the correct version is used when creating the venv.
+The setup script ensures the correct Python 3.11 environment is activated.
 
 **6. Performance Issues**
 

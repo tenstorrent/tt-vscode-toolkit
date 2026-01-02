@@ -22,7 +22,7 @@ estimatedMinutes: 10
 
 # TT-Metalium Cookbook: Build Creative Projects
 
-Welcome to the TT-Metalium Cookbook! In this lesson, you'll build **four complete projects** from scratch, each teaching different aspects of programming Tenstorrent hardware.
+Welcome to the TT-Metalium Cookbook! In this lesson, you'll build **five complete projects** from scratch, each teaching different aspects of programming Tenstorrent hardware.
 
 ## What You'll Build
 
@@ -30,6 +30,7 @@ Welcome to the TT-Metalium Cookbook! In this lesson, you'll build **four complet
 2. **🎵 Audio Processor** - Real-time mel-spectrogram and audio effects
 3. **🌀 Mandelbrot Explorer** - GPU-style fractal rendering with zoom/pan
 4. **🖼️ Custom Image Filters** - Creative visual effects and artistic filters
+5. **🌌 Particle Life** - Emergent complexity simulator with N² force calculations
 
 Each project is a **complete, working application** with full source code, visual output, and extension ideas.
 
@@ -39,6 +40,7 @@ These projects teach fundamental techniques used in production models:
 - **Audio Processor** → Spectrograms (Whisper speech recognition)
 - **Mandelbrot** → Parallel pixel processing (Stable Diffusion 3.5)
 - **Image Filters** → 2D convolutions (ResNet50, MobileNetV2, ViT)
+- **Particle Life** → N² algorithms (pairwise interactions, physics simulation)
 
 ---
 
@@ -558,6 +560,16 @@ def step_with_age(self, grid):
 
     return aged
 ```
+
+---
+
+### Example Output
+
+![Game of Life Animation](../../assets/img/game_of_life.gif)
+
+*Classic "Gosper Glider Gun" pattern generating infinite gliders on TT hardware. This demonstrates how simple convolution rules create complex emergent behavior.*
+
+---
 
 ### 4. 3D Game of Life
 Extend to 3D volumes (more complex rules):
@@ -1455,6 +1467,14 @@ def process_block(self, audio_block):
 
 ---
 
+### Example Output
+
+![Mel-Spectrogram Visualization](../../assets/img/mel_spectrogram.png)
+
+*Mel-spectrogram of a music sample processed on TT hardware. Shows frequency components over time, similar to what Whisper uses for speech recognition.*
+
+---
+
 # Recipe 3: Mandelbrot Explorer 🌀
 
 ## Overview
@@ -2015,6 +2035,22 @@ for size in [512, 1024, 2048, 4096]:
 
 ---
 
+### Example Output
+
+**Classic Mandelbrot Set:**
+
+![Mandelbrot Set](../../assets/img/mandelbrot.png)
+
+*Full Mandelbrot set rendered at 2048x2048 resolution. The intricate fractal patterns emerge from the simple equation z = z² + c.*
+
+**Julia Set Comparison:**
+
+![Julia Sets](../../assets/img/julia.png)
+
+*Six different Julia sets side-by-side, each with different complex parameter c. Notice how slight changes in c create dramatically different patterns.*
+
+---
+
 # Recipe 4: Custom Image Filters 🖼️
 
 ## Overview
@@ -2346,11 +2382,212 @@ Combine multiple exposures.
 
 ---
 
+# Recipe 5: Particle Life - Emergent Complexity Simulator 🌌
+
+## Overview
+
+Particle Life is an emergent complexity simulator where different particle species interact based on randomly generated attraction/repulsion rules. Simple physics creates unpredictable and beautiful patterns.
+
+**Features:**
+- Multiple particle species with unique interaction rules
+- Massively parallel N² force calculations (~2B+ per simulation)
+- Real-time physics simulation (forces, velocities, integration)
+- Beautiful visualization of emergent patterns
+- Infinite variations (every run creates a unique universe)
+
+**Why This Project:**
+- ✅ Demonstrates N² algorithms (all-pairs calculations)
+- ✅ Emergent complexity from simple rules
+- ✅ Physics simulation techniques
+- ✅ Shows mastery of parallel computing on TT hardware
+
+**Time:** 30 minutes
+**Difficulty:** Intermediate
+
+---
+
+## Quick Start
+
+[🌌 Create Particle Life Project](command:tenstorrent.createParticleLife)
+
+This creates the full project in `~/tt-scratchpad/cookbook/particle_life/`.
+
+---
+
+## Example Output
+
+![Particle Life Simulation](../../assets/img/particle_life.gif)
+
+*500 frames of emergent patterns. Red, green, and blue species interact based on randomly generated attraction/repulsion rules. Order emerges from chaos, then dissolves back into chaos. No two runs are ever the same.*
+
+**Simulation details:**
+- 2,048 particles (3 species)
+- 4,194,304 force calculations per frame
+- 2,097,152,000 total calculations
+- ~192 seconds runtime on N150
+- Demonstrates parallel computing and emergent complexity
+
+---
+
+## Running the Project
+
+**Quick start:**
+
+[🌌 Run Particle Life Simulation](command:tenstorrent.runParticleLife)
+
+**Manual commands:**
+
+```bash
+cd ~/tt-scratchpad/cookbook/particle_life
+
+# Run simulation (creates particle_life.gif)
+python test_particle_life.py
+
+# Or run directly with custom parameters
+python particle_life.py --num-particles 2048 --num-steps 500 --species 3
+```
+
+**What you'll see:**
+
+```text
+Initializing Particle Life simulation...
+✓ TT device opened
+✓ 2,048 particles across 3 species
+✓ Random attraction matrix generated
+
+Simulating 500 steps...
+Step 50/500... 100/500... 150/500... 200/500... 250/500... 300/500... 350/500... 400/500... 450/500... 500/500
+
+Rendering animation...
+✓ Animation saved to: particle_life.gif
+
+Simulation complete!
+- Total force calculations: 2,097,152,000
+- Runtime: 192.8 seconds
+- Performance: ~10.9 million calculations/second
+```
+
+---
+
+## The Science
+
+**Interaction Rules:**
+
+Each species pair has an attraction/repulsion value:
+- Positive values → attraction (particles move together)
+- Negative values → repulsion (particles avoid each other)
+- Zero → neutral (no interaction)
+
+**Example interaction matrix:**
+```
+       Red    Green   Blue
+Red    0.1    -0.5     0.3
+Green  0.2     0.0    -0.4
+Blue  -0.3     0.6     0.1
+```
+
+This means:
+- Red particles slightly attract each other
+- Red particles repel green particles
+- Red particles attract blue particles
+- And so on...
+
+**Emergent Behaviors:**
+
+From these simple rules, complex patterns emerge:
+- Clustering (species group together)
+- Chasing (predator-prey dynamics)
+- Orbiting (stable circular patterns)
+- Chaos (dissolving into randomness)
+- Reformation (order emerging from chaos)
+
+---
+
+## Extensions
+
+### 1. More Species
+Try 5-7 species for more complex interactions:
+
+```bash
+python particle_life.py --species 7
+```
+
+### 2. Larger Simulations
+Scale up particle count:
+
+```bash
+python particle_life.py --num-particles 4096 --num-steps 300
+```
+
+### 3. Custom Interaction Rules
+Modify the attraction matrix in `particle_life.py` to create specific behaviors:
+
+```python
+# Predator-prey setup
+interactions = np.array([
+    [ 0.1, -0.8,  0.0],  # Predators repel each other, chase prey
+    [ 0.6,  0.0, -0.5],  # Prey attract each other, flee predators
+    [-0.3,  0.4,  0.2],  # Scavengers avoid predators, attracted to prey
+])
+```
+
+### 4. Add Obstacles
+Introduce boundary conditions or obstacles:
+
+```python
+# Add walls
+def apply_boundaries(positions):
+    # Bounce off walls
+    positions = np.clip(positions, 0.1, 0.9)
+    return positions
+```
+
+### 5. 3D Particle Life
+Extend to three dimensions:
+
+```python
+# 3D positions and forces
+positions_3d = np.random.rand(num_particles, 3)
+# Calculate forces in 3D space
+```
+
+---
+
+## What You Learned
+
+- **N² algorithms:** All-pairs calculations (particle-to-particle forces)
+- **Physics simulation:** Forces, velocities, numerical integration
+- **Emergent complexity:** Simple rules → unpredictable patterns
+- **Parallel computing:** Structuring workloads for TT hardware
+- **Scientific visualization:** Data → insights → beauty
+
+**This recipe demonstrates:** Going from tutorial concepts to novel creation. You learned the fundamentals in earlier recipes, now you're creating something completely original!
+
+---
+
+## Learn More
+
+**Inspiration:**
+- [Particle Life](https://particle-life.com/) - Original web-based simulator
+- Artificial Life research
+- Chaos theory and complexity science
+
+**Related recipes:**
+- Recipe 1 (Game of Life) → Cellular automata emergence
+- Recipe 3 (Mandelbrot) → Parallel pixel processing
+
+**Contribute:**
+- Share your custom interaction rules on Discord
+- Create 3D visualizations
+- Add new particle behaviors
+
+---
+
 # Wrapping Up
 
 Congratulations! You've completed the TT-Metalium Cookbook. You now have:
 
-- ✅ **4 complete, working projects**
+- ✅ **5 complete, working projects**
 - ✅ **Deep understanding of TTNN operations**
 - ✅ **Experience with parallel tile computing**
 - ✅ **Foundation for production applications**
