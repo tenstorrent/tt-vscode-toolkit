@@ -70,7 +70,7 @@ export class TelemetryMonitor {
             child_process.exec(
                 `${this.pythonPath} ${this.scriptPath}`,
                 { timeout: 3000 },
-                (error, stdout, stderr) => {
+                (error, stdout, _stderr) => {
                     if (error) {
                         reject(error);
                         return;

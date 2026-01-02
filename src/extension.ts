@@ -3869,8 +3869,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Create Webview Manager
   const webviewManager = new LessonWebviewManager(context, lessonRegistry, progressTracker);
 
-  // Initialize telemetry monitor for hardware status
-  const telemetryMonitor = new TelemetryMonitor(context);
+  // Initialize telemetry monitor for hardware status (side effects only - registers statusbar)
+  void new TelemetryMonitor(context);
 
   // Note: Tree item clicks are handled via the command property set in LessonTreeDataProvider
   // No need for onDidChangeSelection handler - it would cause lessons to open twice
