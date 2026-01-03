@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.207",
+  "version": "0.0.208",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -547,7 +547,7 @@
     "vscode:prepublish": "npm run build",
     "build": "npm run clean && tsc -p ./ && npm run copy-content",
     "clean": "rm -rf dist/",
-    "copy-content": "mkdir -p dist/content dist/src/webview dist/assets/img dist/themes && cp -r content/lessons dist/content/ && cp -r content/templates dist/content/ && cp -r content/pages dist/content/ && cp content/lesson-registry.json dist/content/ && cp -r src/webview/* dist/src/webview/ && cp -r assets/img/* dist/assets/img/ && cp -r themes/* dist/themes/",
+    "copy-content": "mkdir -p dist/content dist/src/webview dist/src/telemetry dist/assets/img dist/themes && cp -r content/lessons dist/content/ && cp -r content/templates dist/content/ && cp -r content/pages dist/content/ && cp -r content/projects dist/content/ && cp content/lesson-registry.json dist/content/ && cp -r src/webview/* dist/src/webview/ && cp src/telemetry/*.py dist/src/telemetry/ 2>/dev/null || true && cp -r assets/img/* dist/assets/img/ && cp -r themes/* dist/themes/",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
     "compile": "tsc -p ./",

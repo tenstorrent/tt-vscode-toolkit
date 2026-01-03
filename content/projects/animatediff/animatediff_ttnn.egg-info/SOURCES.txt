@@ -1,0 +1,11 @@
+README.md
+setup.py
+animatediff_ttnn/__init__.py
+animatediff_ttnn/pipeline.py
+animatediff_ttnn/temporal_module.py
+animatediff_ttnn.egg-info/PKG-INFO
+animatediff_ttnn.egg-info/SOURCES.txt
+animatediff_ttnn.egg-info/dependency_links.txt
+animatediff_ttnn.egg-info/entry_points.txt
+animatediff_ttnn.egg-info/requires.txt
+animatediff_ttnn.egg-info/top_level.txt
