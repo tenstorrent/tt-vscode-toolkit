@@ -11,7 +11,9 @@
 export interface TelemetryData {
     asic_temp: number;    // °C (from hwmon temp1_input)
     board_temp: number;   // °C (same as asic_temp)
-    aiclk: number;        // MHz (from tt_aiclk sysfs attribute)
+    aiclk: number;        // MHz - Tensix AI cores clock (from tt_aiclk sysfs attribute)
+    arcclk: number;       // MHz - ARC processor clock (from tt_arcclk)
+    axiclk: number;       // MHz - AXI bus clock (from tt_axiclk)
     power: number;        // Watts (from hwmon power1_input)
     voltage: number;      // Volts (from hwmon in0_input)
     current: number;      // Amperes (from hwmon curr1_input)

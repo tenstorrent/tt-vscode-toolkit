@@ -514,6 +514,45 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'cd ~/tt-scratchpad/cookbook/image_filters && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 filters.py',
     description: 'Runs image filter examples (edge detect, blur, sharpen, emboss)',
   },
+
+  // ========================================
+  // Lesson 17: Native Video Animation with AnimateDiff
+  // ========================================
+
+  INSTALL_ANIMATEDIFF: {
+    id: 'install-animatediff',
+    name: 'Install AnimateDiff Package',
+    template: 'cd ~/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff package installed successfully\')"',
+    description: 'Install the animatediff-ttnn standalone package',
+  },
+
+  RUN_ANIMATEDIFF_2FRAME: {
+    id: 'run-animatediff-2frame',
+    name: 'Run 2-Frame Demo',
+    template: 'cd ~/tt-animatediff && python3 examples/generate_2frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
+    description: 'Test temporal attention with minimal 2-frame sequence',
+  },
+
+  RUN_ANIMATEDIFF_16FRAME: {
+    id: 'run-animatediff-16frame',
+    name: 'Run 16-Frame Demo',
+    template: 'cd ~/tt-animatediff && python3 examples/generate_16frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
+    description: 'Generate full 16-frame animated sequence with temporal coherence',
+  },
+
+  VIEW_ANIMATEDIFF_OUTPUT: {
+    id: 'view-animatediff-output',
+    name: 'View Generated Animation',
+    template: 'ls -lh ~/tt-animatediff/output/test_16frame.gif && echo "\n✓ Animation generated: ~/tt-animatediff/output/test_16frame.gif"',
+    description: 'View the generated 16-frame animation file',
+  },
+
+  GENERATE_ANIMATEDIFF_VIDEO_SD35: {
+    id: 'generate-animatediff-video-sd35',
+    name: 'Generate Animated Video with SD 3.5',
+    template: 'cd ~/tt-animatediff && python3 examples/generate_with_sd35.py 2>&1 | grep -v "DEBUG\\|Config{"',
+    description: 'Generate animated video using SD 3.5 + AnimateDiff temporal attention (GNU cinemagraph)',
+  },
 };
 
 /**

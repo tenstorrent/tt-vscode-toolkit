@@ -57,6 +57,8 @@ def read_device_telemetry(device_path):
     # Read basic device info
     card_type = read_sysfs_value(os.path.join(device_path, 'tt_card_type'))
     aiclk = read_sysfs_value(os.path.join(device_path, 'tt_aiclk'))
+    arcclk = read_sysfs_value(os.path.join(device_path, 'tt_arcclk'))
+    axiclk = read_sysfs_value(os.path.join(device_path, 'tt_axiclk'))
 
     # Get PCI bus ID from device symlink
     device_link = os.path.join(device_path, 'device')
@@ -101,6 +103,8 @@ def read_device_telemetry(device_path):
         "asic_temp": temp if temp is not None else 0.0,
         "board_temp": temp if temp is not None else 0.0,  # Use same temp for both
         "aiclk": int(aiclk) if aiclk else 0,
+        "arcclk": int(arcclk) if arcclk else 0,
+        "axiclk": int(axiclk) if axiclk else 0,
         "power": power if power is not None else 0.0,
         "voltage": voltage if voltage is not None else 0.0,
         "current": current if current is not None else 0.0,

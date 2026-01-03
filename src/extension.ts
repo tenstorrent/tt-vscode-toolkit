@@ -3559,6 +3559,94 @@ async function runImageFilters(): Promise<void> {
 }
 
 // ============================================================================
+// Lesson 17: Native Video Animation with AnimateDiff
+// ============================================================================
+
+/**
+ * Command: tenstorrent.installAnimateDiff
+ * Installs the animatediff-ttnn standalone package
+ */
+async function installAnimateDiff(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_ANIMATEDIFF.template);
+  vscode.window.showInformationMessage(
+    '📦 Installing AnimateDiff package... Check terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runAnimateDiff2Frame
+ * Tests temporal attention with minimal 2-frame sequence
+ */
+async function runAnimateDiff2Frame(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_2FRAME.template);
+  vscode.window.showInformationMessage(
+    '🎬 Running 2-frame temporal attention test...'
+  );
+}
+
+/**
+ * Command: tenstorrent.runAnimateDiff16Frame
+ * Generates full 16-frame animated sequence
+ */
+async function runAnimateDiff16Frame(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_16FRAME.template);
+  vscode.window.showInformationMessage(
+    '🎥 Generating 16-frame animated sequence... This will take a moment.'
+  );
+}
+
+/**
+ * Command: tenstorrent.viewAnimateDiffOutput
+ * Views the generated animation file
+ */
+async function viewAnimateDiffOutput(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.VIEW_ANIMATEDIFF_OUTPUT.template);
+}
+
+/**
+ * Command: tenstorrent.generateAnimateDiffVideoSD35
+ * Generates animated video using SD 3.5 + AnimateDiff (gnu cinemagraph)
+ */
+async function generateAnimateDiffVideoSD35(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.GENERATE_ANIMATEDIFF_VIDEO_SD35.template);
+  vscode.window.showInformationMessage(
+    '🎬 Generating animated video with SD 3.5 + AnimateDiff! This will take 5-7 minutes on N150...'
+  );
+}
+
+/**
+ * Command: tenstorrent.viewAnimateDiffTutorial
+ * Opens the comprehensive model bring-up tutorial
+ */
+async function viewAnimateDiffTutorial(): Promise<void> {
+  const tutorialPath = vscode.Uri.file(
+    `${process.env.HOME}/tt-animatediff/MODEL_BRINGUP_TUTORIAL.md`
+  );
+  const doc = await vscode.workspace.openTextDocument(tutorialPath);
+  await vscode.window.showTextDocument(doc, { preview: false });
+  vscode.window.showInformationMessage(
+    '📖 Opened model bring-up tutorial - complete walkthrough from research to implementation!'
+  );
+}
+
+/**
+ * Command: tenstorrent.exploreAnimateDiffPackage
+ * Opens the AnimateDiff package directory in explorer
+ */
+async function exploreAnimateDiffPackage(): Promise<void> {
+  const packagePath = vscode.Uri.file(`${process.env.HOME}/tt-animatediff`);
+  await vscode.commands.executeCommand('revealFileInOS', packagePath);
+  vscode.window.showInformationMessage(
+    '📂 Opening AnimateDiff package directory...'
+  );
+}
+
+// ============================================================================
 // Command Menu
 // ============================================================================
 
@@ -4199,6 +4287,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runMandelbrotJulia', runMandelbrotJulia),
     vscode.commands.registerCommand('tenstorrent.runAudioProcessor', runAudioProcessor),
     vscode.commands.registerCommand('tenstorrent.runImageFilters', runImageFilters),
+
+    // Lesson 17 - Native Video Animation with AnimateDiff
+    vscode.commands.registerCommand('tenstorrent.installAnimateDiff', installAnimateDiff),
+    vscode.commands.registerCommand('tenstorrent.runAnimateDiff2Frame', runAnimateDiff2Frame),
+    vscode.commands.registerCommand('tenstorrent.runAnimateDiff16Frame', runAnimateDiff16Frame),
+    vscode.commands.registerCommand('tenstorrent.viewAnimateDiffOutput', viewAnimateDiffOutput),
+    vscode.commands.registerCommand('tenstorrent.generateAnimateDiffVideoSD35', generateAnimateDiffVideoSD35),
+    vscode.commands.registerCommand('tenstorrent.viewAnimateDiffTutorial', viewAnimateDiffTutorial),
+    vscode.commands.registerCommand('tenstorrent.exploreAnimateDiffPackage', exploreAnimateDiffPackage),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),

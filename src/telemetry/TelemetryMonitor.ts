@@ -122,7 +122,12 @@ export class TelemetryMonitor {
                `Board: ${telemetry.board_type.toUpperCase()}\n` +
                `ASIC Temperature: ${telemetry.asic_temp.toFixed(1)}°C\n` +
                `Board Temperature: ${telemetry.board_temp.toFixed(1)}°C\n` +
-               `AI Clock: ${telemetry.aiclk} MHz\n` +
+               `\n` +
+               `Clocks:\n` +
+               `  AI (Tensix): ${telemetry.aiclk} MHz\n` +
+               `  ARC: ${telemetry.arcclk} MHz\n` +
+               `  AXI Bus: ${telemetry.axiclk} MHz\n` +
+               `\n` +
                `Power: ${telemetry.power.toFixed(1)} W\n` +
                `Current: ${telemetry.current.toFixed(1)} A\n` +
                `Voltage: ${telemetry.voltage.toFixed(2)} V\n` +
