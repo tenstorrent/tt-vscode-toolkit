@@ -1,0 +1,3 @@
+[console_scripts]
+animatediff-demo = examples.generate_2frame_video:generate_2frame_demo
+
