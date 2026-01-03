@@ -23,6 +23,8 @@ export class TelemetryMonitor {
     private onTelemetryUpdate?: (telemetry: TelemetryData) => void;
 
     constructor(context: vscode.ExtensionContext, onTelemetryUpdate?: (telemetry: TelemetryData) => void) {
+        console.log('[TelemetryMonitor] Initializing...');
+
         // Create statusbar item (right side, high priority)
         this.statusBarItem = vscode.window.createStatusBarItem(
             vscode.StatusBarAlignment.Right,
@@ -36,6 +38,9 @@ export class TelemetryMonitor {
         // Use extension path for reliable script location
         this.scriptPath = path.join(context.extensionPath, 'dist', 'src', 'telemetry', 'telemetryReader.py');
 
+        console.log(`[TelemetryMonitor] Script path: ${this.scriptPath}`);
+        console.log(`[TelemetryMonitor] Callback registered: ${onTelemetryUpdate ? 'YES' : 'NO'}`);
+
         // Store callback
         this.onTelemetryUpdate = onTelemetryUpdate;
 
@@ -44,6 +49,8 @@ export class TelemetryMonitor {
     }
 
     private startMonitoring() {
+        console.log('[TelemetryMonitor] Starting monitoring (5s interval)');
+
         // Update immediately
         this.updateTelemetry();
 
@@ -55,21 +62,28 @@ export class TelemetryMonitor {
 
     private async updateTelemetry() {
         try {
+            console.log('[TelemetryMonitor] Reading telemetry...');
             const telemetry = await this.readTelemetry();
 
             if ('error' in telemetry) {
+                console.error('[TelemetryMonitor] Telemetry error:', telemetry.error);
                 this.showError(telemetry.error);
                 return;
             }
 
+            console.log('[TelemetryMonitor] Telemetry received:', telemetry);
             this.updateStatusBar(telemetry);
 
             // Notify callback (e.g., for logo animation)
             if (this.onTelemetryUpdate) {
+                console.log('[TelemetryMonitor] Invoking callback with telemetry');
                 this.onTelemetryUpdate(telemetry);
+            } else {
+                console.warn('[TelemetryMonitor] No callback registered - animation will not update');
             }
 
         } catch (error) {
+            console.error('[TelemetryMonitor] Exception:', error);
             this.showError(`Telemetry error: ${error}`);
         }
     }

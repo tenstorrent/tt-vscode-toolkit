@@ -547,6 +547,14 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'View the generated 16-frame animation file',
   },
 
+  SETUP_ANIMATEDIFF_PROJECT: {
+    id: 'setup-animatediff-project',
+    name: 'Setup AnimateDiff Project',
+    template: 'mkdir -p ~/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-animatediff/ && cd ~/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-animatediff/\')"',
+    description: 'Copies AnimateDiff project from extension to ~/tt-animatediff and installs it',
+    variables: ['projectPath'],
+  },
+
   GENERATE_ANIMATEDIFF_VIDEO_SD35: {
     id: 'generate-animatediff-video-sd35',
     name: 'Generate Animated Video with SD 3.5',
