@@ -519,14 +519,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // Lesson 17: Native Video Animation with AnimateDiff
   // ========================================
 
-  SETUP_ANIMATEDIFF_PROJECT: {
-    id: 'setup-animatediff-project',
-    name: 'Setup AnimateDiff Project',
-    template: 'mkdir -p ~/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-animatediff/ && cd ~/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-animatediff/\')"',
-    description: 'Copies AnimateDiff project from extension to ~/tt-animatediff and installs it',
-    variables: ['projectPath'],
-  },
-
   INSTALL_ANIMATEDIFF: {
     id: 'install-animatediff',
     name: 'Install AnimateDiff Package',
@@ -551,8 +543,16 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   VIEW_ANIMATEDIFF_OUTPUT: {
     id: 'view-animatediff-output',
     name: 'View Generated Animation',
-    template: 'ls -lh ~/tt-animatediff/output/test_16frame.gif && echo "\\n✓ Animation generated: ~/tt-animatediff/output/test_16frame.gif"',
+    template: 'ls -lh ~/tt-animatediff/output/test_16frame.gif && echo "\n✓ Animation generated: ~/tt-animatediff/output/test_16frame.gif"',
     description: 'View the generated 16-frame animation file',
+  },
+
+  SETUP_ANIMATEDIFF_PROJECT: {
+    id: 'setup-animatediff-project',
+    name: 'Setup AnimateDiff Project',
+    template: 'mkdir -p ~/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-animatediff/ && cd ~/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-animatediff/\')"',
+    description: 'Copies AnimateDiff project from extension to ~/tt-animatediff and installs it',
+    variables: ['projectPath'],
   },
 
   GENERATE_ANIMATEDIFF_VIDEO_SD35: {

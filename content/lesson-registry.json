@@ -321,7 +321,7 @@
       "id": "video-generation-ttmetal",
       "title": "Video Generation with Stable Diffusion 3.5",
       "description": "Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
-      "category": "advanced",
+      "category": "serving",
       "order": 9,
       "markdownFile": "content/lessons/video-generation-ttmetal.md",
       "supportedHardware": [
@@ -330,8 +330,10 @@
         "t3k",
         "p100"
       ],
-      "status": "draft",
-      "validatedOn": [],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "completionEvents": [
         "onCommand:tenstorrent.startInteractiveImageGen"
       ],
@@ -541,7 +543,38 @@
         "coding"
       ],
       "previousLesson": "explore-metalium",
+      "nextLesson": "animatediff-video-generation",
       "estimatedMinutes": 10
+    },
+    {
+      "id": "animatediff-video-generation",
+      "title": "Native Video Animation with AnimateDiff",
+      "description": "Learn to build standalone packages outside tt-metal! Integrate AnimateDiff temporal attention to create animated videos. Master the complete model bring-up workflow - from research to production. Perfect for subtle motion effects like blinking eyes, screen flickers, and cinemagraphs.",
+      "category": "applications",
+      "order": 17,
+      "markdownFile": "content/lessons/animatediff-video-generation.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runAnimateDiff2Frame"
+      ],
+      "tags": [
+        "video",
+        "animation",
+        "model",
+        "standalone",
+        "diffusion"
+      ],
+      "previousLesson": "metalium-cookbook",
+      "estimatedMinutes": 30
     }
   ],
   "lastUpdated": "2025-12-29T13:00:00.000Z"

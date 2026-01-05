@@ -27,6 +27,9 @@ import { StateManager, ProgressTracker } from './state';
 import { LessonTreeDataProvider, LessonWebviewManager } from './views';
 import { EnvironmentManager } from './services/EnvironmentManager';
 
+// Telemetry monitoring imports
+import { TelemetryMonitor } from './telemetry/TelemetryMonitor';
+
 // ============================================================================
 // Global State
 // ============================================================================
@@ -3572,6 +3575,51 @@ async function runImageFilters(): Promise<void> {
 // ============================================================================
 
 /**
+ * Command: tenstorrent.installAnimateDiff
+ * Installs the animatediff-ttnn standalone package
+ */
+async function installAnimateDiff(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_ANIMATEDIFF.template);
+  vscode.window.showInformationMessage(
+    '📦 Installing AnimateDiff package... Check terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runAnimateDiff2Frame
+ * Tests temporal attention with minimal 2-frame sequence
+ */
+async function runAnimateDiff2Frame(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_2FRAME.template);
+  vscode.window.showInformationMessage(
+    '🎬 Running 2-frame temporal attention test...'
+  );
+}
+
+/**
+ * Command: tenstorrent.runAnimateDiff16Frame
+ * Generates full 16-frame animated sequence
+ */
+async function runAnimateDiff16Frame(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_16FRAME.template);
+  vscode.window.showInformationMessage(
+    '🎥 Generating 16-frame animated sequence... This will take a moment.'
+  );
+}
+
+/**
+ * Command: tenstorrent.viewAnimateDiffOutput
+ * Views the generated animation file
+ */
+async function viewAnimateDiffOutput(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.VIEW_ANIMATEDIFF_OUTPUT.template);
+}
+
+/**
  * Command: tenstorrent.setupAnimateDiffProject
  * Sets up the AnimateDiff project from the bundled extension files
  */
@@ -3595,42 +3643,6 @@ async function setupAnimateDiffProject(): Promise<void> {
 }
 
 /**
- * Command: tenstorrent.installAnimateDiff
- * Installs the AnimateDiff package
- */
-async function installAnimateDiff(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
-  runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_ANIMATEDIFF.template);
-}
-
-/**
- * Command: tenstorrent.runAnimateDiff2Frame
- * Runs 2-frame AnimateDiff demo
- */
-async function runAnimateDiff2Frame(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
-  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_2FRAME.template);
-}
-
-/**
- * Command: tenstorrent.runAnimateDiff16Frame
- * Runs 16-frame AnimateDiff demo
- */
-async function runAnimateDiff16Frame(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
-  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_16FRAME.template);
-}
-
-/**
- * Command: tenstorrent.viewAnimateDiffOutput
- * Views the generated animation output
- */
-async function viewAnimateDiffOutput(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
-  runInTerminal(terminal, TERMINAL_COMMANDS.VIEW_ANIMATEDIFF_OUTPUT.template);
-}
-
-/**
  * Command: tenstorrent.generateAnimateDiffVideoSD35
  * Generates animated video using SD 3.5 + AnimateDiff (gnu cinemagraph)
  */
@@ -3650,16 +3662,23 @@ async function viewAnimateDiffTutorial(): Promise<void> {
   const tutorialPath = vscode.Uri.file(
     `${process.env.HOME}/tt-animatediff/MODEL_BRINGUP_TUTORIAL.md`
   );
-  await vscode.commands.executeCommand('markdown.showPreview', tutorialPath);
+  const doc = await vscode.workspace.openTextDocument(tutorialPath);
+  await vscode.window.showTextDocument(doc, { preview: false });
+  vscode.window.showInformationMessage(
+    '📖 Opened model bring-up tutorial - complete walkthrough from research to implementation!'
+  );
 }
 
 /**
  * Command: tenstorrent.exploreAnimateDiffPackage
- * Opens the AnimateDiff package directory in the explorer
+ * Opens the AnimateDiff package directory in explorer
  */
 async function exploreAnimateDiffPackage(): Promise<void> {
   const packagePath = vscode.Uri.file(`${process.env.HOME}/tt-animatediff`);
   await vscode.commands.executeCommand('revealFileInOS', packagePath);
+  vscode.window.showInformationMessage(
+    '📂 Opening AnimateDiff package directory...'
+  );
 }
 
 // ============================================================================
@@ -3801,6 +3820,32 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
+   * Update telemetry data in the logo animation
+   * @param telemetry Telemetry data from hardware
+   */
+  public updateTelemetry(telemetry: any): void {
+    console.log('[ImagePreviewProvider] updateTelemetry called');
+    console.log('[ImagePreviewProvider] _view:', this._view ? 'EXISTS' : 'NULL');
+    console.log('[ImagePreviewProvider] _currentImage:', this._currentImage ? this._currentImage : 'NULL (showing logo)');
+
+    if (this._view && !this._currentImage) {
+      // Only animate logo when not showing an image
+      console.log('[ImagePreviewProvider] Sending postMessage to webview:', telemetry);
+      this._view.webview.postMessage({
+        command: 'updateTelemetry',
+        telemetry: telemetry
+      });
+    } else {
+      if (!this._view) {
+        console.warn('[ImagePreviewProvider] Cannot send telemetry - webview not initialized');
+      }
+      if (this._currentImage) {
+        console.log('[ImagePreviewProvider] Skipping telemetry - showing generated image');
+      }
+    }
+  }
+
+  /**
    * Update the preview to show a specific image or video
    * @param imagePath Absolute path to the image or video file
    */
@@ -3841,7 +3886,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       isGeneratedImage = true;
       caption = `<div class="caption">${path.basename(imagePath)}</div>`;
     } else {
-      // Show default logo
+      // Show default logo with telemetry animation
       imageUri = webview.asWebviewUri(
         vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'img', 'tt_logo_color_dark_backgrounds.svg')
       );
@@ -3851,6 +3896,146 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     const clickHandler = isGeneratedImage
       ? 'ondblclick="vscode.postMessage({ command: \'openImage\' })" style="cursor: pointer;" title="Double-click to open in editor, right-click to save"'
       : '';
+
+    // Add telemetry animation script only for logo (not generated images)
+    const telemetryScript = !isGeneratedImage ? `
+<script>
+  const vscode = acquireVsCodeApi();
+
+  console.log('[Telemetry Animation] Script loaded');
+
+  // Current and target telemetry values
+  let currentTelemetry = {
+    temp: 40,
+    power: 15,
+    clock: 1000
+  };
+  let targetTelemetry = { ...currentTelemetry };
+
+  // Animation state
+  let animationFrame = null;
+  let lastUpdate = Date.now();
+  let messageCount = 0;
+  let animationCount = 0;
+
+  // Listen for telemetry updates
+  window.addEventListener('message', event => {
+    const message = event.data;
+    console.log('[Telemetry Animation] Message received:', message);
+
+    if (message.command === 'updateTelemetry' && message.telemetry) {
+      messageCount++;
+      targetTelemetry = {
+        temp: message.telemetry.asic_temp || 40,
+        power: message.telemetry.power || 15,
+        clock: message.telemetry.aiclk || 1000
+      };
+      lastUpdate = Date.now();
+      console.log(\`[Telemetry Animation] Update #\${messageCount} - Target:\`, targetTelemetry);
+
+      // Update debug overlay
+      updateDebugOverlay();
+    }
+  });
+
+  // Map telemetry to visual properties
+  function telemetryToVisuals(telemetry) {
+    // Temperature → Hue (blue when cool, orange/red when hot)
+    // 40°C = 200° (blue), 70°C = 30° (orange)
+    const tempHue = Math.max(0, Math.min(360, 200 - (telemetry.temp - 40) * 5.67));
+
+    // Power → Brightness (dim when idle, bright when active)
+    // 10W = 60% brightness, 50W = 100% brightness
+    const brightness = Math.max(60, Math.min(100, 60 + (telemetry.power - 10) * 1));
+
+    // Clock → Animation speed (slower when idle, faster when active)
+    // 500MHz = 2s, 2000MHz = 0.5s
+    const pulseSpeed = Math.max(0.5, Math.min(4, 4 - (telemetry.clock - 500) / 500));
+
+    return { hue: tempHue, brightness, pulseSpeed };
+  }
+
+  // Smooth interpolation (lerp)
+  function lerp(start, end, t) {
+    return start + (end - start) * t;
+  }
+
+  // Update debug overlay with current values
+  function updateDebugOverlay() {
+    const overlay = document.getElementById('debug-overlay');
+    if (overlay) {
+      const visuals = telemetryToVisuals(currentTelemetry);
+      overlay.innerHTML = \`
+        <div style="font-size: 9px; line-height: 1.3;">
+          <strong>Telemetry Animation Debug</strong><br>
+          Messages: \${messageCount} | Frames: \${animationCount}<br>
+          Temp: \${currentTelemetry.temp.toFixed(1)}°C → \${targetTelemetry.temp.toFixed(1)}°C<br>
+          Power: \${currentTelemetry.power.toFixed(1)}W → \${targetTelemetry.power.toFixed(1)}W<br>
+          Clock: \${Math.round(currentTelemetry.clock)} MHz → \${targetTelemetry.clock} MHz<br>
+          <br>
+          <strong>Visual Properties:</strong><br>
+          Hue: \${Math.round(visuals.hue)}° | Brightness: \${Math.round(visuals.brightness)}%<br>
+          Pulse: \${visuals.pulseSpeed.toFixed(2)}s<br>
+          <br>
+          <small>Last update: \${Math.round((Date.now() - lastUpdate) / 1000)}s ago</small>
+        </div>
+      \`;
+    }
+  }
+
+  // Animation loop
+  function animate() {
+    const now = Date.now();
+    const timeSinceUpdate = (now - lastUpdate) / 1000; // seconds
+
+    // Interpolate over 5 seconds (to match telemetry update interval)
+    const t = Math.min(timeSinceUpdate / 5, 1);
+
+    // Smooth interpolation
+    currentTelemetry.temp = lerp(currentTelemetry.temp, targetTelemetry.temp, t * 0.1);
+    currentTelemetry.power = lerp(currentTelemetry.power, targetTelemetry.power, t * 0.1);
+    currentTelemetry.clock = lerp(currentTelemetry.clock, targetTelemetry.clock, t * 0.1);
+
+    // Calculate visual properties
+    const visuals = telemetryToVisuals(currentTelemetry);
+
+    // Apply to logo
+    const logo = document.querySelector('.image-container img');
+    if (logo) {
+      logo.style.filter = \`hue-rotate(\${visuals.hue - 200}deg) brightness(\${visuals.brightness}%)\`;
+      logo.style.animation = \`pulse \${visuals.pulseSpeed}s ease-in-out infinite\`;
+
+      // Log every 60 frames (~1 second at 60fps)
+      if (animationCount % 60 === 0) {
+        console.log(\`[Telemetry Animation] Frame #\${animationCount} - Current:\`, currentTelemetry, 'Visuals:', visuals);
+      }
+    } else if (animationCount % 60 === 0) {
+      console.warn('[Telemetry Animation] Logo element not found!');
+    }
+
+    animationCount++;
+
+    // Update debug overlay every 30 frames
+    if (animationCount % 30 === 0) {
+      updateDebugOverlay();
+    }
+
+    animationFrame = requestAnimationFrame(animate);
+  }
+
+  // Start animation when DOM is ready
+  if (document.readyState === 'loading') {
+    console.log('[Telemetry Animation] Waiting for DOM...');
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('[Telemetry Animation] DOM ready, starting animation');
+      animate();
+    });
+  } else {
+    console.log('[Telemetry Animation] DOM already ready, starting animation');
+    animate();
+  }
+</script>
+    ` : '<script>const vscode = acquireVsCodeApi();</script>';
 
     return `<!DOCTYPE html>
 <html style="height: 100%;">
@@ -3890,12 +4075,24 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       object-fit: contain;
       display: block;
       ${isGeneratedImage ? 'border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);' : ''}
+      transition: filter 0.3s ease;
     }
     ${isGeneratedImage ? `
     img:hover, video:hover {
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       transition: box-shadow 0.2s;
-    }` : ''}
+    }` : `
+    /* Pulse animation for logo */
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+    }`}
     .caption {
       margin-top: 4px;
       padding: 2px 4px;
@@ -3918,7 +4115,27 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     }
     ${caption}
   </div>
-  ${isGeneratedImage ? '<script>const vscode = acquireVsCodeApi();</script>' : ''}
+  ${!isGeneratedImage ? `
+  <div id="debug-overlay" style="
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 4px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 9px;
+    line-height: 1.3;
+    max-width: calc(100% - 16px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 1000;
+  ">
+    Initializing telemetry animation...
+  </div>
+  ` : ''}
+  ${telemetryScript}
 </body>
 </html>`;
   }
@@ -3986,6 +4203,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   // Create Webview Manager
   const webviewManager = new LessonWebviewManager(context, lessonRegistry, progressTracker);
+
+  // Initialize telemetry monitor for hardware status (with logo animation callback)
+  void new TelemetryMonitor(context, (telemetry) => {
+    imagePreviewProvider.updateTelemetry(telemetry);
+  });
 
   // Note: Tree item clicks are handled via the command property set in LessonTreeDataProvider
   // No need for onDidChangeSelection handler - it would cause lessons to open twice
@@ -4069,6 +4291,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // RISC-V Exploration Guide
     vscode.commands.registerCommand('tenstorrent.showRiscvGuide', () => showRiscvGuide(context)),
+
+    // Telemetry details
+    vscode.commands.registerCommand('tenstorrent.showTelemetryDetails', () => {
+      vscode.window.showInformationMessage(
+        'Detailed telemetry view coming soon! See statusbar for current hardware metrics.',
+        'OK'
+      );
+    }),
 
     // Walkthrough management commands
     vscode.commands.registerCommand('tenstorrent.openWalkthrough', openWalkthrough),

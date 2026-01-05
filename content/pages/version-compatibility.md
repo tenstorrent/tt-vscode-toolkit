@@ -64,19 +64,48 @@ This guide documents validated combinations of hardware, software versions, and 
   - Large-scale inference workloads
 - **Multi-chip support:** Yes (8 chips)
 
+#### QuietBox (Wormhole-based)
+- **Architecture:** Wormhole (not Blackhole)
+- **Configuration:** Multi-chip Wormhole system
+- **Production validation:** ✅ Validated for vLLM (Batch 32: 22.1 T/S/U, 707.2 T/S)
+- **Best for:** Production inference deployments
+- **Reference:** [Tenstorrent QuietBox](https://tenstorrent.com/hardware/tt-quietbox)
+- **vLLM compatibility:** Fully validated (see README.md performance benchmarks)
+
 ### Blackhole Architecture
 
-#### P100
-- **Architecture:** Blackhole
-- **Best for:** Next-generation performance
+#### P100 (Single Chip)
+- **DRAM:** ~32GB
+- **Tensix Cores:** 140 (14x10 grid, 13x10 available for compute)
+- **Best for:** Next-generation single-chip performance
+- **Recommended models:**
+  - Qwen3-0.6B (0.6B params, 1.5GB) ✅ **Works great**
+  - Llama-3.1-8B-Instruct (8B params, 16GB) ✅ **Comfortable fit**
+- **Enhanced features:**
+  - L1 data cache: 1464 KB with 4x16B cachelines (write-through)
+  - Enhanced NoC: 64B reads (vs 32B on Wormhole)
+  - Ethernet: 14 cores with 512KB L1, 2x RISC-V per core
+  - DRAM: 8 banks with programmable RISC-V, 128KB L1 per bank
 - **Requirements:** `export TT_METAL_ARCH_NAME=blackhole`
-- **Multi-chip support:** Yes
+- **Multi-chip support:** Single chip only
 
-#### P150
-- **Architecture:** Blackhole
-- **Best for:** Next-generation performance
+#### P150 (Configurable: 1, 2, 4, or 8 chips)
+- **DRAM per chip:** ~32GB
+- **Total DRAM:**
+  - P150 x1: ~32GB (single chip)
+  - P150 x2: ~64GB (2 chips)
+  - P150 x4: ~128GB (4 chips)
+  - P150 x8: ~256GB (8 chips)
+- **Tensix Cores per chip:** 140 (14x10 grid, 13x10 available for compute)
+- **Best for:** Scalable multi-chip deployments (70B+ models)
+- **Recommended models:**
+  - P150 x1: Llama-3.1-8B ✅
+  - P150 x2: Llama-3.1-8B (fast), medium models ✅
+  - P150 x4: Llama-3.1-70B ✅
+  - P150 x8: 70B+ models, large-scale inference ✅
+- **Enhanced features:** Same as P100
 - **Requirements:** `export TT_METAL_ARCH_NAME=blackhole`
-- **Multi-chip support:** Yes
+- **Multi-chip support:** Yes (2, 4, or 8 chips via mesh topology)
 
 ### Galaxy (Multi-Node)
 - **Configuration:** Multiple T3K nodes

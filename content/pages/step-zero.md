@@ -350,14 +350,36 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 tt-smi -s | grep -i dram
 ```
 
-**Typical:**
-- N150: 12GB DRAM per chip
+**Wormhole Architecture (N150/N300/T3K/QuietBox):**
+- N150: 12GB DRAM per chip (single chip)
 - N300: 24GB total (2 chips)
 - T3K: 96GB total (8 chips)
+- **QuietBox:** Wormhole-based system (production-validated for vLLM)
+- **Tensix cores:** 8x10 grid (80 cores per chip)
+- **Ethernet:** 16 cores with 256KB L1
+
+**Blackhole Architecture (P100/P150):**
+- P100: ~32GB DRAM (single chip)
+- P150: ~32GB per chip (configurable as 1, 2, 4, or 8 chips)
+  - P150 x1: ~32GB (single chip)
+  - P150 x2: ~64GB (2 chips)
+  - P150 x4: ~128GB (4 chips)
+  - P150 x8: ~256GB (8 chips)
+- **Tensix cores:** 14x10 grid (140 cores per chip, 13x10 available for compute)
+- **Enhanced NoC:** 64B reads (vs 32B on Wormhole), rectangular/strided/L-shaped multicast
+- **L1 data cache:** 1464 KB with 4x16B cachelines (write-through)
+- **Ethernet:** 14 cores with 512KB L1, 2x RISC-V per core
+- **DRAM:** 8 banks with programmable 1x RISC-V, 128KB L1 per bank
+
+**🔧 Important:** Blackhole chips (P100/P150) require:
+```bash
+export TT_METAL_ARCH_NAME=blackhole
+```
 
 **Model sizing:**
-- Qwen3-0.6B: ~1.5GB (fits easily on N150)
-- Llama-3.1-8B: ~16GB (tight on N150, better on N300+)
+- Qwen3-0.6B: ~1.5GB (fits easily on N150 or P100)
+- Llama-3.1-8B: ~16GB (tight on N150, comfortable on P100/N300+)
+- Llama-3.1-70B: ~140GB (requires T3K or P150 x4+)
 
 ### Q: What if I get "ImportError: cannot import name 'ttnn'"?
 **A:** You're not in the tt-metal Python environment.

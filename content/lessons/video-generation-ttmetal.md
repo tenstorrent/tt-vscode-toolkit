@@ -88,7 +88,7 @@ Look for "Board Type" in the output (n150, n300, t3k, p100).
 ```bash
 export MESH_DEVICE=N150
 ```
-**Expected performance:** ~30-45 seconds per 1024x1024 frame
+**Expected performance:** ~4 minutes per 1024x1024 frame (first frame ~5 min with compilation)
 
 ---
 
@@ -96,7 +96,7 @@ export MESH_DEVICE=N150
 ```bash
 export MESH_DEVICE=N300
 ```
-**Expected performance:** ~15-20 seconds per frame (~2x faster than N150)
+**Expected performance:** ~2 minutes per frame (~2x faster than N150)
 
 ---
 
@@ -104,7 +104,7 @@ export MESH_DEVICE=N300
 ```bash
 export MESH_DEVICE=T3K
 ```
-**Expected performance:** ~5-8 seconds per frame (~6x faster than N150)
+**Expected performance:** ~40 seconds per frame (~6x faster than N150)
 
 ---
 
@@ -113,7 +113,7 @@ export MESH_DEVICE=T3K
 export MESH_DEVICE=P100
 export TT_METAL_ARCH_NAME=blackhole
 ```
-**Expected performance:** ~30-45 seconds per frame (similar to N150)
+**Expected performance:** ~4 minutes per frame (similar to N150)
 
 ---
 
@@ -245,53 +245,23 @@ Your retro-futuristic Tenstorrent World's Fair video ad is complete!
 
 **Benchmark your generation:**
 
-If you generated 10 frames on N150 and each took ~40 seconds:
-- **Total time:** 400 seconds (~6.7 minutes)
+If you generated 10 frames on N150 and each took ~4 minutes:
+- **Total time:** 2400 seconds (~40 minutes)
 
 **Same code on larger hardware:**
-- **N300 (2 chips):** ~200 seconds (~3.3 minutes) - **2x faster**
-- **T3K (8 chips):** ~70 seconds (~1.2 minutes) - **6x faster**
-- **Galaxy (32 chips):** ~20 seconds - **20x faster**
+- **N300 (2 chips):** ~1200 seconds (~20 minutes) - **2x faster**
+- **T3K (8 chips):** ~400 seconds (~6.7 minutes) - **6x faster**
+- **Galaxy (32 chips):** ~120 seconds (~2 minutes) - **20x faster**
 
 **This is the TT hardware advantage:** Write for N150, scale to Galaxy with zero code changes!
 
----
-
-## Advanced: Batch Generation Script
-
-For automated generation of many frames, create a script:
-
-```python
-#!/usr/bin/env python3
-"""
-Batch generate video frames with SD 3.5
-"""
-import subprocess
-import time
-from pathlib import Path
-
-# Load prompts
-prompts_file = Path("~/tt-scratchpad/video_prompts.txt").expanduser()
-with open(prompts_file) as f:
-    prompts = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-
-print(f"Generating {len(prompts)} frames...")
-
-for i, prompt in enumerate(prompts):
-    print(f"\n[{i+1}/{len(prompts)}] {prompt[:60]}...")
-
-    # TODO: Call SD 3.5 programmatically
-    # For now, use interactive mode manually
-
-print("\n✓ All frames generated!")
-print("Next: Stitch with ffmpeg")
-```
+**Note:** First frame includes model download and kernel compilation (~4-5 minutes). Subsequent frames are faster as compilation is cached. The timings above reflect warm runs after initial setup.
 
 ---
 
 ## Troubleshooting
 
-### "Generation is very slow (>5 minutes per frame)"
+### "Generation is very slow (>10 minutes per frame)"
 **Likely cause:** Running on CPU, not TT hardware
 
 **Fix:**
@@ -299,11 +269,35 @@ print("Next: Stitch with ffmpeg")
 2. Verify tt-metal installation: `tt-smi`
 3. Check model loaded on TT hardware (look for confirmation in output)
 
+**Note:** Normal N150 performance is ~4 minutes per frame. If you're seeing >10 minutes, it's likely running on CPU.
+
 ### "Out of memory errors"
 **Solution:** Use smaller hardware config or reduce concurrent operations
 
 ### "Frame quality inconsistent"
 **Solution:** Use consistent seeds or add more prompt detail
+
+### "Generation stuck or process killed - can't restart"
+**Problem:** After killing a stuck generation process, device may be in bad state
+
+**Fix:**
+1. Reset the device: `tt-smi -r`
+2. Wait for reset to complete (~30 seconds)
+3. Rerun your script - it will resume from last completed frame
+
+**How resume works:**
+- Script automatically detects existing `frame_*.png` files
+- Skips already-generated frames
+- Continues from where you left off
+- No manual intervention needed!
+
+**Example:**
+```bash
+# If you have frame_000.png through frame_003.png
+# Script automatically resumes from frame_004.png
+tt-smi -r  # Reset device first
+python3 ~/tt-scratchpad/generate_video_frames.py  # Auto-resumes!
+```
 
 ---
 
