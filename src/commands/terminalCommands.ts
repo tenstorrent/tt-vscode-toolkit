@@ -522,43 +522,43 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   INSTALL_ANIMATEDIFF: {
     id: 'install-animatediff',
     name: 'Install AnimateDiff Package',
-    template: 'cd ~/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff package installed successfully\')"',
+    template: 'cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff package installed successfully\')"',
     description: 'Install the animatediff-ttnn standalone package',
   },
 
   RUN_ANIMATEDIFF_2FRAME: {
     id: 'run-animatediff-2frame',
     name: 'Run 2-Frame Demo',
-    template: 'cd ~/tt-animatediff && python3 examples/generate_2frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
+    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_2frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Test temporal attention with minimal 2-frame sequence',
   },
 
   RUN_ANIMATEDIFF_16FRAME: {
     id: 'run-animatediff-16frame',
     name: 'Run 16-Frame Demo',
-    template: 'cd ~/tt-animatediff && python3 examples/generate_16frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
+    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_16frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate full 16-frame animated sequence with temporal coherence',
   },
 
   VIEW_ANIMATEDIFF_OUTPUT: {
     id: 'view-animatediff-output',
     name: 'View Generated Animation',
-    template: 'ls -lh ~/tt-animatediff/output/test_16frame.gif && echo "\n✓ Animation generated: ~/tt-animatediff/output/test_16frame.gif"',
+    template: 'ls -lh ~/tt-scratchpad/tt-animatediff/output/test_16frame.gif && echo "\n✓ Animation generated: ~/tt-scratchpad/tt-animatediff/output/test_16frame.gif"',
     description: 'View the generated 16-frame animation file',
   },
 
   SETUP_ANIMATEDIFF_PROJECT: {
     id: 'setup-animatediff-project',
     name: 'Setup AnimateDiff Project',
-    template: 'mkdir -p ~/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-animatediff/ && cd ~/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-animatediff/\')"',
-    description: 'Copies AnimateDiff project from extension to ~/tt-animatediff and installs it',
+    template: 'mkdir -p ~/tt-scratchpad/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-scratchpad/tt-animatediff/ && cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-scratchpad/tt-animatediff/\')"',
+    description: 'Copies AnimateDiff project from extension to ~/tt-scratchpad/tt-animatediff and installs it',
     variables: ['projectPath'],
   },
 
   GENERATE_ANIMATEDIFF_VIDEO_SD35: {
     id: 'generate-animatediff-video-sd35',
     name: 'Generate Animated Video with SD 3.5',
-    template: 'cd ~/tt-animatediff && python3 examples/generate_with_sd35.py 2>&1 | grep -v "DEBUG\\|Config{"',
+    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_with_sd35.py 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate animated video using SD 3.5 + AnimateDiff temporal attention (GNU cinemagraph)',
   },
 };

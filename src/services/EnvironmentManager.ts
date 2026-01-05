@@ -90,7 +90,24 @@ export class EnvironmentManager {
   }
 
   /**
-   * Set environment for a terminal (auto-activates)
+   * Track terminal for environment status (does NOT auto-activate)
+   *
+   * @param terminal - Terminal to track
+   * @param terminalContext - Terminal context (determines environment)
+   */
+  trackTerminal(
+    terminal: vscode.Terminal,
+    terminalContext: TerminalContext
+  ): void {
+    const envConfig = ENVIRONMENT_REGISTRY[terminalContext];
+
+    // Store environment info for status bar
+    this.activeEnvironments.set(terminal, envConfig);
+    this.updateStatusBar(terminal);
+  }
+
+  /**
+   * Set environment for a terminal (manually activates)
    *
    * @param terminal - Terminal to set environment for
    * @param terminalContext - Terminal context (determines environment)
@@ -117,7 +134,7 @@ export class EnvironmentManager {
     this.activeEnvironments.set(terminal, envConfig);
     this.updateStatusBar(terminal);
 
-    // Auto-activate environment
+    // Manually activate environment (user triggered)
     await this.activateEnvironment(terminal, envConfig);
   }
 
@@ -136,13 +153,6 @@ export class EnvironmentManager {
     // Send activation command
     if (envConfig.activationCommand) {
       terminal.sendText(envConfig.activationCommand);
-    }
-
-    // Show confirmation (only for non-system environments)
-    if (envConfig.id !== 'system') {
-      vscode.window.showInformationMessage(
-        `✓ Activated ${envConfig.displayName} in terminal "${terminal.name}"`
-      );
     }
   }
 

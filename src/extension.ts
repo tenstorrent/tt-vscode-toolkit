@@ -490,12 +490,12 @@ const terminals: Record<TerminalContext, vscode.Terminal | undefined> = {
  * Terminal display names for each context
  */
 const TERMINAL_NAMES: Record<TerminalContext, string> = {
-  'tt-metal': 'Tenstorrent: TT-Metal',
-  'tt-forge': 'Tenstorrent: TT-Forge',
-  'tt-xla': 'Tenstorrent: TT-XLA',
-  'vllm-server': 'Tenstorrent: vLLM Server',
-  'api-server': 'Tenstorrent: API Server',
-  'explore': 'Tenstorrent: Explore',
+  'tt-metal': 'TT: Metal',
+  'tt-forge': 'TT: Forge',
+  'tt-xla': 'TT: XLA',
+  'vllm-server': 'TT: vLLM',
+  'api-server': 'TT: API',
+  'explore': 'TT: Explore',
 };
 
 /**
@@ -528,9 +528,10 @@ function getOrCreateTerminal(context: TerminalContext): vscode.Terminal {
 
   terminals[context] = terminal;
 
-  // Auto-set Python environment for this terminal context
+  // Track environment for status bar (but don't auto-activate)
+  // Users can manually activate environments as needed
   if (environmentManager) {
-    environmentManager.setEnvironment(terminal, context);
+    environmentManager.trackTerminal(terminal, context);
   }
 
   return terminal;
@@ -3638,7 +3639,7 @@ async function setupAnimateDiffProject(): Promise<void> {
   });
   runInTerminal(terminal, command);
   vscode.window.showInformationMessage(
-    '📦 Setting up AnimateDiff project at ~/tt-animatediff/...'
+    '📦 Setting up AnimateDiff project at ~/tt-scratchpad/tt-animatediff/...'
   );
 }
 
@@ -4409,7 +4410,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Create a persistent tt-metal terminal on activation (most common use case)
   // This terminal stays open and can be reused for tt-metal commands
   const defaultTerminal = vscode.window.createTerminal({
-    name: 'Tenstorrent: TT-Metal',
+    name: 'TT: Metal',
     cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
   });
   // Show the terminal by default for better UX

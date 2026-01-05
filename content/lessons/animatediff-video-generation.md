@@ -1,3 +1,27 @@
+---
+id: animatediff-video-generation
+title: Native Video Animation with AnimateDiff
+description: >-
+  Learn to build standalone packages outside tt-metal! Integrate AnimateDiff temporal
+  attention to create animated videos. Master the complete model bring-up workflow -
+  from research to production. Perfect for subtle motion effects like blinking eyes,
+  screen flickers, and cinemagraphs.
+category: advanced
+tags:
+  - animation
+  - video
+  - animatediff
+  - temporal-attention
+  - model-bringup
+supportedHardware:
+  - n150
+  - n300
+  - t3k
+  - p100
+status: validated
+estimatedMinutes: 60
+---
+
 # Native Video Animation with AnimateDiff
 
 **Learn to integrate new model architectures as standalone packages - the path from demos to real applications!**
@@ -95,8 +119,8 @@ Instead of modifying tt-metal, create your own project structure:
 
 ```bash
 # Create your project directory (YOUR code, YOUR ownership)
-mkdir -p ~/tt-animatediff
-cd ~/tt-animatediff
+mkdir -p ~/tt-scratchpad/tt-animatediff
+cd ~/tt-scratchpad/tt-animatediff
 
 # Standard Python package structure
 mkdir -p animatediff_ttnn
@@ -115,7 +139,7 @@ touch requirements.txt                      # Dependencies
 **Project structure:**
 
 ```
-~/tt-animatediff/              # YOUR PROJECT (not in tt-metal!)
+~/tt-scratchpad/tt-animatediff/              # YOUR PROJECT (not in tt-metal!)
 ├── animatediff_ttnn/          # Your package
 │   ├── __init__.py
 │   ├── temporal_module.py     # Temporal attention core
@@ -132,7 +156,7 @@ touch requirements.txt                      # Dependencies
 - Looks like any professional Python package
 - Can be versioned, shared, and deployed independently
 - Uses tt-metal as a dependency, doesn't modify it
-- You can install it: `pip install -e ~/tt-animatediff`
+- You can install it: `pip install -e ~/tt-scratchpad/tt-animatediff`
 
 ---
 
@@ -195,7 +219,7 @@ ls -lh ~/models/animatediff/mm_sd_v15_v2.ckpt
 
 ## Step 4: Implement the Core Module
 
-Let's look at the actual implementation we've created. The full code is at `~/tt-animatediff/`, but here are the key pieces:
+Let's look at the actual implementation we've created. The full code is at `~/tt-scratchpad/tt-animatediff/`, but here are the key pieces:
 
 **File: `animatediff_ttnn/temporal_module.py`**
 
@@ -240,7 +264,7 @@ def temporal_attention_torch(
     v = F.linear(hidden_states, weights.to_v_weight)
 
     # Multi-head attention computation...
-    # (Full implementation in ~/tt-animatediff/animatediff_ttnn/temporal_module.py)
+    # (Full implementation in ~/tt-scratchpad/tt-animatediff/animatediff_ttnn/temporal_module.py)
 
     return output
 ```
@@ -323,7 +347,7 @@ setup(
 Now your package is installable like any Python package:
 
 ```bash
-cd ~/tt-animatediff
+cd ~/tt-scratchpad/tt-animatediff
 pip install -e .  # Editable install - changes reflect immediately
 
 # Test it works
@@ -385,7 +409,7 @@ The complete AnimateDiff package is bundled with this extension! Let's set it up
 [tenstorrent.setupAnimateDiffProject](command:tenstorrent.setupAnimateDiffProject)
 
 This will:
-- Copy the AnimateDiff project from the extension to `~/tt-animatediff/`
+- Copy the AnimateDiff project from the extension to `~/tt-scratchpad/tt-animatediff/`
 - Install the animatediff-ttnn package in editable mode
 - Verify imports work
 - Check that the project is ready to use
@@ -432,7 +456,7 @@ This will:
 - Generate 16-frame sequence with temporal attention
 - Analyze frame-to-frame correlation (should be > 0.7)
 - Export test animation as GIF
-- Show output at `~/tt-animatediff/output/test_16frame.gif`
+- Show output at `~/tt-scratchpad/tt-animatediff/output/test_16frame.gif`
 
 **What success looks like:**
 - Average correlation > 0.6 (strong temporal coherence)
@@ -523,11 +547,11 @@ A complete wrapper script that:
 - Decodes with VAE
 - Exports to video
 
-**Location:** `~/tt-animatediff/examples/generate_with_sd35.py`
+**Location:** `~/tt-scratchpad/tt-animatediff/examples/generate_with_sd35.py`
 
 **Usage:**
 ```bash
-cd ~/tt-animatediff
+cd ~/tt-scratchpad/tt-animatediff
 
 # Generate gnu cinemagraph (default prompt)
 python examples/generate_with_sd35.py
@@ -587,7 +611,7 @@ export_to_mp4(smoothed, "animation.mp4", fps=8)
 
 Add a `return_latents` parameter to SD 3.5's pipeline (3 lines of code):
 
-**Documentation:** See `~/tt-animatediff/docs/option_a_diff.md` for the complete diff
+**Documentation:** See `~/tt-scratchpad/tt-animatediff/docs/option_a_diff.md` for the complete diff
 
 **Key change:**
 ```python

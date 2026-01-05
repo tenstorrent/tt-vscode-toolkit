@@ -4,6 +4,11 @@ dist/
 .DS_Store
 *.vsix
 
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
 # Vendor directory contains reference repos for lesson authoring
 # Clone repos here as needed, but don't commit them
 vendor/
