@@ -3824,24 +3824,12 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
    * @param telemetry Telemetry data from hardware
    */
   public updateTelemetry(telemetry: any): void {
-    console.log('[ImagePreviewProvider] updateTelemetry called');
-    console.log('[ImagePreviewProvider] _view:', this._view ? 'EXISTS' : 'NULL');
-    console.log('[ImagePreviewProvider] _currentImage:', this._currentImage ? this._currentImage : 'NULL (showing logo)');
-
     if (this._view && !this._currentImage) {
       // Only animate logo when not showing an image
-      console.log('[ImagePreviewProvider] Sending postMessage to webview:', telemetry);
       this._view.webview.postMessage({
         command: 'updateTelemetry',
         telemetry: telemetry
       });
-    } else {
-      if (!this._view) {
-        console.warn('[ImagePreviewProvider] Cannot send telemetry - webview not initialized');
-      }
-      if (this._currentImage) {
-        console.log('[ImagePreviewProvider] Skipping telemetry - showing generated image');
-      }
     }
   }
 
@@ -3902,8 +3890,6 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
 <script>
   const vscode = acquireVsCodeApi();
 
-  console.log('[Telemetry Animation] Script loaded');
-
   // Current and target telemetry values
   let currentTelemetry = {
     temp: 40,
@@ -3915,26 +3901,18 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
   // Animation state
   let animationFrame = null;
   let lastUpdate = Date.now();
-  let messageCount = 0;
-  let animationCount = 0;
 
   // Listen for telemetry updates
   window.addEventListener('message', event => {
     const message = event.data;
-    console.log('[Telemetry Animation] Message received:', message);
 
     if (message.command === 'updateTelemetry' && message.telemetry) {
-      messageCount++;
       targetTelemetry = {
         temp: message.telemetry.asic_temp || 40,
         power: message.telemetry.power || 15,
         clock: message.telemetry.aiclk || 1000
       };
       lastUpdate = Date.now();
-      console.log(\`[Telemetry Animation] Update #\${messageCount} - Target:\`, targetTelemetry);
-
-      // Update debug overlay
-      updateDebugOverlay();
     }
   });
 
@@ -3948,39 +3926,12 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     // 10W = 60% brightness, 50W = 100% brightness
     const brightness = Math.max(60, Math.min(100, 60 + (telemetry.power - 10) * 1));
 
-    // Clock → Animation speed (slower when idle, faster when active)
-    // 500MHz = 2s, 2000MHz = 0.5s
-    const pulseSpeed = Math.max(0.5, Math.min(4, 4 - (telemetry.clock - 500) / 500));
-
-    return { hue: tempHue, brightness, pulseSpeed };
+    return { hue: tempHue, brightness };
   }
 
   // Smooth interpolation (lerp)
   function lerp(start, end, t) {
     return start + (end - start) * t;
-  }
-
-  // Update debug overlay with current values
-  function updateDebugOverlay() {
-    const overlay = document.getElementById('debug-overlay');
-    if (overlay) {
-      const visuals = telemetryToVisuals(currentTelemetry);
-      overlay.innerHTML = \`
-        <div style="font-size: 9px; line-height: 1.3;">
-          <strong>Telemetry Animation Debug</strong><br>
-          Messages: \${messageCount} | Frames: \${animationCount}<br>
-          Temp: \${currentTelemetry.temp.toFixed(1)}°C → \${targetTelemetry.temp.toFixed(1)}°C<br>
-          Power: \${currentTelemetry.power.toFixed(1)}W → \${targetTelemetry.power.toFixed(1)}W<br>
-          Clock: \${Math.round(currentTelemetry.clock)} MHz → \${targetTelemetry.clock} MHz<br>
-          <br>
-          <strong>Visual Properties:</strong><br>
-          Hue: \${Math.round(visuals.hue)}° | Brightness: \${Math.round(visuals.brightness)}%<br>
-          Pulse: \${visuals.pulseSpeed.toFixed(2)}s<br>
-          <br>
-          <small>Last update: \${Math.round((Date.now() - lastUpdate) / 1000)}s ago</small>
-        </div>
-      \`;
-    }
   }
 
   // Animation loop
@@ -3999,25 +3950,10 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     // Calculate visual properties
     const visuals = telemetryToVisuals(currentTelemetry);
 
-    // Apply to logo
+    // Apply to logo (color and brightness only)
     const logo = document.querySelector('.image-container img');
     if (logo) {
       logo.style.filter = \`hue-rotate(\${visuals.hue - 200}deg) brightness(\${visuals.brightness}%)\`;
-      logo.style.animation = \`pulse \${visuals.pulseSpeed}s ease-in-out infinite\`;
-
-      // Log every 60 frames (~1 second at 60fps)
-      if (animationCount % 60 === 0) {
-        console.log(\`[Telemetry Animation] Frame #\${animationCount} - Current:\`, currentTelemetry, 'Visuals:', visuals);
-      }
-    } else if (animationCount % 60 === 0) {
-      console.warn('[Telemetry Animation] Logo element not found!');
-    }
-
-    animationCount++;
-
-    // Update debug overlay every 30 frames
-    if (animationCount % 30 === 0) {
-      updateDebugOverlay();
     }
 
     animationFrame = requestAnimationFrame(animate);
@@ -4025,13 +3961,10 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
 
   // Start animation when DOM is ready
   if (document.readyState === 'loading') {
-    console.log('[Telemetry Animation] Waiting for DOM...');
     document.addEventListener('DOMContentLoaded', () => {
-      console.log('[Telemetry Animation] DOM ready, starting animation');
       animate();
     });
   } else {
-    console.log('[Telemetry Animation] DOM already ready, starting animation');
     animate();
   }
 </script>
@@ -4054,7 +3987,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
       padding: 8px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       background: transparent;
       box-sizing: border-box;
@@ -4081,18 +4014,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     img:hover, video:hover {
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       transition: box-shadow 0.2s;
-    }` : `
-    /* Pulse animation for logo */
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.05);
-        opacity: 0.9;
-      }
-    }`}
+    }` : ``}
     .caption {
       margin-top: 4px;
       padding: 2px 4px;
@@ -4115,26 +4037,6 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     }
     ${caption}
   </div>
-  ${!isGeneratedImage ? `
-  <div id="debug-overlay" style="
-    position: absolute;
-    bottom: 4px;
-    left: 4px;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    padding: 4px 6px;
-    border-radius: 3px;
-    font-family: monospace;
-    font-size: 9px;
-    line-height: 1.3;
-    max-width: calc(100% - 16px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    z-index: 1000;
-  ">
-    Initializing telemetry animation...
-  </div>
-  ` : ''}
   ${telemetryScript}
 </body>
 </html>`;
