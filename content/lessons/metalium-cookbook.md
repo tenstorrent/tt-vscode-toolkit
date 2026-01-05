@@ -565,7 +565,7 @@ def step_with_age(self, grid):
 
 ### Example Output
 
-![Game of Life Animation](../../assets/img/game_of_life.gif)
+![Game of Life Animation](/assets/img/game_of_life.gif)
 
 *Classic "Gosper Glider Gun" pattern generating infinite gliders on TT hardware. This demonstrates how simple convolution rules create complex emergent behavior.*
 
@@ -1469,7 +1469,7 @@ def process_block(self, audio_block):
 
 ### Example Output
 
-![Mel-Spectrogram Visualization](../../assets/img/mel_spectrogram.png)
+![Mel-Spectrogram Visualization](/assets/img/mel_spectrogram.png)
 
 *Mel-spectrogram of a music sample processed on TT hardware. Shows frequency components over time, similar to what Whisper uses for speech recognition.*
 
@@ -2039,13 +2039,13 @@ for size in [512, 1024, 2048, 4096]:
 
 **Classic Mandelbrot Set:**
 
-![Mandelbrot Set](../../assets/img/mandelbrot.png)
+![Mandelbrot Set](/assets/img/mandelbrot.png)
 
 *Full Mandelbrot set rendered at 2048x2048 resolution. The intricate fractal patterns emerge from the simple equation z = z² + c.*
 
 **Julia Set Comparison:**
 
-![Julia Sets](../../assets/img/julia.png)
+![Julia Sets](/assets/img/julia.png)
 
 *Six different Julia sets side-by-side, each with different complex parameter c. Notice how slight changes in c create dramatically different patterns.*
 
@@ -2416,7 +2416,7 @@ This creates the full project in `~/tt-scratchpad/cookbook/particle_life/`.
 
 ## Example Output
 
-![Particle Life Simulation](../../assets/img/particle_life.gif)
+![Particle Life Simulation](/assets/img/particle_life.gif)
 
 *500 frames of emergent patterns. Red, green, and blue species interact based on randomly generated attraction/repulsion rules. Order emerges from chaos, then dissolves back into chaos. No two runs are ever the same.*
 

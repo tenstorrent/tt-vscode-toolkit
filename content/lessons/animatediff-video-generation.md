@@ -87,7 +87,56 @@ hidden_states = hidden_states.reshape(batch*spatial, frames, channels)
 
 ---
 
-## Step 1: Research the Architecture
+## Step 1: Create Your Standalone Project
+
+**This is where we diverge from demos and start building applications!**
+
+Instead of modifying tt-metal, create your own project structure:
+
+```bash
+# Create your project directory (YOUR code, YOUR ownership)
+mkdir -p ~/tt-animatediff
+cd ~/tt-animatediff
+
+# Standard Python package structure
+mkdir -p animatediff_ttnn
+mkdir -p examples
+mkdir -p weights
+mkdir -p output
+
+# Initialize package
+touch animatediff_ttnn/__init__.py
+touch animatediff_ttnn/temporal_module.py  # Core implementation
+touch animatediff_ttnn/pipeline.py          # High-level API
+touch setup.py                              # Makes it installable
+touch requirements.txt                      # Dependencies
+```
+
+**Project structure:**
+
+```
+~/tt-animatediff/              # YOUR PROJECT (not in tt-metal!)
+├── animatediff_ttnn/          # Your package
+│   ├── __init__.py
+│   ├── temporal_module.py     # Temporal attention core
+│   └── pipeline.py            # User-facing API
+├── examples/
+│   ├── generate_2frame_video.py
+│   └── generate_16frame_video.py
+├── setup.py                   # pip install -e .
+├── requirements.txt
+└── README.md
+```
+
+**Why this structure?**
+- Looks like any professional Python package
+- Can be versioned, shared, and deployed independently
+- Uses tt-metal as a dependency, doesn't modify it
+- You can install it: `pip install -e ~/tt-animatediff`
+
+---
+
+## Step 2: Research the Architecture
 
 **First rule of model bring-up: Always understand before implementing.**
 
@@ -118,7 +167,7 @@ cat README.md  # Always start here!
 
 ---
 
-## Step 2: Download Model Weights
+## Step 3: Download Model Weights
 
 AnimateDiff requires a motion module checkpoint:
 
@@ -141,54 +190,6 @@ ls -lh ~/models/animatediff/mm_sd_v15_v2.ckpt
 - You need them to test your implementation
 - Weight structure reveals architecture details
 - You can inspect checkpoint contents: `torch.load("checkpoint.ckpt").keys()`
-
----
-
-## Step 3: Create Your Standalone Project
-
-**This is where we diverge from demos and start building applications!**
-
-Instead of modifying tt-metal, create your own project structure:
-
-```bash
-# Create your project directory (YOUR code, YOUR ownership)
-mkdir -p ~/tt-animatediff
-cd ~/tt-animatediff
-
-# Standard Python package structure
-mkdir -p animatediff_ttnn
-mkdir -p examples
-mkdir -p weights
-mkdir -p output
-
-# Initialize package
-touch animatediff_ttnn/__init__.py
-touch animatediff_ttnn/temporal_module.py  # Core implementation
-touch animatediff_ttnn/pipeline.py          # High-level API
-touch setup.py                              # Makes it installable
-touch requirements.txt                      # Dependencies
-```
-
-**Project structure:**
-```
-~/tt-animatediff/              # YOUR PROJECT (not in tt-metal!)
-├── animatediff_ttnn/          # Your package
-│   ├── __init__.py
-│   ├── temporal_module.py     # Temporal attention core
-│   └── pipeline.py            # User-facing API
-├── examples/
-│   ├── generate_2frame_video.py
-│   └── generate_16frame_video.py
-├── setup.py                   # pip install -e .
-├── requirements.txt
-└── README.md
-```
-
-**Why this structure?**
-- Looks like any professional Python package
-- Can be versioned, shared, and deployed independently
-- Uses tt-metal as a dependency, doesn't modify it
-- You can install it: `pip install -e ~/tt-animatediff`
 
 ---
 

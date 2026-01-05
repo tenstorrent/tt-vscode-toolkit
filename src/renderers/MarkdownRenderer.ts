@@ -30,6 +30,9 @@ export interface MarkdownRenderOptions {
 
   /** Custom CSS classes to add to rendered HTML */
   customClasses?: Record<string, string>;
+
+  /** Optional function to transform image URLs (e.g., to webview URIs) */
+  transformImageUrl?: (url: string) => string;
 }
 
 /**
@@ -82,7 +85,7 @@ export class MarkdownRenderer {
       })
     );
 
-    // Configure marked v17 API with custom link renderer for command buttons
+    // Configure marked v17 API with custom renderers for command buttons and images
     marked.use({
       renderer: {
         link: (token: any) => {
@@ -105,6 +108,19 @@ export class MarkdownRenderer {
           const escapedHref = this.escapeHtml(href || '');
           const titleStr = title ? ` title="${this.escapeHtml(title)}"` : '';
           return `<a href="${escapedHref}"${titleStr}>${text}</a>`;
+        },
+        image: (token: any) => {
+          const { href, title, text } = token;
+
+          // Transform image URL if transformer is provided
+          const imageUrl = this.options.transformImageUrl
+            ? this.options.transformImageUrl(href)
+            : this.escapeHtml(href || '');
+
+          const titleAttr = title ? ` title="${this.escapeHtml(title)}"` : '';
+          const altText = this.escapeHtml(text || '');
+
+          return `<img src="${imageUrl}" alt="${altText}"${titleAttr}>`;
         }
       }
     });

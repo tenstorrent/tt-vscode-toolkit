@@ -322,7 +322,7 @@ The model will generate a new image for each prompt and save it to `~/tt-scratch
 
 Here's what you can create with Stable Diffusion 3.5 on Tenstorrent hardware:
 
-![Snowy Cabin - Generated with Stable Diffusion 3.5](../../assets/img/sd35_snowy_cabin.png)
+![Snowy Cabin - Generated with Stable Diffusion 3.5](/assets/img/sd35_snowy_cabin.png)
 
 *Generated with prompt: "A cozy cabin in a snowy forest, warm lights in windows, winter evening, oil painting style"*
 

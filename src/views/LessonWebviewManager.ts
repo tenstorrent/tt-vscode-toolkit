@@ -35,7 +35,6 @@ export class LessonWebviewManager {
   private context: vscode.ExtensionContext;
   private lessonRegistry: LessonRegistry;
   private progressTracker: ProgressTracker;
-  private markdownRenderer: MarkdownRenderer;
   private currentLesson: LessonMetadata | undefined;
   private disposables: vscode.Disposable[] = [];
 
@@ -47,7 +46,6 @@ export class LessonWebviewManager {
     this.context = context;
     this.lessonRegistry = lessonRegistry;
     this.progressTracker = progressTracker;
-    this.markdownRenderer = new MarkdownRenderer();
 
     // Listen for theme changes
     vscode.window.onDidChangeActiveColorTheme(() => {
@@ -91,6 +89,7 @@ export class LessonWebviewManager {
           localResourceRoots: [
             vscode.Uri.file(path.join(this.context.extensionPath, 'dist', 'src', 'webview')),
             vscode.Uri.file(path.join(this.context.extensionPath, 'dist', 'content')),
+            vscode.Uri.file(path.join(this.context.extensionPath, 'dist', 'assets')),
           ],
         }
       );
@@ -125,12 +124,17 @@ export class LessonWebviewManager {
     }
 
     try {
+      // Create renderer with image URL transformation for webview
+      const renderer = new MarkdownRenderer({
+        transformImageUrl: (url: string) => this.transformImageUrl(url)
+      });
+
       // Render markdown
       const contentPath = path.join(
         this.context.extensionPath,
         lesson.markdownFile
       );
-      const rendered = await this.markdownRenderer.renderFile(contentPath);
+      const rendered = await renderer.renderFile(contentPath);
 
       // Get webview URIs
       const cssUri = this.panel.webview.asWebviewUri(
@@ -333,6 +337,41 @@ export class LessonWebviewManager {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+  }
+
+  /**
+   * Transform image URL to webview URI
+   * Converts relative paths to explicit vscode-resource:// URIs
+   */
+  private transformImageUrl(url: string): string {
+    if (!this.panel) {
+      return url;
+    }
+
+    // Skip absolute URLs (http://, https://, data:)
+    if (url.match(/^(https?:|data:)/)) {
+      return url;
+    }
+
+    // Handle relative paths starting with ../
+    if (url.startsWith('../')) {
+      // Resolve relative to extension root
+      // Images in markdown use paths like ../../assets/img/foo.png
+      // Strip leading ../ segments and resolve from dist/
+      const cleanPath = url.replace(/^(\.\.\/)+/, '');
+      const absolutePath = path.join(this.context.extensionPath, 'dist', cleanPath);
+      return this.panel.webview.asWebviewUri(vscode.Uri.file(absolutePath)).toString();
+    }
+
+    // Handle absolute paths from extension root (e.g., /assets/img/foo.png)
+    if (url.startsWith('/')) {
+      const absolutePath = path.join(this.context.extensionPath, 'dist', url.slice(1));
+      return this.panel.webview.asWebviewUri(vscode.Uri.file(absolutePath)).toString();
+    }
+
+    // For other relative paths, treat as relative to extension root
+    const absolutePath = path.join(this.context.extensionPath, 'dist', url);
+    return this.panel.webview.asWebviewUri(vscode.Uri.file(absolutePath)).toString();
   }
 
   /**
