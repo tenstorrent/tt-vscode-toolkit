@@ -6,6 +6,12 @@
 .gitignore
 .DS_Store
 
+# Python cache files (CRITICAL - these bloat the package)
+**/__pycache__/**
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
 # Build configs
 tsconfig.json
 tsconfig.test.json
