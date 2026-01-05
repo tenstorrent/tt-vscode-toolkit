@@ -21,6 +21,8 @@ export class TelemetryMonitor {
     private pythonPath: string;
     private scriptPath: string;
     private onTelemetryUpdate?: (telemetry: TelemetryData) => void;
+    private currentTelemetry?: TelemetryData;
+    private lastError?: string;
 
     constructor(context: vscode.ExtensionContext, onTelemetryUpdate?: (telemetry: TelemetryData) => void) {
         // Create statusbar item (right side, high priority)
@@ -58,10 +60,14 @@ export class TelemetryMonitor {
             const telemetry = await this.readTelemetry();
 
             if ('error' in telemetry) {
+                this.lastError = telemetry.error;
+                this.currentTelemetry = undefined;
                 this.showError(telemetry.error);
                 return;
             }
 
+            this.currentTelemetry = telemetry;
+            this.lastError = undefined;
             this.updateStatusBar(telemetry);
 
             // Notify callback (e.g., for logo animation)
@@ -70,7 +76,10 @@ export class TelemetryMonitor {
             }
 
         } catch (error) {
-            this.showError(`Telemetry error: ${error}`);
+            const errorMsg = `Telemetry error: ${error}`;
+            this.lastError = errorMsg;
+            this.currentTelemetry = undefined;
+            this.showError(errorMsg);
         }
     }
 
@@ -140,6 +149,19 @@ export class TelemetryMonitor {
         this.statusBarItem.text = '⚠️ TT Hardware';
         this.statusBarItem.tooltip = `Telemetry unavailable: ${message}`;
         this.statusBarItem.show();
+    }
+
+    /**
+     * Get the current telemetry details (same as hover tooltip)
+     * @returns The tooltip content, or undefined if no telemetry available
+     */
+    public getCurrentDetails(): string | undefined {
+        if (this.currentTelemetry) {
+            return this.buildTooltip(this.currentTelemetry);
+        } else if (this.lastError) {
+            return `Telemetry unavailable: ${this.lastError}`;
+        }
+        return undefined;
     }
 
     public dispose() {

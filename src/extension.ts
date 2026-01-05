@@ -4107,9 +4107,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const webviewManager = new LessonWebviewManager(context, lessonRegistry, progressTracker);
 
   // Initialize telemetry monitor for hardware status (with logo animation callback)
-  void new TelemetryMonitor(context, (telemetry) => {
+  const telemetryMonitor = new TelemetryMonitor(context, (telemetry) => {
     imagePreviewProvider.updateTelemetry(telemetry);
   });
+
+  // Make telemetry monitor globally accessible so commands can access current details
+  (global as any).telemetryMonitor = telemetryMonitor;
 
   // Note: Tree item clicks are handled via the command property set in LessonTreeDataProvider
   // No need for onDidChangeSelection handler - it would cause lessons to open twice
@@ -4194,12 +4197,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // RISC-V Exploration Guide
     vscode.commands.registerCommand('tenstorrent.showRiscvGuide', () => showRiscvGuide(context)),
 
-    // Telemetry details
+    // Telemetry details - show same content as hover tooltip
     vscode.commands.registerCommand('tenstorrent.showTelemetryDetails', () => {
-      vscode.window.showInformationMessage(
-        'Detailed telemetry view coming soon! See statusbar for current hardware metrics.',
-        'OK'
-      );
+      const monitor = (global as any).telemetryMonitor;
+      if (monitor) {
+        const details = monitor.getCurrentDetails();
+        if (details) {
+          vscode.window.showInformationMessage(details, 'OK');
+        } else {
+          vscode.window.showInformationMessage(
+            'Telemetry data not yet available. Please wait a moment and try again.',
+            'OK'
+          );
+        }
+      } else {
+        vscode.window.showInformationMessage(
+          'Telemetry monitor not initialized.',
+          'OK'
+        );
+      }
     }),
 
     // Walkthrough management commands
