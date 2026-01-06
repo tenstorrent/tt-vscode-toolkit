@@ -1264,6 +1264,440 @@ pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu
 
 **Key takeaway:** vLLM bridges the gap between custom code and production deployment, giving you enterprise features while maintaining compatibility with standard APIs.
 
+---
+
+## Bonus Lap: AI Coding Agents - Build Something Right Now!
+
+**You just got vLLM running - let's immediately put it to work!** 🚀
+
+Now that your local model server is running, you can connect AI coding agents to build projects with AI assistance. This is 100% private (your code never leaves your machine), zero API costs, and surprisingly capable.
+
+### Why This Matters
+
+- **100% Private** - All AI runs locally on your Tenstorrent hardware
+- **Zero Cost** - No OpenAI/Anthropic API fees
+- **Fast** - Specialized hardware acceleration
+- **Full Control** - See exactly how the AI assists you
+- **Educational** - Learn by watching AI write code
+
+### Prerequisites
+
+Before starting, make sure:
+- ✅ vLLM server is running from the previous steps (test with `curl http://localhost:8000/health`)
+- ✅ Model is loaded and responding
+- ✅ You have Python 3.9+ and git installed
+
+### Option 1: Aider CLI Agent (Recommended)
+
+**Aider** is a powerful CLI tool that edits your code files directly with full git integration.
+
+#### Install Aider
+
+```bash
+# Create dedicated virtual environment for Aider
+python3 -m venv ~/aider-venv
+source ~/aider-venv/bin/activate
+
+# Install Aider
+pip install aider-chat
+
+# Verify installation
+aider --version
+```
+
+#### Configure Aider for Your Local Model
+
+Create Aider's configuration file:
+
+```bash
+# Create config directory
+mkdir -p ~/.aider
+
+# Create config file
+cat > ~/.aider/aider.conf.yml << 'EOF'
+# Aider configuration for local vLLM server
+
+# Use OpenAI-compatible API format
+model: openai/meta-llama/Llama-3.2-3B-Instruct
+
+# Point to your local vLLM server
+openai-api-base: http://localhost:8000/v1
+
+# No API key needed for local server
+openai-api-key: sk-no-key-required
+
+# Model settings optimized for Llama-3.2-3B
+max-tokens: 2048
+temperature: 0.6
+
+# Git settings
+auto-commits: false
+dirty-commits: true
+EOF
+
+echo "✓ Aider configuration created at ~/.aider/aider.conf.yml"
+```
+
+#### Test Aider Connection
+
+```bash
+# Activate Aider environment
+source ~/aider-venv/bin/activate
+
+# Quick connection test (will exit immediately)
+aider --model openai/meta-llama/Llama-3.2-3B-Instruct \
+      --openai-api-base http://localhost:8000/v1 \
+      --openai-api-key sk-no-key-required \
+      --yes \
+      --message "/exit"
+```
+
+If you see the Aider prompt, you're connected! ✅
+
+#### Your First AI-Assisted Project
+
+Let's build a simple task manager to see Aider in action:
+
+```bash
+# Create project directory
+mkdir -p ~/ai-projects/task-manager
+cd ~/ai-projects/task-manager
+
+# Initialize git (Aider loves git!)
+git init
+git config user.name "Your Name"
+git config user.email "you@example.com"
+
+# Create initial README
+cat > README.md << 'EOF'
+# Task Manager CLI
+
+A command-line task manager built with AI assistance.
+EOF
+
+git add README.md
+git commit -m "Initial commit"
+
+# Start Aider
+aider --model openai/meta-llama/Llama-3.2-3B-Instruct \
+      --openai-api-base http://localhost:8000/v1 \
+      --openai-api-key sk-no-key-required
+```
+
+**Now you're in Aider! Try these prompts:**
+
+```
+Aider> Create a task_manager.py file that implements a CLI task manager with add, list, and complete commands using argparse. Store tasks in a JSON file.
+
+Aider> Add error handling for file operations
+
+Aider> /diff
+# Shows what changes were made
+
+Aider> /run python task_manager.py add "Test task"
+# Test your code!
+
+Aider> /commit
+# Commits changes with AI-generated commit message
+
+Aider> /exit
+```
+
+#### Create a Convenient Wrapper Script (Optional)
+
+Make Aider easier to launch:
+
+```bash
+# Create wrapper script
+mkdir -p ~/bin
+cat > ~/bin/aider-tt << 'EOF'
+#!/bin/bash
+# Aider wrapper for Tenstorrent local models
+
+source ~/aider-venv/bin/activate
+
+# Check if server is running
+if ! curl -s http://localhost:8000/health > /dev/null 2>&1; then
+    echo "ERROR: vLLM server is not running at http://localhost:8000"
+    echo "Start the server first (see Lesson 6)."
+    exit 1
+fi
+
+# Run Aider with local model configuration
+exec aider \
+    --model openai/meta-llama/Llama-3.2-3B-Instruct \
+    --openai-api-base http://localhost:8000/v1 \
+    --openai-api-key sk-no-key-required \
+    "$@"
+EOF
+
+chmod +x ~/bin/aider-tt
+
+# Add to PATH
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# Now you can just type: aider-tt
+```
+
+#### Useful Aider Commands
+
+```bash
+# Inside Aider prompt
+/help                 # Show all commands
+/add <file>          # Add file to chat context
+/drop <file>         # Remove file from context
+/diff                # Show pending changes
+/undo                # Undo last change
+/commit              # Commit with AI message
+/run <command>       # Run shell command
+/exit                # Exit Aider
+
+# Starting Aider with specific files
+aider file1.py file2.py    # Add files immediately to context
+```
+
+### Option 2: Continue VSCode Extension
+
+**Continue** brings AI assistance directly into VSCode. Great if you prefer IDE workflows.
+
+#### Install Continue
+
+1. Open VSCode
+2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+3. Search for "Continue"
+4. Click "Install"
+
+#### Configure Continue
+
+1. Click the Continue icon in the sidebar
+2. Click the gear icon (⚙️) to open settings
+3. Replace the config with:
+
+```json
+{
+  "models": [
+    {
+      "title": "Llama 3.2 3B (Local TT)",
+      "provider": "openai",
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "apiBase": "http://localhost:8000/v1",
+      "apiKey": "sk-no-key-required"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Llama 3.2 3B (Local TT)",
+    "provider": "openai",
+    "model": "meta-llama/Llama-3.2-3B-Instruct",
+    "apiBase": "http://localhost:8000/v1",
+    "apiKey": "sk-no-key-required"
+  },
+  "allowAnonymousTelemetry": false
+}
+```
+
+4. Save (Ctrl+S / Cmd+S)
+5. Reload window: Ctrl+Shift+P → "Developer: Reload Window"
+
+#### Using Continue
+
+**Chat Interface:**
+- Click Continue icon in sidebar
+- Select model from dropdown
+- Start chatting about your code
+
+**Inline Editing:**
+- Highlight code in editor
+- Press Ctrl+I (Cmd+I on Mac)
+- Type instructions (e.g., "Add error handling")
+- Press Enter
+
+**Tab Autocomplete:**
+- Just start typing
+- Continue suggests completions
+- Press Tab to accept
+
+### Example Workflow: Build a Weather CLI
+
+Let's build a complete project using your local AI:
+
+```bash
+# Setup
+mkdir -p ~/ai-projects/weather-cli
+cd ~/ai-projects/weather-cli
+git init
+
+# Start Aider
+source ~/aider-venv/bin/activate
+aider --model openai/meta-llama/Llama-3.2-3B-Instruct \
+      --openai-api-base http://localhost:8000/v1 \
+      --openai-api-key sk-no-key-required
+```
+
+**Step-by-step prompts in Aider:**
+
+```
+1. Create a weather.py file that fetches weather data from wttr.in using the requests library.
+
+2. Add a CLI interface using click that accepts a city name and displays temperature and conditions.
+
+3. Add colored output using colorama to make it visually appealing.
+
+4. Create a requirements.txt with all dependencies.
+
+5. Add error handling for network failures and invalid cities.
+
+6. Create a README.md with installation and usage instructions.
+
+7. Create tests in test_weather.py using pytest.
+```
+
+**Test your app:**
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the app
+python weather.py "San Francisco"
+python weather.py "Tokyo"
+```
+
+### Best Practices for AI-Assisted Coding
+
+**1. Start Small**
+```bash
+# Good: Specific, focused request
+"Add input validation to the login function"
+
+# Too broad: Vague, hard to implement
+"Make the app better"
+```
+
+**2. Iterate Incrementally**
+```bash
+# Step 1
+"Create a basic user class with name and email fields"
+
+# Step 2
+"Add password hashing to the user class"
+
+# Step 3
+"Add validation for email format"
+```
+
+**3. Provide Context**
+```bash
+# Good: Provides context
+"Add error handling to the API call in fetch_data(). Handle network timeouts, 404s, and JSON decode errors."
+
+# Less effective: Lacks context
+"Add error handling"
+```
+
+**4. Use Git Effectively**
+```bash
+# Commit frequently with Aider
+Aider> /commit
+
+# Review changes before committing
+Aider> /diff
+
+# Undo if needed
+Aider> /undo
+```
+
+**5. Test as You Go**
+```bash
+# Test after each feature
+Aider> /run pytest
+Aider> /run python app.py --test-mode
+```
+
+### Troubleshooting
+
+**Issue: "Connection refused" to local model**
+
+```bash
+# Check if server is running
+curl http://localhost:8000/health
+
+# If not running, restart from Step 4 of this lesson
+# Go back to the server terminal and verify it's running
+```
+
+**Issue: Slow responses from model**
+
+```bash
+# Reduce max_tokens in Aider config
+# Edit ~/.aider/aider.conf.yml
+max-tokens: 512  # Instead of 2048
+
+# Use shorter, more focused prompts
+```
+
+**Issue: Model gives poor suggestions**
+
+```bash
+# Be more specific in your instructions
+"Add error handling for FileNotFoundError and PermissionError when reading config.json"
+
+# Provide examples
+"Create a function similar to this: [paste example code]"
+
+# Iterate with feedback
+"The previous code had a bug where X. Fix it by doing Y."
+```
+
+**Issue: Aider won't start**
+
+```bash
+# Ensure virtual environment is activated
+source ~/aider-venv/bin/activate
+
+# Reinstall if needed
+pip install --upgrade aider-chat
+
+# Check Python version (must be 3.9+)
+python --version
+```
+
+### Example Projects to Try
+
+**Beginner: Todo List App**
+- CLI with add/list/complete/delete commands
+- JSON file storage
+- Tests with pytest
+- ~30 minutes with AI assistance
+
+**Intermediate: REST API**
+- FastAPI server with CRUD endpoints
+- SQLite database
+- Request validation
+- Basic authentication
+- ~60 minutes with AI assistance
+
+**Advanced: Data Analyzer**
+- Read CSV files
+- Data analysis with pandas
+- Generate visualizations with matplotlib
+- Export reports
+- ~90 minutes with AI assistance
+
+### Comparing Aider vs Continue
+
+| Feature | Aider (CLI) | Continue (VSCode) |
+|---------|-------------|-------------------|
+| **Interface** | Command line | VSCode integrated |
+| **Git Integration** | Excellent (auto-commits) | Manual |
+| **Multi-file Editing** | Native support | Context-based |
+| **Tab Completion** | No | Yes |
+| **Inline Editing** | No | Yes |
+| **Best For** | Focused coding sessions | Continuous development |
+
+**Recommendation:**
+- Use **Aider** for: New projects, refactoring, focused feature work
+- Use **Continue** for: Daily development, quick edits, exploration
+
 ## Next Steps
 
 **You've completed the walkthrough!** 🎉

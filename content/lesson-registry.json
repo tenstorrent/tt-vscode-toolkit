@@ -259,7 +259,7 @@
     {
       "id": "vllm-production",
       "title": "Production Inference with vLLM",
-      "description": "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features.",
+      "description": "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features. Includes bonus lap: AI coding agents with Aider & Continue!",
       "category": "serving",
       "order": 7,
       "markdownFile": "content/lessons/vllm-production.md",
@@ -280,11 +280,13 @@
         "vllm",
         "production",
         "api",
-        "inference"
+        "inference",
+        "aider",
+        "coding-agent"
       ],
       "previousLesson": "tt-inference-server",
       "nextLesson": "image-generation",
-      "estimatedMinutes": 30
+      "estimatedMinutes": 60
     },
     {
       "id": "image-generation",
