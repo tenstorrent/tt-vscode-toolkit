@@ -3,6 +3,7 @@
  *
  * Theme-aware styles for lesson content display.
  * Uses VSCode CSS variables to respect user's theme.
+ * Brand colors from Tenstorrent official design system (tt-ui).
  */
 
 :root {
@@ -10,18 +11,80 @@
   --vscode-foreground: var(--vscode-editor-foreground);
   --vscode-background: var(--vscode-editor-background);
 
-  /* Tenstorrent brand colors - Darker teals for better contrast */
-  --tt-cyan: #0D9488;        /* Dark teal - 7:1 contrast with white */
-  --tt-cyan-light: #14B8A6;  /* Medium teal - 5.5:1 contrast */
-  --tt-cyan-dark: #0F766E;   /* Darker teal - 8.5:1 contrast */
-  --tt-blue: #4A90E2;
-  --tt-green: #27AE60;
+  /* Tenstorrent Official Brand Colors (from tt-ui/src/styles.css) */
+  /* Teal - Primary brand color */
+  --tt-teal-50: #e7f8fd;
+  --tt-teal-100: #c6edfa;
+  --tt-teal-200: #98daf0;
+  --tt-teal-300: #63c7e9;
+  --tt-teal-400: #3fb7de;
+  --tt-teal-500: #3293b2;  /* Primary teal */
+  --tt-teal-600: #2b6c82;
+  --tt-teal-700: #205060;
+  --tt-teal-800: #183d49;
+
+  /* Purple - Secondary brand color */
+  --tt-purple-50: #efedfd;
+  --tt-purple-100: #dad5fb;
+  --tt-purple-300: #8879ec;
+  --tt-purple-500: #5347a4;
+  --tt-purple-700: #342c63;
+
+  /* Red - Error/Warning states */
+  --tt-red-300: #f7856e;
+  --tt-red-400: #fc502c;
+  --tt-red-500: #d03a1b;
+  --tt-red-700: #622e22;
+
+  /* Yellow - Attention states */
+  --tt-yellow-200: #ffd88a;
+  --tt-yellow-400: #ffb71b;
+  --tt-yellow-600: #82672b;
+
+  /* Green - Success states */
+  --tt-green-300: #87d4c6;
+  --tt-green-400: #65b7a8;
+  --tt-green-500: #499c8d;
+  --tt-green-700: #28524a;
+
+  /* Blue - Info states */
+  --tt-blue-400: #4756e1;
+  --tt-blue-500: #2f3ec6;
+  --tt-blue-600: #2a3898;
+
+  /* Sand - Warm neutrals */
+  --tt-sand-100: #f4f1ec;
+  --tt-sand-300: #bbb6aa;
+  --tt-sand-500: #6c6960;
+  --tt-sand-700: #32312f;
+
+  /* Stone - Cool neutrals */
+  --tt-stone-100: #e9edf1;
+  --tt-stone-300: #98a3ae;
+  --tt-stone-500: #4c5761;
+  --tt-stone-700: #2b3036;
+
+  /* Semantic color mapping (for easy use throughout) */
+  --tt-primary: var(--tt-teal-500);
+  --tt-primary-light: var(--tt-teal-400);
+  --tt-primary-dark: var(--tt-teal-600);
+  --tt-secondary: var(--tt-purple-500);
+  --tt-accent: var(--tt-teal-300);
+  --tt-success: var(--tt-green-500);
+  --tt-warning: var(--tt-yellow-400);
+  --tt-error: var(--tt-red-500);
+  --tt-info: var(--tt-blue-500);
 
   /* Computed theme-aware colors */
   --tt-border: color-mix(in srgb, var(--vscode-foreground) 20%, transparent);
-  --tt-hover-bg: color-mix(in srgb, var(--tt-cyan) 10%, var(--vscode-background));
+  --tt-hover-bg: color-mix(in srgb, var(--tt-primary) 10%, var(--vscode-background));
   --tt-code-bg: var(--vscode-textCodeBlock-background);
   --tt-muted: color-mix(in srgb, var(--vscode-foreground) 60%, transparent);
+
+  /* Typography scale (inspired by tt-ui, adapted for web safety) */
+  --tt-font-display: var(--vscode-font-family);  /* Fallback to VSCode font */
+  --tt-font-interface: var(--vscode-font-family);
+  --tt-font-mono: var(--vscode-editor-font-family, 'IBM Plex Mono', 'Consolas', monospace);
 }
 
 /* Base styles */
@@ -52,8 +115,13 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   font-size: 2em;
-  border-bottom: 2px solid var(--tt-cyan);
+  font-weight: 300;  /* Light weight for display typography (tt-ui style) */
+  border-bottom: 2px solid var(--tt-primary);
   padding-bottom: 8px;
+}
+
+h1 strong, h1 b {
+  font-weight: 500;  /* Medium weight for emphasis (tt-ui style) */
 }
 
 h2 {
@@ -121,83 +189,68 @@ code {
   font-size: 0.9em;
 }
 
-/* Command buttons */
+/* Command buttons - Official brand styling */
 .tt-command-button {
-  /* Gradient background for depth */
-  background: linear-gradient(
-    to bottom,
-    var(--tt-cyan),
-    var(--tt-cyan-dark)
-  );
+  /* Clean solid background with official teal */
+  background: var(--tt-primary);
   color: white;
 
-  /* Thicker border for more definition */
-  border: 3px solid var(--tt-cyan-dark);
+  /* Subtle border for definition */
+  border: 2px solid var(--tt-primary-dark);
   padding: 12px 24px;
   border-radius: 6px;
   cursor: pointer;
 
-  font-family: var(--vscode-font-family);
-  font-size: 1.05em;
-  font-weight: 600;
+  font-family: var(--tt-font-interface);
+  font-size: 1rem;
+  font-weight: 600;  /* Semibold (tt-ui interface weight) */
+  line-height: 120%;  /* Interface line-height from tt-ui */
   transition: all 0.2s ease;
   margin: 12px 12px 12px 0;
   display: inline-block;
   text-align: center;
   min-width: 120px;
 
-  /* Enhanced shadow with inset highlight for 3D effect */
+  /* Subtle elevation shadow */
   box-shadow:
-    0 3px 6px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 2px 4px rgba(0, 0, 0, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.1);
 
-  /* Text shadow for depth */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  /* Subtle text shadow for readability */
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
 .tt-command-button:hover {
-  /* Keep gradient, lighten it */
-  background: linear-gradient(
-    to bottom,
-    var(--tt-cyan-light),
-    var(--tt-cyan)
-  );
-  border-color: var(--tt-cyan);
+  /* Lighter teal on hover */
+  background: var(--tt-primary-light);
+  border-color: var(--tt-primary);
 
-  /* Lift more on hover */
-  transform: translateY(-3px);
+  /* Gentle lift */
+  transform: translateY(-2px);
 
-  /* Much stronger hover shadow with inset highlight */
+  /* Enhanced shadow on hover */
   box-shadow:
-    0 6px 16px rgba(79, 209, 197, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    0 4px 8px rgba(50, 147, 178, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .tt-command-button:active {
-  /* Darker gradient when pressed */
-  background: linear-gradient(
-    to bottom,
-    var(--tt-cyan-dark),
-    #2c9a93
-  );
-  border-color: var(--tt-cyan-dark);
+  /* Darker on press */
+  background: var(--tt-primary-dark);
+  border-color: var(--tt-teal-700);
 
   /* Return to baseline */
   transform: translateY(0);
 
-  /* Pressed/inset shadow effect */
+  /* Inset shadow for pressed effect */
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    inset 0 2px 4px rgba(0, 0, 0, 0.2);
-
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    inset 0 2px 4px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Blockquotes */
 blockquote {
-  border-left: 4px solid var(--tt-cyan);
+  border-left: 4px solid var(--tt-primary);
   background: var(--tt-hover-bg);
   padding: 12px 16px;
   margin: 16px 0;
@@ -236,7 +289,7 @@ tr:hover {
 
 /* Hardware config callouts */
 .hardware-config {
-  border-left: 4px solid var(--tt-cyan);
+  border-left: 4px solid var(--tt-primary);
   background: var(--tt-hover-bg);
   padding: 16px;
   margin: 16px 0;
@@ -245,7 +298,7 @@ tr:hover {
 
 .hardware-config h4 {
   margin-top: 0;
-  color: var(--tt-cyan);
+  color: var(--tt-primary);
 }
 
 .hardware-grid {
@@ -256,12 +309,17 @@ tr:hover {
 }
 
 .hardware-chip {
-  background: var(--tt-cyan);
+  background: var(--tt-primary);
   color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.9em;
-  font-weight: 500;
+  padding: 6px 14px;  /* More vertical padding for symmetry */
+  border-radius: 16px;  /* Larger radius for smoother pill shape */
+  font-size: 0.875rem;  /* Interface-14 from tt-ui */
+  font-weight: 600;  /* Semibold for badges */
+  line-height: 1;  /* Line-height of 1 for perfect vertical centering */
+  display: inline-flex;  /* Flex for perfect centering */
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 /* Prerequisites checklist */
@@ -294,26 +352,30 @@ tr:hover {
 
 /* Status badges */
 .status-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.85em;
-  font-weight: 500;
+  display: inline-flex;  /* Flex for perfect centering */
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;  /* Symmetrical padding */
+  border-radius: 14px;  /* Smooth pill shape */
+  font-size: 0.75rem;  /* Interface-12 from tt-ui */
+  font-weight: 600;  /* Semibold for badges */
+  line-height: 1;  /* Perfect vertical centering */
   margin: 4px;
+  white-space: nowrap;
 }
 
 .status-validated {
-  background: var(--tt-green);
+  background: var(--tt-success);
   color: white;
 }
 
 .status-draft {
-  background: var(--tt-blue);
+  background: var(--tt-info);
   color: white;
 }
 
 .status-blocked {
-  background: #E74C3C;
+  background: var(--tt-error);
   color: white;
 }
 
@@ -383,8 +445,17 @@ img {
 
 /* Warning callouts */
 .warning {
-  background: color-mix(in srgb, #E74C3C 10%, var(--vscode-background));
-  border-left: 4px solid #E74C3C;
+  background: color-mix(in srgb, var(--tt-warning) 10%, var(--vscode-background));
+  border-left: 4px solid var(--tt-warning);
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Error callouts */
+.error {
+  background: color-mix(in srgb, var(--tt-error) 10%, var(--vscode-background));
+  border-left: 4px solid var(--tt-error);
   padding: 16px;
   margin: 16px 0;
   border-radius: 0 4px 4px 0;
@@ -392,8 +463,8 @@ img {
 
 /* Info callouts */
 .info {
-  background: color-mix(in srgb, var(--tt-blue) 10%, var(--vscode-background));
-  border-left: 4px solid var(--tt-blue);
+  background: color-mix(in srgb, var(--tt-info) 10%, var(--vscode-background));
+  border-left: 4px solid var(--tt-info);
   padding: 16px;
   margin: 16px 0;
   border-radius: 0 4px 4px 0;
@@ -401,8 +472,8 @@ img {
 
 /* Success callouts */
 .success {
-  background: color-mix(in srgb, var(--tt-green) 10%, var(--vscode-background));
-  border-left: 4px solid var(--tt-green);
+  background: color-mix(in srgb, var(--tt-success) 10%, var(--vscode-background));
+  border-left: 4px solid var(--tt-success);
   padding: 16px;
   margin: 16px 0;
   border-radius: 0 4px 4px 0;

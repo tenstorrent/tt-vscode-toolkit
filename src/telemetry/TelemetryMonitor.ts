@@ -145,10 +145,16 @@ export class TelemetryMonitor {
                `Click for details`;
     }
 
-    private showError(message: string) {
-        this.statusBarItem.text = '⚠️ TT Hardware';
-        this.statusBarItem.tooltip = `Telemetry unavailable: ${message}`;
-        this.statusBarItem.show();
+    private showError(_message: string) {
+        // Hide status bar when hardware isn't available (no sysfs, no tt-smi, etc.)
+        // This is cleaner than showing an error icon - telemetry is optional
+        this.statusBarItem.hide();
+
+        // Stop polling after first error to avoid wasting resources
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = undefined;
+        }
     }
 
     /**
