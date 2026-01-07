@@ -252,8 +252,11 @@ Before proceeding, let's check what you already have installed:
 # Check if vLLM is cloned
 [ -d ~/tt-vllm ] && echo "✓ vLLM repo found" || echo "✗ vLLM repo missing"
 
-# Check if venv exists
-[ -d ~/tt-vllm-venv ] && echo "✓ vLLM venv found" || echo "✗ vLLM venv missing"
+# Check if venv exists (correct location integrated with tt-metal)
+[ -d ~/tt-metal/build/python_env_vllm ] && echo "✓ vLLM venv found" || echo "✗ vLLM venv missing"
+
+# Check if activation script exists
+[ -f ~/activate-vllm-env.sh ] && echo "✓ Activation script found" || echo "✗ Activation script missing"
 
 # Check if server script exists
 [ -f ~/tt-scratchpad/start-vllm-server.py ] && echo "✓ Server script found" || echo "✗ Server script missing"
@@ -261,7 +264,7 @@ Before proceeding, let's check what you already have installed:
 
 **All checks passed?** You can skip to [Step 4: Start the Server](#step-4-start-the-openai-compatible-server).
 
-**Some checks failed?** Continue with the steps below - they'll create missing components.
+**Some checks failed?** Continue with Step 2 (environment setup) below.
 
 ---
 
@@ -282,41 +285,89 @@ cd ~ && \
 - Creates `~/tt-vllm` directory
 - Takes ~1-2 minutes depending on connection
 
-## Step 2: Set Up vLLM Environment
+## Step 2: Set Up vLLM Environment (Critical!)
 
-Create a dedicated virtual environment and install vLLM with all required dependencies.
+**⚠️ Important:** vLLM requires a specific Python environment with exact dependency versions for Tenstorrent hardware compatibility. The most common issue is PyTorch version mismatches.
 
-**This command will:**
-- Create a Python virtual environment (~30 seconds)
-- Install vLLM and dependencies (~5-10 minutes)
-- Configure Tenstorrent hardware support
+### Automated Setup (Recommended) ⚡
+
+**The fastest and most reliable way:**
 
 ```bash
-cd ~/tt-vllm && \
-  python3 -m venv ~/tt-vllm-venv && \
-  source ~/tt-vllm-venv/bin/activate && \
-  pip install --upgrade pip && \
-  export vllm_dir=$(pwd) && \
-  source $vllm_dir/tt_metal/setup-metal.sh && \
-  pip install --upgrade ttnn pytest && \
-  pip install fairscale termcolor loguru blobfile fire pytz llama-models==0.0.48 && \
-  pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu
+bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
-[⚙️ Install vLLM](command:tenstorrent.installVllm)
+**What this script does:**
+1. ✅ Validates prerequisites (tt-metal installed, paths correct)
+2. ✅ Creates Python venv at the CORRECT location (`${TT_METAL_HOME}/build/python_env_vllm`)
+3. ✅ Installs PyTorch 2.5.0+cpu (exact version required for TT hardware)
+4. ✅ Builds vLLM from source with TT hardware support
+5. ✅ Installs all required dependencies (ttnn, pytest, fairscale, etc.)
+6. ✅ Validates the installation (tests imports)
+7. ✅ Creates convenient activation script (`~/activate-vllm-env.sh`)
 
-**What happens:**
-- Creates `~/tt-vllm-venv` (isolated from your other Python packages)
-- Upgrades pip
-- Sources tt-metal setup for Tenstorrent support
-- Installs ttnn and pytest (required for Tenstorrent hardware)
-- Installs dependencies: fairscale, termcolor, loguru, blobfile, fire, pytz
-- Installs llama-models==0.0.48 (Tenstorrent's Llama implementation)
-- Installs vLLM in editable mode (you can modify it if needed)
+**Time:** ~5-10 minutes (downloads + compilation)
 
-**Why a separate venv?** Prevents dependency conflicts with other Python environments. Each stays clean and isolated.
+**After completion:**
+```bash
+source ~/activate-vllm-env.sh
+```
 
-**Time estimate:** ~5-10 minutes total
+---
+
+### Why This Matters
+
+**Common issue:** vLLM on TT hardware requires:
+- **PyTorch 2.5.0+cpu** (not 2.7.1, not 2.4.x)
+- Environment integrated with tt-metal (not standalone venv)
+- Exact versions from `requirements/tt.txt`
+
+**Without the correct environment, you'll see:**
+```
+TypeError: must be called with a dataclass type or instance
+# ... torch/_inductor/runtime/hints.py errors
+```
+
+**The automated script ensures everything is configured correctly!**
+
+---
+
+### Manual Setup (Alternative)
+
+**If you prefer to do it manually:**
+
+```bash
+# 1. Set up environment variables
+cd ~/tt-vllm
+export vllm_dir=$(pwd)
+source $vllm_dir/tt_metal/setup-metal.sh
+
+# 2. Create Python venv at correct location
+python3 -m venv $PYTHON_ENV_DIR
+source $PYTHON_ENV_DIR/bin/activate
+
+# 3. Install PyTorch 2.5.0+cpu (specific version!)
+pip install --upgrade pip
+pip install --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.5.0+cpu \
+    torchvision==0.20.0 \
+    torchaudio==2.5.0
+
+# 4. Install dependencies
+pip install --upgrade ttnn pytest
+pip install fairscale termcolor loguru blobfile fire pytz llama-models==0.0.48
+
+# 5. Install vLLM from source
+cd $vllm_dir
+pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu
+```
+
+**Validate installation:**
+```bash
+python3 -c "import torch; print('✓ torch', torch.__version__)"
+python3 -c "import vllm; print('✓ vllm import successful')"
+python3 -c "import ttnn; print('✓ ttnn import successful')"
+```
 
 ---
 
@@ -406,12 +457,11 @@ Before starting the server, create the script that registers TT models with vLLM
 **✨ New in v0.0.101:** Ultra-simple one-command start with full hardware auto-detection!
 
 ```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 ```
 
-**That's literally it!** The script now auto-detects and configures:
+**That's literally it!** The activation script sets up the environment and the starter script auto-detects and configures:
 - ✅ **Hardware type** (N150/N300/T3K/P100/P150) via tt-smi
 - ✅ **MESH_DEVICE** environment variable
 - ✅ **TT_METAL_ARCH_NAME** (blackhole for P100/P150)
@@ -442,12 +492,7 @@ Now start vLLM with your chosen model and hardware configuration. These commands
 **Command (tested and working):**
 
 ```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=N150 && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-0.6B \
     --served-model-name Qwen/Qwen3-0.6B \
@@ -472,12 +517,7 @@ cd ~/tt-vllm && \
 **Alternative: Gemma 3-1B-IT** (slightly larger, 32K context)
 
 ```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=N150 && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/gemma-3-1b-it \
     --served-model-name google/gemma-3-1b-it \
@@ -497,12 +537,7 @@ Llama-3.1-8B typically exhausts DRAM on N150. Use Qwen3-0.6B or Gemma 3-1B-IT in
 If you must try Llama on N150:
 
 ```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=N150 && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -522,12 +557,7 @@ cd ~/tt-vllm && \
 ### N300 (Wormhole - Dual Chip)
 
 ```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=N300 && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -546,12 +576,7 @@ cd ~/tt-vllm && \
 ### T3K (Wormhole - 8 Chips)
 
 ```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=T3K && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-70B-Instruct \
     --served-model-name meta-llama/Llama-3.1-70B-Instruct \
@@ -572,13 +597,7 @@ cd ~/tt-vllm && \
 ### P100 (Blackhole - Single Chip)
 
 ```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=P100 && \
-  export TT_METAL_ARCH_NAME=blackhole && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -689,12 +708,7 @@ INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 # Stop the current server (Ctrl+C in the server terminal)
 
 # Start with Qwen instead
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=N150 && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-8B \
     --host 0.0.0.0 \
@@ -1134,22 +1148,34 @@ Don't worry if you hit issues - they're usually straightforward to fix. Here are
 
 **Check your environment:**
 ```bash
-# Activate venv
-source ~/tt-vllm-venv/bin/activate
-
-# Source tt-metal setup
-source ~/tt-vllm/tt_metal/setup-metal.sh
+# Activate environment
+source ~/activate-vllm-env.sh
 
 # Verify model path
 ls ~/models/Llama-3.1-8B-Instruct/config.json
 ```
 
-**Import errors (e.g., "No module named 'llama_models'", "No module named 'fairscale'", "No module named 'pytz'", etc.):**
+**PyTorch dataclass errors (TypeError: must be called with a dataclass type or instance):**
+This is the most common environment issue - wrong PyTorch version!
+
 ```bash
-# Install all required dependencies in the venv
-source ~/tt-vllm-venv/bin/activate
-pip install --upgrade ttnn pytest
-pip install fairscale termcolor loguru blobfile fire pytz llama-models==0.0.48
+# Check your PyTorch version
+source ~/activate-vllm-env.sh
+python3 -c "import torch; print('PyTorch version:', torch.__version__)"
+```
+
+**If you see anything other than 2.5.0+cpu, recreate your environment:**
+```bash
+# Run the automated setup script
+bash ~/tt-scratchpad/setup-vllm-env.sh
+```
+
+**Import errors (e.g., "No module named 'llama_models'", "No module named 'fairscale'", "No module named 'pytz'", etc.):**
+These usually mean the environment wasn't set up correctly. Best solution: recreate it.
+
+```bash
+# Run the automated setup script
+bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
 **Out of Memory / DRAM Exhausted (N150 Users):**
@@ -1193,9 +1219,8 @@ git submodule update --init --recursive
 sudo ./install_dependencies.sh      # Install/update system dependencies
 ./build_metal.sh               # Build tt-metal
 
-# Then upgrade ttnn in vLLM venv
-source ~/tt-vllm-venv/bin/activate
-pip install --upgrade ttnn
+# Then recreate vLLM environment with updated ttnn
+bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
 **Why `--clean`?** Removes all cached build artifacts to prevent conflicts between old and new versions. This forces a complete rebuild from scratch.
@@ -1205,31 +1230,18 @@ pip install --upgrade ttnn
 **Why rebuild?** tt-metal includes compiled components (SFPI libraries, kernels) that must be built after code updates. The vLLM dev branch expects the latest tt-metal APIs.
 
 **RuntimeError: Failed to infer device type (Blackhole P100):**
-If you see `RuntimeError: Failed to infer device type`, you need to explicitly set the architecture:
+The `start-vllm-server.py` script now auto-detects P100 and sets `TT_METAL_ARCH_NAME=blackhole` automatically!
+
+**If auto-detection fails, you can override:**
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 export MESH_DEVICE=P100
-```
-
-**Why this happens:** Blackhole hardware (P100) requires explicit architecture specification. Wormhole chips (N150/N300/T3K) auto-detect, but Blackhole needs `TT_METAL_ARCH_NAME=blackhole`.
-
-**Full Blackhole startup command:**
-```bash
-cd ~/tt-vllm && \
-  source ~/tt-vllm-venv/bin/activate && \
-  export TT_METAL_HOME=~/tt-metal && \
-  export MESH_DEVICE=P100 && \
-  export TT_METAL_ARCH_NAME=blackhole && \
-  export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && \
-  source ~/tt-vllm/tt_metal/setup-metal.sh && \
+source ~/activate-vllm-env.sh && \
   python ~/tt-scratchpad/start-vllm-server.py \
-    --model ~/models/Llama-3.1-8B-Instruct \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --max-model-len 8192 \
-    --max-num-seqs 4 \
-    --block-size 64
+    --model ~/models/Llama-3.1-8B-Instruct
 ```
+
+**Why this happens:** Blackhole hardware (P100) requires explicit architecture specification. The starter script detects this via tt-smi and sets it automatically. If detection fails, set manually as shown above.
 
 **ValidationError: Cannot find model module 'TTLlamaForCausalLM':**
 This error means vLLM cannot find the TT model implementation. Solution:
@@ -1246,34 +1258,19 @@ ls -la ~/tt-scratchpad/start-vllm-server.py
 # If missing, use the extension button "Create vLLM Server Starter Script" in Lesson 6
 ```
 
-**If you encounter other import errors (e.g., "No module named 'xyz'"):**
+**Other import errors or virtual environment issues (e.g., "No module named 'xyz'"):**
+Best solution: recreate the environment with the automated script.
+
 ```bash
-# Install the missing package
-source ~/tt-vllm-venv/bin/activate
-pip install <missing-package-name>
+# Recreate the vLLM environment (will prompt before removing existing)
+bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
-**Other import errors:**
-```bash
-# Reinstall vLLM in the venv
-source ~/tt-vllm-venv/bin/activate
-cd ~/tt-vllm
-pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu
-```
-
-**Virtual environment issues:**
-```bash
-# Recreate the venv if it's corrupted
-rm -rf ~/tt-vllm-venv
-cd ~/tt-vllm
-python3 -m venv ~/tt-vllm-venv
-source ~/tt-vllm-venv/bin/activate
-pip install --upgrade pip
-export vllm_dir=$(pwd)
-source $vllm_dir/tt_metal/setup-metal.sh
-pip install fairscale termcolor loguru blobfile fire llama-models==0.0.48
-pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu
-```
+This ensures:
+- ✅ Correct PyTorch version (2.5.0+cpu)
+- ✅ Correct environment location (integrated with tt-metal)
+- ✅ All dependencies installed properly
+- ✅ Environment validated before completion
 
 **Slow inference:**
 - Check `--max-num-seqs` setting

@@ -583,6 +583,38 @@ RuntimeError: Input sequence length exceeds maximum
 - Use summarization for long documents
 - Switch to hardware with larger context support
 
+### Q: Getting PyTorch dataclass errors with vLLM - how do I fix them?
+
+**A:** This error (`TypeError: must be called with a dataclass type or instance`) is caused by PyTorch version mismatches.
+
+**Error looks like:**
+```
+TypeError: must be called with a dataclass type or instance
+# ... torch/_inductor/runtime/hints.py errors
+```
+
+**Root cause:** vLLM on Tenstorrent hardware requires **PyTorch 2.5.0+cpu** specifically. Other versions (2.4.x, 2.7.x) cause compatibility issues.
+
+**Solution: Recreate your vLLM environment**
+```bash
+bash ~/tt-scratchpad/setup-vllm-env.sh
+```
+
+This automated script:
+- ✅ Creates environment at correct location (`~/tt-metal/build/python_env_vllm`)
+- ✅ Installs PyTorch 2.5.0+cpu (exact version)
+- ✅ Installs all required dependencies
+- ✅ Validates installation before completion
+
+**Verify your environment:**
+```bash
+source ~/activate-vllm-env.sh
+python3 -c "import torch; print('PyTorch version:', torch.__version__)"
+# Should print: PyTorch version: 2.5.0+cpu
+```
+
+**Why the specific version?** TT-Metal hardware drivers are built against PyTorch 2.5.0+cpu APIs. Other versions have incompatible dataclass implementations.
+
 ---
 
 ## Compilers & Tools
