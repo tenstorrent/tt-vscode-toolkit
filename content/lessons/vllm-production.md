@@ -1325,7 +1325,28 @@ Before starting, make sure:
 
 **Aider** is a powerful CLI tool that edits your code files directly with full git integration.
 
-#### Install Aider
+#### Quick Setup (Automated) ⚡
+
+**The fastest way!** Run our automated setup script:
+
+```bash
+bash ~/tt-scratchpad/setup-aider.sh
+```
+
+**This script automatically:**
+- ✅ Creates Python virtual environment (`~/aider-venv`)
+- ✅ Installs aider-chat
+- ✅ Configures Aider for Qwen2.5-Coder
+- ✅ Creates wrapper script (`aider-tt`)
+- ✅ Tests connection to vLLM server
+
+**Takes ~2 minutes.** After completion, just run `aider-tt` to start!
+
+---
+
+#### Manual Setup (Alternative)
+
+**Prefer to do it manually?** Follow these steps:
 
 ```bash
 # Create dedicated virtual environment for Aider

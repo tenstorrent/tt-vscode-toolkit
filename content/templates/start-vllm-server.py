@@ -37,9 +37,10 @@ def register_tt_models():
     - Must register before vLLM tries to load any models
 
     Supported model architectures:
-    - Llama (Llama-3.1-8B, Llama-3.1-70B, etc.)
+    - Llama (Llama-3.1-8B, Llama-3.1-70B, Llama-3.2-3B-Instruct, etc.)
     - Gemma 3 (Gemma-3-1B-IT, Gemma-3-4B-IT, etc.) - uses Llama architecture
-    - Qwen (Qwen3-0.6B, Qwen3-8B, Qwen-2.5-7B-Coder, etc.) - uses Llama architecture
+    - Qwen2 (Qwen2.5-Coder-1.5B, Qwen2.5-Coder-7B, etc.) - uses Llama architecture (explicitly registered)
+    - Qwen3 (Qwen3-0.6B, Qwen3-8B, etc.) - uses Llama architecture
     - Mistral family - uses Llama architecture
     - Any Llama-compatible architecture
     """
@@ -53,20 +54,29 @@ def register_tt_models():
     #     module_path: str           # Python path to TT implementation
     # )
 
+    # Register TT Llama implementation
     ModelRegistry.register_model(
         "TTLlamaForCausalLM",
         "models.tt_transformers.tt.generator_vllm:LlamaForCausalLM"
     )
 
-    # Note: Gemma, Qwen, Mistral, and other Llama-compatible models
+    # Explicitly register Qwen2 to use TT Llama implementation
+    # Qwen2 uses Llama architecture internally but needs explicit mapping
+    ModelRegistry.register_model(
+        "Qwen2ForCausalLM",
+        "models.tt_transformers.tt.generator_vllm:LlamaForCausalLM"
+    )
+
+    # Note: Gemma, Mistral, and other Llama-compatible models
     # automatically use the TTLlamaForCausalLM implementation above!
-    # No separate registration needed.
+
+    # Qwen3 (newer architecture) auto-detects, but Qwen2 needs explicit registration
 
     # Add more TT model architectures here as they become available:
     # ModelRegistry.register_model("TTMixtralForCausalLM", "...")
 
     print("✓ Registered Tenstorrent model implementations with vLLM")
-    print("✓ Supported: Llama, Gemma, Qwen, Mistral, and Llama-compatible architectures")
+    print("✓ Supported: Llama, Gemma, Qwen2, Qwen3, Mistral, and Llama-compatible architectures")
 
 
 def detect_and_configure_hardware():
@@ -332,11 +342,14 @@ if __name__ == '__main__':
     #   python start-vllm-server.py --model ~/models/Qwen3-0.6B
     #
     # Supported models:
-    #   ~/models/Qwen3-0.6B                (✅ RECOMMENDED for N150 - tiny, fast, smart!)
-    #   ~/models/gemma-3-1b-it             (Good for N150 - small, multilingual)
-    #   ~/models/Llama-3.1-8B-Instruct     (Needs N300+ - higher DRAM requirements)
-    #   ~/models/Qwen3-8B                  (Needs N300+ - more DRAM)
-    #   ~/models/Mistral-7B-Instruct-v0.3  (Needs N300+ - more DRAM)
+    #   ~/models/Qwen2.5-Coder-1.5B-Instruct  (✅ BEST for CODING on N150 - specialized for code!)
+    #   ~/models/Qwen3-0.6B                   (✅ BEST for GENERAL on N150 - tiny, fast, smart!)
+    #   ~/models/Llama-3.2-3B-Instruct        (Good for N150 - versatile, larger)
+    #   ~/models/gemma-3-1b-it                (Good for N150 - small, multilingual)
+    #   ~/models/Llama-3.1-8B-Instruct        (Needs N300+ - higher DRAM requirements)
+    #   ~/models/Qwen2.5-Coder-7B-Instruct    (Needs N300+ - powerful coding model)
+    #   ~/models/Qwen3-8B                     (Needs N300+ - more DRAM)
+    #   ~/models/Mistral-7B-Instruct-v0.3     (Needs N300+ - more DRAM)
     #
     # The model architecture is auto-detected from config.json
     # HF_MODEL is auto-detected from your --model path (or manually set via export HF_MODEL=...)
