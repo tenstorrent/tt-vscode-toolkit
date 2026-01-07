@@ -55,29 +55,24 @@ print(f"Device: {result.device()}")  # TtDevice(id=0)
 
 **TT-XLA** is Tenstorrent's XLA-based compiler that provides production-grade inference for JAX and PyTorch models:
 
-```text
-┌─────────────────────────────────────────┐
-│       Your Code (JAX or PyTorch/XLA)    │  ← High-level APIs
-└──────────────────┬──────────────────────┘
-                   │
-┌──────────────────▼──────────────────────┐
-│         PJRT Plugin (pjrt-plugin-tt)    │  ← Hardware interface
-│          (Installable via pip)           │
-└──────────────────┬──────────────────────┘
-                   │
-┌──────────────────▼──────────────────────┐
-│           TT-MLIR Compiler               │  ← Graph optimization
-│     (Bundled with PJRT plugin)          │
-└──────────────────┬──────────────────────┘
-                   │
-┌──────────────────▼──────────────────────┐
-│            TT-Metal Runtime              │  ← Your existing tt-metal
-│          (~/tt-metal - no rebuild)       │
-└──────────────────┬──────────────────────┘
-                   │
-┌──────────────────▼──────────────────────┐
-│    N150 / N300 / T3K / Galaxy Hardware  │  ← Multi-chip support
-└─────────────────────────────────────────┘
+```mermaid
+graph TB
+    Code[JAX / PyTorch XLA]
+    PJRT[PJRT Plugin]
+    MLIR[TT-MLIR Compiler]
+    Metal[TT-Metal Runtime]
+    Hardware[N150 / N300 / T3K / Galaxy]
+
+    Code --> PJRT
+    PJRT --> MLIR
+    MLIR --> Metal
+    Metal --> Hardware
+
+    style Code fill:#5347a4,color:#fff
+    style PJRT fill:#3293b2,color:#fff
+    style MLIR fill:#499c8d,color:#fff
+    style Metal fill:#499c8d,color:#fff
+    style Hardware fill:#ffb71b,color:#000
 ```
 
 **Key Advantages:**

@@ -335,6 +335,31 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.219** - Mermaid.js diagrams throughout lessons and welcome content
+- **NEW FEATURE:** Mermaid.js diagram support in all lessons
+- **ECOSYSTEM DIAGRAM:** Added comprehensive Tenstorrent stack diagram to Step Zero welcome page
+- **LEARNING PATHS FLOWCHART:** Added decision tree to help users choose their learning path
+- **ASCII ART REPLACED:** Converted all ASCII diagrams to professional mermaid.js diagrams:
+  - vLLM Production lesson: Server architecture diagram
+  - TT-XLA JAX lesson: Compiler stack diagram
+  - API Server lesson: Flask architecture diagram
+- **NEW SEQUENCE DIAGRAM:** Interactive Chat lesson shows Generator API workflow
+- **BRAND COLORS:** All diagrams use official Tenstorrent colors from tt-ui design system
+  - Primary teal (#3293b2), Purple (#5347a4), Green (#499c8d), Yellow (#ffb71b)
+- **RENDERING:** Dark theme configured, auto-renders on load, proper CSP for jsdelivr CDN
+- **DOCUMENTATION:** Added MERMAID_EXAMPLES.md with usage guide and diagram templates
+- **FILES MODIFIED:**
+  - `content/pages/step-zero.md` - Added ecosystem and learning paths diagrams
+  - `content/lessons/vllm-production.md` - Replaced ASCII with mermaid
+  - `content/lessons/tt-xla-jax.md` - Replaced ASCII with mermaid
+  - `content/lessons/api-server.md` - Replaced ASCII with mermaid
+  - `content/lessons/interactive-chat.md` - Added sequence diagram
+  - `src/renderers/MarkdownRenderer.ts` - Added mermaid code block detection
+  - `src/views/LessonWebviewManager.ts` - Added mermaid.js CDN script
+  - `src/webview/styles/lesson-theme.css` - Added mermaid container styling
+- Addresses user request: "Can you comb through lessons identifying places for mermaid.js usage for clarity?"
+- All builds passing, diagrams render correctly
+
 **v0.0.207** - Python environment selector for terminals + lesson visibility default change
 - **NEW FEATURE:** Python environment status bar indicator for each terminal
 - Users can now see which venv is active and switch environments easily

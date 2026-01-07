@@ -39,20 +39,26 @@ The key advantage: **model stays loaded in memory between HTTP requests** for fa
 
 ## Architecture
 
-```text
-┌─────────────────┐
-│   Flask Server  │  ← Loads model once on startup
-│                 │
-│  ┌───────────┐  │
-│  │ Generator │  │  ← Stays in memory
-│  │    API    │  │
-│  └───────────┘  │
-│                 │
-│  POST /chat     │  ← Fast inference (model already loaded!)
-│  GET  /health   │  ← Health check
-└─────────────────┘
-        ↕
-    curl / HTTP clients
+```mermaid
+graph TB
+    Clients[HTTP Clients]
+
+    subgraph Flask["Flask Server"]
+        Generator[Generator API<br/>stays in memory]
+        Chat[POST /chat]
+        Health[GET /health]
+
+        Chat --> Generator
+        Health -.-> Generator
+    end
+
+    Clients <--> Chat
+    Clients <--> Health
+
+    style Clients fill:#5347a4,color:#fff
+    style Generator fill:#3293b2,color:#fff
+    style Chat fill:#499c8d,color:#fff
+    style Health fill:#499c8d,color:#fff
 ```
 
 **Performance:**

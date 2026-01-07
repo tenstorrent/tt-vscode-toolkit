@@ -36,6 +36,37 @@ Instead of running inference once and exiting, you'll keep the model in memory a
 
 The Generator API pattern:
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant Generator
+    participant Model
+    participant Hardware
+
+    Note over User,Hardware: Setup (2-5 min, once)
+    User->>Generator: create_tt_model()
+    Generator->>Model: Load weights
+    Model->>Hardware: Allocate DRAM
+
+    Note over User,Hardware: Chat Loop (1-3 sec each)
+    loop Each Query
+        User->>Generator: Input prompt
+        Generator->>Model: Prefill forward
+        Model->>Hardware: Process prompt
+        Hardware-->>Model: Logits
+
+        loop Token Generation
+            Generator->>Model: Decode forward
+            Model->>Hardware: Next token
+            Hardware-->>Generator: Token
+        end
+
+        Generator-->>User: Response
+    end
+```
+
+**Code pattern:**
+
 ```python
 # 1. Load model once (slow - 2-5 minutes)
 from models.tt_transformers.tt.generator import Generator

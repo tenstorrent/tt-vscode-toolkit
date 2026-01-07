@@ -177,7 +177,7 @@ export class LessonWebviewManager {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' https://cdnjs.cloudflare.com; img-src ${this.panel!.webview.cspSource} https: data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; script-src 'nonce-${nonce}' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:;">
   <title>${this.escapeHtml(lesson.title)}</title>
   <link rel="stylesheet" href="${cssUri}">
   <!-- Prism.js for syntax highlighting (VSCode-like theme) -->
@@ -212,6 +212,19 @@ export class LessonWebviewManager {
   <script nonce="${nonce}" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
   <script nonce="${nonce}" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
   <script nonce="${nonce}" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+  <!-- Mermaid.js for diagrams -->
+  <script nonce="${nonce}" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script nonce="${nonce}">
+    // Initialize mermaid with dark theme for better VSCode integration
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      fontFamily: 'var(--vscode-font-family)'
+    });
+  </script>
+
   <script nonce="${nonce}" src="${jsUri}"></script>
 </body>
 </html>`;

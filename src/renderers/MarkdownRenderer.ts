@@ -69,7 +69,7 @@ export class MarkdownRenderer {
    * Configure marked with custom renderer and extensions
    */
   private configureMarked(): void {
-    // Setup marked with Prism.js-compatible code blocks
+    // Setup marked with Prism.js-compatible code blocks and mermaid.js support
     marked.use(
       markedHighlight({
         highlight: (code, lang) => {
@@ -77,7 +77,12 @@ export class MarkdownRenderer {
             return code;
           }
 
-          // Output Prism.js-compatible structure
+          // Handle mermaid diagrams
+          if (lang === 'mermaid') {
+            return `<div class="mermaid">${code}</div>`;
+          }
+
+          // Output Prism.js-compatible structure for code
           // Don't escape HTML - Prism needs the raw code and will handle it
           const language = lang || 'plaintext';
           return `<code class="language-${language}">${code}</code>`;

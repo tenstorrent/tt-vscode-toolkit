@@ -6,6 +6,39 @@
 
 ## 🎯 What Are You Trying to Do?
 
+```mermaid
+graph TD
+    Start[What's Your Goal?]
+
+    Start --> RunModels[Run HF Models]
+    Start --> Production[Production Inference]
+    Start --> BringModel[Model Bring-up]
+    Start --> Compilers[Explore Compilers]
+    Start --> Images[Generate Images]
+    Start --> LowLevel[Low-Level Programming]
+
+    RunModels --> PathA[Path A: Lessons 1-5]
+    Production --> PathB[Path B: Lesson 7]
+    BringModel --> PathC[Path C: Lessons 1-5, 13]
+    Compilers --> PathD[Path D: Lessons 11-12]
+    Images --> PathE[Path E: Lesson 9]
+    LowLevel --> PathF[Path F: Lessons 14-15]
+
+    style Start fill:#5347a4,color:#fff
+    style RunModels fill:#3293b2,color:#fff
+    style Production fill:#3293b2,color:#fff
+    style BringModel fill:#3293b2,color:#fff
+    style Compilers fill:#3293b2,color:#fff
+    style Images fill:#3293b2,color:#fff
+    style LowLevel fill:#3293b2,color:#fff
+    style PathA fill:#499c8d,color:#fff
+    style PathB fill:#499c8d,color:#fff
+    style PathC fill:#499c8d,color:#fff
+    style PathD fill:#499c8d,color:#fff
+    style PathE fill:#499c8d,color:#fff
+    style PathF fill:#499c8d,color:#fff
+```
+
 Choose your path:
 
 ### Path A: "I just want to run HuggingFace models on Tenstorrent hardware"
@@ -54,6 +87,62 @@ Choose your path:
 ---
 
 ## 🏗️ The Technology Stack
+
+### Tenstorrent Ecosystem Overview
+
+```mermaid
+graph TB
+    subgraph Applications["Your Applications"]
+        JAX[JAX Models]
+        PyTorch[PyTorch Models]
+        HF[HuggingFace Models]
+    end
+
+    subgraph HighLevel["High-Level APIs"]
+        vLLM[vLLM Server]
+        PJRT[PJRT Plugin]
+        TTNN[TTNN API]
+    end
+
+    subgraph Compiler["Compilers & Runtime"]
+        TTMLIR[TT-MLIR]
+        TTMetal[TT-Metal Runtime]
+    end
+
+    subgraph Hardware["Hardware"]
+        N150[N150]
+        N300[N300]
+        T3K[T3K]
+        P100[P100/P150]
+    end
+
+    JAX --> PJRT
+    PyTorch --> vLLM
+    HF --> TTNN
+
+    vLLM --> TTMetal
+    PJRT --> TTMLIR
+    TTNN --> TTMetal
+
+    TTMLIR --> TTMetal
+    TTMetal --> N150
+    TTMetal --> N300
+    TTMetal --> T3K
+    TTMetal --> P100
+
+    style JAX fill:#5347a4,color:#fff
+    style PyTorch fill:#5347a4,color:#fff
+    style HF fill:#5347a4,color:#fff
+    style vLLM fill:#3293b2,color:#fff
+    style PJRT fill:#3293b2,color:#fff
+    style TTNN fill:#3293b2,color:#fff
+    style TTMLIR fill:#499c8d,color:#fff
+    style TTMetal fill:#499c8d,color:#fff
+    style N150 fill:#ffb71b,color:#000
+    style N300 fill:#ffb71b,color:#000
+    style T3K fill:#ffb71b,color:#000
+    style P100 fill:#ffb71b,color:#000
+```
 
 ### Core Components
 

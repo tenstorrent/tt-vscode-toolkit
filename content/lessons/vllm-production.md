@@ -61,26 +61,29 @@ Take your AI deployment to the next level with vLLM - a production-grade inferen
 
 ## Architecture
 
-```text
-┌──────────────────────────────────┐
-│       vLLM Server                │
-│                                  │
-│  ┌────────────────────────────┐  │
-│  │  OpenAI-Compatible API     │  │  ← Drop-in replacement
-│  └────────────────────────────┘  │
-│                                  │
-│  ┌────────────────────────────┐  │
-│  │  Continuous Batch Engine   │  │  ← Efficient multi-user
-│  └────────────────────────────┘  │
-│                                  │
-│  ┌────────────────────────────┐  │
-│  │  TT-Metal Backend          │  │  ← Your hardware
-│  └────────────────────────────┘  │
-└──────────────────────────────────┘
-         ↕
-   OpenAI Python SDK
-   curl / HTTP clients
-   Your applications
+```mermaid
+graph TB
+    Clients[OpenAI SDK / curl / Apps]
+
+    subgraph vLLM["vLLM Server"]
+        API[OpenAI-Compatible API]
+        Batch[Continuous Batch Engine]
+        Backend[TT-Metal Backend]
+
+        API --> Batch
+        Batch --> Backend
+    end
+
+    Hardware[Tenstorrent Hardware]
+
+    Clients <--> API
+    Backend --> Hardware
+
+    style Clients fill:#5347a4,color:#fff
+    style API fill:#3293b2,color:#fff
+    style Batch fill:#499c8d,color:#fff
+    style Backend fill:#499c8d,color:#fff
+    style Hardware fill:#ffb71b,color:#000
 ```
 
 ## Prerequisites
