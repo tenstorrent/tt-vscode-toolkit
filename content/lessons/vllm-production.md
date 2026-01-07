@@ -147,6 +147,40 @@ huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 
 ---
 
+## ⭐ Best Model for Coding Assistants: Qwen2.5-Coder-1.5B
+
+**Building AI coding assistants (Aider, Continue, etc.)?** Use Qwen2.5-Coder - it's **specialized for code generation**:
+
+**🎯 Why Qwen2.5-Coder-1.5B is Perfect for Coding:**
+- ✅ **Code-Specialized Training** - Trained specifically on code datasets (Python, JavaScript, C++, etc.)
+- ✅ **Excellent Code Completion** - Better code suggestions than general-purpose models
+- ✅ **Strong Code Understanding** - Understands code structure, APIs, and patterns
+- ✅ **1.5B params** - Small enough for N150, large enough for quality results
+- ✅ **Fast Iteration** - Quick responses for coding workflows
+- ✅ **N150-Perfect** - Fits comfortably on single-chip hardware
+- ✅ **No Token Required** - Open weights, freely available
+
+**Download Qwen2.5-Coder-1.5B-Instruct:**
+
+```bash
+huggingface-cli download Qwen/Qwen2.5-Coder-1.5B-Instruct --local-dir ~/models/Qwen2.5-Coder-1.5B-Instruct
+```
+
+**Takes ~2-3 minutes to download.** Perfect for:
+- AI coding assistants (Aider, Continue)
+- Code completion and generation
+- Code explanation and documentation
+- Bug fixing and refactoring
+- Learning programming with AI
+
+**Need even more code power?** Try **Qwen2.5-Coder-7B-Instruct** (requires N300+):
+
+```bash
+huggingface-cli download Qwen/Qwen2.5-Coder-7B-Instruct --local-dir ~/models/Qwen2.5-Coder-7B-Instruct
+```
+
+---
+
 **Need more power? Other options:**
 
 **📥 Gemma 3-1B-IT** - Slightly larger, Google quality
@@ -1317,8 +1351,8 @@ mkdir -p ~/.aider
 cat > ~/.aider/aider.conf.yml << 'EOF'
 # Aider configuration for local vLLM server
 
-# Use OpenAI-compatible API format
-model: openai/meta-llama/Llama-3.2-3B-Instruct
+# Use OpenAI-compatible API format with Qwen2.5-Coder (code-specialized model!)
+model: openai/Qwen/Qwen2.5-Coder-1.5B-Instruct
 
 # Point to your local vLLM server
 openai-api-base: http://localhost:8000/v1
@@ -1326,7 +1360,7 @@ openai-api-base: http://localhost:8000/v1
 # No API key needed for local server
 openai-api-key: sk-no-key-required
 
-# Model settings optimized for Llama-3.2-3B
+# Model settings optimized for Qwen2.5-Coder
 max-tokens: 2048
 temperature: 0.6
 
@@ -1338,6 +1372,8 @@ EOF
 echo "✓ Aider configuration created at ~/.aider/aider.conf.yml"
 ```
 
+**Why Qwen2.5-Coder?** It's specifically trained for coding tasks and will give you much better results than general-purpose models for code generation, refactoring, and bug fixing!
+
 #### Test Aider Connection
 
 ```bash
@@ -1345,7 +1381,7 @@ echo "✓ Aider configuration created at ~/.aider/aider.conf.yml"
 source ~/aider-venv/bin/activate
 
 # Quick connection test (will exit immediately)
-aider --model openai/meta-llama/Llama-3.2-3B-Instruct \
+aider --model openai/Qwen/Qwen2.5-Coder-1.5B-Instruct \
       --openai-api-base http://localhost:8000/v1 \
       --openai-api-key sk-no-key-required \
       --yes \
@@ -1378,8 +1414,8 @@ EOF
 git add README.md
 git commit -m "Initial commit"
 
-# Start Aider
-aider --model openai/meta-llama/Llama-3.2-3B-Instruct \
+# Start Aider with code-specialized model
+aider --model openai/Qwen/Qwen2.5-Coder-1.5B-Instruct \
       --openai-api-base http://localhost:8000/v1 \
       --openai-api-key sk-no-key-required
 ```
@@ -1423,9 +1459,9 @@ if ! curl -s http://localhost:8000/health > /dev/null 2>&1; then
     exit 1
 fi
 
-# Run Aider with local model configuration
+# Run Aider with local code-specialized model
 exec aider \
-    --model openai/meta-llama/Llama-3.2-3B-Instruct \
+    --model openai/Qwen/Qwen2.5-Coder-1.5B-Instruct \
     --openai-api-base http://localhost:8000/v1 \
     --openai-api-key sk-no-key-required \
     "$@"
@@ -1478,9 +1514,9 @@ aider file1.py file2.py    # Add files immediately to context
 {
   "models": [
     {
-      "title": "Llama 3.2 3B (Local TT)",
+      "title": "Qwen2.5-Coder 1.5B (Local TT - Code Specialist)",
       "provider": "openai",
-      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
       "apiBase": "http://localhost:8000/v1",
       "apiKey": "sk-no-key-required"
     }
