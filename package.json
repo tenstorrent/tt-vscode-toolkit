@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.217",
+  "version": "0.0.218",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -52,9 +52,14 @@
     },
     "themes": [
       {
-        "label": "Tenstorrent",
+        "label": "Tenstorrent Dark",
         "uiTheme": "vs-dark",
         "path": "./themes/tenstorrent-theme.json"
+      },
+      {
+        "label": "Tenstorrent Light",
+        "uiTheme": "vs",
+        "path": "./themes/tenstorrent-light-theme.json"
       }
     ],
     "configuration": {
