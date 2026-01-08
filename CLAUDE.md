@@ -360,6 +360,64 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.231** - Temperature at-a-glance + telemetry aggregation fixes
+- **NEW:** Temperature now visible directly in status bar (no need to hover!)
+  - Single device: "✓ TT: P300 33.0°C"
+  - Multiple devices: "✓ TT: 4x P300 32-38°C" (shows range)
+- **CRITICAL FIX:** TelemetryMonitor now handles multi-device format from v0.0.230
+  - Aggregates telemetry from all devices for right-side status bar
+  - Shows hottest device temp (most critical for monitoring)
+  - Shows total power across all devices
+  - Board type displays as "p300c (4x)" for multi-device
+- **OUTPUT PREVIEW:** Logo animation now uses aggregated multi-device telemetry
+  - Animates based on hottest temp and total power
+  - Properly handles new `{"devices": [...], "count": N}` format
+- **ICON FIX:** Created monochrome SVG icon using `currentColor` for better theme compatibility
+  - Changed from purple-colored icon to theme-aware monochrome version
+  - Should work better across different VSCode variants
+  - Icon: `assets/img/tt_symbol_mono.svg`
+- **UX IMPROVEMENTS:**
+  - **Left status bar (device count):** "✓ TT: 4x P300 32-38°C"
+  - **Right status bar (live telemetry):** "🌡️ 37.6°C | ⚡ 91.0W | 🔊 800MHz"
+  - Both status bars show at-a-glance info, detailed tooltips on hover
+- **FILES MODIFIED:**
+  - `src/extension.ts` - Updated status bar text formatting (lines 279-301)
+  - `src/telemetry/TelemetryMonitor.ts` - Multi-device aggregation logic
+  - `src/telemetry/TelemetryTypes.ts` - New interfaces and type guards
+  - `assets/img/tt_symbol_mono.svg` - New monochrome icon
+  - `package.json` - Version bump to 0.0.231, icon path updated
+  - `CLAUDE.md` - Documentation updates
+- **NOTE:** Sidebar icon may not display in VSCodium due to known compatibility differences with pure VSCode
+- **TESTED:** 4x P300c quietbox - all telemetry components working correctly
+
+**v0.0.230** - Multi-device telemetry support
+- **NEW FEATURE:** Extension now detects and displays telemetry for ALL Tenstorrent devices
+- **BEAUTIFUL SCALING:** UI scales elegantly from 1 device to 32+ devices
+- **STATUS BAR IMPROVEMENTS:**
+  - Single device: "✓ TT: P300" with temp/power in tooltip
+  - Multiple devices: "✓ TT: 4x P300" with temperature range and total power
+  - Aggregate health status (worst status wins)
+- **DEVICE ACTIONS MENU:** Click status bar to see per-device details
+  - Lists all devices with individual temperature, power, PCI bus
+  - Shows firmware version and health status per device
+  - Organized sections: Devices, Actions, Settings
+- **PYTHON TELEMETRY READER:** Updated to return array of all devices
+  - Each device includes: type, temp, power, PCI bus, device index
+  - JSON output: `{"devices": [...], "count": N}`
+- **TYPESCRIPT UPDATES:**
+  - New interfaces: `SingleDeviceInfo` and multi-device `DeviceInfo`
+  - `parseDeviceInfo()` now parses all devices from tt-smi JSON
+  - Extracts temperature and power from telemetry data
+  - Calculates overall system health status
+- **TESTED ON:** 4x P300c (Blackhole) quietbox
+- **FILES MODIFIED:**
+  - `src/telemetry/telemetryReader.py` - Return all devices as array
+  - `src/extension.ts` - Multi-device interfaces, parser, status bar, actions menu
+  - `package.json` - Version bump to 0.0.230
+  - `CLAUDE.md` - Documentation updates
+- **USER EXPERIENCE:** "Looks great no matter how many devices you have while being informative"
+- All telemetry data now properly tracked and displayed per-device
+
 **v0.0.225** - Mermaid validation tests + fixes (bundling attempt FAILED, rolled back)
 - **NEW:** Added comprehensive mermaid diagram validation tests
   - Syntax validation test (skipped - DOMPurify false positives in Node.js)

@@ -13,7 +13,7 @@
 import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import * as path from 'path';
-import { TelemetryData, TelemetryError } from './TelemetryTypes';
+import { TelemetryData, TelemetryError, MultiDeviceTelemetry, isMultiDeviceTelemetry, isSingleDeviceTelemetry } from './TelemetryTypes';
 
 export class TelemetryMonitor {
     private statusBarItem: vscode.StatusBarItem;
@@ -96,13 +96,61 @@ export class TelemetryMonitor {
 
                     try {
                         const data = JSON.parse(stdout);
-                        resolve(data);
+
+                        // Handle multi-device format (v0.0.230+)
+                        if (isMultiDeviceTelemetry(data)) {
+                            // Aggregate multiple devices into single telemetry view
+                            resolve(this.aggregateTelemetry(data));
+                        } else if (isSingleDeviceTelemetry(data)) {
+                            // Legacy single device format
+                            resolve(data);
+                        } else if ('error' in data) {
+                            // Error response
+                            resolve(data as TelemetryError);
+                        } else {
+                            reject(new Error('Unknown telemetry format'));
+                        }
                     } catch (e) {
                         reject(e);
                     }
                 }
             );
         });
+    }
+
+    /**
+     * Aggregate multi-device telemetry into single view for status bar display
+     */
+    private aggregateTelemetry(multiDevice: MultiDeviceTelemetry): TelemetryData {
+        const devices = multiDevice.devices;
+
+        if (devices.length === 0) {
+            throw new Error('No devices in telemetry data');
+        }
+
+        // For single device, just return it
+        if (devices.length === 1) {
+            return devices[0];
+        }
+
+        // For multiple devices, aggregate metrics
+        const temps = devices.map(d => d.asic_temp);
+        const powers = devices.map(d => d.power);
+        const voltages = devices.map(d => d.voltage);
+        const currents = devices.map(d => d.current);
+
+        return {
+            asic_temp: Math.max(...temps), // Show hottest device
+            board_temp: Math.max(...temps),
+            aiclk: devices[0].aiclk, // All devices should have same clock
+            arcclk: devices[0].arcclk,
+            axiclk: devices[0].axiclk,
+            power: powers.reduce((sum, p) => sum + p, 0), // Total power
+            voltage: voltages.reduce((sum, v) => sum + v, 0) / devices.length, // Avg voltage
+            current: currents.reduce((sum, c) => sum + c, 0), // Total current
+            board_type: `${devices[0].board_type} (${devices.length}x)`,
+            pci_bus: `${devices.length} devices`
+        };
     }
 
     private updateStatusBar(telemetry: TelemetryData) {

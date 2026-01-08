@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.229",
+  "version": "0.0.231",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
         {
           "id": "tenstorrent-sidebar",
           "title": "Tenstorrent",
-          "icon": "assets/img/tt_symbol_purple.svg"
+          "icon": "assets/img/tt_symbol_mono.svg"
         }
       ]
     },

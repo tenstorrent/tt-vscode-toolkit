@@ -22,8 +22,30 @@ export interface TelemetryData {
 }
 
 /**
+ * Multi-device telemetry response (v0.0.230+)
+ */
+export interface MultiDeviceTelemetry {
+    devices: TelemetryData[];
+    count: number;
+}
+
+/**
  * Error response from telemetry reader
  */
 export interface TelemetryError {
     error: string;
+}
+
+/**
+ * Type guard to check if response is multi-device format
+ */
+export function isMultiDeviceTelemetry(data: any): data is MultiDeviceTelemetry {
+    return data && typeof data === 'object' && 'devices' in data && 'count' in data && Array.isArray(data.devices);
+}
+
+/**
+ * Type guard to check if response is single device format (legacy)
+ */
+export function isSingleDeviceTelemetry(data: any): data is TelemetryData {
+    return data && typeof data === 'object' && 'asic_temp' in data && !('devices' in data);
 }

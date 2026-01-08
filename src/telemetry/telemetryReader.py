@@ -120,12 +120,15 @@ try:
         print(json.dumps({"error": "No devices found"}))
         sys.exit(1)
 
-    # Read telemetry from first device
-    # TODO: Support multi-device by returning array of telemetry
-    device_path = devices[0]
-    telemetry = read_device_telemetry(device_path)
+    # Read telemetry from all devices
+    telemetry_data = []
+    for idx, device_path in enumerate(devices):
+        device_telemetry = read_device_telemetry(device_path)
+        device_telemetry['device_index'] = idx  # Add device index for identification
+        telemetry_data.append(device_telemetry)
 
-    print(json.dumps(telemetry))
+    # Output array of telemetry data (one per device)
+    print(json.dumps({"devices": telemetry_data, "count": len(telemetry_data)}))
 
 except Exception as e:
     print(json.dumps({"error": str(e)}))
