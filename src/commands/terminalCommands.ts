@@ -515,6 +515,13 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Runs image filter examples (edge detect, blur, sharpen, emboss)',
   },
 
+  RUN_PARTICLE_LIFE: {
+    id: 'run-particle-life',
+    name: 'Run Particle Life Simulation',
+    template: 'cd ~/tt-scratchpad/cookbook/particle_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 test_particle_life.py',
+    description: 'Runs Particle Life simulation with emergent complexity patterns',
+  },
+
   // ========================================
   // Lesson 17: Native Video Animation with AnimateDiff
   // ========================================

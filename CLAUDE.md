@@ -360,6 +360,27 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.233** - Implemented missing Particle Life cookbook project
+- **NEW:** Particle Life emergent complexity simulator (Recipe 5)
+  - Full N² force calculations between all particle pairs
+  - Multiple species with random attraction/repulsion rules
+  - Beautiful emergent patterns from simple physics
+  - Creates animated GIF showing simulation results
+- **NEW COMMANDS:**
+  - `tenstorrent.createParticleLife` - Creates particle_life project
+  - `tenstorrent.runParticleLife` - Runs the simulation
+- **NEW TEMPLATES:**
+  - `particle_life.py` - Core simulation engine (264 lines)
+  - `test_particle_life.py` - Demo script with visualization
+  - `requirements.txt` - Dependencies (numpy, matplotlib, Pillow)
+  - `README.md` - Complete documentation
+- **UPDATED:** Cookbook now has 5 complete projects (was 4)
+- **UPDATED:** createCookbookProjects deploys all 5 projects
+- **FILES ADDED:**
+  - `content/templates/cookbook/particle_life/*` (4 files)
+- **LESSON CONTENT:** Recipe 5 section existed but implementation was missing
+- All tests passing, extension builds successfully
+
 **v0.0.225** - Mermaid validation tests + fixes (bundling attempt FAILED, rolled back)
 - **NEW:** Added comprehensive mermaid diagram validation tests
   - Syntax validation test (skipped - DOMPurify false positives in Node.js)

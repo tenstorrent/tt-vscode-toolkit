@@ -48,7 +48,7 @@ These projects teach fundamental techniques used in production models:
 
 [📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
 
-This creates all 4 projects in `~/tt-scratchpad/cookbook/` with one command. You can then follow along with each recipe below, or explore the projects directly!
+This creates all 5 projects in `~/tt-scratchpad/cookbook/` with one command. You can then follow along with each recipe below, or explore the projects directly!
 
 ---
 
