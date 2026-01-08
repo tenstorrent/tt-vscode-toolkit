@@ -77,11 +77,6 @@ export class MarkdownRenderer {
             return code;
           }
 
-          // Handle mermaid diagrams
-          if (lang === 'mermaid') {
-            return `<div class="mermaid">${code}</div>`;
-          }
-
           // Output Prism.js-compatible structure for code
           // Don't escape HTML - Prism needs the raw code and will handle it
           const language = lang || 'plaintext';
@@ -93,17 +88,53 @@ export class MarkdownRenderer {
     // Configure marked v17 API with custom renderers for command buttons and images
     marked.use({
       renderer: {
+        // Custom code block renderer to handle mermaid diagrams
+        code(token: any): string | false {
+          const code = token.text;
+          const lang = token.lang || '';
+
+          // Handle mermaid diagrams - output raw div, no pre/code wrapper
+          if (lang === 'mermaid') {
+            return `<div class="mermaid">${code}</div>\n`;
+          }
+
+          // Default behavior for other code blocks - let marked handle it
+          return false;
+        },
         link: (token: any) => {
           const { href, title, tokens } = token;
           const text = this.parseInlineTokens(tokens);
 
           // Check if this is a command link
           if (href && href.startsWith('command:')) {
-            const commandId = href.replace('command:', '');
+            const commandUrl = href.replace('command:', '');
             const titleAttr = title ? ` title="${this.escapeHtml(title)}"` : '';
 
+            // Parse command ID and arguments
+            // Format: commandId?encodedJsonArgs or just commandId
+            let commandId = commandUrl;
+            let argsAttr = '';
+
+            if (commandUrl.includes('?')) {
+              const [cmd, args] = commandUrl.split('?', 2);
+              commandId = cmd;
+
+              // Try to parse arguments (typically URI-encoded JSON like %7B%22lessonId%22%3A%22value%22%7D)
+              try {
+                const decodedArgs = decodeURIComponent(args);
+                const argsObj = JSON.parse(decodedArgs);
+
+                // Store the full arguments object as JSON in data-args attribute
+                // This handles lessonId, hardware, and any future argument types
+                argsAttr = ` data-args='${JSON.stringify(argsObj)}'`;
+              } catch (e) {
+                // If parsing fails, ignore - just use the command ID
+                console.warn('Failed to parse command arguments:', args, e);
+              }
+            }
+
             return `<button class="tt-command-button"
-                            data-command="${this.escapeHtml(commandId)}"
+                            data-command="${this.escapeHtml(commandId)}"${argsAttr}
                             ${titleAttr}>
                       ${text}
                     </button>`;

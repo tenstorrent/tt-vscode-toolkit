@@ -79,11 +79,11 @@ graph TB
     Clients <--> API
     Backend --> Hardware
 
-    style Clients fill:#5347a4,color:#fff
-    style API fill:#3293b2,color:#fff
-    style Batch fill:#499c8d,color:#fff
-    style Backend fill:#499c8d,color:#fff
-    style Hardware fill:#ffb71b,color:#000
+    style Clients fill:#5347a4,stroke:#fff,color:#fff
+    style API fill:#3293b2,stroke:#fff,color:#fff
+    style Batch fill:#499c8d,stroke:#fff,color:#fff
+    style Backend fill:#499c8d,stroke:#fff,color:#fff
+    style Hardware fill:#ffb71b,stroke:#000,color:#000
 ```
 
 ## Prerequisites
@@ -113,13 +113,15 @@ python3 --version  # Need 3.10+
 ```
 
 **If any checks fail:**
+
 - **No hardware?** → See [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)
 - **No tt-metal?** → See [Verify Installation](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22verify-installation%22%7D)
 - **No model?** → See [Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D) or download now:
+
   ```bash
   huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
     --local-dir ~/models/Llama-3.1-8B-Instruct
-```
+  ```
 
 ---
 

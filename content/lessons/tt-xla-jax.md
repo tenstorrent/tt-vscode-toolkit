@@ -68,11 +68,11 @@ graph TB
     MLIR --> Metal
     Metal --> Hardware
 
-    style Code fill:#5347a4,color:#fff
-    style PJRT fill:#3293b2,color:#fff
-    style MLIR fill:#499c8d,color:#fff
-    style Metal fill:#499c8d,color:#fff
-    style Hardware fill:#ffb71b,color:#000
+    style Code fill:#5347a4,stroke:#fff,color:#fff
+    style PJRT fill:#3293b2,stroke:#fff,color:#fff
+    style MLIR fill:#499c8d,stroke:#fff,color:#fff
+    style Metal fill:#499c8d,stroke:#fff,color:#fff
+    style Hardware fill:#ffb71b,stroke:#000,color:#000
 ```
 
 **Key Advantages:**

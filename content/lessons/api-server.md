@@ -55,10 +55,10 @@ graph TB
     Clients <--> Chat
     Clients <--> Health
 
-    style Clients fill:#5347a4,color:#fff
-    style Generator fill:#3293b2,color:#fff
-    style Chat fill:#499c8d,color:#fff
-    style Health fill:#499c8d,color:#fff
+    style Clients fill:#5347a4,stroke:#fff,color:#fff
+    style Generator fill:#3293b2,stroke:#fff,color:#fff
+    style Chat fill:#499c8d,stroke:#fff,color:#fff
+    style Health fill:#499c8d,stroke:#fff,color:#fff
 ```
 
 **Performance:**
@@ -103,14 +103,14 @@ python3 -c "import flask; print('✓ flask installed')"
   huggingface-cli login
   hf download meta-llama/Llama-3.1-8B-Instruct \
     --local-dir ~/models/Llama-3.1-8B-Instruct
-```
+  ```
 
 **No dependencies?**
 - Install Direct API dependencies:
   ```bash
   pip install pi flask
   pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag
-```
+  ```
 
 ---
 

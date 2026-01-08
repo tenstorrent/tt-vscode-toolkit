@@ -24,7 +24,8 @@ interface WebviewMessage {
   type: 'executeCommand' | 'copyCode' | 'ready';
   command?: string;
   code?: string;
-  lessonId?: string;
+  args?: any; // Command arguments (lessonId, hardware, etc.)
+  lessonId?: string; // Deprecated - use args.lessonId instead
 }
 
 /**
@@ -177,7 +178,7 @@ export class LessonWebviewManager {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; script-src 'nonce-${nonce}' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' ${this.panel!.webview.cspSource} https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:;">
   <title>${this.escapeHtml(lesson.title)}</title>
   <link rel="stylesheet" href="${cssUri}">
   <!-- Prism.js for syntax highlighting (VSCode-like theme) -->
@@ -213,16 +214,29 @@ export class LessonWebviewManager {
   <script nonce="${nonce}" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
   <script nonce="${nonce}" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
 
-  <!-- Mermaid.js for diagrams -->
+  <!-- Mermaid.js for diagrams (CDN) -->
   <script nonce="${nonce}" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script nonce="${nonce}">
-    // Initialize mermaid with dark theme for better VSCode integration
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'dark',
-      securityLevel: 'loose',
-      fontFamily: 'var(--vscode-font-family)'
-    });
+    // Initialize mermaid with dark theme after it loads
+    (function() {
+      function initMermaid() {
+        if (typeof mermaid !== 'undefined') {
+          mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            fontFamily: 'var(--vscode-font-family)'
+          });
+        }
+      }
+
+      // Try immediately (if already loaded)
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMermaid);
+      } else {
+        initMermaid();
+      }
+    })();
   </script>
 
   <script nonce="${nonce}" src="${jsUri}"></script>
@@ -282,10 +296,15 @@ export class LessonWebviewManager {
     switch (message.type) {
       case 'executeCommand':
         if (message.command) {
-          // Execute the command with optional lesson ID argument
-          if (message.lessonId) {
+          // Execute the command with optional arguments
+          if (message.args) {
+            // Pass the full args object to the command
+            await vscode.commands.executeCommand(message.command, message.args);
+          } else if (message.lessonId) {
+            // Backwards compatibility: if only lessonId is provided (old format)
             await vscode.commands.executeCommand(message.command, message.lessonId);
           } else {
+            // No arguments
             await vscode.commands.executeCommand(message.command);
           }
 

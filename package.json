@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.219",
+  "version": "0.0.229",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -553,7 +553,7 @@
     "build": "npm run clean && tsc -p ./ && npm run copy-content && npm run clean-pycache",
     "clean": "rm -rf dist/",
     "clean-pycache": "find dist -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true",
-    "copy-content": "mkdir -p dist/content dist/src/webview dist/src/telemetry dist/assets/img dist/themes && cp -r content/lessons dist/content/ && cp -r content/templates dist/content/ && cp -r content/pages dist/content/ && cp -r content/projects dist/content/ && cp content/lesson-registry.json dist/content/ && cp -r src/webview/* dist/src/webview/ && cp src/telemetry/*.py dist/src/telemetry/ && cp -r assets/img/* dist/assets/img/ && cp -r themes/* dist/themes/",
+    "copy-content": "mkdir -p dist/content dist/src/webview dist/src/telemetry dist/assets/img dist/themes dist/vendor && cp -r content/lessons dist/content/ && cp -r content/templates dist/content/ && cp -r content/pages dist/content/ && cp -r content/projects dist/content/ && cp content/lesson-registry.json dist/content/ && cp -r src/webview/* dist/src/webview/ && cp src/telemetry/*.py dist/src/telemetry/ && cp -r assets/img/* dist/assets/img/ && cp -r themes/* dist/themes/ && cp node_modules/mermaid/dist/mermaid.min.js dist/vendor/",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
     "compile": "tsc -p ./",
@@ -574,6 +574,7 @@
     "chai": "^6.2.1",
     "esbuild": "^0.27.2",
     "js-yaml": "^4.1.1",
+    "mermaid": "^11.12.2",
     "mocha": "^11.7.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.0"

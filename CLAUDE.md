@@ -54,12 +54,37 @@ npm run watch         # Auto-recompile on changes
 npm run package       # Create .vsix
 ```
 
+## ⚠️ NO BUNDLING (esbuild/webpack)
+
+**CRITICAL:** This extension CANNOT be bundled with esbuild or webpack.
+
+**Attempts made:**
+- v0.0.125-126 (2025-01-06): First bundling attempt with esbuild
+- v0.0.226 (2025-01-07): Second bundling attempt with esbuild + jsdom external
+
+**Why bundling fails:**
+1. **Tree data providers break** - "no data provider registered" errors
+2. **View registration fails** - Sidebar and toolbar additions disappear
+3. **Module resolution issues** - Dynamic imports and class exports break
+4. **jsdom file dependencies** - Even when marked external, causes runtime errors
+
+**Result:** Both attempts rolled back. Extension works correctly with full node_modules (~60MB, 2031 files).
+
+**DO NOT attempt bundling again.** The extension architecture is incompatible with bundlers.
+
 ## Version Management
 
-**ALWAYS increment version in `package.json` with changes:**
-- New features: increment MINOR (0.0.36 → 0.0.37)
-- Bug fixes: increment PATCH
-- Breaking changes: increment MAJOR
+**⚠️ CRITICAL: ALWAYS increment version in `package.json` after ANY changes:**
+- **Bug fixes:** increment PATCH (0.0.224 → 0.0.225)
+- **New features:** increment MINOR (0.0.36 → 0.0.37)
+- **Breaking changes:** increment MAJOR
+- **Content changes:** increment PATCH (markdown edits, templates, etc.)
+
+**Why this matters:**
+- VSCode extension caching causes issues without version changes
+- Users may see stale content/functionality if version doesn't increment
+- Even small changes (single line fixes) require version bump
+- **Rule:** After completing ANY bugfix, content change, or series of alterations → increment version → rebuild → repackage
 
 ## Testing
 
@@ -334,6 +359,122 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 - API examples and patterns
 
 ## Recent Changes
+
+**v0.0.225** - Mermaid validation tests + fixes (bundling attempt FAILED, rolled back)
+- **NEW:** Added comprehensive mermaid diagram validation tests
+  - Syntax validation test (skipped - DOMPurify false positives in Node.js)
+  - Stroke property validation test (working - catches missing stroke properties)
+  - Node reference validation test (working - catches undefined node references)
+- **FIXED:** Missing stroke properties in 2 lesson diagrams
+  - `content/lessons/api-server.md` - Added stroke to 4 style statements
+  - `content/lessons/tt-xla-jax.md` - Added stroke to 5 style statements
+- **TEST RESULTS:** 189 passing, 0 failing, 18 pending (syntax tests skipped)
+- **BUNDLING ATTEMPT (v0.0.226):** esbuild bundling FAILED, rolled back
+  - Attempted to reduce package size from 60MB → 29MB with esbuild
+  - **FAILED:** Tree data providers broke - "no data provider registered" errors
+  - **FAILED:** Sidebar and toolbar additions disappeared
+  - **FAILED:** Extension would not activate correctly
+  - **ROLLED BACK:** Reverted all bundling changes, kept mermaid fixes
+  - **DOCUMENTED:** Added warning in CLAUDE.md - DO NOT attempt bundling again
+- **FILES MODIFIED:**
+  - `test/lesson-tests/markdown-validation.test.ts` - Added mermaid validation suite
+  - `content/lessons/api-server.md` - Fixed mermaid stroke properties
+  - `content/lessons/tt-xla-jax.md` - Fixed mermaid stroke properties
+  - `CLAUDE.md` - Added bundling warning section
+- **LESSON LEARNED:** This extension architecture is incompatible with bundlers
+- Extension works correctly at v0.0.225 with full node_modules (~60MB, 2031 files)
+- All tests passing (189/189)
+
+**v0.0.224** - Comprehensive command argument handling (all button types)
+- **CRITICAL FIX:** Now handles ALL command argument types, not just lessonId
+- **ARCHITECTURE CHANGE:** Unified argument passing system
+  - Renderer stores full args object in `data-args` attribute as JSON
+  - JavaScript parses `data-args` and sends entire args object to extension
+  - Message handler passes args object to VSCode command API
+- **SUPPORTS ALL ARGUMENT TYPES:**
+  - `lessonId` - Lesson navigation (e.g., "Hardware Detection", "Verify Installation")
+  - `hardware` - Hardware-specific commands (e.g., "Start vLLM Server (N150)")
+  - Any future argument types without code changes
+- **BACKWARDS COMPATIBLE:** Still supports old `message.lessonId` format
+- **FILES MODIFIED:**
+  - `src/renderers/MarkdownRenderer.ts` - Changed to `data-args` with full JSON object
+  - `src/webview/scripts/lesson-viewer.js` - Parse and send full args object
+  - `src/views/LessonWebviewManager.ts` - Updated interface and message handler
+- **TESTED PATTERNS:** All 90+ command links reviewed across all lessons
+- Command types found: Simple (no args), lessonId args, hardware args
+- All command buttons should now work correctly throughout all lessons
+
+**v0.0.223** - Fixed command buttons not working (INCOMPLETE - superseded by v0.0.224)
+- **CRITICAL FIX:** Command buttons with arguments now work correctly
+- Root cause: Command links like `command:foo.bar?%7B%22lessonId%22%3A%22baz%22%7D` were not being parsed
+- Added URL parsing to extract command ID and arguments separately
+- Now properly decodes URI-encoded JSON arguments
+- Sets `data-command` to just command ID (e.g., `tenstorrent.showLesson`)
+- Sets `data-lesson` to lessonId from arguments (e.g., `hardware-detection`)
+- JavaScript already checked for `data-lesson` attribute - it just wasn't being set!
+- **FILES MODIFIED:**
+  - `src/renderers/MarkdownRenderer.ts` - Added command URL parsing logic
+- All command buttons throughout lessons should now work (Hardware Detection, Verify Installation, Download Model, etc.)
+
+**v0.0.222** - Fixed mermaid diagram syntax error
+- **FIX:** Added `stroke` property to mermaid style statements
+- Changed from: `style Node fill:#color,color:#textcolor`
+- To: `style Node fill:#color,stroke:#border,color:#textcolor`
+- Fixed vLLM Production lesson architecture diagram (first diagram in lesson)
+- Mermaid v10 requires explicit stroke (border) color in styling
+- All other diagrams should now render correctly
+
+**v0.0.221** - A/B test: Revert to CDN for mermaid.js debugging
+- **TESTING:** Reverted to CDN approach to debug rendering issues
+- Changed back from local bundling to CDN: `https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js`
+- **KEPT ALL FIXES from v0.0.220:**
+  - Custom code() renderer for mermaid blocks (outputs raw `<div class="mermaid">`)
+  - Markdown formatting fixes (vllm-production.md bullet lists)
+  - Initialization timing with DOMContentLoaded check
+  - List CSS improvements
+- Updated CSP to allow jsdelivr.net again
+- Removed local mermaid bundling references (dist/vendor/)
+- **Purpose:** Isolate whether rendering issue is with local bundling vs mermaid integration
+- Package size: ~59MB (back to pre-bundling size)
+- **FILES MODIFIED:**
+  - `src/views/LessonWebviewManager.ts` - Reverted to CDN URL, removed mermaidUri parameter
+  - `src/renderers/MarkdownRenderer.ts` - KEPT custom code() renderer
+  - `content/lessons/vllm-production.md` - KEPT markdown formatting fixes
+
+**v0.0.220** - Local mermaid.js bundling attempt (RENDERING ISSUES - REVERTED IN v0.0.221)
+- Attempted local bundling but mermaid diagrams failed to render
+- Root cause under investigation
+- **CRITICAL FIX:** Fixed stale content issue where extension appeared out-of-date after installation
+  - Root cause: Incomplete TypeScript recompilation in dist/ directory
+  - Solution: Nuclear clean (rm -rf dist/ node_modules/ *.vsix) before rebuild
+- **BUNDLING IMPROVEMENT:** Switched from CDN to local mermaid.js bundling
+  - Removed jsdelivr.net CDN dependency for mermaid.js
+  - Added mermaid (v11.12.2) as devDependency
+  - Copy mermaid.min.js to dist/vendor/ during build
+  - Updated CSP to allow local scripts from webview.cspSource
+  - No network dependency for diagrams (works offline)
+  - Better privacy (no external requests)
+  - Consistent version (no CDN unpredictability)
+- **MERMAID RENDERING FIX:** Fixed diagrams not rendering on first install
+  - Added DOMContentLoaded check to ensure mermaid.js loads before initialization
+  - Wrapped initialization in IIFE with timing check
+  - Diagrams now render reliably on all page loads
+- **MARKDOWN FIXES:** Fixed list rendering issues
+  - Fixed vllm-production.md bullet list being interpreted as code block
+  - Added proper blank lines around nested code blocks
+  - Fixed code fence indentation (closing ``` must match opening)
+  - Improved list CSS: increased padding, margins, and line-height
+  - Styled bullet markers with primary brand color (teal)
+- **PACKAGE SIZE:** Minimal increase: 59MB → 60.2MB (+1.2MB for local mermaid)
+  - File count: 2030 → 2031 files (+1 file)
+  - Mermaid's dependencies excluded via devDependencies
+- **FILES MODIFIED:**
+  - `package.json` - Added mermaid to devDependencies, updated copy-content script
+  - `src/views/LessonWebviewManager.ts` - Load mermaid from local file, updated CSP, fixed initialization timing
+  - `src/webview/styles/lesson-theme.css` - Improved list spacing and readability
+- **BUILD PROCESS:** Added dist/vendor/ directory for third-party bundled scripts
+- Addresses user concerns: "We shouldn't load it from CDN if we can avoid it"
+- All tests passing (153/153)
 
 **v0.0.219** - Mermaid.js diagrams throughout lessons and welcome content
 - **NEW FEATURE:** Mermaid.js diagram support in all lessons

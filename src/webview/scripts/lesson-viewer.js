@@ -30,7 +30,7 @@
     buttons.forEach(button => {
       button.addEventListener('click', function() {
         const commandId = this.getAttribute('data-command');
-        const lessonId = this.getAttribute('data-lesson');
+        const argsJson = this.getAttribute('data-args');
 
         if (commandId) {
           // Send message to extension to execute command
@@ -39,9 +39,13 @@
             command: commandId
           };
 
-          // If this is a lesson navigation button, include the lesson ID
-          if (lessonId) {
-            message.lessonId = lessonId;
+          // If there are arguments, parse and include them
+          if (argsJson) {
+            try {
+              message.args = JSON.parse(argsJson);
+            } catch (e) {
+              console.warn('Failed to parse command args:', argsJson, e);
+            }
           }
 
           vscode.postMessage(message);

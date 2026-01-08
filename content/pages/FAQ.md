@@ -157,13 +157,17 @@ Host tenstorrent-dev
 **Example of problems:**
 
 If you manually SSH in terminal:
+
 ```bash
 # This command in lesson creates file on your MAC, not remote!
 cat > ~/tt-scratchpad/script.py << 'EOF'
 ...
 EOF
+```
 
-# Then this fails because file is on wrong machine
+Then this fails because the file is on the wrong machine:
+
+```bash
 ssh user@remote python3 ~/tt-scratchpad/script.py
 ```
 

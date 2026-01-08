@@ -43,12 +43,12 @@ sequenceDiagram
     participant Model
     participant Hardware
 
-    Note over User,Hardware: Setup (2-5 min, once)
+    Note over User,Hardware: Setup - 2-5 min, once
     User->>Generator: create_tt_model()
     Generator->>Model: Load weights
     Model->>Hardware: Allocate DRAM
 
-    Note over User,Hardware: Chat Loop (1-3 sec each)
+    Note over User,Hardware: Chat Loop - 1-3 sec each
     loop Each Query
         User->>Generator: Input prompt
         Generator->>Model: Prefill forward
@@ -119,22 +119,18 @@ ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
 
 **All checks passed?** Continue to Step 1 below.
 
-**If any checks fail:**
+**If any checks fail, complete these lessons first:**
 
-**No hardware?**
-- See [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)
+| Issue | Solution |
+|-------|----------|
+| No hardware detected | [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D) |
+| No tt-metal installed | [Verify Installation](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22verify-installation%22%7D) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
+| No model downloaded | [Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D) |
 
-**No tt-metal?**
-- See [Verify Installation](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22verify-installation%22%7D)
-- Or install: [tt-metal installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md)
-
-**No model?**
-- See [Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D)
-- Or quick download:
-  ```bash
-  huggingface-cli login
-  hf download meta-llama/Llama-3.1-8B-Instruct \
-    --local-dir ~/models/Llama-3.1-8B-Instruct
+**Quick model download:**
+```bash
+huggingface-cli login
+hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
 ```
 
 ### Dependencies Required

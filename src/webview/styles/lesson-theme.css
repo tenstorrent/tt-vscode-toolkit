@@ -155,12 +155,18 @@ a:hover {
 
 /* Lists */
 ul, ol {
-  padding-left: 24px;
+  padding-left: 32px;
   margin: 16px 0;
+  line-height: 1.8;
 }
 
 li {
-  margin: 8px 0;
+  margin: 12px 0;
+  padding-left: 8px;
+}
+
+li::marker {
+  color: var(--tt-primary);
 }
 
 /* Code blocks */
