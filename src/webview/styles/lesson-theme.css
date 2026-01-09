@@ -496,6 +496,7 @@ img {
   justify-content: center;
   align-items: center;
   min-height: 200px;
+  white-space: pre;  /* CRITICAL: Preserve newlines for mermaid syntax */
 }
 
 .mermaid svg {
