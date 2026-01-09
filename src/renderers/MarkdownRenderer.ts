@@ -69,11 +69,19 @@ export class MarkdownRenderer {
    * Configure marked with custom renderer and extensions
    */
   private configureMarked(): void {
+    // Capture 'this' for use in renderer callbacks
+    const self = this;
+
     // Setup marked with Prism.js-compatible code blocks and mermaid.js support
     marked.use(
       markedHighlight({
         highlight: (code, lang) => {
-          if (!this.options.enableHighlight) {
+          if (!self.options.enableHighlight) {
+            return code;
+          }
+
+          // Skip mermaid blocks - they need special handling in custom renderer
+          if (lang === 'mermaid') {
             return code;
           }
 
@@ -93,9 +101,10 @@ export class MarkdownRenderer {
           const code = token.text;
           const lang = token.lang || '';
 
-          // Handle mermaid diagrams - output raw div, no pre/code wrapper
+          // Handle mermaid diagrams - use <pre> to preserve whitespace
           if (lang === 'mermaid') {
-            return `<div class="mermaid">${code}</div>\n`;
+            // Escape HTML entities so browser doesn't try to parse mermaid syntax as HTML
+            return `<pre class="mermaid">${self.escapeHtml(code)}</pre>\n`;
           }
 
           // Default behavior for other code blocks - let marked handle it
@@ -103,12 +112,12 @@ export class MarkdownRenderer {
         },
         link: (token: any) => {
           const { href, title, tokens } = token;
-          const text = this.parseInlineTokens(tokens);
+          const text = self.parseInlineTokens(tokens);
 
           // Check if this is a command link
           if (href && href.startsWith('command:')) {
             const commandUrl = href.replace('command:', '');
-            const titleAttr = title ? ` title="${this.escapeHtml(title)}"` : '';
+            const titleAttr = title ? ` title="${self.escapeHtml(title)}"` : '';
 
             // Parse command ID and arguments
             // Format: commandId?encodedJsonArgs or just commandId
@@ -134,27 +143,27 @@ export class MarkdownRenderer {
             }
 
             return `<button class="tt-command-button"
-                            data-command="${this.escapeHtml(commandId)}"${argsAttr}
+                            data-command="${self.escapeHtml(commandId)}"${argsAttr}
                             ${titleAttr}>
                       ${text}
                     </button>`;
           }
 
           // For regular links, use default rendering
-          const escapedHref = this.escapeHtml(href || '');
-          const titleStr = title ? ` title="${this.escapeHtml(title)}"` : '';
+          const escapedHref = self.escapeHtml(href || '');
+          const titleStr = title ? ` title="${self.escapeHtml(title)}"` : '';
           return `<a href="${escapedHref}"${titleStr}>${text}</a>`;
         },
         image: (token: any) => {
           const { href, title, text } = token;
 
           // Transform image URL if transformer is provided
-          const imageUrl = this.options.transformImageUrl
-            ? this.options.transformImageUrl(href)
-            : this.escapeHtml(href || '');
+          const imageUrl = self.options.transformImageUrl
+            ? self.options.transformImageUrl(href)
+            : self.escapeHtml(href || '');
 
-          const titleAttr = title ? ` title="${this.escapeHtml(title)}"` : '';
-          const altText = this.escapeHtml(text || '');
+          const titleAttr = title ? ` title="${self.escapeHtml(title)}"` : '';
+          const altText = self.escapeHtml(text || '');
 
           return `<img src="${imageUrl}" alt="${altText}"${titleAttr}>`;
         }
@@ -192,9 +201,25 @@ export class MarkdownRenderer {
 
     // Sanitize HTML if enabled
     if (this.options.sanitize) {
+      // Extract mermaid blocks before sanitization (they contain special syntax)
+      const mermaidBlocks: string[] = [];
+      const mermaidPlaceholder = '___MERMAID_BLOCK___';
+
+      // Replace mermaid pre blocks with placeholders
+      html = html.replace(/<pre class="mermaid">([\s\S]*?)<\/pre>/g, (_match, content) => {
+        mermaidBlocks.push(content);
+        return `<pre class="mermaid">${mermaidPlaceholder}${mermaidBlocks.length - 1}</pre>`;
+      });
+
+      // Sanitize everything else
       html = DOMPurify.sanitize(html, {
-        ADD_TAGS: ['button'],  // Allow our command buttons
-        ADD_ATTR: ['data-command', 'class'],  // Allow our data attributes
+        ADD_TAGS: ['button', 'div', 'pre'],  // Allow our command buttons, divs, and pre blocks
+        ADD_ATTR: ['data-command', 'class', 'data-args'],  // Allow our data attributes
+      });
+
+      // Restore mermaid blocks with original unsanitized content
+      mermaidBlocks.forEach((content, index) => {
+        html = html.replace(`${mermaidPlaceholder}${index}`, content);
       });
     }
 

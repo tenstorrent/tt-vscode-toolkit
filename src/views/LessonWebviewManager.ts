@@ -214,19 +214,31 @@ export class LessonWebviewManager {
   <script nonce="${nonce}" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
   <script nonce="${nonce}" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
 
-  <!-- Mermaid.js for diagrams (CDN) -->
-  <script nonce="${nonce}" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- Mermaid.js v11 for diagrams (CDN) -->
+  <script nonce="${nonce}" src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script nonce="${nonce}">
     // Initialize mermaid with dark theme after it loads
     (function() {
       function initMermaid() {
         if (typeof mermaid !== 'undefined') {
-          mermaid.initialize({
-            startOnLoad: true,
-            theme: 'dark',
-            securityLevel: 'loose',
-            fontFamily: 'var(--vscode-font-family)'
-          });
+          try {
+            mermaid.initialize({
+              startOnLoad: false,  // We'll manually trigger rendering
+              theme: 'dark',
+              securityLevel: 'loose',
+              fontFamily: 'var(--vscode-font-family)',
+              logLevel: 'error'
+            });
+
+            // Manually render all mermaid diagrams
+            mermaid.run({
+              querySelector: '.mermaid'
+            }).catch(error => {
+              console.error('Mermaid rendering error:', error);
+            });
+          } catch (error) {
+            console.error('Mermaid initialization error:', error);
+          }
         }
       }
 

@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.229",
+  "version": "0.0.239",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -544,6 +544,16 @@
       {
         "command": "tenstorrent.runImageFilters",
         "title": "Run Image Filters Demo",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.createParticleLife",
+        "title": "Create Particle Life Project",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runParticleLife",
+        "title": "Run Particle Life Simulation",
         "category": "Tenstorrent"
       }
     ]
