@@ -360,6 +360,30 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.242** - CS Fundamentals validation + Module 1 fixes
+- **VALIDATION COMPLETE:** Full validation of CS Fundamentals series (7 modules) on QuietBox P300c
+- **NEW REPORT:** `docs/QB_RISCV_follows.md` - Comprehensive validation documentation
+  - Module 1: Executed RISC-V addition example successfully (14 + 7 = 21)
+  - Modules 2-7: Content review (conceptual modules, no executable code)
+  - All technical content verified accurate
+  - Performance numbers validated on real hardware
+- **MODULE 1 FIXES:**
+  - Fixed executable path: `build/` → `build_Release/`
+  - Fixed executable name: Added `metal_example_` prefix
+  - Updated expected output to match actual format
+  - Added note about firmware warnings and multi-device initialization
+  - Fixed command template in `src/commands/terminalCommands.ts`
+- **LESSON UPDATES:**
+  - `content/lessons/cs-fundamentals-01-computer.md` - 2 path corrections + output note
+  - Updated both code block examples and command button
+- **VALIDATION RESULTS:**
+  - Module 1: ✅ Runs correctly on P300c Blackhole
+  - Modules 2-7: ✅ Content accurate, pedagogically sound
+  - Series ready for production release
+- **RECOMMENDATION:** SHIP IT! 🚀
+- Files modified: `content/lessons/cs-fundamentals-01-computer.md`, `src/commands/terminalCommands.ts`, `package.json`
+- All tests passing, extension builds successfully
+
 **v0.0.233** - Implemented missing Particle Life cookbook project
 - **NEW:** Particle Life emergent complexity simulator (Recipe 5)
   - Full N² force calculations between all particle pairs

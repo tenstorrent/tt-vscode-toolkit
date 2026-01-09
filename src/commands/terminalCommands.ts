@@ -458,7 +458,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_RISCV_EXAMPLE: {
     id: 'run-riscv-example',
     name: 'Run RISC-V Addition Example',
-    template: 'cd ~/tt-metal && export TT_METAL_DPRINT_CORES=0,0 && ./build/programming_examples/add_2_integers_in_riscv',
+    template: 'cd ~/tt-metal && export TT_METAL_DPRINT_CORES=0,0 && ./build_Release/programming_examples/metal_example_add_2_integers_in_riscv',
     description: 'Runs the RISC-V addition example on BRISC processor',
   },
 
