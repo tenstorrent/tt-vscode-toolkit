@@ -51,6 +51,10 @@ TEST_SUMMARY.md
 # Vendor reference repos (NOT deployed with extension)
 vendor/**
 
+# Large asset files (keep in repo for documentation, exclude from package)
+# Exclude all .gif files from package (but keep in repo)
+**/*.gif
+
 # Backup files
 *.bak
 *.log
