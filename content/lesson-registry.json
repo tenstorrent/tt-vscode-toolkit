@@ -267,11 +267,13 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300"
       ],
       "completionEvents": [
         "onCommand:tenstorrent.startVllmServer"
@@ -299,7 +301,8 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300"
       ],
       "status": "validated",
       "validatedOn": [
@@ -531,11 +534,13 @@
         "t3k",
         "p100",
         "p150",
+        "p300",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300"
       ],
       "completionEvents": [
         "onCommand:tenstorrent.createCookbookProjects"

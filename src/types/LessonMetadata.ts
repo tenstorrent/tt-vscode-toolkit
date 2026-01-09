@@ -14,6 +14,7 @@ export type HardwareType =
   | 't3k'     // Wormhole - 8 Chips
   | 'p100'    // Blackhole - Single Chip
   | 'p150'    // Blackhole - Dual Chip
+  | 'p300'    // Blackhole - Single Chip (QuietBox)
   | 'galaxy'  // Galaxy configuration
   | 'simulator'; // Simulator mode
 
