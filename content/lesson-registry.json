@@ -37,10 +37,17 @@
       "icon": "lightbulb"
     },
     {
+      "id": "cs-fundamentals",
+      "title": "🧠 CS Fundamentals",
+      "description": "Computer architecture, memory, parallelism, and systems programming on real hardware",
+      "order": 6,
+      "icon": "circuit-board"
+    },
+    {
       "id": "advanced",
       "title": "🎓 Advanced Topics",
       "description": "Low-level programming, installation, and community contributions",
-      "order": 6,
+      "order": 7,
       "icon": "mortar-board"
     }
   ],
@@ -437,22 +444,23 @@
         "inference"
       ],
       "previousLesson": "forge-image-classification",
-      "nextLesson": "riscv-programming",
+      "nextLesson": "cs-fundamentals-01-computer",
       "estimatedMinutes": 10
     },
     {
-      "id": "riscv-programming",
-      "title": "RISC-V Programming on Tensix Cores",
-      "description": "Explore 880 RISC-V processors on a single chip! Program the five RISC-V cores (BRISC, NCRISC, TRISC0/1/2) inside each Tensix. Learn bare-metal programming, NoC communication, and parallel computing at scale. Includes comprehensive exploration guide.",
-      "category": "advanced",
-      "order": 13,
-      "markdownFile": "content/lessons/riscv-programming.md",
+      "id": "cs-fundamentals-01-computer",
+      "title": "Module 1: What is a Computer?",
+      "description": "Von Neumann architecture, fetch-decode-execute cycle, and RISC-V fundamentals. Understand how 880 processors work by mastering one.",
+      "category": "cs-fundamentals",
+      "order": 1,
+      "markdownFile": "content/lessons/cs-fundamentals-01-computer.md",
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
         "p100",
         "p150",
+        "p300",
         "galaxy"
       ],
       "status": "draft",
@@ -460,10 +468,194 @@
       "completionEvents": [
         "onCommand:tenstorrent.runRiscvExample"
       ],
-      "tags": [],
+      "tags": [
+        "architecture",
+        "risc-v",
+        "fundamentals"
+      ],
       "previousLesson": "tt-xla-jax",
+      "nextLesson": "cs-fundamentals-02-memory",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cs-fundamentals-02-memory",
+      "title": "Module 2: The Memory Hierarchy",
+      "description": "Cache locality, bandwidth tradeoffs, and near-memory compute. Experience the memory hierarchy from registers to DRAM.",
+      "category": "cs-fundamentals",
+      "order": 2,
+      "markdownFile": "content/lessons/cs-fundamentals-02-memory.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.runMemoryHierarchyExample"
+      ],
+      "tags": [
+        "memory",
+        "cache",
+        "performance"
+      ],
+      "previousLesson": "cs-fundamentals-01-computer",
+      "nextLesson": "cs-fundamentals-03-parallelism",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cs-fundamentals-03-parallelism",
+      "title": "Module 3: Parallel Computing",
+      "description": "Amdahl's Law, SPMD patterns, and data parallelism. Scale from 1 to 880 cores and understand when parallelism helps (and when it doesn't).",
+      "category": "cs-fundamentals",
+      "order": 3,
+      "markdownFile": "content/lessons/cs-fundamentals-03-parallelism.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.runParallelismExample"
+      ],
+      "tags": [
+        "parallel",
+        "amdahl",
+        "spmd"
+      ],
+      "previousLesson": "cs-fundamentals-02-memory",
+      "nextLesson": "cs-fundamentals-04-networks",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cs-fundamentals-04-networks",
+      "title": "Module 4: Networks and Communication",
+      "description": "Message passing, network topologies, and routing. Master the Network-on-Chip that connects 880 cores.",
+      "category": "cs-fundamentals",
+      "order": 4,
+      "markdownFile": "content/lessons/cs-fundamentals-04-networks.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.runNetworkExample"
+      ],
+      "tags": [
+        "networks",
+        "noc",
+        "communication"
+      ],
+      "previousLesson": "cs-fundamentals-03-parallelism",
+      "nextLesson": "cs-fundamentals-05-synchronization",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cs-fundamentals-05-synchronization",
+      "title": "Module 5: Synchronization",
+      "description": "Race conditions, barriers, and coordination. Learn explicit synchronization on hardware without cache coherence.",
+      "category": "cs-fundamentals",
+      "order": 5,
+      "markdownFile": "content/lessons/cs-fundamentals-05-synchronization.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.runSynchronizationExample"
+      ],
+      "tags": [
+        "synchronization",
+        "barriers",
+        "concurrency"
+      ],
+      "previousLesson": "cs-fundamentals-04-networks",
+      "nextLesson": "cs-fundamentals-06-abstraction",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cs-fundamentals-06-abstraction",
+      "title": "Module 6: Abstraction Layers",
+      "description": "From Python to machine code. Understand the compilation pipeline and when abstractions help (and when they hurt).",
+      "category": "cs-fundamentals",
+      "order": 6,
+      "markdownFile": "content/lessons/cs-fundamentals-06-abstraction.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.runAbstractionExample"
+      ],
+      "tags": [
+        "abstraction",
+        "compilation",
+        "performance"
+      ],
+      "previousLesson": "cs-fundamentals-05-synchronization",
+      "nextLesson": "cs-fundamentals-07-complexity",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cs-fundamentals-07-complexity",
+      "title": "Module 7: Computational Complexity in Practice",
+      "description": "Big-O meets real hardware. See why constants matter and how algorithm-hardware co-design achieves breakthrough performance.",
+      "category": "cs-fundamentals",
+      "order": 7,
+      "markdownFile": "content/lessons/cs-fundamentals-07-complexity.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.runComplexityExample"
+      ],
+      "tags": [
+        "complexity",
+        "performance",
+        "optimization"
+      ],
+      "previousLesson": "cs-fundamentals-06-abstraction",
       "nextLesson": "bounty-program",
-      "estimatedMinutes": 10
+      "estimatedMinutes": 30
     },
     {
       "id": "bounty-program",
