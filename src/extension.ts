@@ -3488,7 +3488,7 @@ async function createCookbookProjects(): Promise<void> {
     fs.writeFileSync(envPath, envContent);
 
     // Show success message with file count
-    const projects = ['game_of_life', 'audio_processor', 'mandelbrot', 'image_filters'];
+    const projects = ['game_of_life', 'audio_processor', 'mandelbrot', 'image_filters', 'particle_life'];
     const fileCount = projects.reduce((count, project) => {
       const projectPath = path.join(scratchpadPath, project);
       if (fs.existsSync(projectPath)) {
@@ -3542,7 +3542,7 @@ async function createCookbookProjects(): Promise<void> {
       </head>
       <body>
         <h1>🎉 Cookbook Projects Created!</h1>
-        <p>All 4 projects have been deployed to: <code>${scratchpadPath}</code></p>
+        <p>All 5 projects have been deployed to: <code>${scratchpadPath}</code></p>
 
         <h2>Projects</h2>
 
@@ -3576,6 +3576,14 @@ python explorer.py</pre>
           <pre>cd ${scratchpadPath}/image_filters
 pip install -r requirements.txt
 python filters.py examples/sample.jpg</pre>
+        </div>
+
+        <div class="project">
+          <h3>🌌 Particle Life</h3>
+          <p>Emergent complexity simulator with N² force calculations</p>
+          <pre>cd ${scratchpadPath}/particle_life
+pip install -r requirements.txt
+python test_particle_life.py</pre>
         </div>
 
         <h2>Next Steps</h2>
@@ -3678,6 +3686,103 @@ async function runImageFilters(): Promise<void> {
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_IMAGE_FILTERS.template);
   vscode.window.showInformationMessage(
     '🖼️ Running image filters demo. See edge detect, blur, sharpen, emboss, and oil painting effects!'
+  );
+}
+
+/**
+ * Command: tenstorrent.createParticleLife
+ * Creates the Particle Life project in ~/tt-scratchpad/cookbook/particle_life/
+ */
+async function createParticleLife(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const projectPath = path.join(homeDir, 'tt-scratchpad', 'cookbook', 'particle_life');
+
+  // Get extension's template directory
+  const extensionPath = extensionContext.extensionPath;
+
+  // Try dist/ first (production), then content/ (development)
+  let templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'cookbook', 'particle_life');
+  if (!fs.existsSync(templatePath)) {
+    templatePath = path.join(extensionPath, 'content', 'templates', 'cookbook', 'particle_life');
+  }
+
+  // Check if templates exist
+  if (!fs.existsSync(templatePath)) {
+    vscode.window.showErrorMessage(
+      `Particle Life templates not found. Checked:\n- ${path.join(extensionPath, 'dist', 'content', 'templates', 'cookbook', 'particle_life')}\n- ${path.join(extensionPath, 'content', 'templates', 'cookbook', 'particle_life')}`
+    );
+    return;
+  }
+
+  // Check if destination already exists
+  if (fs.existsSync(projectPath)) {
+    const choice = await vscode.window.showWarningMessage(
+      `Particle Life project already exists at ${projectPath}. Overwrite?`,
+      'Overwrite',
+      'Cancel'
+    );
+
+    if (choice !== 'Overwrite') {
+      return;
+    }
+
+    // Remove existing directory
+    fs.rmSync(projectPath, { recursive: true, force: true });
+  }
+
+  // Create project directory
+  fs.mkdirSync(projectPath, { recursive: true });
+
+  // Copy all files recursively
+  function copyDir(src: string, dest: string) {
+    fs.mkdirSync(dest, { recursive: true });
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+
+      if (entry.isDirectory()) {
+        copyDir(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
+  try {
+    copyDir(templatePath, projectPath);
+
+    // Count files
+    const fileCount = fs.readdirSync(projectPath).length;
+
+    vscode.window.showInformationMessage(
+      `✓ Created Particle Life project with ${fileCount} files in ${projectPath}`
+    );
+
+    // Open the project folder
+    const uri = vscode.Uri.file(projectPath);
+    await vscode.commands.executeCommand('revealInExplorer', uri);
+
+  } catch (error) {
+    vscode.window.showErrorMessage(
+      `Failed to create Particle Life project: ${error}`
+    );
+  }
+}
+
+/**
+ * Command: tenstorrent.runParticleLife
+ * Runs Particle Life simulation with emergent complexity patterns
+ */
+async function runParticleLife(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_PARTICLE_LIFE.template);
+  vscode.window.showInformationMessage(
+    '🌌 Running Particle Life simulation! Watch as emergent patterns form from simple rules. This will create particle_life.gif in the project directory (~3 minutes on N150).'
   );
 }
 
@@ -4438,6 +4543,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runMandelbrotJulia', runMandelbrotJulia),
     vscode.commands.registerCommand('tenstorrent.runAudioProcessor', runAudioProcessor),
     vscode.commands.registerCommand('tenstorrent.runImageFilters', runImageFilters),
+    vscode.commands.registerCommand('tenstorrent.createParticleLife', createParticleLife),
+    vscode.commands.registerCommand('tenstorrent.runParticleLife', runParticleLife),
 
     // Lesson 17 - Native Video Animation with AnimateDiff
     vscode.commands.registerCommand('tenstorrent.setupAnimateDiffProject', setupAnimateDiffProject),
