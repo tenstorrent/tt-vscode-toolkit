@@ -13,6 +13,37 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
+## 🔧 Recent Multi-Device API Update (Jan 2026)
+
+**IMPORTANT:** Multi-device TTNN code must now use `CreateDevices`/`CloseDevices` API.
+
+**Problem:** Opening/closing devices individually causes dispatch core errors:
+```python
+# ❌ OLD (Broken)
+for id in range(4):
+    device = ttnn.open_device(device_id=id)
+    devices.append(device)
+for device in devices:
+    ttnn.close_device(device)  # Crashes with dispatch core error
+```
+
+**Solution:** Use coordinated device management:
+```python
+# ✅ NEW (Required)
+num_devices = ttnn.GetNumAvailableDevices()
+devices = ttnn.CreateDevices(list(range(num_devices)))
+try:
+    # Use devices...
+finally:
+    ttnn.CloseDevices(devices)  # Proper cleanup
+```
+
+**Updated templates:**
+- `content/templates/cookbook/particle_life/particle_life_multi_device.py`
+- `content/templates/cookbook/particle_life/test_multi_device.py`
+
+See `MULTI_DEVICE_FIX.md` for full details.
+
 ## Hardware Configuration Formatting
 
 **v0.0.98+ (Current)**: Lesson 7 uses clean markdown headers for better walkthrough rendering:

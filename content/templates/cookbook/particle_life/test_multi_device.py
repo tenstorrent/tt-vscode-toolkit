@@ -44,26 +44,27 @@ def test_multi_device():
     print("TEST 2: MULTI-DEVICE MODE")
     print("=" * 60)
 
-    # Open all available devices
+    # Detect number of available devices
     print("\nDetecting available devices...")
-    devices = []
-    device_id = 0
-    while True:
-        try:
-            device = ttnn.open_device(device_id=device_id)
-            devices.append(device)
-            print(f"✓ Device {device_id} opened")
-            device_id += 1
-        except:
-            break
+    num_devices = ttnn.GetNumAvailableDevices()
 
-    if len(devices) == 0:
+    if num_devices == 0:
         print("ERROR: No devices found!")
         return None
 
-    print(f"\n✓ Found {len(devices)} device(s)")
+    print(f"✓ Found {num_devices} device(s)")
+
+    # For multi-device, use CreateDevices API for proper coordination
+    devices = []
+    opened_device_ids = list(range(num_devices))
 
     try:
+        # Open devices using CreateDevices for proper multi-device support
+        # This is required to avoid dispatch core errors during cleanup
+        devices = ttnn.CreateDevices(opened_device_ids)
+
+        print(f"✓ Opened {len(devices)} devices using CreateDevices API")
+
         sim = ParticleLifeMultiDevice(
             devices=devices,
             num_particles=2048,
@@ -79,8 +80,9 @@ def test_multi_device():
         return history
 
     finally:
-        for device in devices:
-            ttnn.close_device(device)
+        # Close devices using proper multi-device cleanup
+        if devices:
+            ttnn.CloseDevices(devices)
 
 
 def main():

@@ -391,27 +391,27 @@ if __name__ == "__main__":
     use_multi_device = '--multi-device' in sys.argv or '-m' in sys.argv
 
     if use_multi_device:
-        # Open all available TT devices
+        # Detect available TT devices
         print("Detecting available devices...")
-        devices = []
-        device_id = 0
-        while True:
-            try:
-                device = ttnn.open_device(device_id=device_id)
-                devices.append(device)
-                print(f"✓ Device {device_id} opened")
-                device_id += 1
-            except:
-                break
+        num_devices = ttnn.GetNumAvailableDevices()
 
-        if len(devices) == 0:
+        if num_devices == 0:
             print("ERROR: No devices found!")
             sys.exit(1)
 
-        print(f"\n✓ Found {len(devices)} device(s)")
+        print(f"✓ Found {num_devices} device(s)")
+
+        # Open devices using CreateDevices for proper multi-device support
+        opened_device_ids = list(range(num_devices))
+        devices = []
 
         try:
             print("\nInitializing Multi-Device Particle Life simulation...")
+
+            # Open all devices using CreateDevices API
+            # This is the recommended approach for multi-device scenarios
+            devices = ttnn.CreateDevices(opened_device_ids)
+            print(f"✓ Opened {len(devices)} devices using CreateDevices API")
 
             # Create simulation with all devices
             sim = ParticleLifeMultiDevice(
@@ -429,9 +429,10 @@ if __name__ == "__main__":
             print("\nTo create animation, run: python test_particle_life.py")
 
         finally:
-            # Close all devices
-            for device in devices:
-                ttnn.close_device(device)
+            # Close devices using proper multi-device cleanup
+            # CloseDevices ensures coordinated shutdown of all devices
+            if devices:
+                ttnn.CloseDevices(devices)
     else:
         # Single device mode
         device = ttnn.open_device(device_id=0)
