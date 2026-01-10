@@ -1,8 +1,8 @@
 ---
 id: image-generation
-title: Image Generation with SD 3.5 Large
+title: Image Generation with Stable Diffusion XL
 description: >-
-  Generate high-resolution 1024x1024 images using Stable Diffusion 3.5 Large
+  Generate high-resolution 1024x1024 images using Stable Diffusion XL Base
   running natively on your Tenstorrent hardware!
 category: advanced
 tags:
@@ -20,13 +20,13 @@ status: validated
 estimatedMinutes: 20
 ---
 
-# Image Generation with Stable Diffusion 3.5 Large
+# Image Generation with Stable Diffusion XL
 
-Generate images on your Tenstorrent hardware using Stable Diffusion 3.5 Large - turn text prompts into high-resolution images powered by your N150!
+Generate images on your Tenstorrent hardware using Stable Diffusion XL Base - turn text prompts into high-resolution images powered by your hardware!
 
-## What is Stable Diffusion?
+## What is Stable Diffusion XL?
 
-**Stable Diffusion 3.5 Large** is a state-of-the-art text-to-image diffusion model that generates high-quality 1024x1024 images from text descriptions. This version uses a Multimodal Diffusion Transformer (MMDiT) architecture.
+**Stable Diffusion XL Base** is a powerful text-to-image diffusion model that generates high-quality 1024x1024 images from text descriptions. SDXL uses a two-stage architecture with dual text encoders (CLIP-L and OpenCLIP-G) for improved prompt understanding.
 
 **Why Image Generation on Tenstorrent?**
 - 🎨 **Native TT Acceleration** - Runs directly on Tenstorrent hardware using tt-metal
@@ -43,7 +43,7 @@ Generate images on your Tenstorrent hardware using Stable Diffusion 3.5 Large - 
 
 ## Architecture
 
-Stable Diffusion 3.5 uses a Multimodal Diffusion Transformer (MMDiT):
+Stable Diffusion XL uses a two-stage architecture with dual text encoders:
 
 ```text
 ┌──────────────────────────────────────┐
@@ -54,17 +54,16 @@ Stable Diffusion 3.5 uses a Multimodal Diffusion Transformer (MMDiT):
               │
               ▼
      ┌────────────────────────────┐
-     │ 3 Text Encoders:           │
+     │ Dual Text Encoders:        │
      │ • CLIP-L (OpenAI)          │ ← Encode text to embeddings
-     │ • CLIP-G (OpenCLIP)        │
-     │ • T5-XXL (Google)          │
+     │ • OpenCLIP-G (laion)       │   (pooled + sequence)
      └────────┬───────────────────┘
               │
               ▼
      ┌────────────────────────────┐
-     │ MMDiT Transformer          │ ← Generate latent representation
-     │ (38 blocks)                │    (28 denoising steps)
-     │ Running on TT Hardware     │
+     │ UNet Diffusion Model       │ ← Generate latent representation
+     │ Running on TT Hardware     │    (28-50 denoising steps)
+     │ Cross-attention layers     │
      └────────┬───────────────────┘
               │
               ▼
@@ -83,7 +82,7 @@ Stable Diffusion 3.5 uses a Multimodal Diffusion Transformer (MMDiT):
 
 ## Hardware Compatibility
 
-Stable Diffusion 3.5 Large runs on Tenstorrent hardware with native TT-NN acceleration (not CPU fallback!):
+Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN acceleration (not CPU fallback!):
 
 | Hardware | Status | Performance | Notes |
 |----------|--------|-------------|-------|
@@ -107,35 +106,28 @@ Look for the "Board Type" field in the output (e.g., n150, n300, t3k, p100).
 ## Prerequisites
 
 - tt-metal installed and working (completed Lesson 2)
-- Hugging Face account with access to SD 3.5 Large
+- Hugging Face account (for automatic model download)
 - Tenstorrent hardware (see compatibility table above)
 - ~10-15 GB disk space for model weights
 
 ---
 
-## Model: Stable Diffusion 3.5 Large
+## Model: Stable Diffusion XL Base
 
-We'll use **Stable Diffusion 3.5 Large** which runs natively on Tenstorrent hardware using tt-metal.
+We'll use **Stable Diffusion XL Base 1.0** which runs natively on Tenstorrent hardware using tt-metal.
 
 **Model Details:**
+- **HuggingFace Model:** `stabilityai/stable-diffusion-xl-base-1.0`
 - **Size:** ~10 GB
 - **Resolution:** 1024x1024 images (high quality!)
-- **Speed:** ~12-15 seconds per image on N150
-- **Architecture:** MMDiT (Multimodal Diffusion Transformer)
-- **Inference Steps:** 28 (optimized for quality/speed)
+- **Speed:** ~12-15 seconds per image on N150 (varies by hardware)
+- **Architecture:** UNet with dual text encoders (CLIP-L + OpenCLIP-G)
+- **Inference Steps:** 28-50 (configurable)
 - **Hardware:** Runs on TT-NN operators (native acceleration)
 
-## Step 1: Grant Model Access
+## Step 1: Authenticate with Hugging Face
 
-Stable Diffusion 3.5 Large requires access from Hugging Face:
-
-1. Visit [stabilityai/stable-diffusion-3.5-large](https://huggingface.co/stabilityai/stable-diffusion-3.5-large)
-2. Click "Agree and access repository"
-3. Login with your Hugging Face account
-
-## Step 2: Authenticate with Hugging Face
-
-Login to download the model (uses token from Lesson 3):
+The model will be automatically downloaded from Hugging Face the first time you run it. Login to enable downloading:
 
 ```bash
 huggingface-cli login
@@ -143,9 +135,9 @@ huggingface-cli login
 
 [🔐 Login to Hugging Face](command:tenstorrent.loginHuggingFace)
 
-The model will be automatically downloaded the first time you run it.
+**Note:** SDXL Base 1.0 is publicly available and doesn't require special access permissions.
 
-## Step 3: Configure for Your Hardware
+## Step 2: Configure for Your Hardware
 
 Set the appropriate mesh device environment variable for your hardware:
 
@@ -203,18 +195,18 @@ export TT_METAL_ARCH_NAME=blackhole  # Required for Blackhole
 - Optimizes model parallelization for your chip count
 - Enables appropriate memory management
 
-## Step 4: Generate Your First Image
+## Step 3: Generate Your First Image
 
-Run the Stable Diffusion 3.5 demo with a sample prompt (using the MESH_DEVICE you set in Step 3):
+Run the Stable Diffusion XL demo with a sample prompt (using the MESH_DEVICE you set in Step 2):
 
 ```bash
 mkdir -p ~/tt-scratchpad
 cd ~/tt-scratchpad
 export PYTHONPATH=~/tt-metal:$PYTHONPATH
-# Use the MESH_DEVICE you set in Step 3 (N150, N300, T3K, or P100)
+# Use the MESH_DEVICE you set in Step 2 (N150, N300, T3K, or P100)
 
 # Run with default prompt
-pytest ~/tt-metal/models/experimental/stable_diffusion_35_large/demo.py
+pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py
 ```
 
 [🎨 Generate Sample Image](command:tenstorrent.generateRetroImage)
@@ -222,19 +214,21 @@ pytest ~/tt-metal/models/experimental/stable_diffusion_35_large/demo.py
 **What you'll see:**
 
 ```text
-Loading Stable Diffusion 3.5 Large from stabilityai...
-Initializing MMDiT transformer on your hardware...
-✓ Model loaded on TT hardware
+Loading Stable Diffusion XL Base from stabilityai...
+✓ Model loaded from stabilityai/stable-diffusion-xl-base-1.0
+✓ Initializing UNet on TT hardware
+✓ Encoders loaded (CLIP-L + OpenCLIP-G)
 
-Generating 1024x1024 image (28 inference steps)...
-Step 1/28... 2/28... 5/28... 10/28... 15/28... 20/28... 25/28... 28/28
+Generating 1024x1024 image (28-50 inference steps)...
+Processing... (first generation takes longer - model compilation + warmup)
 Decoding with VAE...
 
-✓ Image saved to: sd35_1024_1024.png
-Generation time: [varies by hardware - see Step 3 performance notes]
+✓ Image generation complete!
+✓ Image saved to: output directory
+Generation time: [varies by hardware - see Step 2 performance notes]
 ```
 
-The generated image will be saved to `~/tt-scratchpad/sd35_1024_1024.png`.
+The generated image will be saved according to the test configuration.
 
 ## Step 5: Interactive Mode - Try Your Own Prompts
 
@@ -247,18 +241,10 @@ export PYTHONPATH=~/tt-metal:$PYTHONPATH
 # Use the MESH_DEVICE you set in Step 3
 
 # Run interactive mode
-pytest ~/tt-metal/models/experimental/stable_diffusion_35_large/demo.py
+pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo.py
 ```
 
-[🖼️ Start Interactive Image Generation](command:tenstorrent.startInteractiveImageGen)
-
-**When prompted, enter your custom text:**
-
-```text
-Enter the input prompt, or q to exit: If Tenstorrent were a company in the 1960s and 1970s, retro corporate office, vintage computers, orange and brown color scheme
-```
-
-The model will generate a new image for each prompt and save it to `~/tt-scratchpad/sd35_1024_1024.png`. Type `q` to exit.
+**Note:** The current demo.py uses pytest configuration. For a more interactive experience, see the "Create Your Own Demo" section below.
 
 **Example prompts to try:**
 
@@ -320,9 +306,9 @@ The model will generate a new image for each prompt and save it to `~/tt-scratch
 
 ### Example Output
 
-Here's what you can create with Stable Diffusion 3.5 on Tenstorrent hardware:
+Here's what you can create with Stable Diffusion XL on Tenstorrent hardware:
 
-![Snowy Cabin - Generated with Stable Diffusion 3.5](/assets/img/sd35_snowy_cabin.png)
+![Snowy Cabin - Generated with Stable Diffusion XL](/assets/img/sdxl_snowy_cabin.png)
 
 *Generated with prompt: "A cozy cabin in a snowy forest, warm lights in windows, winter evening, oil painting style"*
 
@@ -334,13 +320,46 @@ Here's what you can create with Stable Diffusion 3.5 on Tenstorrent hardware:
 
 ---
 
+## Step 5: Create Your Own Interactive Demo (Advanced)
+
+**Want a simpler, more interactive experience?** The pytest-based demo is powerful but complex. You can create a simplified demo script:
+
+```python
+# ~/tt-scratchpad/simple_sdxl_demo.py
+import ttnn
+from diffusers import DiffusionPipeline
+import torch
+
+# Load model
+pipeline = DiffusionPipeline.from_pretrained(
+    "stabilityai/stable-diffusion-xl-base-1.0",
+    torch_dtype=torch.float32,
+    use_safetensors=True
+)
+
+# Generate image
+prompt = input("Enter your prompt: ")
+image = pipeline(
+    prompt=prompt,
+    num_inference_steps=28,
+    guidance_scale=7.5
+).images[0]
+
+# Save
+output_path = f"sdxl_output.png"
+image.save(output_path)
+print(f"✅ Image saved to: {output_path}")
+```
+
+This is a simpler starting point that you can customize further!
+
 ## Step 6: Experiment with Code (Advanced)
 
 **Ready to go beyond button-pressing?** Copy the demo to your scratchpad and modify it:
 
 [📝 Copy Demo to Scratchpad](command:tenstorrent.copyImageGenDemo)
 
-This copies `demo.py` to `~/tt-scratchpad/sd35_demo.py` and opens it for editing.
+This copies `demo.py` to `~/tt-scratchpad/sdxl_demo.py` and opens it for editing.
 
 **What you can experiment with:**
 
@@ -397,7 +416,7 @@ image = pipe(
 **Tips for code experiments:**
 - Model stays loaded between generations (fast iterations!)
 - Save images with descriptive names: `prompt_seed_guidance.png`
-- Keep `num_inference_steps=28` (optimized for SD 3.5)
+- Keep `num_inference_steps=28` (optimized for SDXL)
 - Experiment with `guidance_scale` between 2.0-7.5
 - Use seeds for reproducibility (same seed = same image)
 
@@ -405,29 +424,31 @@ image = pipe(
 
 ## Understanding the Generation Process
 
-### **Diffusion Process in SD 3.5:**
+### **Diffusion Process in SDXL:**
 
-1. **Text Encoding** - Three encoders (CLIP-L, CLIP-G, T5-XXL) process your prompt
-2. **Start with noise** - Begin with random latent representation
-3. **Denoise iteratively** - MMDiT transformer removes noise in 28 steps
-4. **Each step runs on TT hardware** - Native acceleration on N150
-5. **VAE Decoding** - Convert latents to 1024x1024 pixel image
+1. **Text Encoding** - Dual encoders (CLIP-L + OpenCLIP-G) process your prompt into embeddings
+2. **Start with noise** - Begin with random latent representation in 128x128 latent space
+3. **Denoise iteratively** - UNet removes noise in 28-50 steps guided by text embeddings
+4. **Each step runs on TT hardware** - Native TT-NN acceleration on Tensix cores
+5. **VAE Decoding** - Convert 128x128 latents to 1024x1024 pixel image (8x upscaling)
 
 ### **Key Parameters:**
 
-**num_inference_steps (28)**
-- Optimized for SD 3.5 Large
-- Balances quality and speed
-- Fixed in the demo (can't be changed without model retraining)
+**num_inference_steps (28-50)**
+- Number of denoising steps
+- 28: Faster generation (~12-15 sec)
+- 50: Higher quality but slower (~20-25 sec)
+- Configurable via pytest parameters
 
-**guidance_scale (3.5)**
+**guidance_scale (7.5)**
 - How closely to follow your prompt
-- 3.5: Optimized default for SD 3.5
-- Lower than SD 1.x because of improved architecture
+- 7.5: Standard default for SDXL Base
+- Higher values = more literal interpretation
+- Lower values = more creative freedom
 
 **image_w, image_h (1024x1024)**
 - High resolution output
-- Can be adjusted but 1024x1024 is optimal for SD 3.5
+- Can be adjusted but 1024x1024 is optimal for SDXL
 
 **seed (0)**
 - Random seed for reproducibility

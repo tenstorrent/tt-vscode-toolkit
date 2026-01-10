@@ -880,19 +880,161 @@ We explored 7 fundamental CS concepts on real hardware:
 
 ---
 
-## Congratulations!
+## Part 10: Full Circle - Back to RISC-V
+
+**Remember Module 1?** You ran a simple RISC-V addition example:
+
+```risc-v
+# In Module 1: Simple addition on ONE RISC-V core
+addi t0, zero, 14
+addi t1, zero, 7
+add  t2, t0, t1
+```
+
+**Now in Module 7, you understand:**
+
+```text
+┌─────────────────────────────────────────┐
+│ Flash Attention across 880 RISC-V cores │
+│                                         │
+│ Each core:                              │
+│ - Executes RISC-V instructions         │
+│ - Has 1 MB L1 SRAM (near-memory)       │
+│ - Communicates via NoC                  │
+│ - Runs at 1 GHz                         │
+│                                         │
+│ Together:                               │
+│ - 880 cores × 1 MB = 880 MB on-chip     │
+│ - 4-6x speedup vs GPU (O(n²)→O(n))      │
+│ - Tile-based memory access patterns     │
+│ - Explicit synchronization (no cache)   │
+│                                         │
+│ Same fetch-decode-execute cycle.        │
+│ Same RISC-V ISA (RV32IM).               │
+│ Now orchestrated at massive scale.      │
+└─────────────────────────────────────────┘
+```
+
+### **The Seven-Module Journey:**
+
+1. **Module 1 (RISC-V):** Understood ONE core's fetch-decode-execute cycle
+2. **Module 2 (Memory):** Learned why 1 MB L1 SRAM matters (200-cycle DRAM penalty!)
+3. **Module 3 (Parallelism):** Scaled from 1 → 880 cores (Amdahl's Law constraints)
+4. **Module 4 (Networks):** Mastered the NoC connecting those 880 cores
+5. **Module 5 (Sync):** Learned explicit barriers (no cache coherence hardware)
+6. **Module 6 (Abstraction):** Understood Python → TTNN → C++ → RISC-V stack
+7. **Module 7 (Complexity):** Applied everything to real algorithm optimization
+
+**You started with `add t2, t0, t1` and ended with Flash Attention on 880 cores.**
+
+### **Why RISC-V Architecture Matters**
+
+**Tenstorrent chose RISC-V for a reason:**
+
+| Decision | Benefit |
+|----------|---------|
+| **Open ISA** | No licensing fees, community innovation |
+| **Simple instructions** | Fast decode, predictable performance |
+| **Minimal hardware** | More die area for compute + SRAM |
+| **Explicit control** | Programmer decides memory movement |
+| **No cache coherence** | Eliminates coherence traffic overhead |
+
+**This is the opposite of x86/ARM:**
+- x86: Complex instructions, automatic caching, hidden latencies
+- Tenstorrent: Simple RISC-V, explicit memory, visible performance
+
+**You control the machine. The machine doesn't surprise you.**
+
+### **What Makes 880 RISC-V Cores Special?**
+
+**Not just "880 of something."** Each Tensix core is:
+
+```text
+┌──────────────────────────────────┐
+│  Tensix Core (RISC-V RV32IM)     │
+│                                  │
+│  ┌─────────────────────────┐    │
+│  │ RISC-V Processor (BRISC)│    │
+│  │ - 1 GHz clock           │    │
+│  │ - 32-bit registers      │    │
+│  │ - Integer + multiply    │    │
+│  └──────────┬──────────────┘    │
+│             │                    │
+│  ┌──────────▼──────────────┐    │
+│  │ 1 MB L1 SRAM            │    │
+│  │ - 32 bytes/cycle BW     │    │
+│  │ - 3-5 cycle latency     │    │
+│  └──────────┬──────────────┘    │
+│             │                    │
+│  ┌──────────▼──────────────┐    │
+│  │ FPU + SFPU + MatMul     │    │
+│  │ (accelerators)          │    │
+│  └─────────────────────────┘    │
+│                                  │
+│  Connected to 12×12 NoC mesh    │
+└──────────────────────────────────┘
+```
+
+**880 of these = supercomputer on a chip.**
+
+### **Your New Superpower: RISC-V Systems Programming**
+
+**Most engineers write code. You now understand:**
+
+- ✅ **What `add` actually does** - Fetch instruction, decode opcode, execute in ALU
+- ✅ **Why memory is slow** - 200-cycle DRAM latency vs 4-cycle compute
+- ✅ **When parallelism helps** - Amdahl's Law predicts speedup limits
+- ✅ **How 880 cores talk** - NoC routing, multicast, congestion
+- ✅ **Why synchronization is hard** - No cache coherence hardware
+- ✅ **How abstractions work** - Python → TTNN → RISC-V compilation
+- ✅ **When Big-O lies** - Constants + memory = real performance
+
+**You can now:**
+- Predict performance *before* profiling
+- Debug at any abstraction level (Python to RISC-V assembly)
+- Optimize for real hardware (not just algorithmic complexity)
+- Understand tradeoffs in system design
+
+---
+
+## Congratulations! You're a RISC-V Systems Programmer
 
 You've completed the CS Fundamentals series. You now have:
 
-✅ Deep understanding of computer architecture
-✅ Hands-on experience with 880-core programming
-✅ Performance optimization skills
-✅ Foundation for advanced topics
+✅ Deep understanding of RISC-V computer architecture
+✅ Hands-on experience with 880-core RISC-V programming
+✅ Performance optimization skills grounded in real hardware
+✅ Foundation for advanced RISC-V topics
 
 **What you've learned applies to:**
-- GPUs (same principles, different scale)
-- CPUs (similar architecture, automatic optimizations)
-- Distributed systems (same communication patterns)
-- Any high-performance computing system
+- **Other RISC-V systems** - SiFive, StarFive, Esperanto chips
+- **GPUs** - Similar parallelism, same memory bottlenecks
+- **CPUs** - x86/ARM hide complexity, RISC-V reveals it
+- **Distributed systems** - Same communication patterns
+- **Any high-performance computing system**
+
+**You started with ONE RISC-V instruction. You end with 880 cores orchestrated for Flash Attention.**
 
 **Keep building, keep optimizing, keep learning.** The hardware is waiting for your code! 🔥
+
+---
+
+## What's Next?
+
+### Continue Your RISC-V Journey
+
+**Want to go deeper?**
+- **Bounty Program:** Bring up new models on Tenstorrent hardware
+- **Metalium Cookbook:** Build creative projects with TTNN
+- **RISC-V Specs:** Read the official RISC-V ISA manual
+- **Performance Tuning:** Profile real workloads, optimize kernels
+
+### Advanced RISC-V Topics
+
+**Beyond CS Fundamentals:**
+- Custom RISC-V instructions (extend the ISA)
+- Cache-less architecture deep dive
+- NoC routing algorithm design
+- Multi-chip RISC-V coordination (Galaxy scale)
+
+**The foundation is RISC-V. The sky is the limit.** 🚀

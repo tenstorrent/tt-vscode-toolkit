@@ -299,8 +299,8 @@
     },
     {
       "id": "image-generation",
-      "title": "Image Generation with SD 3.5 Large",
-      "description": "Generate high-resolution 1024x1024 images using Stable Diffusion 3.5 Large running natively on your Tenstorrent hardware!",
+      "title": "Image Generation with Stable Diffusion XL",
+      "description": "Generate high-resolution 1024x1024 images using Stable Diffusion XL Base running natively on your Tenstorrent hardware!",
       "category": "serving",
       "order": 8,
       "markdownFile": "content/lessons/image-generation.md",
@@ -449,8 +449,8 @@
     },
     {
       "id": "cs-fundamentals-01-computer",
-      "title": "Module 1: What is a Computer?",
-      "description": "Von Neumann architecture, fetch-decode-execute cycle, and RISC-V fundamentals. Understand how 880 processors work by mastering one.",
+      "title": "Module 1: RISC-V & Computer Architecture",
+      "description": "Von Neumann architecture, fetch-decode-execute cycle, and RISC-V fundamentals. Understand how 880 RISC-V processors work by mastering one.",
       "category": "cs-fundamentals",
       "order": 1,
       "markdownFile": "content/lessons/cs-fundamentals-01-computer.md",

@@ -1,9 +1,9 @@
 ---
 id: cs-fundamentals-01-computer
-title: "Module 1: What is a Computer?"
+title: "Module 1: RISC-V & Computer Architecture"
 description: >-
   Von Neumann architecture, fetch-decode-execute cycle, and RISC-V fundamentals.
-  Understand how 880 processors work by mastering one.
+  Understand how 880 RISC-V processors work by mastering one.
 category: cs-fundamentals
 tags:
   - architecture
@@ -21,9 +21,9 @@ status: draft
 estimatedMinutes: 30
 ---
 
-# Module 1: What is a Computer?
+# Module 1: RISC-V & Computer Architecture
 
-## Introduction: From Abstraction to Silicon
+## Introduction: From Abstraction to Silicon Through RISC-V
 
 As an industry professional, you've written countless lines of code. You understand APIs, frameworks, databases, and distributed systems. But what actually *happens* when you write `x = a + b`?
 
