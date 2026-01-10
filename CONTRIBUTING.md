@@ -32,6 +32,25 @@ All contributions require:
 
 4. Press `F5` to launch the Extension Development Host and test your changes
 
+## Project Architecture
+
+This extension follows a content-first architecture where lessons are pure markdown files and code handles execution.
+
+**Key architectural principles:**
+- **Content-First Design** - Technical writers can edit lessons without touching code
+- **No Custom UI** - Uses VSCode's native TreeView and Webview APIs
+- **Terminal Integration** - Two-terminal strategy (main + server) for persistent sessions
+- **Hardware-Aware** - Auto-detects devices via tt-smi and adapts instructions
+
+**For detailed technical documentation, see:**
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Complete architecture reference
+  - Extension structure and file organization
+  - Generated files (~/tt-scratchpad/, ~/models/, etc.)
+  - Design principles with implementation details
+  - Module breakdown with code examples
+  - Data flow diagrams
+  - Extension lifecycle
+
 ## Code Style and Standards
 
 ### File Structure
@@ -107,11 +126,29 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ## Testing
 
-Before submitting a PR, ensure:
+The extension includes 134+ automated tests covering markdown quality, Python templates, and configuration.
+
+**Quick test commands:**
+```bash
+npm test              # Run all tests
+npm run test:watch    # Run tests in watch mode
+```
+
+**Before submitting a PR, ensure:**
+* All tests pass: `npm test`
 * The extension builds without errors: `npm run compile`
 * All existing functionality still works
 * New features have been tested manually
 * No TypeScript errors: `npm run check-types`
+
+**For comprehensive testing documentation, see:**
+- **[docs/TESTING.md](docs/TESTING.md)** - Complete testing guide
+  - Test suite overview (134+ tests)
+  - Running tests (all commands and options)
+  - Test categories (markdown, templates, config, projects)
+  - Writing new tests (patterns and examples)
+  - CI/CD integration
+  - Troubleshooting
 
 ## Documentation
 
@@ -119,6 +156,33 @@ Before submitting a PR, ensure:
 * Update lesson content in `content/lessons/` if modifying lessons
 * Add JSDoc comments to new functions and classes
 * Update CHANGELOG.md with notable changes
+
+## Packaging and Distribution
+
+The extension uses `vsce` (Visual Studio Code Extensions CLI) for packaging and distribution.
+
+**Create a package:**
+```bash
+npm run build      # Build TypeScript + copy content
+npm run package    # Create .vsix file
+```
+
+**Key packaging concepts:**
+- **Build process** - TypeScript compilation + content copying to `dist/`
+- **Package exclusions** - Development files excluded via `.vscodeignore`
+- **Validation metadata** - Lessons tracked by hardware compatibility and validation status
+- **Version management** - Semantic versioning (MAJOR.MINOR.PATCH)
+
+**For detailed packaging documentation, see:**
+- **[docs/PACKAGING.md](docs/PACKAGING.md)** - Complete packaging guide
+  - Build process and scripts
+  - Package structure (what's included/excluded)
+  - Lesson validation system
+  - Production vs development builds
+  - Package size optimization
+  - Distribution workflow
+  - Version management
+  - Troubleshooting
 
 ## Code Review Process
 
@@ -177,8 +241,18 @@ By contributing, you agree that your contributions will be licensed under the Ap
 
 ## Additional Resources
 
+### Internal Documentation
+* **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical architecture and design principles
+* **[docs/TESTING.md](docs/TESTING.md)** - Comprehensive testing guide
+* **[docs/PACKAGING.md](docs/PACKAGING.md)** - Build and distribution workflow
+* **[README.md](README.md)** - User-facing documentation
+* **[FAQ.md](FAQ.md)** - Troubleshooting guide
+* **[CHANGELOG.md](CHANGELOG.md)** - Version history
+
+### External Resources
 * [VS Code Extension API](https://code.visualstudio.com/api)
 * [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 * [Tenstorrent Documentation](https://docs.tenstorrent.com/)
+* [Tenstorrent Discord](https://discord.gg/tvhGzHQwaj)
 
 Thank you for contributing to the Tenstorrent VSCode Toolkit! 🎉
