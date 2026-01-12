@@ -37,17 +37,24 @@
       "icon": "lightbulb"
     },
     {
+      "id": "cookbook",
+      "title": "👨‍🍳 Tenstorrent Cookbook",
+      "description": "Learn by building! 5 hands-on projects: Game of Life, Audio Processing, Mandelbrot Fractals, Image Filters, and Particle Life",
+      "order": 6,
+      "icon": "beaker"
+    },
+    {
       "id": "cs-fundamentals",
       "title": "🧠 CS Fundamentals",
       "description": "Computer architecture, memory, parallelism, and systems programming on real hardware",
-      "order": 6,
+      "order": 7,
       "icon": "circuit-board"
     },
     {
       "id": "advanced",
       "title": "🎓 Advanced Topics",
       "description": "Low-level programming, installation, and community contributions",
-      "order": 7,
+      "order": 8,
       "icon": "mortar-board"
     }
   ],
@@ -388,8 +395,209 @@
         "model"
       ],
       "previousLesson": "video-generation-ttmetal",
-      "nextLesson": "forge-image-classification",
+      "nextLesson": "cookbook-overview",
       "estimatedMinutes": 10
+    },
+    {
+      "id": "cookbook-overview",
+      "title": "Tenstorrent Cookbook Overview",
+      "description": "Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metal techniques through creative, visual applications.",
+      "category": "cookbook",
+      "order": 1,
+      "markdownFile": "content/lessons/cookbook-overview.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.createCookbookProjects"
+      ],
+      "tags": [
+        "ttnn",
+        "projects",
+        "learning"
+      ],
+      "previousLesson": "coding-assistant",
+      "nextLesson": "cookbook-game-of-life",
+      "estimatedMinutes": 5
+    },
+    {
+      "id": "cookbook-game-of-life",
+      "title": "Recipe 1: Conway's Game of Life",
+      "description": "Build Conway's Game of Life using TTNN parallel tile computing. Learn convolution operations and cellular automata.",
+      "category": "cookbook",
+      "order": 2,
+      "markdownFile": "content/lessons/cookbook-game-of-life.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runGameOfLife"
+      ],
+      "tags": [
+        "ttnn",
+        "convolution",
+        "cellular-automata"
+      ],
+      "previousLesson": "cookbook-overview",
+      "nextLesson": "cookbook-audio-processor",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cookbook-audio-processor",
+      "title": "Recipe 2: Audio Signal Processing",
+      "description": "Build a real-time audio processing pipeline with TTNN. Compute mel-spectrograms, detect beats, and apply creative effects.",
+      "category": "cookbook",
+      "order": 3,
+      "markdownFile": "content/lessons/cookbook-audio-processor.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runAudioProcessor"
+      ],
+      "tags": [
+        "ttnn",
+        "audio",
+        "fft",
+        "signal-processing"
+      ],
+      "previousLesson": "cookbook-game-of-life",
+      "nextLesson": "cookbook-mandelbrot",
+      "estimatedMinutes": 45
+    },
+    {
+      "id": "cookbook-mandelbrot",
+      "title": "Recipe 3: Mandelbrot Fractal Explorer",
+      "description": "Render beautiful fractals with interactive zoom! Demonstrates GPU-style parallel computation and complex number operations.",
+      "category": "cookbook",
+      "order": 4,
+      "markdownFile": "content/lessons/cookbook-mandelbrot.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runMandelbrotExplorer"
+      ],
+      "tags": [
+        "ttnn",
+        "fractals",
+        "parallel-computing"
+      ],
+      "previousLesson": "cookbook-audio-processor",
+      "nextLesson": "cookbook-image-filters",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cookbook-image-filters",
+      "title": "Recipe 4: Custom Image Filters",
+      "description": "Build a library of creative image filters using 2D convolution. From edge detection to artistic effects!",
+      "category": "cookbook",
+      "order": 5,
+      "markdownFile": "content/lessons/cookbook-image-filters.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runImageFilters"
+      ],
+      "tags": [
+        "ttnn",
+        "image-processing",
+        "convolution",
+        "computer-vision"
+      ],
+      "previousLesson": "cookbook-mandelbrot",
+      "nextLesson": "cookbook-particle-life",
+      "estimatedMinutes": 30
+    },
+    {
+      "id": "cookbook-particle-life",
+      "title": "Recipe 5: Particle Life Simulator",
+      "description": "Simulate emergent complexity from simple particle interactions! Features N² force calculations and multi-device acceleration.",
+      "category": "cookbook",
+      "order": 6,
+      "markdownFile": "content/lessons/cookbook-particle-life.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300"
+      ],
+      "completionEvents": [
+        "onCommand:tenstorrent.runParticleLife"
+      ],
+      "tags": [
+        "ttnn",
+        "particle-simulation",
+        "emergent-behavior",
+        "multi-device"
+      ],
+      "previousLesson": "cookbook-image-filters",
+      "nextLesson": "forge-image-classification",
+      "estimatedMinutes": 30
     },
     {
       "id": "forge-image-classification",
@@ -414,7 +622,7 @@
         "deployment",
         "model"
       ],
-      "previousLesson": "coding-assistant",
+      "previousLesson": "cookbook-particle-life",
       "nextLesson": "tt-xla-jax",
       "estimatedMinutes": 20
     },
@@ -710,38 +918,6 @@
         "model"
       ],
       "previousLesson": "bounty-program",
-      "nextLesson": "metalium-cookbook",
-      "estimatedMinutes": 10
-    },
-    {
-      "id": "metalium-cookbook",
-      "title": "TT-Metalium Cookbook",
-      "description": "Build creative projects with TT-Metalium! Work through 4 complete cookbook recipes: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, and Image Filters. Deploy all templates with one command and start coding!",
-      "category": "advanced",
-      "order": 16,
-      "markdownFile": "content/lessons/metalium-cookbook.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p150",
-        "p300",
-        "galaxy"
-      ],
-      "status": "validated",
-      "validatedOn": [
-        "n150",
-        "p300"
-      ],
-      "completionEvents": [
-        "onCommand:tenstorrent.createCookbookProjects"
-      ],
-      "tags": [
-        "image",
-        "coding"
-      ],
-      "previousLesson": "explore-metalium",
       "nextLesson": "animatediff-video-generation",
       "estimatedMinutes": 10
     },
@@ -772,7 +948,7 @@
         "standalone",
         "diffusion"
       ],
-      "previousLesson": "metalium-cookbook",
+      "previousLesson": "explore-metalium",
       "estimatedMinutes": 30
     }
   ],
