@@ -165,7 +165,8 @@ export class MarkdownRenderer {
           const titleAttr = title ? ` title="${self.escapeHtml(title)}"` : '';
           const altText = self.escapeHtml(text || '');
 
-          return `<img src="${imageUrl}" alt="${altText}"${titleAttr}>`;
+          // Add loading="eager" for images (especially large GIFs) to ensure they load
+          return `<img src="${imageUrl}" alt="${altText}"${titleAttr} loading="eager">`;
         }
       }
     });

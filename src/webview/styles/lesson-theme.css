@@ -226,6 +226,59 @@ code {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
+/* Inline command links - appear as subtle text links within flowing text */
+/* Only apply to buttons that are NOT the sole content of their paragraph */
+p .tt-command-button:not(:only-child),
+li .tt-command-button,
+strong .tt-command-button,
+em .tt-command-button {
+  /* Reset button styling for inline appearance */
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  box-shadow: none;
+  text-shadow: none;
+  display: inline;
+  text-align: inherit;
+
+  /* Style as inline link */
+  color: var(--tt-primary);
+  font-weight: 600;
+  font-size: inherit;
+  line-height: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--tt-primary);
+
+  /* Smooth transition */
+  transition: all 0.15s ease;
+}
+
+p .tt-command-button:not(:only-child):hover,
+li .tt-command-button:hover,
+strong .tt-command-button:hover,
+em .tt-command-button:hover {
+  /* Subtle hover effect */
+  color: var(--tt-primary-light);
+  border-bottom-color: var(--tt-primary-light);
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+
+p .tt-command-button:not(:only-child):active,
+li .tt-command-button:active,
+strong .tt-command-button:active,
+em .tt-command-button:active {
+  /* Subtle active state */
+  color: var(--tt-primary-dark);
+  border-bottom-color: var(--tt-primary-dark);
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+
 .tt-command-button:hover {
   /* Lighter teal on hover */
   background: var(--tt-primary-light);
