@@ -50,43 +50,62 @@ All contributions require:
 
 ### Quick Setup
 
+**1. Fork the repository**
+
+Visit https://github.com/tenstorrent/tt-vscode-toolkit and click "Fork" to create your own copy.
+
+**2. Clone your fork**
+
 ```bash
-# 1. Clone repository
-git clone https://github.com/tenstorrent/tt-vscode-toolkit.git
+git clone https://github.com/YOUR-USERNAME/tt-vscode-toolkit.git
 cd tt-vscode-toolkit
+```
 
-# 2. Install dependencies
+**3. Install dependencies**
+
+```bash
 npm install
+```
 
-# 3. Build extension
+**4. Build the extension**
+
+```bash
 npm run build
+```
 
-# 4. Open in VSCode
+**5. Open in VSCode**
+
+```bash
 code .
-
-# 5. Press F5 to launch Extension Development Host
-# The extension will load in a new VSCode window for testing
 ```
 
-### Verify Setup
+**6. Launch Extension Development Host**
 
-**Run tests:**
+Press `F5` in VSCode to launch the extension in a new window for testing.
+
+### Verify Setup (Optional)
+
+These steps are optional but recommended for contributors who will be making code changes.
+
+**Run tests to ensure everything works:**
 ```bash
-npm test              # Run all tests (should see 134+ passing)
-npm run test:watch    # Watch mode for development
+npm test
 ```
 
-**Build and package:**
+You should see 134+ tests passing.
+
+**Test packaging (optional):**
 ```bash
-npm run build         # Compile TypeScript + copy content
-npm run package       # Create .vsix file
+npm run package
 ```
 
-**Manual testing:**
-1. Press `F5` in VSCode to launch Extension Development Host
-2. In the new window, click Tenstorrent icon in activity bar
+This creates a `.vsix` file to verify the build process works correctly.
+
+**Manual testing in Extension Development Host:**
+1. Press `F5` in VSCode (opens new Extension Development Host window)
+2. Click the Tenstorrent icon in the activity bar
 3. Open a lesson and test commands
-4. Check console for errors (Help → Toggle Developer Tools)
+4. Check console for errors: Help → Toggle Developer Tools
 
 ---
 
@@ -174,21 +193,48 @@ The extension creates these directories on the user's machine:
 
 ## Development Workflow
 
-### Making Changes
+### For External Contributors (Fork-based Workflow)
 
-1. **Create a branch** (see [Git Workflow](#git-workflow))
-2. **Make your changes**
+**Most contributors should follow this workflow:**
+
+1. **Fork the repository** on GitHub (if you haven't already)
+2. **Clone your fork locally** (if you haven't already)
+3. **Create a feature branch**
+   ```bash
+   git checkout -b username/123-add-feature
+   ```
+4. **Make your changes**
    - Edit TypeScript in `src/`
    - Edit lessons in `content/lessons/`
    - Add tests in `test/`
-3. **Test locally**
+5. **Test locally**
    ```bash
    npm run build     # Compile and copy content
    npm test          # Run all tests
-   # Press F5 to test in Extension Development Host
    ```
-4. **Commit changes** (see [Git Workflow](#git-workflow))
-5. **Push and open PR** (use PR template)
+   Then press F5 to test in Extension Development Host
+6. **Commit changes** (see [Git Workflow](#git-workflow) for commit message format)
+7. **Push to your fork**
+   ```bash
+   git push origin username/123-add-feature
+   ```
+8. **Open a Pull Request** from your fork to `tenstorrent/tt-vscode-toolkit:main`
+
+### For Internal Developers (Direct Branch Workflow)
+
+**Tenstorrent team members with write access can push branches directly:**
+
+1. **Create a branch** from main
+   ```bash
+   git checkout -b username/123-add-feature
+   ```
+2. **Make your changes** (TypeScript, lessons, tests, etc.)
+3. **Test locally** (build, test, manual testing with F5)
+4. **Commit and push to origin**
+   ```bash
+   git push origin username/123-add-feature
+   ```
+5. **Open a Pull Request** from your branch to main
 
 ### Common Development Tasks
 
