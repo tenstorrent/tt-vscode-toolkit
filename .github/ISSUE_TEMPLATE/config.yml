@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discord Community
+    url: https://discord.gg/tenstorrent
+    about: Join our Discord community for general discussions and help
+  - name: 📚 Documentation
+    url: https://docs.tenstorrent.com
+    about: Browse the official Tenstorrent documentation
+  - name: 📖 FAQ
+    url: https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/FAQ.md
+    about: Check our FAQ for common questions and troubleshooting

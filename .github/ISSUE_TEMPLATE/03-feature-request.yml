@@ -1,0 +1,108 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for the extension
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! We're always looking to improve the extension.
+        
+        **Note:** If you want to request a new lesson topic, use the "New Lesson Module Request" template instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe what you're trying to accomplish.
+      placeholder: I'm always frustrated when... I wish I could... It would be helpful if...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: Add a command that... Create a new view that... Integrate with...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: I tried... but it didn't work because...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - "New command or button"
+        - "UI/UX improvement"
+        - "Hardware support"
+        - "Integration with external tool"
+        - "Developer experience improvement"
+        - "Performance optimization"
+        - "Documentation improvement"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user-type
+    attributes:
+      label: Who would benefit?
+      description: What type of user would benefit from this feature?
+      options:
+        - "Beginners (new to Tenstorrent)"
+        - "Intermediate users (familiar with TT hardware)"
+        - "Advanced users (contributors/developers)"
+        - "Everyone"
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases or scenarios where this feature would be helpful
+      placeholder: |
+        1. When deploying models, I need to...
+        2. During development, it would help if...
+    validations:
+      required: false
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups or Examples
+      description: If applicable, add mockups, screenshots from other tools, or code examples
+    validations:
+      required: false
+
+  - type: dropdown
+    id: willing-to-contribute
+    attributes:
+      label: Would you be willing to contribute this feature?
+      description: We welcome contributions! See CONTRIBUTING.md for details.
+      options:
+        - "Yes, I can submit a PR"
+        - "Maybe, with guidance"
+        - "No, but I can help test"
+        - "No"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, links, or information about the feature request
+    validations:
+      required: false
