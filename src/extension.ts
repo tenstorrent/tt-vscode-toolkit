@@ -4647,7 +4647,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // Only set theme if it's still the default (to respect user's existing preference)
     if (currentTheme === 'Default Dark Modern' || currentTheme === 'Default Light Modern' || !currentTheme) {
-      config.update('workbench.colorTheme', 'Tenstorrent', vscode.ConfigurationTarget.Global);
+      config.update('workbench.colorTheme', 'Tenstorrent Dark', vscode.ConfigurationTarget.Global);
     }
 
     // Prompt to install recommended extensions (non-blocking)

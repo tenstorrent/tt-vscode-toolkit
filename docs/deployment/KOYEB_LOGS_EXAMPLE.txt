@@ -1,0 +1,74 @@
+# Example: What You'll See in Koyeb Logs
+
+When your container starts on Koyeb, you'll see this in the logs tab:
+
+================================================================================
+
+╔════════════════════════════════════════════════════════════╗
+║  Tenstorrent VSCode Toolkit                                ║
+║  Browser-based VSCode with TT Extension Pre-installed      ║
+╚════════════════════════════════════════════════════════════╝
+
+📍 Environment: Koyeb
+
+🚀 YOUR IDE IS STARTING...
+
+═══════════════════════════════════════════════════════════
+📝 IMPORTANT - SAVE THESE DETAILS:
+═══════════════════════════════════════════════════════════
+
+  🌐 Access URL:  https://tt-vscode-myorg.koyeb.app
+  🔑 Password:    mySecurePassword123
+
+═══════════════════════════════════════════════════════════
+
+📋 NEXT STEPS (Koyeb):
+
+  1. Wait for 'Service is ready' message below
+  2. Click the URL in Koyeb dashboard or visit:
+     https://tt-vscode-myorg.koyeb.app
+  3. Enter password: mySecurePassword123
+  4. Look for 'Tenstorrent' in the VSCode sidebar (TT icon)
+  5. Click 'Welcome Page' to start learning!
+
+🎯 WHAT'S INCLUDED:
+
+  ✅ VSCode in your browser (code-server)
+  ✅ Tenstorrent extension pre-installed
+  ✅ 16 interactive hardware lessons
+  ✅ Production deployment guides
+  ✅ Template scripts and examples
+
+🔍 HEALTH CHECK:
+  Endpoint: https://tt-vscode-myorg.koyeb.app/healthz
+
+═══════════════════════════════════════════════════════════
+📡 CODE-SERVER LOGS:
+═══════════════════════════════════════════════════════════
+
+[2026-01-12T20:30:45.123Z] info  code-server 4.99.3 6a846a0463dc60b0aa8ad84e0f8c0e0e7e1e8c8a
+[2026-01-12T20:30:45.125Z] info  Using user-data-dir /home/coder/.local/share/code-server
+[2026-01-12T20:30:45.126Z] info  Using config file /home/coder/.config/code-server/config.yaml
+[2026-01-12T20:30:45.127Z] info  HTTP server listening on http://0.0.0.0:8080
+[2026-01-12T20:30:45.128Z] info    - Authentication is enabled
+[2026-01-12T20:30:45.129Z] info      - Using password from $PASSWORD
+[2026-01-12T20:30:45.130Z] info    - Not serving HTTPS
+[2026-01-12T20:30:46.234Z] info  Extension host agent started
+
+✅ Service is ready!
+
+🎉 YOUR IDE IS NOW AVAILABLE AT:
+   https://tt-vscode-myorg.koyeb.app
+
+================================================================================
+
+WHAT YOU DO NEXT:
+
+1. Click that URL (or the one in Koyeb's dashboard)
+2. You'll see the VSCode login page
+3. Enter your password: mySecurePassword123
+4. VSCode opens with Tenstorrent extension already installed!
+5. Look for the TT icon in the left sidebar
+6. Click "Welcome Page" to start exploring
+
+That's it! No installation needed, everything is ready to go! 🚀

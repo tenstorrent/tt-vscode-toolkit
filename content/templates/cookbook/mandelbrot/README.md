@@ -85,7 +85,7 @@ from renderer import MandelbrotRenderer
 from explorer import MandelbrotVisualizer
 import ttnn
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 renderer = MandelbrotRenderer(device)
 
 # Render Mandelbrot set
@@ -110,7 +110,7 @@ from renderer import MandelbrotRenderer
 from explorer_save import MandelbrotVisualizer
 import ttnn
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 renderer = MandelbrotRenderer(device)
 viz = MandelbrotVisualizer(renderer, output_dir="./my_fractals")
 

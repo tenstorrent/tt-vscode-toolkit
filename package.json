@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.248",
+  "version": "0.0.251",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -569,7 +569,21 @@
     "compile": "tsc -p ./",
     "test": "mocha",
     "test:templates": "mocha test/lesson-tests/templates.test.ts",
-    "test:watch": "mocha --watch"
+    "test:watch": "mocha --watch",
+    "container:build": "npm run build && npm run package && podman build -t tt-vscode-toolkit:basic .",
+    "container:build-full": "npm run build && npm run package && podman build -f Dockerfile.full -t tt-vscode-toolkit:full .",
+    "container:build-production": "npm run build && npm run package && podman build -f Dockerfile.production -t tt-vscode-toolkit:production .",
+    "container:build-koyeb": "npm run build && npm run package && podman build -f Dockerfile.koyeb -t tt-vscode-toolkit:koyeb .",
+    "container:run": "podman run -it -p 8080:8080 -e PASSWORD=tenstorrent tt-vscode-toolkit:basic",
+    "container:compose": "podman-compose up -d",
+    "container:compose-down": "podman-compose down",
+    "docker:build": "npm run container:build",
+    "docker:build-full": "npm run container:build-full",
+    "docker:run": "npm run container:run",
+    "docker:compose": "npm run container:compose",
+    "docker:compose-down": "npm run container:compose-down",
+    "deploy:koyeb": "./deploy-to-koyeb.sh",
+    "deploy:koyeb-quick": "./quick-deploy-koyeb.sh"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",

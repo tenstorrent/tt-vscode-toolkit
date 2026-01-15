@@ -1,0 +1,40 @@
+# Node modules
+node_modules/
+
+# Build artifacts
+dist/
+
+# Git
+.git/
+.gitignore
+
+# VSCode extension packages (except the one we're installing)
+# We'll copy the specific .vsix file we need
+
+# Test files
+test/
+
+# Documentation (not needed in container)
+docs/
+*.md
+!README.md
+
+# Vendor directory (reference repos, not needed in container)
+vendor/
+
+# VSCode settings
+.vscode/
+.vscodeignore
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Misc
+.cleanup.sh
+tsconfig.json
+tsconfig.test.json
+.mocharc.json

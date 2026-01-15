@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  tt-vscode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tt-vscode-toolkit
+    ports:
+      - "8080:8080"
+    environment:
+      - PASSWORD=${PASSWORD:-tenstorrent}  # Override with env var
+      - SUDO_PASSWORD=${SUDO_PASSWORD:-tenstorrent}
+    volumes:
+      # Persist user data
+      - vscode-data:/home/coder/.local/share/code-server
+      # Mount local workspace (optional)
+      - ./workspace:/home/coder/workspace
+      # Persist models directory
+      - models-data:/home/coder/models
+      # Persist scratchpad
+      - scratchpad-data:/home/coder/tt-scratchpad
+    restart: unless-stopped
+
+volumes:
+  vscode-data:
+  models-data:
+  scratchpad-data:
