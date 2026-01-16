@@ -1,3 +1,24 @@
+---
+id: deploy-to-koyeb
+title: "Deploy Your Work to Koyeb"
+description: >-
+  Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.
+category: advanced
+tags:
+  - deployment
+  - koyeb
+  - production
+  - vllm
+  - n300
+supportedHardware:
+  - n300
+  - p100
+  - p150
+  - galaxy
+status: draft
+estimatedMinutes: 45
+---
+
 # Deploy Your Work to Koyeb
 
 Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. We'll use vLLM as the primary example, then show how to adapt for any application.

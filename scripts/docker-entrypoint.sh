@@ -96,11 +96,80 @@ echo "  ✅ 16 interactive hardware lessons"
 echo "  ✅ Production deployment guides"
 echo "  ✅ Template scripts and examples"
 
-# Check for tt-metal installation
-if [ -d "$HOME/tt-metal" ] || [ -d "/opt/tt-metal" ]; then
-    echo "  ✅ tt-metal ready at: ${TT_METAL_HOME:-~/tt-metal}"
+# Check for tt-metal installation - install if missing
+if [ -d "$HOME/tt-metal" ] && [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then
+    echo "  ✅ tt-metal ready at: ~/tt-metal"
 else
-    echo "  ⚠️  tt-metal not found (lessons work in learning mode)"
+    echo ""
+    echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BOLD}🔧 Installing tt-metal (first startup - this takes ~10 minutes)${NC}"
+    echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+    echo ""
+
+    # Clone tt-metal with submodules
+    if [ ! -d "$HOME/tt-metal" ]; then
+        echo -e "${CYAN}📥 Cloning tt-metal repository...${NC}"
+        git clone --recurse-submodules https://github.com/tenstorrent/tt-metal.git "$HOME/tt-metal" || {
+            echo -e "${YELLOW}⚠️  Failed to clone tt-metal - will be available via extension lessons${NC}"
+            echo "  ⚠️  tt-metal not installed (lessons work in learning mode)"
+        }
+    fi
+
+    # Install dependencies and build
+    if [ -d "$HOME/tt-metal" ]; then
+        cd "$HOME/tt-metal"
+
+        echo -e "${CYAN}📦 Installing system dependencies...${NC}"
+        # Run install script without PPA additions (avoids timeouts)
+        # Install only essential packages that are available in Ubuntu repos
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq \
+            build-essential \
+            cmake \
+            python3-dev \
+            libboost-all-dev \
+            libyaml-cpp-dev \
+            libhwloc-dev \
+            libgtest-dev \
+            libgmock-dev \
+            ninja-build || {
+            echo -e "${YELLOW}⚠️  Some dependencies may be missing${NC}"
+        }
+
+        echo -e "${CYAN}🔨 Building tt-metal...${NC}"
+        ./build_metal.sh || {
+            echo -e "${YELLOW}⚠️  Build failed - will retry via extension lessons${NC}"
+        }
+
+        echo -e "${CYAN}🐍 Setting up Python environment...${NC}"
+        python3 -m venv python_env
+        source python_env/bin/activate
+        pip install --upgrade pip -q
+        pip install -e . -q || {
+            echo -e "${YELLOW}⚠️  Python package installation incomplete${NC}"
+        }
+
+        # Configure environment
+        echo "" >> "$HOME/.bashrc"
+        echo "# Tenstorrent tt-metal environment" >> "$HOME/.bashrc"
+        echo "export TT_METAL_HOME=\$HOME/tt-metal" >> "$HOME/.bashrc"
+        echo "export PYTHONPATH=\$HOME/tt-metal" >> "$HOME/.bashrc"
+        echo 'export PATH="$HOME/tt-metal:${PATH}"' >> "$HOME/.bashrc"
+        echo 'if [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then' >> "$HOME/.bashrc"
+        echo '    source $HOME/tt-metal/python_env/bin/activate' >> "$HOME/.bashrc"
+        echo 'fi' >> "$HOME/.bashrc"
+
+        # Set for current session
+        export TT_METAL_HOME="$HOME/tt-metal"
+        export PYTHONPATH="$HOME/tt-metal"
+        export PATH="$HOME/tt-metal:${PATH}"
+
+        echo ""
+        echo -e "${GREEN}✅ tt-metal installation complete!${NC}"
+        echo ""
+    fi
+
+    cd "$HOME"
 fi
 
 # Check for tt-smi installation

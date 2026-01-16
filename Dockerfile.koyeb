@@ -11,7 +11,7 @@ ENV SHELL=/bin/bash
 # Switch to root for installation
 USER root
 
-# Install minimal dependencies including Python 3.11
+# Install minimal dependencies (Python 3.12 is default in Ubuntu 24.04)
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
@@ -20,9 +20,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
-    python3.11 \
-    python3.11-venv \
-    python3.11-dev \
+    python3-dev \
     sudo \
     pciutils \
     ca-certificates \
@@ -87,40 +85,9 @@ RUN mkdir -p /home/coder/.local/share/code-server/User && \
   "update.mode": "none"\n\
 }' > /home/coder/.local/share/code-server/User/settings.json
 
-# Clone and install tt-metal with submodules
-RUN git clone --recurse-submodules https://github.com/tenstorrent/tt-metal.git /home/coder/tt-metal
-
-# Switch to root to install dependencies
-USER root
-RUN cd /home/coder/tt-metal && \
-    ./install_dependencies.sh
-
-# Switch back to coder to build tt-metal
-USER coder
-RUN cd /home/coder/tt-metal && \
-    ./build_metal.sh
-
-# Create and set up Python virtual environment
-RUN cd /home/coder/tt-metal && \
-    python3 -m venv python_env && \
-    . python_env/bin/activate && \
-    pip install --upgrade pip && \
-    pip install -e .
-
-# Environment variables for tt-metal
-ENV TT_METAL_HOME=/home/coder/tt-metal
-ENV PYTHONPATH=/home/coder/tt-metal
-ENV PATH="/home/coder/tt-metal:${PATH}"
-
-# Set up bashrc to activate tt-metal Python environment by default
-RUN echo '' >> /home/coder/.bashrc && \
-    echo '# Activate tt-metal Python environment' >> /home/coder/.bashrc && \
-    echo 'export TT_METAL_HOME=$HOME/tt-metal' >> /home/coder/.bashrc && \
-    echo 'export PYTHONPATH=$HOME/tt-metal' >> /home/coder/.bashrc && \
-    echo 'export PATH="$HOME/tt-metal:${PATH}"' >> /home/coder/.bashrc && \
-    echo 'if [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then' >> /home/coder/.bashrc && \
-    echo '    source $HOME/tt-metal/python_env/bin/activate' >> /home/coder/.bashrc && \
-    echo 'fi' >> /home/coder/.bashrc
+# Note: tt-metal installation is done via the extension's tt-installer lesson
+# This keeps the Docker build fast (~3-5 minutes) and avoids network timeouts
+# Users can run the "Modern Setup with tt-installer 2.0" lesson after deployment
 
 # Expose code-server port
 EXPOSE 8080

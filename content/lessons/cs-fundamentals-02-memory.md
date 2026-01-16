@@ -67,11 +67,11 @@ graph TD
     L2 --> DRAM
     DRAM --> DISK
 
-    style R fill:#499c8d,color:#fff
-    style L1 fill:#3293b2,color:#fff
-    style L2 fill:#5347a4,color:#fff
-    style DRAM fill:#666,color:#fff
-    style DISK fill:#333,color:#fff
+    style R fill:#499c8d,stroke:#fff,color:#fff
+    style L1 fill:#3293b2,stroke:#fff,color:#fff
+    style L2 fill:#5347a4,stroke:#fff,color:#fff
+    style DRAM fill:#666,stroke:#fff,color:#fff
+    style DISK fill:#333,stroke:#fff,color:#fff
 ```
 
 **The Rule:** Each level is ~10x larger and ~10x slower than the one above it.
@@ -407,9 +407,9 @@ graph LR
     A["Latency<br/>(Time to first byte)"] -->|200 cycles| B["Bandwidth<br/>(Bytes per cycle)"]
     B -->|32 bytes/cycle| C["Total Time"]
 
-    style A fill:#5347a4,color:#fff
-    style B fill:#3293b2,color:#fff
-    style C fill:#499c8d,color:#fff
+    style A fill:#5347a4,stroke:#fff,color:#fff
+    style B fill:#3293b2,stroke:#fff,color:#fff
+    style C fill:#499c8d,stroke:#fff,color:#fff
 ```
 
 **Latency:** Fixed cost to start a transfer (like driving to the store)

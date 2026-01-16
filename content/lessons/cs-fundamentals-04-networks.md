@@ -143,9 +143,9 @@ graph LR
     M6 --- M7
     end
 
-    style BUS fill:#ff6b6b,color:#fff
-    style M0 fill:#3293b2,color:#fff
-    style M7 fill:#3293b2,color:#fff
+    style BUS fill:#ff6b6b,stroke:#fff,color:#fff
+    style M0 fill:#3293b2,stroke:#fff,color:#fff
+    style M7 fill:#3293b2,stroke:#fff,color:#fff
 ```
 
 **Why mesh wins:** Balance of scalability, latency, and wire count.
@@ -276,12 +276,12 @@ graph TD
     T22 --- DRAM1["DRAM<br/>Bank 1"]
     end
 
-    style T00 fill:#3293b2,color:#fff
-    style T11 fill:#3293b2,color:#fff
-    style T22 fill:#3293b2,color:#fff
-    style DRAM0 fill:#5347a4,color:#fff
-    style DRAM1 fill:#5347a4,color:#fff
-    style PCIE fill:#499c8d,color:#fff
+    style T00 fill:#3293b2,stroke:#fff,color:#fff
+    style T11 fill:#3293b2,stroke:#fff,color:#fff
+    style T22 fill:#3293b2,stroke:#fff,color:#fff
+    style DRAM0 fill:#5347a4,stroke:#fff,color:#fff
+    style DRAM1 fill:#5347a4,stroke:#fff,color:#fff
+    style PCIE fill:#499c8d,stroke:#fff,color:#fff
 ```
 
 **Key components:**
