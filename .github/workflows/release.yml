@@ -82,7 +82,7 @@ jobs:
 
             ### What's New
 
-            See [CHANGELOG.md](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/changelog.md)
+            See [CHANGELOG.md](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/CHANGELOG.md)
 
             ### Documentation
 
