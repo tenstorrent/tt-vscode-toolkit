@@ -1,6 +1,7 @@
 # Tenstorrent VSCode Toolkit - Koyeb Optimized Image
 # Based on Ubuntu 24.04 for compatibility with Tenstorrent APT repository
-# Uses system tt-metal installation rather than building in container
+# Pre-built tt-metal with all examples and dependencies
+# Includes Python 3.11, OpenMPI ULFM, Git LFS, and comprehensive environment setup
 
 FROM ubuntu:24.04
 
@@ -11,21 +12,58 @@ ENV SHELL=/bin/bash
 # Switch to root for installation
 USER root
 
-# Install minimal dependencies (Python 3.12 is default in Ubuntu 24.04)
+# Add Python 3.11 from deadsnakes PPA (recommended for TT-XLA)
+# Install LLVM 20 repository for clang-20/clang++-20
+# Add Git LFS for model weights in submodules
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
     git \
+    ca-certificates \
+    software-properties-common \
+    gnupg \
+    lsb-release \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
+    && add-apt-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main" \
+    && curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install all dependencies including clang-20, ninja, Python 3.11, and tt-metal build dependencies
+RUN apt-get update && apt-get install -y \
     build-essential \
+    cmake \
+    ninja-build \
+    clang-20 \
+    clang++-20 \
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
     python3 \
     python3-pip \
     python3-venv \
     python3-dev \
     sudo \
     pciutils \
-    ca-certificates \
-    software-properties-common \
+    pkg-config \
+    libcapstone-dev \
+    libboost-all-dev \
+    libyaml-cpp-dev \
+    libhwloc-dev \
+    libgtest-dev \
+    libgmock-dev \
+    libz-dev \
+    libtbb-dev \
+    libcap-dev \
+    git-lfs \
     && rm -rf /var/lib/apt/lists/*
+
+# Initialize Git LFS globally
+RUN git lfs install --system
+
+# Set clang-20 as default
+RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-20 100 \
+    && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-20 100
 
 # Install code-server
 RUN curl -fsSL https://code-server.dev/install.sh | sh
@@ -42,8 +80,91 @@ RUN mkdir -p /etc/apt/keyrings && chmod 755 /etc/apt/keyrings && \
     apt-get install -y tt-smi && \
     rm -rf /var/lib/apt/lists/*
 
-# Create coder user
-RUN useradd -m -s /bin/bash coder
+# Install OpenMPI ULFM (required for distributed tt-metal operations)
+RUN cd /tmp && \
+    wget https://github.com/tenstorrent/ompi/releases/download/v5.0.7/openmpi-ulfm_5.0.7-1_amd64.deb && \
+    dpkg -i openmpi-ulfm_5.0.7-1_amd64.deb || apt-get install -f -y && \
+    rm openmpi-ulfm_5.0.7-1_amd64.deb && \
+    ldconfig
+
+# Create coder user (or reuse existing UID 1000 user for consistent permissions)
+# Ubuntu 24.04 may already have a user at UID 1000, so we handle that gracefully
+RUN if id -u 1000 >/dev/null 2>&1; then \
+        EXISTING_USER=$(id -un 1000); \
+        if [ "$EXISTING_USER" != "coder" ]; then \
+            usermod -l coder -d /home/coder -m "$EXISTING_USER"; \
+        fi; \
+    else \
+        adduser --uid 1000 --disabled-password --gecos "" --shell /bin/bash coder; \
+    fi \
+    && groupadd -f render \
+    && usermod -aG sudo coder \
+    && usermod -aG video coder \
+    && usermod -aG render coder \
+    && echo "coder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Clone and build tt-metal as coder user with all examples and submodules
+USER coder
+WORKDIR /home/coder
+
+# Clone with submodules and fetch LFS files
+RUN git clone --recurse-submodules https://github.com/tenstorrent/tt-metal.git /home/coder/tt-metal && \
+    cd /home/coder/tt-metal && \
+    git lfs fetch --all && \
+    git lfs pull && \
+    git submodule foreach 'git lfs fetch --all && git lfs pull'
+
+# Build tt-metal with all examples
+WORKDIR /home/coder/tt-metal
+RUN ./build_metal.sh
+
+# Create Python 3.11 virtual environment using official tt-metal script
+# This handles all dependencies correctly including PyTorch CPU index
+RUN ./create_venv.sh --python-version 3.11 --env-dir /home/coder/tt-metal/python_env --force
+
+# Set up environment variables for tt-metal
+ENV TT_METAL_HOME=/home/coder/tt-metal
+ENV PYTHONPATH=/home/coder/tt-metal
+ENV PATH="/home/coder/tt-metal:/home/coder/tt-metal/python_env/bin:${PATH}"
+
+# Set comprehensive LD_LIBRARY_PATH for tt-metal and OpenMPI
+# Includes: tt-metal build libs, system libs, OpenMPI ULFM
+ENV LD_LIBRARY_PATH="${TT_METAL_HOME}/build/tt_metal:/usr/local/lib:/usr/lib:${TT_METAL_HOME}/build/lib:/opt/openmpi-v5.0.7-ulfm/lib:${LD_LIBRARY_PATH}"
+
+# Verify installation - fail build if anything is missing
+RUN echo "=== VERIFICATION TESTS ===" \
+    && echo "Testing tt-metal installation..." \
+    && test -d /home/coder/tt-metal || (echo "FAIL: tt-metal directory missing" && exit 1) \
+    && echo "✓ tt-metal directory exists" \
+    && test -f /home/coder/tt-metal/build_metal.sh || (echo "FAIL: build_metal.sh missing" && exit 1) \
+    && echo "✓ build_metal.sh exists" \
+    && test -d /home/coder/tt-metal/build_Release || (echo "FAIL: build_Release directory missing" && exit 1) \
+    && echo "✓ build_Release directory exists" \
+    && test -f /home/coder/tt-metal/python_env/bin/activate || (echo "FAIL: Python venv missing" && exit 1) \
+    && echo "✓ Python virtual environment exists" \
+    && test -f /home/coder/tt-metal/python_env/bin/python || (echo "FAIL: Python binary missing from venv" && exit 1) \
+    && echo "✓ Python binary in venv" \
+    && /home/coder/tt-metal/python_env/bin/python --version | grep -q "3.11" || (echo "FAIL: Python 3.11 not installed" && exit 1) \
+    && echo "✓ Python 3.11 confirmed" \
+    && /home/coder/tt-metal/python_env/bin/python -c "import ttnn; print('✓ ttnn import successful')" || (echo "FAIL: Cannot import ttnn" && exit 1) \
+    && /home/coder/tt-metal/python_env/bin/python -c "import torch; print('✓ torch import successful')" || (echo "FAIL: Cannot import torch" && exit 1) \
+    && which tt-smi || (echo "FAIL: tt-smi not in PATH" && exit 1) \
+    && echo "✓ tt-smi available" \
+    && test -d /opt/openmpi-v5.0.7-ulfm || (echo "FAIL: OpenMPI ULFM not installed" && exit 1) \
+    && echo "✓ OpenMPI ULFM installed" \
+    && which clang-20 || (echo "FAIL: clang-20 not in PATH" && exit 1) \
+    && echo "✓ clang-20 available" \
+    && which ninja || (echo "FAIL: ninja not in PATH" && exit 1) \
+    && echo "✓ ninja available" \
+    && which code-server || (echo "FAIL: code-server not in PATH" && exit 1) \
+    && echo "✓ code-server available" \
+    && which git-lfs || (echo "FAIL: git-lfs not in PATH" && exit 1) \
+    && echo "✓ git-lfs available" \
+    && echo "=== ALL VERIFICATION TESTS PASSED ==="
+
+# Switch back to root for remaining setup
+USER root
+WORKDIR /home/coder
 
 # Create directory structure
 RUN mkdir -p /home/coder/.local/share/code-server/extensions \
@@ -54,17 +175,10 @@ RUN mkdir -p /home/coder/.local/share/code-server/extensions \
 COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Fix entrypoint permissions first
+# Fix entrypoint permissions
 RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 
-# Add coder user to groups for device access
-RUN groupadd -f render \
-    && usermod -aG sudo coder \
-    && usermod -aG video coder \
-    && usermod -aG render coder \
-    && echo "coder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-# Set proper permissions
+# Set proper permissions for all coder-owned directories and dotfiles
 RUN chown -R coder:coder /home/coder \
     && chown coder:coder /tmp/extension.vsix
 
@@ -77,17 +191,44 @@ RUN code-server --install-extension /tmp/extension.vsix \
     && rm /tmp/extension.vsix
 
 # Configure code-server with Tenstorrent theme and settings
+# Enable integrated terminal login shell for proper .bashrc sourcing
 RUN mkdir -p /home/coder/.local/share/code-server/User && \
     echo '{\n\
   "workbench.colorTheme": "Tenstorrent Dark",\n\
   "workbench.tips.enabled": false,\n\
   "telemetry.telemetryLevel": "off",\n\
-  "update.mode": "none"\n\
+  "update.mode": "none",\n\
+  "terminal.integrated.defaultProfile.linux": "bash",\n\
+  "terminal.integrated.profiles.linux": {\n\
+    "bash": {\n\
+      "path": "bash",\n\
+      "args": ["-l"],\n\
+      "icon": "terminal-bash"\n\
+    }\n\
+  }\n\
 }' > /home/coder/.local/share/code-server/User/settings.json
 
-# Note: tt-metal installation is done via the extension's tt-installer lesson
-# This keeps the Docker build fast (~3-5 minutes) and avoids network timeouts
-# Users can run the "Modern Setup with tt-installer 2.0" lesson after deployment
+# Verify extension installation
+RUN echo "=== EXTENSION VERIFICATION ===" \
+    && test -d /home/coder/.local/share/code-server/extensions || (echo "FAIL: Extensions directory missing" && exit 1) \
+    && echo "✓ Extensions directory exists" \
+    && ls -la /home/coder/.local/share/code-server/extensions/ | grep -q "tenstorrent.tt-vscode-toolkit" || (echo "FAIL: Tenstorrent extension not installed" && exit 1) \
+    && echo "✓ Tenstorrent extension installed" \
+    && test -f /home/coder/.local/share/code-server/User/settings.json || (echo "FAIL: Settings file missing" && exit 1) \
+    && echo "✓ VSCode settings file exists" \
+    && grep -q "Tenstorrent Dark" /home/coder/.local/share/code-server/User/settings.json || (echo "FAIL: Theme not configured" && exit 1) \
+    && echo "✓ Tenstorrent theme configured" \
+    && echo "=== EXTENSION VERIFICATION PASSED ==="
+
+# Note: Complete production-ready environment includes:
+# - Python 3.11 (recommended for TT-XLA compatibility)
+# - tt-metal fully pre-built with all examples and submodules
+# - Git LFS configured for model weights
+# - OpenMPI ULFM for distributed operations
+# - Comprehensive LD_LIBRARY_PATH for runtime libraries
+# - VSCode terminal configured as login shell (MOTD displays correctly)
+# - Build includes: clang-20, clang++-20, ninja, and all tt-metal dependencies
+# - Docker build time: ~15-20 minutes (one-time build, instant deployments)
 
 # Expose code-server port
 EXPOSE 8080

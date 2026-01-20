@@ -29,10 +29,9 @@ fi
 
 # Display banner
 echo ""
-echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║${NC}  ${BOLD}Tenstorrent VSCode Toolkit${NC}                             ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}  Browser-based VSCode with TT Extension Pre-installed    ${BLUE}║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
+echo -e "${BLUE}╔════════════════════════════════════════════════════════════${NC}"
+echo -e "${BLUE}║${NC}  ${BOLD}Welcome to this Tenstorrent dev environment${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════════════════════${NC}"
 echo ""
 
 # Show environment info
@@ -92,13 +91,30 @@ echo -e "${CYAN}🎯 WHAT'S INCLUDED:${NC}"
 echo ""
 echo "  ✅ VSCode in your browser (code-server)"
 echo "  ✅ Tenstorrent extension pre-installed"
-echo "  ✅ 16 interactive hardware lessons"
+echo "  ✅ Interactive hardware lessons"
 echo "  ✅ Production deployment guides"
 echo "  ✅ Template scripts and examples"
 
-# Check for tt-metal installation - install if missing
+# Check for tt-metal installation
 if [ -d "$HOME/tt-metal" ] && [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then
-    echo "  ✅ tt-metal ready at: ~/tt-metal"
+    echo "  ✅ tt-metal pre-built and ready at: ~/tt-metal"
+
+    # Configure environment variables in .bashrc if not already set
+    if ! grep -q "TT_METAL_HOME" "$HOME/.bashrc" 2>/dev/null; then
+        echo "" >> "$HOME/.bashrc"
+        echo "# Tenstorrent tt-metal environment" >> "$HOME/.bashrc"
+        echo "export TT_METAL_HOME=\$HOME/tt-metal" >> "$HOME/.bashrc"
+        echo "export PYTHONPATH=\$HOME/tt-metal" >> "$HOME/.bashrc"
+        echo 'export PATH="$HOME/tt-metal:${PATH}"' >> "$HOME/.bashrc"
+        echo 'if [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then' >> "$HOME/.bashrc"
+        echo '    source $HOME/tt-metal/python_env/bin/activate' >> "$HOME/.bashrc"
+        echo 'fi' >> "$HOME/.bashrc"
+    fi
+
+    # Set for current session
+    export TT_METAL_HOME="$HOME/tt-metal"
+    export PYTHONPATH="$HOME/tt-metal"
+    export PATH="$HOME/tt-metal:${PATH}"
 else
     echo ""
     echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
@@ -184,6 +200,19 @@ if [ -d "/dev/tenstorrent" ]; then
     echo -e "  ${CYAN}🔧 Configuring Tenstorrent hardware access...${NC}"
     # Change device permissions to allow access
     sudo chmod -R 666 /dev/tenstorrent/* 2>/dev/null || true
+
+    # Reset devices to ensure clean state (prevents communication errors)
+    if command -v tt-smi &> /dev/null; then
+        echo -e "  ${CYAN}   Initializing devices...${NC}"
+        # Try a quick detection first
+        if ! timeout 3s sudo tt-smi -s &> /dev/null; then
+            # Detection failed or timed out - reset devices
+            echo -e "  ${CYAN}   Resetting devices for clean initialization...${NC}"
+            sudo tt-smi -r &> /dev/null || true
+            sleep 2  # Give devices time to reset
+        fi
+    fi
+
     # Verify access with tt-smi
     if command -v tt-smi &> /dev/null && tt-smi -v &> /dev/null; then
         DEVICE_INFO=$(tt-smi -v 2>/dev/null | grep -E "Board type|Num devices" | head -2 || echo "")
@@ -203,10 +232,93 @@ if [ -d "/dev/tenstorrent" ]; then
 fi
 echo ""
 
+# Reset extension state to ensure welcome page shows on first container startup
+EXTENSION_STORAGE="$HOME/.local/share/code-server/User/globalStorage/tenstorrent.tt-vscode-toolkit"
+if [ -d "$EXTENSION_STORAGE" ]; then
+    echo -e "${CYAN}🔄 Resetting extension state for fresh start...${NC}"
+    rm -rf "$EXTENSION_STORAGE"
+fi
+
 # Health check info
 echo -e "${CYAN}🔍 HEALTH CHECK:${NC}"
 echo "  Endpoint: ${ACCESS_URL}/healthz"
 echo ""
+
+# Create a nice MOTD for terminal sessions
+cat > "$HOME/.bashrc_tenstorrent" << 'EOF'
+# Tenstorrent VSCode Toolkit MOTD
+if [ -z "$TENSTORRENT_MOTD_SHOWN" ]; then
+    export TENSTORRENT_MOTD_SHOWN=1
+
+    echo ""
+    echo "╔════════════════════════════════════════════════════════════"
+    echo "║  Welcome to your Tenstorrent development environment!"
+    echo "╚════════════════════════════════════════════════════════════"
+    echo ""
+
+    # System info
+    echo "💻 System:"
+    TOTAL_RAM=$(free -h 2>/dev/null | awk '/^Mem:/ {print $2}' || echo "Unknown")
+    CPU_CORES=$(nproc 2>/dev/null || echo "Unknown")
+    echo "   RAM: ${TOTAL_RAM}  |  CPU Cores: ${CPU_CORES}"
+
+    # Tenstorrent hardware detection (with timeout)
+    if command -v tt-smi &> /dev/null; then
+        TT_INFO=$(timeout 2s tt-smi -s 2>/dev/null | python3 -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    devices = data.get('devices', [])
+    if devices:
+        board_type = devices[0].get('board_type', 'Unknown')
+        count = len(devices)
+        print(f'{board_type} (x{count})')
+    else:
+        print('No devices detected')
+except:
+    print('Detection failed')
+" 2>/dev/null || echo "Not detected")
+        echo "   Tenstorrent: ${TT_INFO}"
+    else
+        echo "   Tenstorrent: tt-smi not available"
+    fi
+
+    # tt-metal version
+    if [ -d "$HOME/tt-metal" ]; then
+        if [ -f "$HOME/tt-metal/.git/HEAD" ]; then
+            TT_METAL_BRANCH=$(cd "$HOME/tt-metal" && git branch --show-current 2>/dev/null || echo "unknown")
+            TT_METAL_COMMIT=$(cd "$HOME/tt-metal" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+            echo "   tt-metal: ${TT_METAL_BRANCH}@${TT_METAL_COMMIT}"
+        else
+            echo "   tt-metal: installed (no git info)"
+        fi
+    else
+        echo "   tt-metal: not installed"
+    fi
+
+    # Python version
+    PYTHON_VER=$(python3 --version 2>/dev/null | cut -d' ' -f2 || echo "Not found")
+    echo "   Python: ${PYTHON_VER}"
+
+    echo ""
+    echo "📚 To get started:"
+    echo "   • Open Command Palette (Ctrl+Shift+P)"
+    echo "   • Search: 'Tenstorrent: Show Welcome Page'"
+    echo "   • Or click the Tenstorrent icon in the left sidebar"
+    echo ""
+    echo "🔧 Quick commands:"
+    echo "   tt-smi              - Check hardware status"
+    echo "   tt-smi -r           - Reset devices (if needed)"
+    echo ""
+    echo "💡 Tip: We have several lessons in the Tenstorrent sidebar!"
+    echo ""
+fi
+EOF
+
+# Append to .bashrc
+echo "" >> "$HOME/.bashrc"
+echo "# Tenstorrent MOTD" >> "$HOME/.bashrc"
+echo "source ~/.bashrc_tenstorrent" >> "$HOME/.bashrc"
 
 # Separator before code-server logs
 echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
@@ -214,13 +326,13 @@ echo -e "${BOLD}📡 CODE-SERVER LOGS:${NC}"
 echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
 echo ""
 
-# Start code-server with logging
+# Start code-server without opening a file
 exec code-server \
     --bind-addr 0.0.0.0:8080 \
     --auth password \
     --disable-telemetry \
     --disable-update-check \
-    /home/coder 2>&1 | while IFS= read -r line; do
+    2>&1 | while IFS= read -r line; do
     # Enhance code-server logs
     if [[ "$line" =~ "HTTP server listening" ]]; then
         echo -e "${GREEN}✅ Service is ready!${NC}"

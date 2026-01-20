@@ -139,13 +139,13 @@ When you click the button below, you'll be prompted to enter your token securely
 ### Method 2: Manually in Terminal
 
 ```bash
-export HF_TOKEN="your-token-here"
+export HF_TOKEN=your_token_from_huggingface
 ```
 
 **Note:** This only lasts for your current terminal session. For permanent setup, add it to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-echo 'export HF_TOKEN="your-token-here"' >> ~/.bashrc
+echo 'export HF_TOKEN=your_token_from_huggingface' >> ~/.bashrc
 source ~/.bashrc
 ```
 
