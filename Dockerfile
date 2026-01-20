@@ -70,8 +70,10 @@ WORKDIR /home/coder
 # Expose code-server port
 EXPOSE 8080
 
-# Set default password (override with env var PASSWORD)
-ENV PASSWORD=tenstorrent
+# For security, no default password is set in the image.
+# You MUST provide a strong PASSWORD environment variable at runtime, for example:
+#   docker run -e PASSWORD="$(openssl rand -base64 32)" ...
+# If PASSWORD is not set, the entrypoint or application should refuse to start.
 
 # Use custom entrypoint with helpful logging
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
