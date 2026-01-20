@@ -62,6 +62,9 @@
         "path": "./themes/tenstorrent-light-theme.json"
       }
     ],
+    "configurationDefaults": {
+      "workbench.colorTheme": "Tenstorrent Dark"
+    },
     "configuration": {
       "title": "Tenstorrent",
       "properties": {

@@ -1,0 +1,119 @@
+name: 📝 Bug Report - Lesson Content
+description: Report issues with lesson content (typos, outdated commands, incorrect instructions)
+title: "[Lesson Bug]: "
+labels: ["content", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve our lesson content! Please report issues like:
+        - Typos or grammar mistakes
+        - Outdated commands or instructions
+        - Incorrect code examples
+        - Missing prerequisites
+        - Broken links
+        
+        **Note:** If the extension itself isn't working (buttons not responding, UI issues), use the "Bug Report - Extension Code" template instead.
+
+  - type: dropdown
+    id: lesson
+    attributes:
+      label: Which Lesson?
+      description: Select the lesson with the issue
+      options:
+        - "Welcome / Step Zero"
+        - "FAQ"
+        - "Lesson 1: Hardware Detection"
+        - "Lesson 2: Verify Installation"
+        - "Lesson 3: Download Model"
+        - "Lesson 4: First Inference"
+        - "Lesson 5: Interactive Chat"
+        - "Lesson 6: Production Serving (tt-inference-server)"
+        - "Lesson 7: vLLM Production"
+        - "Lesson 8: VSCode Chat Integration"
+        - "Lesson 9: Image Generation"
+        - "Lesson 10: Coding Assistant"
+        - "Lesson 11: TT-Forge"
+        - "Lesson 12: TT-XLA / JAX"
+        - "Lesson 13: RISC-V Programming"
+        - "Lesson 14: Bounty Program"
+        - "Lesson 15: TT-Metalium Exploration"
+        - "Lesson 16: The Cookbook"
+        - "Other / Multiple Lessons"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Content Issue Description
+      description: What's wrong with the lesson content?
+      placeholder: |
+        The command in Step 3 has a typo: "pyton3" should be "python3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location in Lesson
+      description: Where in the lesson is the issue? (Step number, section, heading, etc.)
+      placeholder: |
+        Section: "Setup vLLM Environment"
+        Step 2, command block
+    validations:
+      required: true
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware Configuration (if relevant)
+      description: Is this issue specific to certain hardware?
+      placeholder: "N150, N300, T3K, P100, etc."
+    validations:
+      required: false
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current (Incorrect) Content
+      description: Copy the current content that needs to be fixed
+      placeholder: |
+        ```bash
+        pyton3 -m venv ~/tt-vllm-venv
+        ```
+      render: markdown
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      label: Suggested Fix
+      description: If you know the correct content, please provide it
+      placeholder: |
+        ```bash
+        python3 -m venv ~/tt-vllm-venv
+        ```
+      render: markdown
+    validations:
+      required: false
+
+  - type: dropdown
+    id: tested
+    attributes:
+      label: Have you tested the lesson on hardware?
+      description: Did you encounter this while actually running through the lesson?
+      options:
+        - "Yes - I found this while following the lesson"
+        - "No - I noticed this while reading"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information that might be helpful
+    validations:
+      required: false

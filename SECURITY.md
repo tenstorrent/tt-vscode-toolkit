@@ -17,7 +17,7 @@ The Tenstorrent team takes security bugs seriously. We appreciate your efforts t
 **Please do not report security vulnerabilities through public GitHub issues.**
 
 Instead, please report them via email to:
-* **tsingletary@tenstorrent.com**
+* **ospo@tenstorrent.com**
 
 You should receive a response within 48 hours. If for some reason you do not, please follow up via email to ensure we received your original message.
 
@@ -61,12 +61,33 @@ This extension includes the following security features:
 
 ## Vulnerability Disclosure Timeline
 
-1. **Day 0**: Security vulnerability reported to tsingletary@tenstorrent.com
+1. **Day 0**: Security vulnerability reported to ospo@tenstorrent.com
 2. **Day 1-2**: Initial response acknowledging receipt
 3. **Day 3-7**: Investigation and assessment of the vulnerability
 4. **Day 8-14**: Development of a fix (timeline may vary based on severity)
 5. **Day 15-21**: Release of patched version
 6. **Day 22+**: Public disclosure (coordinated with reporter)
+
+## Security Considerations Specific to This Extension
+
+### Hardware Access
+
+This extension assists in programming Tenstorrent hardware accelerators. Users should be aware that:
+
+* **Commands execute with user privileges** - Terminal commands run with your shell's permissions
+* **Hardware access requires appropriate permissions** - Some operations may require root/sudo access
+* **Device state management** - Commands can modify device state and configuration
+* **Model downloads** - Large model downloads from HuggingFace may contain arbitrary data
+
+### Best Practices
+
+When using this extension:
+
+1. **Review commands before execution** - Understand what each command does before running it
+2. **Use trusted model sources** - Only download models from verified sources
+3. **Isolate sensitive environments** - Use appropriate network and system isolation for production deployments
+4. **Monitor resource usage** - AI workloads can consume significant system resources
+5. **Keep dependencies updated** - Regularly update tt-metal, vLLM, and other dependencies
 
 ## Security Updates
 
@@ -79,10 +100,12 @@ This extension relies on several third-party dependencies. We regularly:
 * Update dependencies to address known vulnerabilities
 * Use automated tools (Dependabot, npm audit) to identify potential issues
 
+Run `npm audit` to check for known vulnerabilities in dependencies.
+
 ## Contact
 
 For any security-related questions or concerns, please contact:
-* Email: tsingletary@tenstorrent.com
+* Email: ospo@tenstorrent.com
 * GitHub: [TT-VSCode-Toolkit Issues](https://github.com/tenstorrent/tt-vscode-toolkit/issues) (for non-security bugs only)
 
 ---

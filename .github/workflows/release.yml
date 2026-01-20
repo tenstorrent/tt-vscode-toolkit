@@ -1,5 +1,5 @@
 # GitHub Actions workflow for creating releases
-# Triggered when a version tag is pushed (e.g., v0.0.254)
+# Triggered when a version tag is pushed (e.g., v0.0.268)
 
 name: Release
 
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., 0.0.254)'
+        description: 'Version to release (e.g., 0.0.268)'
         required: true
         type: string
 
@@ -20,7 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
 
     steps:
       - name: Checkout repository
@@ -57,37 +56,39 @@ jobs:
 
             ### Installation
 
-            **VSCode Marketplace:** (Coming soon)
-
             **Manual Installation:**
             1. Download `tt-vscode-toolkit-${{ steps.package_version.outputs.version }}.vsix` below
             2. In VSCode: Extensions → ⋯ → Install from VSIX
+            3. Open the welcome page: `Ctrl+Shift+P` → "Tenstorrent: Show Welcome Page"
 
-            **Docker:**
+            **From Source:**
             ```bash
-            # Basic image (no tt-metal pre-built)
-            docker pull ghcr.io/tenstorrent/tt-vscode-toolkit:${{ steps.package_version.outputs.version }}
-
-            # Full image (with tt-metal pre-built)
-            docker pull ghcr.io/tenstorrent/tt-vscode-toolkit:${{ steps.package_version.outputs.version }}-full
-            ```
-
-            **Koyeb Deployment:**
-
-            Quick deploy with one click:
-
-            [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=ghcr.io/tenstorrent/tt-vscode-toolkit:${{ steps.package_version.outputs.version }}&name=tt-vscode-toolkit&ports=8080;http;/&env[PASSWORD]=changeme)
-
-            Or deploy via CLI:
-            ```bash
+            git clone https://github.com/tenstorrent/tt-vscode-toolkit.git
             cd tt-vscode-toolkit
             git checkout v${{ steps.package_version.outputs.version }}
-            ./scripts/koyeb-deploy-direct.sh
+            npm install
+            npm run build
+            npm run package
+            code --install-extension tt-vscode-toolkit-${{ steps.package_version.outputs.version }}.vsix
             ```
+
+            ### Prerequisites
+
+            - Tenstorrent hardware (N150, N300, T3K, P100, P150, or Galaxy)
+            - Linux (Ubuntu 20.04+, RHEL 8+)
+            - Python 3.10+
+            - VSCode 1.93+
+            - tt-metal installed and configured
 
             ### What's New
 
-            See [CHANGELOG.md](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/changelog.md)
+            See [CHANGELOG.md](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/CHANGELOG.md)
+
+            ### Documentation
+
+            - [README](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/README.md)
+            - [Contributing Guide](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/CONTRIBUTING.md)
+            - [Community Guidelines](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/COMMUNITY_GUIDELINES.md)
           files: |
             *.vsix
           draft: false
@@ -98,7 +99,7 @@ jobs:
     name: Publish to VS Code Marketplace
     runs-on: ubuntu-latest
     needs: create-release
-    if: false  # Disabled - enable when ready to publish
+    if: false  # Disabled - enable when ready to publish to marketplace
 
     steps:
       - name: Checkout repository
@@ -122,44 +123,3 @@ jobs:
         run: npx vsce publish --packagePath *.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-
-  tag-docker-images:
-    name: Tag Docker Images with Version
-    runs-on: ubuntu-latest
-    needs: create-release
-    permissions:
-      packages: write
-
-    steps:
-      - name: Get version
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Tag and push basic image
-        run: |
-          docker pull ghcr.io/tenstorrent/tt-vscode-toolkit:main
-          docker tag ghcr.io/tenstorrent/tt-vscode-toolkit:main \
-            ghcr.io/tenstorrent/tt-vscode-toolkit:${{ steps.version.outputs.version }}
-          docker tag ghcr.io/tenstorrent/tt-vscode-toolkit:main \
-            ghcr.io/tenstorrent/tt-vscode-toolkit:latest
-          docker push ghcr.io/tenstorrent/tt-vscode-toolkit:${{ steps.version.outputs.version }}
-          docker push ghcr.io/tenstorrent/tt-vscode-toolkit:latest
-
-      - name: Tag and push full image
-        run: |
-          docker pull ghcr.io/tenstorrent/tt-vscode-toolkit:main-full
-          docker tag ghcr.io/tenstorrent/tt-vscode-toolkit:main-full \
-            ghcr.io/tenstorrent/tt-vscode-toolkit:${{ steps.version.outputs.version }}-full
-          docker tag ghcr.io/tenstorrent/tt-vscode-toolkit:main-full \
-            ghcr.io/tenstorrent/tt-vscode-toolkit:latest-full
-          docker push ghcr.io/tenstorrent/tt-vscode-toolkit:${{ steps.version.outputs.version }}-full
-          docker push ghcr.io/tenstorrent/tt-vscode-toolkit:latest-full
