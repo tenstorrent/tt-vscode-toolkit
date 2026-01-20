@@ -759,7 +759,7 @@ from effects import AudioEffects
 import ttnn
 import sounddevice as sd
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 processor = AudioProcessor(device)
 effects = AudioEffects(processor)
 
@@ -787,7 +787,7 @@ from processor import AudioProcessor
 from visualizer import SpectrogramVisualizer
 import ttnn
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 processor = AudioProcessor(device, sample_rate=22050)
 viz = SpectrogramVisualizer(processor)
 

@@ -64,10 +64,10 @@ flowchart TD
     CU -.->|Control Signals| ALU
     MEM --> OUTPUT
 
-    style MEM fill:#3293b2,color:#fff
-    style CPU fill:#5347a4,color:#fff
-    style CU fill:#499c8d,color:#fff
-    style ALU fill:#499c8d,color:#fff
+    style MEM fill:#3293b2,stroke:#fff,color:#fff
+    style CPU fill:#5347a4,stroke:#fff,color:#fff
+    style CU fill:#499c8d,stroke:#fff,color:#fff
+    style ALU fill:#499c8d,stroke:#fff,color:#fff
 ```
 
 **Key Insight:** Instructions and data live in the same memory. The program is just data that tells the computer what to do.

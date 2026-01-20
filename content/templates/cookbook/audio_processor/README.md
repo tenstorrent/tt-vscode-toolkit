@@ -44,7 +44,7 @@ See **Lesson 12** for the complete 600+ line implementation including:
 from processor import AudioProcessor
 import ttnn
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 processor = AudioProcessor(device, sample_rate=22050)
 
 # Compute mel-spectrogram

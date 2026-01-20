@@ -21,7 +21,7 @@ python game_of_life.py
 from game_of_life import GameOfLife
 import ttnn
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 game = GameOfLife(device, grid_size=(256, 256))
 
 # Available patterns: glider, blinker, toad, beacon, pulsar, glider_gun

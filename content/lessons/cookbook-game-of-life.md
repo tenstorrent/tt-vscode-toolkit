@@ -458,7 +458,7 @@ from game_of_life import GameOfLife
 from visualizer import animate_game_of_life
 import ttnn
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 game = GameOfLife(device, grid_size=(256, 256))
 
 # Try different patterns:

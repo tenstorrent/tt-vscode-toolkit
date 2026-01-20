@@ -391,6 +391,32 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.268** - Release branch with lesson improvements and basic Docker support
+- **LESSON FIXES:**
+  - Added `stroke` property to mermaid diagrams in CS Fundamentals lessons (5 files)
+  - Fixed ttnn API calls to use explicit `device_id=0` parameter in cookbook lessons
+  - Updated cookbook template README files for clarity
+- **EXTENSION FIXES:**
+  - Fixed theme name in activation: "Tenstorrent" → "Tenstorrent Dark"
+  - Moved .cleanup.sh → scripts/cleanup.sh for better organization
+- **NEW: Basic Docker Support**
+  - Added Dockerfile for local code-server deployment
+  - Added docker-compose.yml and podman-compose.yml for container orchestration
+  - Added scripts/docker-entrypoint.sh for container initialization
+  - Added docker:build and docker:run npm scripts
+- **NEW: Deployment Lessons (Draft)**
+  - Added "Deploy tt-vscode-toolkit to Koyeb" lesson (marked as draft/unvalidated)
+  - Added "Deploy Your Work to Koyeb" lesson (marked as draft/unvalidated)
+  - Deployment infrastructure excluded from this release (experimental)
+- **FILES MODIFIED:**
+  - Multiple lesson markdown files (mermaid stroke fixes, ttnn device_id fixes)
+  - src/extension.ts (theme name fix)
+  - src/commands/terminalCommands.ts (ttnn API fixes)
+  - package.json - Version 0.0.268
+  - CLAUDE.md - Documentation
+- Backported from docker-image branch, excluding experimental Koyeb infrastructure
+- All tests passing, extension builds successfully
+
 **v0.0.242** - CS Fundamentals validation + Module 1 fixes
 - **VALIDATION COMPLETE:** Full validation of CS Fundamentals series (7 modules) on QuietBox P300c
 - **NEW REPORT:** `docs/QB_RISCV_follows.md` - Comprehensive validation documentation

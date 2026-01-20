@@ -949,8 +949,55 @@
         "diffusion"
       ],
       "previousLesson": "explore-metalium",
+      "nextLesson": "deploy-vscode-to-koyeb",
       "estimatedMinutes": 30
+    },
+    {
+      "id": "deploy-vscode-to-koyeb",
+      "title": "Deploy tt-vscode-toolkit to Koyeb",
+      "description": "Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed, running on Koyeb with access to N300 hardware. Learn the complete deployment workflow tested in production.",
+      "category": "advanced",
+      "order": 18,
+      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md",
+      "supportedHardware": [
+        "n300"
+      ],
+      "status": "draft",
+      "completionEvents": [],
+      "tags": [
+        "deployment",
+        "koyeb",
+        "cloud",
+        "docker",
+        "vscode"
+      ],
+      "previousLesson": "animatediff-video-generation",
+      "nextLesson": "deploy-to-koyeb",
+      "estimatedMinutes": 20
+    },
+    {
+      "id": "deploy-to-koyeb",
+      "title": "Deploy Your Work to Koyeb",
+      "description": "Deploy any Python application to Koyeb with Tenstorrent N300 hardware. Comprehensive guide covering vLLM deployment, custom applications, production best practices, monitoring, and CI/CD integration.",
+      "category": "advanced",
+      "order": 19,
+      "markdownFile": "content/lessons/deploy-to-koyeb.md",
+      "supportedHardware": [
+        "n300"
+      ],
+      "status": "draft",
+      "completionEvents": [],
+      "tags": [
+        "deployment",
+        "koyeb",
+        "production",
+        "vllm",
+        "docker",
+        "cicd"
+      ],
+      "previousLesson": "deploy-vscode-to-koyeb",
+      "estimatedMinutes": 45
     }
   ],
-  "lastUpdated": "2025-12-29T13:00:00.000Z"
+  "lastUpdated": "2026-01-20T18:00:00.000Z"
 }
