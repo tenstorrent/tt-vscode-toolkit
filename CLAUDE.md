@@ -397,7 +397,8 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
   - Fixed ttnn API calls to use explicit `device_id=0` parameter in cookbook lessons
   - Updated cookbook template README files for clarity
 - **EXTENSION FIXES:**
-  - Fixed theme name in activation: "Tenstorrent" → "Tenstorrent Dark"
+  - Fixed theme activation: Now uses standard `configurationDefaults` in package.json
+  - Removed programmatic theme setting code (cleaner, standard VSCode approach)
   - Moved .cleanup.sh → scripts/cleanup.sh for better organization
 - **NEW: Basic Docker Support**
   - Added Dockerfile for local code-server deployment
@@ -408,14 +409,29 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
   - Added "Deploy tt-vscode-toolkit to Koyeb" lesson (marked as draft/unvalidated)
   - Added "Deploy Your Work to Koyeb" lesson (marked as draft/unvalidated)
   - Deployment infrastructure excluded from this release (experimental)
+- **NEW: OSS Documentation**
+  - GitHub issue templates (bug, feature, question, lesson content)
+  - Pull request template with checklist
+  - Updated CODE_OF_CONDUCT, CONTRIBUTING, README, SECURITY
+- **NEW: GitHub Actions Release Workflow**
+  - Automated build, test, and package on version tags
+  - Creates GitHub releases with .vsix attachment
+  - Marketplace publishing job included but disabled
+- **NEW: Color-Coded Hardware Badges**
+  - Green (✓): Verified on hardware
+  - Red (☠️): Known issues/blocked
+  - Yellow (?): Not yet tested
 - **FILES MODIFIED:**
   - Multiple lesson markdown files (mermaid stroke fixes, ttnn device_id fixes)
-  - src/extension.ts (theme name fix)
+  - src/extension.ts (removed theme code)
+  - src/views/LessonWebviewManager.ts (color-coded badges)
   - src/commands/terminalCommands.ts (ttnn API fixes)
-  - package.json - Version 0.0.268
+  - package.json - Version 0.0.268, added configurationDefaults
+  - .github/workflows/release.yml - New release automation
+  - 16 OSS documentation files
   - CLAUDE.md - Documentation
-- Backported from docker-image branch, excluding experimental Koyeb infrastructure
-- All tests passing, extension builds successfully
+- Backported from docker-image branch + jbaker/open-source-docs merge
+- All tests passing (315/315), extension builds successfully
 
 **v0.0.242** - CS Fundamentals validation + Module 1 fixes
 - **VALIDATION COMPLETE:** Full validation of CS Fundamentals series (7 modules) on QuietBox P300c

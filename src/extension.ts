@@ -4641,15 +4641,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Mark as seen first to avoid reopening if command fails
     context.globalState.update('hasSeenWelcome', true);
 
-    // Set Tenstorrent theme for brand consistency and optimal visibility
-    const config = vscode.workspace.getConfiguration();
-    const currentTheme = config.get<string>('workbench.colorTheme');
-
-    // Only set theme if it's still the default (to respect user's existing preference)
-    if (currentTheme === 'Default Dark Modern' || currentTheme === 'Default Light Modern' || !currentTheme) {
-      config.update('workbench.colorTheme', 'Tenstorrent Dark', vscode.ConfigurationTarget.Global);
-    }
-
     // Prompt to install recommended extensions (non-blocking)
     setTimeout(() => {
       promptRecommendedExtensions();
