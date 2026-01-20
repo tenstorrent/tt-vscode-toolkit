@@ -1,0 +1,189 @@
+name: 🎓 New Lesson Module Request
+description: Suggest a new educational lesson or module for the extension
+title: "[New Lesson]: "
+labels: ["lesson-request", "content", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new lesson! We're always looking to expand our educational content.
+        
+        Please provide as much detail as possible to help us understand what you'd like to learn.
+
+  - type: input
+    id: lesson-title
+    attributes:
+      label: Proposed Lesson Title
+      description: What would you call this lesson?
+      placeholder: "Building a Custom Model with TT-Metal"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Lesson Category
+      description: Which category would this lesson fit into?
+      options:
+        - "👋 Welcome & Getting Started"
+        - "🚀 First Inference"
+        - "🏭 Production Serving"
+        - "🔧 Compilers & Tools"
+        - "🎯 Applications"
+        - "🎓 Advanced Topics"
+        - "💡 New Category (describe below)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty Level
+      description: What skill level would this lesson target?
+      options:
+        - "Beginner - New to Tenstorrent"
+        - "Intermediate - Some TT experience"
+        - "Advanced - Experienced developer"
+        - "Expert - Contributor level"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Lesson Description
+      description: What would this lesson teach? What would students learn?
+      placeholder: |
+        This lesson would teach developers how to...
+        By the end of this lesson, users would be able to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: learning-objectives
+    attributes:
+      label: Learning Objectives
+      description: List specific skills or knowledge students would gain
+      placeholder: |
+        - Understand how to configure...
+        - Be able to deploy...
+        - Learn best practices for...
+    validations:
+      required: true
+
+  - type: textarea
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: What should students know or have completed before this lesson?
+      placeholder: |
+        - Completed "Hardware Detection" lesson
+        - Familiar with Python
+        - Have a model downloaded
+    validations:
+      required: false
+
+  - type: dropdown
+    id: hardware-requirements
+    attributes:
+      label: Hardware Requirements
+      description: What hardware would be needed for this lesson?
+      multiple: true
+      options:
+        - "N150"
+        - "N300"
+        - "T3K"
+        - "P100"
+        - "P150"
+        - "Galaxy"
+        - "Any hardware"
+        - "No hardware needed (simulator or conceptual)"
+    validations:
+      required: false
+
+  - type: textarea
+    id: tools-frameworks
+    attributes:
+      label: Tools and Frameworks
+      description: What tools, frameworks, or libraries would this lesson use?
+      placeholder: |
+        - tt-metal
+        - vLLM
+        - TT-Forge
+        - PyTorch
+        - Custom scripts
+    validations:
+      required: false
+
+  - type: textarea
+    id: outline
+    attributes:
+      label: Proposed Lesson Outline
+      description: Provide a rough outline of the lesson steps
+      placeholder: |
+        1. Introduction and Setup
+        2. Understanding the Architecture
+        3. Hands-on Implementation
+        4. Testing and Validation
+        5. Optimization Tips
+        6. What's Next
+    validations:
+      required: false
+
+  - type: dropdown
+    id: estimated-time
+    attributes:
+      label: Estimated Time to Complete
+      description: How long would this lesson take?
+      options:
+        - "5-10 minutes"
+        - "15-30 minutes"
+        - "30-60 minutes"
+        - "1-2 hours"
+        - "2+ hours"
+    validations:
+      required: false
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Existing Resources or References
+      description: Are there existing docs, repos, or examples this could be based on?
+      placeholder: |
+        - https://github.com/tenstorrent/tt-metal/examples/...
+        - Documentation at https://docs.tenstorrent.com/...
+        - Similar example in other project...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: willing-to-help
+    attributes:
+      label: Would you like to help create this lesson?
+      description: We welcome contributions! See CONTRIBUTING.md for details.
+      options:
+        - "Yes, I can write the lesson content"
+        - "Yes, I can help test on hardware"
+        - "Yes, I can provide technical review"
+        - "Maybe, with guidance"
+        - "No, but I'd love to use it"
+    validations:
+      required: false
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Personal Use Case
+      description: Why do you need this lesson? What problem would it solve for you?
+      placeholder: |
+        I'm trying to... and I couldn't find clear instructions for...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information that would be helpful
+    validations:
+      required: false
