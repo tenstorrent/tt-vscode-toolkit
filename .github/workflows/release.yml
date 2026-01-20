@@ -1,0 +1,125 @@
+# GitHub Actions workflow for creating releases
+# Triggered when a version tag is pushed (e.g., v0.0.268)
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.0.268)'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Package extension
+        run: npm run package
+
+      - name: Get version from package.json
+        id: package_version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.package_version.outputs.version }}
+          body: |
+            ## tt-vscode-toolkit v${{ steps.package_version.outputs.version }}
+
+            ### Installation
+
+            **Manual Installation:**
+            1. Download `tt-vscode-toolkit-${{ steps.package_version.outputs.version }}.vsix` below
+            2. In VSCode: Extensions → ⋯ → Install from VSIX
+            3. Open the welcome page: `Ctrl+Shift+P` → "Tenstorrent: Show Welcome Page"
+
+            **From Source:**
+            ```bash
+            git clone https://github.com/tenstorrent/tt-vscode-toolkit.git
+            cd tt-vscode-toolkit
+            git checkout v${{ steps.package_version.outputs.version }}
+            npm install
+            npm run build
+            npm run package
+            code --install-extension tt-vscode-toolkit-${{ steps.package_version.outputs.version }}.vsix
+            ```
+
+            ### Prerequisites
+
+            - Tenstorrent hardware (N150, N300, T3K, P100, P150, or Galaxy)
+            - Linux (Ubuntu 20.04+, RHEL 8+)
+            - Python 3.10+
+            - VSCode 1.93+
+            - tt-metal installed and configured
+
+            ### What's New
+
+            See [CHANGELOG.md](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/changelog.md)
+
+            ### Documentation
+
+            - [README](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/README.md)
+            - [Contributing Guide](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/CONTRIBUTING.md)
+            - [Community Guidelines](https://github.com/tenstorrent/tt-vscode-toolkit/blob/v${{ steps.package_version.outputs.version }}/COMMUNITY_GUIDELINES.md)
+          files: |
+            *.vsix
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+  publish-marketplace:
+    name: Publish to VS Code Marketplace
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: false  # Disabled - enable when ready to publish to marketplace
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and package
+        run: |
+          npm run build
+          npm run package
+
+      - name: Publish to VS Code Marketplace
+        run: npx vsce publish --packagePath *.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
