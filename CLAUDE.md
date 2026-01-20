@@ -391,6 +391,24 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.271** - Merged release-0.0.268 improvements + matplotlib for cookbook
+- **MERGED FROM RELEASE:** Theme activation fix and OSS documentation
+  - Added `configurationDefaults` in package.json (standard VSCode theme setting)
+  - Removed programmatic theme code from extension.ts (cleaner approach)
+  - Added GitHub Actions release workflow (.github/workflows/release.yml)
+  - Automated build, test, package, and GitHub release creation
+- **NEW DEPENDENCY:** Added matplotlib to Dockerfile.koyeb
+  - Required for cookbook examples (Game of Life, Mandelbrot, etc.)
+  - Installed with `pip3 install matplotlib`
+- **FILES MODIFIED:**
+  - `Dockerfile.koyeb` - Added matplotlib to pip install (line 26)
+  - `package.json` - Version bump to 0.0.271, added configurationDefaults
+  - `src/extension.ts` - Removed programmatic theme setting code
+  - `.github/workflows/release.yml` - New release automation workflow
+  - `CLAUDE.md` - Documentation update
+- **BENEFIT:** Cookbook examples now work out of the box in Koyeb deployments
+- All tests passing (315/315), ready for Koyeb deployment
+
 **v0.0.269** - Use pre-built tt-metalium image (2-3 min builds instead of 15-20 min!)
 - **GAME CHANGER:** Use official pre-built tt-metalium dev image from GHCR
   - Base: `ghcr.io/tenstorrent/tt-metal/tt-metalium/ubuntu-22.04-dev-amd64:v0.63.0`

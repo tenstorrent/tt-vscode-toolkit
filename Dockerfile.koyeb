@@ -22,8 +22,8 @@ RUN apt-get update && apt-get install -y \
     && curl -fsSL https://code-server.dev/install.sh | sh \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Hugging Face CLI
-RUN pip3 install --no-cache-dir --break-system-packages huggingface-hub
+# Install Hugging Face CLI and matplotlib for cookbook examples
+RUN pip3 install --no-cache-dir --break-system-packages huggingface-hub matplotlib
 
 # The tt-metalium image uses 'ubuntu' user - rename to 'coder' for consistency
 RUN if id -u ubuntu >/dev/null 2>&1; then \
