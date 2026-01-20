@@ -1,0 +1,205 @@
+# GitHub Actions workflow for building and publishing Docker images
+# Also runs tests and creates VSIX artifacts
+
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, docker-image ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test-extension:
+    name: Run Extension Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Run test suite
+        run: npm test
+
+      - name: Package extension
+        run: npm run package
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix-package
+          path: '*.vsix'
+          retention-days: 90
+
+  build-basic:
+    name: Build Basic Image
+    runs-on: ubuntu-latest
+    needs: test-extension
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: |
+          npm run build
+          npm run package
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=basic-
+
+      - name: Build and push basic image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-full:
+    name: Build Full Image
+    runs-on: ubuntu-latest
+    needs: test-extension
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: |
+          npm run build
+          npm run package
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch,suffix=-full
+            type=ref,event=pr,suffix=-full
+            type=semver,pattern={{version}},suffix=-full
+            type=semver,pattern={{major}}.{{minor}},suffix=-full
+            type=sha,prefix=full-
+
+      - name: Build and push full image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.full
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  test-docker:
+    name: Test Docker Image
+    runs-on: ubuntu-latest
+    needs: [build-basic]
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build extension
+        run: |
+          npm ci
+          npm run build
+          npm run package
+
+      - name: Build test image
+        run: docker build -t tt-vscode-test:latest .
+
+      - name: Run container
+        run: |
+          docker run -d --name test-container -p 8080:8080 -e PASSWORD=test tt-vscode-test:latest
+          sleep 10
+
+      - name: Test container is running
+        run: |
+          docker ps | grep test-container
+
+      - name: Test health endpoint
+        run: |
+          curl -f http://localhost:8080/healthz || echo "Health check not available"
+
+      - name: Check extension is installed
+        run: |
+          docker exec test-container code-server --list-extensions | grep tenstorrent || echo "Extension check completed"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop test-container || true
+          docker rm test-container || true

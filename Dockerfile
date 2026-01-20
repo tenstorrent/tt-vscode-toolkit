@@ -35,10 +35,28 @@ COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
 # Copy entrypoint script
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Install the extension
+# Install the extension and configure VSCode settings
 RUN code-server --install-extension /tmp/extension.vsix \
     && rm /tmp/extension.vsix \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Configure code-server with Tenstorrent theme and terminal login shell
+# Terminal login shell ensures .bashrc is sourced (MOTD displays correctly)
+RUN mkdir -p /home/coder/.local/share/code-server/User && \
+    echo '{\n\
+  "workbench.colorTheme": "Tenstorrent Dark",\n\
+  "workbench.tips.enabled": false,\n\
+  "telemetry.telemetryLevel": "off",\n\
+  "update.mode": "none",\n\
+  "terminal.integrated.defaultProfile.linux": "bash",\n\
+  "terminal.integrated.profiles.linux": {\n\
+    "bash": {\n\
+      "path": "bash",\n\
+      "args": ["-l"],\n\
+      "icon": "terminal-bash"\n\
+    }\n\
+  }\n\
+}' > /home/coder/.local/share/code-server/User/settings.json
 
 # Set proper permissions
 RUN chown -R coder:coder /home/coder
