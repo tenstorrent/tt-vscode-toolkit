@@ -404,6 +404,23 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
   - `CLAUDE.md` - Documentation update
 - **BENEFIT:** Container starts immediately without trying to rebuild tt-metal
 
+**v0.0.278** - Fixed CI build failure (Node.js 20 required)
+- **CRITICAL FIX:** Updated GitHub Actions workflows to use Node.js 20
+  - Changed from Node.js 18 to Node.js 20 in all CI workflows
+  - Node 18 doesn't have `File` global required by undici (transitive dependency)
+  - undici v6+ requires Node.js 20+ for modern web APIs
+- **ERROR FIXED:**
+  ```
+  ReferenceError: File is not defined
+      at .../node_modules/undici/lib/web/webidl/index.js:531:48
+  ```
+- **FILES MODIFIED:**
+  - `.github/workflows/docker-build.yml` - Updated all Node versions to 20
+  - `.github/workflows/release.yml` - Updated all Node versions to 20
+  - `package.json` - Version 0.0.278
+  - `CLAUDE.md` - Documentation
+- **WHY THIS MATTERS:** CI builds now pass, releases can be automated
+
 **v0.0.277** - Fixed test failures (chai ESM compatibility)
 - **CRITICAL FIX:** Downgraded chai from v6.2.1 to v4.5.0
   - chai v6+ is ESM-only and incompatible with CommonJS test configuration
