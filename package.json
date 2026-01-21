@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.276",
+  "version": "0.0.277",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -598,7 +598,7 @@
     "@types/node": "^24.6.2",
     "@types/vscode": "^1.93.0",
     "@vscode/vsce": "^3.6.2",
-    "chai": "^6.2.1",
+    "chai": "^4.5.0",
     "esbuild": "^0.27.2",
     "js-yaml": "^4.1.1",
     "mermaid": "^11.12.2",

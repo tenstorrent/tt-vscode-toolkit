@@ -404,6 +404,22 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
   - `CLAUDE.md` - Documentation update
 - **BENEFIT:** Container starts immediately without trying to rebuild tt-metal
 
+**v0.0.277** - Fixed test failures (chai ESM compatibility)
+- **CRITICAL FIX:** Downgraded chai from v6.2.1 to v4.5.0
+  - chai v6+ is ESM-only and incompatible with CommonJS test configuration
+  - Test files use `import` but TypeScript compiles to `require()` (tsconfig has "module": "commonjs")
+  - chai v4.x supports both CommonJS and ESM
+- **ERROR FIXED:**
+  ```
+  Error [ERR_REQUIRE_ESM]: require() of ES Module .../chai/index.js not supported
+  ```
+- **RESULT:** All tests passing (189 passing, 32 pending)
+- **FILES MODIFIED:**
+  - `package.json` - chai: "^6.2.1" → "^4.5.0", version 0.0.277
+  - `package-lock.json` - Updated dependencies
+  - `CLAUDE.md` - Documentation
+- **WHY THIS MATTERS:** Tests now run in CI/CD pipelines without errors
+
 **v0.0.276** - Clone tt-metal source in Koyeb deployment (pre-built binaries)
 - **CRITICAL FIX:** ~/tt-metal now exists in Koyeb deployments
   - Clones tt-metal repository with submodules to ~/tt-metal
