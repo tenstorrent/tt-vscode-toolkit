@@ -18,7 +18,8 @@ USER root
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Install Hugging Face CLI and matplotlib for cookbook examples
-RUN pip3 install --no-cache-dir --break-system-packages huggingface-hub matplotlib
+# Note: tt-metalium image has venv activated, so no --break-system-packages needed
+RUN pip3 install --no-cache-dir huggingface-hub matplotlib
 
 # The tt-metalium image uses 'ubuntu' user - rename to 'coder' for consistency
 RUN if id -u ubuntu >/dev/null 2>&1; then \

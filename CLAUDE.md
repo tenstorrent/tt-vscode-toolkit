@@ -391,7 +391,18 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
-**v0.0.272** - Fixed Dockerfile apt-get conflict (tt-metalium base already has packages)
+**v0.0.273** - Removed --break-system-packages flag (pip version too old)
+- **CRITICAL FIX:** Removed `--break-system-packages` from pip install
+  - tt-metalium base image has older pip that doesn't support this flag
+  - Flag added in pip 23.0+, base image likely has pip 22.x or earlier
+  - tt-metalium venv is already activated, so flag not needed anyway
+- **FILES MODIFIED:**
+  - `Dockerfile.koyeb` - Removed --break-system-packages flag (line 22)
+  - `package.json` - Version bump to 0.0.273
+  - `CLAUDE.md` - Documentation update
+- **BENEFIT:** Build now proceeds past pip install step
+
+**v0.0.272** - Fixed Dockerfile apt-get conflict (tt-metalium base already has packages) (FAILED - pip flag)
 - **CRITICAL FIX:** Removed redundant apt-get install from Dockerfile.koyeb
   - Base tt-metalium image already includes curl, wget, sudo
   - Attempting to reinstall caused exit code 100 (package conflicts)
