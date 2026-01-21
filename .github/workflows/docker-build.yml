@@ -107,6 +107,7 @@ jobs:
     name: Build Full Image
     runs-on: ubuntu-latest
     needs: test-extension
+    if: false  # Disabled - torch installation too heavy for CI
     permissions:
       contents: read
       packages: write
