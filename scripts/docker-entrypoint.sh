@@ -96,7 +96,35 @@ echo "  ✅ Production deployment guides"
 echo "  ✅ Template scripts and examples"
 
 # Check for tt-metal installation
-if [ -d "$HOME/tt-metal" ] && [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then
+# If using pre-built image (like tt-metalium), skip installation entirely
+if [ "$TT_METAL_PREBUILT" = "true" ]; then
+    echo "  ✅ tt-metal pre-built in base image (cloning source for examples)"
+
+    # Clone tt-metal for source code and examples (but don't build)
+    if [ ! -d "$HOME/tt-metal" ]; then
+        echo -e "${CYAN}📥 Cloning tt-metal repository (source code only)...${NC}"
+        git clone --recurse-submodules https://github.com/tenstorrent/tt-metal.git "$HOME/tt-metal" || {
+            echo -e "${YELLOW}⚠️  Failed to clone tt-metal - will be available via extension lessons${NC}"
+        }
+    fi
+
+    # Configure environment variables in .bashrc if not already set
+    if ! grep -q "TT_METAL_HOME" "$HOME/.bashrc" 2>/dev/null; then
+        echo "" >> "$HOME/.bashrc"
+        echo "# Tenstorrent tt-metal environment" >> "$HOME/.bashrc"
+        echo "export TT_METAL_HOME=\$HOME/tt-metal" >> "$HOME/.bashrc"
+        echo "export PYTHONPATH=\$HOME/tt-metal" >> "$HOME/.bashrc"
+        echo 'export PATH="$HOME/tt-metal:${PATH}"' >> "$HOME/.bashrc"
+    fi
+
+    # Set for current session
+    export TT_METAL_HOME="$HOME/tt-metal"
+    export PYTHONPATH="$HOME/tt-metal"
+    export PATH="$HOME/tt-metal:${PATH}"
+
+    echo -e "  ${GREEN}✅ Source code available at: ~/tt-metal${NC}"
+    echo -e "  ${CYAN}   Using pre-built binaries from base image${NC}"
+elif [ -d "$HOME/tt-metal" ] && [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then
     echo "  ✅ tt-metal pre-built and ready at: ~/tt-metal"
 
     # Configure environment variables in .bashrc if not already set

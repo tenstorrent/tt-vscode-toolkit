@@ -391,7 +391,41 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
-**v0.0.274** - Fixed user creation logic (coder user creation fallback)
+**v0.0.275** - Skip tt-metal installation for pre-built images (fixes APT signing error)
+- **CRITICAL FIX:** Added `TT_METAL_PREBUILT` environment variable to skip installation
+  - Dockerfile.koyeb sets `ENV TT_METAL_PREBUILT=true`
+  - Entrypoint script checks this variable and skips entire installation block
+  - Fixes APT GPG signing error from Kitware repository
+  - tt-metalium base image already has everything built - no need to rebuild!
+- **FILES MODIFIED:**
+  - `Dockerfile.koyeb` - Added ENV TT_METAL_PREBUILT=true (line 13)
+  - `scripts/docker-entrypoint.sh` - Check TT_METAL_PREBUILT before installing (lines 100-115)
+  - `package.json` - Version bump to 0.0.275
+  - `CLAUDE.md` - Documentation update
+- **BENEFIT:** Container starts immediately without trying to rebuild tt-metal
+
+**v0.0.276** - Clone tt-metal source in Koyeb deployment (pre-built binaries)
+- **CRITICAL FIX:** ~/tt-metal now exists in Koyeb deployments
+  - Clones tt-metal repository with submodules to ~/tt-metal
+  - Skips build step (uses pre-built binaries from tt-metalium base image)
+  - Users can browse source code, run examples, access demos
+  - Fast deployment time maintained (~3-4 minutes, adds ~1-2 min for git clone)
+- **WHY THIS MATTERS:**
+  - Lessons expect ~/tt-metal directory to exist for source code access
+  - Users need access to examples and demos for learning
+  - Pre-built binaries work system-wide, source code available locally
+  - Best of both worlds: fast deployment + full source access
+- **FILES MODIFIED:**
+  - `scripts/docker-entrypoint.sh` - Added git clone when TT_METAL_PREBUILT=true (lines 103-109)
+  - `package.json` - Version bump to 0.0.276
+  - `CLAUDE.md` - Documentation update
+- **USER EXPERIENCE:**
+  - Source code: ~/tt-metal/tt_metal/
+  - Examples: ~/tt-metal/models/demos/
+  - Demos: ~/tt-metal/models/experimental/
+  - All binaries work (tt-smi, ttnn, etc.)
+
+**v0.0.274** - Fixed user creation logic (coder user creation fallback) (FAILED - APT signing error)
 - **CRITICAL FIX:** Added else clause to create coder user if ubuntu doesn't exist
   - Previous version failed with "usermod: user 'coder' does not exist" (exit code 6)
   - If ubuntu user exists: rename to coder (original logic)
