@@ -391,6 +391,22 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.280** - Auto-activate /opt/venv in Koyeb deployment
+- **ENHANCEMENT:** Python virtual environment at /opt/venv now activates automatically
+  - Added activation to .bashrc configuration in entrypoint script
+  - Activates for both new terminal sessions and current session
+  - Checks if /opt/venv exists before attempting activation
+  - tt-metalium base image provides /opt/venv with pre-installed packages
+- **USER EXPERIENCE:**
+  - Terminals open with venv already activated
+  - No manual `source /opt/venv/bin/activate` needed
+  - Python packages immediately available
+- **FILES MODIFIED:**
+  - `scripts/docker-entrypoint.sh` - Added venv activation to .bashrc setup
+  - `package.json` - Version 0.0.280
+  - `CLAUDE.md` - Documentation
+- Applies only to Koyeb deployment (TT_METAL_PREBUILT=true)
+
 **v0.0.279** - Disabled full Docker image build in CI
 - **CI FIX:** Disabled `build-full` job in GitHub Actions workflow
   - Dockerfile.full installs torch which is too resource-intensive for CI

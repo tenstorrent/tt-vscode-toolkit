@@ -115,12 +115,22 @@ if [ "$TT_METAL_PREBUILT" = "true" ]; then
         echo "export TT_METAL_HOME=\$HOME/tt-metal" >> "$HOME/.bashrc"
         echo "export PYTHONPATH=\$HOME/tt-metal" >> "$HOME/.bashrc"
         echo 'export PATH="$HOME/tt-metal:${PATH}"' >> "$HOME/.bashrc"
+        echo "" >> "$HOME/.bashrc"
+        echo "# Activate Python virtual environment" >> "$HOME/.bashrc"
+        echo 'if [ -f "/opt/venv/bin/activate" ]; then' >> "$HOME/.bashrc"
+        echo '    source /opt/venv/bin/activate' >> "$HOME/.bashrc"
+        echo 'fi' >> "$HOME/.bashrc"
     fi
 
     # Set for current session
     export TT_METAL_HOME="$HOME/tt-metal"
     export PYTHONPATH="$HOME/tt-metal"
     export PATH="$HOME/tt-metal:${PATH}"
+
+    # Activate venv for current session
+    if [ -f "/opt/venv/bin/activate" ]; then
+        source /opt/venv/bin/activate
+    fi
 
     echo -e "  ${GREEN}✅ Source code available at: ~/tt-metal${NC}"
     echo -e "  ${CYAN}   Using pre-built binaries from base image${NC}"
