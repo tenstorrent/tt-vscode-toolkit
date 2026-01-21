@@ -391,7 +391,18 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
-**v0.0.271** - Merged release-0.0.268 improvements + matplotlib for cookbook
+**v0.0.272** - Fixed Dockerfile apt-get conflict (tt-metalium base already has packages)
+- **CRITICAL FIX:** Removed redundant apt-get install from Dockerfile.koyeb
+  - Base tt-metalium image already includes curl, wget, sudo
+  - Attempting to reinstall caused exit code 100 (package conflicts)
+  - Now just runs code-server install script directly
+- **FILES MODIFIED:**
+  - `Dockerfile.koyeb` - Removed apt-get update and package install (line 18)
+  - `package.json` - Version bump to 0.0.272
+  - `CLAUDE.md` - Documentation update
+- **BENEFIT:** Build now succeeds, faster deployment (skips unnecessary apt operations)
+
+**v0.0.271** - Merged release-0.0.268 improvements + matplotlib for cookbook (FAILED - apt-get conflict)
 - **MERGED FROM RELEASE:** Theme activation fix and OSS documentation
   - Added `configurationDefaults` in package.json (standard VSCode theme setting)
   - Removed programmatic theme code from extension.ts (cleaner approach)

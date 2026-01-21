@@ -14,13 +14,8 @@ ENV SHELL=/bin/bash
 # Switch to root for installation
 USER root
 
-# Install code-server and basic tools
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    sudo \
-    && curl -fsSL https://code-server.dev/install.sh | sh \
-    && rm -rf /var/lib/apt/lists/*
+# Install code-server (base image already has curl, wget, sudo)
+RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Install Hugging Face CLI and matplotlib for cookbook examples
 RUN pip3 install --no-cache-dir --break-system-packages huggingface-hub matplotlib
