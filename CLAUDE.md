@@ -391,7 +391,19 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
-**v0.0.273** - Removed --break-system-packages flag (pip version too old)
+**v0.0.274** - Fixed user creation logic (coder user creation fallback)
+- **CRITICAL FIX:** Added else clause to create coder user if ubuntu doesn't exist
+  - Previous version failed with "usermod: user 'coder' does not exist" (exit code 6)
+  - If ubuntu user exists: rename to coder (original logic)
+  - If ubuntu user doesn't exist: create coder user (new fallback)
+  - Then add coder to sudo group and configure sudoers
+- **FILES MODIFIED:**
+  - `Dockerfile.koyeb` - Added useradd fallback for coder user (lines 26-31)
+  - `package.json` - Version bump to 0.0.274
+  - `CLAUDE.md` - Documentation update
+- **BENEFIT:** Build handles both scenarios (ubuntu exists or doesn't exist)
+
+**v0.0.273** - Removed --break-system-packages flag (pip version too old) (FAILED - user creation)
 - **CRITICAL FIX:** Removed `--break-system-packages` from pip install
   - tt-metalium base image has older pip that doesn't support this flag
   - Flag added in pip 23.0+, base image likely has pip 22.x or earlier

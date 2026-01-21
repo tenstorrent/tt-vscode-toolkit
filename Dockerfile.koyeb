@@ -22,9 +22,12 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 RUN pip3 install --no-cache-dir huggingface-hub matplotlib
 
 # The tt-metalium image uses 'ubuntu' user - rename to 'coder' for consistency
+# If ubuntu user exists, rename to coder. Otherwise create coder user.
 RUN if id -u ubuntu >/dev/null 2>&1; then \
-        usermod -l coder -d /home/coder -m ubuntu; \
+        usermod -l coder -d /home/coder -m ubuntu && \
         groupmod -n coder ubuntu; \
+    else \
+        useradd -m -s /bin/bash coder; \
     fi \
     && usermod -aG sudo coder \
     && echo "coder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
