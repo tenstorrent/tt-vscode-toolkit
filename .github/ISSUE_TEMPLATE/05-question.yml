@@ -1,0 +1,93 @@
+name: ❓ Question
+description: Ask a question about using the extension or Tenstorrent hardware
+title: "[Question]: "
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We're here to help!
+        
+        **Before asking:**
+        - Check the [FAQ](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/content/pages/FAQ.md) - it covers 90% of common questions
+        - Search [existing issues](https://github.com/tenstorrent/tt-vscode-toolkit/issues) - your question may already be answered
+        - Browse the [documentation](https://docs.tenstorrent.com)
+        
+        **For real-time help:** Join our [Discord community](https://discord.gg/tenstorrent) for faster responses!
+
+  - type: dropdown
+    id: question-category
+    attributes:
+      label: Question Category
+      description: What is your question about?
+      options:
+        - "Using the extension"
+        - "Lesson content or instructions"
+        - "Hardware setup or configuration"
+        - "Model deployment or inference"
+        - "Development or contributing"
+        - "General Tenstorrent questions"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: Please be as specific as possible
+      placeholder: |
+        How do I...?
+        What does... mean?
+        Why does... happen when...?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and Background
+      description: Help us understand your situation
+      placeholder: |
+        - What are you trying to accomplish?
+        - What have you already tried?
+        - Where did you get stuck?
+    validations:
+      required: false
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware Configuration (if relevant)
+      description: What Tenstorrent hardware are you using?
+      placeholder: "N150, N300, T3K, P100, P150, Galaxy, or None"
+    validations:
+      required: false
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension Version (if relevant)
+      description: What version of the extension are you using?
+      placeholder: "0.0.248"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: checked-faq
+    attributes:
+      label: Have you checked the FAQ?
+      description: The FAQ covers most common questions
+      options:
+        - "Yes, I checked the FAQ"
+        - "No, I'll check it now"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other details that might be helpful (screenshots, logs, error messages, etc.)
+    validations:
+      required: false
