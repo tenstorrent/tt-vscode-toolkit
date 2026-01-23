@@ -7,5 +7,5 @@ contact_links:
     url: https://docs.tenstorrent.com
     about: Browse the official Tenstorrent documentation
   - name: 📖 FAQ
-    url: https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/FAQ.md
+    url: https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/content/pages/FAQ.md
     about: Check our FAQ for common questions and troubleshooting

@@ -475,7 +475,7 @@ Must include SPDX header:
 * **[docs/TESTING.md](docs/TESTING.md)** - Testing guide
 * **[docs/PACKAGING.md](docs/PACKAGING.md)** - Build and distribution
 * **[COMMUNITY_GUIDELINES.md](COMMUNITY_GUIDELINES.md)** - Community standards and communication
-* **[FAQ.md](FAQ.md)** - Troubleshooting guide
+* **[FAQ.md](content/pages/FAQ.md)** - Troubleshooting guide
 * **[CHANGELOG.md](CHANGELOG.md)** - Version history
 * **[SECURITY.md](SECURITY.md)** - Security policy
 
