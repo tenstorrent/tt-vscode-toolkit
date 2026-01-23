@@ -487,7 +487,7 @@ huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
 
 **Option 1: Environment variable (recommended for scripts)**
 ```bash
-export HF_TOKEN=hf_...
+export HF_TOKEN=your_token_from_huggingface
 huggingface-cli download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
 ```
 
@@ -500,7 +500,7 @@ huggingface-cli login
 **Option 3: In code**
 ```python
 from huggingface_hub import login
-login(token="hf_...")
+login(token="your_token_from_huggingface")
 ```
 
 **Get a token:** https://huggingface.co/settings/tokens

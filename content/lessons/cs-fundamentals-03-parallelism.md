@@ -82,9 +82,9 @@ graph TD
     D -.->|"Bottleneck"| I["Max Speedup = 10x<br/>(Limited by serial portion)"]
     H -.->|"Almost negligible"| I
 
-    style B fill:#ff6b6b,color:#fff
-    style D fill:#ff6b6b,color:#fff
-    style I fill:#5347a4,color:#fff
+    style B fill:#ff6b6b,stroke:#fff,color:#fff
+    style D fill:#ff6b6b,stroke:#fff,color:#fff
+    style I fill:#5347a4,stroke:#fff,color:#fff
 ```
 
 **The Brutal Truth:** Even with infinite cores, your speedup is limited by the serial portion.
@@ -419,12 +419,12 @@ graph TD
     D176 --> T176["Total: 6K cycles<br/>Speedup: 164x"]
     end
 
-    style A1 fill:#3293b2,color:#fff
-    style A10 fill:#3293b2,color:#fff
-    style A100 fill:#3293b2,color:#fff
-    style A176 fill:#3293b2,color:#fff
-    style D100 fill:#ff6b6b,color:#fff
-    style D176 fill:#ff6b6b,color:#fff
+    style A1 fill:#3293b2,stroke:#fff,color:#fff
+    style A10 fill:#3293b2,stroke:#fff,color:#fff
+    style A100 fill:#3293b2,stroke:#fff,color:#fff
+    style A176 fill:#3293b2,stroke:#fff,color:#fff
+    style D100 fill:#ff6b6b,stroke:#fff,color:#fff
+    style D176 fill:#ff6b6b,stroke:#fff,color:#fff
 ```
 
 **As cores increase, DMA becomes the bottleneck** (fixed overhead doesn't parallelize).

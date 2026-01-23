@@ -3,12 +3,14 @@
  *
  * Features:
  * - Tracks which environment is active in each terminal
- * - Shows status bar indicator with environment name and icon
  * - Auto-activates correct environment when terminal is created
- * - Allows manual switching via status bar click or command palette
+ * - Allows manual switching via command palette
  *
  * This solves the "environment drift" problem where users lose track
  * of which Python venv is active.
+ *
+ * Note: Status bar display has been removed to reduce clutter. Environment
+ * switching is still available via command palette.
  */
 
 import * as vscode from 'vscode';
@@ -20,60 +22,12 @@ export class EnvironmentManager {
   /** Map of terminals to their active environments */
   private activeEnvironments: Map<vscode.Terminal, EnvironmentConfig> = new Map();
 
-  /** Map of terminals to their status bar items */
-  private statusBarItems: Map<vscode.Terminal, vscode.StatusBarItem> = new Map();
-
-  /** Extension context for subscriptions */
-  private context: vscode.ExtensionContext;
-
   constructor(context: vscode.ExtensionContext) {
-    this.context = context;
-
     // Listen for terminal lifecycle events
     context.subscriptions.push(
       vscode.window.onDidOpenTerminal(this.onTerminalOpened, this),
-      vscode.window.onDidCloseTerminal(this.onTerminalClosed, this),
-      vscode.window.onDidChangeActiveTerminal(this.onActiveTerminalChanged, this)
+      vscode.window.onDidCloseTerminal(this.onTerminalClosed, this)
     );
-  }
-
-  /**
-   * Get or create status bar item for a terminal
-   */
-  private getOrCreateStatusBarItem(terminal: vscode.Terminal): vscode.StatusBarItem {
-    let statusBarItem = this.statusBarItems.get(terminal);
-
-    if (!statusBarItem) {
-      statusBarItem = vscode.window.createStatusBarItem(
-        vscode.StatusBarAlignment.Left,
-        100 // Priority (higher = more left)
-      );
-
-      statusBarItem.command = 'tenstorrent.selectPythonEnvironment';
-      statusBarItem.tooltip = 'Click to change Python environment';
-
-      this.statusBarItems.set(terminal, statusBarItem);
-      this.context.subscriptions.push(statusBarItem);
-    }
-
-    return statusBarItem;
-  }
-
-  /**
-   * Update status bar to show current environment
-   */
-  private updateStatusBar(terminal: vscode.Terminal): void {
-    const statusBarItem = this.getOrCreateStatusBarItem(terminal);
-    const activeEnv = this.activeEnvironments.get(terminal);
-
-    if (activeEnv) {
-      const icon = activeEnv.icon || '$(python)';
-      statusBarItem.text = `${icon} ${activeEnv.displayName}`;
-      statusBarItem.show();
-    } else {
-      statusBarItem.text = '$(python) Unknown Env';
-      statusBarItem.show();
-    }
   }
 
   /**
@@ -101,9 +55,8 @@ export class EnvironmentManager {
   ): void {
     const envConfig = ENVIRONMENT_REGISTRY[terminalContext];
 
-    // Store environment info for status bar
+    // Store environment info
     this.activeEnvironments.set(terminal, envConfig);
-    this.updateStatusBar(terminal);
   }
 
   /**
@@ -132,7 +85,6 @@ export class EnvironmentManager {
 
     // Store active environment
     this.activeEnvironments.set(terminal, envConfig);
-    this.updateStatusBar(terminal);
 
     // Manually activate environment (user triggered)
     await this.activateEnvironment(terminal, envConfig);
@@ -200,13 +152,9 @@ export class EnvironmentManager {
     for (const [_context, config] of Object.entries(ENVIRONMENT_REGISTRY)) {
       if (terminalName.includes(config.displayName)) {
         this.activeEnvironments.set(terminal, config);
-        this.updateStatusBar(terminal);
         return;
       }
     }
-
-    // Fallback: mark as unknown environment
-    this.updateStatusBar(terminal);
   }
 
   /**
@@ -232,40 +180,15 @@ export class EnvironmentManager {
    * Terminal closed event handler
    */
   private onTerminalClosed(terminal: vscode.Terminal): void {
-    // Clean up status bar item
-    const statusBarItem = this.statusBarItems.get(terminal);
-    if (statusBarItem) {
-      statusBarItem.dispose();
-      this.statusBarItems.delete(terminal);
-    }
-
     // Remove from active environments
     this.activeEnvironments.delete(terminal);
-  }
-
-  /**
-   * Active terminal changed event handler
-   */
-  private onActiveTerminalChanged(terminal: vscode.Terminal | undefined): void {
-    // Hide all status bars except for active terminal
-    for (const [term, statusBarItem] of this.statusBarItems.entries()) {
-      if (term === terminal) {
-        statusBarItem.show();
-      } else {
-        statusBarItem.hide();
-      }
-    }
   }
 
   /**
    * Dispose all resources
    */
   dispose(): void {
-    // Dispose all status bar items
-    for (const statusBarItem of this.statusBarItems.values()) {
-      statusBarItem.dispose();
-    }
-    this.statusBarItems.clear();
+    // Clear environment tracking
     this.activeEnvironments.clear();
   }
 }

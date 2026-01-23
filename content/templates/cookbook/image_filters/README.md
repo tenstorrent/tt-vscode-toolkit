@@ -25,7 +25,7 @@ python filters.py examples/sample.jpg
 from filters import ImageFilterBank
 import ttnn
 
-device = ttnn.open_device(0)
+device = ttnn.open_device(device_id=0)
 filters = ImageFilterBank(device)
 
 # Load image

@@ -266,14 +266,21 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.0.248
+### Latest Release: v0.0.268 (2025-01-09)
 
-**Recent Highlights:**
-- ✨ Mermaid diagram support in all lessons with brand colors
+**Highlights:**
+- 🐳 Docker support with container orchestration
+- 📊 Consolidated status bar with sysfs telemetry
+- 🎨 Color-coded hardware validation badges
+- 🤝 Open-source documentation and GitHub workflows
+- 🔧 CS Fundamentals lesson fixes and ttnn API improvements
+
+### Previous Release: v0.0.243 (2024-01-09)
+
+**Highlights:**
+- 📚 New technical documentation structure (ARCHITECTURE, TESTING, PACKAGING)
+- 🎯 README streamlined (50% reduction in size)
 - 🎨 Monochrome sidebar icon for better theme compatibility
-- 🌡️ Multi-device telemetry support with temperature-at-a-glance
-- 📦 Package size optimization (60MB → 31MB)
-- 🔧 Comprehensive validation of CS Fundamentals series
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 

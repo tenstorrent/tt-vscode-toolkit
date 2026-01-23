@@ -1,5 +1,20 @@
 # Contributing to Tenstorrent VSCode Toolkit
+# Contributing to Tenstorrent VSCode Toolkit
 
+Thank you for your interest in contributing to the Tenstorrent VSCode Toolkit! We welcome contributions from developers of all experience levels.
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Development Setup](#development-setup)
+- [Project Structure](#project-structure)
+- [Making Changes](#making-changes)
+  - [Code Changes](#code-changes)
+  - [Adding New Lessons](#adding-new-lessons)
+- [Code Review Process](#code-review-process)
+- [Additional Resources](#additional-resources)
+
+---
 Thank you for your interest in contributing to the Tenstorrent VSCode Toolkit! We welcome contributions from developers of all experience levels.
 
 ## Table of Contents
@@ -18,6 +33,16 @@ Thank you for your interest in contributing to the Tenstorrent VSCode Toolkit! W
 ## Getting Started
 
 All contributions require:
+* **An issue** - File a bug report, feature request, or lesson request under [Issues](https://github.com/tenstorrent/tt-vscode-toolkit/issues) using the appropriate template
+* **A pull request (PR)** - Your PR must be approved by at least one maintainer
+
+**Before contributing:**
+1. Read this guide thoroughly
+2. Review our [Code of Conduct](CODE_OF_CONDUCT.md)
+3. Check [existing issues](https://github.com/tenstorrent/tt-vscode-toolkit/issues) to avoid duplicates
+4. Join our [Discord](https://discord.gg/tenstorrent) for real-time discussions
+
+---
 * **An issue** - File a bug report, feature request, or lesson request under [Issues](https://github.com/tenstorrent/tt-vscode-toolkit/issues) using the appropriate template
 * **A pull request (PR)** - Your PR must be approved by at least one maintainer
 
@@ -54,7 +79,35 @@ Visit https://github.com/tenstorrent/tt-vscode-toolkit and click "Fork" to creat
 git clone https://github.com/YOUR-USERNAME/tt-vscode-toolkit.git
 cd tt-vscode-toolkit
 ```
+### Prerequisites
 
+**Required:**
+- Node.js 18+ and npm 9+
+- VSCode 1.93+
+- Git 2.x
+
+**Optional:**
+- Tenstorrent hardware (for lesson validation)
+- tt-metal installed (for testing lesson content)
+
+### Quick Setup
+
+**1. Fork the repository**
+
+Visit https://github.com/tenstorrent/tt-vscode-toolkit and click "Fork" to create your own copy.
+
+**2. Clone your fork**
+
+```bash
+git clone https://github.com/YOUR-USERNAME/tt-vscode-toolkit.git
+cd tt-vscode-toolkit
+```
+
+**3. Install dependencies**
+
+```bash
+npm install
+```
 **3. Install dependencies**
 
 ```bash
@@ -72,7 +125,119 @@ npm run build
 ```bash
 code .
 ```
+**4. Build the extension**
 
+```bash
+npm run build
+```
+
+**5. Open in VSCode**
+
+```bash
+code .
+```
+
+**6. Launch Extension Development Host**
+
+Press `F5` in VSCode to launch the extension in a new window for testing.
+
+---
+
+## Project Structure
+
+Understanding the codebase organization:
+
+```
+tt-vscode-toolkit/
+├── .github/
+│   ├── ISSUE_TEMPLATE/        # Issue templates
+│   └── PULL_REQUEST_TEMPLATE.md
+├── content/
+│   ├── lessons/               # 16 lesson markdown files
+│   ├── templates/             # Python script templates
+│   ├── pages/                 # Welcome page, FAQ, etc.
+│   └── lesson-registry.json   # Lesson metadata
+├── src/
+│   ├── extension.ts           # Main extension entry point
+│   ├── commands/              # Command implementations
+│   ├── services/              # Business logic
+│   ├── views/                 # TreeView and Webview providers
+│   └── telemetry/             # Device monitoring
+├── test/                      # Automated test suite (134+ tests)
+└── docs/                      # Technical documentation
+```
+
+**Key directories:**
+- **`content/lessons/`** - Pure markdown lesson files (editable by writers)
+- **`src/commands/`** - Command implementations (registered in package.json)
+- **`test/`** - Automated tests (markdown, templates, config)
+- **`vendor/`** - Reference repos (local only, NOT deployed)
+
+---
+
+## Making Changes
+
+Choose the workflow that matches your contribution:
+
+### Code Changes
+
+Follow this workflow when modifying extension code, adding features, fixing bugs, or updating TypeScript/configuration.
+
+#### 1. Create a Feature Branch
+
+**External contributors (fork-based):**
+```bash
+git checkout -b username/123-fix-feature
+```
+
+**Internal developers (direct push):**
+```bash
+git checkout -b username/123-fix-feature
+```
+
+#### 2. Make Your Code Changes
+
+**Common tasks:**
+
+- **Adding a new command:**
+  1. Add command definition to `package.json` → `contributes.commands`
+  2. Implement handler in appropriate `src/commands/*.ts` file
+  3. Register command in `src/extension.ts` → `activate()`
+
+- **Editing TypeScript:**
+  - Edit files in `src/`
+  - Run `npm run watch` for hot reload during development
+  - Follow TypeScript standards (see [Code Style](#code-style-and-standards))
+
+- **Updating configuration:**
+  - Edit `package.json` for extension manifest changes
+  - Edit `tsconfig.json` for TypeScript compiler options
+
+#### 3. Test Your Changes
+
+**Run automated tests:**
+```bash
+npm test
+```
+
+You should see 134+ tests passing. Fix any failures before proceeding.
+
+**Manual testing:**
+1. Build: `npm run build`
+2. Press `F5` to launch Extension Development Host
+3. Test your changes in the new VSCode window
+4. Check console for errors: Help → Toggle Developer Tools
+
+**Test packaging (optional):**
+```bash
+npm run package
+```
+
+This verifies the extension can be packaged successfully.
+
+#### 4. Follow Code Style and Standards
+
+**TypeScript files must include SPDX header:**
 **6. Launch Extension Development Host**
 
 Press `F5` in VSCode to launch the extension in a new window for testing.
@@ -262,6 +427,38 @@ Follow this workflow when creating educational content, updating lesson markdown
 #### 1. Research and Plan
 
 **Check reference implementations:**
+**Version management:**
+- Increment version in `package.json` (CRITICAL for all changes)
+- Patch (0.0.X): Bug fixes, small changes
+- Minor (0.X.0): New features
+- Major (X.0.0): Breaking changes
+
+#### 7. Address Review Feedback
+
+- Respond to all comments
+- Push additional commits to same branch
+- Request re-review when ready
+
+#### Testing Requirements
+
+All code changes must include:
+- [ ] All existing tests pass
+- [ ] New features have tests
+- [ ] Extension builds successfully
+- [ ] Manually tested in Extension Development Host
+- [ ] No new warnings or errors
+
+**For detailed testing information, see [docs/TESTING.md](docs/TESTING.md)**
+
+---
+
+### Adding New Lessons
+
+Follow this workflow when creating educational content, updating lesson markdown, or adding templates.
+
+#### 1. Research and Plan
+
+**Check reference implementations:**
 ```bash
 cd vendor/
 # Clone/update relevant repos for reference
@@ -304,13 +501,42 @@ metadata:
 #### 4. Write Lesson Content
 
 **Structure:**
+touch content/lessons/17-my-new-lesson.md
+```
+
+#### 3. Add Frontmatter
+
+```yaml
+---
+title: "My New Lesson"
+description: "Learn how to..."
+category: "advanced"
+difficulty: "intermediate"
+estimatedTime: "30 minutes"
+prerequisites:
+  - "Completed Hardware Detection lesson"
+  - "Python 3.10+ installed"
+metadata:
+  supportedHardware: ["n150", "n300", "t3k"]
+  status: "draft"
+  validatedOn: []
+  minTTMetalVersion: "v0.51.0"
+---
+```
+
+#### 4. Write Lesson Content
+
+**Structure:**
 ```markdown
 # Lesson Title
 
 ## Overview
 Brief description (2-3 sentences)
+Brief description (2-3 sentences)
 
 ## Prerequisites
+- List required knowledge
+- List required setup
 - List required knowledge
 - List required setup
 
@@ -470,6 +696,8 @@ Must include SPDX header:
 
 ### Documentation
 
+### Documentation
+
 * **[README.md](README.md)** - User-facing documentation
 * **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical architecture
 * **[docs/TESTING.md](docs/TESTING.md)** - Testing guide
@@ -478,8 +706,37 @@ Must include SPDX header:
 * **[FAQ.md](content/pages/FAQ.md)** - Troubleshooting guide
 * **[CHANGELOG.md](CHANGELOG.md)** - Version history
 * **[SECURITY.md](SECURITY.md)** - Security policy
+* **[SECURITY.md](SECURITY.md)** - Security policy
 
 ### External Resources
+
+* [VSCode Extension API](https://code.visualstudio.com/api) - Official extension development docs
+* [TypeScript Documentation](https://www.typescriptlang.org/docs/) - Language reference
+* [Tenstorrent Documentation](https://docs.tenstorrent.com/) - Hardware and software docs
+* [Tenstorrent Discord](https://discord.gg/tenstorrent) - Community chat
+
+### Related Projects
+
+* [tt-metal](https://github.com/tenstorrent/tt-metal) - Core runtime and kernels
+* [vLLM](https://github.com/tenstorrent/vllm) - High-performance LLM serving
+* [tt-forge](https://github.com/tenstorrent/tt-forge) - MLIR compiler
+* [tt-xla](https://github.com/tenstorrent/tt-xla) - XLA compiler plugin
+
+---
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the **Apache License 2.0**.
+
+All source files must include the appropriate SPDX header.
+
+---
+
+**Thank you for contributing to the Tenstorrent VSCode Toolkit!** 🎉
+
+Your efforts help make Tenstorrent hardware more accessible to developers worldwide.
+
+*Questions? Check [COMMUNITY_GUIDELINES.md](COMMUNITY_GUIDELINES.md) or join us on [Discord](https://discord.gg/tenstorrent)!*
 
 * [VSCode Extension API](https://code.visualstudio.com/api) - Official extension development docs
 * [TypeScript Documentation](https://www.typescriptlang.org/docs/) - Language reference

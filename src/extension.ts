@@ -54,40 +54,8 @@ const STATE_KEYS = {
 // Device Status Monitoring
 // ============================================================================
 
-/**
- * Cached device information to avoid excessive tt-smi calls
- */
-// Individual device information
-interface SingleDeviceInfo {
-  deviceType: string | null;    // e.g., "N150", "N300", "P300"
-  firmwareVersion: string | null;
-  status: 'healthy' | 'warning' | 'error' | 'unknown';
-  temperature: number | null;   // ASIC temperature in Celsius
-  power: number | null;         // Power consumption in watts
-  pciBus: string | null;        // PCI bus ID (e.g., "0000:01:00.0")
-  deviceIndex: number;          // Device index (0, 1, 2, ...)
-}
 
-// Multi-device system information
-interface DeviceInfo {
-  devices: SingleDeviceInfo[];   // Array of all devices
-  deviceCount: number;           // Total number of devices
-  primaryDeviceType: string | null;  // Type of first device (for display)
-  overallStatus: 'healthy' | 'warning' | 'error' | 'unknown';
-  lastChecked: number;
-}
-
-let cachedDeviceInfo: DeviceInfo = {
-  devices: [],
-  deviceCount: 0,
-  primaryDeviceType: null,
-  overallStatus: 'unknown',
-  lastChecked: 0,
-};
-
-let statusBarItem: vscode.StatusBarItem | undefined;
 let commandMenuStatusBarItem: vscode.StatusBarItem | undefined;
-let statusUpdateTimer: NodeJS.Timeout | undefined;
 
 /**
  * Global EnvironmentManager for tracking Python environments per terminal
@@ -95,451 +63,77 @@ let statusUpdateTimer: NodeJS.Timeout | undefined;
 let environmentManager: EnvironmentManager;
 
 /**
- * Parses tt-smi output to extract multi-device information.
- * Supports both JSON format (tt-smi -s) and text format.
- *
- * @param output - Raw output from tt-smi command
- * @returns DeviceInfo object with parsed data for all devices
+ * Global TelemetryMonitor for accessing current device telemetry
  */
-function parseDeviceInfo(output: string): DeviceInfo {
-  const devices: SingleDeviceInfo[] = [];
-
-  // Check for error indicators first
-  const hasError = output.toLowerCase().includes('error') ||
-                   output.toLowerCase().includes('failed') ||
-                   output.toLowerCase().includes('timeout');
-
-  // Try to parse as JSON first (tt-smi -s format)
-  try {
-    const jsonMatch = output.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const data = JSON.parse(jsonMatch[0]);
-
-      // Extract device info from JSON - now parse ALL devices
-      if (data.device_info && Array.isArray(data.device_info)) {
-        for (let i = 0; i < data.device_info.length; i++) {
-          const device = data.device_info[i];
-
-          let deviceType: string | null = null;
-          let firmwareVersion: string | null = null;
-          let status: 'healthy' | 'warning' | 'error' | 'unknown' = 'unknown';
-          let temperature: number | null = null;
-          let power: number | null = null;
-          let pciBus: string | null = null;
-
-          // Get board type (e.g., "n150 L" -> "N150", "p300c" -> "P300")
-          if (device.board_info && device.board_info.board_type) {
-            const boardType = device.board_info.board_type.toUpperCase();
-            // Extract just the device model (N150, N300, P300, etc.)
-            const match = boardType.match(/([NP]\d+)/);
-            deviceType = match ? match[1] : boardType.split(' ')[0];
-          }
-
-          // Get firmware version
-          if (device.firmwares && device.firmwares.fw_bundle_version) {
-            firmwareVersion = device.firmwares.fw_bundle_version;
-          }
-
-          // Get temperature (from telemetry)
-          if (device.telemetry && device.telemetry.asic_temperature) {
-            const tempStr = device.telemetry.asic_temperature.trim();
-            const tempValue = parseFloat(tempStr);
-            if (!isNaN(tempValue)) {
-              temperature = tempValue;
-            }
-          }
-
-          // Get power (from telemetry)
-          if (device.telemetry && device.telemetry.power) {
-            const powerStr = device.telemetry.power.trim();
-            const powerValue = parseFloat(powerStr);
-            if (!isNaN(powerValue)) {
-              power = powerValue;
-            }
-          }
-
-          // Get PCI bus ID
-          if (device.board_info && device.board_info.bus_id) {
-            pciBus = device.board_info.bus_id;
-          }
-
-          // Check DRAM and device status
-          if (device.board_info) {
-            const dramStatus = device.board_info.dram_status;
-            if (dramStatus === true || dramStatus === 'true') {
-              status = hasError ? 'warning' : 'healthy';
-            } else {
-              status = 'warning';
-            }
-          } else {
-            status = hasError ? 'error' : 'healthy';
-          }
-
-          devices.push({
-            deviceType,
-            firmwareVersion,
-            status,
-            temperature,
-            power,
-            pciBus,
-            deviceIndex: i,
-          });
-        }
-      }
-    }
-  } catch (e) {
-    // JSON parsing failed - return empty result
-    console.error('Failed to parse tt-smi JSON:', e);
-  }
-
-  // Calculate overall status (worst status wins)
-  let overallStatus: 'healthy' | 'warning' | 'error' | 'unknown' = 'unknown';
-  if (devices.length > 0) {
-    const hasAnyError = devices.some(d => d.status === 'error');
-    const hasAnyWarning = devices.some(d => d.status === 'warning');
-
-    if (hasAnyError) {
-      overallStatus = 'error';
-    } else if (hasAnyWarning) {
-      overallStatus = 'warning';
-    } else if (devices.every(d => d.status === 'healthy')) {
-      overallStatus = 'healthy';
-    }
-  }
-
-  return {
-    devices,
-    deviceCount: devices.length,
-    primaryDeviceType: devices.length > 0 ? devices[0].deviceType : null,
-    overallStatus,
-    lastChecked: Date.now(),
-  };
-}
-
-/**
- * Runs tt-smi and updates cached device info.
- * Uses child_process.exec to capture output without showing terminal.
- * Uses tt-smi -s for structured JSON output.
- *
- * @returns Promise<DeviceInfo> - Updated device information
- */
-async function updateDeviceStatus(): Promise<DeviceInfo> {
-  const { exec } = await import('child_process');
-  const { promisify } = await import('util');
-  const execAsync = promisify(exec);
-
-  try {
-    // Use tt-smi -s for structured JSON output
-    const { stdout, stderr } = await execAsync('tt-smi -s', { timeout: 10000 });
-    const output = stdout + stderr;
-
-    cachedDeviceInfo = parseDeviceInfo(output);
-    updateStatusBarItem();
-
-    return cachedDeviceInfo;
-  } catch (error) {
-    // tt-smi not found or failed
-    cachedDeviceInfo = {
-      devices: [],
-      deviceCount: 0,
-      primaryDeviceType: null,
-      overallStatus: 'error',
-      lastChecked: Date.now(),
-    };
-    updateStatusBarItem();
-
-    return cachedDeviceInfo;
-  }
-}
-
-/**
- * Updates the statusbar item text and icon based on cached device info.
- * Displays beautiful multi-device summary that scales from 1 to 32+ devices.
- */
-function updateStatusBarItem(): void {
-  if (!statusBarItem) return;
-
-  const { devices, deviceCount, primaryDeviceType, overallStatus } = cachedDeviceInfo;
-
-  // Set icon based on overall status
-  let icon = '$(question)'; // unknown
-  if (overallStatus === 'healthy') {
-    icon = '$(check)';
-  } else if (overallStatus === 'warning') {
-    icon = '$(warning)';
-  } else if (overallStatus === 'error') {
-    icon = '$(x)';
-  }
-
-  // Set text based on device count
-  if (deviceCount === 0) {
-    statusBarItem.text = `${icon} TT: No device`;
-    statusBarItem.tooltip = 'No Tenstorrent device detected - Click for options';
-  } else if (deviceCount === 1) {
-    // Single device: "✓ TT: P300 33.0°C"
-    const device = devices[0];
-    const tempInfo = device.temperature ? `${device.temperature.toFixed(1)}°C` : 'N/A';
-    statusBarItem.text = `${icon} TT: ${primaryDeviceType} ${tempInfo}`;
-    const powerInfo = device.power ? `${device.power.toFixed(1)}W` : 'N/A';
-    statusBarItem.tooltip = `Tenstorrent ${primaryDeviceType}\n${tempInfo} | ${powerInfo}\nClick for device actions`;
-  } else {
-    // Multiple devices: "✓ TT: 4x P300 33-37°C"
-    const tempRange = devices
-      .filter(d => d.temperature !== null)
-      .map(d => d.temperature as number);
-    const powerSum = devices
-      .filter(d => d.power !== null)
-      .reduce((sum, d) => sum + (d.power as number), 0);
-
-    // Add temp range to status bar text for at-a-glance visibility
-    let statusText = `${icon} TT: ${deviceCount}x ${primaryDeviceType}`;
-    if (tempRange.length > 0) {
-      const minTemp = Math.min(...tempRange);
-      const maxTemp = Math.max(...tempRange);
-      statusText += ` ${Math.round(minTemp)}-${Math.round(maxTemp)}°C`;
-    }
-    statusBarItem.text = statusText;
-
-    // Build detailed tooltip with all devices
-    let tooltip = `${deviceCount} Tenstorrent ${primaryDeviceType} devices\n`;
-
-    if (tempRange.length > 0) {
-      const minTemp = Math.min(...tempRange);
-      const maxTemp = Math.max(...tempRange);
-      tooltip += `Temperature: ${minTemp.toFixed(1)}°C - ${maxTemp.toFixed(1)}°C\n`;
-    }
-
-    if (powerSum > 0) {
-      tooltip += `Total Power: ${powerSum.toFixed(1)}W\n`;
-    }
-
-    tooltip += '\nClick for per-device details';
-    statusBarItem.tooltip = tooltip;
-  }
-
-  statusBarItem.show();
-}
+let globalTelemetryMonitor: TelemetryMonitor;
 
 /**
  * Shows quick actions menu when statusbar item is clicked.
- * Displays per-device details for multi-device systems.
+ * Uses sysfs telemetry by default, provides tt-smi options for detailed inspection.
  */
 async function showDeviceActionsMenu(): Promise<void> {
-  const { devices, deviceCount, primaryDeviceType, lastChecked } = cachedDeviceInfo;
+  // Get current telemetry from monitor
+  const multiDeviceTelemetry = globalTelemetryMonitor?.getMultiDeviceTelemetry();
 
-  // Calculate time since last check
-  const minutesAgo = Math.floor((Date.now() - lastChecked) / 60000);
-  const timeStr = minutesAgo === 0 ? 'just now' : `${minutesAgo}m ago`;
+  const items: vscode.QuickPickItem[] = [];
 
-  const items: vscode.QuickPickItem[] = [
-    {
-      label: '$(sync) Refresh Status',
-      description: `Last checked: ${timeStr}`,
-      detail: 'Run tt-smi to update device status',
-    },
-    {
-      label: '$(terminal) Check Device Status',
-      description: 'Open terminal',
-      detail: 'Run tt-smi in a terminal window to see full output',
-    },
-  ];
-
-  // Add per-device details if devices exist
-  if (devices.length > 0) {
+  // Show device information if available
+  if (multiDeviceTelemetry && multiDeviceTelemetry.count > 0) {
     items.push({
-      label: '────────── Devices ──────────',
+      label: `────────── ${multiDeviceTelemetry.count === 1 ? 'Device' : `${multiDeviceTelemetry.count} Devices`} ──────────`,
       description: '',
       detail: '',
     } as any); // Separator
 
-    for (const device of devices) {
-      const statusIcon = device.status === 'healthy' ? '$(check)' :
-                        device.status === 'warning' ? '$(warning)' :
-                        device.status === 'error' ? '$(x)' : '$(question)';
-
-      const tempStr = device.temperature ? `${device.temperature.toFixed(1)}°C` : 'N/A';
-      const powerStr = device.power ? `${device.power.toFixed(1)}W` : 'N/A';
+    for (const device of multiDeviceTelemetry.devices) {
+      const statusIcon = device.asic_temp < 70 ? '$(check)' :
+                        device.asic_temp < 85 ? '$(warning)' : '$(x)';
 
       items.push({
-        label: `${statusIcon} Device ${device.deviceIndex}: ${device.deviceType}`,
-        description: `${tempStr} | ${powerStr}`,
-        detail: `${device.pciBus || 'Unknown bus'} | FW: ${device.firmwareVersion || 'Unknown'}`,
+        label: `${statusIcon} Device ${device.device_index}: ${device.board_type.toUpperCase()}`,
+        description: `${device.asic_temp.toFixed(1)}°C | ${device.power.toFixed(1)}W | ${device.aiclk}MHz`,
+        detail: `PCI: ${device.pci_bus}`,
       });
     }
   }
 
-  // Add device-specific actions
-  if (primaryDeviceType) {
-    items.push(
-      {
-        label: '────────── Actions ──────────',
-        description: '',
-        detail: '',
-      } as any, // Separator
-      {
-        label: '$(debug-restart) Reset Device',
-        description: 'Run tt-smi -r',
-        detail: 'Software reset of the Tenstorrent device',
-      },
-      {
-        label: '$(clear-all) Clear Device State',
-        description: 'Clear /dev/shm and device state',
-        detail: 'Remove cached data and device state (requires sudo)',
-      }
-    );
-  }
-
-  // Configuration options
-  const autoUpdateEnabled = extensionContext.globalState.get<boolean>(
-    STATE_KEYS.STATUSBAR_ENABLED,
-    false
-  );
-
+  // Device management actions
   items.push(
     {
-      label: '────────── Settings ──────────',
+      label: '────────── Actions ──────────',
       description: '',
       detail: '',
     } as any, // Separator
     {
-      label: '$(settings-gear) Configure Update Interval',
-      description: 'Change auto-update frequency',
-      detail: 'Set how often device status is checked automatically',
+      label: '$(terminal) Run tt-smi',
+      description: 'Full device status',
+      detail: 'Open terminal and run tt-smi for detailed firmware, DRAM, and device information',
     },
     {
-      label: autoUpdateEnabled ? '$(debug-pause) Disable Auto-Update' : '$(debug-start) Enable Auto-Update',
-      description: autoUpdateEnabled ? 'Currently: ON' : 'Currently: OFF',
-      detail: 'Turn periodic device status updates on or off',
+      label: '$(debug-restart) Reset Device',
+      description: 'Run tt-smi -r',
+      detail: 'Software reset of the Tenstorrent device',
+    },
+    {
+      label: '$(clear-all) Clear Device State',
+      description: 'Clear /dev/shm and device state',
+      detail: 'Remove cached data and device state (requires sudo)',
     }
   );
 
-  const placeholderText = deviceCount === 0
-    ? 'Tenstorrent Device Actions'
-    : deviceCount === 1
-    ? `Tenstorrent ${primaryDeviceType} Device Actions`
-    : `${deviceCount}x Tenstorrent ${primaryDeviceType} Device Actions`;
-
   const selected = await vscode.window.showQuickPick(items, {
-    placeHolder: placeholderText,
+    placeHolder: 'Tenstorrent Device Actions',
   });
 
   if (!selected) return;
 
   // Handle selection
-  if (selected.label.includes('Refresh Status')) {
-    statusBarItem!.text = '$(sync~spin) TT: Checking...';
-    await updateDeviceStatus();
-    vscode.window.showInformationMessage(
-      cachedDeviceInfo.deviceCount > 0
-        ? `✓ Found ${cachedDeviceInfo.deviceCount}x ${cachedDeviceInfo.primaryDeviceType} device${cachedDeviceInfo.deviceCount > 1 ? 's' : ''}`
-        : '⚠️ No Tenstorrent device detected'
-    );
-  } else if (selected.label.includes('Check Device Status')) {
+  if (selected.label.includes('Run tt-smi')) {
     vscode.commands.executeCommand('tenstorrent.runHardwareDetection');
   } else if (selected.label.includes('Reset Device')) {
     vscode.commands.executeCommand('tenstorrent.resetDevice');
   } else if (selected.label.includes('Clear Device State')) {
     vscode.commands.executeCommand('tenstorrent.clearDeviceState');
-  } else if (selected.label.includes('Configure Update Interval')) {
-    await configureUpdateInterval();
-  } else if (selected.label.includes('Auto-Update')) {
-    await toggleAutoUpdate();
-  }
-}
-
-/**
- * Allows user to configure the auto-update interval.
- */
-async function configureUpdateInterval(): Promise<void> {
-  const intervals = [
-    { label: '30 seconds', value: 30 },
-    { label: '1 minute', value: 60 },
-    { label: '2 minutes', value: 120 },
-    { label: '5 minutes', value: 300 },
-    { label: '10 minutes', value: 600 },
-  ];
-
-  const selected = await vscode.window.showQuickPick(intervals, {
-    placeHolder: 'Select how often to check device status',
-  });
-
-  if (selected) {
-    await extensionContext.globalState.update(
-      STATE_KEYS.STATUSBAR_UPDATE_INTERVAL,
-      selected.value
-    );
-
-    // Restart the update timer
-    startStatusUpdateTimer();
-
-    vscode.window.showInformationMessage(
-      `Device status will update every ${selected.label}`
-    );
-  }
-}
-
-/**
- * Toggles auto-update on or off.
- */
-async function toggleAutoUpdate(): Promise<void> {
-  const currentEnabled = extensionContext.globalState.get<boolean>(
-    STATE_KEYS.STATUSBAR_ENABLED,
-    false  // Default is false (disabled)
-  );
-
-  await extensionContext.globalState.update(
-    STATE_KEYS.STATUSBAR_ENABLED,
-    !currentEnabled
-  );
-
-  if (!currentEnabled) {
-    // Enabling
-    startStatusUpdateTimer();
-    vscode.window.showInformationMessage('✓ Auto-update enabled. Device status will refresh automatically.');
-  } else {
-    // Disabling
-    stopStatusUpdateTimer();
-    vscode.window.showInformationMessage('✓ Auto-update disabled. Click "Refresh Status" to check device manually.');
-  }
-}
-
-/**
- * Starts the periodic status update timer.
- */
-function startStatusUpdateTimer(): void {
-  // Stop existing timer
-  stopStatusUpdateTimer();
-
-  // Check if auto-update is enabled (default: false)
-  const enabled = extensionContext.globalState.get<boolean>(
-    STATE_KEYS.STATUSBAR_ENABLED,
-    false  // Changed from true to false - auto-polling disabled by default
-  );
-
-  if (!enabled) return;
-
-  // Get update interval (default 60 seconds)
-  const intervalSeconds = extensionContext.globalState.get<number>(
-    STATE_KEYS.STATUSBAR_UPDATE_INTERVAL,
-    60
-  );
-
-  // Run initial check
-  updateDeviceStatus();
-
-  // Start periodic updates
-  statusUpdateTimer = setInterval(() => {
-    updateDeviceStatus();
-  }, intervalSeconds * 1000);
-}
-
-/**
- * Stops the periodic status update timer.
- */
-function stopStatusUpdateTimer(): void {
-  if (statusUpdateTimer) {
-    clearInterval(statusUpdateTimer);
-    statusUpdateTimer = undefined;
   }
 }
 
@@ -2815,13 +2409,8 @@ async function resetDevice(): Promise<void> {
   runInTerminal(terminal, 'tt-smi -r');
 
   vscode.window.showInformationMessage(
-    '🔄 Resetting device... Check terminal for status.'
+    '🔄 Resetting device... Check terminal for status. Telemetry will update automatically.'
   );
-
-  // Refresh status after a short delay
-  setTimeout(async () => {
-    await updateDeviceStatus();
-  }, 3000);
 }
 
 /**
@@ -2856,13 +2445,8 @@ async function clearDeviceState(): Promise<void> {
   runInTerminal(terminal, commands.join(' && '));
 
   vscode.window.showInformationMessage(
-    '🧹 Clearing device state... Check terminal for progress. You may need to enter your sudo password.'
+    '🧹 Clearing device state... Check terminal for progress. You may need to enter your sudo password. Telemetry will update automatically.'
   );
-
-  // Refresh status after cleanup
-  setTimeout(async () => {
-    await updateDeviceStatus();
-  }, 5000);
 }
 
 // ============================================================================
@@ -4329,6 +3913,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   // Make telemetry monitor globally accessible so commands can access current details
   (global as any).telemetryMonitor = telemetryMonitor;
+  globalTelemetryMonitor = telemetryMonitor;
 
   // Note: Tree item clicks are handled via the command property set in LessonTreeDataProvider
   // No need for onDidChangeSelection handler - it would cause lessons to open twice
@@ -4600,29 +4185,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   context.subscriptions.push(commandMenuStatusBarItem);
 
-  // Initialize device status statusbar item (right side)
-  statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100 // Priority (higher = further left)
-  );
-
-  statusBarItem.command = {
-    title: 'Show Device Actions',
-    command: 'tenstorrent.showDeviceActions',
-  };
-
-  context.subscriptions.push(statusBarItem);
-
-  // Register statusbar click command
+  // Register statusbar click command for device actions menu
   context.subscriptions.push(
     vscode.commands.registerCommand('tenstorrent.showDeviceActions', showDeviceActionsMenu)
   );
-
-  // Run initial device status check (but don't start auto-polling)
-  updateDeviceStatus();
-
-  // Start periodic updates only if enabled (default: disabled)
-  startStatusUpdateTimer();
 
   // Create a persistent tt-metal terminal on activation (most common use case)
   // This terminal stays open and can be reused for tt-metal commands
@@ -4641,15 +4207,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Mark as seen first to avoid reopening if command fails
     context.globalState.update('hasSeenWelcome', true);
 
-    // Set Tenstorrent theme for brand consistency and optimal visibility
-    const config = vscode.workspace.getConfiguration();
-    const currentTheme = config.get<string>('workbench.colorTheme');
-
-    // Only set theme if it's still the default (to respect user's existing preference)
-    if (currentTheme === 'Default Dark Modern' || currentTheme === 'Default Light Modern' || !currentTheme) {
-      config.update('workbench.colorTheme', 'Tenstorrent', vscode.ConfigurationTarget.Global);
-    }
-
     // Prompt to install recommended extensions (non-blocking)
     setTimeout(() => {
       promptRecommendedExtensions();
@@ -4665,15 +4222,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 /**
  * Called when the extension is deactivated.
  *
- * Cleans up terminal references and stops status monitoring.
+ * Cleans up terminal references.
  * Note that VS Code automatically disposes of terminals and statusbar items
  * when the extension is deactivated, but we explicitly clear our references
  * for good measure.
  */
 export function deactivate(): void {
-  // Stop status update timer
-  stopStatusUpdateTimer();
-
   // Clear all terminal references
   // VS Code will handle actual disposal
   terminals['tt-metal'] = undefined;
@@ -4683,8 +4237,7 @@ export function deactivate(): void {
   terminals['api-server'] = undefined;
   terminals['explore'] = undefined;
 
-  // Clear statusbar references
-  statusBarItem = undefined;
+  // Clear statusbar reference
   commandMenuStatusBarItem = undefined;
 
   console.log('Tenstorrent Developer Extension has been deactivated');

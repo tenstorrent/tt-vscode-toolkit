@@ -64,9 +64,9 @@ graph TD
     A -.->|"100-1000x slower<br/>but easy to write"| E
     E -.->|"Direct execution<br/>but hard to write"| A
 
-    style A fill:#ff6b6b,color:#fff
-    style C fill:#3293b2,color:#fff
-    style E fill:#499c8d,color:#fff
+    style A fill:#ff6b6b,stroke:#fff,color:#fff
+    style C fill:#3293b2,stroke:#fff,color:#fff
+    style E fill:#499c8d,stroke:#fff,color:#fff
 ```
 
 **Each layer:**

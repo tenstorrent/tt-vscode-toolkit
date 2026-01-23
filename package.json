@@ -1,8 +1,8 @@
 {
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
-  "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
-  "version": "0.0.248",
+  "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
+  "version": "0.0.268",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -62,6 +62,9 @@
         "path": "./themes/tenstorrent-light-theme.json"
       }
     ],
+    "configurationDefaults": {
+      "workbench.colorTheme": "Tenstorrent Dark"
+    },
     "configuration": {
       "title": "Tenstorrent",
       "properties": {
@@ -569,7 +572,9 @@
     "compile": "tsc -p ./",
     "test": "mocha",
     "test:templates": "mocha test/lesson-tests/templates.test.ts",
-    "test:watch": "mocha --watch"
+    "test:watch": "mocha --watch",
+    "docker:build": "npm run build && npm run package && podman build -t tt-vscode-toolkit:latest .",
+    "docker:run": "podman run -it -p 8080:8080 -e PASSWORD=tenstorrent tt-vscode-toolkit:latest"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",

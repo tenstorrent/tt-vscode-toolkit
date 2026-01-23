@@ -274,7 +274,35 @@ export class LessonWebviewManager {
    */
   private generateHardwareBadges(lesson: LessonMetadata): string {
     return lesson.supportedHardware
-      .map(hw => `<span class="hardware-chip">${hw.toUpperCase()}</span>`)
+      .map(hw => {
+        const hwUpper = hw.toUpperCase();
+        const isValidated = lesson.validatedOn?.includes(hw) || false;
+        const isBlocked = lesson.status === 'blocked';
+
+        // Determine badge style based on validation status
+        let style = '';
+        let icon = '';
+        let title = '';
+
+        if (isValidated) {
+          // Green: Verified on this hardware
+          style = 'background: #28a745; color: white;';
+          icon = '✓ ';
+          title = `Verified on ${hwUpper}`;
+        } else if (isBlocked) {
+          // Red with skull: Blocked/failing on this hardware
+          style = 'background: #dc3545; color: white;';
+          icon = '☠️ ';
+          title = `Known issues on ${hwUpper}`;
+        } else {
+          // Yellow: Unknown/not tested
+          style = 'background: #ffc107; color: #212529;';
+          icon = '? ';
+          title = `Not yet tested on ${hwUpper}`;
+        }
+
+        return `<span class="hardware-chip" style="${style}" title="${title}">${icon}${hwUpper}</span>`;
+      })
       .join('');
   }
 

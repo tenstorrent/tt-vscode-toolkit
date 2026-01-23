@@ -476,28 +476,28 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_GAME_OF_LIFE_GLIDER: {
     id: 'run-game-of-life-glider',
     name: 'Run Game of Life (Glider)',
-    template: 'cd ~/tt-scratchpad/cookbook/game_of_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from game_of_life import GameOfLife; from visualizer import animate_game_of_life; import ttnn; device = ttnn.open_device(0); game = GameOfLife(device, grid_size=(256, 256)); initial = game.initialize_pattern(\'glider\'); history = game.simulate(initial, num_generations=200); animate_game_of_life(history, interval=50); ttnn.close_device(device)"',
+    template: 'cd ~/tt-scratchpad/cookbook/game_of_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from game_of_life import GameOfLife; from visualizer import animate_game_of_life; import ttnn; device = ttnn.open_device(device_id=0); game = GameOfLife(device, grid_size=(256, 256)); initial = game.initialize_pattern(\'glider\'); history = game.simulate(initial, num_generations=200); animate_game_of_life(history, interval=50); ttnn.close_device(device)"',
     description: 'Runs Game of Life with classic glider pattern',
   },
 
   RUN_GAME_OF_LIFE_GLIDER_GUN: {
     id: 'run-game-of-life-glider-gun',
     name: 'Run Game of Life (Glider Gun)',
-    template: 'cd ~/tt-scratchpad/cookbook/game_of_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from game_of_life import GameOfLife; from visualizer import animate_game_of_life; import ttnn; device = ttnn.open_device(0); game = GameOfLife(device, grid_size=(256, 256)); initial = game.initialize_pattern(\'glider_gun\'); history = game.simulate(initial, num_generations=500); animate_game_of_life(history, interval=50); ttnn.close_device(device)"',
+    template: 'cd ~/tt-scratchpad/cookbook/game_of_life && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from game_of_life import GameOfLife; from visualizer import animate_game_of_life; import ttnn; device = ttnn.open_device(device_id=0); game = GameOfLife(device, grid_size=(256, 256)); initial = game.initialize_pattern(\'glider_gun\'); history = game.simulate(initial, num_generations=500); animate_game_of_life(history, interval=50); ttnn.close_device(device)"',
     description: 'Runs Game of Life with Gosper Glider Gun (generates gliders infinitely)',
   },
 
   RUN_MANDELBROT_EXPLORER: {
     id: 'run-mandelbrot-explorer',
     name: 'Run Mandelbrot Explorer',
-    template: 'cd ~/tt-scratchpad/cookbook/mandelbrot && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from renderer import MandelbrotRenderer; from explorer import MandelbrotVisualizer; import ttnn; device = ttnn.open_device(0); renderer = MandelbrotRenderer(device); viz = MandelbrotVisualizer(renderer); viz.interactive_explorer(width=1024, height=1024); ttnn.close_device(device)"',
+    template: 'cd ~/tt-scratchpad/cookbook/mandelbrot && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from renderer import MandelbrotRenderer; from explorer import MandelbrotVisualizer; import ttnn; device = ttnn.open_device(device_id=0); renderer = MandelbrotRenderer(device); viz = MandelbrotVisualizer(renderer); viz.interactive_explorer(width=1024, height=1024); ttnn.close_device(device)"',
     description: 'Launches interactive Mandelbrot explorer with click-to-zoom',
   },
 
   RUN_MANDELBROT_JULIA: {
     id: 'run-mandelbrot-julia',
     name: 'Run Julia Sets Comparison',
-    template: 'cd ~/tt-scratchpad/cookbook/mandelbrot && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from renderer import MandelbrotRenderer; from explorer import MandelbrotVisualizer; import ttnn; device = ttnn.open_device(0); renderer = MandelbrotRenderer(device); viz = MandelbrotVisualizer(renderer); c_values = [(-0.4, 0.6), (0.285, 0.01), (-0.70176, -0.3842), (-0.835, -0.2321), (-0.8, 0.156), (0.0, -0.8)]; viz.compare_julia_sets(c_values); ttnn.close_device(device)"',
+    template: 'cd ~/tt-scratchpad/cookbook/mandelbrot && export PYTHONPATH=~/tt-metal:$PYTHONPATH && python3 -c "from renderer import MandelbrotRenderer; from explorer import MandelbrotVisualizer; import ttnn; device = ttnn.open_device(device_id=0); renderer = MandelbrotRenderer(device); viz = MandelbrotVisualizer(renderer); c_values = [(-0.4, 0.6), (0.285, 0.01), (-0.70176, -0.3842), (-0.835, -0.2321), (-0.8, 0.156), (0.0, -0.8)]; viz.compare_julia_sets(c_values); ttnn.close_device(device)"',
     description: 'Display 6 interesting Julia set fractals side-by-side',
   },
 
