@@ -20,6 +20,8 @@ services:
       - models-data:/home/coder/models
       # Persist scratchpad
       - scratchpad-data:/home/coder/tt-scratchpad
+    devices:
+      - /dev/tenstorrent:/dev/tenstorrent
     restart: unless-stopped
 
 volumes:
