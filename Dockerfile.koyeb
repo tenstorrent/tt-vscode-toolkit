@@ -10,6 +10,7 @@ FROM ghcr.io/tenstorrent/tt-metal/tt-metalium/ubuntu-22.04-dev-amd64:339a22f363a
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SHELL=/bin/bash
+ENV TT_METAL_PREBUILT=true
 
 # Switch to root for installation
 USER root
