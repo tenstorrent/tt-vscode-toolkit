@@ -391,7 +391,7 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
-**v0.0.269** - Consolidated status bar and improved device monitoring
+**v0.0.268** - Release branch with lesson improvements and basic Docker support
 - **STATUS BAR CONSOLIDATION:**
   - Merged two status bar items into one consolidated telemetry display
   - Status bar now shows: `🌡️ temp | ⚡ power | 🔊 MHz | device_config` (e.g., "🌡️ 45.0°C | ⚡ 12.5W | 🔊 1000MHz | 2x P300")
@@ -422,9 +422,6 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
   - Removed: statusBarItem global variable and initialization
   - Added: globalTelemetryMonitor for centralized telemetry access
   - TelemetryMonitor now handles all device status display
-- All tests passing, extension builds successfully
-
-**v0.0.268** - Release branch with lesson improvements and basic Docker support
 - **LESSON FIXES:**
   - Added `stroke` property to mermaid diagrams in CS Fundamentals lessons (5 files)
   - Fixed ttnn API calls to use explicit `device_id=0` parameter in cookbook lessons
