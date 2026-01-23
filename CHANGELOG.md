@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.268] - 2025-01-09
+
+### Added
+- Basic Docker support with Dockerfile for local code-server deployment
+- docker-compose.yml and podman-compose.yml for container orchestration
+- scripts/docker-entrypoint.sh for container initialization
+- Docker build and run npm scripts
+- Draft deployment lessons for Koyeb (marked as unvalidated)
+- GitHub issue templates (bug, feature, question, lesson content)
+- Pull request template with checklist
+- GitHub Actions release workflow with automated build, test, and package
+- Color-coded hardware badges (Green ✓: verified, Red ☠️: blocked, Yellow ?: untested)
+
+### Changed
+- **STATUS BAR CONSOLIDATION:** Merged two status bar items into one
+- Status bar now shows: `🌡️ temp | ⚡ power | 🔊 MHz | device_config`
+- All device info now comes from sysfs telemetry (non-invasive monitoring)
+- Removed separate device count status bar item
+- Retired Python environment status bar indicators (switching still available via command palette)
+- Simplified device actions menu with sysfs as default monitoring
+- Updated CODE_OF_CONDUCT, CONTRIBUTING, README, SECURITY for open-source
+- Theme activation now uses standard configurationDefaults in package.json
+- Moved .cleanup.sh → scripts/cleanup.sh for better organization
+
+### Fixed
+- Added `stroke` property to mermaid diagrams in CS Fundamentals lessons (5 files)
+- Fixed ttnn API calls to use explicit `device_id=0` parameter in cookbook lessons
+- Updated cookbook template README files for clarity
+- Improved multi-device tooltip with per-device breakdown (temp, power, clock, PCI bus)
+
+### Removed
+- Old device status functions: parseDeviceInfo(), updateDeviceStatus(), updateStatusBarItem()
+- Status update timer functions: startStatusUpdateTimer(), stopStatusUpdateTimer()
+- Auto-update configuration options: configureUpdateInterval(), toggleAutoUpdate()
+- statusBarItem global variable
+- Programmatic theme setting code
+
 ## [0.0.243] - 2024-01-09
 
 ### Added
