@@ -1,7 +1,7 @@
 {
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
-  "description": "Explore Tenstorrent hardware and software through interactive lesssons and ",
+  "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
   "version": "0.0.268",
   "publisher": "tenstorrent",
   "repository": {
