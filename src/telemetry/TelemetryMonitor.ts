@@ -22,6 +22,7 @@ export class TelemetryMonitor {
     private scriptPath: string;
     private onTelemetryUpdate?: (telemetry: TelemetryData) => void;
     private currentTelemetry?: TelemetryData;
+    private currentMultiDeviceTelemetry?: MultiDeviceTelemetry;
     private lastError?: string;
 
     constructor(context: vscode.ExtensionContext, onTelemetryUpdate?: (telemetry: TelemetryData) => void) {
@@ -30,7 +31,7 @@ export class TelemetryMonitor {
             vscode.StatusBarAlignment.Right,
             100
         );
-        this.statusBarItem.command = 'tenstorrent.showTelemetryDetails';
+        this.statusBarItem.command = 'tenstorrent.showDeviceActions';
         context.subscriptions.push(this.statusBarItem);
 
         // Paths (use system Python - script only needs subprocess and json)
@@ -57,28 +58,38 @@ export class TelemetryMonitor {
 
     private async updateTelemetry() {
         try {
-            const telemetry = await this.readTelemetry();
+            const rawTelemetry = await this.readTelemetry();
 
-            if ('error' in telemetry) {
-                this.lastError = telemetry.error;
+            if ('error' in rawTelemetry) {
+                this.lastError = rawTelemetry.error;
                 this.currentTelemetry = undefined;
-                this.showError(telemetry.error);
+                this.currentMultiDeviceTelemetry = undefined;
+                this.showError(rawTelemetry.error);
                 return;
             }
 
-            this.currentTelemetry = telemetry;
+            // Store both aggregated and multi-device formats
+            if (isMultiDeviceTelemetry(rawTelemetry)) {
+                this.currentMultiDeviceTelemetry = rawTelemetry;
+                this.currentTelemetry = this.aggregateTelemetry(rawTelemetry);
+            } else {
+                this.currentTelemetry = rawTelemetry;
+                this.currentMultiDeviceTelemetry = undefined;
+            }
+
             this.lastError = undefined;
-            this.updateStatusBar(telemetry);
+            this.updateStatusBar(this.currentTelemetry);
 
             // Notify callback (e.g., for logo animation)
-            if (this.onTelemetryUpdate) {
-                this.onTelemetryUpdate(telemetry);
+            if (this.onTelemetryUpdate && this.currentTelemetry) {
+                this.onTelemetryUpdate(this.currentTelemetry);
             }
 
         } catch (error) {
             const errorMsg = `Telemetry error: ${error}`;
             this.lastError = errorMsg;
             this.currentTelemetry = undefined;
+            this.currentMultiDeviceTelemetry = undefined;
             this.showError(errorMsg);
         }
     }
@@ -157,13 +168,29 @@ export class TelemetryMonitor {
         // Color-coded status based on temperature
         const tempIcon = this.getTempIcon(telemetry.asic_temp);
 
-        // Format: 🌡️ 45°C | ⚡ 12.5W | 🔊 1200MHz
+        // Determine device config string
+        let deviceConfig = '';
+        if (this.currentMultiDeviceTelemetry && this.currentMultiDeviceTelemetry.count > 0) {
+            const count = this.currentMultiDeviceTelemetry.count;
+            const boardType = this.currentMultiDeviceTelemetry.devices[0].board_type.toUpperCase();
+            if (count === 1) {
+                deviceConfig = boardType;
+            } else {
+                deviceConfig = `${count}x ${boardType}`;
+            }
+        } else {
+            // Single device format (legacy)
+            deviceConfig = telemetry.board_type.toUpperCase();
+        }
+
+        // Format: 🌡️ 45°C | ⚡ 12.5W | 🔊 1200MHz | 2x P300
         const text = `${tempIcon} ${telemetry.asic_temp.toFixed(1)}°C | ` +
                     `⚡ ${telemetry.power.toFixed(1)}W | ` +
-                    `🔊 ${telemetry.aiclk}MHz`;
+                    `🔊 ${telemetry.aiclk}MHz | ` +
+                    `${deviceConfig}`;
 
         this.statusBarItem.text = text;
-        this.statusBarItem.tooltip = this.buildTooltip(telemetry);
+        this.statusBarItem.tooltip = this.buildTooltip();
         this.statusBarItem.show();
     }
 
@@ -174,23 +201,54 @@ export class TelemetryMonitor {
         return '⚠️';                      // Critical
     }
 
-    private buildTooltip(telemetry: TelemetryData): string {
-        return `Tenstorrent Hardware Status\n\n` +
-               `Board: ${telemetry.board_type.toUpperCase()}\n` +
-               `ASIC Temperature: ${telemetry.asic_temp.toFixed(1)}°C\n` +
-               `Board Temperature: ${telemetry.board_temp.toFixed(1)}°C\n` +
-               `\n` +
-               `Clocks:\n` +
-               `  AI (Tensix): ${telemetry.aiclk} MHz\n` +
-               `  ARC: ${telemetry.arcclk} MHz\n` +
-               `  AXI Bus: ${telemetry.axiclk} MHz\n` +
-               `\n` +
-               `Power: ${telemetry.power.toFixed(1)} W\n` +
-               `Current: ${telemetry.current.toFixed(1)} A\n` +
-               `Voltage: ${telemetry.voltage.toFixed(2)} V\n` +
-               `PCI Bus: ${telemetry.pci_bus}\n\n` +
-               `Source: Linux sysfs (hwmon)\n` +
-               `Click for details`;
+    private buildTooltip(): string {
+        if (!this.currentTelemetry) {
+            return 'No telemetry data available';
+        }
+
+        let tooltip = 'Tenstorrent Hardware Status\n\n';
+
+        // Show individual device snapshots if multi-device
+        if (this.currentMultiDeviceTelemetry && this.currentMultiDeviceTelemetry.count > 1) {
+            tooltip += `${this.currentMultiDeviceTelemetry.count} devices detected:\n\n`;
+
+            for (let i = 0; i < this.currentMultiDeviceTelemetry.devices.length; i++) {
+                const device = this.currentMultiDeviceTelemetry.devices[i];
+                tooltip += `Device ${i}: ${device.board_type.toUpperCase()}\n`;
+                tooltip += `  Temp: ${device.asic_temp.toFixed(1)}°C | `;
+                tooltip += `Power: ${device.power.toFixed(1)}W | `;
+                tooltip += `Clock: ${device.aiclk}MHz\n`;
+                tooltip += `  PCI: ${device.pci_bus}\n`;
+                if (i < this.currentMultiDeviceTelemetry.devices.length - 1) {
+                    tooltip += '\n';
+                }
+            }
+
+            tooltip += '\nAggregated metrics (all devices):\n';
+            tooltip += `Total Power: ${this.currentTelemetry.power.toFixed(1)} W\n`;
+            tooltip += `Hottest Temp: ${this.currentTelemetry.asic_temp.toFixed(1)}°C\n`;
+        } else {
+            // Single device
+            const telemetry = this.currentTelemetry;
+            tooltip += `Board: ${telemetry.board_type.toUpperCase()}\n`;
+            tooltip += `ASIC Temperature: ${telemetry.asic_temp.toFixed(1)}°C\n`;
+            tooltip += `Board Temperature: ${telemetry.board_temp.toFixed(1)}°C\n`;
+            tooltip += `\n`;
+            tooltip += `Clocks:\n`;
+            tooltip += `  AI (Tensix): ${telemetry.aiclk} MHz\n`;
+            tooltip += `  ARC: ${telemetry.arcclk} MHz\n`;
+            tooltip += `  AXI Bus: ${telemetry.axiclk} MHz\n`;
+            tooltip += `\n`;
+            tooltip += `Power: ${telemetry.power.toFixed(1)} W\n`;
+            tooltip += `Current: ${telemetry.current.toFixed(1)} A\n`;
+            tooltip += `Voltage: ${telemetry.voltage.toFixed(2)} V\n`;
+            tooltip += `PCI Bus: ${telemetry.pci_bus}\n`;
+        }
+
+        tooltip += `\nSource: Linux sysfs (hwmon)\n`;
+        tooltip += `Click for device actions`;
+
+        return tooltip;
     }
 
     private showError(_message: string) {
@@ -211,11 +269,18 @@ export class TelemetryMonitor {
      */
     public getCurrentDetails(): string | undefined {
         if (this.currentTelemetry) {
-            return this.buildTooltip(this.currentTelemetry);
+            return this.buildTooltip();
         } else if (this.lastError) {
             return `Telemetry unavailable: ${this.lastError}`;
         }
         return undefined;
+    }
+
+    /**
+     * Get raw multi-device telemetry for external use (e.g., device actions menu)
+     */
+    public getMultiDeviceTelemetry(): MultiDeviceTelemetry | undefined {
+        return this.currentMultiDeviceTelemetry;
     }
 
     public dispose() {

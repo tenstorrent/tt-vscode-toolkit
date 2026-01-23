@@ -391,6 +391,39 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 ## Recent Changes
 
+**v0.0.269** - Consolidated status bar and improved device monitoring
+- **STATUS BAR CONSOLIDATION:**
+  - Merged two status bar items into one consolidated telemetry display
+  - Status bar now shows: `🌡️ temp | ⚡ power | 🔊 MHz | device_config` (e.g., "🌡️ 45.0°C | ⚡ 12.5W | 🔊 1000MHz | 2x P300")
+  - Removed separate device count status bar item
+  - All device info now comes from sysfs telemetry (non-invasive monitoring)
+- **PYTHON ENV SELECTOR RETIREMENT:**
+  - Removed Python environment status bar indicators (was cluttering UI)
+  - Environment switching still available via command palette
+  - EnvironmentManager still tracks environments, just no UI display
+- **IMPROVED TOOLTIPS:**
+  - Hover shows detailed snapshot of all devices
+  - Multi-device systems show per-device breakdown with temp, power, clock, PCI bus
+  - Single device shows full telemetry details
+- **SIMPLIFIED DEVICE ACTIONS MENU:**
+  - Click status bar to open device actions menu
+  - Default uses sysfs monitoring (no tt-smi needed for basic info)
+  - tt-smi available as action for detailed firmware/DRAM inspection
+  - Removed auto-update configuration options (sysfs updates every 5 seconds automatically)
+- **FILES MODIFIED:**
+  - src/telemetry/TelemetryMonitor.ts - Added device config to status bar, improved tooltip, multi-device support
+  - src/telemetry/TelemetryTypes.ts - Added device_index to TelemetryData interface
+  - src/services/EnvironmentManager.ts - Removed status bar UI, kept tracking functionality
+  - src/extension.ts - Removed old device status functions, consolidated to single telemetry monitor
+  - package.json - Version 0.0.269
+- **TECHNICAL CHANGES:**
+  - Removed: parseDeviceInfo(), updateDeviceStatus(), updateStatusBarItem(), startStatusUpdateTimer(), stopStatusUpdateTimer()
+  - Removed: configureUpdateInterval(), toggleAutoUpdate() (no longer needed)
+  - Removed: statusBarItem global variable and initialization
+  - Added: globalTelemetryMonitor for centralized telemetry access
+  - TelemetryMonitor now handles all device status display
+- All tests passing, extension builds successfully
+
 **v0.0.268** - Release branch with lesson improvements and basic Docker support
 - **LESSON FIXES:**
   - Added `stroke` property to mermaid diagrams in CS Fundamentals lessons (5 files)
