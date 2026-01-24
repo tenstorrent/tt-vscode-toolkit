@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
-  "version": "0.0.268",
+  "version": "0.0.269",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -577,7 +577,7 @@
     "docker:run": "podman run -it -p 8080:8080 -e PASSWORD=tenstorrent tt-vscode-toolkit:latest"
   },
   "devDependencies": {
-    "@types/chai": "^5.2.3",
+    "@types/chai": "^4.3.20",
     "@types/dompurify": "^3.0.5",
     "@types/js-yaml": "^4.0.9",
     "@types/jsdom": "^27.0.0",
@@ -586,7 +586,7 @@
     "@types/node": "^24.6.2",
     "@types/vscode": "^1.93.0",
     "@vscode/vsce": "^3.6.2",
-    "chai": "^6.2.1",
+    "chai": "^4.5.0",
     "esbuild": "^0.27.2",
     "js-yaml": "^4.1.1",
     "mermaid": "^11.12.2",

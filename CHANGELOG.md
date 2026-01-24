@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.269] - 2025-01-23
+
+### Fixed
+- **CI Build Failure:** Downgraded `chai` from v6.2.1 to v4.5.0 to fix ESM import errors in GitHub Actions
+  - chai v6.x is ESM-only and incompatible with CommonJS test configuration
+  - Also downgraded `@types/chai` from v5.2.3 to v4.3.20
+  - All 315 tests now passing in CI environment
+- **Status Bar Consolidation:** Completed merge of device monitoring into single telemetry status bar
+  - Removed duplicate device count display
+  - Unified all hardware info under TelemetryMonitor
+
 ## [0.0.268] - 2025-01-09
 
 ### Added
