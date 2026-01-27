@@ -96,7 +96,11 @@ echo "  ✅ Production deployment guides"
 echo "  ✅ Template scripts and examples"
 
 # Check for tt-metal installation
-if [ -d "$HOME/tt-metal" ] && [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then
+# Skip if using pre-built tt-metalium image (TT_METAL_PREBUILT=true)
+if [ "$TT_METAL_PREBUILT" = "true" ]; then
+    echo "  ✅ tt-metal pre-built in base image (tt-metalium)"
+    echo "  ℹ️  To use tt-metal, run lessons that configure it for you"
+elif [ -d "$HOME/tt-metal" ] && [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then
     echo "  ✅ tt-metal pre-built and ready at: ~/tt-metal"
 
     # Configure environment variables in .bashrc if not already set
