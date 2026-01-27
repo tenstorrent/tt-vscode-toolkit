@@ -15,8 +15,9 @@ ENV TT_METAL_PREBUILT=true
 # Switch to root for installation
 USER root
 
-# Install Node.js and npm for Claude CLI (if not already present)
-RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/* || true
+# Install Node.js and npm for Claude CLI
+# The tt-metalium base image doesn't include these by default
+RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
 
 # Install code-server (base image already has curl, wget, sudo)
 RUN curl -fsSL https://code-server.dev/install.sh | sh
