@@ -1,0 +1,37 @@
+╔════════════════════════════════════════════════════════════
+║  Welcome to your Tenstorrent development environment!
+╚════════════════════════════════════════════════════════════
+
+🚀 Quick Start:
+   • Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+   • Search: "Tenstorrent: Show Welcome Page"
+   • Or click the Tenstorrent icon (TT) in the left sidebar
+
+🔧 Essential Commands:
+   tt-smi              Check hardware status
+   tt-smi -r           Reset devices (if needed)
+   hf download <id>    Download models from HuggingFace
+   claude -p "..."     AI-assisted development (requires ANTHROPIC_API_KEY)
+
+📚 Getting Started Lessons:
+   1. Hardware Detection     - Verify your Tenstorrent device
+   2. Verify Installation    - Test tt-metal environment
+   3. Download Model         - Get Qwen3-0.6B or Llama models
+   4. vLLM Production        - Launch production inference server
+
+🏭 Production Ready:
+   • tt-metal pre-compiled at ~/tt-metal
+   • Python virtual environment activated automatically
+   • All hardware permissions configured
+   • HuggingFace CLI and Claude Code CLI installed
+
+💡 Tips:
+   • All lessons are in the Tenstorrent sidebar
+   • Scripts are saved to ~/tt-scratchpad for customization
+   • Environment variables (TT_METAL_HOME, PYTHONPATH) are already set
+
+📖 Documentation: https://docs.tenstorrent.com
+💬 Discord: https://discord.gg/tenstorrent
+🐙 GitHub: https://github.com/tenstorrent
+
+Happy hacking! Don't forget to save your work.

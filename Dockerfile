@@ -33,6 +33,9 @@ RUN pip3 install --no-cache-dir --break-system-packages huggingface-hub[cli] mat
 # Authentication via ANTHROPIC_API_KEY environment variable
 RUN npm install -g @anthropic-ai/claude-code
 
+# Note: tt-metal will be built on first container startup via docker-entrypoint.sh
+# This keeps the Docker image size small and avoids complex build dependencies
+
 # Create coder user home directory structure
 RUN mkdir -p /home/coder/.local/share/code-server/extensions \
     && mkdir -p /home/coder/tt-scratchpad \
@@ -42,13 +45,16 @@ RUN mkdir -p /home/coder/.local/share/code-server/extensions \
 # This expects the .vsix file to be built before docker build
 COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
 
-# Copy entrypoint script
+# Copy entrypoint script and MOTD files
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY scripts/show-motd.sh /usr/local/bin/show-motd.sh
+COPY content/motd.txt /etc/motd.txt
 
 # Install the extension and configure VSCode settings
 RUN code-server --install-extension /tmp/extension.vsix \
     && rm /tmp/extension.vsix \
-    && chmod +x /usr/local/bin/docker-entrypoint.sh
+    && chmod +x /usr/local/bin/docker-entrypoint.sh \
+    && chmod +x /usr/local/bin/show-motd.sh
 
 # Configure code-server with Tenstorrent theme and terminal login shell
 # Terminal login shell ensures .bashrc is sourced (MOTD displays correctly)
@@ -67,6 +73,14 @@ RUN mkdir -p /home/coder/.local/share/code-server/User && \
     }\n\
   }\n\
 }' > /home/coder/.local/share/code-server/User/settings.json
+
+# Set up MOTD system
+RUN cp /etc/motd.txt /home/coder/.motd \
+    && echo '' >> /home/coder/.bashrc \
+    && echo '# Display MOTD on terminal open' >> /home/coder/.bashrc \
+    && echo 'if [ -f /usr/local/bin/show-motd.sh ]; then' >> /home/coder/.bashrc \
+    && echo '    source /usr/local/bin/show-motd.sh' >> /home/coder/.bashrc \
+    && echo 'fi' >> /home/coder/.bashrc
 
 # Set proper permissions
 RUN chown -R coder:coder /home/coder
