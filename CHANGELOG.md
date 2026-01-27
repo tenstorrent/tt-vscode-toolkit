@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.274] - 2026-01-27
+
+### Added
+- **HuggingFace CLI** (`hf`) installed in all Docker images for model downloads
+- **Claude CLI** (`claude`) installed in Dockerfile and Dockerfile.full (not available in Koyeb due to base image constraints)
+- **Docker improvements:** Added nodejs/npm for CLI tool support
+- **Koyeb deployment support:** Successfully tested end-to-end deployment with N300 hardware
+
+### Changed
+- **docker-entrypoint.sh:** Skip tt-metal installation when `TT_METAL_PREBUILT=true` (for tt-metalium base image)
+- **Dockerfile.koyeb:** Optimized for tt-metalium base image, HuggingFace CLI only
+- **CLI tool verification:** Entrypoint now checks for `hf` command (not `huggingface-cli`)
+- **deploy-vscode-to-koyeb.md:** Updated to document available CLI tools and limitations
+
+### Fixed
+- **PEP 668 compliance:** Added `--break-system-packages` flag to pip3 install commands in Dockerfiles (safe for containers)
+- **Koyeb deployment errors:** Fixed tt-metal installation loop by detecting pre-built environment
+- **npm installation:** Added nodejs/npm to apt-get install for Claude CLI support
+
+### Technical Notes
+- Koyeb deployment uses tt-metalium base image (pre-built tt-metal dependencies)
+- tt-metal Python packages still require setup via extension lessons (quick version)
+- Optional: Can pre-build tt-metal in Dockerfile.koyeb for instant readiness (15-25 min build time)
+- Successfully tested with N300 hardware access, tt-smi working, HuggingFace CLI operational
+
+---
+
 ## [0.0.269] - 2025-01-23
 
 ### Fixed
