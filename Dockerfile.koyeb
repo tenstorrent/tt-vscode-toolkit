@@ -22,8 +22,8 @@ RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Install Hugging Face CLI and matplotlib for cookbook examples
-# Note: tt-metalium image has venv activated, but --break-system-packages added for safety
-RUN pip3 install --no-cache-dir --break-system-packages huggingface-hub[cli] matplotlib
+# Note: tt-metalium image has venv activated, so no --break-system-packages needed
+RUN pip3 install --no-cache-dir huggingface-hub[cli] matplotlib
 
 # Install Claude Code CLI for AI-assisted development
 # Authentication via ANTHROPIC_API_KEY environment variable
