@@ -197,6 +197,12 @@ Your cloud IDE includes:
 **Hardware:**
 - Tenstorrent N300 (2x Wormhole chips)
 - Device access via `/dev/tenstorrent/0` and `/dev/tenstorrent/1`
+
+**CLI Tools:**
+- `hf` - HuggingFace CLI for downloading models
+- `claude` - Claude Code CLI for AI-assisted development (requires ANTHROPIC_API_KEY)
+- `tt-smi` - Tenstorrent hardware monitoring
+- Standard dev tools (git, python3, npm, etc.)
 - Full hardware permissions configured
 
 **Configuration:**

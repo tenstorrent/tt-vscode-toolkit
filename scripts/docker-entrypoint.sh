@@ -195,6 +195,30 @@ else
     echo -e "  ${YELLOW}⚠️  tt-smi not found${NC}"
 fi
 
+# Check for CLI tools
+echo ""
+echo -e "${CYAN}🛠️  AVAILABLE CLI TOOLS:${NC}"
+echo ""
+
+# HuggingFace CLI
+if command -v hf &> /dev/null; then
+    HF_VERSION=$(hf --help 2>/dev/null | head -1 || echo "Hugging Face Hub CLI")
+    echo -e "  ${GREEN}✅ HuggingFace CLI${NC} - ${HF_VERSION}"
+    echo "     Usage: hf download <model-id>"
+else
+    echo -e "  ${YELLOW}⚠️  HuggingFace CLI not found${NC}"
+fi
+
+# Claude Code CLI
+if command -v claude &> /dev/null; then
+    CLAUDE_VERSION=$(claude --version 2>/dev/null | head -1 || echo "unknown")
+    echo -e "  ${GREEN}✅ Claude Code CLI${NC} - ${CLAUDE_VERSION}"
+    echo "     Usage: claude -p \"your prompt here\""
+    echo "     Auth: Set ANTHROPIC_API_KEY environment variable"
+else
+    echo -e "  ${YELLOW}⚠️  Claude Code CLI not found${NC}"
+fi
+
 # Check and fix Tenstorrent device permissions
 if [ -d "/dev/tenstorrent" ]; then
     echo -e "  ${CYAN}🔧 Configuring Tenstorrent hardware access...${NC}"
@@ -310,6 +334,18 @@ except:
     echo "   tt-smi              - Check hardware status"
     echo "   tt-smi -r           - Reset devices (if needed)"
     echo ""
+
+    # Show available CLI tools
+    echo "🛠️  CLI Tools:"
+    if command -v hf &> /dev/null; then
+        echo "   hf download <id>    - Download models from HuggingFace"
+        echo "   hf login            - Authenticate with HuggingFace (optional)"
+    fi
+    if command -v claude &> /dev/null; then
+        echo "   claude -p \"...\"     - Run Claude Code CLI (set ANTHROPIC_API_KEY)"
+    fi
+    echo ""
+
     echo "💡 Tip: We have several lessons in the Tenstorrent sidebar!"
     echo ""
 fi

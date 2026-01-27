@@ -11,7 +11,7 @@ ENV SHELL=/bin/bash
 # Switch to root for installation
 USER root
 
-# Install system dependencies
+# Install system dependencies including Node.js for Claude CLI
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
@@ -21,7 +21,17 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     sudo \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
+
+# Install HuggingFace CLI and matplotlib for cookbook examples
+# Note: --break-system-packages is safe in containers (PEP 668)
+RUN pip3 install --no-cache-dir --break-system-packages huggingface-hub[cli] matplotlib
+
+# Install Claude Code CLI for AI-assisted development
+# Authentication via ANTHROPIC_API_KEY environment variable
+RUN npm install -g @anthropic-ai/claude-code
 
 # Create coder user home directory structure
 RUN mkdir -p /home/coder/.local/share/code-server/extensions \

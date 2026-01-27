@@ -13,7 +13,7 @@ ENV PYTHONPATH=/home/coder/tt-metal
 # Switch to root for installation
 USER root
 
-# Install system dependencies for tt-metal
+# Install system dependencies for tt-metal including Node.js for Claude CLI
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     python3-dev \
     sudo \
+    nodejs \
+    npm \
     libhwloc-dev \
     libboost-all-dev \
     libyaml-cpp-dev \
@@ -36,11 +38,17 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages commonly needed
-RUN pip3 install --no-cache-dir \
+# Note: --break-system-packages is safe in containers (PEP 668)
+RUN pip3 install --no-cache-dir --break-system-packages \
     numpy \
     torch \
     transformers \
-    huggingface-hub
+    huggingface-hub[cli] \
+    matplotlib
+
+# Install Claude Code CLI for AI-assisted development
+# Authentication via ANTHROPIC_API_KEY environment variable
+RUN npm install -g @anthropic-ai/claude-code
 
 # Create directory structure
 RUN mkdir -p /home/coder/.local/share/code-server/extensions \
