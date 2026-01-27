@@ -19,6 +19,7 @@ export interface TelemetryData {
     current: number;      // Amperes (from hwmon curr1_input)
     board_type: string;   // e.g., "n150", "n300", "p100" (from tt_card_type)
     pci_bus: string;      // PCI bus ID (e.g., "0000:01:00.0")
+    device_index?: number; // Optional device index for multi-device systems
 }
 
 /**

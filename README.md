@@ -198,7 +198,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ## Documentation
 
 ### User Documentation
-- **[FAQ.md](FAQ.md)** - Comprehensive troubleshooting (covers 90% of common issues)
+- **[FAQ.md](content/pages/FAQ.md)** - Comprehensive troubleshooting (covers 90% of common issues)
 - **Lesson Content** - Interactive lessons accessible via the extension
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and release notes
 
@@ -224,7 +224,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 tt-smi -r      # Reset and rescan
 sudo tt-smi    # Try with elevated permissions
 ```
-*See [FAQ.md](FAQ.md) for complete diagnostic steps.*
+*See [FAQ.md](content/pages/FAQ.md) for complete diagnostic steps.*
 
 ### "ImportError: undefined symbol" (TT-XLA)
 ```bash
@@ -238,9 +238,9 @@ unset TT_METAL_VERSION
 echo $TT_METAL_HOME    # Should be ~/tt-metal
 echo $MESH_DEVICE      # Should match your hardware (e.g., N150)
 ```
-*See [FAQ.md](FAQ.md) for systematic vLLM debugging.*
+*See [FAQ.md](content/pages/FAQ.md) for systematic vLLM debugging.*
 
-For more troubleshooting, check the **[FAQ](FAQ.md)** or join **[Discord](https://discord.gg/tenstorrent)**.
+For more troubleshooting, check the **[FAQ](content/pages/FAQ.md)** or join **[Discord](https://discord.gg/tenstorrent)**.
 
 ---
 
@@ -266,14 +266,21 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.0.248
+### Latest Release: v0.0.268 (2025-01-09)
 
-**Recent Highlights:**
-- ✨ Mermaid diagram support in all lessons with brand colors
+**Highlights:**
+- 🐳 Docker support with container orchestration
+- 📊 Consolidated status bar with sysfs telemetry
+- 🎨 Color-coded hardware validation badges
+- 🤝 Open-source documentation and GitHub workflows
+- 🔧 CS Fundamentals lesson fixes and ttnn API improvements
+
+### Previous Release: v0.0.243 (2024-01-09)
+
+**Highlights:**
+- 📚 New technical documentation structure (ARCHITECTURE, TESTING, PACKAGING)
+- 🎯 README streamlined (50% reduction in size)
 - 🎨 Monochrome sidebar icon for better theme compatibility
-- 🌡️ Multi-device telemetry support with temperature-at-a-glance
-- 📦 Package size optimization (60MB → 31MB)
-- 🔧 Comprehensive validation of CS Fundamentals series
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 
@@ -334,4 +341,4 @@ Built by the Tenstorrent community with contributions from:
 
 **Ready to start building AI on Tenstorrent hardware? Install the extension and open the Welcome page!** 🚀
 
-*Questions? Check the [FAQ](FAQ.md) or join our [Discord community](https://discord.gg/tenstorrent)!*
+*Questions? Check the [FAQ](content/pages/FAQ.md) or join our [Discord community](https://discord.gg/tenstorrent)!*

@@ -962,10 +962,7 @@
       "supportedHardware": [
         "n300"
       ],
-      "status": "validated",
-      "validatedOn": [
-        "n300"
-      ],
+      "status": "draft",
       "completionEvents": [],
       "tags": [
         "deployment",
@@ -988,10 +985,7 @@
       "supportedHardware": [
         "n300"
       ],
-      "status": "validated",
-      "validatedOn": [
-        "n300"
-      ],
+      "status": "draft",
       "completionEvents": [],
       "tags": [
         "deployment",
@@ -1005,5 +999,5 @@
       "estimatedMinutes": 45
     }
   ],
-  "lastUpdated": "2026-01-14T17:00:00.000Z"
+  "lastUpdated": "2026-01-20T18:00:00.000Z"
 }

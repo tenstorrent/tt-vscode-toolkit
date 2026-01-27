@@ -378,7 +378,7 @@ Moving to lessons that are validated on N150 and don't require large model downl
 
 ## Revisiting Lesson 3: Download Model (with HF token)
 
-**Update:** User provided HF token (redacted for security)
+**Update:** User provided HF token: `REDACTED`
 
 User already ran: `hf auth login`
 
