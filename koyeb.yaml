@@ -42,10 +42,12 @@ env:
   # so you know what to use when accessing the IDE!
 
 # Using Docker image from a registry
-# Build and push first: docker build -t yourregistry/tt-vscode-toolkit:latest .
+# Default: use the published Tenstorrent image (recommended for most users).
+# Optional: to use your own image, build and push first, e.g.:
+#   docker build -t yourregistry/tt-vscode-toolkit:latest .
 deployment:
   docker:
-    image: yourregistry/tt-vscode-toolkit:latest  # CHANGE THIS to your registry
+    image: ghcr.io/tenstorrent/tt-vscode-toolkit:latest  # Default image; override with your own registry if needed
 
 # Health check
 healthcheck:
