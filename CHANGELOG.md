@@ -73,6 +73,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Successfully tested with N300 hardware access, tt-smi working, HuggingFace CLI operational
 
 ---
+## [0.0.271] - 2026-01-27
+
+### Changed
+- verify-installation lesson now documents both installation paradigms:
+  - Pre-installed (tt-installer) - production approach
+  - Manual build from source - development approach
+- Added critical Python version matching requirement to build documentation
+- Documented OpenMPI ULFM library path requirement (LD_LIBRARY_PATH)
+- Enhanced git submodule initialization instructions
+
+### Fixed
+- Clarified Python version consistency requirement (build vs runtime must match)
+- Documented separation of pre-installed and built tt-metal environments
+- Added explicit git submodule initialization as critical step
+
+## [0.0.270] - 2026-01-27
+
+### Changed
+- Updated lesson-registry.json to include P300C validation status
+  - hardware-detection: Added "p300" to supportedHardware and validatedOn
+  - verify-installation: Added "p300" to supportedHardware and validatedOn
+- Extended supported hardware coverage for P300C Blackhole devices
 
 ## [0.0.269] - 2025-01-23
 
