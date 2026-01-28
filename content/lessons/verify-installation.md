@@ -258,7 +258,7 @@ source ~/.bashrc
 
 ```bash
 cd ~/tt-metal
-source python_env_3.12/bin/activate  # Or python_env for Python 3.10
+source "${VENV_NAME}/bin/activate"  # e.g., python_env_3.12 for Python 3.12 or python_env for Python 3.10
 python3 -c "import ttnn; print('✓ TTNN imported successfully')"
 ```
 
