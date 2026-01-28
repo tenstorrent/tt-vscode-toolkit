@@ -88,11 +88,11 @@ if koyeb deploy . ${APP_NAME}/${SERVICE_NAME} \
     SERVICE_URL=$(echo "$SERVICE_INFO" | grep -oE "https://[a-zA-Z0-9.-]+\.koyeb\.app" | head -1)
 
     if [ -n "$SERVICE_URL" ]; then
-        echo "🌐 ${SERVICE_URL}?password=${PASSWORD}"
-        echo "   (URL includes password for easy access)"
+        echo "🌐 ${SERVICE_URL}"
+        echo "   Use the password below to log in"
     else
         echo "🌐 Check Koyeb dashboard for URL"
-        echo "   Add ?password=${PASSWORD} to the URL"
+        echo "   Use the password below when prompted"
     fi
     echo ""
     echo "🔑 Password: ${PASSWORD}"
