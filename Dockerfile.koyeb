@@ -44,9 +44,12 @@ RUN mkdir -p /home/coder/.local/share/code-server/extensions \
 # Copy extension and entrypoint
 COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY scripts/show-motd.sh /usr/local/bin/show-motd.sh
+COPY content/motd.txt /etc/motd.txt
 
-# Fix entrypoint permissions
-RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
+# Fix entrypoint and MOTD script permissions
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh \
+    && chmod 755 /usr/local/bin/show-motd.sh
 
 # Set proper permissions for all coder-owned directories
 RUN chown -R coder:coder /home/coder \
@@ -77,6 +80,14 @@ RUN mkdir -p /home/coder/.local/share/code-server/User && \
     }\n\
   }\n\
 }' > /home/coder/.local/share/code-server/User/settings.json
+
+# Set up MOTD system
+RUN cp /etc/motd.txt /home/coder/.motd \
+    && echo '' >> /home/coder/.bashrc \
+    && echo '# Display MOTD on terminal open' >> /home/coder/.bashrc \
+    && echo 'if [ -f /usr/local/bin/show-motd.sh ]; then' >> /home/coder/.bashrc \
+    && echo '    source /usr/local/bin/show-motd.sh' >> /home/coder/.bashrc \
+    && echo 'fi' >> /home/coder/.bashrc
 
 # Verify extension installation
 RUN echo "=== EXTENSION VERIFICATION ===" \

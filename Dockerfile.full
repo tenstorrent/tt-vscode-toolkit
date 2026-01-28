@@ -59,13 +59,40 @@ RUN mkdir -p /home/coder/.local/share/code-server/extensions \
 # Copy the extension package
 COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
 
-# Copy entrypoint script
+# Copy entrypoint script and MOTD files
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY scripts/show-motd.sh /usr/local/bin/show-motd.sh
+COPY content/motd.txt /etc/motd.txt
 
-# Install the extension
+# Install the extension and configure VSCode settings
 RUN code-server --install-extension /tmp/extension.vsix \
     && rm /tmp/extension.vsix \
-    && chmod +x /usr/local/bin/docker-entrypoint.sh
+    && chmod +x /usr/local/bin/docker-entrypoint.sh \
+    && chmod +x /usr/local/bin/show-motd.sh
+
+# Configure code-server with Tenstorrent theme and terminal login shell
+# Terminal login shell ensures .bashrc is sourced (MOTD displays correctly)
+RUN mkdir -p /home/coder/.local/share/code-server/User && \
+    echo '{\n\
+  "workbench.colorTheme": "Tenstorrent Dark",\n\
+  "workbench.tips.enabled": false,\n\
+  "telemetry.telemetryLevel": "off",\n\
+  "terminal.integrated.profiles.linux": {\n\
+    "bash": {\n\
+      "path": "bash",\n\
+      "args": ["--login"]\n\
+    }\n\
+  },\n\
+  "terminal.integrated.defaultProfile.linux": "bash"\n\
+}' > /home/coder/.local/share/code-server/User/settings.json
+
+# Set up MOTD system
+RUN cp /etc/motd.txt /home/coder/.motd \
+    && echo '' >> /home/coder/.bashrc \
+    && echo '# Display MOTD on terminal open' >> /home/coder/.bashrc \
+    && echo 'if [ -f /usr/local/bin/show-motd.sh ]; then' >> /home/coder/.bashrc \
+    && echo '    source /usr/local/bin/show-motd.sh' >> /home/coder/.bashrc \
+    && echo 'fi' >> /home/coder/.bashrc
 
 # Add coder to sudoers
 RUN echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers

@@ -60,6 +60,18 @@ fi
 echo ""
 echo "✅ KOYEB_ORG set: $KOYEB_ORG"
 
+# Test container engine
+echo ""
+if command -v podman &> /dev/null; then
+    CONTAINER_CMD="podman"
+elif command -v docker &> /dev/null; then
+    CONTAINER_CMD="docker"
+else
+    echo "❌ Neither podman nor docker found"
+    exit 1
+fi
+echo "✅ Container engine: $CONTAINER_CMD"
+
 # Test registry access
 echo ""
 echo "🔐 Testing registry access..."
@@ -71,17 +83,6 @@ echo "   $CONTAINER_CMD login registry.koyeb.com"
 echo "   Username: your-koyeb-username"
 echo "   Password: your-koyeb-api-token (from https://app.koyeb.com/account/api)"
 echo ""
-
-# Test container engine
-if command -v podman &> /dev/null; then
-    CONTAINER_CMD="podman"
-elif command -v docker &> /dev/null; then
-    CONTAINER_CMD="docker"
-else
-    echo "❌ Neither podman nor docker found"
-    exit 1
-fi
-echo "✅ Container engine: $CONTAINER_CMD"
 
 # Test if we can push
 echo ""
