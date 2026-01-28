@@ -4,7 +4,9 @@
 
 # Use official pre-built tt-metalium dev image
 # This already has tt-metal compiled, Python env, all dependencies
-# Using specific hash for stability (not a version tag)
+# Pin to a specific tt-metalium dev image commit for reproducibility (not a moving version tag).
+# Base image metadata: ubuntu-22.04-dev-amd64 image built from tt-metal commit 339a22f363ab2750837c81672cee4f1ac813d6ef.
+# When updating the base image, update both this hash and the comment above to reflect the new commit/version.
 FROM ghcr.io/tenstorrent/tt-metal/tt-metalium/ubuntu-22.04-dev-amd64:339a22f363ab2750837c81672cee4f1ac813d6ef
 
 # Set environment variables
