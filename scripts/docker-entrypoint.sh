@@ -95,97 +95,20 @@ echo "  ✅ Interactive hardware lessons"
 echo "  ✅ Production deployment guides"
 echo "  ✅ Template scripts and examples"
 
-# Check for tt-metal installation
+# Check for tt-metal installation (should be pre-compiled in the image)
 if [ -d "$HOME/tt-metal" ] && [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then
-    echo "  ✅ tt-metal pre-built and ready at: ~/tt-metal"
+    echo "  ✅ tt-metal pre-compiled and ready at: ~/tt-metal"
 
-    # Configure environment variables in .bashrc if not already set
-    if ! grep -q "TT_METAL_HOME" "$HOME/.bashrc" 2>/dev/null; then
-        echo "" >> "$HOME/.bashrc"
-        echo "# Tenstorrent tt-metal environment" >> "$HOME/.bashrc"
-        echo "export TT_METAL_HOME=\$HOME/tt-metal" >> "$HOME/.bashrc"
-        echo "export PYTHONPATH=\$HOME/tt-metal" >> "$HOME/.bashrc"
-        echo 'export PATH="$HOME/tt-metal:${PATH}"' >> "$HOME/.bashrc"
-        echo 'if [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then' >> "$HOME/.bashrc"
-        echo '    source $HOME/tt-metal/python_env/bin/activate' >> "$HOME/.bashrc"
-        echo 'fi' >> "$HOME/.bashrc"
-    fi
-
-    # Set for current session
+    # Set environment for current session (already in .bashrc for terminals)
     export TT_METAL_HOME="$HOME/tt-metal"
     export PYTHONPATH="$HOME/tt-metal"
     export PATH="$HOME/tt-metal:${PATH}"
+
+    # Activate Python environment
+    source "$HOME/tt-metal/python_env/bin/activate"
 else
-    echo ""
-    echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${BOLD}🔧 Installing tt-metal (first startup - this takes ~10 minutes)${NC}"
-    echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
-    echo ""
-
-    # Clone tt-metal with submodules
-    if [ ! -d "$HOME/tt-metal" ]; then
-        echo -e "${CYAN}📥 Cloning tt-metal repository...${NC}"
-        git clone --recurse-submodules https://github.com/tenstorrent/tt-metal.git "$HOME/tt-metal" || {
-            echo -e "${YELLOW}⚠️  Failed to clone tt-metal - will be available via extension lessons${NC}"
-            echo "  ⚠️  tt-metal not installed (lessons work in learning mode)"
-        }
-    fi
-
-    # Install dependencies and build
-    if [ -d "$HOME/tt-metal" ]; then
-        cd "$HOME/tt-metal"
-
-        echo -e "${CYAN}📦 Installing system dependencies...${NC}"
-        # Run install script without PPA additions (avoids timeouts)
-        # Install only essential packages that are available in Ubuntu repos
-        sudo apt-get update -qq
-        sudo apt-get install -y -qq \
-            build-essential \
-            cmake \
-            python3-dev \
-            libboost-all-dev \
-            libyaml-cpp-dev \
-            libhwloc-dev \
-            libgtest-dev \
-            libgmock-dev \
-            ninja-build || {
-            echo -e "${YELLOW}⚠️  Some dependencies may be missing${NC}"
-        }
-
-        echo -e "${CYAN}🔨 Building tt-metal...${NC}"
-        ./build_metal.sh || {
-            echo -e "${YELLOW}⚠️  Build failed - will retry via extension lessons${NC}"
-        }
-
-        echo -e "${CYAN}🐍 Setting up Python environment...${NC}"
-        python3 -m venv python_env
-        source python_env/bin/activate
-        pip install --upgrade pip -q
-        pip install -e . -q || {
-            echo -e "${YELLOW}⚠️  Python package installation incomplete${NC}"
-        }
-
-        # Configure environment
-        echo "" >> "$HOME/.bashrc"
-        echo "# Tenstorrent tt-metal environment" >> "$HOME/.bashrc"
-        echo "export TT_METAL_HOME=\$HOME/tt-metal" >> "$HOME/.bashrc"
-        echo "export PYTHONPATH=\$HOME/tt-metal" >> "$HOME/.bashrc"
-        echo 'export PATH="$HOME/tt-metal:${PATH}"' >> "$HOME/.bashrc"
-        echo 'if [ -f "$HOME/tt-metal/python_env/bin/activate" ]; then' >> "$HOME/.bashrc"
-        echo '    source $HOME/tt-metal/python_env/bin/activate' >> "$HOME/.bashrc"
-        echo 'fi' >> "$HOME/.bashrc"
-
-        # Set for current session
-        export TT_METAL_HOME="$HOME/tt-metal"
-        export PYTHONPATH="$HOME/tt-metal"
-        export PATH="$HOME/tt-metal:${PATH}"
-
-        echo ""
-        echo -e "${GREEN}✅ tt-metal installation complete!${NC}"
-        echo ""
-    fi
-
-    cd "$HOME"
+    echo "  ⚠️  tt-metal not found (expected at ~/tt-metal)"
+    echo "     This image should include pre-compiled tt-metal"
 fi
 
 # Check for tt-smi installation
@@ -193,6 +116,30 @@ if command -v tt-smi &> /dev/null; then
     echo -e "  ${GREEN}✅ tt-smi installed${NC}"
 else
     echo -e "  ${YELLOW}⚠️  tt-smi not found${NC}"
+fi
+
+# Check for CLI tools
+echo ""
+echo -e "${CYAN}🛠️  AVAILABLE CLI TOOLS:${NC}"
+echo ""
+
+# HuggingFace CLI
+if command -v hf &> /dev/null; then
+    HF_VERSION=$(hf --help 2>/dev/null | head -1 || echo "Hugging Face Hub CLI")
+    echo -e "  ${GREEN}✅ HuggingFace CLI${NC} - ${HF_VERSION}"
+    echo "     Usage: hf download <model-id>"
+else
+    echo -e "  ${YELLOW}⚠️  HuggingFace CLI not found${NC}"
+fi
+
+# Claude Code CLI
+if command -v claude &> /dev/null; then
+    CLAUDE_VERSION=$(claude --version 2>/dev/null | head -1 || echo "unknown")
+    echo -e "  ${GREEN}✅ Claude Code CLI${NC} - ${CLAUDE_VERSION}"
+    echo "     Usage: claude -p \"your prompt here\""
+    echo "     Auth: Set ANTHROPIC_API_KEY environment variable"
+else
+    echo -e "  ${YELLOW}⚠️  Claude Code CLI not found${NC}"
 fi
 
 # Check and fix Tenstorrent device permissions
@@ -243,82 +190,6 @@ fi
 echo -e "${CYAN}🔍 HEALTH CHECK:${NC}"
 echo "  Endpoint: ${ACCESS_URL}/healthz"
 echo ""
-
-# Create a nice MOTD for terminal sessions
-cat > "$HOME/.bashrc_tenstorrent" << 'EOF'
-# Tenstorrent VSCode Toolkit MOTD
-if [ -z "$TENSTORRENT_MOTD_SHOWN" ]; then
-    export TENSTORRENT_MOTD_SHOWN=1
-
-    echo ""
-    echo "╔════════════════════════════════════════════════════════════"
-    echo "║  Welcome to your Tenstorrent development environment!"
-    echo "╚════════════════════════════════════════════════════════════"
-    echo ""
-
-    # System info
-    echo "💻 System:"
-    TOTAL_RAM=$(free -h 2>/dev/null | awk '/^Mem:/ {print $2}' || echo "Unknown")
-    CPU_CORES=$(nproc 2>/dev/null || echo "Unknown")
-    echo "   RAM: ${TOTAL_RAM}  |  CPU Cores: ${CPU_CORES}"
-
-    # Tenstorrent hardware detection (with timeout)
-    if command -v tt-smi &> /dev/null; then
-        TT_INFO=$(timeout 2s tt-smi -s 2>/dev/null | python3 -c "
-import sys, json
-try:
-    data = json.load(sys.stdin)
-    devices = data.get('devices', [])
-    if devices:
-        board_type = devices[0].get('board_type', 'Unknown')
-        count = len(devices)
-        print(f'{board_type} (x{count})')
-    else:
-        print('No devices detected')
-except:
-    print('Detection failed')
-" 2>/dev/null || echo "Not detected")
-        echo "   Tenstorrent: ${TT_INFO}"
-    else
-        echo "   Tenstorrent: tt-smi not available"
-    fi
-
-    # tt-metal version
-    if [ -d "$HOME/tt-metal" ]; then
-        if [ -f "$HOME/tt-metal/.git/HEAD" ]; then
-            TT_METAL_BRANCH=$(cd "$HOME/tt-metal" && git branch --show-current 2>/dev/null || echo "unknown")
-            TT_METAL_COMMIT=$(cd "$HOME/tt-metal" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-            echo "   tt-metal: ${TT_METAL_BRANCH}@${TT_METAL_COMMIT}"
-        else
-            echo "   tt-metal: installed (no git info)"
-        fi
-    else
-        echo "   tt-metal: not installed"
-    fi
-
-    # Python version
-    PYTHON_VER=$(python3 --version 2>/dev/null | cut -d' ' -f2 || echo "Not found")
-    echo "   Python: ${PYTHON_VER}"
-
-    echo ""
-    echo "📚 To get started:"
-    echo "   • Open Command Palette (Ctrl+Shift+P)"
-    echo "   • Search: 'Tenstorrent: Show Welcome Page'"
-    echo "   • Or click the Tenstorrent icon in the left sidebar"
-    echo ""
-    echo "🔧 Quick commands:"
-    echo "   tt-smi              - Check hardware status"
-    echo "   tt-smi -r           - Reset devices (if needed)"
-    echo ""
-    echo "💡 Tip: We have several lessons in the Tenstorrent sidebar!"
-    echo ""
-fi
-EOF
-
-# Append to .bashrc
-echo "" >> "$HOME/.bashrc"
-echo "# Tenstorrent MOTD" >> "$HOME/.bashrc"
-echo "source ~/.bashrc_tenstorrent" >> "$HOME/.bashrc"
 
 # Separator before code-server logs
 echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"

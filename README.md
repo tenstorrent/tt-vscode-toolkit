@@ -30,6 +30,47 @@ The Tenstorrent VSCode Toolkit is an educational extension that provides:
 
 ## Quick Start
 
+### Try in Docker (No Installation)
+
+Run the IDE locally in your browser:
+
+```bash
+docker run -d -p 8080:8080 -e PASSWORD=demo \
+  ghcr.io/tenstorrent/tt-vscode-toolkit:latest
+```
+
+Access at: http://localhost:8080 (password: `demo`)
+
+### Deploy to Cloud with Real Hardware
+
+Get access to Tenstorrent N300 hardware in 60 seconds:
+
+```bash
+# Install Koyeb CLI
+curl -fsSL https://cli.koyeb.com/install.sh | sh
+
+# Login
+koyeb login
+
+# Deploy
+koyeb services create vscode \
+  --app tt-vscode-toolkit \
+  --docker ghcr.io/tenstorrent/tt-vscode-toolkit:latest \
+  --ports 8080:http \
+  --routes /:8080 \
+  --env PASSWORD=yourpass \
+  --env MESH_DEVICE=N300 \
+  --regions na \
+  --instance-type gpu-tenstorrent-n300s \
+  --privileged
+```
+
+See [Deploy to Koyeb](./content/lessons/deploy-vscode-to-koyeb.md) lesson for details.
+
+---
+
+## Installation
+
 ### Prerequisites
 
 **Hardware:**

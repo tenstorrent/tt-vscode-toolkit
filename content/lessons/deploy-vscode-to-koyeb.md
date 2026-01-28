@@ -17,8 +17,8 @@ supportedHardware:
   - p100
   - p150
   - galaxy
-status: draft
-estimatedMinutes: 20
+status: validated
+estimatedMinutes: 5
 ---
 
 # Deploy tt-vscode-toolkit to Koyeb
@@ -37,8 +37,7 @@ A browser-accessible VSCode environment with:
 ## Prerequisites
 
 - Koyeb account (free tier available)
-- Git clone of tt-vscode-toolkit repository
-- ~10-15 minutes for initial deployment
+- ~5 minutes for deployment
 
 ## Why Deploy to Koyeb?
 
@@ -85,70 +84,65 @@ koyeb profile show
 
 ---
 
-## Step 3: Clone the Repository
+## Step 3: Deploy the IDE
+
+Deploy using our pre-built image - no cloning or building required!
 
 ```bash
-git clone https://github.com/tenstorrent/tt-vscode-toolkit.git
-cd tt-vscode-toolkit
-```
-
----
-
-## Step 4: Quick Deploy (Recommended)
-
-The repository includes a deployment script that handles everything:
-
-```bash
-./scripts/koyeb-deploy-direct.sh
+koyeb services create vscode \
+  --app tt-vscode-toolkit \
+  --docker ghcr.io/tenstorrent/tt-vscode-toolkit:latest \
+  --ports 8080:http \
+  --routes /:8080 \
+  --env PASSWORD=your-secure-password \
+  --env MESH_DEVICE=N300 \
+  --regions na \
+  --instance-type gpu-tenstorrent-n300s \
+  --privileged
 ```
 
 **What this does:**
-1. Builds the VSCode extension locally
-2. Uploads your directory to Koyeb (84MB compressed)
-3. Koyeb builds the Docker image remotely
-4. Deploys with N300 hardware automatically
-5. Outputs your access URL with password
+- Pulls pre-built image from GitHub Container Registry
+- Configures N300 hardware access
+- Sets up HTTPS endpoint
+- Creates your cloud IDE
 
-**Output:**
-```
-🚀 Koyeb Direct Deploy (No Registry!)
+**Deployment time:** ~30-60 seconds (image pull + start)
 
-App:     tt-vscode-toolkit
-Service: vscode
-Pass:    abc123xyz456
-
-1/2 Building extension...
-2/2 Deploying to Koyeb...
-
-✅ Deployed!
-
-🌐 https://vscode-<hash>.koyeb.app?password=abc123xyz456
-   (URL includes password for easy access)
-
-🔑 Password: abc123xyz456
-```
-
-**⚠️ Save your password!** You'll need it to access your IDE.
+⚠️ **Save your password!** You'll need it to access your IDE.
 
 ---
 
-## Step 5: Access Your IDE
+## Step 4: Get Your Access URL
 
-Click the URL from the deployment output. The password is included in the URL for convenience:
+Wait for deployment to complete:
 
+```bash
+koyeb services get vscode
 ```
-https://vscode-<your-hash>.koyeb.app?password=abc123xyz456
+
+**Expected output:**
+```
+ID      	APP              	NAME  	STATUS 	CREATED AT
+73553d44	tt-vscode-toolkit	vscode	HEALTHY	...
 ```
 
-**First-time setup** (30-60 seconds):
-- Container starts
-- Extension activates
-- Hardware permissions configured
-- Welcome page opens
+Once STATUS shows `HEALTHY`, get your URL:
+
+```bash
+# Your service URL will be shown in the services list
+koyeb services get vscode | grep koyeb.app
+```
+
+Access your IDE: `https://vscode-<your-hash>.koyeb.app`
+
+Enter the password you set in Step 3.
+
+✅ **That's it! Your cloud IDE with N300 hardware is ready.**
 
 ---
 
-## Step 6: Verify Hardware Access
+## Step 5: Verify Hardware Access
 
 Open a new terminal in your cloud IDE (Terminal → New Terminal) and run:
 
@@ -172,7 +166,7 @@ tt-smi
 
 ---
 
-## Step 7: Explore the Extension
+## Step 6: Explore the Extension
 
 The Tenstorrent extension is pre-installed and active:
 
@@ -197,6 +191,12 @@ Your cloud IDE includes:
 **Hardware:**
 - Tenstorrent N300 (2x Wormhole chips)
 - Device access via `/dev/tenstorrent/0` and `/dev/tenstorrent/1`
+
+**CLI Tools:**
+- `hf` - HuggingFace CLI for downloading models
+- `claude` - Claude Code CLI for AI-assisted development (requires ANTHROPIC_API_KEY)
+- `tt-smi` - Tenstorrent hardware monitoring
+- Standard dev tools (git, python3, npm, etc.)
 - Full hardware permissions configured
 
 **Configuration:**
@@ -204,6 +204,7 @@ Your cloud IDE includes:
 - Device permissions (sudo, video, render groups)
 - Privileged container mode for hardware access
 - No telemetry, auto-updates disabled
+- **MOTD (Message of the Day)** displays on terminal open with system info
 
 ---
 
@@ -223,13 +224,13 @@ koyeb services logs vscode -f
 
 ### Update Deployment
 
-After making changes to the codebase:
+Pull the latest image:
 
 ```bash
-./scripts/koyeb-deploy-direct.sh
+koyeb services redeploy vscode
 ```
 
-This creates a new deployment. The old one is automatically removed.
+This fetches the newest `:latest` image and restarts the service.
 
 ### Delete Service
 
@@ -238,41 +239,6 @@ When you're done:
 ```bash
 koyeb services delete vscode
 ```
-
----
-
-## Optional: Deploy with tt-metal Pre-installed
-
-By default, the IDE deploys quickly (~5 minutes) without tt-metal. To include a fully-built tt-metal installation:
-
-**Edit `Dockerfile.koyeb`** and uncomment the tt-metal section:
-
-```dockerfile
-# Clone and install tt-metal with submodules
-RUN git clone --recurse-submodules https://github.com/tenstorrent/tt-metal.git /home/coder/tt-metal
-
-# Switch to root to install dependencies
-USER root
-RUN cd /home/coder/tt-metal && ./install_dependencies.sh
-
-# Switch back to coder to build tt-metal
-USER coder
-RUN cd /home/coder/tt-metal && ./build_metal.sh
-```
-
-Then deploy:
-
-```bash
-./scripts/koyeb-deploy-direct.sh
-```
-
-⏱️ **Build time:** 15-25 minutes (one-time cost)
-
-**Benefits:**
-- tt-metal ready at `~/tt-metal`
-- Python environment auto-activated
-- All metal tools available immediately
-- No need to build on first use
 
 ---
 
@@ -382,18 +348,58 @@ koyeb deploy . tt-vscode-toolkit/vscode \
 
 ---
 
+## Advanced: Custom Builds
+
+**Need to customize?** Check our [Dockerfile on GitHub](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/Dockerfile) to see how the image is built. You can:
+- Fork the repo and modify the Dockerfile
+- Build your own image: `docker build -t myimage:latest .`
+- Deploy your custom image: Use `--docker myimage:latest` instead
+
+The published image includes:
+- HuggingFace CLI (`hf`)
+- Claude CLI (`claude`)
+- tt-smi
+- All hardware permissions configured
+- MOTD system for terminal welcome messages
+- tt-metal can be built via lessons (one-time setup)
+
+**Build locally and deploy:**
+
+```bash
+# Clone and modify
+git clone https://github.com/tenstorrent/tt-vscode-toolkit.git
+cd tt-vscode-toolkit
+# ... make your changes ...
+
+# Build extension
+npm install
+npm run build
+npm run package
+
+# Deploy using the included script
+./scripts/koyeb-deploy-direct.sh
+```
+
+This approach is useful for:
+- Testing local changes before contributing
+- Adding custom extensions or configurations
+- Experimenting with different base images
+
+---
+
 ## Summary
 
 **What you learned:**
-- ✅ Deploy VSCode to cloud with one command
+- ✅ Deploy VSCode to cloud in 60 seconds using published images
 - ✅ Access real Tenstorrent N300 hardware remotely
 - ✅ Manage cloud deployments with Koyeb CLI
 - ✅ Configure hardware access in containers
 
-**Key files:**
-- `scripts/koyeb-deploy-direct.sh` - One-command deployment
-- `Dockerfile.koyeb` - Container configuration
-- `docker-entrypoint.sh` - Startup configuration
+**Key concepts:**
+- Published Docker images eliminate build time
+- Single command deployment (`koyeb services create`)
+- Hardware access via `--privileged` flag
+- Custom builds available for advanced users
 
-**Time invested:** ~15 minutes
+**Time invested:** ~5 minutes
 **Result:** Professional cloud IDE with hardware access 🎉

@@ -1,0 +1,122 @@
+# Tenstorrent VSCode Toolkit - Koyeb Optimized Image
+# Based on pre-built tt-metalium dev image (skips 15-20 min compilation!)
+# Just adds code-server and extension on top
+
+# Use official pre-built tt-metalium dev image
+# This already has tt-metal compiled, Python env, all dependencies
+# Pin to a specific tt-metalium dev image commit for reproducibility (not a moving version tag).
+# Base image metadata: ubuntu-22.04-dev-amd64 image built from tt-metal commit 339a22f363ab2750837c81672cee4f1ac813d6ef.
+# When updating the base image, update both this hash and the comment above to reflect the new commit/version.
+FROM ghcr.io/tenstorrent/tt-metal/tt-metalium/ubuntu-22.04-dev-amd64:339a22f363ab2750837c81672cee4f1ac813d6ef
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SHELL=/bin/bash
+ENV TT_METAL_PREBUILT=true
+
+# Switch to root for installation
+USER root
+
+# Install code-server (base image already has curl, wget, sudo)
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Install Hugging Face CLI and matplotlib for cookbook examples
+# Note: tt-metalium image has venv activated, so no --break-system-packages needed
+RUN pip3 install --no-cache-dir huggingface-hub[cli] matplotlib
+
+# Note: Claude CLI not available in Koyeb deployment (tt-metalium base image doesn't have nodejs/npm)
+# HuggingFace CLI (`hf`) is available for model downloads
+
+# The tt-metalium image uses 'ubuntu' user - rename to 'coder' for consistency
+# If ubuntu user exists, rename to coder. Otherwise create coder user.
+RUN if id -u ubuntu >/dev/null 2>&1; then \
+        usermod -l coder -d /home/coder -m ubuntu && \
+        groupmod -n coder ubuntu; \
+    else \
+        useradd -m -s /bin/bash coder; \
+    fi \
+    && usermod -aG sudo coder \
+    && echo "coder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Create directory structure
+RUN mkdir -p /home/coder/.local/share/code-server/extensions \
+    && mkdir -p /home/coder/tt-scratchpad \
+    && mkdir -p /home/coder/models
+
+# Copy extension and entrypoint
+COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY scripts/show-motd.sh /usr/local/bin/show-motd.sh
+COPY content/motd.txt /etc/motd.txt
+
+# Fix entrypoint and MOTD script permissions
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh \
+    && chmod 755 /usr/local/bin/show-motd.sh
+
+# Set proper permissions for all coder-owned directories
+RUN chown -R coder:coder /home/coder \
+    && chown coder:coder /tmp/extension.vsix
+
+# Switch to coder user BEFORE installing extension
+USER coder
+WORKDIR /home/coder
+
+# Install extension as coder user
+RUN code-server --install-extension /tmp/extension.vsix \
+    && rm /tmp/extension.vsix
+
+# Configure code-server with Tenstorrent theme and settings
+# Enable integrated terminal login shell for proper .bashrc sourcing
+RUN mkdir -p /home/coder/.local/share/code-server/User && \
+    echo '{\n\
+  "workbench.colorTheme": "Tenstorrent Dark",\n\
+  "workbench.tips.enabled": false,\n\
+  "telemetry.telemetryLevel": "off",\n\
+  "update.mode": "none",\n\
+  "terminal.integrated.defaultProfile.linux": "bash",\n\
+  "terminal.integrated.profiles.linux": {\n\
+    "bash": {\n\
+      "path": "bash",\n\
+      "args": ["-l"],\n\
+      "icon": "terminal-bash"\n\
+    }\n\
+  }\n\
+}' > /home/coder/.local/share/code-server/User/settings.json
+
+# Set up MOTD system
+RUN cp /etc/motd.txt /home/coder/.motd \
+    && echo '' >> /home/coder/.bashrc \
+    && echo '# Display MOTD on terminal open' >> /home/coder/.bashrc \
+    && echo 'if [ -f /usr/local/bin/show-motd.sh ]; then' >> /home/coder/.bashrc \
+    && echo '    source /usr/local/bin/show-motd.sh' >> /home/coder/.bashrc \
+    && echo 'fi' >> /home/coder/.bashrc
+
+# Verify extension installation
+RUN echo "=== EXTENSION VERIFICATION ===" \
+    && test -d /home/coder/.local/share/code-server/extensions || (echo "FAIL: Extensions directory missing" && exit 1) \
+    && echo "✓ Extensions directory exists" \
+    && ls -la /home/coder/.local/share/code-server/extensions/ | grep -q "tenstorrent.tt-vscode-toolkit" || (echo "FAIL: Tenstorrent extension not installed" && exit 1) \
+    && echo "✓ Tenstorrent extension installed" \
+    && test -f /home/coder/.local/share/code-server/User/settings.json || (echo "FAIL: Settings file missing" && exit 1) \
+    && echo "✓ VSCode settings file exists" \
+    && grep -q "Tenstorrent Dark" /home/coder/.local/share/code-server/User/settings.json || (echo "FAIL: Theme not configured" && exit 1) \
+    && echo "✓ Tenstorrent theme configured" \
+    && which code-server || (echo "FAIL: code-server not in PATH" && exit 1) \
+    && echo "✓ code-server available" \
+    && echo "=== EXTENSION VERIFICATION PASSED ==="
+
+# Note: Using pre-built tt-metalium image means:
+# - tt-metal already compiled and ready
+# - Python environment already configured
+# - All dependencies pre-installed
+# - Docker build time: ~2-3 minutes (vs 15-20 min building from scratch)
+# - Deployment time: Nearly instant
+
+# Expose code-server port
+EXPOSE 8080
+
+# Set default password
+ENV PASSWORD=tenstorrent
+
+# Use custom entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

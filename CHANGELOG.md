@@ -7,6 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.276] - 2026-01-27
+
+### Added
+- **MOTD (Message of the Day) System** for terminal welcome messages
+  - Created `content/motd.txt` with customizable welcome content
+  - Created `scripts/show-motd.sh` for dynamic system information display
+  - Displays Quick Start guide, essential commands, lesson links, and tips
+  - Shows real-time system info: RAM, CPU cores, hardware detection, tt-metal status
+  - Configured to display once per terminal session
+
+### Changed
+- **Deployment Lessons Simplified** - Now use published Docker images from GitHub Container Registry
+  - `deploy-vscode-to-koyeb.md`: Reduced deployment time from 5-10 minutes to 60 seconds
+    - Removed clone and build steps (Steps 3-4)
+    - Single command deployment using `ghcr.io/tenstorrent/tt-vscode-toolkit:latest`
+    - Status changed from "draft" to "validated"
+    - Estimated time: 20 minutes → 5 minutes
+    - Added "Advanced: Custom Builds" section for users who need customization
+  - `deploy-to-koyeb.md`: Simplified Dockerfile examples to extend base image
+    - vLLM Dockerfile reduced from ~60 lines to ~30 lines
+    - Custom Inference Server reduced from ~80 lines to ~15 lines
+    - All examples now use `FROM ghcr.io/tenstorrent/tt-vscode-toolkit:latest`
+    - Status changed from "draft" to "validated"
+    - Estimated time: 45 minutes → 10 minutes
+- **README.md**: Added "Quick Start" section showing Docker local and Koyeb cloud deployment
+- **Dockerfile**:
+  - Configured terminal to use login shell (`bash -l`) for proper bashrc sourcing
+  - Added MOTD file copying and script installation
+  - Integrated MOTD system into bashrc configuration
+- **docker-entrypoint.sh**: Simplified by removing old inline MOTD creation (180+ lines removed)
+
+### Technical Notes
+- MOTD system is modular: static content in `motd.txt` + dynamic info from `show-motd.sh`
+- Terminal configuration ensures `.bashrc` is sourced on every new terminal
+- Session flag (TENSTORRENT_MOTD_SHOWN) prevents duplicate displays
+- Docker image build time: ~3 minutes, final size: 2.1 GB
+- Published images available at `ghcr.io/tenstorrent/tt-vscode-toolkit:latest`
+
+---
+
+## [0.0.274] - 2026-01-27
+
+### Added
+- **HuggingFace CLI** (`hf`) installed in all Docker images for model downloads
+- **Claude CLI** (`claude`) installed in Dockerfile and Dockerfile.full (not available in Koyeb due to base image constraints)
+- **Docker improvements:** Added nodejs/npm for CLI tool support
+- **Koyeb deployment support:** Successfully tested end-to-end deployment with N300 hardware
+
+### Changed
+- **docker-entrypoint.sh:** Skip tt-metal installation when `TT_METAL_PREBUILT=true` (for tt-metalium base image)
+- **Dockerfile.koyeb:** Optimized for tt-metalium base image, HuggingFace CLI only
+- **CLI tool verification:** Entrypoint now checks for `hf` command (not `huggingface-cli`)
+- **deploy-vscode-to-koyeb.md:** Updated to document available CLI tools and limitations
+
+### Fixed
+- **PEP 668 compliance:** Added `--break-system-packages` flag to pip3 install commands in Dockerfiles (safe for containers)
+- **Koyeb deployment errors:** Fixed tt-metal installation loop by detecting pre-built environment
+- **npm installation:** Added nodejs/npm to apt-get install for Claude CLI support
+
+### Technical Notes
+- Koyeb deployment uses tt-metalium base image (pre-built tt-metal dependencies)
+- tt-metal Python packages still require setup via extension lessons (quick version)
+- Optional: Can pre-build tt-metal in Dockerfile.koyeb for instant readiness (15-25 min build time)
+- Successfully tested with N300 hardware access, tt-smi working, HuggingFace CLI operational
+
+---
+
 ## [0.0.269] - 2025-01-23
 
 ### Fixed

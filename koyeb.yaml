@@ -1,0 +1,71 @@
+# Koyeb deployment configuration for Tenstorrent VSCode Toolkit
+# Deploy with: koyeb service create --yaml koyeb.yaml
+#
+# ⚡ INCLUDES TENSTORRENT N300 ACCELERATOR ⚡
+#
+# See KOYEB_DEPLOYMENT.md for complete deployment guide
+# See KOYEB_LOGS_EXAMPLE.txt to preview what you'll see in logs
+
+name: tt-vscode-toolkit
+regions:
+  - was  # Washington DC (change to preferred region: fra, sin, etc.)
+
+instance:
+  type: small  # Recommended: small (1 vCPU, 2GB). Options: nano, micro, small, medium, large
+
+# Tenstorrent Hardware Accelerator
+accelerator:
+  type: tenstorrent-n300  # Single N300 (Wormhole - 2 chips)
+  count: 1
+  # Options:
+  #   - tenstorrent-n300 (single N300 - 2 chips)
+  #   - tenstorrent-n300x3 (3x N300 configuration)
+
+ports:
+  - port: 8080
+    protocol: http
+
+routes:
+  - path: /
+    port: 8080
+
+env:
+  - key: PASSWORD
+    value: changeme  # CHANGE THIS! Set a strong password (or use Koyeb secrets)
+  - key: SUDO_PASSWORD
+    value: changeme  # CHANGE THIS! (optional - defaults to PASSWORD if not set)
+  - key: TT_METAL_HOME
+    value: /opt/tt-metal  # Path to tt-metal installation (if pre-installed in image)
+  - key: MESH_DEVICE
+    value: N300  # Hardware type for configuration
+  # NOTE: The container will display this password in logs at startup
+  # so you know what to use when accessing the IDE!
+
+# Using Docker image from a registry
+# Default: use the published Tenstorrent image (recommended for most users).
+# Optional: to use your own image, build and push first, e.g.:
+#   docker build -t yourregistry/tt-vscode-toolkit:latest .
+deployment:
+  docker:
+    image: ghcr.io/tenstorrent/tt-vscode-toolkit:latest  # Default image; override with your own registry if needed
+
+# Health check
+healthcheck:
+  path: /healthz
+  port: 8080
+  interval: 30s
+  timeout: 5s
+  grace_period: 30s
+
+# Restart policy
+restart_policy: always
+
+# Scaling (optional)
+scaling:
+  min: 1
+  max: 1  # Single instance for IDE use
+
+# Resources
+resources:
+  cpu: "0.5"
+  memory: "1Gi"
