@@ -80,7 +80,7 @@ RUN mkdir -p /home/coder/.local/share/code-server/User && \
   "terminal.integrated.profiles.linux": {\n\
     "bash": {\n\
       "path": "bash",\n\
-      "args": ["--login"]\n\
+      "args": ["-l"]\n\
     }\n\
   },\n\
   "terminal.integrated.defaultProfile.linux": "bash"\n\
