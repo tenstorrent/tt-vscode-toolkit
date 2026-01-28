@@ -20,10 +20,6 @@ This directory contains scripts for building and deploying the tt-vscode-toolkit
 - **koyeb-registry-login.sh** - Helper for Koyeb registry authentication
 - **test-koyeb-auth.sh** - Test Koyeb CLI authentication
 
-## Utility Scripts
-
-- **cleanup.sh** - Repository cleanup utilities
-
 ## Usage
 
 Most scripts should be run from the project root:
