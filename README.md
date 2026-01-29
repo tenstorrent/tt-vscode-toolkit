@@ -316,7 +316,7 @@ We welcome contributions! Here's how to get involved:
 - 🤝 Open-source documentation and GitHub workflows
 - 🔧 CS Fundamentals lesson fixes and ttnn API improvements
 
-### Previous Release: v0.0.243 (2024-01-09)
+### Previous Release: v0.0.243 (2025-01-09)
 
 **Highlights:**
 - 📚 New technical documentation structure (ARCHITECTURE, TESTING, PACKAGING)
