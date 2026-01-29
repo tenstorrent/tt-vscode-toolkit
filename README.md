@@ -7,6 +7,8 @@
 
 Learn Tenstorrent hardware and software through 16 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference pipelines.
 
+![Screen capture of tt-vscode-toolkit in action](assets/img/screenshot.png)
+
 ---
 
 ## Overview
