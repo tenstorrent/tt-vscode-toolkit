@@ -94,7 +94,7 @@ export class TelemetryMonitor {
         }
     }
 
-    private readTelemetry(): Promise<TelemetryData | TelemetryError> {
+    private readTelemetry(): Promise<TelemetryData | MultiDeviceTelemetry | TelemetryError> {
         return new Promise((resolve, reject) => {
             child_process.exec(
                 `${this.pythonPath} ${this.scriptPath}`,
@@ -110,8 +110,8 @@ export class TelemetryMonitor {
 
                         // Handle multi-device format (v0.0.230+)
                         if (isMultiDeviceTelemetry(data)) {
-                            // Aggregate multiple devices into single telemetry view
-                            resolve(this.aggregateTelemetry(data));
+                            // Return raw multi-device data (aggregation happens in updateTelemetry)
+                            resolve(data);
                         } else if (isSingleDeviceTelemetry(data)) {
                             // Legacy single device format
                             resolve(data);

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.280] - 2026-01-29
+
+### Fixed
+- **Device Count Display** - Fixed N150 showing "x5" in statusbar when only 1 device present
+  - `readTelemetry()` now returns raw multi-device data instead of pre-aggregating
+  - `updateTelemetry()` properly sets `this.currentMultiDeviceTelemetry`
+  - Status bar correctly displays single device name without duplicate count suffix
+  - `src/telemetry/TelemetryMonitor.ts:97` - Updated return type and logic
+
+---
+
 ## [0.0.279] - 2026-01-29
 
 ### Fixed
