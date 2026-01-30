@@ -892,7 +892,7 @@
       "tags": [
         "model"
       ],
-      "previousLesson": "riscv-programming",
+      "previousLesson": "cs-fundamentals-07-complexity",
       "nextLesson": "explore-metalium",
       "estimatedMinutes": 10
     },

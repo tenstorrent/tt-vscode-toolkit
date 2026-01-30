@@ -308,7 +308,7 @@ pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo.py
 
 Here's what you can create with Stable Diffusion XL on Tenstorrent hardware:
 
-![Snowy Cabin - Generated with Stable Diffusion XL](/assets/img/sdxl_snowy_cabin.png)
+![Snowy Cabin - Generated with Stable Diffusion XL](/assets/img/sd35_snowy_cabin.png)
 
 *Generated with prompt: "A cozy cabin in a snowy forest, warm lights in windows, winter evening, oil painting style"*
 

@@ -52,8 +52,13 @@ TEST_SUMMARY.md
 vendor/**
 
 # Large asset files (keep in repo for documentation, exclude from package)
-# Exclude all .gif files from package (but keep in repo)
-**/*.gif
+# Exclude only files >2MB from package (by name)
+assets/img/samples/particle_life_multi_device.gif
+assets/img/particle_life.gif
+assets/img/game_of_life.gif
+dist/assets/img/samples/particle_life_multi_device.gif
+dist/assets/img/particle_life.gif
+dist/assets/img/game_of_life.gif
 
 # Backup files
 *.bak

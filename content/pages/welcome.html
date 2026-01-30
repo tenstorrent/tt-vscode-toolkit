@@ -233,88 +233,171 @@
     </div>
 
     <div class="section">
-        <h2>📚 Learning Path</h2>
+        <h2>📚 Learning Path (31 Lessons)</h2>
         <p>Click on any lesson below to open it in the new interactive lesson viewer. Or click "Open Lessons Sidebar" above to browse all lessons in the sidebar.</p>
-        <p>Follow these lessons in order to go from hardware setup to production deployment:</p>
+        <p>Lessons are organized by category - start with "Your First Inference" for the quickest path to running models:</p>
 
+        <!-- Your First Inference -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🚀 Your First Inference</h3>
         <ul class="walkthrough-list">
             <li class="walkthrough-item" onclick="openWalkthrough('hardware-detection')">
-                <h3><span class="icon">🔌</span>1. Hardware Detection</h3>
+                <h3><span class="icon">🔌</span>Hardware Detection</h3>
                 <p>Scan for connected Tenstorrent devices and verify they're properly recognized by the system.</p>
             </li>
-
             <li class="walkthrough-item" onclick="openWalkthrough('verify-installation')">
-                <h3><span class="icon">✅</span>2. Verify tt-metal Installation</h3>
+                <h3><span class="icon">✅</span>Verify tt-metal Installation</h3>
                 <p>Test your tt-metal installation by running a sample operation on your Tenstorrent device.</p>
             </li>
-
             <li class="walkthrough-item" onclick="openWalkthrough('download-model')">
-                <h3><span class="icon">📥</span>3. Download Model and Run Inference</h3>
+                <h3><span class="icon">📥</span>Download Model and Run Inference</h3>
                 <p>Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent hardware.</p>
             </li>
-
             <li class="walkthrough-item" onclick="openWalkthrough('interactive-chat')">
-                <h3><span class="icon">💬</span>4. Interactive Chat with Direct API</h3>
+                <h3><span class="icon">💬</span>Interactive Chat with Direct API</h3>
                 <p>Build a custom chat application using tt-metal's Generator API directly.</p>
             </li>
-
             <li class="walkthrough-item" onclick="openWalkthrough('api-server')">
-                <h3><span class="icon">🌐</span>5. HTTP API Server with Direct API</h3>
+                <h3><span class="icon">🌐</span>HTTP API Server with Direct API</h3>
                 <p>Create a production-ready Flask API with the model loaded in memory.</p>
             </li>
+        </ul>
 
+        <!-- Serving Models -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🏭 Serving Models</h3>
+        <ul class="walkthrough-list">
             <li class="walkthrough-item" onclick="openWalkthrough('tt-inference-server')">
-                <h3><span class="icon">🖥️</span>6. Production Inference with tt-inference-server</h3>
-                <p>Use Tenstorrent's official inference server for production deployments. Simple CLI, HTTP API, hardware-aware configuration, and official support!</p>
+                <h3><span class="icon">🖥️</span>Production Inference with tt-inference-server</h3>
+                <p>Use Tenstorrent's official inference server for production deployments with simple CLI configuration.</p>
             </li>
-
             <li class="walkthrough-item" onclick="openWalkthrough('vllm-production')">
-                <h3><span class="icon">🏭</span>7. Production Inference with vLLM</h3>
+                <h3><span class="icon">🏭</span>Production Inference with vLLM</h3>
                 <p>Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features.</p>
             </li>
-
             <li class="walkthrough-item" onclick="openWalkthrough('image-generation')">
-                <h3><span class="icon">🎨</span>8. Image Generation with SD 3.5 Large</h3>
-                <p>Generate high-resolution 1024x1024 images on your Tenstorrent hardware using Stable Diffusion 3.5 Large - native TT acceleration!</p>
+                <h3><span class="icon">🎨</span>Image Generation with Stable Diffusion XL</h3>
+                <p>Generate high-resolution 1024x1024 images using Stable Diffusion XL Base on Tenstorrent hardware.</p>
             </li>
-
-            <li class="walkthrough-item" onclick="openWalkthrough('coding-assistant')">
-                <h3><span class="icon">👨‍💻</span>9. Coding Assistant with Prompt Engineering</h3>
-                <p>Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn how to shape model behavior through system prompts!</p>
-            </li>
-
-            <li class="walkthrough-item" onclick="openWalkthrough('forge-image-classification')">
-                <h3><span class="icon">🔨</span>10. Image Classification with TT-Forge</h3>
-                <p>Explore TT-Forge - Tenstorrent's MLIR-based compiler! Start with validated models like MobileNetV2 for image classification. Learn forge.compile() and the path to high-level model deployment.</p>
-            </li>
-
-            <li class="walkthrough-item" onclick="openWalkthrough('tt-xla-jax')">
-                <h3><span class="icon">⚡</span>11. JAX Inference with TT-XLA</h3>
-                <p>Master TT-XLA - Tenstorrent's production-ready XLA compiler! Simple wheel installation, JAX integration via PJRT, and multi-chip support. Works with Python 3.10+, no rebuilding required!</p>
-            </li>
-
-            <li class="walkthrough-item" onclick="openWalkthrough('riscv-programming')">
-                <h3><span class="icon">🔬</span>12. RISC-V Programming on Tensix Cores</h3>
-                <p>Explore 880 RISC-V processors on a single chip! Program the five RISC-V cores (BRISC, NCRISC, TRISC0/1/2) inside each Tensix. Learn bare-metal programming, NoC communication, and parallel computing at scale.</p>
-            </li>
-
-            <li class="walkthrough-item" onclick="openWalkthrough('bounty-program')">
-                <h3><span class="icon">🤝</span>13. Bounty Program: Model Bring-Up</h3>
-                <p>Learn how to contribute to the Tenstorrent Bounty Program by bringing up new models. Master TT-Metal while becoming part of the open-source ecosystem!</p>
-            </li>
-
-            <li class="walkthrough-item" onclick="openWalkthrough('explore-metalium')">
-                <h3><span class="icon">🔍</span>14. Exploring TT-Metalium</h3>
-                <p>Discover what's possible with TT-Metalium! Explore TTNN tutorials, browse the model zoo, and dive into programming examples.</p>
-            </li>
-
-            <li class="walkthrough-item" onclick="openWalkthrough('metalium-cookbook')">
-                <h3><span class="icon">📕</span>15. TT-Metalium Cookbook</h3>
-                <p>Build creative projects with TT-Metalium! Work through 4 complete cookbook recipes: Game of Life, Audio Processing, Mandelbrot Fractals, and Image Filters.</p>
+            <li class="walkthrough-item" onclick="openWalkthrough('video-generation-ttmetal')">
+                <h3><span class="icon">🎬</span>Video Generation with Stable Diffusion 3.5</h3>
+                <p>Create videos by generating frames with Stable Diffusion 3.5 - see hardware scaling from N150 to Galaxy!</p>
             </li>
         </ul>
+
+        <!-- Compilers & Tools -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🔧 Compilers & Tools</h3>
+        <ul class="walkthrough-list">
+            <li class="walkthrough-item" onclick="openWalkthrough('forge-image-classification')">
+                <h3><span class="icon">🔨</span>Image Classification with TT-Forge</h3>
+                <p>Explore TT-Forge - Tenstorrent's MLIR-based compiler! Start with validated models like MobileNetV2.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('tt-xla-jax')">
+                <h3><span class="icon">⚡</span>JAX Inference with TT-XLA</h3>
+                <p>Master TT-XLA - production-ready XLA compiler with simple wheel installation and multi-chip support.</p>
+            </li>
+        </ul>
+
+        <!-- Applications -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🎯 Applications</h3>
+        <ul class="walkthrough-list">
+            <li class="walkthrough-item" onclick="openWalkthrough('coding-assistant')">
+                <h3><span class="icon">👨‍💻</span>Coding Assistant with Prompt Engineering</h3>
+                <p>Build an AI coding assistant using Llama 3.1 8B and prompt engineering.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('animatediff-video-generation')">
+                <h3><span class="icon">🎞️</span>Native Video Animation with AnimateDiff</h3>
+                <p>Learn to build standalone packages outside tt-metal! Create animated videos with AnimateDiff temporal attention.</p>
+            </li>
+        </ul>
+
+        <!-- Tenstorrent Cookbook -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">👨‍🍳 Tenstorrent Cookbook</h3>
+        <ul class="walkthrough-list">
+            <li class="walkthrough-item" onclick="openWalkthrough('cookbook-overview')">
+                <h3><span class="icon">📖</span>Tenstorrent Cookbook Overview</h3>
+                <p>Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metal techniques.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cookbook-game-of-life')">
+                <h3><span class="icon">🎮</span>Recipe 1: Conway's Game of Life</h3>
+                <p>Build Conway's Game of Life using TTNN parallel tile computing. Learn convolution operations and cellular automata.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cookbook-audio-processor')">
+                <h3><span class="icon">🎵</span>Recipe 2: Audio Signal Processing</h3>
+                <p>Build a real-time audio processing pipeline with TTNN. Compute mel-spectrograms and apply creative effects.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cookbook-mandelbrot')">
+                <h3><span class="icon">🌀</span>Recipe 3: Mandelbrot Fractal Explorer</h3>
+                <p>Render beautiful fractals with interactive zoom! Demonstrates GPU-style parallel computation.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cookbook-image-filters')">
+                <h3><span class="icon">🖼️</span>Recipe 4: Custom Image Filters</h3>
+                <p>Build a library of creative image filters using 2D convolution. From edge detection to artistic effects!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cookbook-particle-life')">
+                <h3><span class="icon">⚛️</span>Recipe 5: Particle Life Simulator</h3>
+                <p>Simulate emergent complexity from simple particle interactions! Features N² force calculations and multi-device acceleration.</p>
+            </li>
+        </ul>
+
+        <!-- CS Fundamentals -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🧠 CS Fundamentals</h3>
+        <ul class="walkthrough-list">
+            <li class="walkthrough-item" onclick="openWalkthrough('cs-fundamentals-01-computer')">
+                <h3><span class="icon">🖥️</span>Module 1: RISC-V & Computer Architecture</h3>
+                <p>Von Neumann architecture, fetch-decode-execute cycle, and RISC-V fundamentals.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cs-fundamentals-02-memory')">
+                <h3><span class="icon">💾</span>Module 2: The Memory Hierarchy</h3>
+                <p>Cache locality, bandwidth tradeoffs, and near-memory compute.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cs-fundamentals-03-parallelism')">
+                <h3><span class="icon">⚡</span>Module 3: Parallel Computing</h3>
+                <p>Amdahl's Law, SPMD patterns, and data parallelism. Scale from 1 to 880 cores!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cs-fundamentals-04-networks')">
+                <h3><span class="icon">🌐</span>Module 4: Networks and Communication</h3>
+                <p>Message passing, network topologies, and routing. Master the Network-on-Chip!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cs-fundamentals-05-synchronization')">
+                <h3><span class="icon">🔒</span>Module 5: Synchronization</h3>
+                <p>Race conditions, barriers, and coordination. Learn explicit synchronization!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cs-fundamentals-06-abstraction')">
+                <h3><span class="icon">📚</span>Module 6: Abstraction Layers</h3>
+                <p>From Python to machine code. Understand the compilation pipeline!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('cs-fundamentals-07-complexity')">
+                <h3><span class="icon">📊</span>Module 7: Computational Complexity in Practice</h3>
+                <p>Big-O meets real hardware. See why constants matter in algorithm-hardware co-design!</p>
+            </li>
+        </ul>
+
+        <!-- Advanced Topics -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🎓 Advanced Topics</h3>
+        <ul class="walkthrough-list">
+            <li class="walkthrough-item" onclick="openWalkthrough('tt-installer')">
+                <h3><span class="icon">⚙️</span>Modern Setup with tt-installer 2.0</h3>
+                <p>The fastest way to get started! One-command installation of the full Tenstorrent stack.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('bounty-program')">
+                <h3><span class="icon">🤝</span>Bounty Program: Model Bring-Up</h3>
+                <p>Learn how to contribute by bringing up new models. Master TT-Metal while becoming part of the ecosystem!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('explore-metalium')">
+                <h3><span class="icon">🔍</span>Exploring TT-Metalium</h3>
+                <p>Discover what's possible! Explore TTNN tutorials, browse the model zoo, and dive into programming examples.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('deploy-vscode-to-koyeb')">
+                <h3><span class="icon">☁️</span>Deploy tt-vscode-toolkit to Koyeb</h3>
+                <p>Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('deploy-to-koyeb')">
+                <h3><span class="icon">🚀</span>Deploy Your Work to Koyeb</h3>
+                <p>Deploy any Python application to Koyeb with Tenstorrent N300 hardware.</p>
+            </li>
+        </ul>
+
         <p style="margin-top: 20px; padding: 15px; background-color: rgba(13, 148, 136, 0.08); border-radius: 4px; font-size: 13px; color: #cccccc;">
-            💡 <strong>Note:</strong> These lessons assume you have a working Tenstorrent environment. If you need to set up from scratch, see the "Setup Information" section above.
+            💡 <strong>Note:</strong> These lessons assume you have a working Tenstorrent environment. If you need to set up from scratch, see the "Setup Information" section above or start with the tt-installer lesson.
         </p>
     </div>
     </div>

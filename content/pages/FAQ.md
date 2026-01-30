@@ -1,6 +1,6 @@
 # Tenstorrent Developer Extension - FAQ
 
-**Frequently Asked Questions** - Your quick reference for common questions, troubleshooting, and tips from all 14 lessons.
+**Frequently Asked Questions** - Your quick reference for common questions, troubleshooting, and tips from all 31 lessons.
 
 ---
 
@@ -23,15 +23,30 @@
 
 ### Q: Which lesson should I start with?
 
-**A:** Start with **[Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)** if you're brand new. The lessons are designed to progress logically:
+**A:** Start with **[Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)** if you're brand new. The 31 lessons are organized into 8 categories:
 
-1. **Hardware Detection** - Verify your hardware
-2. **Verify Installation** - Check tt-metal works
-3. **Download Model** - Get a model from HuggingFace
-4-9. **Build Applications** - Chat, APIs, image generation
-10-13. **Advanced Topics** - Compilers, bounty program, cookbook
+**🚀 Your First Inference (5 lessons)**
+1. Hardware Detection → Verify Installation → Download Model → Interactive Chat → API Server
 
-**Can I skip lessons?** Yes, but check prerequisites at the start of each lesson.
+**🏭 Serving Models (4 lessons)**
+Production servers (tt-inference-server, vLLM) and generation (Image, Video)
+
+**🎯 Applications (2 lessons)**
+Coding Assistant, AnimateDiff Video Generation
+
+**👨‍🍳 Tenstorrent Cookbook (6 lessons)**
+Game of Life, Audio, Mandelbrot, Image Filters, Particle Life + Overview
+
+**🔧 Compilers & Tools (2 lessons)**
+TT-Forge, TT-XLA
+
+**🧠 CS Fundamentals (7 lessons)**
+Computer Architecture, Memory, Parallelism, Networks, Synchronization, Abstraction, Complexity
+
+**🎓 Advanced Topics (5 lessons)**
+tt-installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
+
+**Can I skip lessons?** Yes! Categories are independent - jump to what interests you.
 
 ### Q: Do I need to complete lessons in order?
 
@@ -1154,7 +1169,7 @@ python3 --version
 
 ### Q: Where can I learn about low-level RISC-V programming on Tenstorrent hardware?
 
-**A:** Check out **[RISC-V Programming on Tensix Cores](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22riscv-programming%22%7D)** in the walkthrough!
+**A:** Check out the **[CS Fundamentals series](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-01-computer%22%7D)** - Module 1 covers RISC-V & Computer Architecture!
 
 Each Tensix core contains **five RISC-V processors** (RV32IM ISA):
 - **BRISC (RISCV_0)** - Primary data movement
@@ -1163,23 +1178,26 @@ Each Tensix core contains **five RISC-V processors** (RV32IM ISA):
 
 With 176 Tensix cores on Wormhole, that's **880 RISC-V cores** you can program directly!
 
-**What the lesson includes:**
+**What Module 1 includes:**
+- ✅ Von Neumann architecture & fetch-decode-execute cycle
+- ✅ RISC-V ISA fundamentals
 - ✅ Hands-on example: Add two integers in RISC-V assembly
 - ✅ Build and run tt-metal programming examples
 - ✅ Explore kernel source code
 - ✅ Comprehensive exploration guide (60+ pages)
 
-**Topics covered in the full guide:**
+**Topics covered across 7 CS Fundamentals modules:**
 - RISC-V architecture and memory maps
+- Memory hierarchy and cache locality
+- Parallel computing (scale from 1 to 880 cores!)
 - NoC (Network-on-Chip) programming
-- Multi-core parallel programming
-- Writing pure assembly kernels
-- DMA optimization techniques
-- Comparison with other RISC-V platforms
+- Synchronization and barriers
+- Abstraction layers and compilation
+- Computational complexity in practice
 
-**Access the lesson:**
-- From Welcome page → [RISC-V Programming](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22riscv-programming%22%7D)
-- Or run command: `Tenstorrent: Run RISC-V Addition Example`
+**Access the series:**
+- From Welcome page → CS Fundamentals section
+- Or start with [Module 1: RISC-V & Computer Architecture](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-01-computer%22%7D)
 
 **View the full guide:**
 - [Open RISC-V Exploration Guide](command:tenstorrent.showRiscvGuide) - Comprehensive deep-dive documentation
@@ -1213,7 +1231,7 @@ sudo rm -rf /dev/shm/tt_*
 
 ---
 
-**Last updated:** December 2025
-**Extension version:** 0.0.84
+**Last updated:** January 2026
+**Extension version:** 0.0.280
 
 **Found an error in this FAQ?** Please report it on GitHub or Discord!
