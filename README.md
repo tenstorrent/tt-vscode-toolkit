@@ -236,6 +236,35 @@ code --install-extension tt-vscode-toolkit-*.vsix
 | **TT-XLA** | JAX/PyTorch XLA | Production compiler for JAX workflows |
 | **TT-Metal** | Low-level kernels | Custom ops and hardware programming |
 
+### Hands-On Cookbook Projects
+
+The Cookbook (Lesson 16) includes 5 interactive projects that run directly on Tenstorrent hardware:
+
+<table>
+<tr>
+<td width="50%">
+<img src="assets/img/game_of_life.gif" alt="Conway's Game of Life running on Tenstorrent hardware" />
+<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN acceleration</p>
+</td>
+<td width="50%">
+<img src="assets/img/particle_life.gif" alt="Particle Life simulation on Tenstorrent" />
+<p align="center"><b>Particle Life</b> - Physics simulation with 10,000+ particles</p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="assets/img/mandelbrot.png" alt="Mandelbrot set fractal rendering" />
+<p align="center"><b>Mandelbrot Set</b> - Fractal rendering with hardware acceleration</p>
+</td>
+<td width="50%">
+<img src="assets/img/mel_spectrogram.png" alt="Audio mel spectrogram processing" />
+<p align="center"><b>Audio Processing</b> - Mel spectrogram computation</p>
+</td>
+</tr>
+</table>
+
+**Plus:** Image filters (blur, sharpen, edge detection) - all with complete source code and interactive tutorials.
+
 ---
 
 ## Documentation
@@ -309,7 +338,7 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.0.268 (2025-01-09)
+### Latest Release: v0.0.268 (2026-01-09)
 
 **Highlights:**
 - 🐳 Docker support with container orchestration
@@ -318,7 +347,7 @@ We welcome contributions! Here's how to get involved:
 - 🤝 Open-source documentation and GitHub workflows
 - 🔧 CS Fundamentals lesson fixes and ttnn API improvements
 
-### Previous Release: v0.0.243 (2025-01-09)
+### Previous Release: v0.0.243 (2026-01-09)
 
 **Highlights:**
 - 📚 New technical documentation structure (ARCHITECTURE, TESTING, PACKAGING)
