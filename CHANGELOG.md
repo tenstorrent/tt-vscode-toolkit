@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.283] - 2026-01-30
+
+### Fixed
+- **Husky Prepare Script** - Fixed npm prepare script to properly initialize Git hooks
+  - `package.json:579` - Changed from `"husky"` to `"husky install"`
+  - Ensures Git hooks are correctly set up when running `npm install`
+  - Fixes pre-commit hook activation for automated link validation
+- **Link Validator Path Resolution** - Fixed handling of absolute paths starting with `/`
+  - `test/link-validator.test.ts:137` - Strip leading `/` before `path.join()` to prevent filesystem root resolution
+  - Previously failed to validate paths like `/assets/img/...` correctly
+  - Now correctly resolves project-relative absolute paths
+- **Link Validator Test Structure** - Refactored tests to be independent and order-agnostic
+  - `test/link-validator.test.ts:39-47` - Moved `scanDirectory()` call to `before()` hook
+  - `test/link-validator.test.ts:187-213` - Tests now filter shared `errors` array independently
+  - Follows Mocha best practices for isolated, runnable-in-any-order tests
+  - Can now run individual tests with `npm run test:links -- --grep "pattern"`
+- **Test Documentation** - Corrected test command in link validator comments
+  - `test/link-validator.test.ts:9` - Updated from `npm test -- link-validator.test.ts` to `npm run test:links`
+  - Matches actual package.json script configuration
+
+### Changed
+- **Asset Management** - Replaced large GIF animations with PNG previews to reduce package size
+  - Created PNG previews: `game_of_life_preview.png` (34KB), `particle_life_preview.png` (137KB), `particle_life_multi_device_preview.png` (154KB)
+  - GIFs remain in repository but excluded from package via `.vscodeignore`
+  - Total size reduction: ~40MB → ~325KB (99% reduction)
+  - `README.md:246,250` - Updated to use PNG previews with clickable GitHub links to full animations
+  - `content/lessons/cookbook-game-of-life.md:48` - Updated to PNG preview with link to full animation
+  - `content/lessons/cookbook-particle-life.md:56` - Updated to PNG preview with link to full animation
+  - All cookbook visual examples now have "View full animation →" links to GitHub
+- **FAQ Version Update** - Updated extension version reference
+  - `content/pages/FAQ.md:1235` - Updated from 0.0.280 to 0.0.283
+
+### Context
+- Addresses 7 Copilot PR comments from PR #7 ("Polish lessons, language, literature, and litigate with tests")
+- All 310 link validator tests now passing with improved path resolution
+- All 306 general tests passing
+- Extension builds and packages successfully (34.71 MB, reduced from ~48MB with GIF exclusions)
+
+---
+
 ## [0.0.282] - 2026-01-30
 
 ### Changed

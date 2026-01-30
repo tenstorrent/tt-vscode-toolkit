@@ -243,12 +243,12 @@ The Cookbook (Lesson 16) includes 5 interactive projects that run directly on Te
 <table>
 <tr>
 <td width="50%">
-<img src="assets/img/game_of_life.gif" alt="Conway's Game of Life running on Tenstorrent hardware" />
-<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN acceleration</p>
+<a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif"><img src="assets/img/game_of_life_preview.png" alt="Conway's Game of Life running on Tenstorrent hardware" /></a>
+<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN acceleration<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif">View full animation →</a></sup></p>
 </td>
 <td width="50%">
-<img src="assets/img/particle_life.gif" alt="Particle Life simulation on Tenstorrent" />
-<p align="center"><b>Particle Life</b> - Physics simulation with 10,000+ particles</p>
+<a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/particle_life.gif"><img src="assets/img/particle_life_preview.png" alt="Particle Life simulation on Tenstorrent" /></a>
+<p align="center"><b>Particle Life</b> - Physics simulation with 10,000+ particles<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/particle_life.gif">View full animation →</a></sup></p>
 </td>
 </tr>
 <tr>

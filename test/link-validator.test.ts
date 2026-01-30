@@ -6,7 +6,7 @@
  * - File paths reference existing files
  * - Lesson cross-references are valid
  *
- * Run with: npm test -- link-validator.test.ts
+ * Run with: npm run test:links
  */
 
 import * as assert from 'assert';
@@ -41,6 +41,9 @@ describe('Internal Link Validation', () => {
         const registryContent = fs.readFileSync(registryPath, 'utf-8');
         lessonRegistry = JSON.parse(registryContent);
         validLessonIds = new Set(lessonRegistry.lessons.map(l => l.id));
+
+        // Scan content directory once for all tests
+        scanDirectory(contentRoot);
     });
 
     /**
@@ -133,7 +136,8 @@ describe('Internal Link Validation', () => {
                 let resolvedPath: string;
                 if (linkTarget.startsWith('/')) {
                     // Absolute path from project root (e.g., /assets/img/...)
-                    resolvedPath = path.join(projectRoot, linkTarget);
+                    // Strip leading / so path.join works correctly
+                    resolvedPath = path.join(projectRoot, linkTarget.substring(1));
                 } else {
                     // Relative path from current file
                     resolvedPath = path.join(fileDir, linkTarget);
@@ -181,9 +185,6 @@ describe('Internal Link Validation', () => {
     }
 
     it('should have valid lesson IDs in all command links', () => {
-        // Scan content directory
-        scanDirectory(contentRoot);
-
         // Filter to only command link errors
         const commandLinkErrors = errors.filter(e =>
             e.error.includes('Invalid lessonId') || e.error.includes('Failed to parse')
@@ -199,7 +200,7 @@ describe('Internal Link Validation', () => {
     });
 
     it('should have valid file paths in all markdown links', () => {
-        // File path errors were already collected in the scan above
+        // Filter to only file path errors
         const filePathErrors = errors.filter(e => e.error.includes('File not found'));
 
         if (filePathErrors.length > 0) {
