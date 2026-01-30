@@ -7,6 +7,131 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.283] - 2026-01-30
+
+### Fixed
+- **Husky Prepare Script** - Fixed npm prepare script to properly initialize Git hooks
+  - `package.json:579` - Changed from `"husky"` to `"husky install"`
+  - Ensures Git hooks are correctly set up when running `npm install`
+  - Fixes pre-commit hook activation for automated link validation
+- **Link Validator Path Resolution** - Fixed handling of absolute paths starting with `/`
+  - `test/link-validator.test.ts:137` - Strip leading `/` before `path.join()` to prevent filesystem root resolution
+  - Previously failed to validate paths like `/assets/img/...` correctly
+  - Now correctly resolves project-relative absolute paths
+- **Link Validator Test Structure** - Refactored tests to be independent and order-agnostic
+  - `test/link-validator.test.ts:39-47` - Moved `scanDirectory()` call to `before()` hook
+  - `test/link-validator.test.ts:187-213` - Tests now filter shared `errors` array independently
+  - Follows Mocha best practices for isolated, runnable-in-any-order tests
+  - Can now run individual tests with `npm run test:links -- --grep "pattern"`
+- **Test Documentation** - Corrected test command in link validator comments
+  - `test/link-validator.test.ts:9` - Updated from `npm test -- link-validator.test.ts` to `npm run test:links`
+  - Matches actual package.json script configuration
+
+### Changed
+- **Asset Management** - Replaced large GIF animations with PNG previews to reduce package size
+  - Created PNG previews: `game_of_life_preview.png` (34KB), `particle_life_preview.png` (137KB), `particle_life_multi_device_preview.png` (154KB)
+  - GIFs remain in repository but excluded from package via `.vscodeignore`
+  - Total size reduction: ~40MB → ~325KB (99% reduction)
+  - `README.md:246,250` - Updated to use PNG previews with clickable GitHub links to full animations
+  - `content/lessons/cookbook-game-of-life.md:48` - Updated to PNG preview with link to full animation
+  - `content/lessons/cookbook-particle-life.md:56` - Updated to PNG preview with link to full animation
+  - All cookbook visual examples now have "View full animation →" links to GitHub
+- **FAQ Version Update** - Updated extension version reference
+  - `content/pages/FAQ.md:1235` - Updated from 0.0.280 to 0.0.283
+
+### Context
+- Addresses 7 Copilot PR comments from PR #7 ("Polish lessons, language, literature, and litigate with tests")
+- All 310 link validator tests now passing with improved path resolution
+- All 306 general tests passing
+- Extension builds and packages successfully (34.71 MB, reduced from ~48MB with GIF exclusions)
+
+---
+
+## [0.0.282] - 2026-01-30
+
+### Changed
+- **Welcome Page Enhancement** - Added Discord community link to Resources section
+  - `content/pages/welcome.html:435` - Added Discord link (https://discord.gg/tenstorrent) with description
+  - Users can now easily find and join the Discord community for live support
+- **Sidebar Category Rename** - Updated Welcome category name for better engagement
+  - `content/lesson-registry.json:6` - Changed from "👋 Welcome to Tenstorrent" to "👋 Your journey begins here"
+  - More inviting and user-friendly category title
+
+---
+
+## [0.0.281] - 2026-01-30
+
+### Added
+- **Style Guide** - Created comprehensive `docs/STYLE_GUIDE.md` documenting:
+  - Terminology standards (product names, hardware models, file extensions)
+  - Writing style guidelines (tone, technical accuracy, instructional structure)
+  - Markdown formatting conventions (headers, lists, code blocks, links)
+  - Command button formatting and grouping best practices
+  - Code example patterns for Python, TypeScript, and Bash
+  - Mermaid diagram color scheme and patterns (Tenstorrent brand colors)
+  - Screenshot requirements and guidelines
+- **Visual README Enhancement** - Added "Hands-On Cookbook Projects" section showcasing:
+  - Game of Life GIF demonstration
+  - Particle Life physics simulation
+  - Mandelbrot set fractal rendering
+  - Audio mel spectrogram processing
+  - Visual table layout with descriptions for all cookbook projects
+- **Docker Deployment Issue** - Created `.github/ISSUE_DOCKER_LATEST_TAG.md` documenting:
+  - Problem: `:latest` tag not published to GHCR (blocks Koyeb deploy button)
+  - Solution: Workflow changes needed to publish `:latest` tag
+  - Blocker: GHCR repository currently not public
+  - Future: Koyeb deploy button configuration and testing plan
+
+### Fixed
+- **CONTRIBUTING.md Duplicates** - Removed duplicate content throughout file:
+  - Removed duplicate header (line 2)
+  - Removed duplicate introduction and table of contents (lines 18-30)
+  - Removed duplicate "Getting Started" section (lines 46-54)
+  - Removed duplicate "Development Setup" section (lines 82-239)
+  - Removed duplicate "Adding New Lessons" section (430+ lines)
+  - Removed duplicate "Documentation" headers and security links
+  - Removed duplicate "External Resources" and closing sections
+  - File reduced from 768 lines to 511 lines (33% reduction)
+- **Terminology Standardization** - Fixed inconsistent hardware naming in prose:
+  - `content/lessons/video-generation-ttmetal.md:83` - Changed "(n150, n300, t3k, p100)" to "(N150, N300, T3K, P100)"
+  - `content/lessons/tt-inference-server.md:548-549` - Capitalized hardware names in model compatibility list
+  - `content/pages/FAQ.md:365-369` - Changed hardware names from lowercase to uppercase in prose descriptions
+  - Note: Lowercase hardware names in YAML metadata, code, and command output remain correct
+
+### Changed
+- **Documentation Quality** - All files now follow consistent terminology per style guide
+- **README.md** - Enhanced visual presentation with existing assets (GIFs and images)
+
+### Technical Notes
+- Style guide establishes "single source of truth" for terminology and formatting
+- Hardware names: Uppercase in prose (N150, N300), lowercase in code/config
+- Product names: "tt-metal" in code, "TT-Metal" in prose, "vLLM" consistently
+- All changes maintain backward compatibility with existing lessons and code
+
+---
+
+## [0.0.280] - 2026-01-29
+
+### Fixed
+- **Device Count Display** - Fixed N150 showing "x5" in statusbar when only 1 device present
+  - `readTelemetry()` now returns raw multi-device data instead of pre-aggregating
+  - `updateTelemetry()` properly sets `this.currentMultiDeviceTelemetry`
+  - Status bar correctly displays single device name without duplicate count suffix
+  - `src/telemetry/TelemetryMonitor.ts:97` - Updated return type and logic
+
+---
+
+## [0.0.279] - 2026-01-29
+
+### Fixed
+- **Date Corrections:** Fixed incorrect years in changelog entries
+  - Corrected v0.0.243 through v0.0.220: 2024-01-XX → 2025-01-XX
+  - Corrected v0.0.219 through v0.0.84: 2023-12-XX → 2024-12-XX
+  - Fixed README.md v0.0.243 date: 2024-01-09 → 2025-01-09
+  - All version dates now accurately reflect the correct calendar year
+
+---
+
 ## [0.0.276] - 2026-01-27
 
 ### Added
@@ -96,7 +221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - verify-installation: Added "p300" to supportedHardware and validatedOn
 - Extended supported hardware coverage for P300C Blackhole devices
 
-## [0.0.269] - 2025-01-23
+## [0.0.269] - 2026-01-23
 
 ### Fixed
 - **CI Build Failure:** Downgraded `chai` from v6.2.1 to v4.5.0 to fix ESM import errors in GitHub Actions
@@ -107,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed duplicate device count display
   - Unified all hardware info under TelemetryMonitor
 
-## [0.0.268] - 2025-01-09
+## [0.0.268] - 2026-01-09
 
 ### Added
 - Basic Docker support with Dockerfile for local code-server deployment
@@ -144,7 +269,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - statusBarItem global variable
 - Programmatic theme setting code
 
-## [0.0.243] - 2024-01-09
+## [0.0.243] - 2026-01-09
 
 ### Added
 - New docs/ directory structure for technical documentation
@@ -162,7 +287,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidated duplicate Quick Start sections in README
 - Removed outdated version information from README
 
-## [0.0.242] - 2024-01-08
+## [0.0.242] - 2026-01-08
 
 ### Added
 - Full validation of CS Fundamentals series (7 modules) on QuietBox P300c
@@ -177,7 +302,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - All CS Fundamentals modules validated and production-ready
 
-## [0.0.233] - 2024-01-07
+## [0.0.233] - 2026-01-07
 
 ### Added
 - Particle Life emergent complexity simulator (Recipe 5)
@@ -186,7 +311,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - test_particle_life.py demo script with visualization
 - Cookbook now has 5 complete projects (was 4)
 
-## [0.0.231] - 2024-01-06
+## [0.0.231] - 2026-01-06
 
 ### Added
 - Temperature now visible directly in status bar (no hover needed)
@@ -203,7 +328,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Left status bar shows device count with temperature range
 - Right status bar shows live telemetry (temp, power, frequency)
 
-## [0.0.230] - 2024-01-05
+## [0.0.230] - 2026-01-05
 
 ### Added
 - Multi-device telemetry support (detects ALL Tenstorrent devices)
@@ -216,7 +341,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multiple devices display: "✓ TT: 4x P300" with temperature range
 - Aggregate health status (worst status wins)
 
-## [0.0.225] - 2024-01-04
+## [0.0.225] - 2026-01-04
 
 ### Added
 - Comprehensive mermaid diagram validation tests
@@ -233,7 +358,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Rolled back esbuild bundling attempt (v0.0.226) - caused activation failures
 
-## [0.0.224] - 2024-01-03
+## [0.0.224] - 2026-01-03
 
 ### Added
 - Comprehensive command argument handling for all button types
@@ -246,7 +371,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - All command buttons throughout lessons now work correctly
 
-## [0.0.223] - 2024-01-03
+## [0.0.223] - 2026-01-03
 
 ### Fixed
 - Command buttons with URI-encoded arguments now parse correctly
@@ -255,19 +380,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Superseded by v0.0.224 with more comprehensive fix
 
-## [0.0.222] - 2024-01-02
+## [0.0.222] - 2026-01-02
 
 ### Fixed
 - Added `stroke` property to mermaid style statements
 - Mermaid v10 requires explicit stroke (border) color in styling
 
-## [0.0.221] - 2024-01-02
+## [0.0.221] - 2026-01-02
 
 ### Changed
 - Reverted to CDN for mermaid.js (debugging rendering issues from v0.0.220)
 - Kept all fixes from v0.0.220 (custom code renderer, timing fixes)
 
-## [0.0.220] - 2024-01-01
+## [0.0.220] - 2026-01-01
 
 ### Added
 - Local mermaid.js bundling (removed CDN dependency)
@@ -287,7 +412,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - jsdelivr.net CDN dependency for mermaid.js
 
-## [0.0.219] - 2023-12-31
+## [0.0.219] - 2025-12-31
 
 ### Added
 - Mermaid.js diagram support in all lessons
@@ -300,7 +425,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted all ASCII diagrams to professional mermaid.js diagrams
 - All diagrams use official Tenstorrent brand colors
 
-## [0.0.207] - 2023-12-30
+## [0.0.207] - 2025-12-30
 
 ### Added
 - Python environment status bar indicator for each terminal
@@ -312,7 +437,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All lessons now visible by default (`showUnvalidatedLessons: true`)
 - Better visibility into available content
 
-## [0.0.206] - 2023-12-29
+## [0.0.206] - 2025-12-29
 
 ### Added
 - 7 cookbook execution commands (Game of Life variants, Mandelbrot, Audio, Image Filters)
@@ -321,7 +446,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Cookbook lesson now has easy button-based execution throughout
 
-## [0.0.205] - 2023-12-28
+## [0.0.205] - 2025-12-28
 
 ### Added
 - "Copy Demo to Scratchpad" command for image generation
@@ -332,7 +457,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Philosophy shift from button-pressing to code experimentation
 - Package size: 5.43 MB (1949 files)
 
-## [0.0.204] - 2023-12-27
+## [0.0.204] - 2025-12-27
 
 ### Added
 - Prism.js syntax highlighting in code blocks
@@ -346,7 +471,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modified MarkdownRenderer for Prism.js-compatible code structure
 - Package size: 5.42 MB (1942 files)
 
-## [0.0.203] - 2023-12-26
+## [0.0.203] - 2025-12-26
 
 ### Added
 - OpenMPI FAQ entry with LD_LIBRARY_PATH fix
@@ -356,13 +481,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added safetensors, termcolor, pytest installation instructions
 - Added tt-transformers requirements.txt instructions
 
-## [0.0.202] - 2023-12-25
+## [0.0.202] - 2025-12-25
 
 ### Changed
 - Removed colored progress badges from lesson tree (cleaner UI)
 - Progress still tracked internally
 
-## [0.0.201] - 2023-12-24
+## [0.0.201] - 2025-12-24
 
 ### Added
 - Action menu for `exploreProgrammingExamples` (Open in Terminal, Show in Explorer, Open Folder)
@@ -372,7 +497,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `launchTtnnTutorials` now creates .vscode/settings.json with correct interpreter
 - Jupyter notebooks no longer prompt for pyenv selection
 
-## [0.0.126] - 2023-12-23
+## [0.0.126] - 2025-12-23
 
 ### Fixed
 - Critical fix: `Error: Cannot find module 'marked'`
@@ -383,7 +508,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Package size: 5.42 MB (1942 files) - includes all dependencies
 - All tests passing (134/134)
 
-## [0.0.125] - 2023-12-22
+## [0.0.125] - 2025-12-22
 
 ### Fixed
 - "no data provider registered" error by cleaning stale files
@@ -396,7 +521,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Rolled back in v0.0.126 due to missing dependencies
 
-## [0.0.124] - 2023-12-21
+## [0.0.124] - 2025-12-21
 
 ### Changed
 - Reduced commands from 83 → 77 (consolidated hardware variants)
@@ -406,7 +531,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `startVllmServerN150/N300/T3K/P100` (4 commands - now parameterized)
 - `startTtInferenceServerN150/N300` (2 commands - now parameterized)
 
-## [0.0.102] - 2023-12-20
+## [0.0.102] - 2025-12-20
 
 ### Added
 - Comprehensive "What's Next?" section in TT-XLA lesson
@@ -421,7 +546,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `unset TT_METAL_HOME` and `unset LD_LIBRARY_PATH` steps
 - Added `git submodule update --init --recursive`
 
-## [0.0.101] - 2023-12-19
+## [0.0.101] - 2025-12-19
 
 ### Added
 - Hardware auto-detection in vLLM starter script
@@ -433,7 +558,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified vLLM commands (no manual environment variable exports)
 - Users can start vLLM with minimal command
 
-## [0.0.100] - 2023-12-18
+## [0.0.100] - 2025-12-18
 
 ### Fixed
 - `testChat()` command now properly opens VSCode chat panel
@@ -443,7 +568,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Lesson 8 to use Qwen3-0.6B throughout
 - Simplified Lesson 8 commands using smart defaults
 
-## [0.0.99] - 2023-12-17
+## [0.0.99] - 2025-12-17
 
 ### Added
 - Smart defaults for vLLM starter script
@@ -455,7 +580,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Users can now use minimal vLLM command
 - All defaults can be overridden explicitly
 
-## [0.0.98] - 2023-12-16
+## [0.0.98] - 2025-12-16
 
 ### Fixed
 - Multi-line code block rendering in VSCode walkthrough
@@ -465,7 +590,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced with clean markdown headers
 - Added `--served-model-name` parameter to vLLM commands
 
-## [0.0.97] - 2023-12-15
+## [0.0.97] - 2025-12-15
 
 ### Added
 - Step 7: Reasoning Showcase in vLLM lesson
@@ -478,7 +603,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Model recommendations (removed Gemma-2-2B-IT, added Gemma 3-1B-IT)
 
-## [0.0.86] - 2023-12-14
+## [0.0.86] - 2025-12-14
 
 ### Added
 - Lesson metadata system (hardware support, validation status)
@@ -489,7 +614,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `sudo` prefix to all `install_dependencies.sh` commands
 - Fixed emoji-based lists to use proper markdown syntax (9 lessons)
 
-## [0.0.85] - 2023-12-13
+## [0.0.85] - 2025-12-13
 
 ### Added
 - CSS-styled hardware configurations in Lessons 6, 7, 9, 12
@@ -497,7 +622,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Template and styling guide
 - Vendor directory documentation
 
-## [0.0.84] - 2023-12-12
+## [0.0.84] - 2025-12-12
 
 ### Changed
 - Previous stable version

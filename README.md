@@ -7,6 +7,8 @@
 
 Learn Tenstorrent hardware and software through 16 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference pipelines.
 
+![Screen capture of tt-vscode-toolkit in action](assets/img/screenshot.png)
+
 ---
 
 ## Overview
@@ -234,6 +236,35 @@ code --install-extension tt-vscode-toolkit-*.vsix
 | **TT-XLA** | JAX/PyTorch XLA | Production compiler for JAX workflows |
 | **TT-Metal** | Low-level kernels | Custom ops and hardware programming |
 
+### Hands-On Cookbook Projects
+
+The Cookbook (Lesson 16) includes 5 interactive projects that run directly on Tenstorrent hardware:
+
+<table>
+<tr>
+<td width="50%">
+<a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif"><img src="assets/img/game_of_life_preview.png" alt="Conway's Game of Life running on Tenstorrent hardware" /></a>
+<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN acceleration<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif">View full animation →</a></sup></p>
+</td>
+<td width="50%">
+<a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/particle_life.gif"><img src="assets/img/particle_life_preview.png" alt="Particle Life simulation on Tenstorrent" /></a>
+<p align="center"><b>Particle Life</b> - Physics simulation with 10,000+ particles<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/particle_life.gif">View full animation →</a></sup></p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="assets/img/mandelbrot.png" alt="Mandelbrot set fractal rendering" />
+<p align="center"><b>Mandelbrot Set</b> - Fractal rendering with hardware acceleration</p>
+</td>
+<td width="50%">
+<img src="assets/img/mel_spectrogram.png" alt="Audio mel spectrogram processing" />
+<p align="center"><b>Audio Processing</b> - Mel spectrogram computation</p>
+</td>
+</tr>
+</table>
+
+**Plus:** Image filters (blur, sharpen, edge detection) - all with complete source code and interactive tutorials.
+
 ---
 
 ## Documentation
@@ -307,7 +338,7 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.0.268 (2025-01-09)
+### Latest Release: v0.0.268 (2026-01-09)
 
 **Highlights:**
 - 🐳 Docker support with container orchestration
@@ -316,7 +347,7 @@ We welcome contributions! Here's how to get involved:
 - 🤝 Open-source documentation and GitHub workflows
 - 🔧 CS Fundamentals lesson fixes and ttnn API improvements
 
-### Previous Release: v0.0.243 (2024-01-09)
+### Previous Release: v0.0.243 (2026-01-09)
 
 **Highlights:**
 - 📚 New technical documentation structure (ARCHITECTURE, TESTING, PACKAGING)

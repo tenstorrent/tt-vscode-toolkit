@@ -545,8 +545,8 @@ python3 run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --d
 - HuggingFace repo: `meta-llama/Llama-3.1-8B-Instruct`
 
 **Supported models (see vendor/tt-inference-server/README.md):**
-- Llama 3.1 8B (n150, n300, t3k)
-- Llama 3.1 70B (t3k, galaxy)
+- Llama 3.1 8B (N150, N300, T3K)
+- Llama 3.1 70B (T3K, Galaxy)
 - Llama 3.2 1B/3B/11B/90B Vision
 - Qwen 2.5 7B/72B
 - Mistral 7B

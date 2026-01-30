@@ -45,9 +45,11 @@ Conway's Game of Life is a cellular automaton where cells evolve based on simple
 
 ## Example Output
 
-![Game of Life Animation](/assets/img/game_of_life.gif)
+[![Game of Life Animation](/assets/img/game_of_life_preview.png)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif)
 
 *Classic "Gosper Glider Gun" pattern generating infinite gliders on TT hardware. Simple convolution rules create complex emergent behavior.*
+
+[View full animation →](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif)
 
 ---
 

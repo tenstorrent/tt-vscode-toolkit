@@ -3,7 +3,7 @@
   "categories": [
     {
       "id": "welcome",
-      "title": "👋 Welcome to Tenstorrent",
+      "title": "👋 Your journey begins here",
       "description": "Get started with resources and documentation",
       "order": 1,
       "icon": "home"
@@ -892,7 +892,7 @@
       "tags": [
         "model"
       ],
-      "previousLesson": "riscv-programming",
+      "previousLesson": "cs-fundamentals-07-complexity",
       "nextLesson": "explore-metalium",
       "estimatedMinutes": 10
     },

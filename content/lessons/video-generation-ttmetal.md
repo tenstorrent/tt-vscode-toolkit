@@ -80,7 +80,7 @@ First, verify your hardware tier:
 
 [🔍 Detect Hardware](command:tenstorrent.runHardwareDetection)
 
-Look for "Board Type" in the output (n150, n300, t3k, p100).
+Look for "Board Type" in the output (N150, N300, T3K, P100).
 
 **Set MESH_DEVICE for your hardware:**
 

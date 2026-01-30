@@ -53,9 +53,11 @@ This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 
 ## Example Output
 
-![Particle Life Simulation](/assets/img/samples/particle_life_multi_device.gif)
+[![Particle Life Simulation](/assets/img/samples/particle_life_multi_device_preview.png)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/samples/particle_life_multi_device.gif)
 
 *500 frames of emergent patterns running on QuietBox (4x P300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules. Order emerges from chaos, then dissolves back into chaos. No two runs are ever the same.*
+
+[View full animation →](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/samples/particle_life_multi_device.gif)
 
 **Simulation details:**
 - 2,048 particles (3 species)
