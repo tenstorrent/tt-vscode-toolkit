@@ -3,7 +3,7 @@
   "categories": [
     {
       "id": "welcome",
-      "title": "👋 Welcome to Tenstorrent",
+      "title": "👋 Your journey begins here",
       "description": "Get started with resources and documentation",
       "order": 1,
       "icon": "home"

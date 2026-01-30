@@ -362,11 +362,11 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 ```
 
 **Output tells you:**
-- **n150** - Single Wormhole chip (development, 64K context)
-- **n300** - Dual Wormhole chips (128K context, TP=2)
-- **t3k** - Eight Wormhole chips (large models, TP=8)
-- **p100** - Single Blackhole chip (newer architecture)
-- **p150** - Dual Blackhole chips (TP=2)
+- **N150** - Single Wormhole chip (development, 64K context)
+- **N300** - Dual Wormhole chips (128K context, TP=2)
+- **T3K** - Eight Wormhole chips (large models, TP=8)
+- **P100** - Single Blackhole chip (newer architecture)
+- **P150** - Dual Blackhole chips (TP=2)
 
 ### Q: tt-smi says "No devices found" - what do I do?
 
