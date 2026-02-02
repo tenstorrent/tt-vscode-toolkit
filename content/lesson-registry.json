@@ -593,7 +593,7 @@
         "projects",
         "learning"
       ],
-      "previousLesson": "finetune-custom-model",
+      "previousLesson": "ct8-training-from-scratch",
       "nextLesson": "cookbook-game-of-life",
       "estimatedMinutes": 5
     },

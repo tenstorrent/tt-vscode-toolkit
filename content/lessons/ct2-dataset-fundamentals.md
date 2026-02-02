@@ -88,9 +88,7 @@ We use **JSONL** (JSON Lines) format:
 
 Click the button below to copy the tt-trickster starter dataset to your workspace:
 
-```command
-tenstorrent.createTricksterDataset
-```
+[📦 Create Trickster Dataset](command:tenstorrent.createTricksterDataset)
 
 This creates `trickster_dataset_starter.jsonl` with 50 examples teaching ML/AI concepts.
 
@@ -98,9 +96,7 @@ This creates `trickster_dataset_starter.jsonl` with 50 examples teaching ML/AI c
 
 Click to open the dataset and browse the examples:
 
-```command
-tenstorrent.viewTricksterDataset
-```
+[👁️ View Trickster Dataset](command:tenstorrent.viewTricksterDataset)
 
 **What you'll see:**
 - 50 prompt/response pairs

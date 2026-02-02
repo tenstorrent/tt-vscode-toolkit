@@ -63,9 +63,7 @@ A: Imagine teaching a child to recognize cats by showing them thousands of cat p
 
 tt-train is TT-Metal's Python training framework. Install it first.
 
-```command
-tenstorrent.installTtTrain
-```
+[📦 Install tt-train](command:tenstorrent.installTtTrain)
 
 **What this does:**
 1. Verifies tt-metal is installed
@@ -88,9 +86,7 @@ Successfully installed ttml-0.1.0
 
 Copy the tt-trickster starter dataset to your workspace.
 
-```command
-tenstorrent.createTricksterDataset
-```
+[📦 Create Trickster Dataset](command:tenstorrent.createTricksterDataset)
 
 **What this does:**
 - Copies `trickster_dataset_starter.jsonl` to `~/tt-scratchpad/training/`
@@ -99,9 +95,7 @@ tenstorrent.createTricksterDataset
 
 **View the dataset:**
 
-```command
-tenstorrent.viewTricksterDataset
-```
+[👁️ View Trickster Dataset](command:tenstorrent.viewTricksterDataset)
 
 This opens the JSONL file so you can browse the examples.
 
@@ -193,9 +187,7 @@ ls ~/models/tinyllama_safetensors/
 
 Time to train! This will run for 1-3 hours.
 
-```command
-tenstorrent.startFineTuningN150
-```
+[🚀 Start Fine-tuning (N150)](command:tenstorrent.startFineTuningN150Trickster)
 
 **What this does:**
 1. Navigates to `~/tt-scratchpad/training/`
@@ -329,9 +321,7 @@ Loss
 
 Your model is trained! Let's test it.
 
-```command
-tenstorrent.testTricksterModel
-```
+[🧪 Test Trickster Model](command:tenstorrent.testTricksterModel)
 
 **What this does:**
 1. Loads the fine-tuned model from `output/final_model`
@@ -582,9 +572,7 @@ RuntimeError: Device out of memory
 
 ### N300 Optimization (DDP)
 
-```command
-tenstorrent.startFineTuningN300
-```
+[🚀 Start Fine-tuning (N300)](command:tenstorrent.startFineTuningN300Trickster)
 
 **What changes:**
 - `batch_size: 16` (larger)

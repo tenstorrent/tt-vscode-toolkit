@@ -158,9 +158,7 @@ Device 1: Wormhole (N300)
 
 ### Step 2: Launch Training
 
-```command
-tenstorrent.startFineTuningN300
-```
+[🚀 Start Fine-tuning (N300)](command:tenstorrent.startFineTuningN300Trickster)
 
 **What this does:**
 1. Uses `configs/trickster_n300.yaml` (DDP config)
