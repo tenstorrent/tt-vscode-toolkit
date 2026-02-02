@@ -215,39 +215,70 @@ pip install -e .
 
 ### Prepare Dataset
 
-Download and prepare tiny-shakespeare:
+#### Step 1: Download Shakespeare Text
+
+**Use the automated script:**
 
 ```bash
 cd ~/tt-scratchpad/training/data
-python prepare_shakespeare.py --output shakespeare.txt --split
+python prepare_shakespeare.py --output . --split
 ```
 
-**This creates:**
+**What this does:**
+- Downloads ~1.1MB Shakespeare text from char-rnn repo
+- Creates 90/10 train/val split automatically
+
+**Expected output:**
+```
+✅ Downloaded 1,115,394 characters to shakespeare.txt
+✅ Created train split: 1,003,854 chars → shakespeare_train.txt
+✅ Created val split: 111,540 chars → shakespeare_val.txt
+```
+
+**Manual alternative** (if script unavailable):
+
+```bash
+# Download
+wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt -O shakespeare.txt
+
+# Create 90/10 split
+head -n 32000 shakespeare.txt > shakespeare_train.txt
+tail -n 8000 shakespeare.txt > shakespeare_val.txt
+```
+
+#### Step 2: Preprocess to PyTorch Tensors
+
+**Convert text files to tensors for training:**
+
+```bash
+cd ~/tt-scratchpad/training/data
+python preprocess_shakespeare.py
+```
+
+**What this does:**
+- Creates character-level tokenizer (65 unique characters)
+- Encodes text to token IDs
+- Saves as PyTorch tensors
+
+**Expected output:**
+```
+✅ Saved train.pt (1,003,854 tokens)
+✅ Saved val.pt (111,540 tokens)
+✅ Saved tokenizer.pt (vocab_size=65)
+```
+
+**Files created:**
 - `shakespeare.txt` - Full dataset (1.1MB)
 - `shakespeare_train.txt` - Training split (90%)
 - `shakespeare_val.txt` - Validation split (10%)
+- `train.pt` - Training tensor (~7.7MB)
+- `val.pt` - Validation tensor (~873KB)
+- `tokenizer.pt` - Tokenizer metadata (~2KB)
 
 **Verify:**
 ```bash
-ls -lh shakespeare*.txt
-# Should show ~1MB for full, ~900KB for train, ~100KB for val
-```
-
-**Preview:**
-```bash
-head -20 shakespeare.txt
-```
-
-You should see Shakespeare plays like:
-```
-First Citizen:
-Before we proceed any further, hear me speak.
-
-All:
-Speak, speak.
-
-First Citizen:
-You are all resolved rather to die than to famish?
+ls -lh *.txt *.pt
+# Should show text files + PyTorch tensors
 ```
 
 ---
