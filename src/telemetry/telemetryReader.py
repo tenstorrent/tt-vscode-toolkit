@@ -4,22 +4,31 @@ Lightweight telemetry reader for Tenstorrent hardware.
 Reads directly from sysfs (hwmon + Tenstorrent driver attributes).
 Completely non-invasive - just reads kernel-exposed attributes.
 
+Multi-tenant isolation:
+    In shared environments, /sys/class/tenstorrent/ may show all devices
+    on the host, but /dev/tenstorrent/ only exposes allocated devices.
+    This script automatically filters to show only accessible devices.
+
 Usage:
     python telemetryReader.py
 
 Output:
     JSON with telemetry metrics or error message
 
-Example output:
+Example output (single device):
     {
-        "asic_temp": 45.3,
-        "board_temp": 45.3,
-        "aiclk": 1000,
-        "power": 23.0,
-        "voltage": 0.91,
-        "current": 26.0,
-        "board_type": "n150",
-        "pci_bus": "0000:01:00.0"
+        "devices": [{
+            "asic_temp": 45.3,
+            "board_temp": 45.3,
+            "aiclk": 1000,
+            "power": 23.0,
+            "voltage": 0.91,
+            "current": 26.0,
+            "board_type": "n150",
+            "pci_bus": "0000:01:00.0",
+            "device_index": 0
+        }],
+        "count": 1
     }
 
 Error output:
@@ -41,12 +50,80 @@ def read_sysfs_value(path):
     except (FileNotFoundError, PermissionError, OSError):
         return None
 
+def get_accessible_pci_addresses():
+    """
+    Get PCI addresses of devices accessible via /dev/tenstorrent/.
+    This handles multi-tenant environments where sysfs shows all devices
+    but /dev only exposes allocated devices.
+    """
+    accessible_pci = set()
+    dev_dir = '/dev/tenstorrent'
+
+    if not os.path.exists(dev_dir):
+        return accessible_pci
+
+    try:
+        # List all device nodes in /dev/tenstorrent/
+        dev_nodes = [os.path.join(dev_dir, f) for f in os.listdir(dev_dir)]
+
+        for dev_node in dev_nodes:
+            if not os.path.exists(dev_node):
+                continue
+
+            # Get major:minor for this device node
+            stat_info = os.stat(dev_node)
+            if not stat_info:
+                continue
+
+            major = os.major(stat_info.st_rdev)
+            minor = os.minor(stat_info.st_rdev)
+
+            # Look up PCI device via /sys/dev/char/<major>:<minor>
+            sysfs_path = f'/sys/dev/char/{major}:{minor}'
+            if not os.path.exists(sysfs_path):
+                continue
+
+            # Follow device symlink to find PCI address
+            device_link = os.path.join(sysfs_path, 'device')
+            if os.path.islink(device_link):
+                pci_path = os.readlink(device_link)
+                # Extract PCI address from path like ../../../0000:61:00.0
+                pci_addr = os.path.basename(pci_path)
+                accessible_pci.add(pci_addr)
+
+    except Exception:
+        pass
+
+    return accessible_pci
+
 def find_tenstorrent_devices():
-    """Find all Tenstorrent devices in /sys/class/tenstorrent/."""
+    """
+    Find Tenstorrent devices in /sys/class/tenstorrent/ that are accessible.
+    Filters to only show devices available in /dev/tenstorrent/.
+    """
     try:
         devices = glob.glob('/sys/class/tenstorrent/tenstorrent*')
         # Filter out subdirectories, only keep actual device nodes
         devices = [d for d in devices if os.path.isdir(d) and '!' in d]
+
+        # Get PCI addresses of accessible devices
+        accessible_pci = get_accessible_pci_addresses()
+
+        # If we found accessible devices, filter to only those
+        if accessible_pci:
+            filtered_devices = []
+            for device_path in devices:
+                # Get PCI address for this sysfs device
+                device_link = os.path.join(device_path, 'device')
+                if os.path.islink(device_link):
+                    pci_path = os.readlink(device_link)
+                    pci_addr = os.path.basename(pci_path)
+                    if pci_addr in accessible_pci:
+                        filtered_devices.append(device_path)
+
+            return sorted(filtered_devices)
+
+        # If no /dev/tenstorrent/ devices found, return all (fallback to old behavior)
         return sorted(devices)
     except Exception:
         return []
