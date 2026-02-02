@@ -37,6 +37,16 @@ tt-installer 2.0 is a comprehensive installation script that:
 - ✅ **Supports multiple hardware** - Works with N150, N300, T3K, and Galaxy systems
 - ✅ **Offers flexibility** - Interactive or non-interactive modes, customizable options
 
+> **⚠️ IMPORTANT: Cloud and Container Environments**
+>
+> If you're running in a **cloud VM**, **Kubernetes**, **Docker**, or any **containerized environment**:
+> - Use `--mode-container` flag or explicitly skip firmware/KMD updates
+> - **DO NOT** attempt to update firmware or kernel drivers unless you have full system control
+> - Host-level changes (KMD, HugePages, firmware) must be done on bare metal or with explicit cloud provider support
+> - See [Container Mode](#container-mode) section below for detailed guidance
+>
+> **Rule of thumb**: If you're SSH'd into a cloud instance or running inside a container, use `--mode-container` or `--no-install-kmd --no-update-firmware` flags.
+
 ## Why Use tt-installer Instead of Manual Setup?
 
 **Traditional approach (manual):**
@@ -275,7 +285,7 @@ Customize what gets installed:
 
 ### Container Mode
 
-When running inside a container (like Docker), use container mode:
+When running inside a container (like Docker) or cloud environment, use container mode:
 
 ```bash
 ./install.sh --mode-container
@@ -285,7 +295,38 @@ This automatically:
 - Skips KMD installation (must be on host)
 - Skips HugePages configuration (must be on host)
 - Skips Podman installation (no nested containers)
+- Skips firmware updates (requires host access)
 - Never attempts reboot
+
+#### Cloud Environment Best Practices
+
+**When running in cloud VMs (AWS, GCP, Azure, etc.):**
+
+1. **Bare Metal Instances Only**: Tenstorrent hardware requires PCIe passthrough - only works on bare metal instances, not virtualized VMs
+2. **Provider-Managed Drivers**: If your cloud provider pre-installs KMD and firmware, use:
+   ```bash
+   ./install.sh --no-install-kmd --no-update-firmware --no-install-hugepages
+   ```
+3. **Container Orchestration (Kubernetes)**: For pods running tt-metalium:
+   ```bash
+   ./install.sh --mode-container
+   ```
+   - KMD must be installed on host nodes
+   - HugePages configured via Kubernetes DaemonSet
+   - Firmware managed by cluster admins
+
+**When NOT to tamper with firmware/KMD:**
+- ❌ Inside Docker/Podman containers
+- ❌ Kubernetes pods without privileged access
+- ❌ Cloud instances where provider manages hardware
+- ❌ Shared infrastructure where you're not the admin
+- ❌ Any environment where you can't reboot the host
+
+**Safe operations in restricted environments:**
+- ✅ Installing Python packages (tt-smi, tt-inference-server)
+- ✅ Running tt-metalium containers (if host has KMD)
+- ✅ Using tt-smi to monitor devices
+- ✅ Running inference workloads
 
 ### Custom Python Environment
 
@@ -482,6 +523,69 @@ tt-installer is recommended for most users, but manual setup may be preferred if
 - ❌ You're debugging kernel driver issues (need to build KMD yourself)
 
 **For 95% of users, tt-installer is the right choice.**
+
+## Frequently Asked Questions
+
+### Q: Can I use tt-installer inside a Docker container?
+
+**A:** Yes, but use `--mode-container` flag:
+```bash
+./install.sh --mode-container
+```
+This skips host-level changes (KMD, firmware, HugePages) that must be done on the host system. The container can still run tt-metalium and use devices if the host has proper drivers installed.
+
+### Q: I'm running in AWS/GCP/Azure - should I update firmware?
+
+**A:** **No, not unless you're on a bare metal instance and have full control.** Cloud providers may manage firmware and drivers for you. Use:
+```bash
+./install.sh --no-install-kmd --no-update-firmware
+```
+Check with your cloud provider's documentation for Tenstorrent support.
+
+### Q: What's the difference between `--mode-container` and `--no-install-kmd`?
+
+**A:**
+- `--mode-container` - Skips ALL host-level changes (KMD, firmware, HugePages, reboot). Use inside Docker/Kubernetes.
+- `--no-install-kmd` - Skips only KMD installation. Use when KMD is already installed or managed elsewhere.
+
+You can combine flags for fine-grained control:
+```bash
+./install.sh --no-install-kmd --no-update-firmware --no-install-hugepages
+```
+
+### Q: Can I run tt-metalium without KMD installed?
+
+**A:** No. The Tenstorrent kernel driver must be installed on the **host** system for hardware access. Containers can use devices if the host has KMD loaded.
+
+### Q: How do I know if I'm in a restricted environment?
+
+**A:** If any of these are true, you're likely restricted:
+- You can't run `sudo reboot` without approval
+- You're inside a Docker/Podman container (`/.dockerenv` file exists)
+- You're in a Kubernetes pod (`/var/run/secrets/kubernetes.io` exists)
+- You don't have sudo access
+- Cloud provider manages your instance's kernel/firmware
+
+Use `--mode-container` or skip flags in these cases.
+
+### Q: What if firmware update fails in my cloud environment?
+
+**A:** Firmware updates require direct hardware access and may not work in cloud environments. Options:
+1. Skip firmware updates: `./install.sh --no-update-firmware`
+2. Use cloud provider's firmware (if pre-installed)
+3. Contact cloud provider support for Tenstorrent firmware management
+4. If on bare metal with full control, ensure proper PCIe access
+
+### Q: Can I use tt-installer in Kubernetes?
+
+**A:** Yes, with proper setup:
+- Install KMD and firmware on **host nodes** (outside containers)
+- Configure HugePages on host nodes
+- Inside pods, use: `./install.sh --mode-container`
+- Mount `/dev/tenstorrent` devices into pods
+- Use privileged security context if needed
+
+See [Using tt-metalium Container](https://github.com/tenstorrent/tt-installer/wiki/Using-the-tt%E2%80%90metalium-container) for Kubernetes examples.
 
 ## Resources
 
