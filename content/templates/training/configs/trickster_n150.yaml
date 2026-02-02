@@ -1,0 +1,53 @@
+# Trickster Fine-tuning Configuration for N150 (Single Wormhole Chip)
+#
+# Optimized for Wormhole single-chip development hardware.
+# - Smaller batch size to fit in DRAM
+# - No DDP (single device)
+# - Conservative gradient accumulation
+# - Training completes in 1-3 hours on N150
+#
+# The Trickster model: A creative, flexible AI for explaining concepts
+# Demonstrates principles applicable to any custom model
+
+training_config:
+  model_type: "llama"
+  seed: 42
+  batch_size: 8                    # N150: Conservative for DRAM limits
+  validation_batch_size: 2
+  num_epochs: 3                    # 3 epochs over ~50 examples
+  max_steps: 500                   # Reasonable for fine-tuning
+  learning_rate: 0.0001            # Lower LR for fine-tuning (constant, no scheduler)
+  weight_decay: 0.01
+  use_moreh_adamw: true
+  use_kahan_summation: false
+  use_clip_grad_norm: true
+  clip_grad_norm_max_norm: 1.0
+  gradient_accumulation_steps: 4   # Effective batch: 8 * 4 = 32
+  eval_every: 50                   # Validate every 50 steps
+  model_save_interval: 100         # Checkpoint every 100 steps
+  tokenizer_type: "bpe"
+  checkpoint_dir: "checkpoints_trickster_n150"
+  model_config: "model_configs/tinyllama.yaml"
+
+  # Logging configuration (tt-blacksmith pattern)
+  log_level: "INFO"
+  use_wandb: false                 # Optional experiment tracking
+  wandb_project: "trickster-finetune"
+  wandb_run_name: "n150-tinyllama"
+
+  # Checkpoint strategy (tt-blacksmith pattern)
+  checkpoint_frequency: 100        # Save every 100 steps
+  validation_frequency: 50         # Validate every 50 steps
+  save_strategy: "steps"           # Save based on steps (not epochs)
+
+# NOTE: v0.64.5+ uses constant learning_rate, no scheduler_config needed
+
+eval_config:
+  repetition_penalty: 1.0
+  temperature: 0.0                 # Greedy decoding for validation
+  top_k: 50
+  top_p: 1.0
+
+device_config:
+  enable_ddp: False                # N150: Single chip, no DDP
+  mesh_shape: [1, 1]               # 1x1 mesh (single device)

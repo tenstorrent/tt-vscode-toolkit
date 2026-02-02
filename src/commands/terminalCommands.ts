@@ -568,6 +568,82 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_with_sd35.py 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate animated video using SD 3.5 + AnimateDiff temporal attention (GNU cinemagraph)',
   },
+
+  // ========================================
+  // Custom Training Lessons (CT-1 through CT-6)
+  // ========================================
+
+  CREATE_TRICKSTER_DATASET: {
+    id: 'create-trickster-dataset',
+    name: 'Create Trickster Dataset',
+    template: 'mkdir -p ~/tt-scratchpad/training && cp "{{extensionPath}}/content/templates/training/trickster_dataset_starter.jsonl" ~/tt-scratchpad/training/ && cp "{{extensionPath}}/content/templates/training/finetune_trickster.py" ~/tt-scratchpad/training/ && cp "{{extensionPath}}/content/templates/training/test_trickster.py" ~/tt-scratchpad/training/ && cp "{{extensionPath}}/content/templates/training/validate_dataset.py" ~/tt-scratchpad/training/ && mkdir -p ~/tt-scratchpad/training/configs && cp "{{extensionPath}}/content/templates/training/configs/trickster_n150.yaml" ~/tt-scratchpad/training/configs/ && cp "{{extensionPath}}/content/templates/training/configs/trickster_n300.yaml" ~/tt-scratchpad/training/configs/ && echo "✓ Trickster training files copied to ~/tt-scratchpad/training/"',
+    description: 'Copies trickster dataset, training scripts, and configs to ~/tt-scratchpad/training/',
+    variables: ['extensionPath'],
+  },
+
+  VIEW_TRICKSTER_DATASET: {
+    id: 'view-trickster-dataset',
+    name: 'View Trickster Dataset',
+    template: 'cat ~/tt-scratchpad/training/trickster_dataset_starter.jsonl | head -10',
+    description: 'Display first 10 examples from the trickster dataset',
+  },
+
+  INSTALL_TT_TRAIN: {
+    id: 'install-tt-train',
+    name: 'Install tt-train',
+    template: 'cd $TT_METAL_HOME/tt-train && pip install -e . && echo "✓ tt-train installed successfully"',
+    description: 'Install tt-train Python package from tt-metal repository',
+  },
+
+  START_FINETUNING_N150: {
+    id: 'start-finetuning-n150',
+    name: 'Start Fine-tuning on N150',
+    template: 'cd ~/tt-scratchpad/training && python finetune_trickster.py --config configs/trickster_n150.yaml --train-data trickster_dataset_starter.jsonl --weights-path ~/models/tinyllama_safetensors --output-dir output',
+    description: 'Launch fine-tuning on N150 (single chip) with trickster dataset',
+  },
+
+  START_FINETUNING_N300: {
+    id: 'start-finetuning-n300',
+    name: 'Start Fine-tuning on N300',
+    template: 'cd ~/tt-scratchpad/training && python finetune_trickster.py --config configs/trickster_n300.yaml --train-data trickster_dataset_starter.jsonl --weights-path ~/models/tinyllama_safetensors --output-dir output',
+    description: 'Launch fine-tuning on N300 (dual chips with DDP) with trickster dataset',
+  },
+
+  TEST_TRICKSTER_MODEL: {
+    id: 'test-trickster-model',
+    name: 'Test Trickster Model',
+    template: 'cd ~/tt-scratchpad/training && python test_trickster.py --model-path output/final_model --config configs/trickster_n150.yaml',
+    description: 'Run inference tests on the fine-tuned trickster model',
+  },
+
+  // CT-8: Training from Scratch Commands
+  PREPARE_SHAKESPEARE: {
+    id: 'prepare-shakespeare',
+    name: 'Prepare Shakespeare Dataset',
+    template: 'cd ~/tt-scratchpad/training/data && python prepare_shakespeare.py --output shakespeare.txt --split',
+    description: 'Download and prepare tiny-shakespeare dataset for training from scratch',
+  },
+
+  CREATE_NANO_TRICKSTER: {
+    id: 'create-nano-trickster',
+    name: 'Create Nano-Trickster Architecture',
+    template: 'cd ~/tt-scratchpad/training && python nano_trickster.py',
+    description: 'Test the nano-trickster architecture (11M parameters)',
+  },
+
+  TRAIN_FROM_SCRATCH: {
+    id: 'train-from-scratch',
+    name: 'Train from Scratch',
+    template: 'cd ~/tt-scratchpad/training && python train_from_scratch.py --config configs/nano_trickster.yaml',
+    description: 'Train nano-trickster from random initialization on tiny-shakespeare',
+  },
+
+  TEST_NANO_TRICKSTER: {
+    id: 'test-nano-trickster',
+    name: 'Test Nano-Trickster',
+    template: 'cd ~/tt-scratchpad/training && python -c "import torch; from nano_trickster import NanoTrickster; model = NanoTrickster(); model.load_state_dict(torch.load(\'output/nano_trickster/final_model.pt\')); model.eval(); tokenizer = torch.load(\'data/tokenizer.pt\'); stoi = tokenizer[\'stoi\']; itos = tokenizer[\'itos\']; prompt = \'ROMEO:\'; input_ids = torch.tensor([[stoi.get(c, 0) for c in prompt]]); generated = model.generate(input_ids, max_new_tokens=200, temperature=0.8); text = \'\'.join([itos.get(int(t), \'?\') for t in generated[0]]); print(text)"',
+    description: 'Generate text with the trained nano-trickster model',
+  },
 };
 
 /**

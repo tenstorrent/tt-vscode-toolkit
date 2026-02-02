@@ -37,24 +37,31 @@
       "icon": "lightbulb"
     },
     {
+      "id": "custom-training",
+      "title": "🎓 Custom Training",
+      "description": "Fine-tune and train custom AI models on Tenstorrent hardware",
+      "order": 6,
+      "icon": "graduation-cap"
+    },
+    {
       "id": "cookbook",
       "title": "👨‍🍳 Tenstorrent Cookbook",
       "description": "Learn by building! 5 hands-on projects: Game of Life, Audio Processing, Mandelbrot Fractals, Image Filters, and Particle Life",
-      "order": 6,
+      "order": 7,
       "icon": "beaker"
     },
     {
       "id": "cs-fundamentals",
       "title": "🧠 CS Fundamentals",
       "description": "Computer architecture, memory, parallelism, and systems programming on real hardware",
-      "order": 7,
+      "order": 8,
       "icon": "circuit-board"
     },
     {
       "id": "advanced",
       "title": "🎓 Advanced Topics",
       "description": "Low-level programming, installation, and community contributions",
-      "order": 8,
+      "order": 9,
       "icon": "mortar-board"
     }
   ],
@@ -399,8 +406,163 @@
         "model"
       ],
       "previousLesson": "video-generation-ttmetal",
-      "nextLesson": "cookbook-overview",
+      "nextLesson": "finetune-custom-model",
       "estimatedMinutes": 10
+    },
+    {
+      "id": "finetune-custom-model",
+      "title": "Fine-tune Your Own Model",
+      "description": "Learn to fine-tune TinyLlama into a witty Zen Master that responds in koans and one-liners. Practical introduction to model customization on Tenstorrent hardware.",
+      "category": "applications",
+      "order": 11,
+      "markdownFile": "content/lessons/finetune-custom-model.md",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "p100",
+        "p150",
+        "p300c",
+        "t3k",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": [
+        "onCommand:tenstorrent.startFineTuningN150"
+      ],
+      "tags": [
+        "training",
+        "fine-tuning",
+        "custom-model",
+        "tt-train"
+      ],
+      "previousLesson": "coding-assistant",
+      "nextLesson": "ct1-understanding-training",
+      "estimatedMinutes": 90
+    },
+    {
+      "id": "ct1-understanding-training",
+      "title": "Understanding Custom Training",
+      "description": "Learn the fundamentals of fine-tuning vs training from scratch, the tt-blacksmith framework approach, and when to use each method.",
+      "category": "custom-training",
+      "order": 1,
+      "markdownFile": "content/lessons/ct1-understanding-training.md",
+      "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "tags": ["training", "concepts", "tt-train", "tt-blacksmith"],
+      "previousLesson": "finetune-custom-model",
+      "nextLesson": "ct2-dataset-fundamentals",
+      "estimatedMinutes": 15
+    },
+    {
+      "id": "ct2-dataset-fundamentals",
+      "title": "Dataset Fundamentals",
+      "description": "Create and validate training datasets. Learn JSONL format, quality guidelines, and dataset creation workflows.",
+      "category": "custom-training",
+      "order": 2,
+      "markdownFile": "content/lessons/ct2-dataset-fundamentals.md",
+      "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": ["onCommand:tenstorrent.createTricksterDataset", "onCommand:tenstorrent.viewTricksterDataset"],
+      "tags": ["training", "datasets", "jsonl"],
+      "previousLesson": "ct1-understanding-training",
+      "nextLesson": "ct3-configuration-patterns",
+      "estimatedMinutes": 15
+    },
+    {
+      "id": "ct3-configuration-patterns",
+      "title": "Configuration Patterns",
+      "description": "Master YAML-driven training with tt-blacksmith patterns. Configure hyperparameters, devices, logging, and checkpointing.",
+      "category": "custom-training",
+      "order": 3,
+      "markdownFile": "content/lessons/ct3-configuration-patterns.md",
+      "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "tags": ["training", "configuration", "yaml", "hyperparameters"],
+      "previousLesson": "ct2-dataset-fundamentals",
+      "nextLesson": "ct4-finetuning-basics",
+      "estimatedMinutes": 15
+    },
+    {
+      "id": "ct4-finetuning-basics",
+      "title": "Fine-tuning Basics",
+      "description": "Run your first fine-tuning job! Transform TinyLlama into tt-trickster, monitor training, and test your custom model.",
+      "category": "custom-training",
+      "order": 4,
+      "markdownFile": "content/lessons/ct4-finetuning-basics.md",
+      "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": ["onCommand:tenstorrent.installTtTrain", "onCommand:tenstorrent.startFineTuningN150Trickster", "onCommand:tenstorrent.testTricksterModel"],
+      "tags": ["training", "fine-tuning", "tt-train", "trickster"],
+      "previousLesson": "ct3-configuration-patterns",
+      "nextLesson": "ct5-multi-device-training",
+      "estimatedMinutes": 25
+    },
+    {
+      "id": "ct5-multi-device-training",
+      "title": "Multi-Device Training",
+      "description": "Scale training to multiple chips using Data Parallel (DDP). Learn N300, T3K, and Galaxy configurations for faster training.",
+      "category": "custom-training",
+      "order": 5,
+      "markdownFile": "content/lessons/ct5-multi-device-training.md",
+      "supportedHardware": ["n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": ["onCommand:tenstorrent.startFineTuningN300Trickster"],
+      "tags": ["training", "ddp", "multi-device", "scaling"],
+      "previousLesson": "ct4-finetuning-basics",
+      "nextLesson": "ct6-experiment-tracking",
+      "estimatedMinutes": 15
+    },
+    {
+      "id": "ct6-experiment-tracking",
+      "title": "Experiment Tracking",
+      "description": "Track and compare experiments using file-based logging and WandB integration. Visualize training curves and manage hyperparameter searches.",
+      "category": "custom-training",
+      "order": 6,
+      "markdownFile": "content/lessons/ct6-experiment-tracking.md",
+      "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "tags": ["training", "wandb", "experiment-tracking", "visualization"],
+      "previousLesson": "ct5-multi-device-training",
+      "nextLesson": "ct7-architecture-basics",
+      "estimatedMinutes": 15
+    },
+    {
+      "id": "ct7-architecture-basics",
+      "title": "Model Architecture Basics",
+      "description": "Understand transformer components before training from scratch. Learn tokenization, embeddings, attention, feed-forward networks, and architectural trade-offs with visual diagrams.",
+      "category": "custom-training",
+      "order": 7,
+      "markdownFile": "content/lessons/ct7-architecture-basics.md",
+      "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "tags": ["training", "architecture", "transformers", "fundamentals"],
+      "previousLesson": "ct6-experiment-tracking",
+      "nextLesson": "ct8-training-from-scratch",
+      "estimatedMinutes": 20
+    },
+    {
+      "id": "ct8-training-from-scratch",
+      "title": "Training from Scratch",
+      "description": "Build a tiny transformer (11M parameters) from random initialization. Train on tiny-shakespeare, watch it learn language patterns, and understand the full training pipeline.",
+      "category": "custom-training",
+      "order": 8,
+      "markdownFile": "content/lessons/ct8-training-from-scratch.md",
+      "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
+      "status": "draft",
+      "validatedOn": [],
+      "completionEvents": ["onCommand:tenstorrent.trainFromScratch"],
+      "tags": ["training", "from-scratch", "nano-trickster", "shakespeare"],
+      "previousLesson": "ct7-architecture-basics",
+      "nextLesson": "cookbook-overview",
+      "estimatedMinutes": 90
     },
     {
       "id": "cookbook-overview",
@@ -431,7 +593,7 @@
         "projects",
         "learning"
       ],
-      "previousLesson": "coding-assistant",
+      "previousLesson": "finetune-custom-model",
       "nextLesson": "cookbook-game-of-life",
       "estimatedMinutes": 5
     },

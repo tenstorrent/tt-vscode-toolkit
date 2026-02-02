@@ -3482,6 +3482,428 @@ async function exploreAnimateDiffPackage(): Promise<void> {
 }
 
 // ============================================================================
+// Fine-tuning Lesson Commands
+// ============================================================================
+
+/**
+ * Command: tenstorrent.viewZenDataset
+ * Opens the Zen Master training dataset in the editor
+ */
+async function viewZenDataset(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+
+  // Get extension's template directory
+  const extensionPath = extensionContext.extensionPath;
+  let templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'training');
+  if (!fs.existsSync(templatePath)) {
+    templatePath = path.join(extensionPath, 'content', 'templates', 'training');
+  }
+
+  // Create scratchpad/training if it doesn't exist
+  if (!fs.existsSync(scratchpadPath)) {
+    fs.mkdirSync(scratchpadPath, { recursive: true });
+  }
+
+  // Copy dataset to scratchpad if not already there
+  const destDataset = path.join(scratchpadPath, 'zen_dataset_starter.jsonl');
+  const srcDataset = path.join(templatePath, 'zen_dataset_starter.jsonl');
+
+  if (!fs.existsSync(destDataset) && fs.existsSync(srcDataset)) {
+    fs.copyFileSync(srcDataset, destDataset);
+  }
+
+  // Open the dataset file
+  if (fs.existsSync(destDataset)) {
+    const uri = vscode.Uri.file(destDataset);
+    await vscode.window.showTextDocument(uri);
+    vscode.window.showInformationMessage(
+      '📖 Zen Master Dataset: 195 witty one-liners for fine-tuning!'
+    );
+  } else {
+    vscode.window.showErrorMessage('Could not find zen_dataset_starter.jsonl');
+  }
+}
+
+/**
+ * Command: tenstorrent.validateZenDataset
+ * Runs the dataset validation script
+ */
+async function validateZenDataset(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+
+  // Copy training templates to scratchpad
+  await copyTrainingTemplates();
+
+  const terminal = getOrCreateTerminal('tt-metal');
+  const command = `cd ${scratchpadPath} && python3 validate_dataset.py zen_dataset_starter.jsonl`;
+  runInTerminal(terminal, command);
+  vscode.window.showInformationMessage(
+    '🔍 Validating dataset... Check terminal for results.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startFineTuningN150
+ * Starts fine-tuning on N150 hardware
+ */
+async function startFineTuningN150(): Promise<void> {
+  await copyTrainingTemplates();
+  const os = await import('os');
+  const path = await import('path');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+
+  const terminal = getOrCreateTerminal('tt-metal');
+  const command = `cd ${scratchpadPath} && python3 finetune_zen.py \\
+  --config configs/finetune_zen_n150.yaml \\
+  --train-data zen_dataset_starter.jsonl \\
+  --model-name TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T \\
+  --output-dir ./output`;
+
+  runInTerminal(terminal, command);
+  vscode.window.showInformationMessage(
+    '🧘 Starting fine-tuning on N150... This will take 1-3 hours. Check terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startFineTuningN300
+ * Starts fine-tuning on N300 hardware with DDP
+ */
+async function startFineTuningN300(): Promise<void> {
+  await copyTrainingTemplates();
+  const os = await import('os');
+  const path = await import('path');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+
+  const terminal = getOrCreateTerminal('tt-metal');
+  const command = `cd ${scratchpadPath} && python3 finetune_zen.py \\
+  --config configs/finetune_zen_n300.yaml \\
+  --train-data zen_dataset_starter.jsonl \\
+  --model-name TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T \\
+  --output-dir ./output`;
+
+  runInTerminal(terminal, command);
+  vscode.window.showInformationMessage(
+    '🧘 Starting fine-tuning on N300 with DDP... This will take 30-60 minutes. Check terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startFineTuningBlackhole
+ * Starts fine-tuning on Blackhole hardware
+ */
+async function startFineTuningBlackhole(): Promise<void> {
+  await copyTrainingTemplates();
+  const os = await import('os');
+  const path = await import('path');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+
+  const terminal = getOrCreateTerminal('tt-metal');
+  const command = `cd ${scratchpadPath} && python3 finetune_zen.py \\
+  --config configs/finetune_zen_blackhole.yaml \\
+  --train-data zen_dataset_starter.jsonl \\
+  --model-name TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T \\
+  --output-dir ./output`;
+
+  runInTerminal(terminal, command);
+  vscode.window.showInformationMessage(
+    '🧘 Starting fine-tuning on Blackhole... This will take 30-60 minutes. Check terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.testZenModel
+ * Tests the fine-tuned Zen Master model
+ */
+async function testZenModel(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+  const modelPath = path.join(scratchpadPath, 'output', 'final_model');
+
+  // Check if model exists
+  if (!fs.existsSync(modelPath)) {
+    const choice = await vscode.window.showWarningMessage(
+      'Fine-tuned model not found. Have you completed training?',
+      'Start Training (N150)',
+      'Cancel'
+    );
+
+    if (choice === 'Start Training (N150)') {
+      await startFineTuningN150();
+    }
+    return;
+  }
+
+  const terminal = getOrCreateTerminal('tt-metal');
+  const command = `cd ${scratchpadPath} && python3 test_zen_model.py \\
+  --model-path ./output/final_model \\
+  --config configs/finetune_zen_n150.yaml \\
+  --output zen_test_results.txt`;
+
+  runInTerminal(terminal, command);
+  vscode.window.showInformationMessage(
+    '🧪 Testing Zen Master model... Check terminal for witty responses!'
+  );
+}
+
+// ============================================================================
+// Custom Training Lesson Commands (CT-1 through CT-6)
+// ============================================================================
+
+/**
+ * Command: tenstorrent.createTricksterDataset
+ * Copies trickster dataset and training files to scratchpad
+ */
+async function createTricksterDataset(): Promise<void> {
+  await copyTrainingTemplates();
+  vscode.window.showInformationMessage(
+    '📦 Trickster training files copied to ~/tt-scratchpad/training/'
+  );
+}
+
+/**
+ * Command: tenstorrent.viewTricksterDataset
+ * Opens the trickster training dataset in the editor
+ */
+async function viewTricksterDataset(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+
+  // Ensure templates are copied
+  await copyTrainingTemplates();
+
+  // Open the dataset file
+  const datasetPath = path.join(scratchpadPath, 'trickster_dataset_starter.jsonl');
+  if (fs.existsSync(datasetPath)) {
+    const uri = vscode.Uri.file(datasetPath);
+    await vscode.window.showTextDocument(uri);
+    vscode.window.showInformationMessage(
+      '📖 Trickster Dataset: 50 creative ML/AI explanations for fine-tuning!'
+    );
+  } else {
+    vscode.window.showErrorMessage('Could not find trickster_dataset_starter.jsonl');
+  }
+}
+
+/**
+ * Command: tenstorrent.installTtTrain
+ * Installs tt-train Python package from tt-metal repository
+ */
+async function installTtTrain(): Promise<void> {
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_TT_TRAIN.template);
+  vscode.window.showInformationMessage(
+    '📦 Installing tt-train... This may take a few minutes.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startFineTuningN150Trickster
+ * Starts trickster fine-tuning on N150 hardware
+ */
+async function startFineTuningN150Trickster(): Promise<void> {
+  await copyTrainingTemplates();
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_FINETUNING_N150.template);
+  vscode.window.showInformationMessage(
+    '🎭 Starting trickster fine-tuning on N150... This will take 1-3 hours. Check terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startFineTuningN300Trickster
+ * Starts trickster fine-tuning on N300 hardware with DDP
+ */
+async function startFineTuningN300Trickster(): Promise<void> {
+  await copyTrainingTemplates();
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_FINETUNING_N300.template);
+  vscode.window.showInformationMessage(
+    '🎭 Starting trickster fine-tuning on N300 with DDP... This will take 30-60 minutes. Check terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.testTricksterModel
+ * Tests the fine-tuned trickster model
+ */
+async function testTricksterModel(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+  const modelPath = path.join(scratchpadPath, 'output', 'final_model');
+
+  // Check if model exists
+  if (!fs.existsSync(modelPath)) {
+    const choice = await vscode.window.showWarningMessage(
+      'Fine-tuned trickster model not found. Have you completed training?',
+      'Start Training (N150)',
+      'Cancel'
+    );
+
+    if (choice === 'Start Training (N150)') {
+      await startFineTuningN150Trickster();
+    }
+    return;
+  }
+
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.TEST_TRICKSTER_MODEL.template);
+  vscode.window.showInformationMessage(
+    '🧪 Testing trickster model... Check terminal for creative responses!'
+  );
+}
+
+/**
+ * CT-8: Training from Scratch Commands
+ */
+
+async function prepareShakespeare(): Promise<void> {
+  await copyTrainingTemplates();
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.PREPARE_SHAKESPEARE.template);
+  vscode.window.showInformationMessage(
+    '📚 Downloading tiny-shakespeare dataset... This will take a moment.'
+  );
+}
+
+async function createNanoTrickster(): Promise<void> {
+  await copyTrainingTemplates();
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.CREATE_NANO_TRICKSTER.template);
+  vscode.window.showInformationMessage(
+    '🏗️ Testing nano-trickster architecture (11M parameters)... Check terminal for parameter breakdown.'
+  );
+}
+
+async function trainFromScratch(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const dataPath = path.join(homeDir, 'tt-scratchpad', 'training', 'data', 'train.pt');
+
+  // Check if dataset exists
+  if (!fs.existsSync(dataPath)) {
+    const choice = await vscode.window.showWarningMessage(
+      'Shakespeare dataset not found. Prepare dataset first?',
+      'Prepare Dataset',
+      'Cancel'
+    );
+
+    if (choice === 'Prepare Dataset') {
+      await prepareShakespeare();
+      vscode.window.showInformationMessage(
+        'Dataset prepared! Now run "Train from Scratch" again.'
+      );
+    }
+    return;
+  }
+
+  await copyTrainingTemplates();
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.TRAIN_FROM_SCRATCH.template);
+  vscode.window.showInformationMessage(
+    '🎭 Training nano-trickster from scratch... This will take 30-60 minutes on N150. Watch the terminal for progress!'
+  );
+}
+
+async function testNanoTrickster(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const modelPath = path.join(homeDir, 'tt-scratchpad', 'training', 'output', 'nano_trickster', 'final_model.pt');
+
+  if (!fs.existsSync(modelPath)) {
+    const choice = await vscode.window.showWarningMessage(
+      'Nano-trickster model not found. Have you completed training?',
+      'Start Training',
+      'Cancel'
+    );
+
+    if (choice === 'Start Training') {
+      await trainFromScratch();
+    }
+    return;
+  }
+
+  const terminal = getOrCreateTerminal('tt-metal');
+  runInTerminal(terminal, TERMINAL_COMMANDS.TEST_NANO_TRICKSTER.template);
+  vscode.window.showInformationMessage(
+    '🎭 Generating Shakespeare with nano-trickster... Check terminal for creative output!'
+  );
+}
+
+/**
+ * Helper: Copy training templates to scratchpad
+ */
+async function copyTrainingTemplates(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
+
+  // Get extension's template directory
+  const extensionPath = extensionContext.extensionPath;
+  let templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'training');
+  if (!fs.existsSync(templatePath)) {
+    templatePath = path.join(extensionPath, 'content', 'templates', 'training');
+  }
+
+  if (!fs.existsSync(templatePath)) {
+    vscode.window.showErrorMessage('Training templates not found in extension.');
+    throw new Error('Training templates not found');
+  }
+
+  // Create scratchpad directory
+  if (!fs.existsSync(scratchpadPath)) {
+    fs.mkdirSync(scratchpadPath, { recursive: true });
+  }
+
+  // Copy function
+  function copyDir(src: string, dest: string) {
+    fs.mkdirSync(dest, { recursive: true });
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+
+      if (entry.isDirectory()) {
+        copyDir(srcPath, destPath);
+      } else {
+        // Only copy if file doesn't exist or is newer
+        if (!fs.existsSync(destPath) || fs.statSync(srcPath).mtime > fs.statSync(destPath).mtime) {
+          fs.copyFileSync(srcPath, destPath);
+        }
+      }
+    }
+  }
+
+  copyDir(templatePath, scratchpadPath);
+}
+
+// ============================================================================
 // Command Menu
 // ============================================================================
 
@@ -4140,6 +4562,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.generateAnimateDiffVideoSD35', generateAnimateDiffVideoSD35),
     vscode.commands.registerCommand('tenstorrent.viewAnimateDiffTutorial', viewAnimateDiffTutorial),
     vscode.commands.registerCommand('tenstorrent.exploreAnimateDiffPackage', exploreAnimateDiffPackage),
+
+    // Fine-tuning Lesson Commands (Legacy Zen)
+    vscode.commands.registerCommand('tenstorrent.viewZenDataset', viewZenDataset),
+    vscode.commands.registerCommand('tenstorrent.validateZenDataset', validateZenDataset),
+    vscode.commands.registerCommand('tenstorrent.startFineTuningN150', startFineTuningN150),
+    vscode.commands.registerCommand('tenstorrent.startFineTuningN300', startFineTuningN300),
+    vscode.commands.registerCommand('tenstorrent.startFineTuningBlackhole', startFineTuningBlackhole),
+    vscode.commands.registerCommand('tenstorrent.testZenModel', testZenModel),
+
+    // Custom Training Lesson Commands (CT-1 through CT-8)
+    vscode.commands.registerCommand('tenstorrent.createTricksterDataset', createTricksterDataset),
+    vscode.commands.registerCommand('tenstorrent.viewTricksterDataset', viewTricksterDataset),
+    vscode.commands.registerCommand('tenstorrent.installTtTrain', installTtTrain),
+    vscode.commands.registerCommand('tenstorrent.startFineTuningN150Trickster', startFineTuningN150Trickster),
+    vscode.commands.registerCommand('tenstorrent.startFineTuningN300Trickster', startFineTuningN300Trickster),
+    vscode.commands.registerCommand('tenstorrent.testTricksterModel', testTricksterModel),
+    vscode.commands.registerCommand('tenstorrent.prepareShakespeare', prepareShakespeare),
+    vscode.commands.registerCommand('tenstorrent.createNanoTrickster', createNanoTrickster),
+    vscode.commands.registerCommand('tenstorrent.trainFromScratch', trainFromScratch),
+    vscode.commands.registerCommand('tenstorrent.testNanoTrickster', testNanoTrickster),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),
