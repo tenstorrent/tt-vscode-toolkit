@@ -449,7 +449,7 @@
       "markdownFile": "content/lessons/ct1-understanding-training.md",
       "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
       "status": "draft",
-      "validatedOn": [],
+      "validatedOn": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
       "tags": ["training", "concepts", "tt-train", "tt-blacksmith"],
       "previousLesson": "finetune-custom-model",
       "nextLesson": "ct2-dataset-fundamentals",
