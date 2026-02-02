@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.295] - 2026-02-02
+
+### Changed
+- **Lesson Validation Status** - Marked additional lessons as validated on N150
+  - `content/lesson-registry.json:398-401` - coding-assistant: Changed status from "draft" to "validated", added "n150" to validatedOn
+  - `content/lesson-registry.json:810-813` - tt-xla-jax: Changed status from "draft" to "validated", added "n150" to validatedOn
+
+### Context
+- Both lessons successfully tested and validated on N150 hardware in cloud environment
+- Verified existing validated lessons (18 total) all have "n150" in validatedOn arrays:
+  - Cookbook (6): cookbook-overview, cookbook-game-of-life, cookbook-audio-processor, cookbook-mandelbrot, cookbook-image-filters, cookbook-particle-life
+  - First Inference (5): hardware-detection, verify-installation, download-model, interactive-chat, api-server
+  - Serving (3): vllm-production, image-generation, video-generation-ttmetal
+  - Advanced (2): explore-metalium, animatediff-video-generation
+  - Installation (1): tt-installer
+  - Applications (1): coding-assistant (newly validated)
+  - Compilers (1): tt-xla-jax (newly validated)
+- Total validated lessons on N150: 20 out of 48 lessons
+- All 387 tests passing
+
+---
+
+## [0.0.294] - 2026-02-02
+
+### Fixed
+- **Multi-Tenant Device Isolation** - Added filtering to show only accessible devices in shared environments
+  - `src/telemetry/telemetryReader.py:44-88` - New `get_accessible_pci_addresses()` function maps `/dev/tenstorrent/` nodes to PCI addresses
+  - `src/telemetry/telemetryReader.py:90-120` - Updated `find_tenstorrent_devices()` to filter sysfs devices by `/dev/tenstorrent/` accessibility
+  - Fixes information disclosure in cloud environments where `/sys/class/tenstorrent/` exposes all devices but `/dev/tenstorrent/` only shows allocated devices
+  - Status bar now correctly shows "1x N150" instead of "8x N150" in multi-tenant cloud environments
+  - Falls back to old behavior if `/dev/tenstorrent/` is unavailable (bare metal scenarios)
+
+### Changed
+- **Telemetry Reader Documentation** - Updated docstring to explain multi-tenant filtering behavior
+  - `src/telemetry/telemetryReader.py:7-10` - Added multi-tenant isolation section explaining sysfs vs /dev visibility
+
+### Context
+- Discovered in cloud environment where 8 N150 cards are sliced across instances
+- Proper device access control exists but sysfs visibility leaks telemetry from other tenants' devices
+- This is a workaround; server administrators should implement proper sysfs isolation via cgroups/namespaces
+- All 387 tests passing
+
+---
+
+## [0.0.293] - 2026-02-02
+
+### Added
+- **Cloud/Container Environment Warnings** - Enhanced tt-installer lesson with comprehensive cloud and container guidance
+  - `content/lessons/tt-installer.md:40-48` - Added prominent warning box after "What is tt-installer 2.0?" section
+  - `content/lessons/tt-installer.md:301-329` - Expanded Container Mode section with Cloud Environment Best Practices subsection
+  - `content/lessons/tt-installer.md:527-588` - Added comprehensive FAQ section with 7 Q&A entries covering:
+    - Docker/container usage
+    - Cloud VM firmware/KMD warnings
+    - Container mode vs skip flags differences
+    - Restricted environment detection
+    - Firmware update failures
+    - Kubernetes setup guidance
+  - Clear "When NOT to tamper with firmware/KMD" list (5 scenarios)
+  - Clear "Safe operations in restricted environments" list (4 operations)
+
+### Changed
+- **Container Mode Documentation** - Updated to explicitly mention cloud environments and firmware skipping
+  - `content/lessons/tt-installer.md:288-299` - Added firmware skip to auto-skip list and reboot prevention
+
+### Context
+- Addresses user request for cloud environment best practices and container mode documentation
+- Warns against firmware/KMD tampering in cloud/container environments
+- Provides clear guidance for AWS/GCP/Azure, Kubernetes, and Docker scenarios
+- All 387 tests passing
+
+---
+
 ## [0.0.283] - 2026-01-30
 
 ### Fixed

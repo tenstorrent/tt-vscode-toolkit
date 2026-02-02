@@ -395,8 +395,10 @@
         "p150",
         "galaxy"
       ],
-      "status": "draft",
-      "validatedOn": [],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "completionEvents": [
         "onCommand:tenstorrent.startCodingAssistant"
       ],
@@ -805,8 +807,10 @@
         "t3k",
         "galaxy"
       ],
-      "status": "draft",
-      "validatedOn": [],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "completionEvents": [
         "onCommand:tenstorrent.testTtXlaInstall"
       ],
