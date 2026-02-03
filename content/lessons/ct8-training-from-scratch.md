@@ -205,12 +205,26 @@ graph LR
 
 ### Install Dependencies
 
-You should already have `tt-train` installed from CT-4. If not:
+**tt-metal version:** v0.66.0-rc5 or later (required for Python ttml module)
+
+**Check your version:**
+```bash
+cd $TT_METAL_HOME && git describe --tags
+# Should show v0.66.0-rc5 or later
+```
+
+**⚠️ Version Note:** Earlier versions (v0.64.5 and below) only have C++ tt-train framework, not the Python ttml module required for these lessons.
+
+**Install ttml** (if not already done from CT-4):
 
 ```bash
-# Install tt-train
 cd $TT_METAL_HOME/tt-train
 pip install -e .
+```
+
+**Verify installation:**
+```bash
+python -c "import ttml; print('✅ ttml available')"
 ```
 
 ### Prepare Dataset

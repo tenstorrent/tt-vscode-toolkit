@@ -43,7 +43,7 @@ Run your first fine-tuning job! Take TinyLlama and transform it into the tt-tric
 
 ### System Requirements
 
-- **tt-metal:** v0.64.5 or later (v0.66.0-rc5 recommended)
+- **tt-metal:** v0.66.0-rc5 or later (required for Python ttml module)
 - **Hardware:** N150, N300, T3K, P100, P150, or Galaxy
 - **Disk space:** 10GB free (for model download)
 - **Python:** 3.10+
@@ -51,6 +51,18 @@ Run your first fine-tuning job! Take TinyLlama and transform it into the tt-tric
 ### Critical Setup Steps
 
 Before starting fine-tuning, complete these steps in order:
+
+**⚠️ Version Compatibility:**
+
+The Python `ttml` training module is required for these lessons.
+
+- **v0.64.5 and earlier:** C++ tt-train only ❌ (not compatible)
+- **v0.66.0-rc5 and later:** Python ttml module ✅ (compatible)
+
+**Check your version:**
+```bash
+cd $TT_METAL_HOME && git describe --tags
+```
 
 #### 1. Update tt-metal Submodules (CRITICAL!)
 

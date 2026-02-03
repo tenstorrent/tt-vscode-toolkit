@@ -207,16 +207,16 @@ def get_batch_generator(dataloader: DataLoader, device_config=None):
     while True:
         for X_np, y_np, loss_scaler_np in dataloader:
             X = ttml.autograd.Tensor.from_numpy(
-                X_np, ttml.Layout.ROW_MAJOR, ttml.autograd.DataType.UINT32, mapper
+                X_np, layout=ttnn.Layout.ROW_MAJOR, new_type=ttnn.DataType.UINT32, mapper=mapper
             )
             y = ttml.autograd.Tensor.from_numpy(
-                y_np, ttml.Layout.ROW_MAJOR, ttml.autograd.DataType.UINT32, mapper
+                y_np, layout=ttnn.Layout.ROW_MAJOR, new_type=ttnn.DataType.UINT32, mapper=mapper
             )
             loss_scaler = ttml.autograd.Tensor.from_numpy(
                 loss_scaler_np,
-                ttml.Layout.TILE,
-                ttml.autograd.DataType.BFLOAT16,
-                mapper,
+                layout=ttnn.Layout.TILE,
+                new_type=ttnn.DataType.BFLOAT16,
+                mapper=mapper,
             )
 
             yield (X, y, loss_scaler)
@@ -271,8 +271,8 @@ def generate_trickster_response(
             # Forward pass
             padded_prompt_tensor = ttml.autograd.Tensor.from_numpy(
                 padded_prompt_tokens,
-                ttml.Layout.ROW_MAJOR,
-                ttml.autograd.DataType.UINT32,
+                layout=ttnn.Layout.ROW_MAJOR,
+                new_type=ttnn.DataType.UINT32,
             )
             logits = model(padded_prompt_tensor, causal_mask)
 
@@ -461,7 +461,7 @@ def train(args):
     optim = create_optimizer(tt_model, yaml_config)
     causal_mask = build_causal_mask(max_sequence_length)
     causal_mask = ttml.autograd.Tensor.from_numpy(
-        causal_mask, ttml.Layout.ROW_MAJOR, ttml.autograd.DataType.BFLOAT16
+        causal_mask, layout=ttnn.Layout.ROW_MAJOR, new_type=ttnn.DataType.BFLOAT16
     )
     logits_mask_tensor = build_logits_mask(orig_vocab_size, padded_vocab_size)
     loss_fn = ttml.ops.loss.cross_entropy_loss
