@@ -586,13 +586,32 @@ cd ~/tt-scratchpad/training
 cp /path/to/tt-vscode-toolkit/content/templates/training/chat_with_trickster.py .
 ```
 
-**Start chatting:**
+**Set up environment and start chatting:**
 
 ```bash
+# Activate v0.66.0-rc7 Python environment (CRITICAL!)
+source ~/tt-metal-v0.66.0-rc7/python_env/bin/activate
+
+# Set environment variables
+export TT_METAL_HOME=/home/user/tt-metal-v0.66.0-rc7
+export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=$TT_METAL_HOME/tt-train/build/sources:$PYTHONPATH
+
+# Navigate to workspace
+cd ~/tt-scratchpad/training
+
+# Start chatting! (Using ABSOLUTE PATHS to avoid confusion)
 python chat_with_trickster.py \
-  --model-path output/final_model \
-  --config configs/trickster_n150.yaml
+  --model-path ~/tt-metal-v0.66.0-rc7/tt-train/checkpoints/trickster_training_final.pkl \
+  --config ~/tt-scratchpad/training/configs/trickster_n150.yaml \
+  --temperature 0.7
 ```
+
+**⚠️ Important Notes:**
+- **Environment Setup is Critical:** Must use v0.66.0-rc7 python_env (not main tt-metal env)
+- **Use Absolute Paths:** Model checkpoint is in `~/tt-metal-v0.66.0-rc7/tt-train/checkpoints/` (where training ran)
+- **Config Location:** Training config is in `~/tt-scratchpad/training/configs/`
+- Without proper environment, you'll get "ModuleNotFoundError: No module named 'ttml'"
 
 ### What You'll See
 
@@ -649,17 +668,25 @@ You: exit
 The `--temperature` parameter controls response creativity:
 
 ```bash
+# (Assumes environment already set up from above)
+
 # More conservative, predictable responses
-python chat_with_trickster.py --model-path output/final_model \
-  --config configs/trickster_n150.yaml --temperature 0.3
+python chat_with_trickster.py \
+  --model-path ~/tt-metal-v0.66.0-rc7/tt-train/checkpoints/trickster_training_final.pkl \
+  --config ~/tt-scratchpad/training/configs/trickster_n150.yaml \
+  --temperature 0.3
 
 # Default balance (recommended)
-python chat_with_trickster.py --model-path output/final_model \
-  --config configs/trickster_n150.yaml --temperature 0.7
+python chat_with_trickster.py \
+  --model-path ~/tt-metal-v0.66.0-rc7/tt-train/checkpoints/trickster_training_final.pkl \
+  --config ~/tt-scratchpad/training/configs/trickster_n150.yaml \
+  --temperature 0.7
 
 # More creative, playful responses
-python chat_with_trickster.py --model-path output/final_model \
-  --config configs/trickster_n150.yaml --temperature 0.9
+python chat_with_trickster.py \
+  --model-path ~/tt-metal-v0.66.0-rc7/tt-train/checkpoints/trickster_training_final.pkl \
+  --config ~/tt-scratchpad/training/configs/trickster_n150.yaml \
+  --temperature 0.9
 ```
 
 **Temperature guide:**

@@ -182,25 +182,47 @@ def main():
 
     args = parser.parse_args()
 
-    # Load config
-    config = load_config(args.config)
-    max_sequence_length = config.model_config.max_seq_len
+    # Load config (returns dict, not object!)
+    print(f"📋 Loading config: {args.config}")
+    yaml_config = load_config(args.config)
 
-    # Initialize device
-    print("🔧 Initializing Tenstorrent device...")
-    device = initialize_device(seed=config.training_config.seed)
-    device_ctx = ttml.autograd.AutoContext(device=device)
-    device_ctx.enter()
+    # Resolve model config path (relative to tt-train/configs/)
+    model_config_path = yaml_config["training_config"]["model_config"]
+    import os
+    if not os.path.isabs(model_config_path):
+        # Relative path - resolve from TT_METAL_HOME/tt-train/configs/
+        tt_metal_home = os.environ.get("TT_METAL_HOME", os.path.expanduser("~/tt-metal"))
+        model_config_path = os.path.join(tt_metal_home, "tt-train/configs", model_config_path)
 
-    # Load tokenizer
-    print(f"📚 Loading tokenizer: {config.model_config.tokenizer_path}")
-    tokenizer = AutoTokenizer.from_pretrained(
-        config.model_config.tokenizer_path, use_fast=True
-    )
+    model_config = load_config(model_config_path)
+
+    # Create device config
+    device_config = ttml.common.config.DeviceConfig(yaml_config)
+
+    # Initialize device (for multi-device)
+    if device_config.total_devices() > 1:
+        print(f"🔧 Initializing {device_config.total_devices()} devices...")
+        initialize_device(yaml_config)
+    else:
+        print("🔧 Using single device (N150)")
+
+    # Load tokenizer (default to TinyLlama)
+    tokenizer_path = "TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T"
+    print(f"📚 Loading tokenizer: {tokenizer_path}")
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, use_fast=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    # Create model factory
+    print("🤖 Creating model...")
+    orig_vocab_size = tokenizer.vocab_size
+    tt_model_factory = TransformerModelFactory(model_config)
+    tt_model_factory.transformer_config.vocab_size = orig_vocab_size
+    max_sequence_length = tt_model_factory.transformer_config.max_sequence_length
+    padded_vocab_size = round_up_to_tile(orig_vocab_size, 32)
 
     # Create model
-    print("🤖 Creating model...")
-    model = TransformerModelFactory.create_model(config.model_config, device)
+    model = tt_model_factory.create_model()
 
     # Load fine-tuned weights
     print(f"⚖️  Loading fine-tuned weights from {args.model_path}")
@@ -214,12 +236,11 @@ def main():
 
     # Build masks
     print("🎭 Building attention masks...")
-    padded_seq_len = round_up_to_tile(max_sequence_length)
-    causal_mask = build_causal_mask(padded_seq_len, device)
-    logits_mask = build_logits_mask(tokenizer.vocab_size)
-    logits_mask_tensor = ttml.autograd.Tensor.from_numpy(
-        logits_mask, ttml.Layout.ROW_MAJOR, ttml.autograd.DataType.FLOAT32
+    causal_mask = build_causal_mask(max_sequence_length)
+    causal_mask = ttml.autograd.Tensor.from_numpy(
+        causal_mask, ttml.Layout.ROW_MAJOR, ttml.autograd.DataType.BFLOAT16
     )
+    logits_mask_tensor = build_logits_mask(orig_vocab_size, padded_vocab_size)
 
     # Print welcome
     print_welcome()
@@ -279,8 +300,6 @@ def main():
     # Cleanup
     print(f"\n📊 Chat statistics: {conversation_count} questions answered")
     print("✨ Thanks for chatting with Trickster!")
-    device_ctx.exit()
-    device.close()
 
 
 if __name__ == "__main__":
