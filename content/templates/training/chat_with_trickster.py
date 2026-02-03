@@ -17,10 +17,12 @@ Commands:
 import argparse
 import numpy as np
 import sys
+import pickle
 from pathlib import Path
+from dataclasses import dataclass
 from transformers import AutoTokenizer
 import ttml
-from ttml.common.config import load_config
+from ttml.common.config import load_config, TrainingConfig
 from ttml.common.model_factory import TransformerModelFactory
 from ttml.common.utils import (
     round_up_to_tile,
@@ -28,7 +30,22 @@ from ttml.common.utils import (
     build_logits_mask,
     no_grad,
 )
-from ttml.common.data import build_causal_mask
+from ttml.common.data import build_causal_mask, CharTokenizer
+
+
+# ModelConfig definition (needed for pickle deserialization)
+@dataclass
+class ModelConfig:
+    """Model configuration for NanoGPT checkpoints."""
+    model_type: str = "gpt2"
+    model_path: str = ""
+    vocab_size: int = 50304
+    embedding_dim: int = 384
+    num_blocks: int = 6
+    num_heads: int = 6
+    dropout_prob: float = 0.2
+    bias: bool = True
+    max_sequence_length: int = 128
 
 
 def generate_response(
@@ -186,13 +203,14 @@ def main():
     print(f"📋 Loading config: {args.config}")
     yaml_config = load_config(args.config)
 
-    # Resolve model config path (relative to tt-train/configs/)
+    # Resolve model config path
     model_config_path = yaml_config["training_config"]["model_config"]
     import os
     if not os.path.isabs(model_config_path):
-        # Relative path - resolve from TT_METAL_HOME/tt-train/configs/
+        # Relative path - resolve from TT_METAL_HOME/tt-train/
         tt_metal_home = os.environ.get("TT_METAL_HOME", os.path.expanduser("~/tt-metal"))
-        model_config_path = os.path.join(tt_metal_home, "tt-train/configs", model_config_path)
+        # Path is relative to tt-train/ directory (not tt-train/configs/)
+        model_config_path = os.path.join(tt_metal_home, "tt-train", model_config_path)
 
     model_config = load_config(model_config_path)
 
@@ -221,9 +239,6 @@ def main():
     max_sequence_length = tt_model_factory.transformer_config.max_sequence_length
     padded_vocab_size = round_up_to_tile(orig_vocab_size, 32)
 
-    # Create model
-    model = tt_model_factory.create_model()
-
     # Load fine-tuned weights
     print(f"⚖️  Loading fine-tuned weights from {args.model_path}")
     model_path = Path(args.model_path)
@@ -231,14 +246,47 @@ def main():
         print(f"❌ Error: Model path does not exist: {model_path}")
         sys.exit(1)
 
-    model.load_state_dict(model_path)
-    print("✅ Model loaded successfully!")
+    # Check if pickle checkpoint (.pkl) or safetensors
+    if str(model_path).endswith('.pkl'):
+        print("📦 Detected pickle checkpoint (NanoGPT format)")
+        # Load pickle checkpoint
+        with open(model_path, 'rb') as f:
+            checkpoint = pickle.load(f)
+
+        model_state = checkpoint["model_state"]
+        print(f"  Checkpoint contains {len(model_state)} parameters")
+
+        # Create model and load state
+        model = tt_model_factory.create_model()
+        model_params = model.parameters()
+
+        for name, param_data in model_state.items():
+            if name not in model_params:
+                print(f"    Warning: Parameter {name} not found in model")
+                continue
+
+            # Handle both old format (numpy array) and new format (dict with metadata)
+            if isinstance(param_data, dict):
+                param_value = param_data['data']
+            else:
+                param_value = param_data
+
+            model_params[name].assign(param_value)
+
+        print("✅ Model parameters loaded from checkpoint!")
+
+    else:
+        print("📦 Detected safetensors checkpoint (TinyLlama format)")
+        # Load safetensors checkpoint
+        model = tt_model_factory.create_model()
+        model.load_from_safetensors(model_path)
+        print("✅ Model loaded successfully!")
 
     # Build masks
     print("🎭 Building attention masks...")
     causal_mask = build_causal_mask(max_sequence_length)
     causal_mask = ttml.autograd.Tensor.from_numpy(
-        causal_mask, ttml.Layout.ROW_MAJOR, ttml.autograd.DataType.BFLOAT16
+        causal_mask, layout=ttml.Layout.ROW_MAJOR, new_type=ttml.autograd.DataType.BFLOAT16
     )
     logits_mask_tensor = build_logits_mask(orig_vocab_size, padded_vocab_size)
 
