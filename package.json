@@ -558,36 +558,6 @@
         "command": "tenstorrent.runParticleLife",
         "title": "Run Particle Life Simulation",
         "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.viewZenDataset",
-        "title": "View Zen Master Dataset",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.validateZenDataset",
-        "title": "Validate Zen Master Dataset",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.startFineTuningN150",
-        "title": "Fine-tune Zen Master (N150)",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.startFineTuningN300",
-        "title": "Fine-tune Zen Master (N300)",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.startFineTuningBlackhole",
-        "title": "Fine-tune Zen Master (Blackhole)",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.testZenModel",
-        "title": "Test Zen Master Model",
-        "category": "Tenstorrent"
       }
     ]
   },

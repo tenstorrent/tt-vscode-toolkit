@@ -408,39 +408,8 @@
         "model"
       ],
       "previousLesson": "video-generation-ttmetal",
-      "nextLesson": "finetune-custom-model",
-      "estimatedMinutes": 10
-    },
-    {
-      "id": "finetune-custom-model",
-      "title": "Fine-tune Your Own Model",
-      "description": "Learn to fine-tune TinyLlama into a witty Zen Master that responds in koans and one-liners. Practical introduction to model customization on Tenstorrent hardware.",
-      "category": "applications",
-      "order": 11,
-      "markdownFile": "content/lessons/finetune-custom-model.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "p100",
-        "p150",
-        "p300c",
-        "t3k",
-        "galaxy"
-      ],
-      "status": "draft",
-      "validatedOn": [],
-      "completionEvents": [
-        "onCommand:tenstorrent.startFineTuningN150"
-      ],
-      "tags": [
-        "training",
-        "fine-tuning",
-        "custom-model",
-        "tt-train"
-      ],
-      "previousLesson": "coding-assistant",
       "nextLesson": "ct1-understanding-training",
-      "estimatedMinutes": 90
+      "estimatedMinutes": 10
     },
     {
       "id": "ct1-understanding-training",
@@ -453,7 +422,7 @@
       "status": "draft",
       "validatedOn": ["n150", "n300", "t3k", "p100", "p150", "galaxy"],
       "tags": ["training", "concepts", "tt-train", "tt-blacksmith"],
-      "previousLesson": "finetune-custom-model",
+      "previousLesson": "coding-assistant",
       "nextLesson": "ct2-dataset-fundamentals",
       "estimatedMinutes": 15
     },
