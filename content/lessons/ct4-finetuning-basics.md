@@ -586,13 +586,31 @@ cd ~/tt-scratchpad/training
 cp /path/to/tt-vscode-toolkit/content/templates/training/chat_with_trickster.py .
 ```
 
-**Start chatting:**
+**Set up environment and start chatting:**
 
 ```bash
+# Activate v0.66.0-rc7 Python environment (CRITICAL!)
+source ~/tt-metal-v0.66.0-rc7/python_env/bin/activate
+
+# Set environment variables
+export TT_METAL_HOME=/home/user/tt-metal-v0.66.0-rc7
+export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=$TT_METAL_HOME/tt-train/build/sources:$PYTHONPATH
+
+# Navigate to workspace
+cd ~/tt-scratchpad/training
+
+# Start chatting!
 python chat_with_trickster.py \
   --model-path output/final_model \
-  --config configs/trickster_n150.yaml
+  --config configs/trickster_n150.yaml \
+  --temperature 0.7
 ```
+
+**⚠️ Environment Setup is Critical:**
+- Must use v0.66.0-rc7 python_env (not main tt-metal env)
+- TT_METAL_HOME must point to v0.66.0-rc7 directory
+- Without these, you'll get "ModuleNotFoundError: No module named 'ttml'"
 
 ### What You'll See
 
@@ -649,6 +667,8 @@ You: exit
 The `--temperature` parameter controls response creativity:
 
 ```bash
+# (Assumes environment already set up from above)
+
 # More conservative, predictable responses
 python chat_with_trickster.py --model-path output/final_model \
   --config configs/trickster_n150.yaml --temperature 0.3
