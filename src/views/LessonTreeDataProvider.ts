@@ -195,9 +195,9 @@ export class LessonTreeDataProvider implements vscode.TreeDataProvider<LessonTre
    */
   private applyConfigurationFilter(): void {
     const config = vscode.workspace.getConfiguration('tenstorrent');
-    const showUnvalidated = config.get<boolean>('showUnvalidatedLessons', false);
+    const showUnvalidated = config.get<boolean>('showUnvalidatedLessons', true);
 
-    // If showUnvalidatedLessons is false (default), filter to validated only
+    // If showUnvalidatedLessons is false, filter to validated only
     if (!showUnvalidated) {
       this.filterOptions.validatedOnly = true;
     } else {
