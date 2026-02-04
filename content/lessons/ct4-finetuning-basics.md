@@ -1333,39 +1333,46 @@ python train_nanogpt.py \
 
 ### Option 2: Extend Training
 
-Want even more fluent Shakespeare?
+**Note:** As seen in Stage 4, the 6-layer model reached a plateau at loss ~1.7. More training time alone won't significantly improve results - the model has learned everything this architecture can capture. To get better quality, increase model size (Option 3 below).
 
-**Continue from Stage 4:**
+### Option 3: Break Through the Plateau with Larger Models
+
+The Stage 4 plateau (loss 1.66 → 1.70) shows this 6-layer model reached its capacity. **Good news**: Your N150 hardware can handle much larger models!
+
+**Current model (plateaus at ~1.7):**
+- 6 layers, 384 embedding → ~10M parameters
+- Uses ~20% of N150's 12GB DRAM
+
+**To achieve fluent Shakespeare (loss <1.0), try a larger model:**
+
+Edit the config in `train_nanogpt.py` (around line 100-120):
+
+```python
+# Change from default:
+n_layer = 12         # Instead of 6
+n_embd = 768         # Instead of 384
+n_head = 12          # Instead of 6
+```
+
+Then train with same commands:
 ```bash
-# Train for 300-500 epochs
 python train_nanogpt.py \
   --data_path ~/tt-scratchpad/training/data/shakespeare.txt \
-  --num_epochs 500 \
+  --max_steps 20000 \
+  --num_epochs 10000 \
   --batch_size 4 \
   --learning_rate 5e-4 \
-  --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare_extended.pkl \
-  --fresh  # Or load from existing checkpoint
+  --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare_large.pkl \
+  --fresh
 ```
 
-**Expected:** Loss → 0.5-0.6, even more fluent generation
+**Expected results:**
+- **Time**: ~15-20 minutes on N150 (3-4x slower due to 4x more parameters)
+- **Memory**: Still comfortable fit in N150's DRAM
+- **Loss**: ~0.7-0.9 (significantly better than 1.7!)
+- **Quality**: Fluent, grammatically correct Shakespeare
 
-### Option 3: Experiment with Model Size
-
-Try different model configurations by editing `train_nanogpt.py`:
-
-**Smaller (faster, less capacity):**
-```python
-n_layer = 4          # Instead of 6
-n_embd = 256         # Instead of 384
-```
-
-**Larger (slower, more capacity):**
-```python
-n_layer = 8          # Instead of 6
-n_embd = 512         # Instead of 384
-```
-
-Then train and compare results!
+**This teaches an important lesson**: When loss plateaus despite more training, the architecture (not hardware or time) is the bottleneck. Scale up the model to break through!
 
 ---
 
