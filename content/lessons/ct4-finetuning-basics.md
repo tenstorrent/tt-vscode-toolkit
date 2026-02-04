@@ -48,8 +48,8 @@ Run your first fine-tuning job! Take TinyLlama and transform it into the tt-tric
 - ✅ Understand loss curves and convergence
 
 **Version requirements**:
-- **v0.67.0-dev20260203 or later**: ✅ Required (has inference fixes)
-- **v0.66.0-rc7 or earlier**: ❌ Has context management bugs
+- **v0.67.0 or later** (including latest RC): ✅ Required (has inference fixes)
+- **v0.66.0-rc7 or earlier**: ❌ Has context management bugs causing repetitive output
 
 ---
 
@@ -109,9 +109,9 @@ It is the east, and Juliet is the sun.
 
 ### System Requirements
 
-- **tt-metal:** v0.66.0-rc5 or later (required for Python ttml module)
-- **Hardware:** N150, N300, T3K, P100, P150, or Galaxy
-- **Disk space:** 10GB free (for model download)
+- **tt-metal:** v0.67.0 or later (including latest RC) - required for proper inference
+- **Hardware:** N150, N300, T3K, P100, P150, P300C, or Galaxy
+- **Disk space:** 5GB free (for tt-metal build and checkpoints)
 - **Python:** 3.10+
 
 ### Critical Setup Steps
@@ -120,10 +120,11 @@ Before starting fine-tuning, complete these steps in order:
 
 **⚠️ Version Compatibility:**
 
-The Python `ttml` training module is required for these lessons.
+The Python `ttml` training module with inference fixes is required for these lessons.
 
 - **v0.64.5 and earlier:** C++ tt-train only ❌ (not compatible)
-- **v0.66.0-rc5 and later:** Python ttml module ✅ (compatible)
+- **v0.66.0-rc5 to v0.66.0-rc7:** Python ttml module ⚠️ (has inference bugs)
+- **v0.67.0 or later (including latest RC):** Python ttml module + inference fixes ✅ (recommended)
 
 **Check your version:**
 ```bash

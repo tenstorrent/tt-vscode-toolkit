@@ -205,15 +205,19 @@ graph LR
 
 ### Install Dependencies
 
-**tt-metal version:** v0.66.0-rc5 or later (required for Python ttml module)
+**tt-metal version:** v0.66.0-rc5 or later (v0.67.0+ or latest RC recommended)
 
 **Check your version:**
 ```bash
 cd $TT_METAL_HOME && git describe --tags
 # Should show v0.66.0-rc5 or later
+# Recommended: v0.67.0 or later for latest improvements
 ```
 
-**⚠️ Version Note:** Earlier versions (v0.64.5 and below) only have C++ tt-train framework, not the Python ttml module required for these lessons.
+**⚠️ Version Notes:**
+- **v0.64.5 and earlier:** C++ tt-train only (not compatible)
+- **v0.66.0-rc5+:** Python ttml module available ✅
+- **v0.67.0+ or latest RC:** Includes inference improvements (recommended)
 
 **Install ttml** (if not already done from CT-4):
 
