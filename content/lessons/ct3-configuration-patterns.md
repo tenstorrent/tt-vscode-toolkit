@@ -50,11 +50,40 @@ Master YAML-driven training configuration using patterns from tt-blacksmith. Lea
 
 ### The tt-blacksmith Way
 
-tt-blacksmith uses comprehensive YAML configs with standardized sections:
-- `training_config` - Hyperparameters, batch size, learning rate
-- `device_config` - Hardware setup, DDP, mesh shape
-- `eval_config` - Validation and sampling parameters
-- Logging/checkpointing built into `training_config`
+tt-blacksmith uses comprehensive YAML configs with standardized sections. Here's how they fit together:
+
+```mermaid
+graph TD
+    A[YAML Config File] --> B[training_config<br/>Core Training Settings]
+    A --> C[device_config<br/>Hardware Setup]
+    A --> D[eval_config<br/>Validation Settings]
+
+    B --> E[Hyperparameters<br/>batch_size, learning_rate, epochs]
+    B --> F[Checkpointing<br/>Save frequency, strategy]
+    B --> G[Logging<br/>WandB, file output, log level]
+    B --> H[Optimizer<br/>AdamW, weight decay, gradient clipping]
+
+    C --> I[Single/Multi Device<br/>enable_ddp, mesh_shape]
+
+    D --> J[Sampling Parameters<br/>temperature, top_k, top_p]
+
+    style A fill:#FFE4B5,stroke:#333,stroke-width:3px
+    style B fill:#87CEEB,stroke:#333,stroke-width:2px
+    style C fill:#87CEEB,stroke:#333,stroke-width:2px
+    style D fill:#87CEEB,stroke:#333,stroke-width:2px
+    style E fill:#E0E0E0,stroke:#333,stroke-width:1px
+    style F fill:#E0E0E0,stroke:#333,stroke-width:1px
+    style G fill:#E0E0E0,stroke:#333,stroke-width:1px
+    style H fill:#E0E0E0,stroke:#333,stroke-width:1px
+    style I fill:#E0E0E0,stroke:#333,stroke-width:1px
+    style J fill:#E0E0E0,stroke:#333,stroke-width:1px
+```
+
+**Why this structure?**
+- **Logical grouping:** Related settings stay together
+- **Easy to navigate:** Find what you need quickly
+- **Consistent across projects:** Same pattern everywhere
+- **Self-documenting:** Structure tells you what each section controls
 
 **We'll follow this pattern** throughout the Custom Training series.
 
@@ -543,26 +572,69 @@ device_config:
 
 ## Configuration Experimentation Workflow
 
+Experimentation is the heart of ML engineering. Here's how to systematically improve your models through config changes:
+
+```mermaid
+graph TD
+    A[Start: Baseline Config<br/>trickster_n150.yaml] --> B[Run Training<br/>Monitor loss & samples]
+
+    B --> C{Results Good?}
+    C -->|Yes| D[🎉 Use This Config<br/>Save as production]
+    C -->|No| E[Identify Issue<br/>Loss too high? Overfit? Slow?]
+
+    E --> F{What to Change?}
+
+    F -->|Loss not improving| G[Try Higher LR<br/>1e-4 → 2e-4]
+    F -->|Loss jumpy/unstable| H[Try Lower LR<br/>1e-4 → 5e-5]
+    F -->|Training too slow| I[Increase batch_size<br/>8 → 16]
+    F -->|Out of memory| J[Decrease batch_size<br/>or add gradient_accumulation]
+
+    G --> K[Run Experiment<br/>Change ONE parameter]
+    H --> K
+    I --> K
+    J --> K
+
+    K --> L[Compare Results<br/>Better or worse?]
+
+    L -->|Better| M[Keep Change<br/>Update baseline]
+    L -->|Worse| N[Revert Change<br/>Try something else]
+
+    M --> O{More to Try?}
+    N --> O
+
+    O -->|Yes| F
+    O -->|No| D
+
+    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
+    style B fill:#87CEEB,stroke:#333,stroke-width:2px
+    style D fill:#90EE90,stroke:#333,stroke-width:3px
+    style E fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style K fill:#87CEEB,stroke:#333,stroke-width:2px
+    style L fill:#FFB6C1,stroke:#333,stroke-width:2px
+```
+
+**Key principle: Change one thing at a time.**
+
 ### 1. Start with Baseline Config
 
-Use the provided `trickster_n150.yaml` as-is.
+Use the provided `trickster_n150.yaml` as-is. This is your reference point.
 
 ### 2. Change One Thing at a Time
 
-**Good:**
+**Good approach:**
 ```
 Run 1: batch_size=8, lr=1e-4
-Run 2: batch_size=16, lr=1e-4  # Changed batch size only
-Run 3: batch_size=16, lr=5e-5  # Changed LR only
+Run 2: batch_size=16, lr=1e-4  # Changed batch size only ✅
+Run 3: batch_size=16, lr=5e-5  # Changed LR only ✅
 ```
 
-**Bad:**
+**Bad approach:**
 ```
 Run 1: batch_size=8, lr=1e-4, steps=500
-Run 2: batch_size=16, lr=5e-5, steps=1000  # Changed everything!
+Run 2: batch_size=16, lr=5e-5, steps=1000  # Changed everything! ❌
 ```
 
-**Why:** You won't know what caused improvement or regression.
+**Why?** If Run 2 is better, you won't know if it was the batch size, learning rate, or step count that made the difference. Scientific method requires isolating variables.
 
 ### 3. Track Results
 
@@ -651,6 +723,154 @@ device_config:
 ```
 
 **Use when:** Iterating on production models, N300+ available.
+
+---
+
+## Real-World Configuration Scenarios
+
+Configuration isn't just about technical settings - it's about solving real problems within constraints. Let's explore how different scenarios drive different config choices.
+
+### Scenario 1: The Medical Chatbot (Privacy-First)
+
+**Challenge:** Fine-tune a model for medical Q&A within HIPAA constraints.
+
+**Configuration decisions:**
+```yaml
+training_config:
+  batch_size: 4                    # Small batches (limited patient data)
+  learning_rate: 5e-5              # Conservative to preserve medical knowledge
+  checkpoint_frequency: 50         # Frequent saves (expensive hardware time)
+  validation_frequency: 25         # Validate often (safety-critical)
+  use_wandb: false                 # NO cloud logging (HIPAA compliance)
+  log_level: "INFO"                # Local-only logging
+
+device_config:
+  enable_ddp: False                # On-premise N150 only
+  mesh_shape: [1, 1]
+```
+
+**Result:** Production model in 2 hours on N150, deployable with vLLM (**Lesson 7**), fully compliant.
+
+**Total time:** One afternoon of fine-tuning, months of value.
+
+---
+
+### Scenario 2: The Code Translator (Speed Matters)
+
+**Challenge:** PyTorch → TTNN translator for internal dev team. Need fast iteration.
+
+**Configuration decisions:**
+```yaml
+training_config:
+  batch_size: 16                   # Larger batch on N300
+  learning_rate: 1e-4              # Standard fine-tuning LR
+  max_steps: 300                   # Shorter runs for rapid experiments
+  checkpoint_frequency: 100        # Less frequent (iterate fast)
+  validation_frequency: 50         # Regular quality checks
+  use_wandb: true                  # Track 10+ experiments easily
+  wandb_project: "pytorch-to-ttnn"
+
+device_config:
+  enable_ddp: True                 # N300 for 2x speedup
+  mesh_shape: [1, 2]
+```
+
+**Result:** Iterate through 10 model versions in 2 days. Find winning config. Deploy.
+
+**Impact:** 500 examples → model that saves team 5 hours/week.
+
+---
+
+### Scenario 3: The Research Experiment (Maximum Insight)
+
+**Challenge:** Testing novel attention patterns. Need full visibility into training dynamics.
+
+**Configuration decisions:**
+```yaml
+training_config:
+  batch_size: 8                    # Standard for N150
+  learning_rate: 1e-4
+  max_steps: 1000                  # Longer run to see convergence
+  checkpoint_frequency: 50         # Save often (expensive compute)
+  validation_frequency: 25         # Validate very often
+  use_wandb: true                  # Essential for analysis
+  log_level: "DEBUG"               # Maximum visibility
+  gradient_accumulation_steps: 4   # Simulate larger batch
+
+eval_config:
+  temperature: 0.0                 # Deterministic for fair comparison
+
+device_config:
+  enable_ddp: False                # Single device for simplicity
+  mesh_shape: [1, 1]
+```
+
+**Result:** Rich training logs, beautiful WandB visualizations, clear insights into what works.
+
+**Learning:** Config isn't just for training - it's for understanding.
+
+---
+
+### Scenario 4: The Production Pipeline (Reliability & Scale)
+
+**Challenge:** Training custom models weekly for production deployment. Need consistency and speed.
+
+**Configuration decisions:**
+```yaml
+training_config:
+  batch_size: 32                   # T3K can handle it
+  learning_rate: 1e-4
+  max_steps: 500
+  checkpoint_frequency: 250        # Only keep key checkpoints
+  validation_frequency: 100        # Less frequent (known dataset quality)
+  use_wandb: true                  # Track production runs
+  use_clip_grad_norm: true         # Safety net
+  gradient_accumulation_steps: 1   # No accumulation needed
+
+device_config:
+  enable_ddp: True                 # T3K mesh
+  mesh_shape: [2, 4]               # 8 devices, 8x speedup
+```
+
+**Result:** Train multiple models per day. A/B test in production. Iterate based on user feedback.
+
+**Scale:** From prototype (N150) → production (T3K) seamlessly. Same config pattern, different values.
+
+---
+
+### What These Scenarios Teach Us
+
+**Configuration reflects your constraints:**
+- **Privacy concerns** → No cloud logging, local-only
+- **Speed requirements** → Multi-device, shorter runs, WandB tracking
+- **Research goals** → Maximum logging, frequent checkpoints, careful validation
+- **Production scale** → Large batches, fast hardware, reliability features
+
+**The same tt-blacksmith pattern works for all scenarios.** Only the values change.
+
+### Your Configuration Journey
+
+**Week 1 (N150, Learning):**
+- Use baseline configs from this extension
+- Focus on understanding what each parameter does
+- Experiment with one parameter at a time
+- **Goal:** Build intuition
+
+**Week 2-3 (N150, Iterating):**
+- Apply lessons to your domain
+- Create custom configs for your use case
+- Track experiments systematically
+- **Goal:** Find what works for your data
+
+**Month 2+ (N300/T3K, Scaling):**
+- Scale successful configs to faster hardware
+- Run multiple experiments in parallel
+- Build a library of proven configs
+- **Goal:** Production-ready workflow
+
+**The power isn't in any single config value.**
+
+**The power is in systematic experimentation, guided by configuration.**
 
 ---
 

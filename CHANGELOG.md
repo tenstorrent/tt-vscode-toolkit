@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.299] - 2026-02-04
+
+### Added
+- **Comprehensive CT Lesson Enhancements** - All 8 Custom Training lessons significantly improved
+  - **Visual Clarity**: Added 20+ mermaid.js diagrams across all lessons
+    - CT1: Training framework ecosystem, complete training process flow
+    - CT2: Dataset pipeline flow, format comparison, quality workflow
+    - CT3: Configuration hierarchy, experimentation workflow
+    - CT4: Progressive training stages visualization
+    - CT5: DDP architecture, device mesh visualization
+    - CT6: Experiment tracking workflow, comparison flows
+    - CT7: Architecture visualizations (already present, verified)
+    - CT8: Training progression diagrams (already present, verified)
+  - **Inspirational Content**: Added "What's Possible" / "Beyond This Lesson" sections to all 8 lessons
+    - Real-world application examples and success stories
+    - Scaling possibilities from N150 → N300 → T3K → Galaxy
+    - "Imagine..." prompts for creative thinking
+    - Economic viability and ROI examples
+    - Domain-specific adaptation guidance
+  - **Improved Tone**: Enhanced all lessons with conversational voice, analogies, and "why" explanations
+    - Removed curt technical descriptions
+    - Added practical context and motivation
+    - Strengthened cross-references between lessons
+
+### Changed
+- **CT1 (Understanding Training)** - Enhanced with framework ecosystem diagram and custom AI landscape section
+- **CT2 (Dataset Fundamentals)** - Added data flow visualization, format comparison, and real-world dataset inspiration
+- **CT3 (Configuration Patterns)** - Added config hierarchy and experimentation workflow diagrams, real-world scenarios
+- **CT4 (Fine-tuning Basics)** - Added progressive learning visualization and domain application inspiration
+- **CT5 (Multi-Device Training)** - Added DDP architecture diagram, device mesh visualization, scaling journey content
+- **CT6 (Experiment Tracking)** - Added professional ML engineering practices and systematic tracking benefits
+- **CT7 (Architecture Basics)** - Added specialized architecture inspiration and design possibilities
+- **CT8 (Training from Scratch)** - Added nano-to-production scaling guidance and transformation journey
+
+### Context
+- **Four-Pillar Enhancement Strategy**: Visual clarity (mermaid), tone & depth, navigation (cross-refs), inspiration
+- **Key Differentiator**: Lessons now inspire developers to "imagine greatness within constraints"
+- **User Goal**: Help developers not just learn techniques, but envision what they can build
+- **Consistency**: All lessons follow same pattern (mermaid diagrams, inspirational content, practical examples)
+- **Scope**: Comprehensive enhancement of all 8 CT lessons as planned
+- **Cross-references**: CT lessons link to related lessons (vLLM, TT-XLA) without modifying non-CT content
+
+---
+
 ## [0.0.298] - 2026-02-03
 
 ### Added

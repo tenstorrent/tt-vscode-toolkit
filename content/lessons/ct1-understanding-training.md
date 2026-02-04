@@ -87,37 +87,48 @@ So far in this extension, you've learned how to **run** pre-trained models (infe
 
 ## The Training Framework Ecosystem
 
+Tenstorrent's training ecosystem is designed around clarity and modularity. Here's how the pieces fit together:
+
 ### tt-metal (Foundation)
-- Core SDK for Tenstorrent hardware
-- Low-level operations and kernels
-- Device management and memory
-- Location: `vendor/tt-metal/`
+- **What it is:** Core SDK for Tenstorrent hardware
+- **What it does:** Low-level operations, kernels, device management, memory handling
+- **Why it matters:** This is the foundation everything else builds on
+- **Location:** `vendor/tt-metal/`
 
 ### tt-train (Training Framework)
-- Python API for training on TT hardware
-- PyTorch-like interface (familiar to ML engineers)
-- Built-in DDP for multi-device training
-- YAML configuration system
-- Location: `vendor/tt-metal/tt-train/`
+- **What it is:** Python API for training on TT hardware
+- **What it does:** PyTorch-like interface, built-in DDP for multi-device training, YAML configuration
+- **Why it matters:** Makes training feel familiar to ML engineers while optimizing for TT hardware
+- **Location:** `vendor/tt-metal/tt-train/`
 
-### tt-blacksmith (Framework for Making Things Work)
-- Not just for bounties - it's a **development framework**
-- Config-driven training patterns
-- Modular tools for common tasks
-- Best practices for experiment management
-- Shows you how to organize training code
-- Location: External reference (we'll apply patterns here)
+### tt-blacksmith (Development Patterns)
+- **What it is:** Not just for bounties - it's a **development framework**
+- **What it does:** Config-driven patterns, modular organization, experiment management best practices
+- **Why it matters:** Shows you how experienced engineers structure training projects
+- **Location:** External reference (we'll apply these patterns throughout)
 
 **How they work together:**
+
+```mermaid
+graph TD
+    A[Your Training Script] --> B[tt-train API<br/>High-level Training Interface]
+    B --> C[tt-metal SDK<br/>Hardware Operations]
+    C --> D[Tenstorrent Hardware<br/>N150/N300/T3K/P100/Galaxy]
+
+    E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
+
+    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
+    style B fill:#87CEEB,stroke:#333,stroke-width:2px
+    style C fill:#87CEEB,stroke:#333,stroke-width:2px
+    style D fill:#90EE90,stroke:#333,stroke-width:2px
+    style E fill:#E0E0E0,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
 ```
-Your Training Script
-        ↓
-    tt-train (high-level API)
-        ↓
-    tt-metal (hardware operations)
-        ↓
-Tenstorrent Hardware (N150/N300/T3K/etc.)
-```
+
+**Think of it like web development:**
+- tt-metal = Browser APIs (low-level)
+- tt-train = React/Vue (framework)
+- tt-blacksmith = Design patterns & best practices
+- Your script = Your application
 
 ---
 
@@ -166,43 +177,72 @@ Start simple, add complexity when needed:
 
 ## Understanding the Training Process
 
-Here's what happens when you train a model:
+Training a model is like teaching through repetition - show examples, measure mistakes, make corrections, repeat. Here's the complete flow:
+
+```mermaid
+graph TD
+    A[Raw Data<br/>Text files, datasets] --> B[Prepare Data<br/>JSONL format]
+    B --> C[Initialize Model<br/>Pre-trained OR random weights]
+
+    C --> D{Training Loop<br/>Multiple epochs}
+
+    D --> E[Get Batch<br/>8-32 examples]
+    E --> F[Forward Pass<br/>Model makes predictions]
+    F --> G[Compute Loss<br/>How wrong?]
+    G --> H[Backward Pass<br/>Calculate gradients]
+    H --> I[Update Weights<br/>Optimizer step]
+
+    I --> J{More Batches?}
+    J -->|Yes| E
+    J -->|No| K[Evaluation<br/>Generate samples, check quality]
+
+    K --> L[Save Checkpoint<br/>Model weights + optimizer state]
+
+    L --> M{Continue Training?}
+    M -->|Yes, more epochs| D
+    M -->|No, training complete| N[Deployment<br/>Use with vLLM for inference]
+
+    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
+    style B fill:#87CEEB,stroke:#333,stroke-width:2px
+    style C fill:#87CEEB,stroke:#333,stroke-width:2px
+    style D fill:#FFB6C1,stroke:#333,stroke-width:3px
+    style E fill:#87CEEB,stroke:#333,stroke-width:2px
+    style F fill:#87CEEB,stroke:#333,stroke-width:2px
+    style G fill:#87CEEB,stroke:#333,stroke-width:2px
+    style H fill:#87CEEB,stroke:#333,stroke-width:2px
+    style I fill:#87CEEB,stroke:#333,stroke-width:2px
+    style K fill:#87CEEB,stroke:#333,stroke-width:2px
+    style L fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style N fill:#90EE90,stroke:#333,stroke-width:2px
+```
+
+**What each step does:**
 
 ### Step 1: Prepare Data
-```
-Raw text → JSONL format → Tokenized batches
-```
+Transform raw text into training format (JSONL with prompt/response pairs). Quality matters more than quantity here.
 
 ### Step 2: Initialize Model
-```
-Load pre-trained weights (fine-tuning)
-    OR
-Random initialization (from scratch)
-```
+Either load pre-trained weights (fine-tuning) or start from random numbers (training from scratch). Most of the time, you'll fine-tune.
 
-### Step 3: Training Loop
-```python
-for step in range(num_steps):
-    1. Get batch of data
-    2. Forward pass: model makes predictions
-    3. Compute loss: how wrong were predictions?
-    4. Backward pass: calculate gradients
-    5. Optimizer step: update weights
-    6. Repeat!
-```
+### Step 3: Training Loop (The Core)
+This is where learning happens:
+1. **Get Batch** - Load 8-32 examples from your dataset
+2. **Forward Pass** - Model makes predictions based on current weights
+3. **Compute Loss** - Measure how far predictions are from correct answers
+4. **Backward Pass** - Calculate which direction to adjust each weight
+5. **Update Weights** - Actually change the model's parameters
+6. **Repeat** - Do this thousands of times
+
+**Think of loss as:** A score that goes down as the model gets better. Loss of 2.5 → 1.2 → 0.5 means it's learning.
 
 ### Step 4: Evaluation
-```
-Generate sample outputs
-Compare to expected behavior
-Save checkpoints
-```
+Generate sample outputs to see if the model is improving. This happens every few hundred steps, not every step.
 
-### Step 5: Deployment
-```
-Use fine-tuned model for inference
-Integrate with vLLM (from Lesson 7)
-```
+### Step 5: Save Checkpoint
+Store model weights and training state so you can resume if interrupted or pick the best version later.
+
+### Step 6: Deployment
+Once training is complete, use your fine-tuned model for inference. Integrate with vLLM (from **Lesson 7: vLLM Production**) for production serving.
 
 ---
 
@@ -325,6 +365,89 @@ Train from scratch when:
 - **Hosting:** Use tt-inference-server or vLLM (Lesson 7)
 
 Always verify licenses for your specific use case.
+
+---
+
+## Beyond This Lesson: The Custom AI Landscape
+
+You're about to learn how to train custom models - but what will you build with this power? Let's explore the possibilities.
+
+### What Developers Have Built on Tenstorrent
+
+**Real-world custom models running on TT hardware:**
+
+🎯 **Domain-Specific Coding Assistants**
+- Python → TTNN translators (convert PyTorch to TT-optimized code)
+- Hardware description language generators (Verilog patterns)
+- Code review bots trained on team style guides
+- API documentation chatbots
+
+📚 **Knowledge Specialists**
+- Technical documentation assistants (trained on company wikis)
+- Research paper summarizers (domain-specific scientific content)
+- Legal contract analyzers (specialized terminology)
+- Medical Q&A systems (trained on authorized datasets)
+
+🎨 **Creative Applications**
+- Genre-specific writing assistants (sci-fi, technical writing, poetry)
+- Dialog generators for games or simulations
+- Educational content creators (explain concepts in multiple styles)
+- Multilingual translators with domain expertise
+
+🔬 **Research & Experimentation**
+- Novel architecture testing (new attention patterns)
+- Compression experiments (how small can models go?)
+- Specialized tokenizers (music notation, chemical formulas)
+- Domain-specific embeddings (protein sequences, geographic data)
+
+### Working Within Constraints (N150 Can Do This!)
+
+**You don't need massive infrastructure to build something meaningful:**
+
+- **Fine-tune 1-3B models in hours** - TinyLlama, Qwen3-0.6B, Gemma-3-1B all work on N150
+- **Deploy with vLLM for production inference** - Sub-millisecond latency, thousands of requests/second
+- **Iterate quickly with small datasets** - 100-1000 high-quality examples beat 100,000 mediocre ones
+- **Combine multiple specialized models** - Build an ensemble of experts, each fine-tuned for specific tasks
+- **Scale when needed** - Start on N150, move to N300 for 2x speedup, T3K for 8x, Galaxy for research scale
+
+**The magic is in the data and the task definition, not the hardware scale.**
+
+### Imagine: Your Custom Model Journey
+
+**Month 1 (Starting Today):**
+- Learn fine-tuning on N150 with tt-trickster
+- Build your first domain-specific assistant
+- Deploy with vLLM for internal use
+- **Outcome:** Working custom model serving real users
+
+**Month 2-3:**
+- Experiment with different base models (Qwen, Gemma, Llama)
+- Try multi-task fine-tuning (one model, multiple skills)
+- Scale to N300 for faster iteration
+- **Outcome:** Production-ready specialized models
+
+**Month 6+:**
+- Train multiple specialized models for different domains
+- Explore novel architectures (CT-7, CT-8)
+- Contribute patterns back to tt-blacksmith
+- **Outcome:** You're pushing the boundaries of what's possible on TT hardware
+
+### From Learning to Leading
+
+**This series teaches you:**
+- ✅ The techniques (fine-tuning, configuration, multi-device training)
+- ✅ The tools (tt-train, tt-metal, experiment tracking)
+- ✅ The patterns (tt-blacksmith best practices)
+
+**But more importantly, it empowers you to:**
+- 🚀 **Imagine** what specialized AI can do for your domain
+- 🛠️ **Build** custom models that solve real problems
+- 📈 **Scale** from prototype to production
+- 🌟 **Innovate** within hardware constraints
+
+**The question isn't "Can I train a custom model on Tenstorrent hardware?"**
+
+**The question is "What will I build first?"**
 
 ---
 

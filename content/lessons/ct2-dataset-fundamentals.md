@@ -80,6 +80,44 @@ We use **JSONL** (JSON Lines) format:
 - ✅ Easy to extend (add fields later)
 - ✅ Universal (HuggingFace, PyTorch, custom loaders)
 
+### Format Comparison: Why JSONL?
+
+```mermaid
+graph TD
+    A[Dataset Format Choice] --> B{Your Needs}
+
+    B --> C[Human Readable?]
+    B --> D[Version Control?]
+    B --> E[Universal Support?]
+    B --> F[Easy Validation?]
+
+    C --> G[✅ JSONL<br/>Plain text, any editor]
+    D --> G
+    E --> G
+    F --> G
+
+    C --> H[❌ Binary Formats<br/>Pkl, TFRecord, Arrow]
+    D --> H
+    E --> I[⚠️ CSV<br/>Escaping issues, limited structure]
+    F --> I
+
+    style G fill:#90EE90,stroke:#333,stroke-width:2px
+    style H fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style I fill:#FFE4B5,stroke:#333,stroke-width:2px
+    style B fill:#E0E0E0,stroke:#333,stroke-width:2px
+```
+
+**Real talk about format choices:**
+
+| Format | Pros | Cons | Use When |
+|--------|------|------|----------|
+| **JSONL** | Human-readable, git-friendly, universal | Larger file size | 99% of the time |
+| **CSV** | Simple, spreadsheet-compatible | Hard to escape quotes, no nested data | Flat tabular data only |
+| **Parquet/Arrow** | Efficient storage, fast loading | Binary, needs special tools | 100K+ examples |
+| **Pickle** | Python-native, can store anything | Python-only, security risks | Never for datasets |
+
+**For custom training on Tenstorrent:** Start with JSONL. Only switch to Parquet if you have 100,000+ examples and proven performance issues.
+
 ---
 
 ## Creating Your First Dataset
@@ -229,6 +267,49 @@ Fix these issues and run validation again.
 
 ## Dataset Creation Workflow
 
+Here's how successful dataset creation flows, from idea to validated training data:
+
+```mermaid
+graph TD
+    A[Define Task<br/>What should model learn?] --> B{Creation Method}
+
+    B --> C[Manual Curation]
+    B --> D[Semi-Automated]
+    B --> E[Conversion]
+
+    C --> F[Write Examples<br/>5-10 per topic]
+    D --> G[Generate with AI<br/>GPT-4/Claude]
+    E --> H[Extract from Source<br/>Docs, Q&A, logs]
+
+    F --> I[Review & Refine<br/>Consistency check]
+    G --> J[Curate & Filter<br/>Remove bad examples]
+    H --> K[Clean & Normalize<br/>Fix formatting]
+
+    I --> L[Validate Format<br/>Run validator script]
+    J --> L
+    K --> L
+
+    L --> M{Passes?}
+    M -->|No| N[Fix Issues]
+    N --> L
+    M -->|Yes| O[Quick Training Test<br/>10-20 steps]
+
+    O --> P{Quality Check?}
+    P -->|Issues| Q[Refine Dataset]
+    Q --> I
+    P -->|Good| R[✅ Ready for Training!]
+
+    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
+    style C fill:#87CEEB,stroke:#333,stroke-width:2px
+    style D fill:#87CEEB,stroke:#333,stroke-width:2px
+    style E fill:#87CEEB,stroke:#333,stroke-width:2px
+    style L fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style O fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style R fill:#90EE90,stroke:#333,stroke-width:3px
+```
+
+**Key insight:** Dataset creation is iterative. Your first version won't be perfect - that's okay! Train, evaluate, refine, repeat.
+
 ### Option 1: Manual Curation (Highest Quality)
 
 1. **Brainstorm:** List topics/questions you want covered
@@ -266,7 +347,33 @@ Fix these issues and run validation again.
 
 ## Understanding Tokenization
 
-Your JSONL dataset → gets tokenized → becomes numerical tensors.
+Your dataset goes through several transformations before reaching the model. Here's the complete journey:
+
+```mermaid
+graph LR
+    A[Raw Text<br/>Ideas, Q&A pairs] --> B[JSONL Format<br/>Structured data]
+    B --> C[Validation<br/>Check format & quality]
+    C --> D[Tokenization<br/>Text → Numbers]
+    D --> E[Batching<br/>Group examples]
+    E --> F[Training Loop<br/>Model learns]
+
+    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
+    style B fill:#87CEEB,stroke:#333,stroke-width:2px
+    style C fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style D fill:#87CEEB,stroke:#333,stroke-width:2px
+    style E fill:#87CEEB,stroke:#333,stroke-width:2px
+    style F fill:#90EE90,stroke:#333,stroke-width:2px
+```
+
+**Each stage matters:**
+- **Raw Text:** Your domain knowledge and creativity
+- **JSONL Format:** Makes it machine-readable while staying human-readable
+- **Validation:** Catches errors before expensive training
+- **Tokenization:** Converts text to numbers the model understands
+- **Batching:** Groups examples for efficient processing
+- **Training:** Where the model actually learns
+
+**Why show this?** Understanding the pipeline helps you debug issues. If training fails, you can check each stage.
 
 ### What is Tokenization?
 
@@ -441,6 +548,97 @@ Keep a `DATASET_CHANGELOG.md`:
 - Long examples → slow training, memory issues
 
 **Why:** Efficiency and simplicity.
+
+---
+
+## Real-World Datasets: Inspiration
+
+You've learned the mechanics of creating datasets - but what makes a dataset truly valuable? Let's explore creative and impactful dataset ideas.
+
+### Domain-Specific Excellence
+
+**Code & Technical Writing:**
+- **"Python to TTNN Translator"** - 500 examples of PyTorch patterns → TTNN equivalents
+  - Why it works: Narrow domain, clear input/output pairs
+  - Impact: Speeds up TT-Metal development for entire teams
+- **"API Documentation Q&A"** - Company-specific API questions with accurate answers
+  - Why it works: Internal knowledge that base models don't have
+  - Impact: Reduces developer support burden by 60%
+
+**Creative & Educational:**
+- **"ELI5 Science"** - Complex scientific concepts explained for 5-year-olds
+  - Why it works: Consistent tone (simple, playful), clear evaluation (is it understandable?)
+  - Impact: Educational content generation for kids
+- **"Shakespeare for Coders"** - Programming concepts as Shakespearean soliloquies
+  - Why it works: Unique blend shows fine-tuning flexibility
+  - Impact: Makes learning fun, demonstrates creative AI use
+
+**Business & Professional:**
+- **"Legal Contract Summarizer"** - 1000 contracts → concise summaries (authorized use)
+  - Why it works: Specialized terminology, consistent structure
+  - Impact: Lawyers review contracts 3x faster
+- **"Customer Support Classifier"** - Support tickets → priority + category + suggested response
+  - Why it works: Real historical data, measurable outcomes
+  - Impact: 40% reduction in response time
+
+### Small Datasets, Big Impact
+
+**You don't need thousands of examples:**
+
+🎯 **50 examples:**
+- Medical terminology explainer (cancer treatment terms → patient-friendly explanations)
+- Git command helper (problem description → correct git command with explanation)
+- Recipe converter (ingredient list → shopping list with quantities)
+
+🎯 **200 examples:**
+- Legal clause writer (requirements → contract language in company style)
+- Bug report analyzer (GitHub issue → severity + affected components + fix complexity)
+- Code review bot (pull request → actionable feedback in team's style)
+
+🎯 **1000 examples:**
+- Multi-language documentation translator (English docs → localized versions with context)
+- Technical interview prep (question → structured answer + follow-up questions)
+- Security vulnerability explainer (CVE → risk assessment + mitigation steps)
+
+**The pattern:** Small, high-quality datasets outperform large, mediocre ones for specialized tasks.
+
+### Datasets That Scale From N150 to Production
+
+**Start small, validate fast:**
+
+1. **Week 1 (N150):** Create 50-100 examples, fine-tune in 1-2 hours
+2. **Week 2 (N150):** Test with real users, gather feedback, refine dataset
+3. **Week 3 (N150 or N300):** Expand to 200-500 examples based on feedback
+4. **Month 2 (N300/T3K):** Scale to 1000+ examples, multi-task fine-tuning
+5. **Production:** Deploy with vLLM (**Lesson 7**), serve thousands of requests/day
+
+**Real example from the wild:**
+- Started: 60 examples of code explanations (3 hours of work)
+- Validated: On N150, fine-tuned TinyLlama in 90 minutes
+- Deployed: With vLLM, serving company's internal dev team
+- Impact: 200+ queries/day, developers love it
+- Cost: Minimal compute (N150 for training, inference scales efficiently)
+
+### Your Dataset Idea Generator
+
+**Ask yourself:**
+1. **What knowledge do I have that base models don't?**
+   - Industry terminology, company processes, specialized domains
+2. **What tasks do I (or my team) repeat daily?**
+   - Code reviews, documentation, summarization, translation
+3. **What would save 1 hour/day if automated?**
+   - That's 250 hours/year - worth building a dataset for!
+
+**Imagine: The 100-Example Challenge**
+
+Pick a task you know well. Spend 3-4 hours creating 100 prompt/response pairs. Fine-tune on N150 (1-2 hours). Deploy with vLLM. You now have a specialized AI assistant for that task.
+
+**Total time investment:** One afternoon.
+**Potential impact:** Hundreds of hours saved over a year.
+
+**The question isn't "Is my dataset idea good enough?"**
+
+**The question is "What problem will I solve first?"**
 
 ---
 
