@@ -1,0 +1,65 @@
+# Nano-Trickster: Training from Scratch Configuration
+#
+# This config trains a tiny transformer (11M parameters) from random initialization
+# on the tiny-shakespeare dataset.
+#
+# Hardware: N150 (single chip) - trains in 30-60 minutes
+# Memory: ~200MB (very lightweight!)
+
+# Model architecture
+model_config:
+  vocab_size: 256          # Character-level (full byte range)
+  hidden_dim: 256          # Small but workable
+  num_layers: 6            # Shallow (6× faster than TinyLlama's 22)
+  num_heads: 8             # Decent parallelism (hidden_dim / num_heads = 32)
+  mlp_dim: 768             # 3× hidden_dim (standard ratio)
+  max_seq_len: 512         # Short context (fine for Shakespeare)
+  dropout: 0.1             # Light regularization
+
+# Training hyperparameters
+training_config:
+  # Batch configuration
+  batch_size: 16           # Small model, can use larger batches
+  gradient_accumulation_steps: 2  # Effective batch = 16 × 2 = 32
+
+  # Training duration
+  max_steps: 10000         # ~30-60 minutes on N150
+  warmup_steps: 1000       # Gradual learning rate warmup
+
+  # Optimization
+  learning_rate: 0.0003    # Standard for small models (3e-4)
+  weight_decay: 0.1        # Prevent overfitting
+  beta1: 0.9               # AdamW momentum
+  beta2: 0.95              # AdamW second moment
+  grad_clip: 1.0           # Gradient clipping (prevent exploding gradients)
+
+  # Logging and checkpointing
+  log_interval: 50         # Log every 50 steps
+  eval_interval: 500       # Evaluate on val set every 500 steps
+  save_interval: 1000      # Save checkpoint every 1000 steps
+  log_level: "INFO"
+  use_wandb: false         # Set to true if you want experiment tracking
+
+  # Checkpoint strategy
+  checkpoint_frequency: 1000
+  validation_frequency: 500
+  save_strategy: "steps"
+  keep_best_n: 3           # Keep 3 best checkpoints (by val loss)
+
+# Device configuration (N150 - single chip)
+device_config:
+  enable_ddp: False        # Single device
+  mesh_shape: [1, 1]       # 1 chip
+  device_type: "tt"        # Tenstorrent device
+
+# Data paths (update these!)
+data_config:
+  train_data: "data/train.pt"     # Training data (from prepare_shakespeare.py)
+  val_data: "data/val.pt"         # Validation data
+  tokenizer: "data/tokenizer.pt"  # Tokenizer metadata
+
+# Output directory
+output_config:
+  output_dir: "output/nano_trickster"
+  checkpoint_dir: "output/nano_trickster/checkpoints"
+  log_dir: "output/nano_trickster/logs"

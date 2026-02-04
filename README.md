@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![VSCode](https://img.shields.io/badge/VSCode-1.93%2B-blue.svg)](https://code.visualstudio.com/)
 
-Learn Tenstorrent hardware and software through 16 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference pipelines.
+Learn Tenstorrent hardware and software through 48 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference and **custom training** pipelines.
 
 ![Screen capture of tt-vscode-toolkit in action](assets/img/screenshot.png)
 
@@ -15,7 +15,8 @@ Learn Tenstorrent hardware and software through 16 interactive lessons with guid
 
 The Tenstorrent VSCode Toolkit is an educational extension that provides:
 
-- ✅ **16 Interactive Lessons** - From hardware detection to production deployment, organized by skill level
+- ✅ **48 Interactive Lessons** - From hardware detection to custom training, organized by skill level
+- ✅ **Custom Training Ready** - Train models from scratch or fine-tune existing ones (validated on hardware!)
 - ✅ **Click-to-Run Commands** - Execute lessons step-by-step without copy-pasting commands
 - ✅ **Hardware Auto-Detection** - Automatically detects your Tenstorrent device and provides tailored guidance
 - ✅ **Production Templates** - Real, tested code you can customize for your projects
@@ -26,6 +27,7 @@ The Tenstorrent VSCode Toolkit is an educational extension that provides:
 - Developers new to Tenstorrent hardware
 - AI engineers deploying models on TT accelerators
 - Teams building production inference pipelines
+- ML researchers training custom models
 - Contributors to the Tenstorrent ecosystem
 
 ---

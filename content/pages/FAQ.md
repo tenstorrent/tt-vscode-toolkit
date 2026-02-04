@@ -1,6 +1,6 @@
 # Tenstorrent Developer Extension - FAQ
 
-**Frequently Asked Questions** - Your quick reference for common questions, troubleshooting, and tips from all 31 lessons.
+**Frequently Asked Questions** - Your quick reference for common questions, troubleshooting, and tips from all 48 lessons.
 
 ---
 
@@ -12,6 +12,7 @@
 - [Installation & Setup](#installation--setup)
 - [Models & Downloads](#models--downloads)
 - [Inference & Serving](#inference--serving)
+- [Custom Training](#custom-training)
 - [Compilers & Tools](#compilers--tools)
 - [Troubleshooting](#troubleshooting)
 - [Performance & Optimization](#performance--optimization)
@@ -23,13 +24,16 @@
 
 ### Q: Which lesson should I start with?
 
-**A:** Start with **[Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)** if you're brand new. The 31 lessons are organized into 8 categories:
+**A:** Start with **[Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)** if you're brand new. The 48 lessons are organized into 9 categories:
 
 **🚀 Your First Inference (5 lessons)**
 1. Hardware Detection → Verify Installation → Download Model → Interactive Chat → API Server
 
 **🏭 Serving Models (4 lessons)**
 Production servers (tt-inference-server, vLLM) and generation (Image, Video)
+
+**🎓 Custom Training (8 lessons)** ⭐ NEW!
+Fine-tune models or train from scratch - validated on hardware with both workflows working!
 
 **🎯 Applications (2 lessons)**
 Coding Assistant, AnimateDiff Video Generation
@@ -633,6 +637,74 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 ```
 
 **Why the specific version?** TT-Metal hardware drivers are built against PyTorch 2.5.0+cpu APIs. Other versions have incompatible dataclass implementations.
+
+---
+
+## Custom Training
+
+### Q: Can I train models on Tenstorrent hardware?
+
+**A:** Yes! The extension now includes 8 complete Custom Training lessons (CT1-CT8) that are fully validated on hardware.
+
+**What's working:**
+- ✅ **From-scratch training:** NanoGPT (11M params) - 136 steps in 76 seconds on N150
+- ✅ **Fine-tuning:** Train custom models on your own datasets
+- ✅ **Complete toolkit:** Setup scripts, validation, and tested templates
+- ✅ **Production-ready:** Both training workflows validated end-to-end
+
+**Recommended version:** tt-metal v0.66.0-rc7 (fully tested)
+
+### Q: What hardware do I need for training?
+
+**A:** Training requirements depend on model size:
+
+**N150 (Wormhole single-chip):**
+- ✅ Perfect for NanoGPT (11M params, 6 layers, 384 dim)
+- ✅ From-scratch training on Shakespeare, custom datasets
+- ❌ TinyLlama-1.1B OOM (needs 2GB DRAM, only 1GB available)
+
+**N300+ (Wormhole dual-chip or higher):**
+- ✅ Everything N150 can do
+- ✅ TinyLlama-1.1B fine-tuning (2GB+ DRAM available)
+- ✅ Larger models and batch sizes
+
+**Recommendation:** Start with N150 and NanoGPT to learn the workflow!
+
+### Q: What's the difference between fine-tuning and training from scratch?
+
+**A:**
+
+**Fine-tuning (CT4):**
+- Start with pre-trained model (e.g., TinyLlama-1.1B)
+- Train on small custom dataset (50-1000 examples)
+- Adapts model to your specific task
+- Faster (minutes to hours)
+- Good for: Q&A bots, domain-specific assistants
+
+**Training from Scratch (CT8):**
+- Build model from random initialization
+- Train on large dataset (Shakespeare, your own data)
+- Learn patterns from ground up
+- Slower (hours to days)
+- Good for: Understanding training deeply, custom architectures
+
+**Which should I start with?** CT8 (from-scratch) - it's faster on N150 with NanoGPT and teaches fundamentals!
+
+### Q: What tt-metal version do I need for training?
+
+**A:** Training requires **v0.66.0-rc5 or later**
+
+**Why:**
+- v0.64.5 and earlier: C++ tt-train only ❌
+- v0.66.0-rc5+: Python ttml module available ✅
+- v0.66.0-rc7: Fully validated and recommended ✅
+
+**Check your version:**
+```bash
+cd $TT_METAL_HOME && git describe --tags
+```
+
+**See CT4 and CT8 lessons for complete setup instructions!**
 
 ---
 

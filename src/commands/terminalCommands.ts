@@ -568,6 +568,46 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_with_sd35.py 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate animated video using SD 3.5 + AnimateDiff temporal attention (GNU cinemagraph)',
   },
+
+  // ========================================
+  // Custom Training Lessons
+  // ========================================
+
+  INSTALL_TT_TRAIN: {
+    id: 'install-tt-train',
+    name: 'Install tt-train',
+    template: 'cd $TT_METAL_HOME/tt-train && pip install -e . && echo "✓ tt-train installed successfully"',
+    description: 'Install tt-train Python package from tt-metal repository',
+  },
+
+  // CT-8: Training from Scratch Commands
+  PREPARE_SHAKESPEARE: {
+    id: 'prepare-shakespeare',
+    name: 'Prepare Shakespeare Dataset',
+    template: 'cd ~/tt-scratchpad/training/data && python prepare_shakespeare.py --output shakespeare.txt --split',
+    description: 'Download and prepare tiny-shakespeare dataset for training from scratch',
+  },
+
+  CREATE_NANO_TRICKSTER: {
+    id: 'create-nano-trickster',
+    name: 'Create Nano-Trickster Architecture',
+    template: 'cd ~/tt-scratchpad/training && python nano_trickster.py',
+    description: 'Test the nano-trickster architecture (11M parameters)',
+  },
+
+  TRAIN_FROM_SCRATCH: {
+    id: 'train-from-scratch',
+    name: 'Train from Scratch',
+    template: 'cd ~/tt-scratchpad/training && python train_from_scratch.py --config configs/nano_trickster.yaml',
+    description: 'Train nano-trickster from random initialization on tiny-shakespeare',
+  },
+
+  TEST_NANO_TRICKSTER: {
+    id: 'test-nano-trickster',
+    name: 'Test Nano-Trickster',
+    template: 'cd ~/tt-scratchpad/training && python -c "import torch; from nano_trickster import NanoTrickster; model = NanoTrickster(); model.load_state_dict(torch.load(\'output/nano_trickster/final_model.pt\')); model.eval(); tokenizer = torch.load(\'data/tokenizer.pt\'); stoi = tokenizer[\'stoi\']; itos = tokenizer[\'itos\']; prompt = \'ROMEO:\'; input_ids = torch.tensor([[stoi.get(c, 0) for c in prompt]]); generated = model.generate(input_ids, max_new_tokens=200, temperature=0.8); text = \'\'.join([itos.get(int(t), \'?\') for t in generated[0]]); print(text)"',
+    description: 'Generate text with the trained nano-trickster model',
+  },
 };
 
 /**

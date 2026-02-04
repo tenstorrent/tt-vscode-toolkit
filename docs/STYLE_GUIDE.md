@@ -294,6 +294,120 @@ You should *never* run this command with sudo.
 
 ---
 
+## Lesson Metadata and Registry
+
+### Metadata in Front Matter
+
+**Every lesson must have complete front matter:**
+```yaml
+---
+title: "My Lesson Title"
+description: "Clear, concise description of what the lesson teaches (1-2 sentences)"
+category: "advanced"  # One of: first-inference, serving, compilers, advanced, custom-training
+tags: ["tag1", "tag2", "tag3"]
+supportedHardware: ["n150", "n300", "t3k", "p100", "p150", "galaxy"]
+status: "draft"  # One of: draft, validated, blocked
+validatedOn: []  # Empty until tested, e.g., ["n150", "n300"]
+estimatedMinutes: 30
+---
+```
+
+**Required fields:**
+- `title` - Lesson title in title case
+- `description` - 1-2 sentence summary
+- `category` - Must match existing category
+- `tags` - Array of relevant tags (lowercase, hyphenated)
+- `supportedHardware` - Array of hardware types (lowercase)
+- `status` - Current validation status
+- `validatedOn` - Array of hardware where tested (empty for drafts)
+- `estimatedMinutes` - Time to complete (realistic estimate)
+
+**Optional fields:**
+- `minTTMetalVersion` - Minimum tt-metal version required (e.g., "v0.51.0")
+- `validationDate` - ISO date when validated (e.g., "2026-01-30")
+- `validationNotes` - Multi-line notes about validation testing
+
+### Status Values
+
+**Use appropriate status:**
+- `draft` - Lesson in development, not yet tested
+- `validated` - Tested on hardware, ready for production
+- `blocked` - Known issues prevent validation (add `blockReason`)
+
+**Status progression:**
+1. Create lesson with `status: "draft"` and empty `validatedOn: []`
+2. Test on hardware configurations
+3. Update to `status: "validated"` and list tested hardware in `validatedOn`
+4. If issues found, use `status: "blocked"` with explanation
+
+### Hardware Values
+
+**Use lowercase in code:**
+- `n150` - N150 (Wormhole single chip)
+- `n300` - N300 (Wormhole 2-chip)
+- `t3k` - T3000 (Wormhole 8-chip)
+- `p100` - P100 (Blackhole single chip)
+- `p150` - P150 (Blackhole 2-chip)
+- `galaxy` - Galaxy (Wormhole large-scale)
+- `simulator` - Software simulator (no hardware)
+
+### Registry Sync Workflow
+
+**Source of truth: Markdown front matter**
+
+The extension uses a hybrid approach:
+- **Content metadata** (title, description, tags, etc.) lives in markdown
+- **Extension metadata** (order, navigation, completion) lives in JSON
+
+**When editing lessons:**
+1. Edit markdown front matter
+2. Run validation: `npm run validate:lessons`
+3. If validation fails, sync: `npm run generate:lessons -- --execute`
+4. Rebuild: `npm run build`
+
+**When adding new lessons:**
+1. Create markdown with complete front matter
+2. Generate registry entry: `npm run generate:lessons -- --execute`
+3. Manually add navigation (order, previousLesson, nextLesson) to JSON
+4. Rebuild: `npm run build`
+
+**Generator features:**
+- Dry-run by default (shows diff without applying)
+- Automatic timestamped backups
+- User confirmation before changes
+- Preserves manual fields (order, navigation)
+
+**Validation features:**
+- Compares 9 metadata fields
+- Integrated into build (build fails if out of sync)
+- Clear error messages with file and field details
+
+### Metadata Best Practices
+
+**Descriptions:**
+- ✅ "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features."
+- ❌ "This lesson is about vLLM." (too vague)
+- ❌ "In this comprehensive guide, you will learn everything there is to know about deploying..." (too verbose)
+
+**Tags:**
+- Use lowercase with hyphens: `multi-device`, `image-generation`
+- 3-6 tags per lesson
+- Mix technical and conceptual: `["vllm", "production", "api", "inference"]`
+- Reuse existing tags when possible
+
+**Supported hardware:**
+- List ALL hardware where lesson should work
+- Test on subset (at least one configuration)
+- Document hardware-specific quirks in lesson content
+
+**Estimated time:**
+- Be realistic (include reading, setup, and execution)
+- Round to nearest 5 minutes
+- 15-30 minutes for most lessons
+- 45-90 minutes for complex topics
+
+---
+
 ## Command Buttons
 
 ### Button Format

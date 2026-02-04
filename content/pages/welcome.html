@@ -197,9 +197,9 @@
     <h1>🚀 Welcome to Tenstorrent</h1>
 
     <div class="hero">
-        <p><strong>Get started with AI inference on Tenstorrent hardware.</strong></p>
+        <p><strong>Get started with AI inference and custom training on Tenstorrent hardware.</strong></p>
         <p>This extension provides interactive walkthroughs to help you set up your development environment,
-        run inference on Tenstorrent devices, and build custom AI applications.</p>
+        run inference on Tenstorrent devices, train custom models, and build production AI applications.</p>
     </div>
 
     <div class="section">
@@ -233,9 +233,9 @@
     </div>
 
     <div class="section">
-        <h2>📚 Learning Path (31 Lessons)</h2>
+        <h2>📚 Learning Path (39 Lessons)</h2>
         <p>Click on any lesson below to open it in the new interactive lesson viewer. Or click "Open Lessons Sidebar" above to browse all lessons in the sidebar.</p>
-        <p>Lessons are organized by category - start with "Your First Inference" for the quickest path to running models:</p>
+        <p>Lessons are organized by category - start with "Your First Inference" for the quickest path to running models, or jump to "Custom Training" to train your own!</p>
 
         <!-- Your First Inference -->
         <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🚀 Your First Inference</h3>
@@ -306,6 +306,43 @@
             <li class="walkthrough-item" onclick="openWalkthrough('animatediff-video-generation')">
                 <h3><span class="icon">🎞️</span>Native Video Animation with AnimateDiff</h3>
                 <p>Learn to build standalone packages outside tt-metal! Create animated videos with AnimateDiff temporal attention.</p>
+            </li>
+        </ul>
+
+        <!-- Custom Training -->
+        <h3 style="color: var(--tt-cyan); margin-top: 30px; margin-bottom: 15px;">🎓 Custom Training (8-Lesson Series)</h3>
+        <ul class="walkthrough-list">
+            <li class="walkthrough-item" onclick="openWalkthrough('ct1-understanding-training')">
+                <h3><span class="icon">📖</span>CT1: Understanding Custom Training</h3>
+                <p>Learn the fundamentals of custom training on Tenstorrent hardware. Understand fine-tuning vs training from scratch.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('ct2-dataset-fundamentals')">
+                <h3><span class="icon">📊</span>CT2: Dataset Fundamentals</h3>
+                <p>Master dataset creation and validation for fine-tuning. Learn JSONL format, quality guidelines, and tokenization concepts.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('ct3-configuration-patterns')">
+                <h3><span class="icon">⚙️</span>CT3: Configuration Patterns</h3>
+                <p>Learn YAML-driven training configuration using tt-blacksmith patterns. Master hyperparameters and device configuration.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('ct4-finetuning-basics')">
+                <h3><span class="icon">🔥</span>CT4: Fine-tuning Basics</h3>
+                <p>Train a character-level language model from scratch on Tenstorrent hardware. Watch NanoGPT learn Shakespeare!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('ct5-multi-device-training')">
+                <h3><span class="icon">🚀</span>CT5: Multi-Device Training</h3>
+                <p>Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Achieve 2-8x speedup on N300, T3K, and Galaxy.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('ct6-experiment-tracking')">
+                <h3><span class="icon">📈</span>CT6: Experiment Tracking</h3>
+                <p>Master experiment tracking with file-based logging and Weights & Biases (WandB) integration. Make data-driven decisions!</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('ct7-architecture-basics')">
+                <h3><span class="icon">🏗️</span>CT7: Architecture Basics</h3>
+                <p>Understand transformer architecture components before training from scratch. Learn embeddings, attention, and feed-forward networks.</p>
+            </li>
+            <li class="walkthrough-item" onclick="openWalkthrough('ct8-training-from-scratch')">
+                <h3><span class="icon">🌟</span>CT8: Training from Scratch</h3>
+                <p>Build and train a transformer from random initialization. Design nano-trickster (11M params) and understand scaling laws!</p>
             </li>
         </ul>
 

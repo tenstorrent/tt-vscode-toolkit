@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "_warning": "⚠️  PARTIALLY AUTO-GENERATED - Source of truth: Markdown front matter in content/lessons/*.md. Fields like id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes MUST match markdown. Fields like order, previousLesson, nextLesson, completionEvents are manually maintained here. Run 'npm run validate:lessons' to check sync. See CLAUDE.md for workflow.",
   "categories": [
     {
       "id": "welcome",
@@ -37,24 +38,31 @@
       "icon": "lightbulb"
     },
     {
+      "id": "custom-training",
+      "title": "🎓 Custom Training",
+      "description": "Fine-tune and train custom AI models on Tenstorrent hardware",
+      "order": 6,
+      "icon": "graduation-cap"
+    },
+    {
       "id": "cookbook",
       "title": "👨‍🍳 Tenstorrent Cookbook",
       "description": "Learn by building! 5 hands-on projects: Game of Life, Audio Processing, Mandelbrot Fractals, Image Filters, and Particle Life",
-      "order": 6,
+      "order": 7,
       "icon": "beaker"
     },
     {
       "id": "cs-fundamentals",
       "title": "🧠 CS Fundamentals",
       "description": "Computer architecture, memory, parallelism, and systems programming on real hardware",
-      "order": 7,
+      "order": 8,
       "icon": "circuit-board"
     },
     {
       "id": "advanced",
       "title": "🎓 Advanced Topics",
       "description": "Low-level programming, installation, and community contributions",
-      "order": 8,
+      "order": 9,
       "icon": "mortar-board"
     }
   ],
@@ -62,10 +70,12 @@
     {
       "id": "tt-installer",
       "title": "Modern Setup with tt-installer 2.0",
-      "description": "The fastest way to get started! One-command installation of the full Tenstorrent stack including drivers, firmware, tt-metalium containers, and Python environment.",
+      "description": "The fastest way to get started with Tenstorrent! Use tt-installer 2.0 for one-command installation of the full stack including drivers, firmware, tt-metalium containers, and Python environment.",
       "category": "advanced",
-      "order": 1,
-      "markdownFile": "content/lessons/tt-installer.md",
+      "tags": [
+        "installation",
+        "setup"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -75,122 +85,103 @@
         "galaxy"
       ],
       "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
+      "estimatedMinutes": 15,
+      "order": 1,
+      "nextLesson": "hardware-detection",
       "completionEvents": [
         "onCommand:tenstorrent.runQuickInstall"
       ],
-      "tags": [
-        "installation",
-        "setup"
-      ],
-      "nextLesson": "hardware-detection",
-      "estimatedMinutes": 15
+      "markdownFile": "content/lessons/tt-installer.md"
     },
     {
       "id": "hardware-detection",
       "title": "Hardware Detection",
       "description": "Scan for connected Tenstorrent devices and verify they're properly recognized by the system.",
-      "category": "first-inference",
-      "order": 1,
-      "markdownFile": "content/lessons/hardware-detection.md",
+      "category": "advanced",
+      "tags": [
+        "hardware"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
         "p100",
         "p150",
-        "p300",
         "galaxy"
       ],
       "status": "validated",
-      "validatedOn": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p300"
-      ],
+      "estimatedMinutes": 5,
+      "order": 1,
+      "previousLesson": "tt-installer",
+      "nextLesson": "verify-installation",
       "completionEvents": [
         "onCommand:tenstorrent.runHardwareDetection"
       ],
-      "tags": [
-        "hardware"
-      ],
-      "previousLesson": "tt-installer",
-      "nextLesson": "verify-installation",
-      "estimatedMinutes": 5
+      "markdownFile": "content/lessons/hardware-detection.md"
     },
     {
       "id": "verify-installation",
       "title": "Verify tt-metal Installation",
       "description": "Test your tt-metal installation by running a sample operation on your Tenstorrent device.",
-      "category": "first-inference",
-      "order": 2,
-      "markdownFile": "content/lessons/verify-installation.md",
+      "category": "advanced",
+      "tags": [
+        "installation"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
         "p100",
         "p150",
-        "p300",
         "galaxy"
       ],
       "status": "validated",
-      "validatedOn": [
-        "n150",
-        "p300"
-      ],
+      "estimatedMinutes": 5,
+      "order": 2,
+      "previousLesson": "hardware-detection",
+      "nextLesson": "download-model",
       "completionEvents": [
         "onCommand:tenstorrent.verifyInstallation"
       ],
-      "tags": [
-        "installation"
-      ],
-      "previousLesson": "hardware-detection",
-      "nextLesson": "download-model",
-      "estimatedMinutes": 5
+      "markdownFile": "content/lessons/verify-installation.md"
     },
     {
       "id": "download-model",
       "title": "Download Model and Run Inference",
       "description": "Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent hardware.",
-      "category": "first-inference",
-      "order": 3,
-      "markdownFile": "content/lessons/download-model.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p150",
-        "galaxy"
-      ],
-      "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
-      "completionEvents": [
-        "onCommand:tenstorrent.runInference"
-      ],
+      "category": "advanced",
       "tags": [
         "hardware",
         "inference",
         "model"
       ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "estimatedMinutes": 10,
+      "order": 3,
       "previousLesson": "verify-installation",
       "nextLesson": "interactive-chat",
-      "estimatedMinutes": 10
+      "completionEvents": [
+        "onCommand:tenstorrent.runInference"
+      ],
+      "markdownFile": "content/lessons/download-model.md"
     },
     {
       "id": "interactive-chat",
       "title": "Interactive Chat with Direct API",
       "description": "Build a custom chat application using tt-metal's Generator API directly.",
-      "category": "first-inference",
-      "order": 4,
-      "markdownFile": "content/lessons/interactive-chat.md",
+      "category": "advanced",
+      "tags": [
+        "chat",
+        "api"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -200,59 +191,54 @@
         "galaxy"
       ],
       "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
+      "estimatedMinutes": 10,
+      "order": 4,
+      "previousLesson": "download-model",
+      "nextLesson": "api-server",
       "completionEvents": [
         "onCommand:tenstorrent.startChatSessionDirect"
       ],
-      "tags": [
-        "chat",
-        "api"
-      ],
-      "previousLesson": "download-model",
-      "nextLesson": "api-server",
-      "estimatedMinutes": 10
+      "markdownFile": "content/lessons/interactive-chat.md"
     },
     {
       "id": "api-server",
       "title": "HTTP API Server with Direct API",
       "description": "Create a production-ready Flask API with the model loaded in memory.",
-      "category": "first-inference",
-      "order": 5,
-      "markdownFile": "content/lessons/api-server.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p150",
-        "galaxy"
-      ],
-      "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
-      "completionEvents": [
-        "onCommand:tenstorrent.testApiBasicDirect"
-      ],
+      "category": "advanced",
       "tags": [
         "production",
         "api",
         "flask",
         "model"
       ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "estimatedMinutes": 10,
+      "order": 5,
       "previousLesson": "interactive-chat",
       "nextLesson": "tt-inference-server",
-      "estimatedMinutes": 10
+      "completionEvents": [
+        "onCommand:tenstorrent.testApiBasicDirect"
+      ],
+      "markdownFile": "content/lessons/api-server.md"
     },
     {
       "id": "tt-inference-server",
       "title": "Production Inference with tt-inference-server",
       "description": "Use Tenstorrent's official inference server for production deployments with simple CLI configuration.",
-      "category": "serving",
-      "order": 6,
-      "markdownFile": "content/lessons/tt-inference-server.md",
+      "category": "advanced",
+      "tags": [
+        "production",
+        "deployment",
+        "inference"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -260,93 +246,26 @@
         "p100"
       ],
       "status": "blocked",
-      "validatedOn": [],
-      "blockReason": "Requires tt-vllm validation",
+      "estimatedMinutes": 30,
+      "order": 6,
+      "previousLesson": "api-server",
+      "nextLesson": "vllm-production",
       "completionEvents": [
         "onCommand:tenstorrent.testTtInferenceServerSimple"
       ],
-      "tags": [
-        "production",
-        "deployment",
-        "inference"
-      ],
-      "previousLesson": "api-server",
-      "nextLesson": "vllm-production",
-      "estimatedMinutes": 30
+      "markdownFile": "content/lessons/tt-inference-server.md"
     },
     {
       "id": "vllm-production",
       "title": "Production Inference with vLLM",
-      "description": "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features. Includes bonus lap: AI coding agents with Aider & Continue!",
-      "category": "serving",
-      "order": 7,
-      "markdownFile": "content/lessons/vllm-production.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p300"
-      ],
-      "status": "validated",
-      "validatedOn": [
-        "n150",
-        "p300"
-      ],
-      "completionEvents": [
-        "onCommand:tenstorrent.startVllmServer"
-      ],
+      "description": "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features.",
+      "category": "advanced",
       "tags": [
         "vllm",
         "production",
         "api",
-        "inference",
-        "aider",
-        "coding-agent"
+        "inference"
       ],
-      "previousLesson": "tt-inference-server",
-      "nextLesson": "image-generation",
-      "estimatedMinutes": 60
-    },
-    {
-      "id": "image-generation",
-      "title": "Image Generation with Stable Diffusion XL",
-      "description": "Generate high-resolution 1024x1024 images using Stable Diffusion XL Base running natively on your Tenstorrent hardware!",
-      "category": "serving",
-      "order": 8,
-      "markdownFile": "content/lessons/image-generation.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p300"
-      ],
-      "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
-      "completionEvents": [
-        "onCommand:tenstorrent.generateRetroImage"
-      ],
-      "tags": [
-        "hardware",
-        "image",
-        "generation",
-        "diffusion",
-        "stable"
-      ],
-      "previousLesson": "vllm-production",
-      "nextLesson": "video-generation-ttmetal",
-      "estimatedMinutes": 20
-    },
-    {
-      "id": "video-generation-ttmetal",
-      "title": "Video Generation with Stable Diffusion 3.5",
-      "description": "Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
-      "category": "serving",
-      "order": 9,
-      "markdownFile": "content/lessons/video-generation-ttmetal.md",
       "supportedHardware": [
         "n150",
         "n300",
@@ -354,12 +273,48 @@
         "p100"
       ],
       "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
+      "estimatedMinutes": 30,
+      "order": 7,
+      "previousLesson": "tt-inference-server",
+      "nextLesson": "image-generation",
       "completionEvents": [
-        "onCommand:tenstorrent.startInteractiveImageGen"
+        "onCommand:tenstorrent.startVllmServer"
       ],
+      "markdownFile": "content/lessons/vllm-production.md"
+    },
+    {
+      "id": "image-generation",
+      "title": "Image Generation with Stable Diffusion XL",
+      "description": "Generate high-resolution 1024x1024 images using Stable Diffusion XL Base running natively on your Tenstorrent hardware!",
+      "category": "advanced",
+      "tags": [
+        "hardware",
+        "image",
+        "generation",
+        "diffusion",
+        "stable"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "status": "validated",
+      "estimatedMinutes": 20,
+      "order": 8,
+      "previousLesson": "vllm-production",
+      "nextLesson": "video-generation-ttmetal",
+      "completionEvents": [
+        "onCommand:tenstorrent.generateRetroImage"
+      ],
+      "markdownFile": "content/lessons/image-generation.md"
+    },
+    {
+      "id": "video-generation-ttmetal",
+      "title": "Video Generation with Stable Diffusion 3.5",
+      "description": "Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
+      "category": "advanced",
       "tags": [
         "hardware",
         "video",
@@ -369,17 +324,32 @@
         "stable",
         "scaling"
       ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 30,
+      "order": 9,
       "previousLesson": "image-generation",
       "nextLesson": "coding-assistant",
-      "estimatedMinutes": 30
+      "completionEvents": [
+        "onCommand:tenstorrent.startInteractiveImageGen"
+      ],
+      "markdownFile": "content/lessons/video-generation-ttmetal.md"
     },
     {
       "id": "coding-assistant",
       "title": "Coding Assistant with Prompt Engineering",
       "description": "Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn how to shape model behavior through system prompts - a critical real-world skill!",
-      "category": "applications",
-      "order": 10,
-      "markdownFile": "content/lessons/coding-assistant.md",
+      "category": "advanced",
+      "tags": [
+        "coding",
+        "assistant",
+        "model"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -389,59 +359,304 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [],
+      "estimatedMinutes": 10,
+      "order": 10,
+      "previousLesson": "video-generation-ttmetal",
+      "nextLesson": "ct1-understanding-training",
       "completionEvents": [
         "onCommand:tenstorrent.startCodingAssistant"
       ],
-      "tags": [
-        "coding",
-        "assistant",
-        "model"
-      ],
-      "previousLesson": "video-generation-ttmetal",
-      "nextLesson": "cookbook-overview",
-      "estimatedMinutes": 10
+      "markdownFile": "content/lessons/coding-assistant.md"
     },
     {
-      "id": "cookbook-overview",
-      "title": "Tenstorrent Cookbook Overview",
-      "description": "Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metal techniques through creative, visual applications.",
-      "category": "cookbook",
-      "order": 1,
-      "markdownFile": "content/lessons/cookbook-overview.md",
+      "id": "ct1-understanding-training",
+      "title": "Understanding Custom Training",
+      "description": "Learn the fundamentals of custom training on Tenstorrent hardware. Understand the difference between fine-tuning and training from scratch, explore the tt-train framework, and discover when to use each approach for building specialized AI models.",
+      "category": "custom-training",
+      "tags": [
+        "training",
+        "fine-tuning",
+        "tt-train",
+        "tt-blacksmith",
+        "concepts"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
         "p100",
         "p150",
-        "p300",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 15,
+      "order": 1,
+      "previousLesson": "coding-assistant",
+      "nextLesson": "ct2-dataset-fundamentals",
+      "markdownFile": "content/lessons/ct1-understanding-training.md"
+    },
+    {
+      "id": "ct2-dataset-fundamentals",
+      "title": "Dataset Fundamentals",
+      "description": "Master dataset creation and validation for fine-tuning. Learn JSONL format, quality guidelines, tokenization concepts, and HuggingFace integration. Create high-quality training datasets that produce excellent model results.",
+      "category": "custom-training",
+      "tags": [
+        "dataset",
+        "jsonl",
+        "data-quality",
+        "tokenization",
+        "validation"
+      ],
+      "supportedHardware": [
         "n150",
-        "p300"
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
       ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 15,
+      "order": 2,
+      "previousLesson": "ct1-understanding-training",
+      "nextLesson": "ct3-configuration-patterns",
+      "markdownFile": "content/lessons/ct2-dataset-fundamentals.md"
+    },
+    {
+      "id": "ct3-configuration-patterns",
+      "title": "Configuration Patterns",
+      "description": "Learn YAML-driven training configuration using tt-blacksmith patterns. Master hyperparameters, device configuration, checkpointing strategies, and logging. Create reproducible, shareable training configurations.",
+      "category": "custom-training",
+      "tags": [
+        "configuration",
+        "yaml",
+        "hyperparameters",
+        "checkpointing",
+        "logging"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 15,
+      "order": 3,
+      "previousLesson": "ct2-dataset-fundamentals",
+      "nextLesson": "ct4-finetuning-basics",
+      "markdownFile": "content/lessons/ct3-configuration-patterns.md"
+    },
+    {
+      "id": "ct4-finetuning-basics",
+      "title": "Fine-tuning Basics",
+      "description": "Train a character-level language model from scratch on Tenstorrent hardware. Watch NanoGPT learn Shakespeare through progressive training stages. See hierarchical learning in action as models learn structure before vocabulary before fluency.",
+      "category": "custom-training",
+      "tags": [
+        "fine-tuning",
+        "tt-train",
+        "training",
+        "nanogpt",
+        "transformer",
+        "loss-curves"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 25,
+      "order": 4,
+      "previousLesson": "ct3-configuration-patterns",
+      "nextLesson": "ct5-multi-device-training",
+      "markdownFile": "content/lessons/ct4-finetuning-basics.md",
+      "recommended_metal_version": "v0.66.0-rc7"
+    },
+    {
+      "id": "ct5-multi-device-training",
+      "title": "Multi-Device Training",
+      "description": "Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on N300, T3K, and Galaxy systems.",
+      "category": "custom-training",
+      "tags": [
+        "multi-device",
+        "ddp",
+        "distributed-training",
+        "performance",
+        "scaling"
+      ],
+      "supportedHardware": [
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 15,
+      "order": 5,
+      "previousLesson": "ct4-finetuning-basics",
+      "nextLesson": "ct6-experiment-tracking",
+      "markdownFile": "content/lessons/ct5-multi-device-training.md"
+    },
+    {
+      "id": "ct6-experiment-tracking",
+      "title": "Experiment Tracking",
+      "description": "Master experiment tracking with file-based logging and Weights & Biases (WandB) integration. Compare hyperparameter variations, visualize training curves, and manage experiments professionally. Make data-driven training decisions.",
+      "category": "custom-training",
+      "tags": [
+        "experiment-tracking",
+        "wandb",
+        "logging",
+        "visualization",
+        "hyperparameters"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 15,
+      "order": 6,
+      "previousLesson": "ct5-multi-device-training",
+      "nextLesson": "ct7-architecture-basics",
+      "markdownFile": "content/lessons/ct6-experiment-tracking.md"
+    },
+    {
+      "id": "ct7-architecture-basics",
+      "title": "Model Architecture Basics",
+      "description": "Understand transformer architecture components before training from scratch. Learn about embeddings, attention mechanisms, feed-forward networks, and how to design custom architectures. Prepare to build your own models.",
+      "category": "custom-training",
+      "tags": [
+        "architecture",
+        "transformers",
+        "attention",
+        "embeddings",
+        "design"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 20,
+      "order": 7,
+      "previousLesson": "ct6-experiment-tracking",
+      "nextLesson": "ct8-training-from-scratch",
+      "markdownFile": "content/lessons/ct7-architecture-basics.md"
+    },
+    {
+      "id": "ct8-training-from-scratch",
+      "title": "Training from Scratch",
+      "description": "Build and train a transformer from random initialization. Design nano-trickster (11M params), train on Shakespeare, and watch it learn language patterns from scratch. Compare to random baseline and understand scaling laws.",
+      "category": "custom-training",
+      "tags": [
+        "from-scratch",
+        "nano-trickster",
+        "architecture-design",
+        "character-level",
+        "language-modeling"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
+      "estimatedMinutes": 90,
+      "order": 8,
+      "previousLesson": "ct7-architecture-basics",
+      "nextLesson": "cookbook-overview",
       "completionEvents": [
-        "onCommand:tenstorrent.createCookbookProjects"
+        "onCommand:tenstorrent.trainFromScratch"
       ],
+      "markdownFile": "content/lessons/ct8-training-from-scratch.md",
+      "recommended_metal_version": "v0.66.0-rc7"
+    },
+    {
+      "id": "cookbook-overview",
+      "title": "Tenstorrent Cookbook Overview",
+      "description": "Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metal techniques: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, Image Filters, and Particle Life. Each recipe is a standalone lesson with full source code and visual output.",
+      "category": "cookbook",
       "tags": [
         "ttnn",
         "projects",
         "learning"
       ],
-      "previousLesson": "coding-assistant",
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300"
+      ],
+      "estimatedMinutes": 5,
+      "order": 1,
+      "previousLesson": "ct8-training-from-scratch",
       "nextLesson": "cookbook-game-of-life",
-      "estimatedMinutes": 5
+      "completionEvents": [
+        "onCommand:tenstorrent.createCookbookProjects"
+      ],
+      "markdownFile": "content/lessons/cookbook-overview.md"
     },
     {
       "id": "cookbook-game-of-life",
       "title": "Recipe 1: Conway's Game of Life",
-      "description": "Build Conway's Game of Life using TTNN parallel tile computing. Learn convolution operations and cellular automata.",
+      "description": "Build Conway's Game of Life using TTNN parallel tile computing. Learn convolution operations, cellular automata, and visual output generation. Includes classic patterns: gliders, blinkers, and the famous Gosper Glider Gun!",
       "category": "cookbook",
-      "order": 2,
-      "markdownFile": "content/lessons/cookbook-game-of-life.md",
+      "tags": [
+        "ttnn",
+        "convolution",
+        "cellular-automata",
+        "visualization"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -456,25 +671,24 @@
         "n150",
         "p300"
       ],
+      "estimatedMinutes": 30,
+      "order": 2,
+      "previousLesson": "cookbook-overview",
+      "nextLesson": "cookbook-audio-processor",
       "completionEvents": [
         "onCommand:tenstorrent.runGameOfLife"
       ],
-      "tags": [
-        "ttnn",
-        "convolution",
-        "cellular-automata"
-      ],
-      "previousLesson": "cookbook-overview",
-      "nextLesson": "cookbook-audio-processor",
-      "estimatedMinutes": 30
+      "markdownFile": "content/lessons/cookbook-game-of-life.md"
     },
     {
       "id": "cookbook-audio-processor",
       "title": "Recipe 2: Audio Signal Processing",
-      "description": "Build a real-time audio processing pipeline with TTNN. Compute mel-spectrograms, detect beats, and apply creative effects.",
+      "description": "Build a real-time audio processing pipeline with TTNN. Compute mel-spectrograms, detect beats, extract pitch, and apply creative effects. Foundation for speech recognition models like Whisper!",
       "category": "cookbook",
-      "order": 3,
-      "markdownFile": "content/lessons/cookbook-audio-processor.md",
+      "tags": [
+        "ttnn",
+        "projects"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -489,26 +703,24 @@
         "n150",
         "p300"
       ],
+      "estimatedMinutes": 30,
+      "order": 3,
+      "previousLesson": "cookbook-game-of-life",
+      "nextLesson": "cookbook-mandelbrot",
       "completionEvents": [
         "onCommand:tenstorrent.runAudioProcessor"
       ],
-      "tags": [
-        "ttnn",
-        "audio",
-        "fft",
-        "signal-processing"
-      ],
-      "previousLesson": "cookbook-game-of-life",
-      "nextLesson": "cookbook-mandelbrot",
-      "estimatedMinutes": 45
+      "markdownFile": "content/lessons/cookbook-audio-processor.md"
     },
     {
       "id": "cookbook-mandelbrot",
       "title": "Recipe 3: Mandelbrot Fractal Explorer",
-      "description": "Render beautiful fractals with interactive zoom! Demonstrates GPU-style parallel computation and complex number operations.",
+      "description": "Render beautiful fractals with interactive zoom! Demonstrates GPU-style parallel computation and complex number operations. Perfect for understanding embarrassingly parallel workloads on TT hardware.",
       "category": "cookbook",
-      "order": 4,
-      "markdownFile": "content/lessons/cookbook-mandelbrot.md",
+      "tags": [
+        "ttnn",
+        "projects"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -523,25 +735,24 @@
         "n150",
         "p300"
       ],
+      "estimatedMinutes": 30,
+      "order": 4,
+      "previousLesson": "cookbook-audio-processor",
+      "nextLesson": "cookbook-image-filters",
       "completionEvents": [
         "onCommand:tenstorrent.runMandelbrotExplorer"
       ],
-      "tags": [
-        "ttnn",
-        "fractals",
-        "parallel-computing"
-      ],
-      "previousLesson": "cookbook-audio-processor",
-      "nextLesson": "cookbook-image-filters",
-      "estimatedMinutes": 30
+      "markdownFile": "content/lessons/cookbook-mandelbrot.md"
     },
     {
       "id": "cookbook-image-filters",
       "title": "Recipe 4: Custom Image Filters",
-      "description": "Build a library of creative image filters using 2D convolution. From edge detection to artistic effects!",
+      "description": "Build a library of creative image filters using 2D convolution. From edge detection to artistic effects - learn the techniques used in ResNet50, MobileNetV2, and ViT models!",
       "category": "cookbook",
-      "order": 5,
-      "markdownFile": "content/lessons/cookbook-image-filters.md",
+      "tags": [
+        "ttnn",
+        "projects"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -556,26 +767,24 @@
         "n150",
         "p300"
       ],
+      "estimatedMinutes": 30,
+      "order": 5,
+      "previousLesson": "cookbook-mandelbrot",
+      "nextLesson": "cookbook-particle-life",
       "completionEvents": [
         "onCommand:tenstorrent.runImageFilters"
       ],
-      "tags": [
-        "ttnn",
-        "image-processing",
-        "convolution",
-        "computer-vision"
-      ],
-      "previousLesson": "cookbook-mandelbrot",
-      "nextLesson": "cookbook-particle-life",
-      "estimatedMinutes": 30
+      "markdownFile": "content/lessons/cookbook-image-filters.md"
     },
     {
       "id": "cookbook-particle-life",
       "title": "Recipe 5: Particle Life Simulator",
-      "description": "Simulate emergent complexity from simple particle interactions! Features N² force calculations and multi-device acceleration.",
+      "description": "Simulate emergent complexity from simple particle interactions! Features N² force calculations, multi-species dynamics, and multi-device acceleration for QuietBox systems. Beautiful chaos from simple physics!",
       "category": "cookbook",
-      "order": 6,
-      "markdownFile": "content/lessons/cookbook-particle-life.md",
+      "tags": [
+        "ttnn",
+        "projects"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -590,35 +799,20 @@
         "n150",
         "p300"
       ],
+      "estimatedMinutes": 30,
+      "order": 6,
+      "previousLesson": "cookbook-image-filters",
+      "nextLesson": "forge-image-classification",
       "completionEvents": [
         "onCommand:tenstorrent.runParticleLife"
       ],
-      "tags": [
-        "ttnn",
-        "particle-simulation",
-        "emergent-behavior",
-        "multi-device"
-      ],
-      "previousLesson": "cookbook-image-filters",
-      "nextLesson": "forge-image-classification",
-      "estimatedMinutes": 30
+      "markdownFile": "content/lessons/cookbook-particle-life.md"
     },
     {
       "id": "forge-image-classification",
       "title": "Image Classification with TT-Forge",
       "description": "Explore TT-Forge - Tenstorrent's MLIR-based compiler that brings PyTorch models to TT hardware! Start with validated models like MobileNetV2 for image classification. Learn forge.compile(), experiment with supported architectures, and understand the path to high-level model deployment.",
-      "category": "compilers",
-      "order": 11,
-      "markdownFile": "content/lessons/forge-image-classification.md",
-      "supportedHardware": [
-        "n150"
-      ],
-      "status": "blocked",
-      "validatedOn": [],
-      "blockReason": "TT-Forge experimental - requires validation",
-      "completionEvents": [
-        "onCommand:tenstorrent.runForgeClassifier"
-      ],
+      "category": "advanced",
       "tags": [
         "hardware",
         "image",
@@ -626,28 +820,24 @@
         "deployment",
         "model"
       ],
+      "supportedHardware": [
+        "n150"
+      ],
+      "status": "blocked",
+      "estimatedMinutes": 20,
+      "order": 11,
       "previousLesson": "cookbook-particle-life",
       "nextLesson": "tt-xla-jax",
-      "estimatedMinutes": 20
+      "completionEvents": [
+        "onCommand:tenstorrent.runForgeClassifier"
+      ],
+      "markdownFile": "content/lessons/forge-image-classification.md"
     },
     {
       "id": "tt-xla-jax",
       "title": "JAX Inference with TT-XLA",
       "description": "Master TT-XLA - Tenstorrent's production-ready XLA-based compiler! Simple wheel installation, JAX integration via PJRT, and multi-chip support. Perfect for cloud environments with locked Python/tt-metal versions. Works with Python 3.10+, no rebuilding required!",
-      "category": "compilers",
-      "order": 12,
-      "markdownFile": "content/lessons/tt-xla-jax.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "galaxy"
-      ],
-      "status": "draft",
-      "validatedOn": [],
-      "completionEvents": [
-        "onCommand:tenstorrent.testTtXlaInstall"
-      ],
+      "category": "advanced",
       "tags": [
         "production",
         "installation",
@@ -655,47 +845,32 @@
         "jax",
         "inference"
       ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "galaxy"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 10,
+      "order": 12,
       "previousLesson": "forge-image-classification",
       "nextLesson": "cs-fundamentals-01-computer",
-      "estimatedMinutes": 10
+      "completionEvents": [
+        "onCommand:tenstorrent.testTtXlaInstall"
+      ],
+      "markdownFile": "content/lessons/tt-xla-jax.md"
     },
     {
       "id": "cs-fundamentals-01-computer",
       "title": "Module 1: RISC-V & Computer Architecture",
       "description": "Von Neumann architecture, fetch-decode-execute cycle, and RISC-V fundamentals. Understand how 880 RISC-V processors work by mastering one.",
       "category": "cs-fundamentals",
-      "order": 1,
-      "markdownFile": "content/lessons/cs-fundamentals-01-computer.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p150",
-        "p300",
-        "galaxy"
-      ],
-      "status": "draft",
-      "validatedOn": [],
-      "completionEvents": [
-        "onCommand:tenstorrent.runRiscvExample"
-      ],
       "tags": [
         "architecture",
         "risc-v",
         "fundamentals"
       ],
-      "previousLesson": "tt-xla-jax",
-      "nextLesson": "cs-fundamentals-02-memory",
-      "estimatedMinutes": 30
-    },
-    {
-      "id": "cs-fundamentals-02-memory",
-      "title": "Module 2: The Memory Hierarchy",
-      "description": "Cache locality, bandwidth tradeoffs, and near-memory compute. Experience the memory hierarchy from registers to DRAM.",
-      "category": "cs-fundamentals",
-      "order": 2,
-      "markdownFile": "content/lessons/cs-fundamentals-02-memory.md",
       "supportedHardware": [
         "n150",
         "n300",
@@ -706,56 +881,54 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [],
+      "estimatedMinutes": 30,
+      "order": 1,
+      "previousLesson": "tt-xla-jax",
+      "nextLesson": "cs-fundamentals-02-memory",
       "completionEvents": [
-        "onCommand:tenstorrent.runMemoryHierarchyExample"
+        "onCommand:tenstorrent.runRiscvExample"
       ],
+      "markdownFile": "content/lessons/cs-fundamentals-01-computer.md"
+    },
+    {
+      "id": "cs-fundamentals-02-memory",
+      "title": "Module 2: The Memory Hierarchy",
+      "description": "Cache locality, bandwidth tradeoffs, and near-memory compute. Experience the memory hierarchy from registers to DRAM and understand why memory is the bottleneck in modern computing.",
+      "category": "cs-fundamentals",
       "tags": [
         "memory",
         "cache",
         "performance"
       ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 30,
+      "order": 2,
       "previousLesson": "cs-fundamentals-01-computer",
       "nextLesson": "cs-fundamentals-03-parallelism",
-      "estimatedMinutes": 30
+      "completionEvents": [
+        "onCommand:tenstorrent.runMemoryHierarchyExample"
+      ],
+      "markdownFile": "content/lessons/cs-fundamentals-02-memory.md"
     },
     {
       "id": "cs-fundamentals-03-parallelism",
       "title": "Module 3: Parallel Computing",
       "description": "Amdahl's Law, SPMD patterns, and data parallelism. Scale from 1 to 880 cores and understand when parallelism helps (and when it doesn't).",
       "category": "cs-fundamentals",
-      "order": 3,
-      "markdownFile": "content/lessons/cs-fundamentals-03-parallelism.md",
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p150",
-        "p300",
-        "galaxy"
-      ],
-      "status": "draft",
-      "validatedOn": [],
-      "completionEvents": [
-        "onCommand:tenstorrent.runParallelismExample"
-      ],
       "tags": [
         "parallel",
         "amdahl",
         "spmd"
       ],
-      "previousLesson": "cs-fundamentals-02-memory",
-      "nextLesson": "cs-fundamentals-04-networks",
-      "estimatedMinutes": 30
-    },
-    {
-      "id": "cs-fundamentals-04-networks",
-      "title": "Module 4: Networks and Communication",
-      "description": "Message passing, network topologies, and routing. Master the Network-on-Chip that connects 880 cores.",
-      "category": "cs-fundamentals",
-      "order": 4,
-      "markdownFile": "content/lessons/cs-fundamentals-04-networks.md",
       "supportedHardware": [
         "n150",
         "n300",
@@ -766,26 +939,25 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [],
+      "estimatedMinutes": 30,
+      "order": 3,
+      "previousLesson": "cs-fundamentals-02-memory",
+      "nextLesson": "cs-fundamentals-04-networks",
       "completionEvents": [
-        "onCommand:tenstorrent.runNetworkExample"
+        "onCommand:tenstorrent.runParallelismExample"
       ],
+      "markdownFile": "content/lessons/cs-fundamentals-03-parallelism.md"
+    },
+    {
+      "id": "cs-fundamentals-04-networks",
+      "title": "Module 4: Networks and Communication",
+      "description": "Message passing, network topologies, and routing algorithms. Master the Network-on-Chip that connects 880 cores and understand distributed systems principles on a single chip.",
+      "category": "cs-fundamentals",
       "tags": [
         "networks",
         "noc",
         "communication"
       ],
-      "previousLesson": "cs-fundamentals-03-parallelism",
-      "nextLesson": "cs-fundamentals-05-synchronization",
-      "estimatedMinutes": 30
-    },
-    {
-      "id": "cs-fundamentals-05-synchronization",
-      "title": "Module 5: Synchronization",
-      "description": "Race conditions, barriers, and coordination. Learn explicit synchronization on hardware without cache coherence.",
-      "category": "cs-fundamentals",
-      "order": 5,
-      "markdownFile": "content/lessons/cs-fundamentals-05-synchronization.md",
       "supportedHardware": [
         "n150",
         "n300",
@@ -796,26 +968,25 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [],
+      "estimatedMinutes": 30,
+      "order": 4,
+      "previousLesson": "cs-fundamentals-03-parallelism",
+      "nextLesson": "cs-fundamentals-05-synchronization",
       "completionEvents": [
-        "onCommand:tenstorrent.runSynchronizationExample"
+        "onCommand:tenstorrent.runNetworkExample"
       ],
+      "markdownFile": "content/lessons/cs-fundamentals-04-networks.md"
+    },
+    {
+      "id": "cs-fundamentals-05-synchronization",
+      "title": "Module 5: Synchronization",
+      "description": "Race conditions, barriers, and coordination. Learn explicit synchronization on hardware without cache coherence and understand the challenges of concurrent programming at scale.",
+      "category": "cs-fundamentals",
       "tags": [
         "synchronization",
         "barriers",
         "concurrency"
       ],
-      "previousLesson": "cs-fundamentals-04-networks",
-      "nextLesson": "cs-fundamentals-06-abstraction",
-      "estimatedMinutes": 30
-    },
-    {
-      "id": "cs-fundamentals-06-abstraction",
-      "title": "Module 6: Abstraction Layers",
-      "description": "From Python to machine code. Understand the compilation pipeline and when abstractions help (and when they hurt).",
-      "category": "cs-fundamentals",
-      "order": 6,
-      "markdownFile": "content/lessons/cs-fundamentals-06-abstraction.md",
       "supportedHardware": [
         "n150",
         "n300",
@@ -826,26 +997,25 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [],
+      "estimatedMinutes": 30,
+      "order": 5,
+      "previousLesson": "cs-fundamentals-04-networks",
+      "nextLesson": "cs-fundamentals-06-abstraction",
       "completionEvents": [
-        "onCommand:tenstorrent.runAbstractionExample"
+        "onCommand:tenstorrent.runSynchronizationExample"
       ],
+      "markdownFile": "content/lessons/cs-fundamentals-05-synchronization.md"
+    },
+    {
+      "id": "cs-fundamentals-06-abstraction",
+      "title": "Module 6: Abstraction Layers",
+      "description": "From Python to machine code. Understand the compilation pipeline, when abstractions help performance, and when they hurt. See the full stack from high-level frameworks to RISC-V silicon.",
+      "category": "cs-fundamentals",
       "tags": [
         "abstraction",
         "compilation",
         "performance"
       ],
-      "previousLesson": "cs-fundamentals-05-synchronization",
-      "nextLesson": "cs-fundamentals-07-complexity",
-      "estimatedMinutes": 30
-    },
-    {
-      "id": "cs-fundamentals-07-complexity",
-      "title": "Module 7: Computational Complexity in Practice",
-      "description": "Big-O meets real hardware. See why constants matter and how algorithm-hardware co-design achieves breakthrough performance.",
-      "category": "cs-fundamentals",
-      "order": 7,
-      "markdownFile": "content/lessons/cs-fundamentals-07-complexity.md",
       "supportedHardware": [
         "n150",
         "n300",
@@ -856,26 +1026,52 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [],
+      "estimatedMinutes": 30,
+      "order": 6,
+      "previousLesson": "cs-fundamentals-05-synchronization",
+      "nextLesson": "cs-fundamentals-07-complexity",
       "completionEvents": [
-        "onCommand:tenstorrent.runComplexityExample"
+        "onCommand:tenstorrent.runAbstractionExample"
       ],
+      "markdownFile": "content/lessons/cs-fundamentals-06-abstraction.md"
+    },
+    {
+      "id": "cs-fundamentals-07-complexity",
+      "title": "Module 7: Computational Complexity in Practice",
+      "description": "Big-O meets real hardware. See why constants matter, how algorithm-hardware co-design achieves breakthrough performance, and why Flash Attention is \"O(n)\" in practice. The capstone that ties all modules together.",
+      "category": "cs-fundamentals",
       "tags": [
         "complexity",
         "performance",
         "optimization"
       ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300",
+        "galaxy"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 30,
+      "order": 7,
       "previousLesson": "cs-fundamentals-06-abstraction",
       "nextLesson": "bounty-program",
-      "estimatedMinutes": 30
+      "completionEvents": [
+        "onCommand:tenstorrent.runComplexityExample"
+      ],
+      "markdownFile": "content/lessons/cs-fundamentals-07-complexity.md"
     },
     {
       "id": "bounty-program",
       "title": "Bounty Program: Model Bring-Up",
       "description": "Learn how to contribute to the Tenstorrent Bounty Program by bringing up new models. Master TT-Metal while becoming part of the open-source ecosystem. Uses the successful Phi-3 contribution as a case study.",
       "category": "advanced",
-      "order": 14,
-      "markdownFile": "content/lessons/bounty-program-model-bringup.md",
+      "tags": [
+        "model"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -885,24 +1081,23 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [],
+      "estimatedMinutes": 10,
+      "order": 14,
+      "previousLesson": "cs-fundamentals-07-complexity",
+      "nextLesson": "explore-metalium",
       "completionEvents": [
         "onCommand:tenstorrent.browseOpenBounties"
       ],
-      "tags": [
-        "model"
-      ],
-      "previousLesson": "cs-fundamentals-07-complexity",
-      "nextLesson": "explore-metalium",
-      "estimatedMinutes": 10
+      "markdownFile": "content/lessons/bounty-program-model-bringup.md"
     },
     {
       "id": "explore-metalium",
       "title": "Exploring TT-Metalium",
       "description": "Discover what's possible with TT-Metalium! Explore TTNN tutorials, browse the model zoo, and dive into programming examples. Learn the architecture, try Jupyter notebooks, and find inspiration for your own projects.",
       "category": "advanced",
-      "order": 15,
-      "markdownFile": "content/lessons/explore-metalium.md",
+      "tags": [
+        "model"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -911,27 +1106,28 @@
         "p150",
         "galaxy"
       ],
-      "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
+      "status": "draft",
+      "estimatedMinutes": 10,
+      "order": 15,
+      "previousLesson": "bounty-program",
+      "nextLesson": "animatediff-video-generation",
       "completionEvents": [
         "onCommand:tenstorrent.launchTtnnTutorials"
       ],
-      "tags": [
-        "model"
-      ],
-      "previousLesson": "bounty-program",
-      "nextLesson": "animatediff-video-generation",
-      "estimatedMinutes": 10
+      "markdownFile": "content/lessons/explore-metalium.md"
     },
     {
       "id": "animatediff-video-generation",
       "title": "Native Video Animation with AnimateDiff",
       "description": "Learn to build standalone packages outside tt-metal! Integrate AnimateDiff temporal attention to create animated videos. Master the complete model bring-up workflow - from research to production. Perfect for subtle motion effects like blinking eyes, screen flickers, and cinemagraphs.",
-      "category": "applications",
-      "order": 17,
-      "markdownFile": "content/lessons/animatediff-video-generation.md",
+      "category": "advanced",
+      "tags": [
+        "animation",
+        "video",
+        "animatediff",
+        "temporal-attention",
+        "model-bringup"
+      ],
       "supportedHardware": [
         "n150",
         "n300",
@@ -939,69 +1135,67 @@
         "p100"
       ],
       "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
+      "estimatedMinutes": 60,
+      "order": 17,
+      "previousLesson": "explore-metalium",
+      "nextLesson": "deploy-vscode-to-koyeb",
       "completionEvents": [
         "onCommand:tenstorrent.runAnimateDiff2Frame"
       ],
-      "tags": [
-        "video",
-        "animation",
-        "model",
-        "standalone",
-        "diffusion"
-      ],
-      "previousLesson": "explore-metalium",
-      "nextLesson": "deploy-vscode-to-koyeb",
-      "estimatedMinutes": 30
+      "markdownFile": "content/lessons/animatediff-video-generation.md"
     },
     {
       "id": "deploy-vscode-to-koyeb",
       "title": "Deploy tt-vscode-toolkit to Koyeb",
-      "description": "Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed, running on Koyeb with access to N300 hardware. Learn the complete deployment workflow tested in production.",
+      "description": "Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional N300 hardware access.",
       "category": "advanced",
-      "order": 18,
-      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md",
-      "supportedHardware": [
-        "n300"
-      ],
-      "status": "draft",
-      "completionEvents": [],
       "tags": [
         "deployment",
         "koyeb",
         "cloud",
-        "docker",
-        "vscode"
+        "vscode",
+        "ide"
       ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "estimatedMinutes": 5,
+      "order": 18,
       "previousLesson": "animatediff-video-generation",
       "nextLesson": "deploy-to-koyeb",
-      "estimatedMinutes": 20
+      "completionEvents": [],
+      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md"
     },
     {
       "id": "deploy-to-koyeb",
       "title": "Deploy Your Work to Koyeb",
-      "description": "Deploy any Python application to Koyeb with Tenstorrent N300 hardware. Comprehensive guide covering vLLM deployment, custom applications, production best practices, monitoring, and CI/CD integration.",
+      "description": "Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.",
       "category": "advanced",
-      "order": 19,
-      "markdownFile": "content/lessons/deploy-to-koyeb.md",
-      "supportedHardware": [
-        "n300"
-      ],
-      "status": "draft",
-      "completionEvents": [],
       "tags": [
         "deployment",
         "koyeb",
         "production",
         "vllm",
-        "docker",
-        "cicd"
+        "n300"
       ],
+      "supportedHardware": [
+        "n300",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "estimatedMinutes": 10,
+      "order": 19,
       "previousLesson": "deploy-vscode-to-koyeb",
-      "estimatedMinutes": 45
+      "completionEvents": [],
+      "markdownFile": "content/lessons/deploy-to-koyeb.md"
     }
-  ],
-  "lastUpdated": "2026-01-20T18:00:00.000Z"
+  ]
 }
