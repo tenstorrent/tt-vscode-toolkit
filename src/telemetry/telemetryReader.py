@@ -92,6 +92,8 @@ def get_accessible_pci_addresses():
                 accessible_pci.add(pci_addr)
 
     except Exception:
+        # Silently handle missing /dev/tenstorrent directory or permission errors
+        # Returns empty set if device enumeration fails (e.g., no hardware present)
         pass
 
     return accessible_pci

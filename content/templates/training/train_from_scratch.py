@@ -17,8 +17,6 @@ Hardware:
 import argparse
 import os
 import sys
-import time
-from pathlib import Path
 from typing import Optional
 
 import torch
@@ -27,9 +25,87 @@ from torch.utils.data import Dataset, DataLoader
 import yaml
 from tqdm import tqdm
 
-# Import nano-trickster architecture
-from nano_trickster import NanoTrickster, count_parameters
 
+# ============================================================================
+# Nano-Trickster Architecture (Self-contained)
+# ============================================================================
+
+class NanoTrickster(torch.nn.Module):
+    """
+    A tiny Transformer-based language model intended to mimic the original
+    Nano-Trickster architecture in a self-contained way.
+
+    Args:
+        vocab_size: Size of the token vocabulary.
+        d_model: Embedding/hidden dimension.
+        n_heads: Number of attention heads.
+        n_layers: Number of Transformer encoder layers.
+        max_seq_len: Maximum sequence length for positional embeddings.
+        dropout: Dropout probability.
+    """
+
+    def __init__(
+        self,
+        vocab_size: int,
+        d_model: int = 512,
+        n_heads: int = 8,
+        n_layers: int = 6,
+        max_seq_len: int = 512,
+        dropout: float = 0.1,
+    ):
+        super().__init__()
+        self.vocab_size = vocab_size
+        self.d_model = d_model
+        self.max_seq_len = max_seq_len
+
+        self.token_embed = torch.nn.Embedding(vocab_size, d_model)
+        self.pos_embed = torch.nn.Embedding(max_seq_len, d_model)
+
+        encoder_layer = torch.nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=n_heads,
+            dim_feedforward=4 * d_model,
+            dropout=dropout,
+            batch_first=True,
+        )
+        self.transformer = torch.nn.TransformerEncoder(
+            encoder_layer,
+            num_layers=n_layers,
+        )
+
+        self.ln_f = torch.nn.LayerNorm(d_model)
+        self.lm_head = torch.nn.Linear(d_model, vocab_size, bias=False)
+
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            input_ids: Tensor of shape (batch_size, seq_len) with token IDs.
+
+        Returns:
+            Logits of shape (batch_size, seq_len, vocab_size).
+        """
+        batch_size, seq_len = input_ids.size()
+        if seq_len > self.max_seq_len:
+            raise ValueError(
+                f"Sequence length {seq_len} exceeds max_seq_len {self.max_seq_len}"
+            )
+
+        positions = torch.arange(seq_len, device=input_ids.device).unsqueeze(0)
+        x = self.token_embed(input_ids) + self.pos_embed(positions)
+        x = self.transformer(x)
+        x = self.ln_f(x)
+        logits = self.lm_head(x)
+        return logits
+
+
+def count_parameters(model: torch.nn.Module) -> int:
+    """Return the number of trainable parameters in the model."""
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+# ============================================================================
+# Dataset
+# ============================================================================
 
 class ShakespeareDataset(Dataset):
     """Character-level Shakespeare dataset"""

@@ -17,6 +17,10 @@ supportedHardware:
   - p100
   - p150
   - galaxy
+status: validated
+validatedOn:
+  - n150
+estimatedMinutes: 15
 ---
 
 # Configuration Patterns

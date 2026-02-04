@@ -3487,44 +3487,6 @@ async function exploreAnimateDiffPackage(): Promise<void> {
 // ============================================================================
 
 /**
- * Command: tenstorrent.createTricksterDataset
- * Copies trickster dataset and training files to scratchpad
- */
-async function createTricksterDataset(): Promise<void> {
-  await copyTrainingTemplates();
-  vscode.window.showInformationMessage(
-    '📦 Trickster training files copied to ~/tt-scratchpad/training/'
-  );
-}
-
-/**
- * Command: tenstorrent.viewTricksterDataset
- * Opens the trickster training dataset in the editor
- */
-async function viewTricksterDataset(): Promise<void> {
-  const os = await import('os');
-  const path = await import('path');
-  const fs = await import('fs');
-  const homeDir = os.homedir();
-  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
-
-  // Ensure templates are copied
-  await copyTrainingTemplates();
-
-  // Open the dataset file
-  const datasetPath = path.join(scratchpadPath, 'trickster_dataset_starter.jsonl');
-  if (fs.existsSync(datasetPath)) {
-    const uri = vscode.Uri.file(datasetPath);
-    await vscode.window.showTextDocument(uri);
-    vscode.window.showInformationMessage(
-      '📖 Trickster Dataset: 50 creative ML/AI explanations for fine-tuning!'
-    );
-  } else {
-    vscode.window.showErrorMessage('Could not find trickster_dataset_starter.jsonl');
-  }
-}
-
-/**
  * Command: tenstorrent.installTtTrain
  * Installs tt-train Python package from tt-metal repository
  */
@@ -3533,65 +3495,6 @@ async function installTtTrain(): Promise<void> {
   runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_TT_TRAIN.template);
   vscode.window.showInformationMessage(
     '📦 Installing tt-train... This may take a few minutes.'
-  );
-}
-
-/**
- * Command: tenstorrent.startFineTuningN150Trickster
- * Starts trickster fine-tuning on N150 hardware
- */
-async function startFineTuningN150Trickster(): Promise<void> {
-  await copyTrainingTemplates();
-  const terminal = getOrCreateTerminal('tt-metal');
-  runInTerminal(terminal, TERMINAL_COMMANDS.START_FINETUNING_N150.template);
-  vscode.window.showInformationMessage(
-    '🎭 Starting trickster fine-tuning on N150... This will take 1-3 hours. Check terminal for progress.'
-  );
-}
-
-/**
- * Command: tenstorrent.startFineTuningN300Trickster
- * Starts trickster fine-tuning on N300 hardware with DDP
- */
-async function startFineTuningN300Trickster(): Promise<void> {
-  await copyTrainingTemplates();
-  const terminal = getOrCreateTerminal('tt-metal');
-  runInTerminal(terminal, TERMINAL_COMMANDS.START_FINETUNING_N300.template);
-  vscode.window.showInformationMessage(
-    '🎭 Starting trickster fine-tuning on N300 with DDP... This will take 30-60 minutes. Check terminal for progress.'
-  );
-}
-
-/**
- * Command: tenstorrent.testTricksterModel
- * Tests the fine-tuned trickster model
- */
-async function testTricksterModel(): Promise<void> {
-  const os = await import('os');
-  const path = await import('path');
-  const fs = await import('fs');
-  const homeDir = os.homedir();
-  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'training');
-  const modelPath = path.join(scratchpadPath, 'output', 'final_model');
-
-  // Check if model exists
-  if (!fs.existsSync(modelPath)) {
-    const choice = await vscode.window.showWarningMessage(
-      'Fine-tuned trickster model not found. Have you completed training?',
-      'Start Training (N150)',
-      'Cancel'
-    );
-
-    if (choice === 'Start Training (N150)') {
-      await startFineTuningN150Trickster();
-    }
-    return;
-  }
-
-  const terminal = getOrCreateTerminal('tt-metal');
-  runInTerminal(terminal, TERMINAL_COMMANDS.TEST_TRICKSTER_MODEL.template);
-  vscode.window.showInformationMessage(
-    '🧪 Testing trickster model... Check terminal for creative responses!'
   );
 }
 
@@ -4388,12 +4291,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
 
     // Custom Training Lesson Commands (CT-1 through CT-8)
-    vscode.commands.registerCommand('tenstorrent.createTricksterDataset', createTricksterDataset),
-    vscode.commands.registerCommand('tenstorrent.viewTricksterDataset', viewTricksterDataset),
     vscode.commands.registerCommand('tenstorrent.installTtTrain', installTtTrain),
-    vscode.commands.registerCommand('tenstorrent.startFineTuningN150Trickster', startFineTuningN150Trickster),
-    vscode.commands.registerCommand('tenstorrent.startFineTuningN300Trickster', startFineTuningN300Trickster),
-    vscode.commands.registerCommand('tenstorrent.testTricksterModel', testTricksterModel),
     vscode.commands.registerCommand('tenstorrent.prepareShakespeare', prepareShakespeare),
     vscode.commands.registerCommand('tenstorrent.createNanoTrickster', createNanoTrickster),
     vscode.commands.registerCommand('tenstorrent.trainFromScratch', trainFromScratch),

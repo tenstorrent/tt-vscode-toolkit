@@ -217,6 +217,133 @@ See `LESSON_METADATA.md` for complete documentation.
 
 **All 16 lessons have metadata as of v0.0.86.**
 
+## Lesson Registry Sync Workflow (v0.0.301+)
+
+**Source of Truth: Markdown front matter** in `content/lessons/*.md`
+
+The extension uses a hybrid approach for lesson metadata:
+- **Content fields** (id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes) live in markdown front matter
+- **Extension fields** (order, previousLesson, nextLesson, completionEvents, markdownFile) live in lesson-registry.json
+
+### Fields Split
+
+**Markdown owned** (auto-synced to JSON):
+- `id` - Lesson identifier
+- `title` - Lesson title
+- `description` - Lesson description
+- `category` - Category classification
+- `tags` - Array of tags
+- `supportedHardware` - Array of hardware types
+- `status` - `validated`, `draft`, or `blocked`
+- `validatedOn` - Array of tested hardware
+- `estimatedMinutes` - Time estimate
+
+**JSON owned** (manually maintained):
+- `order` - Display order in lesson list
+- `previousLesson` - Navigation link
+- `nextLesson` - Navigation link
+- `completionEvents` - VSCode completion tracking
+- `markdownFile` - File path
+- `recommended_metal_version` - Version recommendation
+- `minTTMetalVersion` - Minimum version
+- `validationDate` - Date validated
+- `validationNotes` - Validation notes
+
+### Validation Script
+
+Validates that markdown and JSON are in sync:
+
+```bash
+npm run validate:lessons
+```
+
+**Features:**
+- Compares 9 markdown fields against JSON
+- Deep equality checks for arrays/objects
+- Clear error reporting with file/field specifics
+- Exit code 0 (success) or 1 (errors)
+- **Integrated into build** - `npm run build` fails if validation fails
+
+**Use cases:**
+- Pre-commit checks (verify before committing)
+- CI/CD validation (automated checks)
+- Manual verification after editing lessons
+
+### Generator Script
+
+Regenerates lesson-registry.json from markdown front matter:
+
+```bash
+# Dry-run (shows changes without applying)
+npm run generate:lessons
+
+# Apply changes with confirmation
+npm run generate:lessons -- --execute
+
+# Apply changes without confirmation
+npm run generate:lessons -- --execute --force
+```
+
+**Safety Features:**
+- **Dry-run by default** - Shows color-coded diff preview without applying changes
+- **Automatic backups** - Creates timestamped backup in `.backups/` before changes
+- **User confirmation** - Prompts for confirmation unless `--force` flag used
+- **Restoration instructions** - Shows how to restore backup on error
+- **Preserves manual fields** - Keeps order, navigation, completionEvents unchanged
+- **Order preservation** - Maintains existing lesson order, appends new lessons at end
+
+**Output example:**
+```
+📋 CHANGES PREVIEW
+
+📝 MODIFY: ct1-understanding-training
+   ~ CHANGE description:
+    OLD: "Learn the fundamentals of fine-tuning..."
+    NEW: "Learn the fundamentals of custom training..."
+   + ADD estimatedMinutes: 15
+
+✅ Backup created: .backups/lesson-registry-2026-02-04T19-12-49.json
+✅ Successfully updated lesson-registry.json
+```
+
+### Workflow for Editing Lessons
+
+**When editing lesson content:**
+1. Edit markdown front matter in `content/lessons/*.md`
+2. Run validation: `npm run validate:lessons`
+3. If validation fails, run generator: `npm run generate:lessons -- --execute`
+4. Rebuild extension: `npm run build`
+
+**When adding new lessons:**
+1. Create markdown file with complete front matter
+2. Run generator to add to JSON: `npm run generate:lessons -- --execute`
+3. Manually edit JSON to add navigation (order, previousLesson, nextLesson)
+4. Add to `package.json` → `contributes.walkthroughs[0].steps`
+5. Rebuild extension: `npm run build`
+
+**When editing extension-specific fields:**
+1. Edit lesson-registry.json directly (order, navigation, completionEvents)
+2. Run validation to ensure no drift: `npm run validate:lessons`
+3. Rebuild extension: `npm run build`
+
+**⚠️ Warning in lesson-registry.json:**
+The JSON file includes a warning header:
+```json
+{
+  "version": "1.0.0",
+  "_warning": "⚠️  PARTIALLY AUTO-GENERATED - Source of truth: Markdown front matter in content/lessons/*.md. Fields like id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes MUST match markdown. Fields like order, previousLesson, nextLesson, completionEvents are manually maintained here. Run 'npm run validate:lessons' to check sync. See CLAUDE.md for workflow.",
+  "categories": [...],
+  "lessons": [...]
+}
+```
+
+### Script Files
+
+- `scripts/validate-lesson-registry.js` - Validation script (200+ lines)
+- `scripts/generate-lesson-registry.js` - Generator script (300+ lines)
+- Both scripts use `js-yaml` for parsing markdown front matter
+- Color-coded terminal output for clear feedback
+
 ## Architecture
 
 **Content-First Design:** Content in markdown, code handles execution only.

@@ -156,8 +156,8 @@ def test_library_conflicts():
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Validate Custom Training prerequisites")
-    parser.add_argument("--config", default="configs/trickster_n150.yaml", help="Config file path")
-    parser.add_argument("--dataset", default="trickster_dataset_starter.jsonl", help="Dataset file path")
+    parser.add_argument("--config", default="configs/nano_trickster.yaml", help="Config file path (optional)")
+    parser.add_argument("--dataset", default="data/train.pt", help="Dataset file path (optional)")
     args = parser.parse_args()
 
     print("=" * 60)

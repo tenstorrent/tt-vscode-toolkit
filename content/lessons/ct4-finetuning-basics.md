@@ -18,14 +18,14 @@ supportedHardware:
   - p100
   - p150
   - galaxy
-metadata:
-  status: validated
-  validatedOn:
-    - n150
-  minTTMetalVersion: v0.67.0
-  validationDate: 2026-02-04
-  validationNotes: >-
-    All 4 progressive training stages validated on N150 with v0.67.0-dev20260203. Stage 4 (20k steps) reveals model plateau (loss 1.66 → 1.70), demonstrating architectural capacity limits - important teaching moment for students.
+status: validated
+validatedOn:
+  - n150
+estimatedMinutes: 25
+minTTMetalVersion: v0.67.0
+validationDate: 2026-02-04
+validationNotes: >-
+  All 4 progressive training stages validated on N150 with v0.67.0-dev20260203. Stage 4 (20k steps) reveals model plateau (loss 1.66 → 1.70), demonstrating architectural capacity limits - important teaching moment for students.
 ---
 
 # Fine-tuning Basics

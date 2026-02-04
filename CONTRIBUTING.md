@@ -350,7 +350,38 @@ Click to Run This Command
 
 #### 6. Update Lesson Registry
 
-Edit `content/lesson-registry.json` to include your new lesson.
+**Important:** The lesson registry uses markdown front matter as the source of truth.
+
+**Automatic sync workflow (recommended):**
+```bash
+# The generator will automatically add your lesson to the registry
+npm run generate:lessons -- --execute
+```
+
+The generator script:
+- Reads metadata from your markdown front matter
+- Adds new lesson to `content/lesson-registry.json`
+- Preserves manual fields (order, navigation, completionEvents)
+- Creates backup before making changes
+
+**Manual editing (for navigation only):**
+After the generator runs, manually edit `content/lesson-registry.json` to add:
+- `order` - Display position in lesson list
+- `previousLesson` - Link to previous lesson
+- `nextLesson` - Link to next lesson
+- `completionEvents` - VSCode completion tracking
+
+**Validation:**
+```bash
+# Verify registry matches markdown
+npm run validate:lessons
+```
+
+This validation runs automatically during `npm run build` and will fail if markdown and JSON are out of sync.
+
+**Fields split:**
+- **Markdown owns**: id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes
+- **JSON owns**: order, previousLesson, nextLesson, completionEvents, markdownFile
 
 #### 7. Implement Commands (if needed)
 

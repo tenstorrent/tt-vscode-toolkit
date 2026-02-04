@@ -16,6 +16,10 @@ supportedHardware:
   - p100
   - p150
   - galaxy
+status: validated
+validatedOn:
+  - n150
+estimatedMinutes: 15
 ---
 
 # Multi-Device Training
@@ -183,12 +187,17 @@ Device 1: Wormhole (N300)
 
 ### Step 2: Launch Training
 
-[🚀 Start Fine-tuning (N300)](command:tenstorrent.startFineTuningN300Trickster)
+**To start multi-device training:**
+
+```bash
+cd ~/tt-scratchpad/training
+python train.py --config configs/training_n300.yaml
+```
 
 **What this does:**
-1. Uses `configs/training_n300.yaml` (DDP config)
-2. Initializes both devices
-3. Launches training with DDP enabled
+1. Loads `configs/training_n300.yaml` (with DDP configuration)
+2. Initializes both devices in the mesh
+3. Launches training with DDP enabled across all devices
 
 ### Step 3: Monitor DDP Training
 
