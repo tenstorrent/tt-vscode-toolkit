@@ -1592,22 +1592,34 @@ You've seen firsthand how models learn hierarchically, and you understand the co
 - Output quality: Character names appear! Dialogue format emerges!
 - Example: "KINGHENRY VI:\nWhat well, welcome, well of it in me"
 
-**Stage 3 (100 epochs):**
-- Time: ~10 minutes
-- Final loss: 1.0-1.3
-- Output quality: Real words dominate, improved grammar
+**Stage 3 (50 epochs, 5000 steps):** ✅ **Validated**
+- Time: ~2 minutes
+- Final loss: 1.66
+- Output quality: **Real words dominate!** Character names (ROMEO, Servan), improved grammar
+- Example output:
+  ```
+  ROMEO:
+  Bon wee, booke hath her sir, and then mistake to ther.
 
-**Stage 4 (200 epochs):**
-- Time: ~20-30 minutes
-- Final loss: <1.0
-- Output quality: Fluent Shakespeare-style dialogue
+  Servan:
+  I was so there should that hat will
+  ```
+- Analysis: Words like "booke", "hath", "sir", "mistake", "should", "hat", "will" show vocabulary learning
+- Note: Training config defaults to 5000 steps max (50 epochs)
 
-### Memory and Storage
+**Stage 4 (200 epochs, 20,000 steps):** ⏳ **Extrapolated**
+- Time: ~8-10 minutes (estimated from Step 3 timing)
+- Expected loss: <1.0
+- Expected quality: Fluent Shakespeare-style dialogue with proper grammar
+- Note: Default config limits training to 5000 steps; requires config modification for full 20k steps
+
+### Memory and Storage (Validated)
 
 - **DRAM usage:** Comfortable fit in N150's 12GB
-- **Checkpoint size:** ~40MB per stage
-- **Total storage:** <1GB for all checkpoints + dataset
+- **Checkpoint size:** ~40MB per stage checkpoint
+- **Total storage:** <200MB for Stage 2-3 checkpoints + 1.1MB dataset
 - **Batch size 4:** No memory pressure, very stable
+- **Training speed:** ~22-24ms per step consistently
 
 ### Inference Performance
 
@@ -1649,6 +1661,20 @@ When you complete this lesson, you'll have:
 - Experiment with model sizes (more layers, larger embeddings)
 - Scale to multi-device training (CT-5)
 - Deploy models in production (Lessons 7-8)
+
+---
+
+### Validation Summary
+
+**Fully Validated on N150 (2026-02-04):**
+- ✅ Stage 1 (10 epochs): Tested in previous session
+- ✅ **Stage 2 (30 epochs):** Fully validated - Structure emerges! Loss 1.6-1.8
+- ✅ **Stage 3 (50 epochs):** Fully validated - Real words dominate! Loss 1.66
+- ⏳ Stage 4 (200 epochs): Extrapolated from Stage 2-3 progression
+
+**Training config note:** Default `training_shakespeare_nanogpt.yaml` limits to 5000 steps. To train beyond this, modify the config file's `max_steps` parameter or use explicit `--max_steps` flag with updated config.
+
+**Key finding:** Hierarchical learning validated empirically! Stage 2 shows dramatic emergence of dramatic format with character names, exactly as predicted by theory. Stage 3 shows vocabulary improvement with mostly real words, validating the structure → vocabulary → fluency progression.
 
 ---
 
