@@ -6,7 +6,7 @@ description: >-
   wheel installation, JAX integration via PJRT, and multi-chip support. Perfect
   for cloud environments with locked Python/tt-metal versions. Works with Python
   3.10+, no rebuilding required!
-category: advanced
+category: compilers
 tags:
   - production
   - installation

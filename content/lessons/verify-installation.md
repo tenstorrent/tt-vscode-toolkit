@@ -4,7 +4,7 @@ title: Verify tt-metal Installation
 description: >-
   Test your tt-metal installation by running a sample operation on your
   Tenstorrent device.
-category: advanced
+category: first-inference
 tags:
   - installation
 supportedHardware:
@@ -15,6 +15,8 @@ supportedHardware:
   - p150
   - galaxy
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 5
 ---
 

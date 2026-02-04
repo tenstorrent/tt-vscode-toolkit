@@ -4,7 +4,7 @@ title: Production Inference with vLLM
 description: >-
   Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise
   features.
-category: advanced
+category: serving
 tags:
   - vllm
   - production
@@ -16,6 +16,8 @@ supportedHardware:
   - t3k
   - p100
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 30
 ---
 

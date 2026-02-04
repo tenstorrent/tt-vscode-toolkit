@@ -4,7 +4,7 @@ title: Production Inference with tt-inference-server
 description: >-
   Use Tenstorrent's official inference server for production deployments with
   simple CLI configuration.
-category: advanced
+category: serving
 tags:
   - production
   - deployment

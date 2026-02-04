@@ -3,7 +3,7 @@ id: deploy-vscode-to-koyeb
 title: "Deploy tt-vscode-toolkit to Koyeb"
 description: >-
   Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional N300 hardware access.
-category: advanced
+category: deployment
 tags:
   - deployment
   - koyeb
@@ -18,6 +18,8 @@ supportedHardware:
   - p150
   - galaxy
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 5
 ---
 

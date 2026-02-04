@@ -4,7 +4,7 @@ title: Download Model and Run Inference
 description: >-
   Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent
   hardware.
-category: advanced
+category: first-inference
 tags:
   - hardware
   - inference
@@ -17,6 +17,8 @@ supportedHardware:
   - p150
   - galaxy
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 10
 ---
 

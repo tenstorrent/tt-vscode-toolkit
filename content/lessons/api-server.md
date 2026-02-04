@@ -2,7 +2,7 @@
 id: api-server
 title: HTTP API Server with Direct API
 description: Create a production-ready Flask API with the model loaded in memory.
-category: advanced
+category: first-inference
 tags:
   - production
   - api
@@ -16,6 +16,8 @@ supportedHardware:
   - p150
   - galaxy
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 10
 ---
 

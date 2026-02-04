@@ -2704,6 +2704,61 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
   }
 }
 
+/**
+ * Command: tenstorrent.showStepZero
+ *
+ * Opens the Step Zero orientation guide in a rendered webview.
+ */
+async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
+  const panel = vscode.window.createWebviewPanel(
+    'tenstorrentStepZero',
+    'Step Zero: Getting Started Guide',
+    { viewColumn: vscode.ViewColumn.One, preserveFocus: false },
+    {
+      enableScripts: true,
+      localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')]
+    }
+  );
+
+  const fs = await import('fs');
+  const path = await import('path');
+
+  try {
+    // Read Step Zero markdown
+    const stepZeroPath = path.join(context.extensionPath, 'content', 'pages', 'step-zero.md');
+    const stepZeroMarkdown = fs.readFileSync(stepZeroPath, 'utf8');
+
+    // Read template (reuse FAQ template)
+    const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
+    let template = fs.readFileSync(templatePath, 'utf8');
+
+    // Convert markdown to HTML
+    const stepZeroHtml = convertMarkdownToHtml(stepZeroMarkdown);
+
+    // Inject content into template (update title in template)
+    template = template.replace('Tenstorrent FAQ', 'Step Zero: Getting Started Guide');
+    template = template.replace('Frequently Asked Questions', 'Understanding the Tenstorrent Software Universe');
+    panel.webview.html = template.replace('{{FAQ_CONTENT}}', stepZeroHtml);
+  } catch (error) {
+    panel.webview.html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: var(--vscode-font-family); padding: 20px; color: var(--vscode-foreground); }
+          h1 { color: #4FD1C5; }
+        </style>
+      </head>
+      <body>
+        <h1>Error Loading Step Zero Guide</h1>
+        <p>Step Zero guide could not be loaded. Please check the extension installation.</p>
+        <p>Error: ${error}</p>
+      </body>
+      </html>
+    `;
+  }
+}
+
 // ============================================================================
 // Walkthrough Management
 // ============================================================================
@@ -4145,6 +4200,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // RISC-V Exploration Guide
     vscode.commands.registerCommand('tenstorrent.showRiscvGuide', () => showRiscvGuide(context)),
+
+    // Step Zero Getting Started Guide
+    vscode.commands.registerCommand('tenstorrent.showStepZero', () => showStepZero(context)),
 
     // Telemetry details - show same content as hover tooltip
     vscode.commands.registerCommand('tenstorrent.showTelemetryDetails', () => {

@@ -4,7 +4,7 @@ title: Image Generation with Stable Diffusion XL
 description: >-
   Generate high-resolution 1024x1024 images using Stable Diffusion XL Base
   running natively on your Tenstorrent hardware!
-category: advanced
+category: serving
 tags:
   - hardware
   - image
@@ -17,6 +17,8 @@ supportedHardware:
   - t3k
   - p100
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 20
 ---
 
