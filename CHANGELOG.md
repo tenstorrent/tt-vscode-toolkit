@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.304] - 2026-02-04
+
+### Fixed
+- **Lesson Validation Metadata** - Added missing `validatedOn` field to 11 validated lessons
+  - All first-inference lessons now show N150 validation status
+  - All serving lessons (vLLM, image generation) now show N150 validation status
+  - Deployment lessons and AnimateDiff now show N150 validation status
+  - Fixes: tt-installer, hardware-detection, verify-installation, download-model, interactive-chat, api-server, vllm-production, image-generation, animatediff-video-generation, deploy-vscode-to-koyeb, deploy-to-koyeb
+
+---
+
 ## [0.0.301] - 2026-02-04
 
 ### Added

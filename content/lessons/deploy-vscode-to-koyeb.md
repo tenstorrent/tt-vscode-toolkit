@@ -18,6 +18,8 @@ supportedHardware:
   - p150
   - galaxy
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 5
 ---
 

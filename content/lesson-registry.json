@@ -92,6 +92,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 15,
       "order": 1,
       "nextLesson": "hardware-detection",
@@ -117,6 +120,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 5,
       "order": 1,
       "previousLesson": "tt-installer",
@@ -143,6 +149,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 5,
       "order": 2,
       "previousLesson": "hardware-detection",
@@ -171,6 +180,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 10,
       "order": 3,
       "previousLesson": "verify-installation",
@@ -198,6 +210,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 10,
       "order": 4,
       "previousLesson": "download-model",
@@ -227,6 +242,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 10,
       "order": 5,
       "previousLesson": "interactive-chat",
@@ -280,6 +298,9 @@
         "p100"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 30,
       "order": 7,
       "previousLesson": "tt-inference-server",
@@ -308,6 +329,9 @@
         "p100"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 20,
       "order": 8,
       "previousLesson": "vllm-production",
@@ -1142,6 +1166,9 @@
         "p100"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 60,
       "order": 17,
       "previousLesson": "explore-metalium",
@@ -1172,6 +1199,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 5,
       "order": 18,
       "previousLesson": "animatediff-video-generation",
@@ -1198,6 +1228,9 @@
         "galaxy"
       ],
       "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 10,
       "order": 19,
       "previousLesson": "deploy-vscode-to-koyeb",

@@ -17,6 +17,8 @@ supportedHardware:
   - t3k
   - p100
 status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 20
 ---
 
