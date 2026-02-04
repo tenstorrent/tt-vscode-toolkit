@@ -85,12 +85,12 @@ graph TD
     L --> N[Weights Synchronized<br/>Both devices identical]
     M --> N
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#87CEEB,stroke:#333,stroke-width:2px
-    style K fill:#FFB6C1,stroke:#333,stroke-width:3px
-    style N fill:#90EE90,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style D fill:#7B68EE,stroke:#333,stroke-width:2px
+    style K fill:#E85D75,stroke:#333,stroke-width:3px
+    style N fill:#50C878,stroke:#333,stroke-width:2px
 ```
 
 **Single vs Multi-Device comparison:**
@@ -279,18 +279,18 @@ graph TD
         D1[4x8 mesh = 32 chips]
     end
 
-    style A1 fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B1 fill:#87CEEB,stroke:#333,stroke-width:2px
-    style B2 fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C1 fill:#90EE90,stroke:#333,stroke-width:1px
-    style C2 fill:#90EE90,stroke:#333,stroke-width:1px
-    style C3 fill:#90EE90,stroke:#333,stroke-width:1px
-    style C4 fill:#90EE90,stroke:#333,stroke-width:1px
-    style C5 fill:#90EE90,stroke:#333,stroke-width:1px
-    style C6 fill:#90EE90,stroke:#333,stroke-width:1px
-    style C7 fill:#90EE90,stroke:#333,stroke-width:1px
-    style C8 fill:#90EE90,stroke:#333,stroke-width:1px
-    style D1 fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style A1 fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B1 fill:#7B68EE,stroke:#333,stroke-width:2px
+    style B2 fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C1 fill:#50C878,stroke:#333,stroke-width:1px
+    style C2 fill:#50C878,stroke:#333,stroke-width:1px
+    style C3 fill:#50C878,stroke:#333,stroke-width:1px
+    style C4 fill:#50C878,stroke:#333,stroke-width:1px
+    style C5 fill:#50C878,stroke:#333,stroke-width:1px
+    style C6 fill:#50C878,stroke:#333,stroke-width:1px
+    style C7 fill:#50C878,stroke:#333,stroke-width:1px
+    style C8 fill:#50C878,stroke:#333,stroke-width:1px
+    style D1 fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 **Mesh shape explained:**

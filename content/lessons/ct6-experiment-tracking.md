@@ -608,10 +608,10 @@ graph TD
     M --> N[Document findings]
     N --> H
 
-    style A fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style G fill:#90EE90,stroke:#333,stroke-width:2px
+    style A fill:#E85D75,stroke:#333,stroke-width:2px
+    style G fill:#50C878,stroke:#333,stroke-width:2px
     style E fill:#FF6B6B,stroke:#333,stroke-width:2px
-    style L fill:#87CEEB,stroke:#333,stroke-width:3px
+    style L fill:#7B68EE,stroke:#333,stroke-width:3px
 ```
 
 **The difference:**

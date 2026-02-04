@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.300] - 2026-02-04
+
+### Fixed
+- **Mermaid Diagram Accessibility** - Updated all diagram colors for better contrast on dark and light backgrounds
+  - Replaced light colors with accessible mid-tones across all 8 CT lessons
+  - New color palette: `#4A90E2` (blue), `#7B68EE` (purple), `#50C878` (green), `#E85D75` (red/pink), `#6C757D` (gray)
+  - Old palette used light colors (`#FFE4B5`, `#87CEEB`, `#90EE90`, `#FFB6C1`, `#E0E0E0`) that had poor contrast on dark themes
+  - All 20+ mermaid diagrams now work well on both VSCode light and dark themes
+  - Improved readability and professional appearance
+
+### Context
+- **Accessibility improvement**: Ensures diagrams are readable for all users regardless of theme preference
+- **Affected lessons**: CT1-CT8 (all Custom Training lessons with mermaid diagrams)
+- **Color philosophy**: Mid-tone colors provide good contrast on both light and dark backgrounds
+- **Professional appearance**: Neutral colors work better than bright pastels in technical documentation
+
+---
+
 ## [0.0.299] - 2026-02-04
 
 ### Added

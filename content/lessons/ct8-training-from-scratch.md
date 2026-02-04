@@ -78,10 +78,10 @@ graph LR
     C --> G[Result: Specialized<br/>1.1B params<br/>Hours to train]
     F --> H[Result: Custom<br/>11M params<br/>Minutes to train]
 
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style F fill:#90EE90,stroke:#333,stroke-width:2px
-    style G fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style H fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style F fill:#50C878,stroke:#333,stroke-width:2px
+    style G fill:#4A90E2,stroke:#333,stroke-width:2px
+    style H fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 ---
@@ -117,10 +117,10 @@ graph TD
     D --> I[Output Projection<br/>256 → 256<br/>65K params shared]
     I --> J[Output: Next Character<br/>Probability distribution]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style J fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style D fill:#50C878,stroke:#333,stroke-width:2px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style J fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 ### Why This Size Works
@@ -187,10 +187,10 @@ graph LR
     F --> I[Pros:<br/>- Shorter sequences<br/>- Semantic chunks<br/>- More efficient]
     F --> J[Cons:<br/>- Large vocab 32K<br/>- Training required<br/>- Out-of-vocab issues]
 
-    style C fill:#90EE90,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style G fill:#E0E0E0,stroke:#333,stroke-width:2px
-    style I fill:#E0E0E0,stroke:#333,stroke-width:2px
+    style C fill:#50C878,stroke:#333,stroke-width:2px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style G fill:#6C757D,stroke:#333,stroke-width:2px
+    style I fill:#6C757D,stroke:#333,stroke-width:2px
 ```
 
 **For learning, characters are perfect:**
@@ -333,11 +333,11 @@ graph TD
     O --> P[SwiGLU FFN<br/>256 → 768 → 256]
     P --> Q[Residual Add]
 
-    style B fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style C fill:#90EE90,stroke:#333,stroke-width:2px
-    style F fill:#90EE90,stroke:#333,stroke-width:2px
-    style K fill:#87CEEB,stroke:#333,stroke-width:2px
-    style M fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style B fill:#4A90E2,stroke:#333,stroke-width:2px
+    style C fill:#50C878,stroke:#333,stroke-width:2px
+    style F fill:#50C878,stroke:#333,stroke-width:2px
+    style K fill:#7B68EE,stroke:#333,stroke-width:2px
+    style M fill:#E85D75,stroke:#333,stroke-width:2px
     style P fill:#DDA0DD,stroke:#333,stroke-width:2px
 ```
 
@@ -419,10 +419,10 @@ graph TD
     B --> I[Why warmup?<br/>Prevents early instability]
     D --> J[Why cosine decay?<br/>Smooth convergence]
 
-    style B fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:2px
-    style F fill:#87CEEB,stroke:#333,stroke-width:2px
-    style G fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style B fill:#4A90E2,stroke:#333,stroke-width:2px
+    style D fill:#50C878,stroke:#333,stroke-width:2px
+    style F fill:#7B68EE,stroke:#333,stroke-width:2px
+    style G fill:#E85D75,stroke:#333,stroke-width:2px
     style H fill:#DDA0DD,stroke:#333,stroke-width:2px
 ```
 
@@ -519,10 +519,10 @@ graph TD
     N --> O[Check if best model]
     O --> P[Save checkpoint if best]
 
-    style B fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style D fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style M fill:#90EE90,stroke:#333,stroke-width:2px
+    style B fill:#4A90E2,stroke:#333,stroke-width:2px
+    style D fill:#E85D75,stroke:#333,stroke-width:2px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style M fill:#50C878,stroke:#333,stroke-width:2px
     style P fill:#DDA0DD,stroke:#333,stroke-width:2px
 ```
 
@@ -625,9 +625,9 @@ graph LR
     D --> H[Sentence patterns<br/>Coherent Shakespeare]
 
     style A fill:#FF6B6B,stroke:#333,stroke-width:2px
-    style B fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style C fill:#90EE90,stroke:#333,stroke-width:2px
-    style D fill:#87CEEB,stroke:#333,stroke-width:2px
+    style B fill:#4A90E2,stroke:#333,stroke-width:2px
+    style C fill:#50C878,stroke:#333,stroke-width:2px
+    style D fill:#7B68EE,stroke:#333,stroke-width:2px
 ```
 
 ### Loss Curves
@@ -769,10 +769,10 @@ graph TD
     N --> P[Dialogue format<br/>NAME: speech]
     N --> Q[Scene structure<br/>Back-and-forth]
 
-    style B fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style F fill:#87CEEB,stroke:#333,stroke-width:2px
-    style J fill:#90EE90,stroke:#333,stroke-width:2px
-    style N fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style B fill:#4A90E2,stroke:#333,stroke-width:2px
+    style F fill:#7B68EE,stroke:#333,stroke-width:2px
+    style J fill:#50C878,stroke:#333,stroke-width:2px
+    style N fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 ### What It DIDN'T Learn
@@ -831,10 +831,10 @@ graph LR
     C --> G[Production quality<br/>N300/T3K recommended]
     D --> H[SOTA performance<br/>T3K/Galaxy required]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#90EE90,stroke:#333,stroke-width:2px
-    style D fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#50C878,stroke:#333,stroke-width:2px
+    style D fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 ### Scaling Laws

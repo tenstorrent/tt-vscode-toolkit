@@ -95,12 +95,12 @@ graph TD
     I[Skip Connections] -.-> D
     I -.-> G
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style F fill:#90EE90,stroke:#333,stroke-width:2px
-    style H fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style D fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style G fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style F fill:#50C878,stroke:#333,stroke-width:2px
+    style H fill:#4A90E2,stroke:#333,stroke-width:2px
+    style D fill:#E85D75,stroke:#333,stroke-width:2px
+    style G fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 **Key components:**
@@ -213,9 +213,9 @@ graph LR
         E --> F[Context-aware<br/>'sat' embedding]
     end
 
-    style B fill:#90EE90,stroke:#333,stroke-width:2px
-    style E fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style F fill:#87CEEB,stroke:#333,stroke-width:2px
+    style B fill:#50C878,stroke:#333,stroke-width:2px
+    style E fill:#4A90E2,stroke:#333,stroke-width:2px
+    style F fill:#7B68EE,stroke:#333,stroke-width:2px
 ```
 
 **The model learns these weights during training.**
@@ -254,8 +254,8 @@ graph TD
     E & C3 --> F[Weighted Sum<br/>Attention × Value]
     F --> G[Context-Aware Output]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style G fill:#87CEEB,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style G fill:#7B68EE,stroke:#333,stroke-width:2px
 ```
 
 **Parameters:**
@@ -283,12 +283,12 @@ graph TD
     C --> D[Output Projection<br/>256 → 256]
     D --> E[Context-Rich Embedding]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style H1 fill:#90EE90,stroke:#333,stroke-width:2px
-    style H2 fill:#90EE90,stroke:#333,stroke-width:2px
-    style H3 fill:#90EE90,stroke:#333,stroke-width:2px
-    style H4 fill:#90EE90,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style H1 fill:#50C878,stroke:#333,stroke-width:2px
+    style H2 fill:#50C878,stroke:#333,stroke-width:2px
+    style H3 fill:#50C878,stroke:#333,stroke-width:2px
+    style H4 fill:#50C878,stroke:#333,stroke-width:2px
 ```
 
 **Why multiple heads?**
@@ -321,12 +321,12 @@ graph TD
     F --> H[Layer 2: 1024 × 256 = 262K]
     F --> I[Total: 524K params per FFN]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style G fill:#E0E0E0,stroke:#333,stroke-width:2px
-    style H fill:#E0E0E0,stroke:#333,stroke-width:2px
-    style I fill:#90EE90,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#E85D75,stroke:#333,stroke-width:2px
+    style G fill:#6C757D,stroke:#333,stroke-width:2px
+    style H fill:#6C757D,stroke:#333,stroke-width:2px
+    style I fill:#50C878,stroke:#333,stroke-width:2px
 ```
 
 **Typical sizing:**
@@ -444,11 +444,11 @@ graph TD
     E --> G[Feed-Forward Network<br/>23.1M<br/>58% of block]
     E --> H[Normalization<br/>~4K<br/>negligible]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#90EE90,stroke:#333,stroke-width:2px
-    style D fill:#87CEEB,stroke:#333,stroke-width:2px
-    style F fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#50C878,stroke:#333,stroke-width:2px
+    style D fill:#7B68EE,stroke:#333,stroke-width:2px
+    style F fill:#E85D75,stroke:#333,stroke-width:2px
     style G fill:#DDA0DD,stroke:#333,stroke-width:2px
 ```
 
@@ -524,10 +524,10 @@ graph LR
     C --> C3[layers: 22<br/>deep]
     C --> C4[Training: Many hours<br/>N300+ recommended]
 
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B4 fill:#90EE90,stroke:#333,stroke-width:2px
-    style C4 fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B4 fill:#50C878,stroke:#333,stroke-width:2px
+    style C4 fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 **Why this works:**
@@ -575,11 +575,11 @@ graph LR
     F --> H[N300: Comfortable<br/>Distributed memory]
     F --> I[Nano-model 10-20M: Easy<br/>~200MB total]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style D fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style D fill:#E85D75,stroke:#333,stroke-width:2px
     style G fill:#FF6B6B,stroke:#333,stroke-width:2px
-    style H fill:#90EE90,stroke:#333,stroke-width:2px
-    style I fill:#87CEEB,stroke:#333,stroke-width:2px
+    style H fill:#50C878,stroke:#333,stroke-width:2px
+    style I fill:#7B68EE,stroke:#333,stroke-width:2px
 ```
 
 **This is why:**
@@ -614,10 +614,10 @@ graph TD
     A --> D[Double Num Layers<br/>num_layers: 6 → 12]
     D --> D1[All Costs: 2×<br/>linear scaling]
 
-    style B1 fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style C1 fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style C2 fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style D1 fill:#90EE90,stroke:#333,stroke-width:2px
+    style B1 fill:#E85D75,stroke:#333,stroke-width:2px
+    style C1 fill:#E85D75,stroke:#333,stroke-width:2px
+    style C2 fill:#E85D75,stroke:#333,stroke-width:2px
+    style D1 fill:#50C878,stroke:#333,stroke-width:2px
 ```
 
 **Scaling considerations:**
@@ -707,10 +707,10 @@ graph TD
     C2 --> C3[Training: Longer<br/>5000-10000 steps<br/>Many hours]
     C3 --> C4[Result: Custom<br/>Learns from data only<br/>Tailored to task]
 
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B3 fill:#90EE90,stroke:#333,stroke-width:2px
-    style C3 fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B3 fill:#50C878,stroke:#333,stroke-width:2px
+    style C3 fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 ---
@@ -1005,9 +1005,9 @@ graph TD
     L --> N[Train from scratch<br/>Custom architecture]
     M --> O[Fine-tune existing<br/>Adapt architecture]
 
-    style E fill:#90EE90,stroke:#333,stroke-width:2px
-    style F fill:#87CEEB,stroke:#333,stroke-width:2px
-    style G fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style E fill:#50C878,stroke:#333,stroke-width:2px
+    style F fill:#7B68EE,stroke:#333,stroke-width:2px
+    style G fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 **Your design process:**

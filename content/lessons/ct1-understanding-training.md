@@ -117,11 +117,11 @@ graph TD
 
     E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:2px
-    style E fill:#E0E0E0,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style D fill:#50C878,stroke:#333,stroke-width:2px
+    style E fill:#6C757D,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
 ```
 
 **Think of it like web development:**
@@ -202,18 +202,18 @@ graph TD
     M -->|Yes, more epochs| D
     M -->|No, training complete| N[Deployment<br/>Use with vLLM for inference]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#FFB6C1,stroke:#333,stroke-width:3px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style F fill:#87CEEB,stroke:#333,stroke-width:2px
-    style G fill:#87CEEB,stroke:#333,stroke-width:2px
-    style H fill:#87CEEB,stroke:#333,stroke-width:2px
-    style I fill:#87CEEB,stroke:#333,stroke-width:2px
-    style K fill:#87CEEB,stroke:#333,stroke-width:2px
-    style L fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style N fill:#90EE90,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style D fill:#E85D75,stroke:#333,stroke-width:3px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style F fill:#7B68EE,stroke:#333,stroke-width:2px
+    style G fill:#7B68EE,stroke:#333,stroke-width:2px
+    style H fill:#7B68EE,stroke:#333,stroke-width:2px
+    style I fill:#7B68EE,stroke:#333,stroke-width:2px
+    style K fill:#7B68EE,stroke:#333,stroke-width:2px
+    style L fill:#E85D75,stroke:#333,stroke-width:2px
+    style N fill:#50C878,stroke:#333,stroke-width:2px
 ```
 
 **What each step does:**

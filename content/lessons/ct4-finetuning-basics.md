@@ -78,11 +78,11 @@ graph TD
     H --> I[1.0-1.3 Real words]
     I --> J[<1.0 Fluent generation]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:3px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:3px
-    style H fill:#FFB6C1,stroke:#333,stroke-width:3px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:3px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style D fill:#50C878,stroke:#333,stroke-width:3px
+    style H fill:#E85D75,stroke:#333,stroke-width:3px
 ```
 
 **What makes Stage 2 special?** Structure emerges dramatically - this is where you see the model "understand" the task!

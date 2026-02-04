@@ -67,16 +67,16 @@ graph TD
 
     D --> J[Sampling Parameters<br/>temperature, top_k, top_p]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:3px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#87CEEB,stroke:#333,stroke-width:2px
-    style E fill:#E0E0E0,stroke:#333,stroke-width:1px
-    style F fill:#E0E0E0,stroke:#333,stroke-width:1px
-    style G fill:#E0E0E0,stroke:#333,stroke-width:1px
-    style H fill:#E0E0E0,stroke:#333,stroke-width:1px
-    style I fill:#E0E0E0,stroke:#333,stroke-width:1px
-    style J fill:#E0E0E0,stroke:#333,stroke-width:1px
+    style A fill:#4A90E2,stroke:#333,stroke-width:3px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style D fill:#7B68EE,stroke:#333,stroke-width:2px
+    style E fill:#6C757D,stroke:#333,stroke-width:1px
+    style F fill:#6C757D,stroke:#333,stroke-width:1px
+    style G fill:#6C757D,stroke:#333,stroke-width:1px
+    style H fill:#6C757D,stroke:#333,stroke-width:1px
+    style I fill:#6C757D,stroke:#333,stroke-width:1px
+    style J fill:#6C757D,stroke:#333,stroke-width:1px
 ```
 
 **Why this structure?**
@@ -605,12 +605,12 @@ graph TD
     O -->|Yes| F
     O -->|No| D
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:3px
-    style E fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style K fill:#87CEEB,stroke:#333,stroke-width:2px
-    style L fill:#FFB6C1,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style D fill:#50C878,stroke:#333,stroke-width:3px
+    style E fill:#E85D75,stroke:#333,stroke-width:2px
+    style K fill:#7B68EE,stroke:#333,stroke-width:2px
+    style L fill:#E85D75,stroke:#333,stroke-width:2px
 ```
 
 **Key principle: Change one thing at a time.**

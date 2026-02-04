@@ -101,10 +101,10 @@ graph TD
     E --> I[⚠️ CSV<br/>Escaping issues, limited structure]
     F --> I
 
-    style G fill:#90EE90,stroke:#333,stroke-width:2px
-    style H fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style I fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#E0E0E0,stroke:#333,stroke-width:2px
+    style G fill:#50C878,stroke:#333,stroke-width:2px
+    style H fill:#E85D75,stroke:#333,stroke-width:2px
+    style I fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#6C757D,stroke:#333,stroke-width:2px
 ```
 
 **Real talk about format choices:**
@@ -299,13 +299,13 @@ graph TD
     Q --> I
     P -->|Good| R[✅ Ready for Training!]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style C fill:#87CEEB,stroke:#333,stroke-width:2px
-    style D fill:#87CEEB,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style L fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style O fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style R fill:#90EE90,stroke:#333,stroke-width:3px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style C fill:#7B68EE,stroke:#333,stroke-width:2px
+    style D fill:#7B68EE,stroke:#333,stroke-width:2px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style L fill:#E85D75,stroke:#333,stroke-width:2px
+    style O fill:#E85D75,stroke:#333,stroke-width:2px
+    style R fill:#50C878,stroke:#333,stroke-width:3px
 ```
 
 **Key insight:** Dataset creation is iterative. Your first version won't be perfect - that's okay! Train, evaluate, refine, repeat.
@@ -357,12 +357,12 @@ graph LR
     D --> E[Batching<br/>Group examples]
     E --> F[Training Loop<br/>Model learns]
 
-    style A fill:#FFE4B5,stroke:#333,stroke-width:2px
-    style B fill:#87CEEB,stroke:#333,stroke-width:2px
-    style C fill:#FFB6C1,stroke:#333,stroke-width:2px
-    style D fill:#87CEEB,stroke:#333,stroke-width:2px
-    style E fill:#87CEEB,stroke:#333,stroke-width:2px
-    style F fill:#90EE90,stroke:#333,stroke-width:2px
+    style A fill:#4A90E2,stroke:#333,stroke-width:2px
+    style B fill:#7B68EE,stroke:#333,stroke-width:2px
+    style C fill:#E85D75,stroke:#333,stroke-width:2px
+    style D fill:#7B68EE,stroke:#333,stroke-width:2px
+    style E fill:#7B68EE,stroke:#333,stroke-width:2px
+    style F fill:#50C878,stroke:#333,stroke-width:2px
 ```
 
 **Each stage matters:**
