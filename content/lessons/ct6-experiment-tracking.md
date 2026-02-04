@@ -57,7 +57,7 @@ Did that checkpoint from Tuesday outperform today's?
 
 ### What's Already Tracked
 
-The `finetune_trickster.py` script automatically logs:
+The `train.py` script automatically logs:
 
 **1. Training log:**
 ```
@@ -199,12 +199,12 @@ Paste your API key when prompted.
 
 **4. Enable in config:**
 ```yaml
-# configs/trickster_n150_wandb.yaml
+# configs/training_n150_wandb.yaml
 training_config:
   # ... other settings ...
 
   use_wandb: true                  # Enable WandB
-  wandb_project: "trickster-finetune"
+  wandb_project: "my-training-project"
   wandb_run_name: "n150-baseline"
 ```
 
@@ -212,7 +212,7 @@ training_config:
 
 ```bash
 cd ~/tt-scratchpad/training
-python finetune_trickster.py --config configs/trickster_n150_wandb.yaml
+python train.py --config configs/training_n150_wandb.yaml
 ```
 
 **What gets logged:**
@@ -228,7 +228,7 @@ python finetune_trickster.py --config configs/trickster_n150_wandb.yaml
 After training starts, you'll see:
 
 ```
-wandb: 🚀 View run at https://wandb.ai/your-username/trickster-finetune/runs/abc123
+wandb: 🚀 View run at https://wandb.ai/your-username/my-training-project/runs/abc123
 ```
 
 **Dashboard shows:**
@@ -263,16 +263,16 @@ You want to try 3 learning rates: 5e-5, 1e-4, 2e-4
 
 ```bash
 # Experiment 1: LR = 5e-5
-python finetune_trickster.py \
-  --config configs/trickster_n150_lr_5e5.yaml
+python train.py \
+  --config configs/training_n150_lr_5e5.yaml
 
 # Experiment 2: LR = 1e-4
-python finetune_trickster.py \
-  --config configs/trickster_n150_lr_1e4.yaml
+python train.py \
+  --config configs/training_n150_lr_1e4.yaml
 
 # Experiment 3: LR = 2e-4
-python finetune_trickster.py \
-  --config configs/trickster_n150_lr_2e4.yaml
+python train.py \
+  --config configs/training_n150_lr_2e4.yaml
 ```
 
 **2. Compare in WandB:**
@@ -326,7 +326,7 @@ Automate hyperparameter search:
 
 ```yaml
 # sweep.yaml
-program: finetune_trickster.py
+program: train.py
 method: grid
 parameters:
   learning_rate:
@@ -338,7 +338,7 @@ parameters:
 **Run sweep:**
 ```bash
 wandb sweep sweep.yaml
-wandb agent your-username/trickster-finetune/sweep-id
+wandb agent your-username/my-training-project/sweep-id
 ```
 
 WandB automatically runs all combinations!
@@ -351,7 +351,7 @@ Save checkpoints to WandB:
 import wandb
 
 # After saving checkpoint
-artifact = wandb.Artifact('trickster-model', type='model')
+artifact = wandb.Artifact('trained-model', type='model')
 artifact.add_dir('output/final_model')
 wandb.log_artifact(artifact)
 ```
@@ -367,7 +367,7 @@ Organize related runs:
 
 ```python
 wandb.init(
-    project="trickster-finetune",
+    project="my-training-project",
     group="lr-search",              # Group related experiments
     tags=["n150", "baseline"],      # Add tags for filtering
 )
@@ -396,7 +396,7 @@ Bad:   "experiment_1"
 
 ```bash
 # Save configs alongside code
-git add configs/trickster_n150_lr1e4.yaml
+git add configs/training_n150_lr1e4.yaml
 git commit -m "Add config for LR=1e-4 experiment"
 git tag exp-lr1e4
 ```
@@ -408,10 +408,10 @@ git tag exp-lr1e4
 Create `experiments.md`:
 
 ```markdown
-# Trickster Fine-tuning Experiments
+# Custom Training Experiments
 
 ## Experiment 1: Baseline (2026-02-01)
-- **Config:** trickster_n150.yaml
+- **Config:** training_n150.yaml
 - **Hardware:** N150
 - **Duration:** 2.3 hours
 - **Final Loss:** 1.84 (train), 2.12 (val)
@@ -419,7 +419,7 @@ Create `experiments.md`:
 - **WandB:** [link](https://wandb.ai/...)
 
 ## Experiment 2: Higher LR (2026-02-01)
-- **Config:** trickster_n150_lr2e4.yaml
+- **Config:** training_n150_lr2e4.yaml
 - **Hardware:** N150
 - **Duration:** 2.1 hours
 - **Final Loss:** 1.92 (train), 2.28 (val)

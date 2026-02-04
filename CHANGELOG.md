@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.301] - 2026-02-04
+
+### Added
+- **Shakespeare Dataset Educational Content** - Comprehensive teaching material added to CT2: Dataset Fundamentals
+  - Historical context: Andrej Karpathy's char-rnn (2015) and nanoGPT influence
+  - Dataset characteristics: 1.1MB, 65 unique characters, complete works of Shakespeare
+  - Pedagogical analysis: Why Shakespeare remains the "Hello World" of language modeling
+  - Learning progression: Four-stage hierarchical learning (structure → vocabulary → style → fluency)
+  - Transfer learning: How Shakespeare principles apply to ANY domain (code, medical, legal)
+  - Mermaid diagram visualizing the 4-stage learning journey with loss progression
+  - Real-world examples: Code generation, medical notes, legal contracts follow same pattern
+- **Enhanced Shakespeare Context in CT4** - Improved "Why Shakespeare works perfectly" section
+  - Added cross-reference to CT2's comprehensive Shakespeare teaching
+  - Expanded pedagogical explanation with 4-stage learning progression
+  - Emphasized transferability to custom domains (code, medical notes, legal contracts)
+  - Added explicit mention of hierarchical learning pattern recognition
+
+### Context
+- **User request**: "TEACH the Shakespeare dataset" - provide historical and pedagogical context
+- **Educational value**: Explains WHY Shakespeare is valuable for learning, not just HOW to use it
+- **Transferable knowledge**: Shows developers how to recognize learning stages in their own domains
+- **Cross-lesson integration**: CT2 provides deep teaching, CT4 references and applies it
+- **Inspiration**: Helps developers understand universal principles of model learning
+
+---
+
 ## [0.0.300] - 2026-02-04
 
 ### Fixed

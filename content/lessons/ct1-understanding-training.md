@@ -270,22 +270,27 @@ Once training is complete, use your fine-tuned model for inference. Integrate wi
 
 ---
 
-## The Trickster Model (Our Example)
+## Training Examples Throughout This Series
 
-Throughout this series, we'll build "tt-trickster" - a creative, flexible AI model:
+This series uses concrete examples to teach transferable principles:
 
-**What it does:**
-- Explains ML/AI concepts in approachable, creative ways
-- Shows how to fine-tune for educational content
-- Demonstrates patterns applicable to **any** custom model
+**CT-4 (Fine-tuning Basics):**
+- Train NanoGPT on Shakespeare text
+- See hierarchical learning in action (structure → vocabulary → fluency)
+- Demonstrates character-level language modeling
 
-**Why this example:**
-- Clear difference from base model (easy to evaluate)
-- Useful output (you'll actually use it!)
-- Teaches transferable principles
-- Flexible enough to adapt to your needs
+**CT-7 and CT-8 (Architecture & Training from Scratch):**
+- Build a tiny transformer (10-20M parameters)
+- Understand every component of the model
+- Learn to design custom architectures
 
-**Not limited to one task:** After CT-4, you'll understand how to adapt the trickster approach to your own use cases.
+**Why these examples:**
+- Clear learning progression (simple → complex)
+- Visual results (you can see the model learning)
+- Transferable to any domain
+- Work on all hardware (N150 through Galaxy)
+
+**The goal:** Learn principles you can apply to **your** custom models and domains.
 
 ---
 
@@ -296,11 +301,11 @@ Throughout this series, we'll build "tt-trickster" - a creative, flexible AI mod
 - Write configuration files (YAML)
 - Understand the pieces before assembly
 
-### Lesson CT-4: Your First Fine-Tuning
-- Fine-tune TinyLlama on tt-trickster dataset
+### Lesson CT-4: Your First Training Run
+- Train NanoGPT on Shakespeare dataset
+- See progressive learning stages
 - Monitor training progress
-- Test the fine-tuned model
-- **Outcome:** Working custom model in 1-3 hours
+- **Outcome:** Understanding how models learn, working trained model
 
 ### Lessons CT-5 and CT-6: Scaling Up
 - Train on multiple devices (DDP)
@@ -415,8 +420,8 @@ You're about to learn how to train custom models - but what will you build with 
 ### Imagine: Your Custom Model Journey
 
 **Month 1 (Starting Today):**
-- Learn fine-tuning on N150 with tt-trickster
-- Build your first domain-specific assistant
+- Learn training fundamentals on N150
+- Build your first domain-specific model
 - Deploy with vLLM for internal use
 - **Outcome:** Working custom model serving real users
 
@@ -465,7 +470,7 @@ You're about to learn how to train custom models - but what will you build with 
 
 ✅ **Focus on data quality** over quantity
 
-✅ **The trickster model teaches transferable principles**
+✅ **Examples in this series teach transferable principles**
 
 ---
 

@@ -63,7 +63,7 @@ We use **JSONL** (JSON Lines) format:
 {"prompt": "Another question", "response": "Another output"}
 ```
 
-### Real Examples (tt-trickster dataset)
+### Real Examples
 
 ```jsonl
 {"prompt": "What is a neural network?", "response": "Imagine teaching a child to recognize cats by showing them thousands of cat pictures. That's basically a neural network, except the child is made of math and never gets tired."}
@@ -120,27 +120,255 @@ graph TD
 
 ---
 
+## The Shakespeare Dataset: A Classic Training Corpus
+
+Before you create your own dataset, let's examine one of the most famous teaching datasets in machine learning history - and understand why it remains valuable today.
+
+### Historical Context: The "Hello World" of Language Models
+
+The **tiny-shakespeare** corpus was popularized by Andrej Karpathy's groundbreaking work:
+
+- **2015:** char-rnn (character-level RNN) demonstrated on Shakespeare
+- **2022:** nanoGPT reimplemented the concept with modern transformers
+- **Today:** Still the standard benchmark for character-level language modeling
+
+**Why Shakespeare became the standard:**
+- Small enough to train quickly (~1.1MB)
+- Complex enough to show real learning
+- Results are immediately human-evaluable ("Is this Shakespeare-like?")
+- Teaches principles that transfer to ANY domain
+
+**Download the corpus:**
+```bash
+wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+```
+
+### Dataset Characteristics
+
+Let's understand what makes this dataset special:
+
+| Characteristic | Value | Significance |
+|----------------|-------|--------------|
+| **Size** | ~1.1MB (~1.1 million characters) | Perfect for 6-layer, 384-dim transformer |
+| **Source** | Complete works of Shakespeare (40 plays) | Rich literary structure |
+| **Vocabulary** | ~65 unique characters (printable ASCII) | Character-level modeling, no tokenization |
+| **Format** | Plain text | Raw, continuous sequence |
+| **Structure** | Character names, dialogue, stage directions | Strong learning signal from dramatic format |
+
+**Example snippet:**
+```
+ROMEO:
+What lady is that, which doth enrich the hand
+Of yonder knight?
+
+Servant:
+I know not, sir.
+```
+
+**What the model learns from this format:**
+- Character names followed by colons (structural pattern)
+- Verse meter and line breaks (rhythm)
+- Shakespearean vocabulary and syntax (style)
+- Dialogue flow (conversational patterns)
+
+### What Makes It Pedagogically Perfect
+
+Shakespeare isn't just famous - it's **strategically perfect** for teaching language modeling:
+
+✅ **Fast iteration cycles**
+- 10 epochs: ~1 minute training time
+- 200 epochs: 20-30 minutes total
+- See results quickly, experiment rapidly
+
+✅ **Clear learning progression**
+- You can **SEE** the model learning hierarchically
+- Stage 1 (10 epochs): Structure (line breaks, capitalization)
+- Stage 2 (30 epochs): Vocabulary (real character names)
+- Stage 3 (100 epochs): Style (Shakespearean patterns)
+- Stage 4 (200 epochs): Fluency (natural dialogue)
+
+✅ **Rich hierarchical structure**
+- Format conventions (character names, stage directions)
+- Grammatical patterns (Early Modern English)
+- Literary style (iambic pentameter, metaphor)
+- Dramatic conventions (entrances, exits, soliloquies)
+
+✅ **Human-readable validation**
+- No metrics needed - just read the output
+- Quality improves from gibberish → words → sentences → Shakespeare-like text
+- Anyone can evaluate: "Does this sound like a play?"
+
+✅ **Continuous text**
+- Character-level modeling learns from pure sequence
+- No word boundaries or tokenization artifacts
+- Model discovers word structure naturally
+
+### The Learning Journey: What Models Learn from Shakespeare
+
+Understanding **how** models learn from Shakespeare teaches you how they learn from ANY dataset. Here's the hierarchical progression:
+
+```mermaid
+graph LR
+    A[Random Weights<br/>Loss: ~4.5<br/>Output: Random chars] --> B[Structure<br/>10 epochs, Loss: ~2.5<br/>Line breaks, caps]
+    B --> C[Vocabulary<br/>30 epochs, Loss: ~1.8<br/>Real names, words]
+    C --> D[Style<br/>100 epochs, Loss: ~1.2<br/>Shakespearean patterns]
+    D --> E[Fluency<br/>200 epochs, Loss: <1.0<br/>Natural dialogue]
+
+    style A fill:#E85D75,stroke:#333,stroke-width:2px
+    style B fill:#FFA07A,stroke:#333,stroke-width:2px
+    style C fill:#FFD700,stroke:#333,stroke-width:2px
+    style D fill:#90EE90,stroke:#333,stroke-width:2px
+    style E fill:#50C878,stroke:#333,stroke-width:2px
+```
+
+**Stage 1: Structure Learning (10 epochs)**
+```
+Before:
+jkl;asdf ROMEO kjhasdf
+
+After:
+ROMEO:
+asdfkjh asdfkj asdf
+
+Servant:
+lkjasdf kjhasdf
+```
+**What changed:** Character name format, line breaks, basic capitalization
+
+**Stage 2: Vocabulary Learning (30 epochs)**
+```
+ROMEO:
+What lady doth that hand knight?
+
+Servant:
+I know not sir.
+```
+**What changed:** Real character names, common words, basic sentence structure
+
+**Stage 3: Style Learning (100 epochs)**
+```
+ROMEO:
+What lady is that, which doth enrich the hand
+Of yonder knight most fair?
+
+Servant:
+I know not, good sir.
+```
+**What changed:** Shakespearean vocabulary ("doth," "yonder"), appropriate grammar, dramatic style
+
+**Stage 4: Fluency (200 epochs)**
+```
+ROMEO:
+What lady is that, which doth enrich the hand
+Of yonder knight with beauty's touch divine?
+
+Servant:
+I know not, sir. She is a stranger here,
+Methinks she came with Count Paris to the feast.
+```
+**What changed:** Natural dialogue flow, proper meter, contextually appropriate responses, maintains dramatic tone
+
+### Why This Dataset Still Matters in 2026
+
+You might think: "Why learn from a 2015 dataset when we have GPT-4 and modern LLMs?"
+
+**Because the principles are timeless:**
+
+🎯 **Hierarchical learning is universal**
+- Code models learn: syntax → functions → patterns (same hierarchy!)
+- Medical models learn: format → terminology → diagnosis (same hierarchy!)
+- Legal models learn: clauses → terms → arguments (same hierarchy!)
+- **Your domain will follow the same pattern**
+
+💡 **Quality structure > massive quantity**
+- Shakespeare: 1.1MB of highly structured text
+- Shows that **structured patterns** provide stronger learning signal than random text
+- Your 1,000 well-structured examples > 100,000 random examples
+
+🔬 **Character-level principles scale to modern models**
+- GPT-4 uses byte-level encoding (similar concept)
+- Learning character patterns teaches tokenization-free modeling
+- Applicable to any language, code, or structured format
+
+⚡ **Fast experimentation enables learning**
+- 30 minutes to see full training progression
+- Try different architectures, hyperparameters, techniques
+- Learn what works before scaling to production datasets
+
+### From Shakespeare to Your Domain
+
+The learning patterns you observe with Shakespeare **directly transfer** to your custom domain:
+
+**Code generation models:**
+- Stage 1: Learn syntax (brackets, indentation)
+- Stage 2: Learn keywords and function names
+- Stage 3: Learn code patterns and idioms
+- Stage 4: Generate fluent, working code
+
+**Medical note generation:**
+- Stage 1: Learn format (sections, headers)
+- Stage 2: Learn medical terminology
+- Stage 3: Learn diagnostic patterns
+- Stage 4: Generate coherent clinical notes
+
+**Legal contract generation:**
+- Stage 1: Learn clause structure
+- Stage 2: Learn legal vocabulary
+- Stage 3: Learn argument patterns
+- Stage 4: Generate legally sound contracts
+
+**The principle:** Models learn hierarchically regardless of domain. Structure → Vocabulary → Style → Fluency.
+
+### Key Insight: What Shakespeare Teaches You
+
+When you train on Shakespeare and watch the progression from random characters to coherent dialogue, you learn:
+
+✅ **How transformers learn** - Hierarchically, from structure to meaning
+✅ **What makes a good dataset** - Clear structure, consistent patterns, sufficient examples
+✅ **How to evaluate learning** - Observable quality improvement over time
+✅ **When to stop training** - When loss plateaus and output quality stabilizes
+✅ **Why architecture matters** - Deeper models capture deeper patterns
+
+**This knowledge transfers to every dataset you'll ever create.**
+
+When you build your medical chatbot, legal assistant, or code generator, you'll recognize the same learning stages. You'll know:
+- "The model is learning structure now" (epoch 10)
+- "Vocabulary is forming" (epoch 30)
+- "Style is emerging" (epoch 100)
+- "Almost fluent" (epoch 200)
+
+**Shakespeare isn't just a dataset - it's a masterclass in how language models learn.**
+
+---
+
 ## Creating Your First Dataset
 
-### Step 1: Get the Starter Dataset
+Creating a dataset is straightforward - it's just a text file with one JSON object per line. Here's how to start:
 
-Click the button below to copy the tt-trickster starter dataset to your workspace:
+### Step 1: Create Your JSONL File
 
-[📦 Create Trickster Dataset](command:tenstorrent.createTricksterDataset)
+Create a new file called `my_dataset.jsonl` in your working directory:
 
-This creates `trickster_dataset_starter.jsonl` with 50 examples teaching ML/AI concepts.
+```bash
+cd ~/tt-scratchpad
+touch my_dataset.jsonl
+```
 
-### Step 2: View the Dataset
+### Step 2: Add Your First Examples
 
-Click to open the dataset and browse the examples:
+Open the file in your text editor and add training examples:
 
-[👁️ View Trickster Dataset](command:tenstorrent.viewTricksterDataset)
+```jsonl
+{"prompt": "What is a neural network?", "response": "A neural network is a series of algorithms that mimic the human brain to recognize patterns in data. It learns by adjusting connections between nodes based on training examples."}
+{"prompt": "Explain gradient descent", "response": "Gradient descent is an optimization algorithm that finds the minimum of a function by iteratively moving in the direction of steepest descent. Think of it like rolling a ball down a hill to find the lowest point."}
+{"prompt": "What is overfitting?", "response": "Overfitting occurs when a model learns the training data too well, including noise and outliers, making it perform poorly on new data. It's like memorizing answers without understanding the concepts."}
+```
 
-**What you'll see:**
-- 50 prompt/response pairs
-- Creative explanations of ML concepts
-- Consistent tone and style
-- Suitable length (1-3 sentences per response)
+**What makes these good examples:**
+- Consistent structure (direct answer + explanation)
+- Similar length (2-3 sentences)
+- Clear, educational tone
+- Varied topics within the domain
 
 ---
 
@@ -176,7 +404,7 @@ Click to open the dataset and browse the examples:
 
 Your dataset should cover the **range of inputs** you expect:
 
-**For tt-trickster:**
+**Example coverage:**
 - Basic concepts (neural network, gradient descent)
 - Technical terms (backpropagation, attention mechanism)
 - How-to questions (how do I learn ML?)
@@ -228,9 +456,42 @@ We provide a validation script that checks:
 - ✅ Character encoding issues
 
 **Run validation:**
-```bash
-cd content/templates/training
-python validate_dataset.py trickster_dataset_starter.jsonl
+
+You can create a simple Python script to validate your dataset:
+
+```python
+import json
+
+def validate_jsonl(filepath):
+    """Validate JSONL dataset format"""
+    errors = []
+    line_num = 0
+
+    with open(filepath, 'r') as f:
+        for line in f:
+            line_num += 1
+            try:
+                data = json.loads(line)
+                if 'prompt' not in data:
+                    errors.append(f"Line {line_num}: Missing 'prompt' field")
+                if 'response' not in data:
+                    errors.append(f"Line {line_num}: Missing 'response' field")
+                if data.get('prompt', '').strip() == '':
+                    errors.append(f"Line {line_num}: Empty prompt")
+                if data.get('response', '').strip() == '':
+                    errors.append(f"Line {line_num}: Empty response")
+            except json.JSONDecodeError as e:
+                errors.append(f"Line {line_num}: Invalid JSON - {e}")
+
+    if errors:
+        print("❌ Validation failed:")
+        for error in errors:
+            print(f"  {error}")
+    else:
+        print(f"✅ Dataset validation passed! ({line_num} examples)")
+
+# Usage
+validate_jsonl("my_dataset.jsonl")
 ```
 
 ### Step 2: Interpret Results
@@ -392,9 +653,9 @@ Token IDs: [1724, 374, 264, 30828, 4009, 30]
 - **Cost:** Training/inference scales with token count
 - **Truncation:** Long examples get cut off
 
-**For tt-trickster:**
-- TinyLlama uses BPE tokenizer (byte-pair encoding)
-- Max sequence length: 2048 tokens
+**For fine-tuning:**
+- Most models use BPE tokenizer (byte-pair encoding)
+- Max sequence length: typically 2048-4096 tokens
 - Most examples: 50-200 tokens (well within limit)
 
 ### Checking Token Counts
@@ -429,7 +690,7 @@ Once you have JSONL working, you can integrate with HuggingFace datasets:
 from datasets import load_dataset
 
 # Load your JSONL file
-dataset = load_dataset("json", data_files="trickster_dataset_starter.jsonl")
+dataset = load_dataset("json", data_files="my_dataset.jsonl")
 
 # Access examples
 for example in dataset["train"]:
@@ -460,11 +721,11 @@ Now that you understand the format, let's extend the starter dataset.
 
 ### Challenge: Add 10 New Examples
 
-1. Think of 10 ML/AI questions you'd ask
-2. Write creative, helpful responses (2-3 sentences each)
-3. Add them to `trickster_dataset_starter.jsonl`
+1. Think of 10 questions relevant to your domain
+2. Write clear, helpful responses (2-3 sentences each)
+3. Add them to your dataset file
 4. Run validation to check format
-5. (Optional) Share your favorites in Discord!
+5. Test with a few training steps to see if the model learns
 
 **Example topics to add:**
 - Model deployment
@@ -483,7 +744,7 @@ As you iterate on your dataset:
 ### 1. Use Git for Version Control
 
 ```bash
-git add trickster_dataset_starter.jsonl
+git add my_dataset.jsonl
 git commit -m "Add 10 examples about model deployment"
 ```
 
@@ -676,14 +937,14 @@ You have your dataset! Next, you'll learn how to configure training using YAML f
 ## Additional Resources
 
 ### Dataset Examples
-- **tt-trickster starter:** `content/templates/training/trickster_dataset_starter.jsonl`
-- **tt-blacksmith examples:** Various task-specific datasets
-- **HuggingFace Hub:** Thousands of public datasets
+- **HuggingFace Hub:** Thousands of public datasets for reference
+- **GitHub:** Search for "JSONL dataset" to find examples
+- **Your own data:** Best source for domain-specific training
 
 ### Validation Tools
-- **Our validator:** `content/templates/training/validate_dataset.py`
+- **Python json module:** Built-in JSON validation
 - **JSONLint:** Online JSON validator
-- **HuggingFace datasets:** Built-in validation
+- **HuggingFace datasets:** Built-in validation and preprocessing
 
 ### Dataset Creation Tools
 - **GPT-4/Claude:** Generate examples (then curate!)

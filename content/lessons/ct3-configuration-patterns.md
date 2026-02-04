@@ -91,22 +91,22 @@ graph TD
 
 ## Configuration File Structure
 
-### Full Example: `trickster_n150.yaml`
+### Full Example: `training_n150.yaml`
 
 ```yaml
-# Trickster Fine-tuning Configuration for N150 (Single Wormhole Chip)
+# Training Configuration for N150 (Single Wormhole Chip)
 #
 # Optimized for single-chip development hardware
-# Training completes in 1-3 hours on N150
+# Typical training time: 1-3 hours depending on dataset size
 
 training_config:
   model_type: "llama"
   seed: 42
   batch_size: 8                    # N150: Conservative for DRAM limits
   validation_batch_size: 2
-  num_epochs: 3                    # 3 epochs over ~50 examples
-  max_steps: 500                   # Reasonable for fine-tuning
-  learning_rate: 0.0001            # Lower LR for fine-tuning
+  num_epochs: 3                    # Adjust based on dataset size
+  max_steps: 5000                  # Maximum training steps
+  learning_rate: 0.0001            # Standard for fine-tuning
   weight_decay: 0.01
   use_moreh_adamw: true
   use_kahan_summation: false
@@ -116,14 +116,14 @@ training_config:
   eval_every: 50                   # Validate every 50 steps
   model_save_interval: 100         # Checkpoint every 100 steps
   tokenizer_type: "bpe"
-  checkpoint_dir: "checkpoints_trickster_n150"
-  model_config: "model_configs/tinyllama.yaml"
+  checkpoint_dir: "checkpoints"
+  model_config: "model_configs/model.yaml"
 
   # Logging configuration (tt-blacksmith pattern)
   log_level: "INFO"
   use_wandb: false                 # Optional experiment tracking
-  wandb_project: "trickster-finetune"
-  wandb_run_name: "n150-tinyllama"
+  wandb_project: "my-training"
+  wandb_run_name: "n150-experiment"
 
   # Checkpoint strategy (tt-blacksmith pattern)
   checkpoint_frequency: 100        # Save every 100 steps
@@ -174,7 +174,7 @@ Let's break down each section.
 
 **Formula:** `effective_batch_size = batch_size × gradient_accumulation_steps`
 
-For trickster: `8 × 4 = 32` effective batch size
+Example: `8 × 4 = 32` effective batch size
 
 ### Learning Rate Deep Dive
 
@@ -235,9 +235,9 @@ max_steps = 500
 - **Small datasets (50-500 examples):** Use `max_steps` (more control)
 - **Large datasets (10,000+ examples):** Use `num_epochs` (natural unit)
 
-**For trickster:** 50 examples, batch size 8 → 6-7 steps per epoch → 500 steps = ~80 epochs
+**Example calculation:** 50 examples, batch size 8 → 6-7 steps per epoch → 500 steps = ~80 epochs
 
-(This is intentional - small datasets need many passes)
+(This is normal - small datasets need many passes to learn patterns)
 
 ---
 
@@ -342,7 +342,7 @@ Prevents **exploding gradients** - when gradients become huge and cause NaN erro
 ```yaml
 training_config:
   model_save_interval: 100         # Save every 100 steps
-  checkpoint_dir: "checkpoints_trickster_n150"
+  checkpoint_dir: "checkpoints_n150"
 ```
 
 **What gets saved:**
@@ -401,8 +401,8 @@ training_config:
 ```yaml
 training_config:
   use_wandb: false                 # Enable for experiment tracking
-  wandb_project: "trickster-finetune"
-  wandb_run_name: "n150-tinyllama"
+  wandb_project: "my-training-project"
+  wandb_run_name: "n150-experiment-1"
 ```
 
 **What is WandB (Weights & Biases)?**
@@ -576,7 +576,7 @@ Experimentation is the heart of ML engineering. Here's how to systematically imp
 
 ```mermaid
 graph TD
-    A[Start: Baseline Config<br/>trickster_n150.yaml] --> B[Run Training<br/>Monitor loss & samples]
+    A[Start: Baseline Config<br/>training_n150.yaml] --> B[Run Training<br/>Monitor loss & samples]
 
     B --> C{Results Good?}
     C -->|Yes| D[🎉 Use This Config<br/>Save as production]
@@ -617,7 +617,7 @@ graph TD
 
 ### 1. Start with Baseline Config
 
-Use the provided `trickster_n150.yaml` as-is. This is your reference point.
+Use a baseline config appropriate for your hardware as-is. This is your reference point.
 
 ### 2. Change One Thing at a Time
 
@@ -642,7 +642,7 @@ Create `experiments.md`:
 
 ```markdown
 ## Experiment 1: Baseline
-- Config: trickster_n150.yaml
+- Config: training_n150.yaml
 - Final train loss: 2.34
 - Final val loss: 2.56
 - Sample output: "Good"
@@ -659,9 +659,9 @@ Create `experiments.md`:
 
 ```bash
 configs/
-  trickster_n150_v1.yaml          # Baseline
-  trickster_n150_v2.yaml          # Higher batch
-  trickster_n150_v3.yaml          # Lower LR
+  training_n150_v1.yaml          # Baseline
+  training_n150_v2.yaml          # Higher batch
+  training_n150_v3.yaml          # Lower LR
 ```
 
 **Why:** Know which config produced which model.
@@ -676,8 +676,8 @@ configs/
 training_config:
   batch_size: 8
   learning_rate: 0.0001
-  max_steps: 500
-  model_config: "model_configs/tinyllama.yaml"
+  max_steps: 5000
+  model_config: "model_configs/model.yaml"
   checkpoint_dir: "checkpoints"
 
 device_config:
@@ -693,7 +693,7 @@ device_config:
 training_config:
   batch_size: 8
   learning_rate: 0.0001
-  max_steps: 500
+  max_steps: 5000
   validation_frequency: 25        # Validate often
   checkpoint_frequency: 50        # Save often
   use_wandb: true                 # Track everything
@@ -903,7 +903,7 @@ In CT-4, you'll:
 2. Launch your first fine-tuning job
 3. Monitor training progress
 4. Load and test your fine-tuned model
-5. See the trickster model in action!
+5. See your model in action!
 
 **Estimated time:** 20-25 minutes (+ 1-3 hours training time)
 **Prerequisites:** CT-2, CT-3
@@ -913,9 +913,9 @@ In CT-4, you'll:
 ## Additional Resources
 
 ### Configuration Examples
-- **N150 config:** `content/templates/training/configs/trickster_n150.yaml`
-- **N300 config:** `content/templates/training/configs/trickster_n300.yaml`
-- **tt-blacksmith:** Various task-specific configs
+- **tt-train examples:** Check `tt-metal/tt-train/sources/examples/` for sample configs
+- **tt-blacksmith:** Reference patterns for config organization
+- **Your experiments:** Build your own library of proven configs
 
 ### Deep Dives
 - [Adam optimizer paper](https://arxiv.org/abs/1412.6980) - Understanding adaptive LR

@@ -39,12 +39,12 @@ Scale your training to multiple Tenstorrent chips using Data Parallel (DDP) patt
 ### Single Device (N150) Limitations
 
 - ✅ Simple, easy to debug
-- ⚠️ Slower training (1-3 hours for trickster)
+- ⚠️ Slower training (1-3 hours)
 - ⚠️ Smaller batch sizes (memory-limited)
 
 ### Multi-Device (N300+) Benefits
 
-- ✅ ~2x faster on N300 (30-60 minutes for trickster)
+- ✅ ~2x faster on N300 (30-60 minutes)
 - ✅ ~8x faster on T3K (8 chips)
 - ✅ Larger effective batch sizes
 - ✅ Better hardware utilization
@@ -186,7 +186,7 @@ Device 1: Wormhole (N300)
 [🚀 Start Fine-tuning (N300)](command:tenstorrent.startFineTuningN300Trickster)
 
 **What this does:**
-1. Uses `configs/trickster_n300.yaml` (DDP config)
+1. Uses `configs/training_n300.yaml` (DDP config)
 2. Initializes both devices
 3. Launches training with DDP enabled
 
@@ -194,15 +194,15 @@ Device 1: Wormhole (N300)
 
 **Initial setup:**
 ```
-🎭 Trickster Fine-tuning
+🎯 Custom Training
 ============================================================
 
-Loading config: configs/trickster_n300.yaml
+Loading config: configs/training_n300.yaml
 Initializing 2 devices...                    # ← DDP initialization
 Device mesh: [1, 2]                          # ← 2 devices configured
 Creating model...
 Loading weights from ~/models/tinyllama_safetensors
-Loaded 50 examples from trickster_dataset_starter.jsonl
+Loaded 50 examples from my_dataset.jsonl
 
 Training configuration:
   Devices: 2                                 # ← DDP active
@@ -678,8 +678,8 @@ Understand transformer components before training from scratch.
 - [Efficient DDP](https://arxiv.org/abs/2006.15704) - Research paper
 
 ### Configuration Examples
-- **N300:** `content/templates/training/configs/trickster_n300.yaml`
-- **Multi-device guide:** `content/templates/training/multi_device_guide.md` (coming soon)
+- **tt-train examples:** Check `tt-metal/tt-train/sources/examples/` for multi-device configs
+- **DDP patterns:** Reference tt-metal documentation for device mesh configuration
 
 ### Profiling Tools
 - `tt-smi` - Device monitoring

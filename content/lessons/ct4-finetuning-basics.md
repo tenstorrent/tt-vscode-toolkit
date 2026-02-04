@@ -391,16 +391,28 @@ You are all resolved rather to die than to famish?
 
 **Why Shakespeare works perfectly:**
 
-✅ **Rich structure** - Character names, dialogue format, stage directions
-✅ **Sufficient size** - 1.1MB is ideal for a 6-layer, 384-dim model
-✅ **Continuous text** - Character-level modeling learns from natural flow
-✅ **Clear patterns** - Dramatic format provides strong learning signal
+Shakespeare is the "Hello World" of language model training - a classic dataset that teaches transferable principles. See **CT2: Dataset Fundamentals** (The Shakespeare Dataset section) for the full pedagogical history and learning patterns of this corpus.
+
+✅ **Rich structure** - Character names, dialogue format, stage directions provide strong learning signal
+✅ **Sufficient size** - 1.1MB is ideal for a 6-layer, 384-dim model (not too small, not overwhelming)
+✅ **Continuous text** - Character-level modeling learns from natural flow without tokenization
+✅ **Clear patterns** - Dramatic format shows hierarchical learning in action
+✅ **Fast iteration** - See complete training progression in 20-30 minutes
+
+**What makes it pedagogically perfect**: You can **SEE** the model learning hierarchically:
+- **Stage 1 (10 epochs):** Structure - line breaks, capitalization, character format
+- **Stage 2 (30 epochs):** Vocabulary - real character names, common words
+- **Stage 3 (100 epochs):** Style - Shakespearean vocabulary, dramatic patterns
+- **Stage 4 (200 epochs):** Fluency - natural dialogue, proper grammar, captures meter
+
+**This hierarchical learning pattern applies to ANY domain you'll train on** - code, medical notes, legal contracts. Shakespeare teaches you to recognize these stages in your own training runs.
 
 **Dataset characteristics:**
 - **Total size:** ~1.1MB (~1.1 million characters)
 - **Vocabulary:** All printable ASCII characters (~65 unique chars)
 - **Format:** Plain text (no JSON/JSONL preprocessing needed)
 - **Training time:** 10 epochs ~1 min, 200 epochs ~20-30 min
+- **Source:** Complete works of Shakespeare (40 plays)
 
 ---
 
