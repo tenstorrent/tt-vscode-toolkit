@@ -18,6 +18,14 @@ supportedHardware:
   - p100
   - p150
   - galaxy
+metadata:
+  status: validated
+  validatedOn:
+    - n150
+  minTTMetalVersion: v0.67.0
+  validationDate: 2026-02-04
+  validationNotes: >-
+    All 4 progressive training stages validated on N150 with v0.67.0-dev20260203. Stage 4 (20k steps) reveals model plateau (loss 1.66 → 1.70), demonstrating architectural capacity limits - important teaching moment for students.
 ---
 
 # Fine-tuning Basics
@@ -591,36 +599,46 @@ I think he comes to speak with thee, good friend.
 
 ---
 
-## Step 6: Progressive Training - Stage 4 (Fluency!)
+## Step 6: Progressive Training - Stage 4 (Extended Training)
 
-Final push to 200 epochs (~20-30 minutes) for fluent output.
+Final push to 20,000 steps (~8 minutes) to see how far the model can go.
+
+**⚠️ IMPORTANT:** Default config limits training to 5000 steps. To train beyond this, you must set BOTH `--max_steps` AND `--num_epochs` high enough:
 
 ```bash
 python train_nanogpt.py \
   --data_path ~/tt-scratchpad/training/data/shakespeare.txt \
-  --num_epochs 200 \
+  --max_steps 20000 \
+  --num_epochs 10000 \
   --batch_size 4 \
   --learning_rate 5e-4 \
   --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare_final.pkl \
   --fresh
 ```
 
+**Why both parameters?** The training loop has two stopping conditions:
+- Outer loop controlled by `--num_epochs` (default: 1)
+- Inner break controlled by `--max_steps` (default: 5000)
+
+Both must be set high enough or training will stop early!
+
 **What you'll see:**
 
 ```
-[Step 10000/20000] Loss: 0.95 | Time: 5.0s
-[Step 15000/20000] Loss: 0.82 | Time: 5.0s
-[Step 20000/20000] Loss: 0.75 | Time: 5.0s
+[Step 5000/20000] Loss: 1.66 | Time: 4.8s
+[Step 10000/20000] Loss: 1.69 | Time: 4.9s
+[Step 15000/20000] Loss: 1.70 | Time: 4.8s
+[Step 20000/20000] Loss: 1.70 | Time: 4.9s
 
 ✅ Training complete!
-Final loss: 0.75
-Total time: 1200 seconds (~20 minutes)
+Final loss: 1.70
+Total time: 481 seconds (~8 minutes)
 ```
 
 **Expected outcome at Stage 4:**
-- **Loss:** 4.6 → <1.0
-- **What model learned:** Fluent Shakespeare, proper grammar, dramatic style
-- **Inference quality:** High-quality Shakespeare-style dialogue
+- **Loss:** 1.66 → 1.70 (minimal improvement!)
+- **What model learned:** Similar quality to Stage 3 - model reached plateau
+- **Inference quality:** Comparable to Stage 3, neologisms still present
 
 **Test Stage 4 inference:**
 
@@ -632,16 +650,17 @@ python train_nanogpt.py \
   --temperature 0.8
 ```
 
-**Example output (Stage 4 - Fluent!):**
+**Example output (Stage 4 - Actual validated output):**
 ```
 ROMEO:
-O, she doth teach the torches to burn bright!
-It seems she hangs upon the cheek of night
-Like a rich jewel in an Ethiope's ear;
-Beauty too rich for use, for earth too dear!
+That as may the suit tould the and will booke
+Which that with maste as the frese worn thy his of the changer him.
+
+BUCKIO:
+What he so come come in th
 ```
 
-✅ **Notice:** Fluent, grammatically correct, captures Shakespeare's style and meter!
+✅ **Notice:** Similar quality to Stage 3! Loss barely improved (1.66 → 1.70). This is an important learning moment - **the model reached a plateau**. Further improvements would require architectural changes (more layers, larger embeddings, different learning rate schedule) rather than just more training steps.
 
 ---
 
@@ -662,13 +681,14 @@ Stage 2 (30 epochs, ~3,000 steps):  🎭 Structure emerges!
   Initial: 4.6  →  Final: 1.6-1.8
   Time: ~3 minutes
 
-Stage 3 (100 epochs, ~10,000 steps):
-  Initial: 4.6  →  Final: 1.0-1.3
-  Time: ~10 minutes
+Stage 3 (50 epochs, ~5,000 steps):
+  Initial: 4.6  →  Final: 1.66
+  Time: ~2 minutes
 
 Stage 4 (200 epochs, ~20,000 steps):
-  Initial: 4.6  →  Final: 0.7-1.0
-  Time: ~20-30 minutes
+  Initial: 4.6  →  Final: 1.70
+  Time: ~8 minutes
+  Note: Minimal improvement from Stage 3 - model plateau!
 ```
 
 **What each loss range means:**
@@ -678,8 +698,8 @@ Stage 4 (200 epochs, ~20,000 steps):
 | **4.6-4.0** | Random exploration | Gibberish |
 | **4.0-2.0** | Character frequencies, basic patterns | Some structure |
 | **2.0-1.5** | **Format!** Character names, dialogue structure | Structured but creative |
-| **1.5-1.0** | Real words, better grammar | Mostly coherent |
-| **<1.0** | Fluent Shakespeare style | High quality |
+| **1.5-1.0** | Real words, better grammar | Mostly coherent (validated at 1.66-1.70) |
+| **<1.0** | Fluent Shakespeare style | High quality (requires larger model or different architecture) |
 
 **Good signs:**
 - ✅ Steady loss decrease
@@ -1619,11 +1639,21 @@ You've seen firsthand how models learn hierarchically, and you understand the co
 - Analysis: Words like "booke", "hath", "sir", "mistake", "should", "hat", "will" show vocabulary learning
 - Note: Training config defaults to 5000 steps max (50 epochs)
 
-**Stage 4 (200 epochs, 20,000 steps):** ⏳ **Extrapolated**
-- Time: ~8-10 minutes (estimated from Step 3 timing)
-- Expected loss: <1.0
-- Expected quality: Fluent Shakespeare-style dialogue with proper grammar
-- Note: Default config limits training to 5000 steps; requires config modification for full 20k steps
+**Stage 4 (200 epochs, 20,000 steps):** ✅ **Validated**
+- Time: 8 minutes (481 seconds)
+- Final loss: 1.70
+- Output quality: Similar to Stage 3 - model reached plateau (1.66 → 1.70 shows minimal improvement)
+- Example output:
+  ```
+  ROMEO:
+  That as may the suit tould the and will booke
+  Which that with maste as the frese worn thy his of the changer him.
+
+  BUCKIO:
+  What he so come come in th
+  ```
+- **How to train 20k steps:** Default config limits to 5000 steps. Use `--max_steps 20000 --num_epochs 10000` (both required!)
+- **Teaching moment:** Loss improvement diminishes after certain point - architectural changes needed for further gains
 
 ### Memory and Storage (Validated)
 
@@ -1681,12 +1711,15 @@ When you complete this lesson, you'll have:
 **Fully Validated on N150 (2026-02-04):**
 - ✅ Stage 1 (10 epochs): Tested in previous session
 - ✅ **Stage 2 (30 epochs):** Fully validated - Structure emerges! Loss 1.6-1.8
-- ✅ **Stage 3 (50 epochs):** Fully validated - Real words dominate! Loss 1.66
-- ⏳ Stage 4 (200 epochs): Extrapolated from Stage 2-3 progression
+- ✅ **Stage 3 (50 epochs, 5000 steps):** Fully validated - Real words dominate! Loss 1.66
+- ✅ **Stage 4 (200 epochs, 20,000 steps):** Fully validated - Model plateau! Loss 1.70
 
-**Training config note:** Default `training_shakespeare_nanogpt.yaml` limits to 5000 steps. To train beyond this, modify the config file's `max_steps` parameter or use explicit `--max_steps` flag with updated config.
+**Training config solution:** Default config limits to 5000 steps. To train all 20,000 steps, use: `--max_steps 20000 --num_epochs 10000` (both parameters required - see Step 6 for details)
 
-**Key finding:** Hierarchical learning validated empirically! Stage 2 shows dramatic emergence of dramatic format with character names, exactly as predicted by theory. Stage 3 shows vocabulary improvement with mostly real words, validating the structure → vocabulary → fluency progression.
+**Key findings:**
+1. **Hierarchical learning validated empirically!** Stage 2 shows dramatic emergence of dramatic format with character names, exactly as predicted by theory
+2. **Vocabulary improvement confirmed!** Stage 3 shows mostly real words, validating the structure → vocabulary → fluency progression
+3. **Model plateau discovered!** Stage 4 training (5k → 20k steps) showed minimal loss improvement (1.66 → 1.70), demonstrating that this model architecture has reached its capacity for this dataset. Further gains would require architectural changes (more layers, larger embeddings) rather than just more training.
 
 ---
 
