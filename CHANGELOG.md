@@ -34,13 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `content/lessons/ct8-training-from-scratch.md:208-228` - Added version requirements and verification steps
   - Reason: Python `ttml` training module only available in v0.66.0-rc5+
 
-### Removed
-- **Zen Master Theme** - Removed all zen references in favor of trickster theme
-  - Deleted `content/lessons/finetune-custom-model.md` - Replaced by CT1-CT8 series
-  - Deleted 6 zen template files (finetune_zen.py, test_zen_model.py, zen_dataset_starter.jsonl, 3 configs)
-  - Removed 6 zen commands and implementations (183 lines from extension.ts)
-  - Updated lesson navigation: coding-assistant → ct1-understanding-training
-  - Result: Single consistent theme (trickster) across all training content
 
 ### Context
 - **Validation environment**: N150 (Wormhole single-chip), tt-metal v0.66.0-rc7
