@@ -1075,6 +1075,154 @@ python train_nanogpt.py \
 
 ---
 
+## Hardware-Specific Expectations 🖥️
+
+This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all Tenstorrent hardware. Here's what to expect on each platform:
+
+### N150 (Wormhole - Single Chip)
+
+**Specifications:**
+- Single Wormhole chip
+- 12GB DRAM
+- Most common development hardware
+
+**Performance (Shakespeare 200 epochs):**
+- **Batch size 4:** ~20-30 minutes ✅ **Recommended**
+- **Batch size 8:** ~10-15 minutes (may work, watch DRAM)
+- **Memory:** Comfortable fit, no DRAM pressure
+
+**Best for:**
+- Learning transformer training
+- Rapid iteration and experimentation
+- Character-level language models
+- Small-to-medium datasets (<10MB)
+
+### N300 (Wormhole - Dual Chip)
+
+**Specifications:**
+- Two Wormhole chips in mesh configuration
+- 2x12GB = 24GB total DRAM
+- Can run data-parallel training
+
+**Performance (Shakespeare 200 epochs):**
+- **Single chip mode:** Same as N150
+- **DDP mode (future):** ~2x faster with multi-device training
+- **Memory:** Ample headroom for larger models
+
+**Best for:**
+- Faster training iterations
+- Larger batch sizes
+- Multi-device training experiments
+- Scaling to production workloads
+
+### T3K (Wormhole - 8 Chips)
+
+**Specifications:**
+- 8 Wormhole chips in 2x4 mesh
+- 8x12GB = 96GB total DRAM
+- Research and production cluster
+
+**Performance (Shakespeare 200 epochs):**
+- **Single chip mode:** Same as N150
+- **Multi-device mode:** ~4-8x faster (with proper parallelization)
+- **Memory:** Can train much larger models
+
+**Best for:**
+- Large language model training
+- Multi-device data/model parallelism
+- Production training pipelines
+- Scaling experiments
+
+### P100 (Blackhole - Single Chip)
+
+**Specifications:**
+- Single Blackhole chip (next-gen architecture)
+- Enhanced memory bandwidth
+- Improved compute density
+
+**Performance (Shakespeare 200 epochs):**
+- **Expected:** Similar or faster than N150
+- **Memory:** Similar capacity, better bandwidth
+- **Note:** May need `export TT_METAL_ARCH_NAME=blackhole`
+
+**Best for:**
+- Next-gen architecture testing
+- Performance benchmarking
+- Production deployments (when available)
+
+### P150 (Blackhole - Dual Chip)
+
+**Specifications:**
+- Two Blackhole chips
+- Next-gen dual-chip configuration
+- Enhanced interconnect
+
+**Performance (Shakespeare 200 epochs):**
+- **Expected:** Similar to N300, potentially faster
+- **Multi-device:** Better chip-to-chip communication
+- **Memory:** Ample for larger models
+
+**Best for:**
+- Next-gen multi-device training
+- Production workloads
+- Advanced parallelization experiments
+
+### P300C (Blackhole Cloud Configuration)
+
+**Specifications:**
+- Cloud-optimized Blackhole deployment
+- Multiple chip configurations available
+- Data center form factor
+
+**Performance:**
+- **Scales with chip count** (4, 8, 16+ chips)
+- **Expected:** Best performance per chip
+- **Memory:** Cloud-scale capacity
+
+**Best for:**
+- Cloud training workloads
+- Large-scale experiments
+- Production ML pipelines
+- Multi-tenant environments
+
+### Galaxy (Large-Scale Cluster)
+
+**Specifications:**
+- 32+ Wormhole chips in pod configuration
+- 384GB+ total DRAM
+- Research supercomputer cluster
+
+**Performance (Shakespeare 200 epochs):**
+- **Single chip mode:** Same as N150
+- **Full cluster mode:** Massively parallel training
+- **Use cases:** LLM pre-training, not needed for NanoGPT
+
+**Best for:**
+- Large language model pre-training (multi-billion parameters)
+- Distributed training research
+- Scaling studies
+- Production LLM training
+
+### Key Takeaways by Hardware
+
+| Hardware | NanoGPT Training Time | Sweet Spot Use Case |
+|----------|----------------------|---------------------|
+| **N150** | 20-30 min | Learning, experimentation, small models |
+| **N300** | 10-20 min | Faster iteration, larger batches |
+| **T3K** | 5-10 min (multi-device) | Production training, scaling |
+| **P100** | 15-25 min | Next-gen testing, production |
+| **P150** | 8-15 min | Next-gen multi-device |
+| **P300C** | Scales with chips | Cloud production |
+| **Galaxy** | <5 min (full cluster) | LLM pre-training, research |
+
+**For this lesson (NanoGPT on Shakespeare):**
+- ✅ **N150 is perfect** - Small model, learning focus, quick iterations
+- ✅ **All hardware works** - NanoGPT is intentionally small
+- 📈 **Larger hardware** gives faster training, but N150 is plenty fast
+- 🚀 **Production:** Any hardware works; choose based on scale needs
+
+---
+
 ## Next Steps After Training
 
 ### Option 1: Try Different Datasets
