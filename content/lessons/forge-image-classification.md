@@ -6,7 +6,7 @@ description: >-
   models to TT hardware! Start with validated models like MobileNetV2 for image
   classification. Learn forge.compile(), experiment with supported
   architectures, and understand the path to high-level model deployment.
-category: advanced
+category: compilers
 tags:
   - hardware
   - image

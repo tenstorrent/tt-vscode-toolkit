@@ -120,6 +120,11 @@
         "category": "Tenstorrent"
       },
       {
+        "command": "tenstorrent.showStepZero",
+        "title": "Show Step Zero: Getting Started Guide",
+        "category": "Tenstorrent"
+      },
+      {
         "command": "tenstorrent.openWalkthrough",
         "title": "Open Setup Walkthrough",
         "category": "Tenstorrent"

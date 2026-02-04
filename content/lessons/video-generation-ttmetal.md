@@ -4,7 +4,7 @@ title: Video Generation with Stable Diffusion 3.5
 description: >-
   Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware.
   Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!
-category: advanced
+category: serving
 tags:
   - hardware
   - video

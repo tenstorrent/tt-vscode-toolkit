@@ -5,7 +5,7 @@ description: >-
   Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn
   how to shape model behavior through system prompts - a critical real-world
   skill!
-category: advanced
+category: applications
 tags:
   - coding
   - assistant

@@ -3,7 +3,7 @@ id: deploy-to-koyeb
 title: "Deploy Your Work to Koyeb"
 description: >-
   Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.
-category: advanced
+category: deployment
 tags:
   - deployment
   - koyeb

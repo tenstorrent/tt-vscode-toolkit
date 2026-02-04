@@ -4,7 +4,7 @@ title: Hardware Detection
 description: >-
   Scan for connected Tenstorrent devices and verify they're properly recognized
   by the system.
-category: advanced
+category: first-inference
 tags:
   - hardware
 supportedHardware:

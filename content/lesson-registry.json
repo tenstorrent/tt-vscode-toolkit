@@ -38,32 +38,39 @@
       "icon": "lightbulb"
     },
     {
+      "id": "advanced",
+      "title": "🎓 Advanced Topics",
+      "description": "Low-level programming, installation, and community contributions",
+      "order": 6,
+      "icon": "mortar-board"
+    },
+    {
       "id": "custom-training",
       "title": "🎓 Custom Training",
       "description": "Fine-tune and train custom AI models on Tenstorrent hardware",
-      "order": 6,
+      "order": 7,
       "icon": "graduation-cap"
+    },
+    {
+      "id": "deployment",
+      "title": "☁️ Deployment",
+      "description": "Deploy your applications to cloud platforms",
+      "order": 8,
+      "icon": "cloud"
     },
     {
       "id": "cookbook",
       "title": "👨‍🍳 Tenstorrent Cookbook",
       "description": "Learn by building! 5 hands-on projects: Game of Life, Audio Processing, Mandelbrot Fractals, Image Filters, and Particle Life",
-      "order": 7,
+      "order": 9,
       "icon": "beaker"
     },
     {
       "id": "cs-fundamentals",
       "title": "🧠 CS Fundamentals",
       "description": "Computer architecture, memory, parallelism, and systems programming on real hardware",
-      "order": 8,
+      "order": 10,
       "icon": "circuit-board"
-    },
-    {
-      "id": "advanced",
-      "title": "🎓 Advanced Topics",
-      "description": "Low-level programming, installation, and community contributions",
-      "order": 9,
-      "icon": "mortar-board"
     }
   ],
   "lessons": [
@@ -97,7 +104,7 @@
       "id": "hardware-detection",
       "title": "Hardware Detection",
       "description": "Scan for connected Tenstorrent devices and verify they're properly recognized by the system.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "hardware"
       ],
@@ -123,7 +130,7 @@
       "id": "verify-installation",
       "title": "Verify tt-metal Installation",
       "description": "Test your tt-metal installation by running a sample operation on your Tenstorrent device.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "installation"
       ],
@@ -149,7 +156,7 @@
       "id": "download-model",
       "title": "Download Model and Run Inference",
       "description": "Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent hardware.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "hardware",
         "inference",
@@ -177,7 +184,7 @@
       "id": "interactive-chat",
       "title": "Interactive Chat with Direct API",
       "description": "Build a custom chat application using tt-metal's Generator API directly.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "chat",
         "api"
@@ -204,7 +211,7 @@
       "id": "api-server",
       "title": "HTTP API Server with Direct API",
       "description": "Create a production-ready Flask API with the model loaded in memory.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "production",
         "api",
@@ -233,7 +240,7 @@
       "id": "tt-inference-server",
       "title": "Production Inference with tt-inference-server",
       "description": "Use Tenstorrent's official inference server for production deployments with simple CLI configuration.",
-      "category": "advanced",
+      "category": "serving",
       "tags": [
         "production",
         "deployment",
@@ -259,7 +266,7 @@
       "id": "vllm-production",
       "title": "Production Inference with vLLM",
       "description": "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features.",
-      "category": "advanced",
+      "category": "serving",
       "tags": [
         "vllm",
         "production",
@@ -286,7 +293,7 @@
       "id": "image-generation",
       "title": "Image Generation with Stable Diffusion XL",
       "description": "Generate high-resolution 1024x1024 images using Stable Diffusion XL Base running natively on your Tenstorrent hardware!",
-      "category": "advanced",
+      "category": "serving",
       "tags": [
         "hardware",
         "image",
@@ -314,7 +321,7 @@
       "id": "video-generation-ttmetal",
       "title": "Video Generation with Stable Diffusion 3.5",
       "description": "Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
-      "category": "advanced",
+      "category": "serving",
       "tags": [
         "hardware",
         "video",
@@ -344,7 +351,7 @@
       "id": "coding-assistant",
       "title": "Coding Assistant with Prompt Engineering",
       "description": "Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn how to shape model behavior through system prompts - a critical real-world skill!",
-      "category": "advanced",
+      "category": "applications",
       "tags": [
         "coding",
         "assistant",
@@ -812,7 +819,7 @@
       "id": "forge-image-classification",
       "title": "Image Classification with TT-Forge",
       "description": "Explore TT-Forge - Tenstorrent's MLIR-based compiler that brings PyTorch models to TT hardware! Start with validated models like MobileNetV2 for image classification. Learn forge.compile(), experiment with supported architectures, and understand the path to high-level model deployment.",
-      "category": "advanced",
+      "category": "compilers",
       "tags": [
         "hardware",
         "image",
@@ -837,7 +844,7 @@
       "id": "tt-xla-jax",
       "title": "JAX Inference with TT-XLA",
       "description": "Master TT-XLA - Tenstorrent's production-ready XLA-based compiler! Simple wheel installation, JAX integration via PJRT, and multi-chip support. Perfect for cloud environments with locked Python/tt-metal versions. Works with Python 3.10+, no rebuilding required!",
-      "category": "advanced",
+      "category": "compilers",
       "tags": [
         "production",
         "installation",
@@ -1120,7 +1127,7 @@
       "id": "animatediff-video-generation",
       "title": "Native Video Animation with AnimateDiff",
       "description": "Learn to build standalone packages outside tt-metal! Integrate AnimateDiff temporal attention to create animated videos. Master the complete model bring-up workflow - from research to production. Perfect for subtle motion effects like blinking eyes, screen flickers, and cinemagraphs.",
-      "category": "advanced",
+      "category": "applications",
       "tags": [
         "animation",
         "video",
@@ -1148,7 +1155,7 @@
       "id": "deploy-vscode-to-koyeb",
       "title": "Deploy tt-vscode-toolkit to Koyeb",
       "description": "Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional N300 hardware access.",
-      "category": "advanced",
+      "category": "deployment",
       "tags": [
         "deployment",
         "koyeb",
@@ -1176,7 +1183,7 @@
       "id": "deploy-to-koyeb",
       "title": "Deploy Your Work to Koyeb",
       "description": "Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.",
-      "category": "advanced",
+      "category": "deployment",
       "tags": [
         "deployment",
         "koyeb",

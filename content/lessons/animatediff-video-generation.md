@@ -6,7 +6,7 @@ description: >-
   attention to create animated videos. Master the complete model bring-up workflow -
   from research to production. Perfect for subtle motion effects like blinking eyes,
   screen flickers, and cinemagraphs.
-category: advanced
+category: applications
 tags:
   - animation
   - video
