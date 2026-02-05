@@ -44,13 +44,19 @@ Master YAML-driven training configuration using patterns from tt-blacksmith. Lea
 
 **Don't hardcode values. Use config files.**
 
-### Benefits
+Think about cooking: Would you rather memorize every ingredient quantity, or use a recipe you can share, modify, and perfect over time? Configuration files are your training recipes.
 
-✅ **Reproducibility:** Same config → same results
-✅ **Experimentation:** Change one value, rerun
-✅ **Sharing:** Send config file instead of explaining settings
-✅ **Version control:** Track what changed between runs
-✅ **Documentation:** Config is self-documenting
+### The Power of Configuration
+
+**Reproducibility is everything.** When you find a config that works, you want to be able to recreate those exact results. Same config file → same training behavior → same model quality. No hunting through code to remember what learning rate you used three weeks ago.
+
+**Experimentation becomes systematic.** Want to try a higher learning rate? Change one line in your config, rerun. Compare results. Keep the winner. No code changes, no risk of breaking something else. Configuration files let you experiment fearlessly.
+
+**Sharing is effortless.** Instead of writing "I used batch size 8, learning rate 0.0001, AdamW optimizer with weight decay 0.01, gradient clipping at 1.0..." just send your config file. Everything's there. Your colleague runs the exact same setup in seconds.
+
+**Version control tells the story.** When you track config files in git, you see exactly what changed between runs. "Oh, this commit lowered the learning rate from 1e-4 to 5e-5 - that's when training stabilized." The history writes itself.
+
+**Documentation that never lies.** Comments in code get out of sync. Config files can't lie - they are what the training run actually used. Self-documenting by necessity.
 
 ### The tt-blacksmith Way
 
@@ -155,8 +161,8 @@ Let's break down each section.
 
 ### Core Hyperparameters
 
-| Parameter | What It Does | Typical Values | Trickster (N150) |
-|-----------|--------------|----------------|------------------|
+| Parameter | What It Does | Typical Values | Example (N150) |
+|-----------|--------------|----------------|----------------|
 | `batch_size` | Examples per training step | 4-32 | **8** (DRAM conservative) |
 | `learning_rate` | How fast model learns | 1e-5 to 1e-4 | **1e-4** (fine-tuning LR) |
 | `num_epochs` | Passes through full dataset | 1-10 | **3** (typical fine-tuning) |
@@ -165,83 +171,89 @@ Let's break down each section.
 
 ### Batch Size Deep Dive
 
-**What it is:** Number of examples processed before updating weights.
+Think of batch size like teaching multiple students at once versus one-on-one tutoring. **Batch size is how many training examples the model sees before updating its weights.**
 
-**Effect:**
-- **Higher (16-32):** Faster training, more stable gradients, needs more memory
-- **Lower (4-8):** Slower training, noisier gradients, fits in limited memory
+**Larger batches (16-32) are like teaching a classroom.** You show 16 different examples, collect feedback from all of them, then make one consolidated update to the model. The advantage? You get more consistent, stable feedback across different perspectives. Training moves faster because each update is based on broader evidence. The downside? You need more resources - specifically, more memory to hold all those examples at once.
 
-**N150 considerations:**
-- Limited DRAM (compared to H100 GPUs)
-- Batch size 8 is conservative and safe
-- Can try 16 if model is small
+**Smaller batches (4-8) are like tutoring individuals.** You show 4 examples, update immediately. The feedback is noisier - each small batch might have quirks that don't represent the full dataset. Progress is slower because you're making more frequent, smaller updates. But here's the win: it works with limited resources.
 
-**Formula:** `effective_batch_size = batch_size × gradient_accumulation_steps`
+**On N150, we're memory-constrained** compared to massive GPU clusters with 80GB+ VRAM. The N150's DRAM is fantastic for its purpose, but we're not running H100s here. Batch size 8 is our sweet spot - conservative enough to always work, large enough to make meaningful progress. Got a particularly small model? You might push to 16. But 8 is the safe starting point that won't exhaust your DRAM mid-training.
+
+**Here's the clever trick:** `effective_batch_size = batch_size × gradient_accumulation_steps`
 
 Example: `8 × 4 = 32` effective batch size
 
+You can simulate the stability of batch size 32 while only holding 8 examples in memory at once! We'll cover gradient accumulation next.
+
 ### Learning Rate Deep Dive
 
-**What it is:** Step size for weight updates.
+Think of learning rate like adjusting the steering wheel when driving. **Learning rate controls how aggressively the model updates its weights after seeing each batch.**
 
-**Effect:**
-- **Too high (1e-3):** Model diverges, loss explodes, NaN errors
-- **Too low (1e-6):** Training is too slow, may not converge
-- **Just right (1e-4 to 1e-5):** Steady improvement
+**Too aggressive (1e-3, ten times too high)?** You overcorrect wildly. The model's loss starts bouncing all over the place, then explodes into NaN errors. It's like jerking the steering wheel hard left, then hard right, then harder left - you're not making progress, you're just creating chaos. The model literally forgets everything it knew and becomes useless.
 
-**Fine-tuning guideline:**
-- Start with `1e-4` (0.0001)
-- If loss is jumpy, reduce to `5e-5` or `1e-5`
-- If loss barely moves, try `2e-4`
+**Too timid (1e-6, a hundred times too low)?** You barely turn the wheel at all. Training becomes painfully slow. After hours of compute, the loss has barely budged. You might not converge at all - the model never learns the patterns you're trying to teach it. Progress is so incremental that you're wasting time and electricity.
 
-**Why lower LR for fine-tuning?**
+**Just right (1e-4 to 1e-5)?** Smooth, steady improvement. The loss curve descends consistently. The model absorbs your training data without catastrophic forgetting. You make measurable progress every few steps. This is the Goldilocks zone.
 
-Pre-trained weights are already good. We want to **nudge** them, not **overwrite** them.
+**Starting point: 1e-4 (0.0001).** This is the sweet spot for fine-tuning pre-trained models. Nine times out of ten, it just works.
+
+**If your loss is jumpy and unstable,** the model is learning too aggressively. Lower the learning rate to `5e-5` or even `1e-5`. You'll see the loss curve smooth out and training stabilize.
+
+**If your loss barely moves after 50-100 steps,** you're being too conservative. Bump it up to `2e-4`. Give the model permission to learn faster.
+
+**Why do we use lower learning rates for fine-tuning than for training from scratch?**
+
+Because the pre-trained weights are already good! They represent millions of dollars of compute and massive datasets. We're not starting from random noise - we're starting from a model that already speaks English (or code, or whatever domain). We want to **nudge** those weights toward our specific task, not **overwrite** them with aggressive updates. Think of it like editing a draft, not rewriting from scratch.
 
 ### Gradient Accumulation
 
-**What it is:** Accumulate gradients over N steps before updating weights.
+This is one of the cleverest tricks in deep learning. **Gradient accumulation lets you simulate a large batch size while only holding a small batch in memory.**
 
-**Why:** Simulate larger batch size without more memory.
+Think of it like polling a large group before making a decision. You can't fit 32 people in your office at once, but you can interview them in groups of 8, collect all their feedback, then make one consolidated decision based on all 32 opinions. That's gradient accumulation.
 
-**Example:**
-```
-batch_size = 8
-gradient_accumulation_steps = 4
-→ effective_batch_size = 32
-```
+**Here's how it works:**
 
-**Benefits:**
-- ✅ Larger effective batch (more stable training)
-- ✅ Fits in smaller memory
-- ⚠️ Slightly slower (more forward passes)
+You set `batch_size = 8` (fits in N150 DRAM) and `gradient_accumulation_steps = 4`. Now:
 
-**When to use:**
-- Always on N150 (memory-limited)
-- Optional on N300/T3K (more memory available)
+1. **Step 1:** Process batch of 8 examples, compute gradients, but **don't update weights yet** - just save the gradients
+2. **Step 2:** Process another 8 examples, add their gradients to the saved ones
+3. **Step 3:** Process another 8 examples, keep accumulating
+4. **Step 4:** Process final 8 examples (32 total now), average all the gradients, **now update weights**
+
+**Effective batch size: 8 × 4 = 32**
+
+You get the training stability of a 32-example batch while only needing memory for 8 examples at once. It's like having your cake and eating it too.
+
+**The benefits are clear:** Training becomes more stable (larger effective batch smooths out noise), and you don't run out of memory. The trade-off? Slightly slower training because you're doing 4 forward passes before each backward pass. But on memory-constrained hardware like N150, this trade-off is absolutely worth it.
+
+**On N150, use gradient accumulation always.** Set `gradient_accumulation_steps = 4` as your default. On N300 or T3K with more memory available, you might not need it - you can just use larger actual batches. But even on big hardware, gradient accumulation remains useful when you want to push batch sizes beyond what physically fits in memory.
 
 ### Epochs vs Steps
 
-**Epochs:** Full passes through dataset
+Two ways to control how long training runs: count how many times you've seen the full dataset (epochs), or count how many training iterations you've done (steps). Both work, but they're useful in different situations.
+
+**Epochs are like saying "read the entire textbook 3 times."** An epoch is one complete pass through your dataset. If you have 100 training examples and set `num_epochs = 3`, the model sees all 100 examples three times. The total number of training steps depends on your batch size:
+
 ```
 num_epochs = 3
-→ Total steps = 3 × (dataset_size / batch_size)
+dataset_size = 100
+batch_size = 8
+
+→ steps_per_epoch = 100 / 8 = 12.5 (rounds to 12-13)
+→ total_steps = 3 × 12 = 36 steps
 ```
 
-**Steps:** Absolute number of training iterations
-```
-max_steps = 500
-→ Training stops at step 500, regardless of epochs
-```
+**Steps are like saying "study for 500 minutes, regardless of how many chapters that covers."** With `max_steps = 500`, training runs for exactly 500 iterations, no matter how large or small your dataset is. You might see the full dataset dozens of times (small dataset) or only see a fraction of it (huge dataset).
 
-**Which to use?**
+**Which should you use?**
 
-- **Small datasets (50-500 examples):** Use `max_steps` (more control)
-- **Large datasets (10,000+ examples):** Use `num_epochs` (natural unit)
+**For small datasets (50-500 examples),** use `max_steps` for better control. With a 50-example dataset and batch size 8, one epoch is only 6-7 steps. Setting `num_epochs = 3` would give you just 18-21 steps total - barely enough to learn anything. Instead, set `max_steps = 500` and let the model see those 50 examples many times over. Small datasets need repetition to extract patterns.
 
-**Example calculation:** 50 examples, batch size 8 → 6-7 steps per epoch → 500 steps = ~80 epochs
+**For large datasets (10,000+ examples),** use `num_epochs` as your natural unit. With 10,000 examples and batch size 8, one epoch is 1,250 steps. Setting `num_epochs = 3` gives you 3,750 steps - substantial training. Epochs feel more intuitive here because they correspond to meaningful milestones.
 
-(This is normal - small datasets need many passes to learn patterns)
+**Example calculation for small dataset:** 50 examples, batch size 8 → 6-7 steps per epoch → 500 max_steps ≈ 80 epochs
+
+**Don't panic at "80 epochs"!** This is completely normal for small datasets. The model needs to see those patterns dozens of times to internalize them. You're not overfitting - you're learning deeply from limited data.
 
 ---
 

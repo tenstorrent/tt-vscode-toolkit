@@ -751,8 +751,11 @@ pip install -r requirements.txt
 
 # Process an audio file
 python processor.py
+```
 
-# Try effects
+**Try audio effects:**
+
+```bash
 python -c "
 from processor import AudioProcessor
 from effects import AudioEffects
@@ -780,8 +783,11 @@ sd.wait()
 
 ttnn.close_device(device)
 "
+```
 
-# Real-time spectrogram from microphone
+**Real-time spectrogram from microphone:**
+
+```bash
 python -c "
 from processor import AudioProcessor
 from visualizer import SpectrogramVisualizer

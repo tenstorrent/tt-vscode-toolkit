@@ -453,8 +453,11 @@ pip install -r requirements.txt
 
 # Run with random initial state
 python game_of_life.py
+```
 
-# Run with specific pattern
+**Run with specific pattern:**
+
+```bash
 python -c "
 from game_of_life import GameOfLife
 from visualizer import animate_game_of_life
