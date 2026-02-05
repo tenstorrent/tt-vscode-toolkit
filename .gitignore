@@ -13,5 +13,5 @@ __pycache__/
 # Clone repos here as needed, but don't commit them
 vendor/
 
-
+assets/.DS_Store
 

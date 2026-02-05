@@ -7,6 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.309] - 2026-02-05
+
+### Security
+- **Patched 3 Open Dependabot Alerts** - Used npm overrides to address transitive dependency vulnerabilities
+  - **HIGH**: Fixed `qs` DoS vulnerability (6.14.0 → 6.14.1) - arrayLimit bypass memory exhaustion
+  - **MEDIUM**: Fixed `lodash` Prototype Pollution (4.17.21 → 4.17.23) - _.unset and _.omit functions
+  - **MEDIUM**: Fixed `lodash-es` Prototype Pollution (4.17.21/22 → 4.17.23) - _.unset and _.omit functions
+  - All vulnerabilities patched via `package.json` overrides without changing mermaid or vsce versions
+  - Production dependencies now have **0 vulnerabilities**
+  - Preserves mermaid 11.12.2 compatibility with VSCode lesson rendering
+
+---
+
+## [0.0.308] - 2026-02-05
+
+### Added
+- **Auto-Generated Lesson Catalog in README** - Complete lesson listing with validated hardware badges
+  - README.md now includes auto-updated lesson catalog showing all 39 lessons
+  - Hardware validation badges (N150, N300, P300, etc.) show which platforms each lesson has been tested on
+  - Status indicators for draft, blocked, and validated lessons
+  - Organized by category with lesson counts and validation stats
+  - Generator script automatically updates README when lesson registry changes
+  - Special HTML comment markers (`<!-- LESSON_CATALOG_START -->` / `<!-- LESSON_CATALOG_END -->`) preserve manual edits to surrounding content
+  - Run `npm run generate:lessons -- --execute` to regenerate both registry and README catalog
+
+---
+
+## [0.0.307] - 2026-02-04
+
+### Changed
+- **CT3 Configuration Patterns - Conversational Style Improvements**
+  - Rewrote "Why Configuration-Driven Training?" section with cooking recipe analogy
+  - Rewrote "Batch Size Deep Dive" with teaching/tutoring analogy explaining memory constraints
+  - Rewrote "Learning Rate Deep Dive" with steering wheel analogy for update aggressiveness
+  - Rewrote "Gradient Accumulation" with polling/interview analogy for memory-efficient training
+  - Rewrote "Epochs vs Steps" with textbook/studying analogy for better intuition
+  - Transformed bullet-heavy technical writing into flowing prose matching CT7/CT8 tone
+  - Added rich explanations of "why this matters" for each concept
+  - Improved readability and engagement while maintaining technical accuracy
+
+---
+
+## [0.0.306] - 2026-02-04
+
+### Fixed
+- **Cookbook Lessons Code Block Formatting** - Proactively fixed multi-line `python -c` formatting issues
+  - cookbook-game-of-life.md: Separated multi-line python commands into distinct blocks
+  - cookbook-mandelbrot.md: Separated two python command examples for better readability
+  - cookbook-audio-processor.md: Separated audio effects and spectrogram examples
+  - Improves rendering consistency across all cookbook lessons
+- **CT3 Configuration Patterns** - Changed table header from "Trickster (N150)" to "Example (N150)"
+  - Makes table more generic and less confusing for users
+  - Aligns with lesson neutrality (nano-trickster is specific to CT8)
+
+---
+
+## [0.0.305] - 2026-02-04
+
+### Fixed
+- **CT8 Training from Scratch Lesson** - Fixed code block formatting issues
+  - Separated `cd` commands from multi-line Python commands into distinct blocks
+  - Fixed three locations where bash/python commands were incorrectly merged
+  - Improved readability of Python one-liner examples (`python -c "..."`)
+  - Fixes rendering issue where "cd ~/tt-scratchpad/trainingpython" appeared as one word
+
+---
+
 ## [0.0.304] - 2026-02-04
 
 ### Fixed

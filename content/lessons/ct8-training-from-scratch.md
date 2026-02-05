@@ -661,6 +661,9 @@ After training completes, test generation:
 
 ```bash
 cd ~/tt-scratchpad/training
+```
+
+```bash
 python -c "
 import torch
 from nano_trickster import NanoTrickster
@@ -922,6 +925,9 @@ python prepare_shakespeare.py --output shakespeare.txt --split
 Then process the data:
 ```bash
 cd ~/tt-scratchpad/training
+```
+
+```bash
 python -c "
 from prepare_shakespeare import create_train_val_split
 create_train_val_split('data/shakespeare.txt')

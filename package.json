@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
-  "version": "0.0.304",
+  "version": "0.0.308",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -611,5 +611,10 @@
     "jsdom": "^27.3.0",
     "marked": "^17.0.1",
     "marked-highlight": "^2.2.3"
+  },
+  "overrides": {
+    "lodash": ">=4.17.23",
+    "lodash-es": ">=4.17.23",
+    "qs": ">=6.14.1"
   }
 }

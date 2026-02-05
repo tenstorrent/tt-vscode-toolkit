@@ -507,8 +507,11 @@ cd ~/tt-scratchpad/cookbook/mandelbrot
 
 # Basic render
 python renderer.py
+```
 
-# Interactive explorer
+**Interactive explorer:**
+
+```bash
 python -c "
 from renderer import MandelbrotRenderer
 from explorer import MandelbrotVisualizer
@@ -523,8 +526,11 @@ viz.interactive_explorer(width=1024, height=1024)
 
 ttnn.close_device(device)
 "
+```
 
-# Compare Julia sets
+**Compare Julia sets:**
+
+```bash
 python -c "
 from renderer import MandelbrotRenderer
 from explorer import MandelbrotVisualizer
