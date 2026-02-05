@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.309] - 2026-02-05
+
+### Security
+- **Patched 3 Open Dependabot Alerts** - Used npm overrides to address transitive dependency vulnerabilities
+  - **HIGH**: Fixed `qs` DoS vulnerability (6.14.0 → 6.14.1) - arrayLimit bypass memory exhaustion
+  - **MEDIUM**: Fixed `lodash` Prototype Pollution (4.17.21 → 4.17.23) - _.unset and _.omit functions
+  - **MEDIUM**: Fixed `lodash-es` Prototype Pollution (4.17.21/22 → 4.17.23) - _.unset and _.omit functions
+  - All vulnerabilities patched via `package.json` overrides without changing mermaid or vsce versions
+  - Production dependencies now have **0 vulnerabilities**
+  - Preserves mermaid 11.12.2 compatibility with VSCode lesson rendering
+
+---
+
 ## [0.0.308] - 2026-02-05
 
 ### Added
