@@ -1619,6 +1619,105 @@ async function createVllmStarter(): Promise<void> {
 }
 
 /**
+ * Command: tenstorrent.installAllScripts
+ * Installs all template scripts to ~/tt-scratchpad/ in one go.
+ * This creates the environment setup scripts and starter scripts needed by lessons.
+ */
+async function installAllScripts(): Promise<void> {
+  const path = await import('path');
+  const fs = await import('fs');
+  const os = await import('os');
+
+  const homeDir = os.homedir();
+  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
+
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(scratchpadDir)) {
+    fs.mkdirSync(scratchpadDir, { recursive: true });
+  }
+
+  const extensionPath = extensionContext.extensionPath;
+  const templatesDir = path.join(extensionPath, 'content', 'templates');
+
+  // List of scripts to install (the ones referenced in lessons)
+  const scriptsToInstall = [
+    'setup-vllm-env.sh',
+    'start-vllm-server.py',
+    'setup-aider.sh',
+    'setup-tt-forge.sh',
+    'setup-tt-xla.sh',
+    'generate_video_frames.py',
+    'tt-coding-assistant.py',
+    'tt-api-server-direct.py',
+    'tt-chat-direct.py',
+    'tt-image-gen.py',
+    'tt-forge-classifier.py'
+  ];
+
+  let installedCount = 0;
+  let skippedCount = 0;
+  const errors: string[] = [];
+
+  for (const scriptName of scriptsToInstall) {
+    const templatePath = path.join(templatesDir, scriptName);
+    const destPath = path.join(scratchpadDir, scriptName);
+
+    // Check if template exists
+    if (!fs.existsSync(templatePath)) {
+      errors.push(`Template not found: ${scriptName}`);
+      continue;
+    }
+
+    // Check if destination already exists
+    if (fs.existsSync(destPath)) {
+      skippedCount++;
+      continue; // Skip existing files
+    }
+
+    try {
+      fs.copyFileSync(templatePath, destPath);
+      // Make shell scripts executable
+      if (scriptName.endsWith('.sh')) {
+        fs.chmodSync(destPath, 0o755);
+      } else if (scriptName.endsWith('.py')) {
+        fs.chmodSync(destPath, 0o755);
+      }
+      installedCount++;
+    } catch (error) {
+      errors.push(`Failed to install ${scriptName}: ${error}`);
+    }
+  }
+
+  // Show summary
+  let message = `✅ Installed ${installedCount} script(s) to ~/tt-scratchpad/`;
+  if (skippedCount > 0) {
+    message += `\n⏭️  Skipped ${skippedCount} existing file(s)`;
+  }
+  if (errors.length > 0) {
+    message += `\n❌ ${errors.length} error(s):\n${errors.join('\n')}`;
+    vscode.window.showWarningMessage(message, 'Open Folder').then(selection => {
+      if (selection === 'Open Folder') {
+        vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(scratchpadDir));
+      }
+    });
+  } else {
+    const selection = await vscode.window.showInformationMessage(
+      message,
+      'Open Folder',
+      'View Scripts'
+    );
+
+    if (selection === 'Open Folder') {
+      await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(scratchpadDir));
+    } else if (selection === 'View Scripts') {
+      // Open the folder in VSCode explorer
+      const folderUri = vscode.Uri.file(scratchpadDir);
+      await vscode.commands.executeCommand('vscode.openFolder', folderUri, { forceNewWindow: false });
+    }
+  }
+}
+
+/**
  * Command: tenstorrent.generateRetroImage
  * Generates a sample retro-style image using SD 3.5 Large on TT hardware
  */
@@ -4286,6 +4385,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.startVllmServer', startVllmServer),
     vscode.commands.registerCommand('tenstorrent.startVllmServerWithHardware', startVllmServerWithHardware), // Parameterized command (replaces N150/N300/T3K/P100 variants)
     vscode.commands.registerCommand('tenstorrent.createVllmStarter', createVllmStarter),
+    vscode.commands.registerCommand('tenstorrent.installAllScripts', installAllScripts),
     vscode.commands.registerCommand('tenstorrent.testVllmOpenai', testVllmOpenai),
     vscode.commands.registerCommand('tenstorrent.testVllmCurl', testVllmCurl),
 
@@ -4430,6 +4530,53 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     setTimeout(() => {
       showWelcome(context);
     }, 2000); // Small delay to ensure extension is fully activated
+
+    // Prompt to install scripts to ~/tt-scratchpad (first run only)
+    setTimeout(async () => {
+      const choice = await vscode.window.showInformationMessage(
+        '📦 Would you like to set up your ~/tt-scratchpad directory? This installs helper scripts used by the lessons.',
+        'Yes, Set It Up',
+        'Not Now',
+        'Don\'t Ask Again'
+      );
+
+      if (choice === 'Yes, Set It Up') {
+        await vscode.commands.executeCommand('tenstorrent.installAllScripts');
+      } else if (choice === 'Don\'t Ask Again') {
+        context.globalState.update('dontAskScratchpad', true);
+      }
+    }, 3000); // After welcome page opens
+  }
+
+  // Check if user has tt-scratchpad and hasn't been asked yet (for existing users)
+  const dontAskScratchpad = context.globalState.get<boolean>('dontAskScratchpad', false);
+  const hasAskedAboutScratchpad = context.globalState.get<boolean>('hasAskedAboutScratchpad', false);
+
+  if (!dontAskScratchpad && !hasAskedAboutScratchpad) {
+    const path = await import('path');
+    const fs = await import('fs');
+    const os = await import('os');
+    const scratchpadPath = path.join(os.homedir(), 'tt-scratchpad');
+
+    // Only ask if the directory doesn't exist or is empty
+    if (!fs.existsSync(scratchpadPath) || fs.readdirSync(scratchpadPath).length === 0) {
+      context.globalState.update('hasAskedAboutScratchpad', true);
+
+      setTimeout(async () => {
+        const choice = await vscode.window.showInformationMessage(
+          '📦 Set up your ~/tt-scratchpad directory with helper scripts for the lessons?',
+          'Yes, Set It Up',
+          'Not Now',
+          'Don\'t Ask Again'
+        );
+
+        if (choice === 'Yes, Set It Up') {
+          await vscode.commands.executeCommand('tenstorrent.installAllScripts');
+        } else if (choice === 'Don\'t Ask Again') {
+          context.globalState.update('dontAskScratchpad', true);
+        }
+      }, 5000); // Give existing users some time after activation
+    }
   }
 }
 
