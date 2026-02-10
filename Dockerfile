@@ -1,6 +1,7 @@
 # Tenstorrent VSCode Toolkit - Docker Image
 # Based on code-server for browser-based VSCode experience
 # Includes Tenstorrent extension preinstalled
+# Recommended tt-metal version: v0.65.1 (validated 2026-02-10)
 
 FROM codercom/code-server:latest
 
