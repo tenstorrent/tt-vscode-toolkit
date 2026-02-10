@@ -1207,7 +1207,11 @@
       "previousLesson": "animatediff-video-generation",
       "nextLesson": "deploy-to-koyeb",
       "completionEvents": [],
-      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md"
+      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md",
+      "minTTMetalVersion": "v0.65.1",
+      "recommended_metal_version": "v0.65.1",
+      "validationDate": "2026-02-10",
+      "validationNotes": "Docker images updated to use tt-metal v0.65.1 base (Dockerfile.koyeb commit 558a19699f)"
     },
     {
       "id": "deploy-to-koyeb",
@@ -1235,7 +1239,11 @@
       "order": 19,
       "previousLesson": "deploy-vscode-to-koyeb",
       "completionEvents": [],
-      "markdownFile": "content/lessons/deploy-to-koyeb.md"
+      "markdownFile": "content/lessons/deploy-to-koyeb.md",
+      "minTTMetalVersion": "v0.65.1",
+      "recommended_metal_version": "v0.65.1",
+      "validationDate": "2026-02-10",
+      "validationNotes": "Docker base images updated to tt-metal v0.65.1, extends ghcr.io/tenstorrent/tt-vscode-toolkit:latest"
     }
   ]
 }
