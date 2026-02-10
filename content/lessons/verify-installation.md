@@ -18,6 +18,10 @@ status: validated
 validatedOn:
   - n150
 estimatedMinutes: 5
+minTTMetalVersion: v0.65.1
+recommended_metal_version: v0.65.1
+validationDate: 2026-02-10
+validationNotes: UX improvements added - 4 command buttons for easier setup
 ---
 
 # Verify tt-metal Installation
@@ -40,6 +44,8 @@ If you haven't already run this command, do it now:
 ```bash
 cd ~/tt-metal && sudo ./install_dependencies.sh
 ```
+
+[⚙️ Install System Dependencies](command:tenstorrent.installDependencies)
 
 **What this script does:**
 - Installs required system libraries (build tools, kernel modules, etc.)
@@ -72,6 +78,10 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ```
 
+[📋 Copy Environment Setup](command:tenstorrent.copyEnvironmentSetup)
+
+> **💡 Extension Tip:** The terminal commands in this walkthrough automatically set these variables for you! The code block above is for reference if you need to set them manually outside the extension.
+
 ### Why These Matter
 
 **`TT_METAL_HOME`** - Base directory for tt-metal installation
@@ -97,6 +107,8 @@ echo 'export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
 source ~/.bashrc  # Reload configuration
 ```
+
+[💾 Add to ~/.bashrc (Permanent)](command:tenstorrent.persistEnvironment)
 
 **Note:** The extension's terminal commands automatically set these variables, but it's good to understand what they do!
 
@@ -268,7 +280,11 @@ If successful, you should see: `✓ TTNN imported successfully`
 
 ### Step 7: Run Validation Test
 
-Create a simple test script:
+The extension can generate and run a validation test for you:
+
+[🧪 Generate and Run Validation Test](command:tenstorrent.generateValidationTest)
+
+This will create `~/tt-scratchpad/test_build.py` with the following test:
 
 ```python
 import ttnn
@@ -296,10 +312,15 @@ ttnn.close_device(device)
 print("✓ Device closed - validation successful!")
 ```
 
-Save as `test_build.py` and run:
-
+**To create and run manually:**
 ```bash
-python test_build.py
+# Create the script
+cat > ~/tt-scratchpad/test_build.py << 'EOF'
+[script content from above]
+EOF
+
+# Run it
+python ~/tt-scratchpad/test_build.py
 ```
 
 ### Build Troubleshooting

@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.310] - 2026-02-10
+
+### Changed
+- **Verify Installation Lesson - Major UX Improvements**
+  - Added `[⚙️ Install System Dependencies]` button - replaces manual `cd ~/tt-metal && sudo ./install_dependencies.sh`
+  - Added `[📋 Copy Environment Setup]` button - replaces 3 manual export commands with single click
+  - Added `[💾 Add to ~/.bashrc (Permanent)]` button - safer than manual `echo >>` commands
+  - Added `[🧪 Generate and Run Validation Test]` button - auto-creates `~/tt-scratchpad/test_build.py`, eliminates 24 lines of manual code entry
+  - Added informational note that extension auto-sets environment variables for terminal commands
+  - Major reduction in setup friction for new users
+
+### Added
+- **Comprehensive Validation Documentation for v0.65.1**
+  - Created `docs/CLAUDE_follows_v0.65.1.md` - Full validation log with technical findings (368 lines)
+  - Created `docs/CONTENT_QUALITY_AUDIT_v0.65.1.md` - Line-by-line content audit (400+ lines)
+  - Created `docs/VALIDATION_SUMMARY_v0.65.1.md` - Executive summary and recommendations (350+ lines)
+  - Validated tt-metal v0.65.1 works correctly on N150 hardware
+  - Documented environment setup (Phase 1: 15 min)
+  - Conducted pattern-based content quality audit (Phase 2: 40 min)
+  - Identified 3 systemic UX patterns (1 anti-pattern fixed, 2 already good)
+  - Reviewed 6 Priority 1 lessons in detail, spot-checked Priority 2-5
+  - **Key Finding:** Most lessons already have excellent UX with proper buttons - anti-pattern was isolated to verify-installation
+
+### Fixed
+- **verify-installation** - Eliminated all manual code entry pain points with 4 new command buttons
+
+### Validated
+- **tt-metal v0.65.1 Status:** ✅ Working correctly on N150 hardware
+  - Clean installation (15 min with ccache)
+  - Device operations passing
+  - tt-smi improved (snapshot mode works perfectly)
+  - Python bindings (ttnn 0.65.1) install cleanly
+  - All Priority 1 lessons compatible
+
+### Documented
+- **Version Recommendations:** v0.65.1 recommended for all first-inference, production serving, image generation, and cookbook lessons
+- **tt-forge-venv:** Documented as placeholder (Python 3.11.13, empty except pip/setuptools) - will be configured when validating tt-forge lessons
+- **Hardware Validation:** N150 L (Wormhole) fully validated with v0.65.1
+- **Known Issues:** tt-smi TUI mode improved but still has rendering loop in non-interactive environments (workaround: use `tt-smi -s`)
+
+---
+
 ## [0.0.309] - 2026-02-05
 
 ### Security
