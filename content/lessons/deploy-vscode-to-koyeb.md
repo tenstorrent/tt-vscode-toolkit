@@ -339,9 +339,9 @@ koyeb deploy . tt-vscode-toolkit/vscode \
 ✅ **You now have a cloud VSCode IDE with Tenstorrent hardware!**
 
 **Continue your journey:**
-1. 🎯 [Deploy Your Work to Koyeb](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22deploy-to-koyeb%22%7D) - Deploy your own apps with N300
-2. 🚀 [Your First Inference](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D) - Run your first model
-3. 🏭 [vLLM Production](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22vllm-production%22%7D) - Production model serving
+1. 🎯 [Deploy Your Work to Koyeb](command:tenstorrent.showLesson?["deploy-to-koyeb"]) - Deploy your own apps with N300
+2. 🚀 [Your First Inference](command:tenstorrent.showLesson?["download-model"]) - Run your first model
+3. 🏭 [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) - Production model serving
 
 **Share your deployment:**
 - Show teammates: Share the URL + password

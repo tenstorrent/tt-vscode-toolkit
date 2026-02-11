@@ -451,7 +451,18 @@ function verifyInstallation(): void {
  *
  * Runs the install_dependencies.sh script in tt-metal to install system packages.
  */
-function installDependencies(): void {
+async function installDependencies(): Promise<void> {
+  const confirm = await vscode.window.showWarningMessage(
+    'This will run install_dependencies.sh with sudo privileges to install system packages. Continue?',
+    { modal: true },
+    'Yes, Install Dependencies',
+    'Cancel'
+  );
+
+  if (confirm !== 'Yes, Install Dependencies') {
+    return;
+  }
+
   const terminal = getOrCreateTerminal('tt-metal');
   const command = TERMINAL_COMMANDS.INSTALL_DEPENDENCIES.template;
 
@@ -1558,10 +1569,10 @@ const VLLM_HARDWARE_CONFIGS = {
  * This command accepts hardware as an argument, enabling DRY markdown lessons.
  *
  * Usage from markdown:
- * [Start N150](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22N150%22%7D)
- * [Start N300](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22N300%22%7D)
- * [Start T3K](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22T3K%22%7D)
- * [Start P100](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22P100%22%7D)
+ * [Start N150](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N150"}])
+ * [Start N300](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
+ * [Start T3K](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
+ * [Start P100](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
  *
  * @param args - Optional arguments object with hardware type
  */
@@ -1827,7 +1838,8 @@ async function installAllScripts(): Promise<void> {
       }
       installedCount++;
     } catch (error) {
-      errors.push(`Failed to install ${scriptName}: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      errors.push(`Failed to install ${scriptName}: ${errorMessage}`);
     }
   }
 
@@ -1929,20 +1941,9 @@ async function openGeneratedImage(imagePath: string): Promise<void> {
  * @param imagePath Absolute path to the image file (required)
  */
 async function showVisualization(imagePath?: string): Promise<void> {
-  // Handle being called from Python via CLI (imagePath in args)
-  if (!imagePath && process.argv.length > 0) {
-    // When called via 'code --command tenstorrent.showVisualization /path/to/image.png'
-    // The path comes as a command-line argument after the extension command
-    const possiblePath = process.argv[process.argv.length - 1];
-    if (possiblePath && !possiblePath.startsWith('--') && possiblePath.includes('/')) {
-      imagePath = possiblePath;
-    }
-  }
-
-  // If still no path, show error
   if (!imagePath) {
     vscode.window.showErrorMessage(
-      'No image path provided. Usage: tenstorrent.showVisualization <path>'
+      'No image path provided. This command must be called with an image path argument.'
     );
     return;
   }
@@ -4761,9 +4762,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
       if (choice === 'Yes, Set It Up') {
         await vscode.commands.executeCommand('tenstorrent.installAllScripts');
+        context.globalState.update('hasAskedAboutScratchpad', true);
       } else if (choice === 'Don\'t Ask Again') {
         context.globalState.update('dontAskScratchpad', true);
+        context.globalState.update('hasAskedAboutScratchpad', true);
       }
+      // Note: If dismissed (undefined), don't set flag - may ask again later
     }, 3000); // After welcome page opens
   }
 

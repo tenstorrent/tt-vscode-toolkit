@@ -116,9 +116,9 @@ python3 --version  # Need 3.10+
 
 **If any checks fail:**
 
-- **No hardware?** → See [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)
-- **No tt-metal?** → See [Verify Installation](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22verify-installation%22%7D)
-- **No model?** → See [Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D) or download now:
+- **No hardware?** → See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])
+- **No tt-metal?** → See [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
+- **No model?** → See [Download Model](command:tenstorrent.showLesson?["download-model"]) or download now:
 
   ```bash
   huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
@@ -555,7 +555,7 @@ source ~/activate-vllm-env.sh && \
     --block-size 64
 ```
 
-[🚀 Start vLLM with Llama (N150 - Not Recommended)](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22N150%22%7D)
+[🚀 Start vLLM with Llama (N150 - Not Recommended)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N150"}])
 
 **Warning:** Expect DRAM exhaustion errors. Qwen3-0.6B is 13x smaller and works reliably.
 
@@ -576,7 +576,7 @@ source ~/activate-vllm-env.sh && \
     --tensor-parallel-size 2
 ```
 
-[🚀 Start vLLM Server (N300)](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22N300%22%7D)
+[🚀 Start vLLM Server (N300)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
 
 ---
 
@@ -595,7 +595,7 @@ source ~/activate-vllm-env.sh && \
     --tensor-parallel-size 8
 ```
 
-[🚀 Start vLLM Server (T3K)](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22T3K%22%7D)
+[🚀 Start vLLM Server (T3K)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
 
 **Note:** This uses the 70B model. Make sure you've downloaded it first.
 
@@ -615,7 +615,7 @@ source ~/activate-vllm-env.sh && \
     --block-size 64
 ```
 
-[🚀 Start vLLM Server (P100)](command:tenstorrent.startVllmServerWithHardware?%7B%22hardware%22%3A%22P100%22%7D)
+[🚀 Start vLLM Server (P100)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
 
 **⚠️ Remember:** P100 requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
 

@@ -884,4 +884,4 @@ We explored:
 
 **Next:** We explore how algorithms perform in practice on real hardware.
 
-[→ Continue to Module 7: Computational Complexity in Practice](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-07-complexity%22%7D)
+[→ Continue to Module 7: Computational Complexity in Practice](command:tenstorrent.showLesson?["cs-fundamentals-07-complexity"])

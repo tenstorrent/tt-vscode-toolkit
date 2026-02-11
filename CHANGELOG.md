@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.0.310] - 2026-02-10
+## [0.0.311] - 2026-02-10
 
 ### Changed
 - **Verify Installation Lesson - Major UX Improvements**

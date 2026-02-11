@@ -753,4 +753,4 @@ We explored:
 
 **Next:** We take what we've learned and scale to 880 cores in parallel.
 
-[→ Continue to Module 3: Parallel Computing](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-03-parallelism%22%7D)
+[→ Continue to Module 3: Parallel Computing](command:tenstorrent.showLesson?["cs-fundamentals-03-parallelism"])

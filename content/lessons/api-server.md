@@ -96,10 +96,10 @@ python3 -c "import flask; print('✓ flask installed')"
 **If any checks fail:**
 
 **No hardware or tt-metal?**
-- See [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D) and [Verify Installation](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22verify-installation%22%7D)
+- See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) and [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
 
 **No model?**
-- See [Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D)
+- See [Download Model](command:tenstorrent.showLesson?["download-model"])
 - Quick download:
   ```bash
   huggingface-cli login

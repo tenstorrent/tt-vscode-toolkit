@@ -339,4 +339,4 @@ This approach could achieve near-linear scaling (3.5-4x on 4 devices) by elimina
 - ✅ **Multi-device acceleration**: Distributed workloads across multiple TT chips
 - ✅ **Parallel computing mastery**: Production-scale parallel algorithms on TT hardware
 
-**Congratulations!** You've completed all 5 cookbook recipes. Ready for more? Check out the [Cookbook Overview](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cookbook-overview%22%7D) for ideas on combining projects, or explore production models in the Advanced Topics section.
+**Congratulations!** You've completed all 5 cookbook recipes. Ready for more? Check out the [Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"]) for ideas on combining projects, or explore production models in the Advanced Topics section.

@@ -80,7 +80,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 [📋 Copy Environment Setup](command:tenstorrent.copyEnvironmentSetup)
 
-> **💡 Extension Tip:** The terminal commands in this walkthrough automatically set these variables for you! The code block above is for reference if you need to set them manually outside the extension.
+> **💡 Extension Tip:** Use the "Copy Environment Setup" button above to quickly paste these `export` commands into your terminal. The terminal commands in this walkthrough assume these variables are already set.
 
 ### Why These Matter
 

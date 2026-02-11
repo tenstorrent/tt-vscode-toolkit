@@ -25,7 +25,6 @@ import os
 import subprocess
 import sys
 import time
-from pathlib import Path
 from typing import Optional
 
 
@@ -123,6 +122,7 @@ def _detect_vscode_type() -> str:
             if b'--command' in help_result.stdout or b'--command' in help_result.stderr:
                 return 'desktop'
     except (subprocess.TimeoutExpired, FileNotFoundError):
+        # Expected if desktop VSCode is not installed; continue to check for code-server
         pass
 
     # Try code-server paths
@@ -209,7 +209,7 @@ def _send_to_code_server(abs_path: str, fallback: bool, verbose: bool) -> bool:
         try:
             with open(marker_file, 'w') as f:
                 f.write(abs_path)
-        except:
+        except Exception:
             pass  # Not critical if this fails
 
         # Give user time to read and click

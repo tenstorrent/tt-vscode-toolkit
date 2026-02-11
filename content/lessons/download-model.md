@@ -57,7 +57,7 @@ which huggingface-cli || pip install huggingface-hub[cli]
 **All checks passed?** Continue below to download the model.
 
 **If hardware check failed:**
-- See [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D) to set up tt-smi
+- See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) to set up tt-smi
 
 ---
 

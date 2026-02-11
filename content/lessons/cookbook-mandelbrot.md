@@ -610,6 +610,6 @@ for size in [512, 1024, 2048, 4096]:
 - ✅ **Performance optimization**: Benchmarking and scaling analysis
 - ✅ **Interactive visualization**: Zoom, pan, and color mapping
 
-**Next Recipe:** Ready for image processing? Try [Recipe 4: Custom Image Filters](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cookbook-image-filters%22%7D)
+**Next Recipe:** Ready for image processing? Try [Recipe 4: Custom Image Filters](command:tenstorrent.showLesson?["cookbook-image-filters"])
 
-**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cookbook-overview%22%7D)
+**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])

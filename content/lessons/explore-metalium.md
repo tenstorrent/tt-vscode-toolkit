@@ -206,8 +206,6 @@ cd ~/tt-metal/tt_metal/programming_examples/hello_world_compute_kernel
 
 Each Tenstorrent chip contains a grid of **Tensix cores**. Understanding their architecture helps you write efficient code.
 
-[🏛️ Show Architecture Diagram](command:tenstorrent.showArchitectureDiagram)
-
 **Inside a Tensix Core:**
 
 ```text

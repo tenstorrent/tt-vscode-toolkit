@@ -24,7 +24,7 @@
 
 ### Q: Which lesson should I start with?
 
-**A:** Start with **[Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D)** if you're brand new. The 48 lessons are organized into 9 categories:
+**A:** Start with **[Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])** if you're brand new. The 48 lessons are organized into 9 categories:
 
 **🚀 Your First Inference (5 lessons)**
 1. Hardware Detection → Verify Installation → Download Model → Interactive Chat → API Server
@@ -60,8 +60,8 @@ tt-installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 - **Advanced topics** (compilers, RISC-V, bounty program) are more independent
 
 **Quick start for experienced users:**
-1. Run [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D) (2 minutes - verify hardware)
-2. Skip to [Production Inference with vLLM](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22vllm-production%22%7D) (production serving)
+1. Run [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) (2 minutes - verify hardware)
+2. Skip to [Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"]) (production serving)
 3. Explore advanced topics (compilers, RISC-V, bounty program)
 
 ### Q: What's the difference between the different tools?
@@ -76,9 +76,9 @@ tt-installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 | **TT-XLA** | XLA compiler | JAX/PyTorch (production) | Production |
 
 **Simple guide:**
-- Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22vllm-production%22%7D)**
-- Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22forge-image-classification%22%7D)**
-- Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22tt-xla-jax%22%7D)**
+- Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])**
+- Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.showLesson?["forge-image-classification"])**
+- Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])**
 - Building custom kernels? → **tt-metal** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
 
 ---
@@ -401,7 +401,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
    tt-smi -r
    ```
 
-**Still not working?** Check the [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D) lesson troubleshooting section for detailed steps.
+**Still not working?** Check the [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) lesson troubleshooting section for detailed steps.
 
 ### Q: What's the difference between Wormhole and Blackhole?
 
@@ -486,7 +486,7 @@ python3 --version
 
 ### Q: Which model should I download first?
 
-**A:** **Llama-3.1-8B-Instruct** - covered in [Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D).
+**A:** **Llama-3.1-8B-Instruct** - covered in [Download Model](command:tenstorrent.showLesson?["download-model"]).
 
 **Why this model:**
 - ✅ Works on N150 (most common hardware)
@@ -560,10 +560,10 @@ login(token="your_token_from_huggingface")
 | **vLLM** | Production Inference | Production serving | 1-3 sec per query |
 
 **Quick guide:**
-- Just testing? → **[Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D)** (one-shot demo)
-- Learning/experimenting? → **[Interactive Chat](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22interactive-chat%22%7D)** (interactive)
-- Building custom app? → **[API Server](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22api-server%22%7D)** (Flask API)
-- Production deployment? → **[Production Inference with vLLM](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22vllm-production%22%7D)** (vLLM)
+- Just testing? → **[Download Model](command:tenstorrent.showLesson?["download-model"])** (one-shot demo)
+- Learning/experimenting? → **[Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"])** (interactive)
+- Building custom app? → **[API Server](command:tenstorrent.showLesson?["api-server"])** (Flask API)
+- Production deployment? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])** (vLLM)
 
 ### Q: Why does first load take 2-5 minutes?
 
@@ -1142,7 +1142,7 @@ Steps to reproduce: [numbered list]
 
 **A:** Yes! Several ways:
 
-**1. [Bounty Program](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22bounty-program%22%7D)**
+**1. [Bounty Program](command:tenstorrent.showLesson?["bounty-program"])**
 - Bring up new models
 - Earn rewards
 - Official contribution path
@@ -1241,7 +1241,7 @@ python3 --version
 
 ### Q: Where can I learn about low-level RISC-V programming on Tenstorrent hardware?
 
-**A:** Check out the **[CS Fundamentals series](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-01-computer%22%7D)** - Module 1 covers RISC-V & Computer Architecture!
+**A:** Check out the **[CS Fundamentals series](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"])** - Module 1 covers RISC-V & Computer Architecture!
 
 Each Tensix core contains **five RISC-V processors** (RV32IM ISA):
 - **BRISC (RISCV_0)** - Primary data movement
@@ -1269,7 +1269,7 @@ With 176 Tensix cores on Wormhole, that's **880 RISC-V cores** you can program d
 
 **Access the series:**
 - From Welcome page → CS Fundamentals section
-- Or start with [Module 1: RISC-V & Computer Architecture](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-01-computer%22%7D)
+- Or start with [Module 1: RISC-V & Computer Architecture](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"])
 
 **View the full guide:**
 - [Open RISC-V Exploration Guide](command:tenstorrent.showRiscvGuide) - Comprehensive deep-dive documentation

@@ -35,10 +35,10 @@ Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. We
 
 ## Prerequisites
 
-- Completed [Deploy tt-vscode-toolkit to Koyeb](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22deploy-vscode-to-koyeb%22%7D) (recommended)
+- Completed [Deploy tt-vscode-toolkit to Koyeb](command:tenstorrent.showLesson?["deploy-vscode-to-koyeb"]) (recommended)
 - Koyeb CLI installed and authenticated
 - Docker or Podman installed locally
-- Completed [vLLM Production](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22vllm-production%22%7D) lesson (for Part 1)
+- Completed [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) lesson (for Part 1)
 
 ---
 
@@ -553,9 +553,9 @@ koyeb services create vllm-prod \
 ✅ **You can now deploy any application with Tenstorrent hardware!**
 
 **Continue your journey:**
-1. 🎯 [Interactive Chat](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22interactive-chat%22%7D) - Integrate with VSCode Chat
-2. 🖼️ [Image Generation](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22image-generation%22%7D) - Deploy image generation services
-3. 🧠 [CS Fundamentals](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-01-computer%22%7D) - Deep dive into hardware
+1. 🎯 [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) - Integrate with VSCode Chat
+2. 🖼️ [Image Generation](command:tenstorrent.showLesson?["image-generation"]) - Deploy image generation services
+3. 🧠 [CS Fundamentals](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"]) - Deep dive into hardware
 
 **Share your deployment:**
 - Production APIs running on Tenstorrent hardware
