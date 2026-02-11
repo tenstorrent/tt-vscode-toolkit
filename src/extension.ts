@@ -4442,8 +4442,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   // Register new lesson system commands
   context.subscriptions.push(
-    vscode.commands.registerCommand('tenstorrent.showLesson', async (lessonId: string) => {
-      // Handle case where lessonId comes as array (from command URI)
+    vscode.commands.registerCommand('tenstorrent.showLesson', async (lessonId: string | string[]) => {
+      // Handle case where lessonId comes as array (from command URI with arguments)
       const actualLessonId = Array.isArray(lessonId) ? lessonId[0] : lessonId;
 
       const lesson = lessonRegistry.get(actualLessonId);
@@ -4779,11 +4779,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }, 3000); // After welcome page opens
   }
 
-  // Check if user has tt-scratchpad and hasn't been asked yet (for existing users)
+  // Check if user has tt-scratchpad and hasn't been asked yet (for existing users only)
   const dontAskScratchpad = context.globalState.get<boolean>('dontAskScratchpad', false);
   const hasAskedAboutScratchpad = context.globalState.get<boolean>('hasAskedAboutScratchpad', false);
 
-  if (!dontAskScratchpad && !hasAskedAboutScratchpad) {
+  // Only show this prompt for existing users (hasSeenWelcome was already true before this activation)
+  if (hasSeenWelcome && !dontAskScratchpad && !hasAskedAboutScratchpad) {
     const path = await import('path');
     const fs = await import('fs');
     const os = await import('os');

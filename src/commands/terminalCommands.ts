@@ -120,7 +120,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   PERSIST_ENVIRONMENT: {
     id: 'persist-environment',
     name: 'Add Environment Variables to ~/.bashrc',
-    template: 'grep -q "export TT_METAL_HOME=~/tt-metal" ~/.bashrc || echo \'export TT_METAL_HOME=~/tt-metal\' >> ~/.bashrc && grep -q "export PYTHONPATH=\\$TT_METAL_HOME:\\$PYTHONPATH" ~/.bashrc || echo \'export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\' >> ~/.bashrc && grep -q "export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:\\$LD_LIBRARY_PATH" ~/.bashrc || echo \'export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH\' >> ~/.bashrc && source ~/.bashrc',
+    template: '(grep -q "export TT_METAL_HOME=~/tt-metal" ~/.bashrc || echo \'export TT_METAL_HOME=~/tt-metal\' >> ~/.bashrc) && (grep -q "export PYTHONPATH=\\$TT_METAL_HOME:\\$PYTHONPATH" ~/.bashrc || echo \'export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\' >> ~/.bashrc) && (grep -q "export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:\\$LD_LIBRARY_PATH" ~/.bashrc || echo \'export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH\' >> ~/.bashrc) && echo "✓ Environment variables added to ~/.bashrc. Restart your terminal or run: source ~/.bashrc"',
     description: 'Permanently adds tt-metal environment variables to ~/.bashrc (idempotent - safe to run multiple times)',
   },
 

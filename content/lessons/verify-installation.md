@@ -110,7 +110,7 @@ source ~/.bashrc  # Reload configuration
 
 [💾 Add to ~/.bashrc (Permanent)](command:tenstorrent.persistEnvironment)
 
-**Note:** The extension's terminal commands automatically set these variables, but it's good to understand what they do!
+> **💡 Extension Tip:** Use the "Copy Environment Setup" button above to quickly paste these `export` commands into your terminal. The terminal commands in this walkthrough assume these variables are already set.
 
 ---
 

@@ -30,8 +30,8 @@ const colors = {
 };
 
 // Patterns to detect
-const URL_ENCODED_PATTERN = /command:[a-zA-Z.]+\?%[0-9A-F]{2}/g;
-const ALL_COMMAND_PATTERN = /command:([a-zA-Z.]+)(?:\?(.+?))?(?=[\s\)]|$)/g;
+const URL_ENCODED_PATTERN = /command:[a-zA-Z0-9._-]+\?%[0-9A-F]{2}/g;
+const ALL_COMMAND_PATTERN = /command:([a-zA-Z0-9._-]+)(?:\?(.+?))?(?=[\s\)]|$)/g;
 
 /**
  * Extract registered commands from extension.ts

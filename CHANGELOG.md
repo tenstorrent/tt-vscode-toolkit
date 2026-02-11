@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.0.311] - 2026-02-10
+## [0.0.313] - 2026-02-11
+
+### Fixed
+- **Webview Scroll Position** - Lessons now properly scroll to top when switching between lessons
+  - Detects lesson switches and clears saved scroll state
+  - Sends explicit scroll-to-top command after content loads
+  - Preserves scroll position when reopening the same lesson
+  - Works consistently whether opened from sidebar, navigation buttons, or command palette
 
 ### Changed
 - **Verify Installation Lesson - Major UX Improvements**
