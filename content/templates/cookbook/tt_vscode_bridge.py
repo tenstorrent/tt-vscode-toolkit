@@ -141,6 +141,7 @@ def _detect_vscode_type() -> str:
             if result.returncode == 0:
                 return 'code-server'
         except (subprocess.TimeoutExpired, FileNotFoundError):
+            # Expected if this candidate code-server path is unavailable; try the next one.
             pass
 
     return 'none'
