@@ -1576,8 +1576,10 @@ const VLLM_HARDWARE_CONFIGS = {
  *
  * @param args - Optional arguments object with hardware type
  */
-async function startVllmServerWithHardware(args?: { hardware?: string }): Promise<void> {
-  const hardware = (args?.hardware || 'N150') as keyof typeof VLLM_HARDWARE_CONFIGS;
+async function startVllmServerWithHardware(args?: { hardware?: string } | any[]): Promise<void> {
+  // Handle case where args comes as array from command URI: [{"hardware":"N150"}]
+  const actualArgs = Array.isArray(args) ? args[0] : args;
+  const hardware = (actualArgs?.hardware || 'N150') as keyof typeof VLLM_HARDWARE_CONFIGS;
 
   const config = VLLM_HARDWARE_CONFIGS[hardware];
   if (!config) {
@@ -4441,10 +4443,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Register new lesson system commands
   context.subscriptions.push(
     vscode.commands.registerCommand('tenstorrent.showLesson', async (lessonId: string) => {
-      const lesson = lessonRegistry.get(lessonId);
+      // Handle case where lessonId comes as array (from command URI)
+      const actualLessonId = Array.isArray(lessonId) ? lessonId[0] : lessonId;
+
+      const lesson = lessonRegistry.get(actualLessonId);
       if (lesson) {
-        await stateManager.setCurrentLesson(lessonId);
+        await stateManager.setCurrentLesson(actualLessonId);
         await webviewManager.showLesson(lesson);
+      } else {
+        vscode.window.showErrorMessage(`Lesson not found: ${actualLessonId}`);
+        console.error(`[showLesson] Lesson not found: ${actualLessonId}`);
       }
     }),
     vscode.commands.registerCommand('tenstorrent.refreshLessons', () => {
