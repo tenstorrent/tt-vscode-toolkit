@@ -127,6 +127,14 @@ We'll use **Stable Diffusion XL Base 1.0** which runs natively on Tenstorrent ha
 - **Inference Steps:** 28-50 (configurable)
 - **Hardware:** Runs on TT-NN operators (native acceleration)
 
+**✨ v0.65.1 Improvements:**
+- **Faster VAE decoding** - Optimized latent-to-pixel conversion
+- **Better encoder performance** - Dual text encoders run more efficiently
+- **Combined base+refiner** - New two-stage pipeline for best quality
+- These improvements make SDXL even faster and better on your hardware!
+
+**💡 Lighter Alternative:** For faster iteration or testing, Stable Diffusion v1.4 is also available (`models/demos/wormhole/stable_diffusion/`) and generates 512×512 images in ~8-10 seconds on N150. Great for development!
+
 ## Step 1: Authenticate with Hugging Face
 
 The model will be automatically downloaded from Hugging Face the first time you run it. Login to enable downloading:
@@ -355,6 +363,39 @@ print(f"✅ Image saved to: {output_path}")
 
 This is a simpler starting point that you can customize further!
 
+## Step 5.5: Combined Base + Refiner (NEW in v0.65.x! 🎨)
+
+**Want even BETTER image quality?** SDXL has a two-stage architecture: Base generates the image, Refiner enhances it!
+
+The combined pipeline runs both stages automatically:
+
+```bash
+cd ~/tt-scratchpad
+export PYTHONPATH=~/tt-metal:$PYTHONPATH
+# Use your MESH_DEVICE from Step 2
+
+# Run combined base + refiner pipeline
+pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo_base_and_refiner.py
+```
+
+**What happens:**
+1. **Base model** generates 1024x1024 image
+2. **Refiner model** enhances details, colors, and quality
+3. Result: Noticeably better quality than base alone!
+
+**Performance:**
+- Takes about 2x longer than base-only (~25-30 sec on N150)
+- Worth it for final/production images
+- Use base-only for quick iteration, refiner for finals
+
+**When to use combined pipeline:**
+- ✅ Final production images
+- ✅ When quality matters most
+- ✅ Professional/commercial work
+- ❌ Quick experimentation (stick with base-only)
+
+**Tip:** Generate with base-only while developing your prompt, then run combined pipeline on your best results!
+
 ## Step 6: Experiment with Code (Advanced)
 
 **Ready to go beyond button-pressing?** Copy the demo to your scratchpad and modify it:
@@ -527,8 +568,8 @@ Most pytest tests automatically clean up the device, so this is only needed if s
 # Check Hugging Face authentication
 huggingface-cli whoami
 
-# Make sure you granted access at HuggingFace
-# Visit: https://huggingface.co/stabilityai/stable-diffusion-3.5-large
+# SDXL Base 1.0 is publicly available - no special access needed
+# Visit: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
 ```
 
 **Slow first generation:**

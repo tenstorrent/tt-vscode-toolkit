@@ -339,7 +339,11 @@
       "completionEvents": [
         "onCommand:tenstorrent.generateRetroImage"
       ],
-      "markdownFile": "content/lessons/image-generation.md"
+      "markdownFile": "content/lessons/image-generation.md",
+      "minTTMetalVersion": "v0.65.1",
+      "recommended_metal_version": "v0.65.1",
+      "validationDate": "2026-02-10",
+      "validationNotes": "Added v0.65.1 improvements (VAE perf, encoder optimizations, combined base+refiner pipeline), fixed SD3.5 reference, added SD v1.4 note"
     },
     {
       "id": "video-generation-ttmetal",
