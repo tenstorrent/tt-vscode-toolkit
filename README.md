@@ -205,7 +205,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Production Inference with tt-inference-server** — *⚠️ blocked*
 - **Production Inference with vLLM** — `N150`
 - **Image Generation with Stable Diffusion XL** — `N150`
-- **Video Generation with Stable Diffusion 3.5** — *draft*
+- **Video Generation via Frame-by-Frame SDXL** — *draft*
 
 ### 🔧 Compilers & Tools
 *2 lessons, 0 validated*
