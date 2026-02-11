@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
-  "version": "0.0.310",
+  "version": "0.0.311",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -412,6 +412,11 @@
       {
         "command": "tenstorrent.openLatestImage",
         "title": "Open Latest Generated Image",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.showVisualization",
+        "title": "Show Visualization in Output Preview",
         "category": "Tenstorrent"
       },
       {

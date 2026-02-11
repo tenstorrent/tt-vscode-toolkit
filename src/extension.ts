@@ -1921,6 +1921,77 @@ async function openGeneratedImage(imagePath: string): Promise<void> {
 }
 
 /**
+ * Command: tenstorrent.showVisualization
+ *
+ * Display a visualization (image/plot) in the Output Preview panel.
+ * This command is designed to be called from Python CLI scripts via tt_vscode_bridge.py
+ *
+ * @param imagePath Absolute path to the image file (required)
+ */
+async function showVisualization(imagePath?: string): Promise<void> {
+  // Handle being called from Python via CLI (imagePath in args)
+  if (!imagePath && process.argv.length > 0) {
+    // When called via 'code --command tenstorrent.showVisualization /path/to/image.png'
+    // The path comes as a command-line argument after the extension command
+    const possiblePath = process.argv[process.argv.length - 1];
+    if (possiblePath && !possiblePath.startsWith('--') && possiblePath.includes('/')) {
+      imagePath = possiblePath;
+    }
+  }
+
+  // If still no path, show error
+  if (!imagePath) {
+    vscode.window.showErrorMessage(
+      'No image path provided. Usage: tenstorrent.showVisualization <path>'
+    );
+    return;
+  }
+
+  const fs = await import('fs');
+  const path = await import('path');
+
+  // Expand ~ to home directory if needed
+  if (imagePath.startsWith('~')) {
+    const os = await import('os');
+    imagePath = path.join(os.homedir(), imagePath.slice(1));
+  }
+
+  // Convert to absolute path
+  imagePath = path.resolve(imagePath);
+
+  // Check if file exists
+  if (!fs.existsSync(imagePath)) {
+    vscode.window.showWarningMessage(
+      `Visualization not found: ${imagePath}`
+    );
+    return;
+  }
+
+  // Verify it's an image file
+  const ext = path.extname(imagePath).toLowerCase();
+  const validExts = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.bmp', '.webp'];
+  if (!validExts.includes(ext)) {
+    vscode.window.showWarningMessage(
+      `Not a valid image file: ${imagePath}\nSupported: ${validExts.join(', ')}`
+    );
+    return;
+  }
+
+  try {
+    // Show in image preview panel
+    const imagePreviewProvider = (global as any).imagePreviewProvider;
+    if (imagePreviewProvider) {
+      imagePreviewProvider.showImage(imagePath);
+      // Success message removed for CLI use (Python script handles feedback)
+    } else {
+      vscode.window.showWarningMessage('Output Preview panel not available');
+    }
+  } catch (error) {
+    vscode.window.showErrorMessage(`Failed to display visualization: ${error}`);
+  }
+}
+
+/**
  * Watch for an image file to be created/updated and automatically open it
  * Returns a disposable to cancel the watch
  */
@@ -4543,6 +4614,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.startInteractiveImageGen', startInteractiveImageGen),
     vscode.commands.registerCommand('tenstorrent.copyImageGenDemo', copyImageGenDemo),
     vscode.commands.registerCommand('tenstorrent.openLatestImage', openLatestImage),
+    vscode.commands.registerCommand('tenstorrent.showVisualization', showVisualization),
 
     // Lesson 10 - Coding Assistant with Prompt Engineering (previously Lesson 9)
     vscode.commands.registerCommand('tenstorrent.verifyCodingModel', verifyCodingModel),

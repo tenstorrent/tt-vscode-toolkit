@@ -1,8 +1,8 @@
 ---
 id: video-generation-ttmetal
-title: Video Generation with Stable Diffusion 3.5
+title: Video Generation via Frame-by-Frame SDXL
 description: >-
-  Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware.
+  Create videos by generating frames with Stable Diffusion XL on Tenstorrent hardware.
   Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!
 category: serving
 tags:
@@ -22,7 +22,7 @@ status: draft
 estimatedMinutes: 30
 ---
 
-# Video Generation with Stable Diffusion 3.5
+# Video Generation via Frame-by-Frame SDXL
 
 ## The Hardware Scaling Story
 
@@ -42,35 +42,40 @@ This lesson demonstrates the Tenstorrent hardware advantage:
 ## What We'll Build
 
 A 10-second video showcasing "Tenstorrent at the 1964-1965 World's Fair" using:
-- **Stable Diffusion 3.5 Large** (proven in Lesson 9)
-- **Frame-by-frame generation** (10 keyframes)
-- **Hardware verification** (ensuring TT inference, not CPU)
-- **ffmpeg stitching** (frames → video)
+- **Stable Diffusion XL Base** (from Lesson 9 - image-generation)
+- **Frame-by-frame generation** (10 keyframes at 1024×1024)
+- **Hardware verification** (ensuring TT inference, not CPU fallback)
+- **ffmpeg stitching** (frames → smooth video)
 
 ---
 
 ## Prerequisites
 
-- Completed Lesson 9 (Image Generation with SD 3.5)
-- tt-metal installed at `~/tt-metal`
-- Hardware: N150, N300, T3K, or P100
-- ffmpeg installed (for video stitching)
+- ✅ Completed Lesson 9 (Image Generation with SDXL)
+- ✅ tt-metal v0.65.1+ installed at `~/tt-metal`
+- ✅ Hardware: N150, N300, T3K, or P100
+- ✅ ffmpeg installed (for video stitching)
+- ✅ diffusers, transformers packages installed
 
 ---
 
 ## Step 1: Understanding Video from Frames
 
-**Why frame-by-frame?**
+**Why frame-by-frame instead of native video?**
 
-As of January 2026, native video generation models aren't yet supported on Tenstorrent hardware. But we can create videos by:
-1. Generating individual frames (images) with SD 3.5
-2. Stitching frames together with ffmpeg
+Native video generation models (like **Mochi** in `tt_dit`) are available but experimental. Frame-by-frame generation using proven **SDXL** offers:
+
+1. Generate individual 1024×1024 frames with SDXL (proven in Lesson 9)
+2. Stitch frames together with ffmpeg
+3. Perfect for demonstrating hardware scaling!
 
 **This approach:**
-- ✅ Uses proven SD 3.5 (Lesson 9)
-- ✅ Exercises TT hardware for each frame
-- ✅ Demonstrates hardware scaling
-- ✅ Produces high-quality 1024x1024 video
+- ✅ Uses production-ready SDXL (validated in Lesson 9)
+- ✅ Exercises TT hardware for each frame (true hardware acceleration)
+- ✅ Demonstrates linear hardware scaling (2x chips = ~2x faster)
+- ✅ Produces high-quality 1024×1024 video
+
+**💡 Note:** For native video generation, check out **Mochi** in `models/experimental/tt_dit/pipelines/mochi/` (experimental as of v0.65.1).
 
 ---
 
