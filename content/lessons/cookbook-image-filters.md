@@ -20,6 +20,9 @@ validatedOn:
   - n150
   - p300
 estimatedMinutes: 30
+validationDate: 2026-02-11
+validationNotes: >-
+  Template updated to use PyTorch F.conv2d instead of ttnn.conv2d (which requires extensive low-level parameters). This is a starter template demonstrating filter concepts with functional code. References to production TTNN conv2d usage added for advanced users (SDXL, YOLO, CNNs tech report).
 ---
 
 ## Overview

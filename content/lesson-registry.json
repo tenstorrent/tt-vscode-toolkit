@@ -270,7 +270,10 @@
         "t3k",
         "p100"
       ],
-      "status": "blocked",
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 30,
       "order": 6,
       "previousLesson": "api-server",

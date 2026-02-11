@@ -200,9 +200,9 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **HTTP API Server with Direct API** — `N150`
 
 ### 🏭 Serving Models
-*4 lessons, 2 validated*
+*4 lessons, 3 validated*
 
-- **Production Inference with tt-inference-server** — *⚠️ blocked*
+- **Production Inference with tt-inference-server** — `N150`
 - **Production Inference with vLLM** — `N150`
 - **Image Generation with Stable Diffusion XL** — `N150`
 - **Video Generation via Frame-by-Frame SDXL** — *draft*

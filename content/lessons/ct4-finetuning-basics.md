@@ -25,7 +25,7 @@ estimatedMinutes: 25
 minTTMetalVersion: v0.67.0
 validationDate: 2026-02-04
 validationNotes: >-
-  All 4 progressive training stages validated on N150 with v0.67.0-dev20260203. Stage 4 (20k steps) reveals model plateau (loss 1.66 → 1.70), demonstrating architectural capacity limits - important teaching moment for students.
+  All 4 progressive training stages validated on N150 with v0.67.0-dev20260203. Stage 4 (20k steps) reveals model plateau (loss 1.66 → 1.70), demonstrating architectural capacity limits - important teaching moment for students. IMPORTANT: Python ttml module required for training does not exist in v0.65.1 (only C++ tt-train). Developers on v0.65.1 must upgrade to v0.67.0+ to use training lessons.
 ---
 
 # Fine-tuning Basics
