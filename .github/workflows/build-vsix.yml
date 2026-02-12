@@ -1,0 +1,62 @@
+name: Build VSCode extension (.vsix)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-vsix-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-vsix:
+    name: Build & package extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # IMPORTANT: no bundling (per repo guidance) — just compile TS → dist/
+      - name: Build
+        run: npm run build
+
+      - name: Package (.vsix)
+        run: npm run package
+
+      - name: Locate .vsix
+        id: vsix
+        shell: bash
+        run: |
+          set -euo pipefail
+          VSIX_PATH="$(ls -1 *.vsix | head -n 1)"
+          echo "path=$VSIX_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix-${{ github.sha }}
+          path: ${{ steps.vsix.outputs.path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload dist/ (optional debugging artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 14
+          if-no-files-found: ignore

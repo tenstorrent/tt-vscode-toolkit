@@ -21,6 +21,10 @@ status: validated
 validatedOn:
   - n150
 estimatedMinutes: 90
+minTTMetalVersion: v0.67.0
+validationDate: 2026-02-04
+validationNotes: >-
+  Training from scratch validated on N150. Requires Python ttml module which was introduced in v0.66.0+. Does not work with v0.65.1 (only has C++ tt-train). Developers on v0.65.1 must upgrade to v0.67.0+ to use training lessons.
 ---
 
 # Training from Scratch

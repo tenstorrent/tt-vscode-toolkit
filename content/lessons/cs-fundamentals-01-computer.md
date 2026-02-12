@@ -666,4 +666,4 @@ We ran it on real hardware:
 
 Welcome to CS fundamentals on real hardware. Let's continue! 🚀
 
-[→ Continue to Module 2: Memory Hierarchy](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-02-memory%22%7D)
+[→ Continue to Module 2: Memory Hierarchy](command:tenstorrent.showLesson?["cs-fundamentals-02-memory"])

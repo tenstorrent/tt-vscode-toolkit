@@ -20,6 +20,9 @@ validatedOn:
   - n150
   - p300
 estimatedMinutes: 30
+validationDate: 2026-02-11
+validationNotes: >-
+  Template updated to use PyTorch F.conv2d instead of ttnn.conv2d (which requires extensive low-level parameters). This is a starter template demonstrating filter concepts with functional code. References to production TTNN conv2d usage added for advanced users (SDXL, YOLO, CNNs tech report).
 ---
 
 ## Overview
@@ -359,6 +362,6 @@ Combine multiple exposures.
 - ✅ **Image processing**: From edge detection to artistic effects
 - ✅ **Foundation for CV models**: Same techniques in ResNet50, MobileNetV2, ViT
 
-**Next Recipe:** Ready for emergent complexity? Try [Recipe 5: Particle Life Simulator](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cookbook-particle-life%22%7D)
+**Next Recipe:** Ready for emergent complexity? Try [Recipe 5: Particle Life Simulator](command:tenstorrent.showLesson?["cookbook-particle-life"])
 
-**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cookbook-overview%22%7D)
+**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])

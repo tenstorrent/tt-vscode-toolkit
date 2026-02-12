@@ -167,6 +167,19 @@
     const message = event.data;
 
     switch (message.type) {
+      case 'clearState':
+        // Clear saved scroll state when switching lessons
+        vscode.setState({ lessonId: null, scrollPosition: 0 });
+        break;
+
+      case 'scrollToTop':
+        // Force scroll to top (used when switching lessons)
+        window.scrollTo(0, 0);
+        // Also clear state to ensure it doesn't restore old position
+        const currentLessonId = getCurrentLessonId();
+        vscode.setState({ lessonId: currentLessonId, scrollPosition: 0 });
+        break;
+
       case 'refresh':
         // Refresh content
         location.reload();

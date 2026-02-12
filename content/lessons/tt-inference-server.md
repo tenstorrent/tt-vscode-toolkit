@@ -14,8 +14,13 @@ supportedHardware:
   - n300
   - t3k
   - p100
-status: blocked
+status: validated
+validatedOn:
+  - n150
 estimatedMinutes: 30
+validationDate: 2026-02-11
+validationNotes: >-
+  Validated with tt-inference-server v0.8.0 cloned from GitHub. Tested command structure, model support (Llama-3.1-8B-Instruct, Qwen3-8B, gemma-3-1b-it), and workflow options (server, benchmarks, tests, evals). Installation requires git clone of repository.
 ---
 
 # Production Inference with tt-inference-server

@@ -849,4 +849,4 @@ We explored:
 
 **Next:** We climb the abstraction stack from RISC-V assembly to Python.
 
-[→ Continue to Module 6: Abstraction Layers](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cs-fundamentals-06-abstraction%22%7D)
+[→ Continue to Module 6: Abstraction Layers](command:tenstorrent.showLesson?["cs-fundamentals-06-abstraction"])

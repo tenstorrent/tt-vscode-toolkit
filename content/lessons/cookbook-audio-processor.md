@@ -922,6 +922,6 @@ def process_block(self, audio_block):
 - ✅ **Foundation for ML**: Same techniques used in Whisper and speech recognition
 - ✅ **Creative applications**: Music, podcasts, voice processing
 
-**Next Recipe:** Ready for fractals? Try [Recipe 3: Mandelbrot Fractal Explorer](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cookbook-mandelbrot%22%7D)
+**Next Recipe:** Ready for fractals? Try [Recipe 3: Mandelbrot Fractal Explorer](command:tenstorrent.showLesson?["cookbook-mandelbrot"])
 
-**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22cookbook-overview%22%7D)
+**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])

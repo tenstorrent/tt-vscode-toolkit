@@ -103,6 +103,27 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Runs a test operation to verify tt-metal is working correctly',
   },
 
+  INSTALL_DEPENDENCIES: {
+    id: 'install-dependencies',
+    name: 'Install System Dependencies',
+    template: 'cd ~/tt-metal && sudo ./install_dependencies.sh',
+    description: 'Installs required system libraries, drivers, and dependencies for tt-metal',
+  },
+
+  COPY_ENVIRONMENT_SETUP: {
+    id: 'copy-environment-setup',
+    name: 'Copy Environment Setup Commands',
+    template: 'export TT_METAL_HOME=~/tt-metal\nexport PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\nexport LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH',
+    description: 'Sets up environment variables for tt-metal (TT_METAL_HOME, PYTHONPATH, LD_LIBRARY_PATH)',
+  },
+
+  PERSIST_ENVIRONMENT: {
+    id: 'persist-environment',
+    name: 'Add Environment Variables to ~/.bashrc',
+    template: '(grep -q "export TT_METAL_HOME=~/tt-metal" ~/.bashrc || echo \'export TT_METAL_HOME=~/tt-metal\' >> ~/.bashrc) && (grep -q "export PYTHONPATH=\\$TT_METAL_HOME:\\$PYTHONPATH" ~/.bashrc || echo \'export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\' >> ~/.bashrc) && (grep -q "export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:\\$LD_LIBRARY_PATH" ~/.bashrc || echo \'export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH\' >> ~/.bashrc) && echo "✓ Environment variables added to ~/.bashrc. Restart your terminal or run: source ~/.bashrc"',
+    description: 'Permanently adds tt-metal environment variables to ~/.bashrc (idempotent - safe to run multiple times)',
+  },
+
   // Hugging Face Authentication
   SET_HF_TOKEN: {
     id: 'set-hf-token',

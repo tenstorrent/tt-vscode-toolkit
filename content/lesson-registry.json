@@ -270,7 +270,10 @@
         "t3k",
         "p100"
       ],
-      "status": "blocked",
+      "status": "validated",
+      "validatedOn": [
+        "n150"
+      ],
       "estimatedMinutes": 30,
       "order": 6,
       "previousLesson": "api-server",
@@ -339,12 +342,16 @@
       "completionEvents": [
         "onCommand:tenstorrent.generateRetroImage"
       ],
-      "markdownFile": "content/lessons/image-generation.md"
+      "markdownFile": "content/lessons/image-generation.md",
+      "recommended_metal_version": "v0.65.1",
+      "minTTMetalVersion": "v0.65.1",
+      "validationDate": "2026-02-10",
+      "validationNotes": "Added v0.65.1 improvements (VAE perf, encoder optimizations, combined base+refiner pipeline), fixed SD3.5 reference, added SD v1.4 note"
     },
     {
       "id": "video-generation-ttmetal",
-      "title": "Video Generation with Stable Diffusion 3.5",
-      "description": "Create videos by generating frames with Stable Diffusion 3.5 on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
+      "title": "Video Generation via Frame-by-Frame SDXL",
+      "description": "Create videos by generating frames with Stable Diffusion XL on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
       "category": "serving",
       "tags": [
         "hardware",
@@ -1207,7 +1214,11 @@
       "previousLesson": "animatediff-video-generation",
       "nextLesson": "deploy-to-koyeb",
       "completionEvents": [],
-      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md"
+      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md",
+      "recommended_metal_version": "v0.65.1",
+      "minTTMetalVersion": "v0.65.1",
+      "validationDate": "2026-02-10",
+      "validationNotes": "Docker images updated to use tt-metal v0.65.1 base (Dockerfile.koyeb commit 558a19699f)"
     },
     {
       "id": "deploy-to-koyeb",
@@ -1235,7 +1246,11 @@
       "order": 19,
       "previousLesson": "deploy-vscode-to-koyeb",
       "completionEvents": [],
-      "markdownFile": "content/lessons/deploy-to-koyeb.md"
+      "markdownFile": "content/lessons/deploy-to-koyeb.md",
+      "recommended_metal_version": "v0.65.1",
+      "minTTMetalVersion": "v0.65.1",
+      "validationDate": "2026-02-10",
+      "validationNotes": "Docker base images updated to tt-metal v0.65.1, extends ghcr.io/tenstorrent/tt-vscode-toolkit:latest"
     }
   ]
 }

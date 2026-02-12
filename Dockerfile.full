@@ -1,6 +1,7 @@
 # Tenstorrent VSCode Toolkit - Full Development Image
 # Includes code-server + TT extension + tt-metal dependencies preinstalled
 # This is a larger image but includes everything needed for development
+# Recommended tt-metal version: v0.65.1 (validated 2026-02-10)
 
 FROM codercom/code-server:latest
 

@@ -71,6 +71,8 @@ export class LessonWebviewManager {
       return;
     }
 
+    // Store previous lesson ID before updating current lesson
+    const previousLessonId = this.currentLesson?.id;
     this.currentLesson = lesson;
 
     // Start tracking session
@@ -78,6 +80,17 @@ export class LessonWebviewManager {
 
     // Create or reveal panel
     if (this.panel) {
+      // Clear state if switching to a different lesson
+      if (previousLessonId !== lesson.id) {
+        // Post message to clear state before updating content
+        this.panel.webview.postMessage({
+          type: 'clearState'
+        });
+
+        // Small delay to ensure message is processed
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
       this.panel.reveal(vscode.ViewColumn.One);
     } else {
       this.panel = vscode.window.createWebviewPanel(
@@ -112,14 +125,15 @@ export class LessonWebviewManager {
     // Update panel title
     this.panel.title = lesson.title;
 
-    // Render content
-    await this.renderLesson(lesson);
+    // Render content (pass whether this is a lesson switch)
+    const isSwitchingLesson = previousLessonId !== lesson.id;
+    await this.renderLesson(lesson, isSwitchingLesson);
   }
 
   /**
    * Render lesson content
    */
-  private async renderLesson(lesson: LessonMetadata): Promise<void> {
+  private async renderLesson(lesson: LessonMetadata, shouldScrollToTop: boolean = false): Promise<void> {
     if (!this.panel) {
       return;
     }
@@ -155,6 +169,15 @@ export class LessonWebviewManager {
 
       // Set webview content
       this.panel.webview.html = html;
+
+      // After HTML is set, explicitly scroll to top if switching lessons
+      if (shouldScrollToTop) {
+        // Wait a bit for content to load
+        await new Promise(resolve => setTimeout(resolve, 100));
+        this.panel.webview.postMessage({
+          type: 'scrollToTop'
+        });
+      }
     } catch (error) {
       vscode.window.showErrorMessage(
         `Failed to render lesson: ${error instanceof Error ? error.message : 'Unknown error'}`

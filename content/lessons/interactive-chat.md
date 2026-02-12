@@ -125,9 +125,9 @@ ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
 
 | Issue | Solution |
 |-------|----------|
-| No hardware detected | [Hardware Detection](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22hardware-detection%22%7D) |
-| No tt-metal installed | [Verify Installation](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22verify-installation%22%7D) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
-| No model downloaded | [Download Model](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22download-model%22%7D) |
+| No hardware detected | [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) |
+| No tt-metal installed | [Verify Installation](command:tenstorrent.showLesson?["verify-installation"]) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
+| No model downloaded | [Download Model](command:tenstorrent.showLesson?["download-model"]) |
 
 **Quick model download:**
 ```bash
