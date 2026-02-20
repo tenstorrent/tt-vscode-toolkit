@@ -26,6 +26,7 @@ import { LessonRegistry } from './utils';
 import { StateManager, ProgressTracker } from './state';
 import { LessonTreeDataProvider, LessonWebviewManager } from './views';
 import { EnvironmentManager } from './services/EnvironmentManager';
+import { MarkdownRenderer } from './renderers';
 
 // Telemetry monitoring imports
 import { TelemetryMonitor } from './telemetry/TelemetryMonitor';
@@ -2820,7 +2821,7 @@ async function showWelcome(context: vscode.ExtensionContext): Promise<void> {
 /**
  * Command: tenstorrent.showFaq
  *
- * Opens the FAQ in a rendered webview with search functionality.
+ * Opens the FAQ in a rendered webview with proper markdown rendering.
  */
 async function showFaq(context: vscode.ExtensionContext): Promise<void> {
   const panel = vscode.window.createWebviewPanel(
@@ -2829,7 +2830,10 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
     { viewColumn: vscode.ViewColumn.One, preserveFocus: false },
     {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')]
+      localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
+      ]
     }
   );
 
@@ -2839,17 +2843,26 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
   try {
     // Read FAQ markdown
     const faqPath = path.join(context.extensionPath, 'content', 'pages', 'FAQ.md');
-    const faqMarkdown = fs.readFileSync(faqPath, 'utf8');
+
+    // Use MarkdownRenderer for consistency
+    const renderer = new MarkdownRenderer();
+    const rendered = await renderer.renderFile(faqPath);
 
     // Read template
     const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
-    // Convert markdown to HTML (simple conversion)
-    const faqHtml = convertMarkdownToHtml(faqMarkdown);
+    // Get nonce for CSP
+    const nonce = getNonce();
+
+    // Update CSP to allow CDN resources
+    template = template.replace(
+      'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'',
+      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net; img-src data: https:;`
+    );
 
     // Inject FAQ content into template
-    panel.webview.html = template.replace('{{FAQ_CONTENT}}', faqHtml);
+    panel.webview.html = template.replace('{{FAQ_CONTENT}}', rendered.html);
   } catch (error) {
     panel.webview.html = `
       <!DOCTYPE html>
@@ -2870,105 +2883,11 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
   }
 }
 
-/**
- * Simple markdown to HTML converter for FAQ content
- */
-function convertMarkdownToHtml(markdown: string): string {
-  let html = markdown;
-
-  // Helper function to create URL-friendly slug from text
-  // Matches the convention used in the FAQ TOC (e.g., "Remote Development & SSH" -> "remote-development--ssh")
-  const slugify = (text: string): string => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '-') // Replace special characters with hyphens
-      .replace(/\s+/g, '-')      // Replace spaces with hyphens
-      .replace(/--+/g, '--')     // Normalize to max double hyphens (keep double from & replacement)
-      .replace(/^-+|-+$/g, '');  // Remove leading/trailing hyphens
-  };
-
-  // Escape HTML characters first
-  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  // Code blocks (```bash ... ```)
-  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_match, lang, code) => {
-    return `<pre><code class="language-${lang}">${code.trim()}</code></pre>`;
-  });
-
-  // Inline code
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-  // Headers with proper slugified IDs
-  html = html.replace(/^### (.+)$/gm, (_match, text) => {
-    return `<h3 id="${slugify(text)}">${text}</h3>`;
-  });
-  html = html.replace(/^## (.+)$/gm, (_match, text) => {
-    return `<h2 id="${slugify(text)}">${text}</h2>`;
-  });
-  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-
-  // Bold and italic
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-
-  // Links [text](url)
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-
-  // Unordered lists
-  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
-
-  // Tables (basic support)
-  const tableRegex = /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|\n?)+)/g;
-  html = html.replace(tableRegex, (_match, header, rows) => {
-    const headerCells = header.split('|').filter((s: string) => s.trim()).map((h: string) => `<th>${h.trim()}</th>`).join('');
-    const rowsHtml = rows.trim().split('\n').map((row: string) => {
-      const cells = row.split('|').filter((s: string) => s.trim()).map((c: string) => `<td>${c.trim()}</td>`).join('');
-      return `<tr>${cells}</tr>`;
-    }).join('');
-    return `<table><thead><tr>${headerCells}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
-  });
-
-  // Paragraphs (lines separated by blank lines)
-  html = html.split('\n\n').map(para => {
-    para = para.trim();
-    // Don't wrap if already wrapped in a tag
-    if (para.match(/^<(h[1-6]|ul|ol|pre|table|div)/)) {
-      return para;
-    }
-    // Split into lines but keep list items together
-    if (para.includes('<li>')) {
-      return para;
-    }
-    return para ? `<p>${para.replace(/\n/g, '<br>')}</p>` : '';
-  }).join('\n');
-
-  // Q: and A: formatting for FAQ blocks
-  html = html.replace(/<h3>Q: (.+?)<\/h3>\s*<p><strong>A:<\/strong>(.+?)<\/p>/gs,
-    '<div class="qa-block"><h3>Q: $1</h3><p><strong>A:</strong>$2</p></div>');
-
-  // Sections (wrap each h2 and its content)
-  const sections = html.split(/(?=<h2)/g);
-  html = sections.map(section => {
-    if (section.trim().startsWith('<h2')) {
-      return `<div class="faq-section">${section}</div>`;
-    }
-    return section;
-  }).join('');
-
-  // Checkmarks and cross marks
-  html = html.replace(/✅/g, '<span class="checkmark">✅</span>');
-  html = html.replace(/❌/g, '<span class="crossmark">❌</span>');
-  html = html.replace(/⚠️/g, '<span class="warning">⚠️</span>');
-
-  return html;
-}
 
 /**
  * Command: tenstorrent.showRiscvGuide
  *
- * Opens the RISC-V Exploration Guide in a rendered webview with search functionality.
+ * Opens the RISC-V Exploration Guide in a rendered webview with proper markdown rendering.
  */
 async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
   const panel = vscode.window.createWebviewPanel(
@@ -2977,7 +2896,10 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
     { viewColumn: vscode.ViewColumn.One, preserveFocus: false },
     {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')]
+      localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
+      ]
     }
   );
 
@@ -2987,19 +2909,28 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
   try {
     // Read RISC-V guide markdown
     const guidePath = path.join(context.extensionPath, 'content', 'pages', 'riscv-guide.md');
-    const guideMarkdown = fs.readFileSync(guidePath, 'utf8');
 
-    // Read template (reuse FAQ template)
+    // Use MarkdownRenderer for consistency
+    const renderer = new MarkdownRenderer();
+    const rendered = await renderer.renderFile(guidePath);
+
+    // Read template
     const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
-    // Convert markdown to HTML
-    const guideHtml = convertMarkdownToHtml(guideMarkdown);
+    // Get nonce for CSP
+    const nonce = getNonce();
 
-    // Inject content into template (update title in template)
+    // Update CSP to allow CDN resources
+    template = template.replace(
+      'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'',
+      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net; img-src data: https:;`
+    );
+
+    // Inject content into template
     template = template.replace('Tenstorrent FAQ', 'RISC-V Exploration Guide');
-    template = template.replace('Frequently Asked Questions', 'Exploring Tenstorrent as a RISC-V Platform');
-    panel.webview.html = template.replace('{{FAQ_CONTENT}}', guideHtml);
+    template = template.replace('Frequently Asked Questions - Your quick reference for common questions and troubleshooting', 'Exploring Tenstorrent as a RISC-V Platform');
+    panel.webview.html = template.replace('{{FAQ_CONTENT}}', rendered.html);
   } catch (error) {
     panel.webview.html = `
       <!DOCTYPE html>
@@ -3023,7 +2954,7 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
 /**
  * Command: tenstorrent.showStepZero
  *
- * Opens the Step Zero orientation guide in a rendered webview.
+ * Opens the Step Zero orientation guide in a rendered webview with full mermaid support.
  */
 async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
   const panel = vscode.window.createWebviewPanel(
@@ -3032,7 +2963,10 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
     { viewColumn: vscode.ViewColumn.One, preserveFocus: false },
     {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')]
+      localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
+      ]
     }
   );
 
@@ -3042,19 +2976,71 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
   try {
     // Read Step Zero markdown
     const stepZeroPath = path.join(context.extensionPath, 'content', 'pages', 'step-zero.md');
-    const stepZeroMarkdown = fs.readFileSync(stepZeroPath, 'utf8');
 
-    // Read template (reuse FAQ template)
+    // Use MarkdownRenderer for proper mermaid support
+    const renderer = new MarkdownRenderer();
+    const rendered = await renderer.renderFile(stepZeroPath);
+
+    // Read template
     const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
-    // Convert markdown to HTML
-    const stepZeroHtml = convertMarkdownToHtml(stepZeroMarkdown);
+    // Get nonce for CSP
+    const nonce = getNonce();
 
-    // Inject content into template (update title in template)
+    // Inject mermaid.js script tags before closing </body>
+    const mermaidScript = `
+    <!-- Mermaid.js v11 for diagrams (CDN) -->
+    <script nonce="${nonce}" src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script nonce="${nonce}">
+      // Initialize mermaid with dark theme after it loads
+      (function() {
+        function initMermaid() {
+          if (typeof mermaid !== 'undefined') {
+            try {
+              mermaid.initialize({
+                startOnLoad: false,
+                theme: 'dark',
+                securityLevel: 'loose',
+                fontFamily: 'var(--vscode-font-family)',
+                logLevel: 'error'
+              });
+
+              // Manually render all mermaid diagrams
+              mermaid.run({
+                querySelector: '.mermaid'
+              }).catch(error => {
+                console.error('Mermaid rendering error:', error);
+              });
+            } catch (error) {
+              console.error('Mermaid initialization error:', error);
+            }
+          }
+        }
+
+        // Try immediately (if already loaded)
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initMermaid);
+        } else {
+          initMermaid();
+        }
+      })();
+    </script>
+    `;
+
+    // Update CSP to allow mermaid.js
+    template = template.replace(
+      'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'',
+      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net; img-src data: https:;`
+    );
+
+    // Inject content into template
     template = template.replace('Tenstorrent FAQ', 'Step Zero: Getting Started Guide');
-    template = template.replace('Frequently Asked Questions', 'Understanding the Tenstorrent Software Universe');
-    panel.webview.html = template.replace('{{FAQ_CONTENT}}', stepZeroHtml);
+    template = template.replace('Frequently Asked Questions - Your quick reference for common questions and troubleshooting', 'Understanding the Tenstorrent Software Universe');
+    template = template.replace('{{FAQ_CONTENT}}', rendered.html);
+    template = template.replace('</body>', `${mermaidScript}</body>`);
+
+    panel.webview.html = template;
   } catch (error) {
     panel.webview.html = `
       <!DOCTYPE html>
@@ -3073,6 +3059,18 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
       </html>
     `;
   }
+}
+
+/**
+ * Generate nonce for CSP
+ */
+function getNonce(): string {
+  let text = '';
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 32; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
 }
 
 // ============================================================================

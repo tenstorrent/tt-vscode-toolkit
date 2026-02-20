@@ -383,10 +383,6 @@ python3 run.py \
   --device-id 0,1,2,3,4,5,6,7
 ```
 
-[⚙️ Start with N150 Config](command:tenstorrent.startTtInferenceServerN150)
-
-[⚙️ Start with N300 Config](command:tenstorrent.startTtInferenceServerN300)
-
 ---
 
 ## Step 6: Advanced Testing

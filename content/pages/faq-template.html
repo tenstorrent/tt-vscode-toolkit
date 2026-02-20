@@ -25,15 +25,11 @@
             line-height: 1.6;
         }
 
-        /* Sticky header with search */
+        /* Simple header without sticky positioning */
         .header {
             background: linear-gradient(135deg, rgba(79, 209, 197, 0.15) 0%, rgba(79, 209, 197, 0.05) 100%);
             border-bottom: 2px solid var(--tt-cyan);
             padding: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
         }
 
         .header h1 {
@@ -42,31 +38,6 @@
             font-size: 28px;
         }
 
-        .search-container {
-            margin-top: 15px;
-        }
-
-        .search-box {
-            width: 100%;
-            max-width: 600px;
-            padding: 10px 15px;
-            font-size: 14px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(13, 148, 136, 0.3);
-            border-radius: 6px;
-            color: #ffffff;
-            font-family: var(--vscode-font-family);
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--tt-cyan);
-            background-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .search-box::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
 
         /* Content area */
         .content {
@@ -320,9 +291,6 @@
     <div class="header">
         <h1>🔧 Tenstorrent FAQ</h1>
         <p style="margin: 0; color: rgba(255, 255, 255, 0.8);">Frequently Asked Questions - Your quick reference for common questions and troubleshooting</p>
-        <div class="search-container">
-            <input type="text" id="searchBox" class="search-box" placeholder="Search FAQ... (e.g., 'vllm error', 'n150', 'install dependencies')">
-        </div>
     </div>
 
     <div class="content" id="faqContent">
@@ -332,31 +300,6 @@
     <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
 
     <script>
-        // Search functionality
-        const searchBox = document.getElementById('searchBox');
-        const content = document.getElementById('faqContent');
-
-        searchBox.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const sections = content.querySelectorAll('.faq-section, .qa-block, h2, h3');
-
-            if (searchTerm === '') {
-                // Show all content
-                sections.forEach(section => section.classList.remove('hidden'));
-                return;
-            }
-
-            // Filter content
-            sections.forEach(section => {
-                const text = section.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    section.classList.remove('hidden');
-                } else {
-                    section.classList.add('hidden');
-                }
-            });
-        });
-
         // Back to top button
         const backToTop = document.getElementById('backToTop');
 
