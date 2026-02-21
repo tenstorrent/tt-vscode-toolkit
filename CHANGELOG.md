@@ -7,6 +7,116 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.317] - 2026-02-20
+
+### Added
+- **Dockerfile.koyeb:** Complete tt-metal development environment (aligned with tt-installer lesson recommendations)
+  - ✅ **Clone tt-metal** to `~/tt-metal` - Latest source code, ready to code on (not built)
+  - ✅ **Python venv** at `~/.tt-metal-venv` - Following tt-installer's pattern for isolated Python environment
+  - ✅ **ttnn installed** - `pip install -e ~/tt-metal` in venv, ready for `import ttnn` immediately
+  - ✅ **Auto-activate venv** - Venv automatically activates on terminal login (like tt-installer does)
+  - ✅ **Environment variables** - `TT_METAL_HOME` and `PYTHONPATH` set correctly
+  - Users can now start coding with tt-metal/ttnn immediately without manual setup
+
+### Changed
+- **Dockerfile.koyeb:** Enhanced to provide complete development environment, not just tt-smi tools
+  - Previously: Only tt-installer tools (tt-smi, tt-flash, etc.)
+  - Now: Full development setup with tt-metal source + Python venv + ttnn installed
+
+### Technical Details
+- tt-metal cloned from https://github.com/tenstorrent/tt-metal.git (latest main branch)
+- Python venv created at `/home/coder/.tt-metal-venv` (follows tt-installer naming convention)
+- ttnn installed in editable mode (`pip install -e`) for development
+- Venv auto-activation added to `.bashrc` (seamless experience like tt-installer provides)
+- Build time increased by ~2-3 minutes (git clone + pip install ttnn dependencies)
+- Image size increased by ~500MB-1GB (tt-metal source + Python packages)
+- Users can immediately run: `python3 -c "import ttnn; print(ttnn.__version__)"` in terminals
+
+### Rationale
+Aligns Koyeb deployment with tt-installer lesson (Lesson 2) recommendations:
+- tt-installer creates Python venv with ttnn installed
+- tt-installer clones tt-metal for users who need source access
+- Having tt-metal available enables users to explore demos, run examples, and learn from source
+- Auto-activated venv ensures consistent Python environment across all terminals
+
+---
+
+## [0.0.316] - 2026-02-20
+
+### Fixed
+- **Dockerfile.koyeb:** Added `coder` user to `video` and `render` groups for Tenstorrent device access
+  - Critical fix for `/dev/tenstorrent/*` device access on Koyeb N300 instances
+  - Without these groups, sysfs detection works but tt-smi and device tools cannot access hardware
+  - Creates `render` group if it doesn't exist (`groupadd -f render`)
+  - Adds `coder` to both `video` and `render` groups for full device permissions
+
+### Technical Details
+- Device nodes in `/dev/tenstorrent/` require membership in `video` and `render` groups
+- Koyeb N300 instances expose hardware via `/dev/tenstorrent/0` and `/dev/tenstorrent/1`
+- sysfs detection (used by extension) works without groups, but tt-smi requires device access
+- This aligns Koyeb deployment with standard Tenstorrent device permissions
+
+---
+
+## [0.0.315] - 2026-02-20
+
+### Changed
+- **All Dockerfiles:** Migrated from `codercom/code-server:latest` to `ubuntu:24.04` base image
+  - **Dockerfile:** Now uses Ubuntu 24.04 with manual code-server installation
+  - **Dockerfile.full:** Now uses Ubuntu 24.04 with manual code-server installation
+  - **Dockerfile.koyeb:** Now uses Ubuntu 24.04 with manual code-server installation
+  - Better compatibility with tt-installer (Ubuntu 24.04 is preferred)
+  - Full control over system environment and dependencies
+  - Code-server installed via official installation script (`curl -fsSL https://code-server.dev/install.sh | sh`)
+  - Manual `coder` user creation with sudo privileges
+  - **Optimized apt-get:** Using `--no-install-recommends` flag to minimize image size
+  - **Removed bloat:** No X11 libraries, documentation, or recommended packages installed
+  - **Added ca-certificates:** Explicitly added for HTTPS support with minimal overhead
+
+### Fixed
+- **Ubuntu version consistency:** All Docker images now use Ubuntu 24.04 (noble)
+- **tt-installer compatibility:** Ubuntu 24.04 provides better support for tt-installer
+- **Image bloat:** Eliminated unnecessary packages (X11, docs, recommended packages) using `--no-install-recommends`
+
+### Documentation
+- **content/lessons/deploy-vscode-to-koyeb.md:** Updated Ubuntu version from 22.04 to 24.04
+- **docs/deployment/DEPLOYMENT.md:** Clarified Ubuntu 24.04 base image details in "Image Variants" section
+- **README.md:** Docker deployment documentation now reflects Ubuntu 24.04 base
+
+### Technical Details
+- Base image: `ubuntu:24.04` (noble) - server/cloud variant, not desktop
+- Code-server installation: Official installation script from code-server.dev
+- User creation: Manual `coder` user creation with `useradd -m -s /bin/bash coder`
+- Sudo access: `coder` user added to sudoers with NOPASSWD
+- Package installation: All `apt-get install` commands use `--no-install-recommends` flag
+- Explicit ca-certificates: Added to ensure HTTPS/TLS support for curl/wget
+- Image sizes: Expected to be smaller than before (~400-450MB basic, ~1.8GB full, ~2-2.5GB Koyeb)
+
+---
+
+## [0.0.314] - 2026-02-19
+
+### Fixed
+- **Dockerfile.koyeb:** Replaced broken tt-metalium base image with self-maintained approach using code-server + tt-installer
+- Koyeb deployment now works reliably without depending on external tt-metalium images
+
+### Changed
+- **Dockerfile.koyeb:** Now uses `codercom/code-server:latest` as base (consistent with other Dockerfiles)
+- **Dockerfile.koyeb:** Installs tt-smi, tt-flash, and tools via tt-installer with `--mode-container` flag
+- **Dockerfile.koyeb:** No longer includes pre-compiled tt-metal (users can build via lessons when needed)
+- **docs/deployment/DEPLOYMENT.md:** Updated Koyeb image description
+- **docs/deployment/KOYEB.md:** Updated deployment guide to reflect new image architecture
+- **content/lessons/deploy-vscode-to-koyeb.md:** Updated deployment lesson with tt-installer tools information
+- **content/lessons/deploy-to-koyeb.md:** Updated to clarify base image tooling
+
+### Technical Details
+- Image size: ~2-3GB (more realistic with tools included)
+- Build time: ~5-10 minutes (no pre-compilation of tt-metal)
+- Tools installed: tt-smi, tt-flash, tt-topology, tt-inference-server (via tt-installer)
+- Users can still build tt-metal via lessons when needed for development work
+
+---
+
 ## [0.0.313] - 2026-02-11
 
 ### Fixed

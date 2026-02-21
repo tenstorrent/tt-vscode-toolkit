@@ -118,7 +118,7 @@ export class LessonTreeItem extends vscode.TreeItem {
   }
 
   /**
-   * Setup special tree item (Welcome, FAQ, etc.)
+   * Setup special tree item (Welcome, FAQ, Step Zero, etc.)
    */
   private setupSpecialItem(label: string, commandId: string): void {
     this.id = `special-${commandId}`;
@@ -127,6 +127,8 @@ export class LessonTreeItem extends vscode.TreeItem {
     // Set icon based on label
     if (label.includes('Welcome')) {
       this.iconPath = new vscode.ThemeIcon('home');
+    } else if (label.includes('Platform Overview') || label.includes('Step Zero')) {
+      this.iconPath = new vscode.ThemeIcon('compass');
     } else if (label.includes('FAQ')) {
       this.iconPath = new vscode.ThemeIcon('question');
     } else {
@@ -327,6 +329,16 @@ export class LessonTreeDataProvider implements vscode.TreeDataProvider<LessonTre
         '🏠 Welcome Page',
         vscode.TreeItemCollapsibleState.None,
         'tenstorrent.showWelcome'
+      ));
+
+      // Step Zero - Platform Overview
+      items.push(new LessonTreeItem(
+        'special',
+        undefined,
+        undefined,
+        '🧭 Tenstorrent Platform Overview',
+        vscode.TreeItemCollapsibleState.None,
+        'tenstorrent.showStepZero'
       ));
 
       // FAQ
