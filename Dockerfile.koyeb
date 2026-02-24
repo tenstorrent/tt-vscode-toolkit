@@ -12,7 +12,7 @@ ENV SHELL=/bin/bash
 
 USER root
 
-# Install system dependencies
+# Install system dependencies including tt-metal build requirements
 # Using --no-install-recommends to minimize image size (no X11, docs, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -20,12 +20,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     git \
     build-essential \
+    cmake \
     python3 \
     python3-pip \
     python3-venv \
+    python3-dev \
     sudo \
     nodejs \
     npm \
+    libhwloc-dev \
+    libboost-all-dev \
+    libyaml-cpp-dev \
+    libgtest-dev \
+    libgmock-dev \
+    libtbb-dev \
+    pandoc \
+    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 # Install code-server using official installation script
@@ -68,35 +78,22 @@ RUN mkdir -p /home/coder/.local/share/code-server/extensions \
 
 # Clone tt-metal repository (latest, ready to code on, not built)
 # This provides the source code for development and learning
+# Note: We clone but don't build - users should use tt-metalium containers for running code
 RUN git clone https://github.com/tenstorrent/tt-metal.git /home/coder/tt-metal \
     && chown -R coder:coder /home/coder/tt-metal
 
-# Create Python virtual environment for tt-metal/ttnn (following tt-installer pattern)
-# This venv will be auto-activated on login and have ttnn installed
-RUN python3 -m venv /home/coder/.tt-metal-venv \
-    && chown -R coder:coder /home/coder/.tt-metal-venv
-
-# Switch to coder user to install Python packages in the venv
-USER coder
-
-# Install ttnn and dependencies in the venv
-# This makes import ttnn work immediately in all terminals
-RUN /home/coder/.tt-metal-venv/bin/pip install --upgrade pip \
-    && /home/coder/.tt-metal-venv/bin/pip install -e /home/coder/tt-metal
-
-# Add venv auto-activation to .bashrc (like tt-installer does)
-RUN echo '' >> /home/coder/.bashrc \
-    && echo '# Auto-activate tt-metal Python environment' >> /home/coder/.bashrc \
-    && echo 'if [ -f /home/coder/.tt-metal-venv/bin/activate ]; then' >> /home/coder/.bashrc \
-    && echo '    source /home/coder/.tt-metal-venv/bin/activate' >> /home/coder/.bashrc \
-    && echo 'fi' >> /home/coder/.bashrc
+# Initialize git submodules (required for tt-metal to work)
+# This downloads all the necessary submodule dependencies
+RUN cd /home/coder/tt-metal \
+    && git submodule update --init --recursive \
+    && chown -R coder:coder /home/coder/tt-metal
 
 # Set environment variables for tt-metal
+# Note: System dependencies installed above (libhwloc, boost, yaml-cpp, etc.)
+# Note: We don't pip install ttnn here - users should use tt-metalium containers
+#       which have ttnn pre-built and ready to use via: tt-metalium "python3 script.py"
 ENV TT_METAL_HOME=/home/coder/tt-metal
 ENV PYTHONPATH=/home/coder/tt-metal
-
-# Switch back to root for remaining installation steps
-USER root
 
 # Copy extension and scripts
 COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
