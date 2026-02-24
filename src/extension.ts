@@ -2852,13 +2852,11 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
     const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
-    // Get nonce for CSP
-    const nonce = getNonce();
-
     // Update CSP to allow CDN resources
+    // Keep 'unsafe-inline' for template compatibility (inline scripts and event handlers)
     template = template.replace(
       'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'',
-      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net; img-src data: https:;`
+      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'unsafe-inline' https://cdn.jsdelivr.net; img-src data: https:;`
     );
 
     // Inject FAQ content into template
@@ -2918,13 +2916,11 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
     const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
-    // Get nonce for CSP
-    const nonce = getNonce();
-
     // Update CSP to allow CDN resources
+    // Keep 'unsafe-inline' for template compatibility (inline scripts and event handlers)
     template = template.replace(
       'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'',
-      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net; img-src data: https:;`
+      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'unsafe-inline' https://cdn.jsdelivr.net; img-src data: https:;`
     );
 
     // Inject content into template
@@ -2985,14 +2981,11 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
     const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
-    // Get nonce for CSP
-    const nonce = getNonce();
-
     // Inject mermaid.js script tags before closing </body>
     const mermaidScript = `
     <!-- Mermaid.js v11 for diagrams (CDN) -->
-    <script nonce="${nonce}" src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-    <script nonce="${nonce}">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
       // Initialize mermaid with dark theme after it loads
       (function() {
         function initMermaid() {
@@ -3028,10 +3021,11 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
     </script>
     `;
 
-    // Update CSP to allow mermaid.js
+    // Update CSP to allow mermaid.js and CDN resources
+    // Keep 'unsafe-inline' for template compatibility (inline scripts and event handlers)
     template = template.replace(
       'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'',
-      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net; img-src data: https:;`
+      `default-src 'none'; style-src 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'unsafe-inline' https://cdn.jsdelivr.net; img-src data: https:;`
     );
 
     // Inject content into template
@@ -3059,18 +3053,6 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
       </html>
     `;
   }
-}
-
-/**
- * Generate nonce for CSP
- */
-function getNonce(): string {
-  let text = '';
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
 }
 
 // ============================================================================

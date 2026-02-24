@@ -26,7 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 - **content/lessons/deploy-vscode-to-koyeb.md:** Updated Ubuntu version from 22.04 to 24.04
 - **docs/deployment/DEPLOYMENT.md:** Clarified Ubuntu 24.04 base image details
-- **README.md:** Updated Docker deployment documentation
 
 ### Technical Details
 - Base image: `ubuntu:24.04` (noble) for all Dockerfiles

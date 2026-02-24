@@ -39,12 +39,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install code-server using official installation script
+# Security Note: This uses the official code-server install script from a trusted source.
+# While version pinning would be more secure, it adds maintenance burden.
+# Consider pinning to specific versions in production environments.
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Create coder user with home directory and sudo privileges
 RUN useradd -m -s /bin/bash coder \
     && usermod -aG sudo coder \
-    && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    && echo "coder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/coder \
+    && chmod 0440 /etc/sudoers.d/coder
 
 # Add coder to video and render groups for Tenstorrent device access
 # This is required for /dev/tenstorrent/* access on Koyeb N300 instances
@@ -63,6 +67,9 @@ RUN npm install -g @anthropic-ai/claude-code
 # Install Tenstorrent tools via tt-installer (container mode)
 # This installs: tt-smi, tt-flash, tt-topology, tt-inference-server, etc.
 # Note: Uses system-python initially, we'll create venv separately for tt-metal
+# Security Note: This uses the official tt-installer from Tenstorrent's GitHub releases.
+# Using 'latest' provides newest features but reduces reproducibility.
+# Consider pinning to specific release tags in production builds.
 RUN curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh | \
     bash -s -- \
     --mode-container \
@@ -76,10 +83,10 @@ RUN mkdir -p /home/coder/.local/share/code-server/extensions \
     && mkdir -p /home/coder/tt-scratchpad \
     && mkdir -p /home/coder/models
 
-# Clone tt-metal repository (latest, ready to code on, not built)
+# Clone tt-metal repository (pinned to validated version for reproducible builds)
 # This provides the source code for development and learning
 # Note: We clone but don't build - users should use tt-metalium containers for running code
-RUN git clone https://github.com/tenstorrent/tt-metal.git /home/coder/tt-metal \
+RUN git clone --depth 1 --branch v0.65.1 https://github.com/tenstorrent/tt-metal.git /home/coder/tt-metal \
     && chown -R coder:coder /home/coder/tt-metal
 
 # Initialize git submodules (required for tt-metal to work)

@@ -16,6 +16,7 @@ import { LessonRegistry } from '../utils';
 import { ProgressTracker } from '../state';
 import { MarkdownRenderer } from '../renderers';
 import { LessonMetadata } from '../types';
+import { getNonce } from '../utils/webview';
 
 /**
  * Message types for webview communication
@@ -194,7 +195,7 @@ export class LessonWebviewManager {
     cssUri: vscode.Uri,
     jsUri: vscode.Uri
   ): string {
-    const nonce = this.getNonce();
+    const nonce = getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -420,18 +421,6 @@ export class LessonWebviewManager {
         disposable.dispose();
       }
     }
-  }
-
-  /**
-   * Generate nonce for CSP
-   */
-  private getNonce(): string {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 32; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
   }
 
   /**
