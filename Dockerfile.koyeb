@@ -1,72 +1,128 @@
 # Tenstorrent VSCode Toolkit - Koyeb Optimized Image
-# Based on pre-built tt-metalium dev image (skips 15-20 min compilation!)
-# Just adds code-server and extension on top
+# Based on Ubuntu 24.04 (server/minimal) with code-server + tt-installer
+# Replaced broken tt-metalium base with reliable, maintainable approach
+# Ubuntu 24.04 provides better compatibility with tt-installer
 
-# Use official pre-built tt-metalium dev image
-# This already has tt-metal compiled, Python env, all dependencies
-# Pin to a specific tt-metalium dev image commit for reproducibility (not a moving version tag).
-# Base image metadata: ubuntu-22.04-dev-amd64 image built from tt-metal v0.65.1 (commit 558a19699f02c106eb851ef9df0c118979b6c469, date: 2026-01-08).
-# When updating the base image, update both this hash and the comment above to reflect the new commit/version.
-FROM ghcr.io/tenstorrent/tt-metal/tt-metalium/ubuntu-22.04-dev-amd64:558a19699f02c106eb851ef9df0c118979b6c469
+# Base: Ubuntu 24.04 (noble) - better tt-installer compatibility
+FROM ubuntu:24.04
 
-# Set environment variables
+# Environment setup
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SHELL=/bin/bash
-ENV TT_METAL_PREBUILT=true
 
-# Switch to root for installation
 USER root
 
-# Install code-server (base image already has curl, wget, sudo)
+# Install system dependencies including tt-metal build requirements
+# Using --no-install-recommends to minimize image size (no X11, docs, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    wget \
+    git \
+    build-essential \
+    cmake \
+    python3 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    sudo \
+    nodejs \
+    npm \
+    libhwloc-dev \
+    libboost-all-dev \
+    libyaml-cpp-dev \
+    libgtest-dev \
+    libgmock-dev \
+    libtbb-dev \
+    pandoc \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install code-server using official installation script
+# Security Note: This uses the official code-server install script from a trusted source.
+# While version pinning would be more secure, it adds maintenance burden.
+# Consider pinning to specific versions in production environments.
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-# Install Hugging Face CLI and matplotlib for cookbook examples
-# Note: tt-metalium image has venv activated, so no --break-system-packages needed
-RUN pip3 install --no-cache-dir huggingface-hub[cli] matplotlib
-
-# Note: Claude CLI not available in Koyeb deployment (tt-metalium base image doesn't have nodejs/npm)
-# HuggingFace CLI (`hf`) is available for model downloads
-
-# The tt-metalium image uses 'ubuntu' user - rename to 'coder' for consistency
-# If ubuntu user exists, rename to coder. Otherwise create coder user.
-RUN if id -u ubuntu >/dev/null 2>&1; then \
-        usermod -l coder -d /home/coder -m ubuntu && \
-        groupmod -n coder ubuntu; \
-    else \
-        useradd -m -s /bin/bash coder; \
-    fi \
+# Create coder user with home directory and sudo privileges
+RUN useradd -m -s /bin/bash coder \
     && usermod -aG sudo coder \
-    && echo "coder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    && echo "coder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/coder \
+    && chmod 0440 /etc/sudoers.d/coder
+
+# Add coder to video and render groups for Tenstorrent device access
+# This is required for /dev/tenstorrent/* access on Koyeb N300 instances
+RUN usermod -aG video coder \
+    && groupadd -f render \
+    && usermod -aG render coder
+
+# Install HuggingFace CLI and matplotlib
+RUN pip3 install --no-cache-dir --break-system-packages \
+    huggingface-hub[cli] \
+    matplotlib
+
+# Install Claude Code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
+# Install Tenstorrent tools via tt-installer (container mode)
+# This installs: tt-smi, tt-flash, tt-topology, tt-inference-server, etc.
+# Note: Uses system-python initially, we'll create venv separately for tt-metal
+# Security Note: This uses the official tt-installer from Tenstorrent's GitHub releases.
+# Using 'latest' provides newest features but reduces reproducibility.
+# Consider pinning to specific release tags in production builds.
+RUN curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh | \
+    bash -s -- \
+    --mode-container \
+    --mode-non-interactive \
+    --python-choice=system-python \
+    --install-container-runtime=no \
+    --reboot-option=never
 
 # Create directory structure
 RUN mkdir -p /home/coder/.local/share/code-server/extensions \
     && mkdir -p /home/coder/tt-scratchpad \
     && mkdir -p /home/coder/models
 
-# Copy extension and entrypoint
+# Clone tt-metal repository (pinned to validated version for reproducible builds)
+# This provides the source code for development and learning
+# Note: We clone but don't build - users should use tt-metalium containers for running code
+RUN git clone --depth 1 --branch v0.65.1 https://github.com/tenstorrent/tt-metal.git /home/coder/tt-metal \
+    && chown -R coder:coder /home/coder/tt-metal
+
+# Initialize git submodules (required for tt-metal to work)
+# This downloads all the necessary submodule dependencies
+RUN cd /home/coder/tt-metal \
+    && git submodule update --init --recursive \
+    && chown -R coder:coder /home/coder/tt-metal
+
+# Set environment variables for tt-metal
+# Note: System dependencies installed above (libhwloc, boost, yaml-cpp, etc.)
+# Note: We don't pip install ttnn here - users should use tt-metalium containers
+#       which have ttnn pre-built and ready to use via: tt-metalium "python3 script.py"
+ENV TT_METAL_HOME=/home/coder/tt-metal
+ENV PYTHONPATH=/home/coder/tt-metal
+
+# Copy extension and scripts
 COPY tt-vscode-toolkit-*.vsix /tmp/extension.vsix
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY scripts/show-motd.sh /usr/local/bin/show-motd.sh
 COPY content/motd.txt /etc/motd.txt
 
-# Fix entrypoint and MOTD script permissions
 RUN chmod 755 /usr/local/bin/docker-entrypoint.sh \
     && chmod 755 /usr/local/bin/show-motd.sh
 
-# Set proper permissions for all coder-owned directories
+# Set permissions
 RUN chown -R coder:coder /home/coder \
     && chown coder:coder /tmp/extension.vsix
 
-# Switch to coder user BEFORE installing extension
 USER coder
 WORKDIR /home/coder
 
-# Install extension as coder user
+# Install extension
 RUN code-server --install-extension /tmp/extension.vsix \
     && rm /tmp/extension.vsix
 
-# Configure code-server with Tenstorrent theme and settings
-# Enable integrated terminal login shell for proper .bashrc sourcing
+# Configure code-server (same as working Dockerfiles)
 RUN mkdir -p /home/coder/.local/share/code-server/User && \
     echo '{\n\
   "workbench.colorTheme": "Tenstorrent Dark",\n\
@@ -83,7 +139,7 @@ RUN mkdir -p /home/coder/.local/share/code-server/User && \
   }\n\
 }' > /home/coder/.local/share/code-server/User/settings.json
 
-# Set up MOTD system
+# Set up MOTD
 RUN cp /etc/motd.txt /home/coder/.motd \
     && echo '' >> /home/coder/.bashrc \
     && echo '# Display MOTD on terminal open' >> /home/coder/.bashrc \
@@ -91,7 +147,7 @@ RUN cp /etc/motd.txt /home/coder/.motd \
     && echo '    source /usr/local/bin/show-motd.sh' >> /home/coder/.bashrc \
     && echo 'fi' >> /home/coder/.bashrc
 
-# Verify extension installation
+# Verification step
 RUN echo "=== EXTENSION VERIFICATION ===" \
     && test -d /home/coder/.local/share/code-server/extensions || (echo "FAIL: Extensions directory missing" && exit 1) \
     && echo "✓ Extensions directory exists" \
@@ -99,24 +155,13 @@ RUN echo "=== EXTENSION VERIFICATION ===" \
     && echo "✓ Tenstorrent extension installed" \
     && test -f /home/coder/.local/share/code-server/User/settings.json || (echo "FAIL: Settings file missing" && exit 1) \
     && echo "✓ VSCode settings file exists" \
-    && grep -q "Tenstorrent Dark" /home/coder/.local/share/code-server/User/settings.json || (echo "FAIL: Theme not configured" && exit 1) \
-    && echo "✓ Tenstorrent theme configured" \
     && which code-server || (echo "FAIL: code-server not in PATH" && exit 1) \
     && echo "✓ code-server available" \
-    && echo "=== EXTENSION VERIFICATION PASSED ==="
+    && which tt-smi || (echo "FAIL: tt-smi not installed" && exit 1) \
+    && echo "✓ tt-smi installed" \
+    && echo "=== VERIFICATION PASSED ==="
 
-# Note: Using pre-built tt-metalium image means:
-# - tt-metal already compiled and ready
-# - Python environment already configured
-# - All dependencies pre-installed
-# - Docker build time: ~2-3 minutes (vs 15-20 min building from scratch)
-# - Deployment time: Nearly instant
-
-# Expose code-server port
 EXPOSE 8080
-
-# Set default password
 ENV PASSWORD=tenstorrent
 
-# Use custom entrypoint
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

@@ -1,9 +1,9 @@
 # Tenstorrent VSCode Toolkit - Full Development Image
-# Includes code-server + TT extension + tt-metal dependencies preinstalled
+# Based on Ubuntu 24.04 (server/minimal) with code-server + TT extension + tt-metal dependencies
 # This is a larger image but includes everything needed for development
 # Recommended tt-metal version: v0.65.1 (validated 2026-02-10)
 
-FROM codercom/code-server:latest
+FROM ubuntu:24.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -15,7 +15,9 @@ ENV PYTHONPATH=/home/coder/tt-metal
 USER root
 
 # Install system dependencies for tt-metal including Node.js for Claude CLI
-RUN apt-get update && apt-get install -y \
+# Using --no-install-recommends to minimize image size (no X11, docs, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
     wget \
     git \
@@ -37,6 +39,18 @@ RUN apt-get update && apt-get install -y \
     pandoc \
     software-properties-common \
     && rm -rf /var/lib/apt/lists/*
+
+# Install code-server using official installation script
+# Security Note: This uses the official code-server install script from a trusted source.
+# While version pinning would be more secure, it adds maintenance burden.
+# Consider pinning to specific versions in production environments.
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Create coder user with home directory and sudo privileges
+RUN useradd -m -s /bin/bash coder \
+    && usermod -aG sudo coder \
+    && echo "coder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/coder \
+    && chmod 0440 /etc/sudoers.d/coder
 
 # Install Python packages commonly needed
 # Note: --break-system-packages is safe in containers (PEP 668)
@@ -94,9 +108,6 @@ RUN cp /etc/motd.txt /home/coder/.motd \
     && echo 'if [ -f /usr/local/bin/show-motd.sh ]; then' >> /home/coder/.bashrc \
     && echo '    source /usr/local/bin/show-motd.sh' >> /home/coder/.bashrc \
     && echo 'fi' >> /home/coder/.bashrc
-
-# Add coder to sudoers
-RUN echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Set proper permissions
 RUN chown -R coder:coder /home/coder

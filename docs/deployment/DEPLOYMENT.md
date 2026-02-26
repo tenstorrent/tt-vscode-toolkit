@@ -64,23 +64,31 @@ docker run -it -p 8080:8080 -e PASSWORD=mypassword tt-vscode-toolkit:basic
 
 ## Image Variants
 
+All images are based on **Ubuntu 24.04 (noble) server variant** with code-server installed via the official installation script. Images use `--no-install-recommends` to minimize size (no X11, docs, or unnecessary packages).
+
 ### Basic Image (`Dockerfile`)
-- **Size:** ~500MB
+- **Size:** ~400-450MB
+- **Base:** Ubuntu 24.04 (server/minimal)
 - **Contents:** code-server + Tenstorrent extension
 - **Use case:** Lightweight deployment, remote development
 - **Build:** `docker build -t tt-vscode-toolkit:basic .`
 
 ### Full Image (`Dockerfile.full`)
-- **Size:** ~2GB
+- **Size:** ~1.8GB
+- **Base:** Ubuntu 24.04 (server/minimal)
 - **Contents:** code-server + extension + tt-metal dependencies
 - **Use case:** Complete development environment with all tools
 - **Build:** `docker build -f Dockerfile.full -t tt-vscode-toolkit:full .`
 
 ### Koyeb Image (`Dockerfile.koyeb`)
-- **Size:** ~800MB
-- **Contents:** Optimized for Koyeb cloud deployment
-- **Use case:** Koyeb cloud platform
+- **Size:** ~2-2.5GB
+- **Base:** Ubuntu 24.04 (server/minimal, better tt-installer compatibility)
+- **Contents:** code-server + extension + tt-installer tools (tt-smi, tt-flash, etc.)
+- **Use case:** Koyeb cloud platform with N300 hardware
 - **Build:** `docker build -f Dockerfile.koyeb -t tt-vscode-toolkit:koyeb .`
+- **Note:** Uses tt-installer with `--mode-container` to install Tenstorrent tools
+
+**Optimization:** All images use `--no-install-recommends` flag to avoid installing X11 libraries, documentation, and other bloat.
 
 ## Environment Variables
 

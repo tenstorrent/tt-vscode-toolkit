@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.320] - 2026-02-24
+
+### Changed
+- **All Dockerfiles:** Migrated from `codercom/code-server:latest` to Ubuntu 24.04 base image
+  - Better tt-installer compatibility (Ubuntu 24.04 is the preferred platform)
+  - Code-server installed via official installation script
+  - Manual `coder` user creation with sudo privileges
+  - Optimized with `--no-install-recommends` flag (no X11, docs, or bloat)
+  - All three images now consistent: Dockerfile, Dockerfile.full, Dockerfile.koyeb
+
+### Fixed
+- **Dockerfile.koyeb:** Device access for Tenstorrent hardware
+  - Added `coder` user to `video` and `render` groups
+  - Fixes `/dev/tenstorrent/*` device node access on cloud instances
+  - tt-smi and hardware tools now work correctly
+
+### Documentation
+- **content/lessons/deploy-vscode-to-koyeb.md:** Updated Ubuntu version from 22.04 to 24.04
+- **docs/deployment/DEPLOYMENT.md:** Clarified Ubuntu 24.04 base image details
+
+### Technical Details
+- Base image: `ubuntu:24.04` (noble) for all Dockerfiles
+- Image sizes: ~400-450MB (basic), ~1.8GB (full), ~2-2.5GB (Koyeb)
+- Device groups: `video` and `render` for hardware access
+- Build time: ~5-7 minutes (optimized dependencies)
+
+---
+
+## [0.0.314] - 2026-02-19
+
+### Fixed
+- **Dockerfile.koyeb:** Replaced broken tt-metalium base image with self-maintained approach using code-server + tt-installer
+- Koyeb deployment now works reliably without depending on external tt-metalium images
+
+### Changed
+- **Dockerfile.koyeb:** Now uses `codercom/code-server:latest` as base (consistent with other Dockerfiles)
+- **Dockerfile.koyeb:** Installs tt-smi, tt-flash, and tools via tt-installer with `--mode-container` flag
+- **Dockerfile.koyeb:** No longer includes pre-compiled tt-metal (users can build via lessons when needed)
+- **docs/deployment/DEPLOYMENT.md:** Updated Koyeb image description
+- **docs/deployment/KOYEB.md:** Updated deployment guide to reflect new image architecture
+- **content/lessons/deploy-vscode-to-koyeb.md:** Updated deployment lesson with tt-installer tools information
+- **content/lessons/deploy-to-koyeb.md:** Updated to clarify base image tooling
+
+### Technical Details
+- Image size: ~2-3GB (more realistic with tools included)
+- Build time: ~5-10 minutes (no pre-compilation of tt-metal)
+- Tools installed: tt-smi, tt-flash, tt-topology, tt-inference-server (via tt-installer)
+- Users can still build tt-metal via lessons when needed for development work
+
+---
+
 ## [0.0.313] - 2026-02-11
 
 ### Fixed

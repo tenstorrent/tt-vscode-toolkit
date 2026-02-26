@@ -505,7 +505,7 @@ In **Lesson 12: TT-Metalium Cookbook**, you'll apply these concepts by building 
 
 Each project includes full source code, extensions, and VS Code integration!
 
-[🚀 Continue to Lesson 12](command:tenstorrent.openLesson12)
+[🚀 Continue to JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])
 
 ---
 

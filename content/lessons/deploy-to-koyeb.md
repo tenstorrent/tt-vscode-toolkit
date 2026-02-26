@@ -104,7 +104,7 @@ CMD ["/bin/bash", "-c", "source vllm/vllm-env/bin/activate && python -m vllm.ent
 - ✅ 50% fewer lines (was ~60, now ~30)
 - ✅ No need to set up base system (Ubuntu, apt repos, users, permissions)
 - ✅ HuggingFace CLI (`hf`) pre-installed
-- ✅ tt-smi pre-installed
+- ✅ Tenstorrent tools pre-installed (via tt-installer: `tt-smi`, `tt-flash`, etc.)
 - ✅ All hardware permissions configured
 - ✅ Just add your app!
 

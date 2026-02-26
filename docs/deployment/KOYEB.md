@@ -335,6 +335,7 @@ When your container starts, you'll see:
 
   ✅ VSCode in your browser (code-server)
   ✅ Tenstorrent extension pre-installed
+  ✅ Tenstorrent tools (tt-smi, tt-flash, via tt-installer)
   ✅ 16 interactive hardware lessons
   ✅ Production deployment guides
   ✅ Template scripts and examples

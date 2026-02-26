@@ -186,20 +186,25 @@ Your cloud IDE includes:
 **Software Stack:**
 - Ubuntu 24.04 (noble)
 - code-server (VSCode in browser)
-- tt-smi v3.1.1+ (hardware monitoring)
+- Tenstorrent tools installed via tt-installer (container mode)
 - Tenstorrent VSCode extension
-- Git, Python 3.12, build tools
+- Git, Python 3, build tools
 
 **Hardware:**
 - Tenstorrent N300 (2x Wormhole chips)
 - Device access via `/dev/tenstorrent/0` and `/dev/tenstorrent/1`
 
-**CLI Tools:**
-- `hf` - HuggingFace CLI for downloading models
-- `claude` - Claude Code CLI for AI-assisted development (requires ANTHROPIC_API_KEY)
+**CLI Tools (via tt-installer):**
 - `tt-smi` - Tenstorrent hardware monitoring
+- `tt-flash` - Firmware update tool
+- `tt-topology` - Hardware topology detection
+- `tt-inference-server` - Production inference server
+- `hf` - HuggingFace CLI for downloading models
+- `claude` - Claude Code CLI for AI-assisted development
 - Standard dev tools (git, python3, npm, etc.)
 - Full hardware permissions configured
+
+**Note:** tt-metal can be built via lessons when needed (not pre-installed)
 
 **Configuration:**
 - Auto-configured theme (Tenstorrent Dark)
@@ -358,12 +363,13 @@ koyeb deploy . tt-vscode-toolkit/vscode \
 - Deploy your custom image: Use `--docker myimage:latest` instead
 
 The published image includes:
+- code-server (VSCode in browser)
+- Tenstorrent tools installed via tt-installer (`tt-smi`, `tt-flash`, etc.)
 - HuggingFace CLI (`hf`)
 - Claude CLI (`claude`)
-- tt-smi
 - All hardware permissions configured
 - MOTD system for terminal welcome messages
-- tt-metal can be built via lessons (one-time setup)
+- tt-metal can be built via lessons when needed (not pre-installed)
 
 **Build locally and deploy:**
 

@@ -1,9 +1,9 @@
 # Tenstorrent VSCode Toolkit - Docker Image
-# Based on code-server for browser-based VSCode experience
+# Based on Ubuntu 24.04 (server/minimal) with code-server for browser-based VSCode experience
 # Includes Tenstorrent extension preinstalled
 # Recommended tt-metal version: v0.65.1 (validated 2026-02-10)
 
-FROM codercom/code-server:latest
+FROM ubuntu:24.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,7 +13,9 @@ ENV SHELL=/bin/bash
 USER root
 
 # Install system dependencies including Node.js for Claude CLI
-RUN apt-get update && apt-get install -y \
+# Using --no-install-recommends to minimize image size (no X11, docs, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
     wget \
     git \
@@ -25,6 +27,18 @@ RUN apt-get update && apt-get install -y \
     nodejs \
     npm \
     && rm -rf /var/lib/apt/lists/*
+
+# Install code-server using official installation script
+# Security Note: This uses the official code-server install script from a trusted source.
+# While version pinning would be more secure, it adds maintenance burden.
+# Consider pinning to specific versions in production environments.
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Create coder user with home directory and sudo privileges
+RUN useradd -m -s /bin/bash coder \
+    && usermod -aG sudo coder \
+    && echo "coder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/coder \
+    && chmod 0440 /etc/sudoers.d/coder
 
 # Install HuggingFace CLI and matplotlib for cookbook examples
 # Note: --break-system-packages is safe in containers (PEP 668)
