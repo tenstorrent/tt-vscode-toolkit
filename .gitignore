@@ -15,3 +15,8 @@ vendor/
 
 assets/.DS_Store
 
+# TT-Metal model cache files (large binary files)
+*.tensorbin
+model_cache/
+tensor_cache*/
+
