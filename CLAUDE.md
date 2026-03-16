@@ -82,8 +82,13 @@ Content...
 npm install           # Install dependencies
 npm run build         # Compile TS → dist/
 npm run watch         # Auto-recompile on changes
-npm run package       # Create .vsix
+npm run package       # Create .vsix (auto-adds -dev suffix for non-main branches)
 ```
+
+**Packaging Behavior:**
+- **main/master branch:** `tt-vscode-toolkit-X.Y.Z.vsix` (production)
+- **Other branches:** `tt-vscode-toolkit-X.Y.Z-dev.vsix` (development)
+- Implemented in `scripts/package-extension.js` for easy identification of dev builds
 
 ## ⚠️ NO BUNDLING (esbuild/webpack)
 
