@@ -1,16 +1,14 @@
 /**
- * EnvironmentManager - Manages Python environments for each terminal
+ * EnvironmentManager - Manages Python environments for manual activation
  *
  * Features:
- * - Tracks which environment is active in each terminal
- * - Auto-activates correct environment when terminal is created
- * - Allows manual switching via command palette
+ * - Allows manual environment switching via command palette
+ * - Tracks environment state for active terminals
  *
- * This solves the "environment drift" problem where users lose track
- * of which Python venv is active.
- *
- * Note: Status bar display has been removed to reduce clutter. Environment
- * switching is still available via command palette.
+ * Note: Automatic environment activation has been removed in favor of
+ * simple terminal management. Environments are now activated manually
+ * via command palette (Tenstorrent: Switch Environment) or included
+ * directly in command strings.
  */
 
 import * as vscode from 'vscode';
@@ -44,19 +42,20 @@ export class EnvironmentManager {
   }
 
   /**
-   * Track terminal for environment status (does NOT auto-activate)
+   * Track terminal for environment status (NO-OP)
    *
-   * @param terminal - Terminal to track
-   * @param terminalContext - Terminal context (determines environment)
+   * Note: This is now a no-op as we've simplified terminal management.
+   * Environment activation is manual (via command palette) or included in command strings.
+   *
+   * @param _terminal - Terminal to track (unused)
+   * @param _terminalContext - Terminal context (unused)
    */
   trackTerminal(
-    terminal: vscode.Terminal,
-    terminalContext: TerminalContext
+    _terminal: vscode.Terminal,
+    _terminalContext: TerminalContext
   ): void {
-    const envConfig = ENVIRONMENT_REGISTRY[terminalContext];
-
-    // Store environment info
-    this.activeEnvironments.set(terminal, envConfig);
+    // No-op - we no longer track terminals automatically
+    // Users can manually switch environments using the command palette
   }
 
   /**
