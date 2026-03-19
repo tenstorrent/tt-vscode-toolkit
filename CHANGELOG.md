@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.329] - 2026-03-19
+
+### Security
+- **Dependency Security Updates** - Updated vulnerable packages (10 → 2 vulnerabilities)
+  - **HIGH**: Updated `serialize-javascript` 6.0.2 → 7.0.4 (RCE vulnerability)
+  - **HIGH**: Updated `undici` 7.16.0 → 7.24.4 (WebSocket crash, HTTP smuggling, CRLF injection)
+  - **HIGH**: Updated `minimatch` to patched versions (v3.1.5, v9.0.9, v10.2.4) via version-specific overrides (ReDoS vulnerabilities)
+  - **HIGH**: Updated `underscore` → 1.13.8 (DoS vulnerability)
+  - **MEDIUM**: Updated `dompurify` 3.3.1 → 3.3.3 (XSS vulnerability)
+  - **MEDIUM**: Updated `ajv` → 8.18.0 (ReDoS vulnerability)
+  - **MEDIUM**: Updated `markdown-it` → 14.1.1 (ReDoS vulnerability)
+  - **LOW**: Updated `qs` 6.14.1 → 6.15.0 (DoS vulnerability)
+- **Remaining**: 2 low severity vulnerabilities in `diff` (dev dependency, requires breaking mocha downgrade)
+
+### Changed
+- **npm overrides**: Added version-specific overrides for `minimatch` to respect semver compatibility while applying security patches
+- **npm overrides**: Added overrides for `serialize-javascript`, `undici`, and updated `qs` minimum version
+
+---
+
 ## [0.0.328] - 2026-03-19
 
 ### Fixed

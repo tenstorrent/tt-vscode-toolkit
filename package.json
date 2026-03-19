@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
   "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
-  "version": "0.0.328",
+  "version": "0.0.329",
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
@@ -600,7 +600,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.6.2",
     "@types/vscode": "^1.93.0",
-    "@vscode/vsce": "^3.6.2",
+    "@vscode/vsce": "^3.7.1",
     "chai": "^4.5.0",
     "esbuild": "^0.27.2",
     "husky": "^9.1.7",
@@ -611,7 +611,7 @@
     "typescript": "^5.4.0"
   },
   "dependencies": {
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.3.3",
     "gray-matter": "^4.0.3",
     "isomorphic-dompurify": "^2.34.0",
     "jsdom": "^27.3.0",
@@ -621,6 +621,11 @@
   "overrides": {
     "lodash": ">=4.17.23",
     "lodash-es": ">=4.17.23",
-    "qs": ">=6.14.1"
+    "qs": ">=6.14.2",
+    "serialize-javascript": ">=7.0.3",
+    "undici": ">=7.24.0",
+    "minimatch@<4": "^3.1.4",
+    "minimatch@9": "^9.0.7",
+    "minimatch@10": "^10.2.4"
   }
 }
