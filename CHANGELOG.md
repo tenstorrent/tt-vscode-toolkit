@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.331] - 2026-03-19
+
+### Changed
+- **Cookbook Lessons**: Removed "Next Recipe" navigation links from 4 cookbook lessons
+  - Removed from cookbook-audio-processor.md, cookbook-game-of-life.md, cookbook-image-filters.md, cookbook-mandelbrot.md
+  - Kept "Return to Cookbook Overview" links (still useful for navigation)
+  - Next/previous lesson navigation doesn't work well in walkthrough UI
+
+---
+
 ## [0.0.330] - 2026-03-19
 
 ### Fixed

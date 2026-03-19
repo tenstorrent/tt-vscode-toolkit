@@ -362,6 +362,4 @@ Combine multiple exposures.
 - ✅ **Image processing**: From edge detection to artistic effects
 - ✅ **Foundation for CV models**: Same techniques in ResNet50, MobileNetV2, ViT
 
-**Next Recipe:** Ready for emergent complexity? Try [Recipe 5: Particle Life Simulator](command:tenstorrent.showLesson?["cookbook-particle-life"])
-
-**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])
+[Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])
