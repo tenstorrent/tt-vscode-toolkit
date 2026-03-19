@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.330] - 2026-03-19
+
+### Fixed
+- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson (qb2-openclaw-assistant.md:993)
+
+---
+
 ## [0.0.329] - 2026-03-19
 
 ### Security

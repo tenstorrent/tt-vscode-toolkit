@@ -990,7 +990,6 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 - OpenClaw GitHub: https://github.com/OpenClawIO/openclaw
 
 **Support:**
-- QB2 FAQ: [QB2 Overview](command:tenstorrent.showLesson?["qb2-faq"])
 - Hardware Detection: [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])
 - Model Deployment: [Deploy Models](command:tenstorrent.showLesson?["model-deployment"])
 
