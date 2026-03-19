@@ -102,7 +102,7 @@ free -h
 # Should show: ~236 GB total
 ```
 
-[🔍 Check QB2 Hardware](command:tenstorrent.runCommand?["tt-smi -s"])
+**🔍 Check QB2 Hardware**
 
 ### Software Requirements
 
@@ -168,7 +168,7 @@ python3 run.py \
     --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
 ```
 
-[🚀 Deploy 70B Model](command:tenstorrent.deploy70B)
+**🚀 Deploy 70B Model**
 
 ### Critical Flags Explained
 
@@ -258,7 +258,7 @@ curl http://localhost:8000/v1/completions \
   }'
 ```
 
-[✅ Test vLLM](command:tenstorrent.testVLLM)
+**✅ Test vLLM**
 
 ---
 
@@ -281,7 +281,7 @@ ls -la
 # docs/       - Documentation and troubleshooting guides
 ```
 
-[📦 Clone tt-claw](command:tenstorrent.cloneTTClaw)
+**📦 Clone tt-claw**
 
 ### Understanding the Structure
 
@@ -333,7 +333,7 @@ EOF
 chmod +x ~/openclaw/openclaw.sh
 ```
 
-[📥 Install OpenClaw](command:tenstorrent.installOpenClaw)
+**📥 Install OpenClaw**
 
 ---
 
@@ -428,7 +428,7 @@ ps aux | grep vllm-proxy
 # Should show: python3 proxy/vllm-proxy.py
 ```
 
-[🔄 Start Proxy](command:tenstorrent.startProxy)
+**🔄 Start Proxy**
 
 **What the proxy does:**
 1. Listens on port 8001
@@ -467,7 +467,7 @@ cd ~/openclaw
 # [gateway] listening on ws://127.0.0.1:18789
 ```
 
-[⚡ Start Gateway](command:tenstorrent.startGateway)
+**⚡ Start Gateway**
 
 **First startup takes 1-2 minutes:**
 - Downloads local embedding models (~500 MB one-time)
@@ -498,7 +498,7 @@ cd ~/openclaw
 # TUI interface should appear
 ```
 
-[💬 Launch TUI](command:tenstorrent.launchTUI)
+**💬 Launch TUI**
 
 ---
 

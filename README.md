@@ -214,10 +214,11 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **JAX Inference with TT-XLA** — *draft*
 
 ### 🎯 Applications
-*2 lessons, 1 validated*
+*3 lessons, 2 validated*
 
 - **Coding Assistant with Prompt Engineering** — *draft*
 - **Native Video Animation with AnimateDiff** — `N150`
+- **OpenClaw AI Assistant on QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
 *3 lessons, 1 validated*

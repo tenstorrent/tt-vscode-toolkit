@@ -2,8 +2,8 @@
 
 /**
  * Package extension with appropriate filename based on branch
- * - main branch: tt-vscode-toolkit-0.0.332.vsix
- * - other branches: tt-vscode-toolkit-0.0.332-dev.vsix
+ * - main branch: tt-vscode-toolkit-X.Y.Z.vsix
+ * - other branches: tt-vscode-toolkit-X.Y.Z-dev.vsix
  */
 
 const { execSync } = require('child_process');

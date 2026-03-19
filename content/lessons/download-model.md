@@ -238,7 +238,7 @@ This command will execute:
 ```bash
 cd "/path/to/tt-metal" && \
   export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct" && \
-  export LLAMA_DIR="~/models/Llama-3.1-8B-Instruct/original" && \
+  export LLAMA_DIR="$HOME/models/Llama-3.1-8B-Instruct/original" && \
   export PYTHONPATH=$(pwd) && \
   pytest models/tt_transformers/demo/simple_text_demo.py \
     -k performance-batch-1 \
