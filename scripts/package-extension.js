@@ -17,17 +17,37 @@ const packageJson = JSON.parse(
 
 const { name, version } = packageJson;
 
-// Get current branch
+// Get current branch, handling CI/detached HEAD scenarios
 let branch = 'unknown';
-try {
-  branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
-} catch (error) {
-  console.warn('⚠️  Could not detect git branch, assuming dev build');
-  branch = 'dev';
+let isRelease = false;
+
+// Check GitHub Actions environment variables first
+if (process.env.GITHUB_REF_TYPE === 'tag' || process.env.GITHUB_REF_NAME === 'main' || process.env.GITHUB_REF_NAME === 'master') {
+  branch = process.env.GITHUB_REF_NAME || 'main';
+  isRelease = true;
+} else {
+  try {
+    // Try to detect if we're on a tag (release build)
+    execSync('git describe --exact-match --tags', { encoding: 'utf8', stdio: 'pipe' });
+    isRelease = true;
+    branch = 'tag';
+  } catch (tagError) {
+    // Not on a tag, try to get current branch
+    try {
+      branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+      // Empty string means detached HEAD
+      if (!branch) {
+        branch = 'detached-head';
+      }
+    } catch (error) {
+      console.warn('⚠️  Could not detect git branch, assuming dev build');
+      branch = 'dev';
+    }
+  }
 }
 
 // Determine if this is a dev build
-const isMainBranch = branch === 'main' || branch === 'master';
+const isMainBranch = branch === 'main' || branch === 'master' || isRelease;
 const suffix = isMainBranch ? '' : '-dev';
 
 // Build filename

@@ -1030,14 +1030,17 @@ async function startApiServer(): Promise<void> {
  * This is Step 5d in the walkthrough - HTTP API Server
  */
 function testApiBasic(): void {
-  // Use a different terminal for testing so we don't interfere with the server
-  const terminal = getOrCreateSimpleTerminal();
+  // Create a dedicated terminal for testing so we don't interfere with the server
+  const terminal = vscode.window.createTerminal({
+    name: 'API Test',
+    cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+  });
   const command = TERMINAL_COMMANDS.TEST_API_BASIC.template;
 
   runInTerminal(terminal, command);
 
   vscode.window.showInformationMessage(
-    '🧪 Testing API with basic query. Check the terminal for the response!'
+    '🧪 Testing API with basic query. Check the "API Test" terminal for the response!'
   );
 }
 
@@ -1048,14 +1051,17 @@ function testApiBasic(): void {
  * This is Step 5e in the walkthrough - HTTP API Server
  */
 function testApiMultiple(): void {
-  // Use a different terminal for testing so we don't interfere with the server
-  const terminal = getOrCreateSimpleTerminal();
+  // Create a dedicated terminal for testing so we don't interfere with the server
+  const terminal = vscode.window.createTerminal({
+    name: 'API Test',
+    cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+  });
   const command = TERMINAL_COMMANDS.TEST_API_MULTIPLE.template;
 
   runInTerminal(terminal, command);
 
   vscode.window.showInformationMessage(
-    '🧪 Testing API with multiple queries. Check the terminal for the responses!'
+    '🧪 Testing API with multiple queries. Check the "API Test" terminal for the responses!'
   );
 }
 

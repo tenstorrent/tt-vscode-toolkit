@@ -7,25 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.0.323] - 2026-03-19
+## [0.0.328] - 2026-03-19
 
 ### Fixed
-- **PR #18 Review Comments** - Addressed 11 Copilot review comments
-  - Fixed duplicate version entry in CHANGELOG.md (0.0.321 → 0.0.322)
+- **PR #18 Review Comments** - Addressed all Copilot review comments
+  - Fixed duplicate version entries in CHANGELOG.md
+  - Fixed version ordering inconsistency in CHANGELOG.md
   - Fixed hard-coded version examples in `scripts/package-extension.js` (now uses X.Y.Z placeholder)
   - Fixed 8 broken command links in OpenClaw lesson (`qb2-openclaw-assistant.md`) - converted to plain markdown
   - Fixed bash tilde expansion bug in download-model lesson (changed `~/models` to `$HOME/models`)
 
 ---
 
-## [0.0.322] - 2026-03-19
+## [0.0.327] - 2026-03-19
 
 ### Added
 - **FAQ Entry: System Suspend Behavior** - Added documentation about what happens to running jobs and hardware utilization when a system suspends or resumes
 
 ---
 
-## [0.0.320] - 2026-01-19
+## [0.0.319] - 2026-01-19
 
 ### Added
 - **QB2 Demos Cohesive Setup System:** Unified environment management for all QB2 demos

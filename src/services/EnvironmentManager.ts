@@ -42,23 +42,6 @@ export class EnvironmentManager {
   }
 
   /**
-   * Track terminal for environment status (NO-OP)
-   *
-   * Note: This is now a no-op as we've simplified terminal management.
-   * Environment activation is manual (via command palette) or included in command strings.
-   *
-   * @param _terminal - Terminal to track (unused)
-   * @param _terminalContext - Terminal context (unused)
-   */
-  trackTerminal(
-    _terminal: vscode.Terminal,
-    _terminalContext: TerminalContext
-  ): void {
-    // No-op - we no longer track terminals automatically
-    // Users can manually switch environments using the command palette
-  }
-
-  /**
    * Set environment for a terminal (manually activates)
    *
    * @param terminal - Terminal to set environment for
