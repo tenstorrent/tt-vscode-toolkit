@@ -564,6 +564,27 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 - Even small changes (single line fixes) require version bump
 - **Rule:** After completing ANY bugfix, content change, or series of alterations → increment version → rebuild → repackage
 
+### CHANGELOG Best Practices
+
+**⚠️ AVOID line number references in CHANGELOG entries:**
+- Line numbers drift as code changes, making historical references incorrect
+- Instead, describe the change with sufficient context (function names, feature areas, file names)
+- Use git blame or PR links for exact historical context when needed
+
+**Good examples:**
+- ✅ "Fixed terminal accumulation in API test commands by adding reusable terminal helper"
+- ✅ "Removed broken FAQ link from OpenClaw QB2 assistant walkthrough"
+- ✅ "Updated default terminal name to match environment registry for proper detection"
+
+**Bad examples:**
+- ❌ "Fixed bug in extension.ts:1057, 1075" (line numbers will drift)
+- ❌ "Updated qb2-openclaw-assistant.md:993" (too specific, will become outdated)
+
+**Rationale:**
+- CHANGELOG is long-lived documentation read months/years later
+- Line numbers are accurate only at time of writing
+- Descriptive context remains useful even as code evolves
+
 ### Historical Note
 
 Prior to v0.0.268, this file contained extensive changelog entries spanning 500+ lines. This has been consolidated to improve maintainability and reduce duplication. All historical version information remains available in `CHANGELOG.md`.

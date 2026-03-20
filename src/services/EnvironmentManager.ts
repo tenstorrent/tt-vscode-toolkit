@@ -7,7 +7,7 @@
  *
  * Note: Automatic environment activation has been removed in favor of
  * simple terminal management. Environments are now activated manually
- * via command palette (Tenstorrent: Switch Environment) or included
+ * via command palette (Tenstorrent: Select Python Environment) or included
  * directly in command strings.
  */
 

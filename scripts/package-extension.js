@@ -6,7 +6,7 @@
  * - other branches: tt-vscode-toolkit-X.Y.Z-dev.vsix
  */
 
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -61,7 +61,7 @@ console.log('');
 
 // Run vsce package with custom filename
 try {
-  execSync(`vsce package --out ${filename}`, { stdio: 'inherit' });
+  execFileSync('vsce', ['package', '--out', filename], { stdio: 'inherit' });
   console.log('');
   console.log(`✅ Package created: ${filename}`);
 } catch (error) {

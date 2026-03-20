@@ -2,7 +2,7 @@
  * Python environment configuration for Tenstorrent
  *
  * This module defines Python environments available for manual activation.
- * Users can switch environments via command palette (Tenstorrent: Switch Environment).
+ * Users can switch environments via command palette (Tenstorrent: Select Python Environment).
  */
 
 /**

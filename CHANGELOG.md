@@ -7,10 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.333] - 2026-03-20
+
+### Fixed
+- **Command Name Documentation**: Corrected command references in code comments
+  - Updated EnvironmentConfig.ts and EnvironmentManager.ts to reference correct command name "Tenstorrent: Select Python Environment" (was incorrectly documented as "Switch Environment")
+- **Terminal Detection**: Fixed default terminal name to match environment registry
+  - Changed default terminal name from "TT: Metal" to "TT-Metal" to match ENVIRONMENT_REGISTRY displayName
+  - Enables proper terminal detection by EnvironmentManager.detectActiveEnvironment()
+- **CHANGELOG Documentation**: Removed line number references from recent changelog entries
+  - Line numbers drift as code changes, making historical references incorrect
+  - Updated entries for v0.0.332 and v0.0.330 to use descriptive context instead
+
+### Security
+- **Command Injection Prevention**: Replaced execSync with execFileSync in package-extension.js
+  - Changed from string interpolation to array argument approach
+  - Prevents potential command injection vulnerabilities
+  - More robust against special characters in filenames
+
+### Documentation
+- **CHANGELOG Best Practices**: Added guidelines to CLAUDE.md about avoiding line numbers in changelog entries
+  - Documents rationale for descriptive context over line number references
+  - Provides good/bad examples for future changelog entries
+  - Ensures long-term maintainability of changelog documentation
+
+---
+
 ## [0.0.332] - 2026-03-19
 
 ### Fixed
-- **API Test Terminal Reuse**: Fixed terminal accumulation issue in API test commands (extension.ts:1057, 1075)
+- **API Test Terminal Reuse**: Fixed terminal accumulation issue in API test commands
   - Added `getOrCreateApiTestTerminal()` helper function to reuse existing "API Test" terminal
   - `testApiBasic()` and `testApiMultiple()` now reuse existing terminal instead of creating new ones
   - Prevents terminal clutter from repeated test runs
@@ -31,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.330] - 2026-03-19
 
 ### Fixed
-- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson (qb2-openclaw-assistant.md:993)
+- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson in OpenClaw QB2 assistant walkthrough
 
 ---
 

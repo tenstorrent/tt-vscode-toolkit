@@ -4671,7 +4671,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Create a persistent tt-metal terminal on activation (most common use case)
   // This terminal stays open and can be reused for tt-metal commands
   const defaultTerminal = vscode.window.createTerminal({
-    name: 'TT: Metal',
+    name: 'TT-Metal',
     cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
   });
   // Show the terminal by default for better UX
