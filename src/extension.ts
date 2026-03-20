@@ -176,6 +176,29 @@ function getOrCreateSimpleTerminal(): vscode.Terminal {
 }
 
 /**
+ * Gets or creates a dedicated "API Test" terminal for API testing commands.
+ * Reuses an existing "API Test" terminal if found to avoid terminal clutter.
+ *
+ * @returns Existing or newly created "API Test" terminal instance
+ */
+function getOrCreateApiTestTerminal(): vscode.Terminal {
+  // Look for an existing "API Test" terminal
+  const existingTerminal = vscode.window.terminals.find(
+    (t) => t.name === 'API Test'
+  );
+
+  if (existingTerminal) {
+    return existingTerminal;
+  }
+
+  // Create a new dedicated API test terminal
+  return vscode.window.createTerminal({
+    name: 'API Test',
+    cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+  });
+}
+
+/**
  * Executes a command in the specified terminal.
  * Shows the terminal to the user so they can see the output.
  * Uses preserveFocus: false to ensure terminal is visible and focused.
@@ -1030,11 +1053,8 @@ async function startApiServer(): Promise<void> {
  * This is Step 5d in the walkthrough - HTTP API Server
  */
 function testApiBasic(): void {
-  // Create a dedicated terminal for testing so we don't interfere with the server
-  const terminal = vscode.window.createTerminal({
-    name: 'API Test',
-    cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
-  });
+  // Get or reuse dedicated API test terminal to avoid terminal clutter
+  const terminal = getOrCreateApiTestTerminal();
   const command = TERMINAL_COMMANDS.TEST_API_BASIC.template;
 
   runInTerminal(terminal, command);
@@ -1051,11 +1071,8 @@ function testApiBasic(): void {
  * This is Step 5e in the walkthrough - HTTP API Server
  */
 function testApiMultiple(): void {
-  // Create a dedicated terminal for testing so we don't interfere with the server
-  const terminal = vscode.window.createTerminal({
-    name: 'API Test',
-    cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
-  });
+  // Get or reuse dedicated API test terminal to avoid terminal clutter
+  const terminal = getOrCreateApiTestTerminal();
   const command = TERMINAL_COMMANDS.TEST_API_MULTIPLE.template;
 
   runInTerminal(terminal, command);

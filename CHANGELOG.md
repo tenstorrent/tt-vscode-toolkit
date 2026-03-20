@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.332] - 2026-03-19
+
+### Fixed
+- **API Test Terminal Reuse**: Fixed terminal accumulation issue in API test commands (extension.ts:1057, 1075)
+  - Added `getOrCreateApiTestTerminal()` helper function to reuse existing "API Test" terminal
+  - `testApiBasic()` and `testApiMultiple()` now reuse existing terminal instead of creating new ones
+  - Prevents terminal clutter from repeated test runs
+  - Addresses Copilot review comments about terminal management
+
+---
+
 ## [0.0.331] - 2026-03-19
 
 ### Changed
