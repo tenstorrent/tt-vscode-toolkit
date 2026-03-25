@@ -7,6 +7,389 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.333] - 2026-03-20
+
+### Fixed
+- **Command Name Documentation**: Corrected command references in code comments
+  - Updated EnvironmentConfig.ts and EnvironmentManager.ts to reference correct command name "Tenstorrent: Select Python Environment" (was incorrectly documented as "Switch Environment")
+- **Terminal Detection**: Fixed default terminal name to match environment registry
+  - Changed default terminal name from "TT: Metal" to "TT-Metal" to match ENVIRONMENT_REGISTRY displayName
+  - Enables proper terminal detection by EnvironmentManager.detectActiveEnvironment()
+- **CHANGELOG Documentation**: Removed line number references from recent changelog entries
+  - Line numbers drift as code changes, making historical references incorrect
+  - Updated entries for v0.0.332 and v0.0.330 to use descriptive context instead
+
+### Security
+- **Command Injection Prevention**: Replaced execSync with execFileSync in package-extension.js
+  - Changed from string interpolation to array argument approach
+  - Prevents potential command injection vulnerabilities
+  - More robust against special characters in filenames
+
+### Documentation
+- **CHANGELOG Best Practices**: Added guidelines to CLAUDE.md about avoiding line numbers in changelog entries
+  - Documents rationale for descriptive context over line number references
+  - Provides good/bad examples for future changelog entries
+  - Ensures long-term maintainability of changelog documentation
+
+---
+
+## [0.0.332] - 2026-03-19
+
+### Fixed
+- **API Test Terminal Reuse**: Fixed terminal accumulation issue in API test commands
+  - Added `getOrCreateApiTestTerminal()` helper function to reuse existing "API Test" terminal
+  - `testApiBasic()` and `testApiMultiple()` now reuse existing terminal instead of creating new ones
+  - Prevents terminal clutter from repeated test runs
+  - Addresses Copilot review comments about terminal management
+
+---
+
+## [0.0.331] - 2026-03-19
+
+### Changed
+- **Cookbook Lessons**: Removed "Next Recipe" navigation links from 4 cookbook lessons
+  - Removed from cookbook-audio-processor.md, cookbook-game-of-life.md, cookbook-image-filters.md, cookbook-mandelbrot.md
+  - Kept "Return to Cookbook Overview" links (still useful for navigation)
+  - Next/previous lesson navigation doesn't work well in walkthrough UI
+
+---
+
+## [0.0.330] - 2026-03-19
+
+### Fixed
+- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson in OpenClaw QB2 assistant walkthrough
+
+---
+
+## [0.0.329] - 2026-03-19
+
+### Security
+- **Dependency Security Updates** - Updated vulnerable packages (10 → 2 vulnerabilities)
+  - **HIGH**: Updated `serialize-javascript` 6.0.2 → 7.0.4 (RCE vulnerability)
+  - **HIGH**: Updated `undici` 7.16.0 → 7.24.4 (WebSocket crash, HTTP smuggling, CRLF injection)
+  - **HIGH**: Updated `minimatch` to patched versions (v3.1.5, v9.0.9, v10.2.4) via version-specific overrides (ReDoS vulnerabilities)
+  - **HIGH**: Updated `underscore` → 1.13.8 (DoS vulnerability)
+  - **MEDIUM**: Updated `dompurify` 3.3.1 → 3.3.3 (XSS vulnerability)
+  - **MEDIUM**: Updated `ajv` → 8.18.0 (ReDoS vulnerability)
+  - **MEDIUM**: Updated `markdown-it` → 14.1.1 (ReDoS vulnerability)
+  - **LOW**: Updated `qs` 6.14.1 → 6.15.0 (DoS vulnerability)
+- **Remaining**: 2 low severity vulnerabilities in `diff` (dev dependency, requires breaking mocha downgrade)
+
+### Changed
+- **npm overrides**: Added version-specific overrides for `minimatch` to respect semver compatibility while applying security patches
+- **npm overrides**: Added overrides for `serialize-javascript`, `undici`, and updated `qs` minimum version
+
+---
+
+## [0.0.328] - 2026-03-19
+
+### Fixed
+- **PR #18 Review Comments** - Addressed all Copilot review comments
+  - Fixed duplicate version entries in CHANGELOG.md
+  - Fixed version ordering inconsistency in CHANGELOG.md
+  - Fixed hard-coded version examples in `scripts/package-extension.js` (now uses X.Y.Z placeholder)
+  - Fixed 8 broken command links in OpenClaw lesson (`qb2-openclaw-assistant.md`) - converted to plain markdown
+  - Fixed bash tilde expansion bug in download-model lesson (changed `~/models` to `$HOME/models`)
+
+---
+
+## [0.0.327] - 2026-03-19
+
+### Added
+- **FAQ Entry: System Suspend Behavior** - Added documentation about what happens to running jobs and hardware utilization when a system suspends or resumes
+
+---
+
+## [0.0.319] - 2026-01-19
+
+### Added
+- **QB2 Demos Cohesive Setup System:** Unified environment management for all QB2 demos
+  - Master setup script: `setup_qb2_demos.sh` creates shared Python venv at `~/qb2-demos-venv`
+  - Installs all dependencies for demos 1-3 in one go (~2-3 minutes)
+  - Optional Rust setup for Hardware Constellation (~5 minutes)
+  - Checks for TT-Metal installation and ttnn availability
+  - Detects devices with tt-smi
+  - QUICKSTART.md comprehensive getting-started guide
+
+- **Individual Run Scripts for Each Demo:** Auto-activates environment and sets up paths
+  - `life-acceleration/run.sh` - Game of Life runner
+  - `neon-chaos/run.sh` - Particle Life runner
+  - `recursive-dreams/run.sh` - Stable Diffusion XL runner
+  - Each script:
+    - ✅ Activates QB2 venv automatically
+    - ✅ Exports TT_METAL_HOME and PYTHONPATH
+    - ✅ Checks for ttnn availability
+    - ✅ Detects devices with tt-smi
+    - ✅ Provides demo selection menu
+    - ✅ Shows estimated time and controls
+
+### Changed
+- **Extension QB2 Commands Enhanced:**
+  - All QB2 demo creation commands now call `copyQB2MasterFiles()` helper
+  - Automatically copies master setup files to `~/tt-scratchpad/qb2-demos/`
+  - Makes all shell scripts executable (chmod 0o755)
+  - Consistent file deployment across all 4 demos
+
+### Technical Details
+- **Shared Environment Benefits:**
+  - Single venv for all Python demos (no duplication)
+  - Consistent dependency versions across demos
+  - Faster setup (install once, use everywhere)
+  - ~500MB disk space vs ~2GB for separate venvs
+- **Run Script Features:**
+  - Color-coded output (green ✓, yellow ⚠️, red ❌)
+  - Graceful degradation (works without TT-Metal, uses CPU mode)
+  - Device detection and count display
+  - Demo number validation
+  - Estimated time display (for Recursive Dreams)
+  - Auto-cd to correct directory
+- **No Manual Setup Required:**
+  - Users never need to manually activate venv
+  - Users never need to export environment variables
+  - tt-smi always available (no tt-cli dependency)
+  - Scripts handle everything automatically
+- **Setup Script Intelligence:**
+  - Detects existing venv (offers rebuild or skip)
+  - Verifies Python 3.8+ availability
+  - Checks TT-Metal at $TT_METAL_HOME
+  - Tests ttnn import for hardware acceleration
+  - Provides clear next steps and examples
+
+### User Experience Improvements
+- **Before:** Complex multi-step setup per demo, manual environment activation, path exports
+- **After:** One setup command + simple `bash run.sh 5` to launch any demo
+- **Philosophy:** "One setup, infinite runs" - remove all friction from demo experience
+
+---
+
+## [0.0.326] - 2026-02-26
+
+### Added
+- **QB2 Hardware Constellation Demo:** Fourth Quietbox 2 demo - Real-time TT hardware monitoring with stunning visualizations
+  - New lesson: `qb2-hardware-constellation` - "Your Tensix cores are STARS!"
+  - Integration with tt-toplike-rs (public Rust project)
+  - 5 progressive demos from mock hardware to GPU-accelerated native GUI
+  - Demo 1: Baby Steps (mock single device, 30 seconds)
+  - Demo 2: Multiple Devices (mock 3-device fleet, 45 seconds)
+  - Demo 3: Real Hardware (sysfs backend, non-invasive monitoring, 1 minute)
+  - Demo 4: Starfield Deep Dive (visualization tutorial, 2 minutes)
+  - Demo 5: MAXIMUM DAZZLE (native GUI with 4 views + GPU acceleration, 5 minutes)
+  - Dual frontend architecture: Beautiful TUI (ratatui) + Native GUI (iced)
+  - Four backend system: Mock → JSON (tt-smi) → Luwen (direct PCI) → Sysfs (hwmon sensors)
+  - Hardware-responsive starfield visualization
+  - Template files: `setup_toplike.sh`, `run_demo.sh`, `README.md`
+  - Extension command: `tenstorrent.createQB2ConstellationDemo` - Deploy to ~/tt-scratchpad/qb2-demos/hardware-constellation/
+  - Auto-setup workflow with optional demo launching
+
+### Technical Details
+- **Starfield Visualization:**
+  - Stars = Tensix cores positioned at actual NOC grid coordinates
+  - Brightness driven by power consumption (relative to adaptive baseline)
+  - Color from temperature readings (cyan 40°C → red 80°C traffic light system)
+  - Twinkle speed reflects current draw intensity
+  - Planets = Memory hierarchy (◆ L1 blue, ◇ L2 yellow, DDR gray blocks)
+  - Animated data streams between devices (speed = power differential)
+  - Adaptive baseline learning (first 20 samples establish idle state)
+- **Architecture Support:**
+  - Grayskull (n150): 10×12 Tensix grid (120 cores)
+  - Wormhole (n300): 8×10 Tensix grid (80 cores)
+  - Blackhole (p100/p150/p300c): 14×16 Tensix grid (224 cores)
+- **TUI Features:**
+  - Real-time telemetry table (power, temp, current, voltage, clocks)
+  - Health monitoring (ARC firmware heartbeat)
+  - Configurable refresh (10ms-1000ms, 10-100 FPS)
+  - Keyboard controls (q/ESC quit, r refresh, v toggle visualization)
+  - Responsive design adapts to terminal size
+  - Clean exit preserves terminal state
+- **GUI Features:**
+  - Dashboard view: DDR channels, memory hierarchy, animated gauges
+  - Charts view: Historical power/temp graphs (last 100 samples)
+  - Starfield view: GPU-accelerated OpenGL/Vulkan rendering
+  - Details view: Complete telemetry table
+  - Tab navigation, F11 fullscreen, 60 FPS smooth rendering
+  - Works on Wayland/X11, supports mouse + keyboard
+- **Backend Strategy:**
+  - Sysfs (hwmon): Non-invasive monitoring of active hardware (works on chips running LLMs!)
+  - Luwen: Direct PCI hardware access (best performance, requires idle hardware)
+  - JSON: tt-smi subprocess integration (compatibility fallback)
+  - Mock: Realistic simulation for testing without hardware
+  - Auto-detection with graceful fallback chain
+  - Panic recovery catches hardware access errors
+- **Performance:**
+  - TUI: 10-100 FPS, <1% CPU overhead, <50MB memory
+  - GUI: Solid 60 FPS, GPU-accelerated, <50MB memory
+  - Sub-millisecond telemetry update latency
+- **Installation Workflow:**
+  - One-time setup: Clone tt-toplike-rs from GitHub, build with cargo (~5 minutes)
+  - Demo runner: Interactive menu or direct demo launch (bash run_demo.sh [1-5])
+  - Manual usage: Binaries at ~/code/tt-toplike-rs/target/debug/
+- **Philosophy:**
+  - "Hardware as Art" - Every metric becomes visual poetry
+  - No fake animations - all visuals driven by real silicon state
+  - Works on any hardware (5W-200W range with adaptive scaling)
+  - Monitoring as meditation - feel your hardware working
+
+---
+
+## [0.0.325] - 2026-02-26
+
+### Added
+- **QB2 Recursive Dreams Demo:** Third Quietbox 2 demo - AI-generated impossible realities with Stable Diffusion XL
+  - New lesson: `qb2-recursive-dreams` - "Where Logic Goes to Die!"
+  - 5 progressive demos from simple recursion to peak cognitive dissonance
+  - Demo 1: Simple Paradox 🪞 (1 image, 20 steps) - Basic mirror recursion
+  - Demo 2: Nested Reality 🏝️ (2 images, 25 steps) - Islands in lakes in islands
+  - Demo 3: Impossible Objects 📐 (3 images, 30 steps) - Escher-style geometry
+  - Demo 4: Meta Madness 🎭 (4 images, 35 steps) - Self-referential concepts
+  - Demo 5: MAXIMUM RECURSION 🚀💥🌀 (5 images, 40 steps) - Peak paradox including "GDC on island in lake on island in lake"
+  - Comprehensive prompt library with 25+ recursive concepts
+  - Stable Diffusion XL integration for 1024×1024 high-quality generation
+  - Interactive image gallery viewer with navigation controls
+  - Template files: `recursive_dreams.py`, `prompt_library.py`, `sdxl_generator.py`, `gallery_viewer.py`
+  - Extension command: `tenstorrent.createQB2RecursiveDemo` - Deploy to ~/tt-scratchpad/qb2-demos/recursive-dreams/
+
+### Technical Details
+- **Recursive Prompt Categories:**
+  - Recursive Locations - Spatial paradoxes (islands in lakes in islands, parks with fountains containing parks)
+  - Impossible Geometries - Escher-style math impossibilities (staircases to nowhere, infinite waterfalls)
+  - Meta Concepts - Self-referential ideas (photographs of photographs, dreams of dreams)
+  - Nested Objects - Objects containing themselves (Russian dolls containing universes, libraries containing themselves)
+  - Temporal Paradoxes - Recursive time concepts (clocks where each hour is a clock)
+- **Image Generation:**
+  - SDXL base model (stabilityai/stable-diffusion-xl-base-1.0)
+  - Output resolution: 1024×1024 pixels
+  - Progressive guidance scaling: 7.5 → 9.5 across demos
+  - Variable inference steps: 20 → 40 steps for increasing quality
+- **Gallery Features:**
+  - Single image fullscreen display
+  - Grid layout for 2-4 images
+  - Carousel with navigation for 5+ images
+  - Keyboard navigation (arrow keys, ESC/Q to quit)
+  - Side-by-side comparison view
+- **Performance:**
+  - Demo 1: ~15 seconds per image (20 steps)
+  - Demo 5: ~30 seconds per image (40 steps, highest quality)
+  - Total Demo 5 time: ~150 seconds for 5 images
+  - Hardware accelerated via TTNN when TT-Metal Stable Diffusion available
+  - Graceful fallback to CPU/CUDA if TT-SD not present
+- **Philosophy:** "Computational Theater" - Creating impossible realities that couldn't exist physically but can exist in generated imagery
+- **Featured Prompts:**
+  - "Game Developers Conference on tropical island, island in lake, lake on another island, that island in another lake" (user's request!)
+  - "Russian nesting doll containing universe with galaxies and stars, fractal zoom"
+  - "Library where every book's pages contain the entire library, infinite literary recursion"
+  - "M.C. Escher staircase that goes upward but ends exactly where it started"
+  - "Artist painting portrait of themselves painting portrait of themselves, infinite artistic recursion"
+
+---
+
+## [0.0.324] - 2026-02-26
+
+### Added
+- **QB2 Neon Chaos Demo:** Second Quietbox 2 demo - Particle Life with TRON/TEMPEST aesthetic
+  - New lesson: `qb2-neon-chaos` - "Emergence meets cyberpunk!"
+  - 5 progressive demos from 512 to 10,000 particles
+  - Demo 1: Gentle Orbits (512 particles, 3 species, soft pastels)
+  - Demo 2: Color Bloom (1,024 particles, 5 species, neon awakening)
+  - Demo 3: Electric Dreams (2,048 particles, 6 species, full TRON aesthetic)
+  - Demo 4: Hyperspace (5,000 particles, 8 species, INTENSE swirling)
+  - Demo 5: NEON APOCALYPSE (10,000 particles, 10 species, MAXIMUM CHAOS + stats)
+  - Neon color palette: Cyan, magenta, electric blue, hot pink, acid green, neon orange, deep purple
+  - Glowing particle trails with configurable length (20-100 positions)
+  - Bloom/glow effects for cyberpunk aesthetic
+  - Fullscreen TRON-style rendering
+  - Real-time chaos meter and FPS counter (Demo 5)
+  - N² force calculations (massively parallel on TT hardware)
+  - Emergent self-organization patterns (galaxies, vortices, waves)
+  - Template files: `neon_chaos.py`, `neon_renderer.py`, `particle_physics.py`, `neon_palette.py`, `chaos_stats.py`
+  - Extension command: `tenstorrent.createQB2NeonDemo` - Deploy to ~/tt-scratchpad/qb2-demos/neon-chaos/
+
+### Technical Details
+- **TRON/TEMPEST Aesthetic:** Dark backgrounds, vibrant neon, glowing trails, bloom effects
+- **Visual Features:**
+  - Multi-layer bloom rendering (4× particle size with graduated alpha)
+  - Particle trails with fading alpha (0 → 0.5 over trail length)
+  - Configurable bloom intensity (0.3 → 1.0 across demos)
+  - 10 distinct neon colors for species differentiation
+- **Performance:**
+  - N150 (1 chip): Demos 1-3 smooth, Demo 5 at ~15 FPS
+  - P150 (4 chips): Demo 5 hits 60 FPS target
+  - Galaxy: Demo 5 at 120+ FPS (rendering-limited)
+- **Emergent Patterns:** Self-organizing galaxies, swirling vortices, lightning chains, wave oscillations, orb clusters
+- **Random Variation:** Every run creates unique universe from random attraction matrices
+
+---
+
+## [0.0.323] - 2026-02-26
+
+### Added
+- **QB2 Life Acceleration Demo:** First Quietbox 2 demo lesson - progressive Game of Life showcase
+  - New lesson: `qb2-life-acceleration` - "Click Click Click!" demo series
+  - 5 progressive demos from 128×128 to 4096×4096 grids (16 million cells!)
+  - Demo 1: Baby Steps (128×128, gentle intro)
+  - Demo 2: Getting Warm (512×512, 3 patterns)
+  - Demo 3: Now We're Talking (1024×1024, 10 patterns)
+  - Demo 4: Holy Moly (2048×2048, 25 patterns)
+  - Demo 5: SUPER DEMO (4096×4096, 100 patterns, rainbow colors, real-time stats)
+  - Fullscreen rendering for maximum visual impact
+  - Performance monitoring with FPS counter and "chaos meter"
+  - Interactive menu system for demo selection
+  - Template files: `life_acceleration.py`, `fullscreen_render.py`, `performance_stats.py`, `patterns.py`
+  - Extension command: `tenstorrent.createQB2LifeDemo` - Deploy to ~/tt-scratchpad/qb2-demos/life-acceleration/
+  - Computational theater approach - show, don't tell!
+
+### Technical Details
+- **QB2 Demo Philosophy:** Progressive intensity, fullscreen wow factor, spectacular finale
+- **Performance Expectations:**
+  - N150 (1 chip): Demo 1-2 at target FPS, Demo 5 at ~20 FPS
+  - P150 (4 chips): Demo 5 hits 500+ FPS target
+  - Galaxy (32 chips): Demo 5 reaches 2000+ FPS
+- **TTNN Optimization:** Convolution for neighbor counting, parallel tile computing, batch processing
+- **Visualization:** Matplotlib fullscreen mode, rainbow color gradients, real-time stats overlay
+
+---
+
+## [0.0.322] - 2026-02-26
+
+### Added
+- **Quietbox 2 Demos Category:** New lesson category for QB2 demos and creative showcases
+  - Category ID: `qb2-demos`
+  - Positioned at order 2 (right after Welcome section)
+  - Icon: ⚡ zap
+  - Description: "Mirth and mayhem - creative demos showcasing Quietbox 2 capabilities"
+  - All existing categories reordered (incremented by 1)
+
+### Changed
+- **Category Order:** Shifted all categories down by 1 to accommodate new QB2 Demos section
+  - Welcome remains order 1
+  - QB2 Demos is now order 2
+  - Your First Inference moved from order 2 → 3
+  - All subsequent categories incremented accordingly
+
+---
+
+## [0.0.321] - 2026-02-26
+
+### Added
+- **P300C + JAX Support:** Complete P300C hardware support with TT-XLA wheel v0.9.0
+  - tt-xla-jax lesson: Added P300C to supportedHardware array
+  - tt-xla-jax lesson: Changed status from "draft" to "validated"
+  - tt-xla-jax lesson: Added validatedOn array with "p300c"
+  - lesson-registry.json: Updated metadata for P300C support
+  - CLAUDE.md: Comprehensive P300C + JAX Support section documenting validation
+
+- **Model Roulette Feature:** New lesson for creative AI with TT-Forge
+  - content/lessons/model-roulette-ttforge.md: Complete lesson on using TT-Forge for creative AI models
+  - lesson-registry.json: Added model-roulette-ttforge lesson entry
+  - src/extension.ts: Added createForgeRouletteDir() command
+  - src/extension.ts: Added installForgeWheels() command
+
+### Changed
+- **README.md:** Updated compiler lessons count to reflect new Model Roulette lesson
+  - Compilers & Tools: 3 lessons, 1 validated (was 2 lessons, 0 validated)
+  - JAX Inference now shows P300C validation status
+
+---
+
 ## [0.0.320] - 2026-02-24
 
 ### Changed

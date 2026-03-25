@@ -1,8 +1,8 @@
 /**
- * Python environment configuration for Tenstorrent terminals
+ * Python environment configuration for Tenstorrent
  *
- * This module defines Python environments associated with each terminal context.
- * Each environment has a specific activation command and visual representation.
+ * This module defines Python environments available for manual activation.
+ * Users can switch environments via command palette (Tenstorrent: Select Python Environment).
  */
 
 /**
@@ -35,8 +35,8 @@ export interface EnvironmentConfig {
 }
 
 /**
- * Terminal context types
- * Each context corresponds to a specific project/purpose
+ * Environment context types
+ * Used for manual environment switching via command palette
  */
 export type TerminalContext =
   | 'tt-metal'      // TT-Metal setup, demos, TTNN, cookbook
@@ -47,10 +47,10 @@ export type TerminalContext =
   | 'explore';      // Manual exploration, curl, ad-hoc testing
 
 /**
- * Registry of Python environments for each terminal context
+ * Registry of Python environments
  *
  * This is the single source of truth for environment configuration.
- * Each terminal context automatically activates its associated environment.
+ * Environments are activated manually via command palette or included in command strings.
  */
 export const ENVIRONMENT_REGISTRY: Record<TerminalContext, EnvironmentConfig> = {
   'tt-metal': {

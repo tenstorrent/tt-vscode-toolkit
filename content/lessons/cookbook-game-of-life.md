@@ -557,6 +557,4 @@ neighbors = ttnn.conv3d(grid_3d, kernel_3d, padding=(1,1,1))
 - ✅ **Parallel tile computing**: All cells update simultaneously on TT hardware
 - ✅ **Visual output generation**: Creating animations from simulation data
 
-**Next Recipe:** Ready for audio signal processing? Try [Recipe 2: Audio Signal Processing](command:tenstorrent.showLesson?["cookbook-audio-processor"])
-
-**Or:** [Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])
+[Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])

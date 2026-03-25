@@ -82,8 +82,13 @@ Content...
 npm install           # Install dependencies
 npm run build         # Compile TS → dist/
 npm run watch         # Auto-recompile on changes
-npm run package       # Create .vsix
+npm run package       # Create .vsix (auto-adds -dev suffix for non-main branches)
 ```
+
+**Packaging Behavior:**
+- **main/master branch:** `tt-vscode-toolkit-X.Y.Z.vsix` (production)
+- **Other branches:** `tt-vscode-toolkit-X.Y.Z-dev.vsix` (development)
+- Implemented in `scripts/package-extension.js` for easy identification of dev builds
 
 ## ⚠️ NO BUNDLING (esbuild/webpack)
 
@@ -558,6 +563,27 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 - Users may see stale content/functionality if version doesn't increment
 - Even small changes (single line fixes) require version bump
 - **Rule:** After completing ANY bugfix, content change, or series of alterations → increment version → rebuild → repackage
+
+### CHANGELOG Best Practices
+
+**⚠️ AVOID line number references in CHANGELOG entries:**
+- Line numbers drift as code changes, making historical references incorrect
+- Instead, describe the change with sufficient context (function names, feature areas, file names)
+- Use git blame or PR links for exact historical context when needed
+
+**Good examples:**
+- ✅ "Fixed terminal accumulation in API test commands by adding reusable terminal helper"
+- ✅ "Removed broken FAQ link from OpenClaw QB2 assistant walkthrough"
+- ✅ "Updated default terminal name to match environment registry for proper detection"
+
+**Bad examples:**
+- ❌ "Fixed bug in extension.ts:1057, 1075" (line numbers will drift)
+- ❌ "Updated qb2-openclaw-assistant.md:993" (too specific, will become outdated)
+
+**Rationale:**
+- CHANGELOG is long-lived documentation read months/years later
+- Line numbers are accurate only at time of writing
+- Descriptive context remains useful even as code evolves
 
 ### Historical Note
 

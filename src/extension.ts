@@ -143,103 +143,59 @@ async function showDeviceActionsMenu(): Promise<void> {
 // ============================================================================
 
 /**
- * Terminal Management: Project-based Context Isolation
+ * Simple Terminal Management
  *
- * Strategy: 6 terminals organized by project/purpose for optimal venv isolation
- *
- * Terminals:
- * 1. "Tenstorrent: TT-Metal" - tt-metal setup, demos, TTNN, cookbook
- *    - Uses PYTHONPATH + source setup-metal.sh (no dedicated venv)
- * 2. "Tenstorrent: TT-Forge" - TT-Forge build, test, image classification
- *    - Uses ~/tt-forge-venv
- * 3. "Tenstorrent: TT-XLA" - JAX demos and testing
- *    - Uses ~/tt-xla-venv
- * 4. "Tenstorrent: vLLM Server" - Production inference with vLLM
- *    - Uses ~/tt-vllm-venv
- * 5. "Tenstorrent: API Server" - Direct API, Flask servers
- *    - Uses tt-metal environment
- * 6. "Tenstorrent: Explore" - Manual exploration, curl, ad-hoc testing
- *    - Uses system default (no venv activation)
+ * Strategy: Use the active terminal or create a plain one. No tracking, no context
+ * routing, no complexity - just write commands to the terminal like copy/paste.
  *
  * Benefits:
- * ✅ Clear context-specific naming (know what's running at a glance)
- * ✅ Proper venv isolation (no environment pollution between projects)
- * ✅ Terminal reuse (no clutter)
- * ✅ Project consolidation (one terminal per project)
+ * ✅ No weird terminal states - commands always work
+ * ✅ Simple like copy/paste - just sends text to terminal
+ * ✅ One terminal (not six) - less clutter
+ * ✅ User controls environment - manual activation as needed
  */
 
 /**
- * Terminal context for project-based isolation
- */
-type TerminalContext =
-  | 'tt-metal'     // All tt-metal: setup, demos, TTNN, cookbook
-  | 'tt-forge'     // All tt-forge: build, test, classify
-  | 'tt-xla'       // All tt-xla/JAX commands
-  | 'vllm-server'  // vLLM long-running servers
-  | 'api-server'   // Direct API, Flask servers (uses tt-metal env)
-  | 'explore';     // Manual exploration, curl commands, ad-hoc testing
-
-/**
- * Terminal storage by context
- */
-const terminals: Record<TerminalContext, vscode.Terminal | undefined> = {
-  'tt-metal': undefined,
-  'tt-forge': undefined,
-  'tt-xla': undefined,
-  'vllm-server': undefined,
-  'api-server': undefined,
-  'explore': undefined,
-};
-
-/**
- * Terminal display names for each context
- */
-const TERMINAL_NAMES: Record<TerminalContext, string> = {
-  'tt-metal': 'TT: Metal',
-  'tt-forge': 'TT: Forge',
-  'tt-xla': 'TT: XLA',
-  'vllm-server': 'TT: vLLM',
-  'api-server': 'TT: API',
-  'explore': 'TT: Explore',
-};
-
-/**
- * Gets or creates a terminal based on the context.
- * Reuses existing terminals if they're still alive to avoid clutter.
+ * Gets the active terminal or creates a new one if none exists.
+ * Simple approach: use what's active, or create a plain terminal.
+ * No tracking, no context, no complexity - just a terminal.
  *
- * Terminal routing by context:
- * - 'tt-metal': Hardware detection, setup, demos, TTNN, cookbook (PYTHONPATH + setup-metal.sh)
- * - 'tt-forge': TT-Forge build, test, image classification (~/tt-forge-venv)
- * - 'tt-xla': TT-XLA/JAX demos and testing (~/tt-xla-venv)
- * - 'vllm-server': vLLM production inference servers (~/tt-vllm-venv)
- * - 'api-server': Direct API chat and Flask servers (tt-metal env)
- * - 'explore': Manual exploration with system default venv (no activation)
- *
- * @param context - Terminal context defining project and venv
- * @returns Active terminal instance
+ * @returns Active or newly created terminal instance
  */
-function getOrCreateTerminal(context: TerminalContext): vscode.Terminal {
-  // Check if terminal still exists and reuse it
-  if (terminals[context] && vscode.window.terminals.includes(terminals[context]!)) {
-    return terminals[context]!;
+function getOrCreateSimpleTerminal(): vscode.Terminal {
+  // Use active terminal if it exists
+  if (vscode.window.activeTerminal) {
+    return vscode.window.activeTerminal;
   }
 
-  // Create new terminal with context-specific name
-  const name = TERMINAL_NAMES[context];
-  const terminal = vscode.window.createTerminal({
-    name,
+  // Create a simple terminal with default name
+  return vscode.window.createTerminal({
+    name: 'Terminal',
     cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
   });
+}
 
-  terminals[context] = terminal;
+/**
+ * Gets or creates a dedicated "API Test" terminal for API testing commands.
+ * Reuses an existing "API Test" terminal if found to avoid terminal clutter.
+ *
+ * @returns Existing or newly created "API Test" terminal instance
+ */
+function getOrCreateApiTestTerminal(): vscode.Terminal {
+  // Look for an existing "API Test" terminal
+  const existingTerminal = vscode.window.terminals.find(
+    (t) => t.name === 'API Test'
+  );
 
-  // Track environment for status bar (but don't auto-activate)
-  // Users can manually activate environments as needed
-  if (environmentManager) {
-    environmentManager.trackTerminal(terminal, context);
+  if (existingTerminal) {
+    return existingTerminal;
   }
 
-  return terminal;
+  // Create a new dedicated API test terminal
+  return vscode.window.createTerminal({
+    name: 'API Test',
+    cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+  });
 }
 
 /**
@@ -331,7 +287,7 @@ async function promptRecommendedExtensions(): Promise<void> {
  * Downloads and executes the latest installer with interactive prompts.
  */
 function runQuickInstall(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.QUICK_INSTALL.template;
 
   vscode.window.showWarningMessage(
@@ -351,7 +307,7 @@ function runQuickInstall(): void {
  * Downloads the tt-installer script for inspection.
  */
 function downloadInstaller(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.DOWNLOAD_INSTALLER.template;
 
   runInTerminal(terminal, command);
@@ -367,7 +323,7 @@ function downloadInstaller(): void {
  * Runs tt-installer with interactive prompts for customization.
  */
 function runInteractiveInstall(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.RUN_INTERACTIVE_INSTALL.template;
 
   runInTerminal(terminal, command);
@@ -383,7 +339,7 @@ function runInteractiveInstall(): void {
  * Runs tt-installer in non-interactive mode with recommended defaults.
  */
 function runNonInteractiveInstall(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.RUN_NON_INTERACTIVE_INSTALL.template;
 
   vscode.window.showInformationMessage(
@@ -399,7 +355,7 @@ function runNonInteractiveInstall(): void {
  * Tests that the tt-metalium container is installed and working.
  */
 function testMetaliumContainer(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.TEST_METALIUM_CONTAINER.template;
 
   runInTerminal(terminal, command);
@@ -420,7 +376,7 @@ function testMetaliumContainer(): void {
  * This is Step 1 in the walkthrough.
  */
 function runHardwareDetection(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.TT_SMI.template;
 
   runInTerminal(terminal, command);
@@ -437,7 +393,7 @@ function runHardwareDetection(): void {
  * This is Step 2 in the walkthrough.
  */
 function verifyInstallation(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.VERIFY_INSTALLATION.template;
 
   runInTerminal(terminal, command);
@@ -464,7 +420,7 @@ async function installDependencies(): Promise<void> {
     return;
   }
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.INSTALL_DEPENDENCIES.template;
 
   runInTerminal(terminal, command);
@@ -496,7 +452,7 @@ async function copyEnvironmentSetup(): Promise<void> {
   }
 
   if (choice === 'Run in Terminal') {
-    const terminal = getOrCreateTerminal('tt-metal');
+    const terminal = getOrCreateSimpleTerminal();
     runInTerminal(terminal, command);
     vscode.window.showInformationMessage('Environment variables set for this terminal session.');
   } else {
@@ -522,7 +478,7 @@ async function persistEnvironment(): Promise<void> {
     return;
   }
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.PERSIST_ENVIRONMENT.template;
 
   runInTerminal(terminal, command);
@@ -596,7 +552,7 @@ print("✓ Device closed - validation successful!")
   );
 
   if (choice === 'Run Now') {
-    const terminal = getOrCreateTerminal('tt-metal');
+    const terminal = getOrCreateSimpleTerminal();
     runInTerminal(terminal, `python3 ${scriptPath}`);
   }
 }
@@ -622,7 +578,7 @@ async function setHuggingFaceToken(): Promise<void> {
   }
 
   // Set the token as an environment variable in the terminal
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = replaceVariables(TERMINAL_COMMANDS.SET_HF_TOKEN.template, { token });
 
   runInTerminal(terminal, command);
@@ -639,7 +595,7 @@ async function setHuggingFaceToken(): Promise<void> {
  * This is Step 3b in the walkthrough.
  */
 function loginHuggingFace(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.LOGIN_HF.template;
 
   runInTerminal(terminal, command);
@@ -657,7 +613,7 @@ function loginHuggingFace(): void {
  * This is Step 3c in the walkthrough.
  */
 function downloadModel(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.DOWNLOAD_MODEL.template;
 
   // Create models directory and download to absolute path
@@ -735,7 +691,7 @@ async function cloneTTMetal(): Promise<void> {
       // Clone to user-specified location and store the path
       await extensionContext.globalState.update(STATE_KEYS.TT_METAL_PATH, userPath);
 
-      const terminal = getOrCreateTerminal('tt-metal');
+      const terminal = getOrCreateSimpleTerminal();
       const command = replaceVariables(TERMINAL_COMMANDS.CLONE_TT_METAL.template, {
         path: userPath,
       });
@@ -759,7 +715,7 @@ async function cloneTTMetal(): Promise<void> {
       // Clone to default location and store the path
       await extensionContext.globalState.update(STATE_KEYS.TT_METAL_PATH, defaultTTMetalPath);
 
-      const terminal = getOrCreateTerminal('tt-metal');
+      const terminal = getOrCreateSimpleTerminal();
       const command = replaceVariables(TERMINAL_COMMANDS.CLONE_TT_METAL.template, {
         path: defaultTTMetalPath,
       });
@@ -802,7 +758,7 @@ async function cloneTTMetal(): Promise<void> {
       // Clone to user-specified location and store the path
       await extensionContext.globalState.update(STATE_KEYS.TT_METAL_PATH, userPath);
 
-      const terminal = getOrCreateTerminal('tt-metal');
+      const terminal = getOrCreateSimpleTerminal();
       const command = replaceVariables(TERMINAL_COMMANDS.CLONE_TT_METAL.template, {
         path: userPath,
       });
@@ -832,7 +788,7 @@ async function setupEnvironment(): Promise<void> {
   const defaultPath = path.join(homeDir, 'tt-metal');
   const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   // Run setup commands in sequence using the stored path
   const command = replaceVariables(TERMINAL_COMMANDS.SETUP_ENVIRONMENT.template, {
@@ -864,7 +820,7 @@ async function runInference(): Promise<void> {
   // Model path using constants
   const modelPath = await getModelOriginalPath();
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   // Run inference demo with LLAMA_DIR set to the model location
   // and reasonable default parameters for seq length and token generation
@@ -887,7 +843,7 @@ async function runInference(): Promise<void> {
  * This is Step 4-1 in the walkthrough - Interactive Chat
  */
 function installInferenceDeps(): void {
-  const terminal = getOrCreateTerminal('api-server');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.INSTALL_INFERENCE_DEPS.template;
 
   runInTerminal(terminal, command);
@@ -970,7 +926,7 @@ async function startChatSession(): Promise<void> {
   // Model path using constants
   const modelPath = await getModelOriginalPath();
 
-  const terminal = getOrCreateTerminal('api-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   // Run the interactive chat script with proper environment setup
   const command = replaceVariables(TERMINAL_COMMANDS.START_CHAT_SESSION.template, {
@@ -1048,7 +1004,7 @@ async function createApiServer(): Promise<void> {
  * This is Step 5b in the walkthrough - HTTP API Server
  */
 function installFlask(): void {
-  const terminal = getOrCreateTerminal('api-server');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.INSTALL_FLASK.template;
 
   runInTerminal(terminal, command);
@@ -1075,7 +1031,7 @@ async function startApiServer(): Promise<void> {
   // Model path using constants
   const modelPath = await getModelOriginalPath();
 
-  const terminal = getOrCreateTerminal('api-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   // Run the API server with proper environment setup
   const command = replaceVariables(TERMINAL_COMMANDS.START_API_SERVER.template, {
@@ -1097,14 +1053,14 @@ async function startApiServer(): Promise<void> {
  * This is Step 5d in the walkthrough - HTTP API Server
  */
 function testApiBasic(): void {
-  // Use a different terminal for testing so we don't interfere with the server
-  const terminal = getOrCreateTerminal('explore');
+  // Get or reuse dedicated API test terminal to avoid terminal clutter
+  const terminal = getOrCreateApiTestTerminal();
   const command = TERMINAL_COMMANDS.TEST_API_BASIC.template;
 
   runInTerminal(terminal, command);
 
   vscode.window.showInformationMessage(
-    '🧪 Testing API with basic query. Check the terminal for the response!'
+    '🧪 Testing API with basic query. Check the "API Test" terminal for the response!'
   );
 }
 
@@ -1115,14 +1071,14 @@ function testApiBasic(): void {
  * This is Step 5e in the walkthrough - HTTP API Server
  */
 function testApiMultiple(): void {
-  // Use a different terminal for testing so we don't interfere with the server
-  const terminal = getOrCreateTerminal('explore');
+  // Get or reuse dedicated API test terminal to avoid terminal clutter
+  const terminal = getOrCreateApiTestTerminal();
   const command = TERMINAL_COMMANDS.TEST_API_MULTIPLE.template;
 
   runInTerminal(terminal, command);
 
   vscode.window.showInformationMessage(
-    '🧪 Testing API with multiple queries. Check the terminal for the responses!'
+    '🧪 Testing API with multiple queries. Check the "API Test" terminal for the responses!'
   );
 }
 
@@ -1195,7 +1151,7 @@ async function startChatSessionDirect(): Promise<void> {
   const ttMetalPath = path.join(homeDir, 'tt-metal');
   const modelPath = await getModelBasePath();
 
-  const terminal = getOrCreateTerminal('api-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `cd ${ttMetalPath} && export HF_MODEL=${modelPath} && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-chat-direct.py`;
 
@@ -1271,7 +1227,7 @@ async function startApiServerDirect(): Promise<void> {
   const ttMetalPath = path.join(homeDir, 'tt-metal');
   const modelPath = await getModelBasePath();
 
-  const terminal = getOrCreateTerminal('api-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `cd ${ttMetalPath} && export HF_MODEL=${modelPath} && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-api-server-direct.py --port 8080`;
 
@@ -1287,7 +1243,7 @@ async function startApiServerDirect(): Promise<void> {
  * Tests the direct API server with a basic query
  */
 function testApiBasicDirect(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d '{"prompt": "What is machine learning?"}'`;
 
@@ -1303,7 +1259,7 @@ function testApiBasicDirect(): void {
  * Tests the direct API with multiple queries
  */
 function testApiMultipleDirect(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
 
   const commands = [
     `curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d '{"prompt": "Explain neural networks"}'`,
@@ -1329,7 +1285,7 @@ function testApiMultipleDirect(): void {
  * Verifies tt-inference-server is installed, model is downloaded, and hardware is detected
  */
 function verifyInferenceServerPrereqs(): void {
-  const terminal = getOrCreateTerminal('vllm-server');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.VERIFY_INFERENCE_SERVER_PREREQS.template;
 
   runInTerminal(terminal, command);
@@ -1344,7 +1300,7 @@ function verifyInferenceServerPrereqs(): void {
  * Starts vLLM server via tt-inference-server with basic configuration
  */
 function startTtInferenceServer(): void {
-  const terminal = getOrCreateTerminal('vllm-server');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER.template;
 
   vscode.window.showInformationMessage(
@@ -1359,7 +1315,7 @@ function startTtInferenceServer(): void {
  * Tests the vLLM server started by tt-inference-server with OpenAI-compatible API
  */
 function testTtInferenceServerSimple(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.TEST_TT_INFERENCE_SERVER_SIMPLE.template;
 
   runInTerminal(terminal, command);
@@ -1374,7 +1330,7 @@ function testTtInferenceServerSimple(): void {
  * Tests streaming responses from vLLM server
  */
 function testTtInferenceServerStreaming(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.TEST_TT_INFERENCE_SERVER_STREAMING.template;
 
   runInTerminal(terminal, command);
@@ -1389,7 +1345,7 @@ function testTtInferenceServerStreaming(): void {
  * Tests different sampling parameters with OpenAI-compatible API
  */
 function testTtInferenceServerSampling(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.TEST_TT_INFERENCE_SERVER_SAMPLING.template;
 
   runInTerminal(terminal, command);
@@ -1404,7 +1360,7 @@ function testTtInferenceServerSampling(): void {
  * Creates a Python client using OpenAI SDK to connect to the vLLM server
  */
 function createTtInferenceServerClient(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.CREATE_TT_INFERENCE_SERVER_CLIENT.template;
 
   runInTerminal(terminal, command);
@@ -1419,7 +1375,7 @@ function createTtInferenceServerClient(): void {
  * Shows that tt-inference-server uses command-line arguments, not config files
  */
 function createTtInferenceServerConfig(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.CREATE_TT_INFERENCE_SERVER_CONFIG.template;
 
   runInTerminal(terminal, command);
@@ -1445,7 +1401,7 @@ async function updateTTMetal(): Promise<void> {
   const homeDir = os.homedir();
   const ttMetalPath = path.join(homeDir, 'tt-metal');
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `cd ${ttMetalPath} && git checkout main && git pull origin main && git submodule update --init --recursive && ./install_dependencies.sh && ./build_metal.sh`;
 
@@ -1461,7 +1417,7 @@ async function updateTTMetal(): Promise<void> {
  * Clones the TT vLLM repository
  */
 function cloneVllm(): void {
-  const terminal = getOrCreateTerminal('vllm-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `cd ~ && git clone --branch dev https://github.com/tenstorrent/vllm.git tt-vllm && cd tt-vllm`;
 
@@ -1477,7 +1433,7 @@ function cloneVllm(): void {
  * Creates a dedicated venv and installs vLLM and dependencies
  */
 function installVllm(): void {
-  const terminal = getOrCreateTerminal('vllm-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `cd ~/tt-vllm && python3 -m venv ~/tt-vllm-venv && source ~/tt-vllm-venv/bin/activate && pip install --upgrade pip && export vllm_dir=$(pwd) && source $vllm_dir/tt_metal/setup-metal.sh && pip install --upgrade ttnn pytest && pip install fairscale termcolor loguru blobfile fire pytz llama-models==0.0.48 && pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu`;
 
@@ -1518,7 +1474,7 @@ async function startVllmServer(): Promise<void> {
   }
 
   const modelPath = await getModelBasePath();
-  const terminal = getOrCreateTerminal('vllm-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `cd ~/tt-vllm && source ~/tt-vllm-venv/bin/activate && export TT_METAL_HOME=~/tt-metal && export MESH_DEVICE=N150 && export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && source ~/tt-vllm/tt_metal/setup-metal.sh && python ~/tt-scratchpad/start-vllm-server.py --model ${modelPath} --host 0.0.0.0 --port 8000 --max-model-len 8192 --max-num-seqs 4 --block-size 64`;
 
@@ -1632,7 +1588,7 @@ async function startVllmServerForHardware(
   }
 
   const modelPath = config.modelPath || await getModelBasePath();
-  const terminal = getOrCreateTerminal('vllm-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   // Build environment variables
   let envVars = `export TT_METAL_HOME=~/tt-metal && export MESH_DEVICE=${hardware} && export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH`;
@@ -1668,7 +1624,7 @@ async function startVllmServerForHardware(
  * Tests vLLM with OpenAI SDK
  */
 function testVllmOpenai(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const modelConfig = getModelConfig(DEFAULT_MODEL_KEY);
 
   const command = `python3 -c "from openai import OpenAI; client = OpenAI(base_url='http://localhost:8000/v1', api_key='dummy'); response = client.chat.completions.create(model='${modelConfig.huggingfaceId}', messages=[{'role': 'user', 'content': 'What is machine learning?'}], max_tokens=128); print(response.choices[0].message.content)"`;
@@ -1685,7 +1641,7 @@ function testVllmOpenai(): void {
  * Tests vLLM with curl
  */
 function testVllmCurl(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const modelConfig = getModelConfig(DEFAULT_MODEL_KEY);
 
   const command = `curl http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -d '{"model": "${modelConfig.huggingfaceId}", "messages": [{"role": "user", "content": "Explain neural networks"}], "max_tokens": 128}'`;
@@ -1887,7 +1843,7 @@ async function generateRetroImage(): Promise<void> {
   const defaultPath = path.join(homeDir, 'tt-metal');
   const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = replaceVariables(TERMINAL_COMMANDS.GENERATE_RETRO_IMAGE.template, {
     ttMetalPath,
@@ -2072,7 +2028,7 @@ async function openImageViaCLI(imagePath: string): Promise<void> {
   }
 
   // Try to determine which VS Code CLI is available
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   
   // Try code-insiders first (common for remote), then code
   const command = `(command -v code-insiders >/dev/null 2>&1 && code-insiders "${imagePath}") || (command -v code >/dev/null 2>&1 && code "${imagePath}") || echo "⚠️  Could not find 'code' or 'code-insiders' command. Please open ${imagePath} manually."`;
@@ -2093,7 +2049,7 @@ async function startInteractiveImageGen(): Promise<void> {
   const defaultPath = path.join(homeDir, 'tt-metal');
   const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = replaceVariables(TERMINAL_COMMANDS.START_INTERACTIVE_IMAGE_GEN.template, {
     ttMetalPath,
@@ -2118,7 +2074,7 @@ async function copyImageGenDemo(): Promise<void> {
   const defaultPath = path.join(homeDir, 'tt-metal');
   const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = replaceVariables(TERMINAL_COMMANDS.COPY_IMAGE_GEN_DEMO.template, {
     ttMetalPath,
@@ -2206,7 +2162,7 @@ async function openLatestImage(): Promise<void> {
  * Verifies Llama 3.1 8B model is available for coding assistant
  */
 function verifyCodingModel(): void {
-  const terminal = getOrCreateTerminal('explore');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.VERIFY_CODING_MODEL.template;
 
   runInTerminal(terminal, command);
@@ -2284,7 +2240,7 @@ async function startCodingAssistant(): Promise<void> {
   // Model path for Llama 3.1 8B (original subdirectory for Direct API)
   const modelPath = await getModelOriginalPath();
 
-  const terminal = getOrCreateTerminal('api-server');
+  const terminal = getOrCreateSimpleTerminal();
 
   const command = `cd "${ttMetalPath}" && export LLAMA_DIR="${modelPath}" && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-coding-assistant.py`;
 
@@ -2304,7 +2260,7 @@ async function startCodingAssistant(): Promise<void> {
  * Builds TT-Forge from source against your tt-metal installation
  */
 function buildForgeFromSource(): void {
-  const terminal = getOrCreateTerminal('tt-forge');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.BUILD_FORGE_FROM_SOURCE.template;
 
   runInTerminal(terminal, command);
@@ -2319,7 +2275,7 @@ function buildForgeFromSource(): void {
  * Installs TT-Forge-FE wheels (quick but may have version issues)
  */
 function installForge(): void {
-  const terminal = getOrCreateTerminal('tt-forge');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.INSTALL_FORGE.template;
 
   runInTerminal(terminal, command);
@@ -2334,7 +2290,7 @@ function installForge(): void {
  * Tests forge installation and device detection
  */
 function testForgeInstall(): void {
-  const terminal = getOrCreateTerminal('tt-forge');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.TEST_FORGE_INSTALL.template;
 
   runInTerminal(terminal, command);
@@ -2402,7 +2358,7 @@ async function createForgeClassifier(): Promise<void> {
  * Runs MobileNetV2 image classification on sample image
  */
 function runForgeClassifier(): void {
-  const terminal = getOrCreateTerminal('tt-forge');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.RUN_FORGE_CLASSIFIER.template;
 
   runInTerminal(terminal, command);
@@ -2421,7 +2377,7 @@ function runForgeClassifier(): void {
  * Installs TT-XLA PJRT plugin with JAX support
  */
 function installTtXla(): void {
-  const terminal = getOrCreateTerminal('tt-xla');
+  const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.INSTALL_TT_XLA.template;
 
   runInTerminal(terminal, command);
@@ -2436,7 +2392,7 @@ function installTtXla(): void {
  * Creates test script and runs it to verify TT-XLA installation
  */
 function testTtXlaInstall(): void {
-  const terminal = getOrCreateTerminal('tt-xla');
+  const terminal = getOrCreateSimpleTerminal();
 
   // First create the test script
   const createCommand = TERMINAL_COMMANDS.CREATE_TT_XLA_TEST.template;
@@ -2458,7 +2414,7 @@ function testTtXlaInstall(): void {
  * Downloads and runs official GPT-2 demo with TT-XLA
  */
 function runTtXlaDemo(): void {
-  const terminal = getOrCreateTerminal('tt-xla');
+  const terminal = getOrCreateSimpleTerminal();
 
   // First download the demo
   const downloadCommand = TERMINAL_COMMANDS.DOWNLOAD_TT_XLA_DEMO.template;
@@ -2484,7 +2440,7 @@ function runTtXlaDemo(): void {
  * Builds tt-metal with programming examples including RISC-V demonstrations
  */
 function buildProgrammingExamples(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   const buildCommand = TERMINAL_COMMANDS.BUILD_PROGRAMMING_EXAMPLES.template;
   runInTerminal(terminal, buildCommand);
@@ -2499,7 +2455,7 @@ function buildProgrammingExamples(): void {
  * Runs the RISC-V addition example on BRISC processor
  */
 function runRiscvExample(): void {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   const runCommand = TERMINAL_COMMANDS.RUN_RISCV_EXAMPLE.template;
   runInTerminal(terminal, runCommand);
@@ -2722,7 +2678,7 @@ async function resetDevice(): Promise<void> {
     return;
   }
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, 'tt-smi -r');
 
   vscode.window.showInformationMessage(
@@ -2745,7 +2701,7 @@ async function clearDeviceState(): Promise<void> {
     return;
   }
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
 
   // Multi-step cleanup command
   const commands = [
@@ -3332,7 +3288,7 @@ async function exploreProgrammingExamples(): Promise<void> {
   );
 
   if (action === 'Open in Terminal') {
-    const terminal = getOrCreateTerminal('explore');
+    const terminal = getOrCreateSimpleTerminal();
     terminal.show();
     terminal.sendText(`cd "${examplesPath}"`);
   } else if (action === 'Show in Explorer') {
@@ -3545,7 +3501,7 @@ python test_particle_life.py</pre>
  * Runs Conway's Game of Life with random initial state
  */
 async function runGameOfLife(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_GAME_OF_LIFE.template);
   vscode.window.showInformationMessage(
     '🎮 Running Game of Life with random initial state. Watch the cellular automaton evolve!'
@@ -3557,7 +3513,7 @@ async function runGameOfLife(): Promise<void> {
  * Runs Game of Life with classic glider pattern
  */
 async function runGameOfLifeGlider(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_GAME_OF_LIFE_GLIDER.template);
   vscode.window.showInformationMessage(
     '🎮 Running Game of Life with glider pattern. Watch it move diagonally across the grid!'
@@ -3569,7 +3525,7 @@ async function runGameOfLifeGlider(): Promise<void> {
  * Runs Game of Life with Gosper Glider Gun
  */
 async function runGameOfLifeGliderGun(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_GAME_OF_LIFE_GLIDER_GUN.template);
   vscode.window.showInformationMessage(
     '🎮 Running Game of Life with Gosper Glider Gun. Watch it generate gliders infinitely!'
@@ -3581,7 +3537,7 @@ async function runGameOfLifeGliderGun(): Promise<void> {
  * Launches interactive Mandelbrot fractal explorer
  */
 async function runMandelbrotExplorer(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_MANDELBROT_EXPLORER.template);
   vscode.window.showInformationMessage(
     '🌀 Launching Mandelbrot Explorer! Click to zoom, press R to reset, C for colors, Q to quit.'
@@ -3593,7 +3549,7 @@ async function runMandelbrotExplorer(): Promise<void> {
  * Displays comparison of 6 Julia set fractals
  */
 async function runMandelbrotJulia(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_MANDELBROT_JULIA.template);
   vscode.window.showInformationMessage(
     '🌀 Displaying 6 classic Julia set fractals for comparison!'
@@ -3605,7 +3561,7 @@ async function runMandelbrotJulia(): Promise<void> {
  * Runs audio processor demo with mel-spectrogram
  */
 async function runAudioProcessor(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_AUDIO_PROCESSOR.template);
   vscode.window.showInformationMessage(
     '🎵 Running audio processor demo. Provide your own audio file or use the example!'
@@ -3617,7 +3573,7 @@ async function runAudioProcessor(): Promise<void> {
  * Runs image filters demo showing edge detect, blur, sharpen, etc.
  */
 async function runImageFilters(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_IMAGE_FILTERS.template);
   vscode.window.showInformationMessage(
     '🖼️ Running image filters demo. See edge detect, blur, sharpen, emboss, and oil painting effects!'
@@ -3714,7 +3670,7 @@ async function createParticleLife(): Promise<void> {
  * Runs Particle Life simulation with emergent complexity patterns
  */
 async function runParticleLife(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_PARTICLE_LIFE.template);
   vscode.window.showInformationMessage(
     '🌌 Running Particle Life simulation! Watch as emergent patterns form from simple rules. This will create particle_life.gif in the project directory (~3 minutes on N150).'
@@ -3730,7 +3686,7 @@ async function runParticleLife(): Promise<void> {
  * Installs the animatediff-ttnn standalone package
  */
 async function installAnimateDiff(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_ANIMATEDIFF.template);
   vscode.window.showInformationMessage(
     '📦 Installing AnimateDiff package... Check terminal for progress.'
@@ -3742,7 +3698,7 @@ async function installAnimateDiff(): Promise<void> {
  * Tests temporal attention with minimal 2-frame sequence
  */
 async function runAnimateDiff2Frame(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_2FRAME.template);
   vscode.window.showInformationMessage(
     '🎬 Running 2-frame temporal attention test...'
@@ -3754,7 +3710,7 @@ async function runAnimateDiff2Frame(): Promise<void> {
  * Generates full 16-frame animated sequence
  */
 async function runAnimateDiff16Frame(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_16FRAME.template);
   vscode.window.showInformationMessage(
     '🎥 Generating 16-frame animated sequence... This will take a moment.'
@@ -3766,7 +3722,7 @@ async function runAnimateDiff16Frame(): Promise<void> {
  * Views the generated animation file
  */
 async function viewAnimateDiffOutput(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.VIEW_ANIMATEDIFF_OUTPUT.template);
 }
 
@@ -3783,7 +3739,7 @@ async function setupAnimateDiffProject(): Promise<void> {
 
   const projectPath = `${extensionPath}/dist/content/projects/animatediff`;
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   const command = replaceVariables(TERMINAL_COMMANDS.SETUP_ANIMATEDIFF_PROJECT.template, {
     projectPath,
   });
@@ -3798,7 +3754,7 @@ async function setupAnimateDiffProject(): Promise<void> {
  * Generates animated video using SD 3.5 + AnimateDiff (gnu cinemagraph)
  */
 async function generateAnimateDiffVideoSD35(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.GENERATE_ANIMATEDIFF_VIDEO_SD35.template);
   vscode.window.showInformationMessage(
     '🎬 Generating animated video with SD 3.5 + AnimateDiff! This will take 5-7 minutes on N150...'
@@ -3842,7 +3798,7 @@ async function exploreAnimateDiffPackage(): Promise<void> {
  * Installs tt-train Python package from tt-metal repository
  */
 async function installTtTrain(): Promise<void> {
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_TT_TRAIN.template);
   vscode.window.showInformationMessage(
     '📦 Installing tt-train... This may take a few minutes.'
@@ -3855,7 +3811,7 @@ async function installTtTrain(): Promise<void> {
 
 async function prepareShakespeare(): Promise<void> {
   await copyTrainingTemplates();
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.PREPARE_SHAKESPEARE.template);
   vscode.window.showInformationMessage(
     '📚 Downloading tiny-shakespeare dataset... This will take a moment.'
@@ -3864,7 +3820,7 @@ async function prepareShakespeare(): Promise<void> {
 
 async function createNanoTrickster(): Promise<void> {
   await copyTrainingTemplates();
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.CREATE_NANO_TRICKSTER.template);
   vscode.window.showInformationMessage(
     '🏗️ Testing nano-trickster architecture (11M parameters)... Check terminal for parameter breakdown.'
@@ -3896,7 +3852,7 @@ async function trainFromScratch(): Promise<void> {
   }
 
   await copyTrainingTemplates();
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.TRAIN_FROM_SCRATCH.template);
   vscode.window.showInformationMessage(
     '🎭 Training nano-trickster from scratch... This will take 30-60 minutes on N150. Watch the terminal for progress!'
@@ -3923,7 +3879,7 @@ async function testNanoTrickster(): Promise<void> {
     return;
   }
 
-  const terminal = getOrCreateTerminal('tt-metal');
+  const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.TEST_NANO_TRICKSTER.template);
   vscode.window.showInformationMessage(
     '🎭 Generating Shakespeare with nano-trickster... Check terminal for creative output!'
@@ -4715,12 +4671,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Create a persistent tt-metal terminal on activation (most common use case)
   // This terminal stays open and can be reused for tt-metal commands
   const defaultTerminal = vscode.window.createTerminal({
-    name: 'TT: Metal',
+    name: 'TT-Metal',
     cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
   });
   // Show the terminal by default for better UX
   defaultTerminal.show(true); // preserveFocus=true keeps focus on editor
-  terminals['tt-metal'] = defaultTerminal;  // Register in terminal management system
   context.subscriptions.push(defaultTerminal);
 
   // Auto-configure user experience on first activation
@@ -4795,21 +4750,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 /**
  * Called when the extension is deactivated.
  *
- * Cleans up terminal references.
+ * Cleans up resources.
  * Note that VS Code automatically disposes of terminals and statusbar items
- * when the extension is deactivated, but we explicitly clear our references
- * for good measure.
+ * when the extension is deactivated.
  */
 export function deactivate(): void {
-  // Clear all terminal references
-  // VS Code will handle actual disposal
-  terminals['tt-metal'] = undefined;
-  terminals['tt-forge'] = undefined;
-  terminals['tt-xla'] = undefined;
-  terminals['vllm-server'] = undefined;
-  terminals['api-server'] = undefined;
-  terminals['explore'] = undefined;
-
   // Clear statusbar reference
   commandMenuStatusBarItem = undefined;
 

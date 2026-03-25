@@ -1,30 +1,30 @@
 """
-TT-VSCode Bridge - Python helper for VSCode extension integration
+TT-VSCode Bridge - Python helper for VSCode integration
 
-This module provides seamless integration between Python CLI scripts and the
-Tenstorrent VSCode extension's Output Preview panel.
+This module provides seamless integration between Python CLI scripts and VSCode,
+automatically opening visualization files in the editor.
 
 Usage:
     from tt_vscode_bridge import show_plot
 
     # ... generate matplotlib plot ...
     plt.savefig('my_plot.png')
-    show_plot('my_plot.png')  # Shows in VSCode preview panel!
+    show_plot('my_plot.png')  # Opens in VSCode!
 
 Features:
-- Automatically detects if running in VSCode with TT extension
+- Automatically detects if running in VSCode (desktop or code-server)
+- Opens images directly in VSCode for viewing
 - Falls back gracefully to file-based display if not in VSCode
-- Non-blocking - returns immediately after triggering display
-- Works with PNG, JPG, SVG images
+- Non-blocking - returns immediately after opening
+- Works with PNG, JPG, GIF, SVG images
 
 Requirements:
-- VSCode with Tenstorrent extension installed (optional, auto-detected)
+- VSCode (desktop) or code-server (browser-based) - auto-detected
 """
 
 import os
 import subprocess
 import sys
-import time
 from typing import Optional
 
 
@@ -46,7 +46,7 @@ def show_plot(
     verbose: bool = False
 ) -> bool:
     """
-    Display an image in VSCode's Output Preview panel.
+    Open an image file directly in VSCode.
 
     Works with both desktop VSCode and code-server (browser-based).
 
@@ -56,7 +56,7 @@ def show_plot(
         verbose: If True, print status messages
 
     Returns:
-        True if successfully sent to VSCode, False if fallback used
+        True if successfully opened in VSCode, False if fallback used
 
     Example:
         import matplotlib.pyplot as plt
@@ -148,26 +148,22 @@ def _detect_vscode_type() -> str:
 
 
 def _send_to_desktop_vscode(abs_path: str, fallback: bool, verbose: bool) -> bool:
-    """Send to desktop VSCode using --command flag."""
+    """Send to desktop VSCode by opening the file directly."""
     try:
+        # Simply open the file in VSCode
         result = subprocess.run(
-            [
-                'code',
-                '--command',
-                'tenstorrent.showVisualization',
-                abs_path
-            ],
+            ['code', abs_path],
             capture_output=True,
             timeout=5
         )
 
         if result.returncode == 0:
             if verbose:
-                print(f"✅ Sent to VSCode Output Preview: {os.path.basename(abs_path)}")
+                print(f"✅ Opened in VSCode: {os.path.basename(abs_path)}")
             return True
         else:
             if verbose:
-                print("ℹ️  VSCode command failed", file=sys.stderr)
+                print("ℹ️  VSCode open failed", file=sys.stderr)
             if fallback:
                 print(f"📊 View your visualization: {abs_path}")
             return False
@@ -184,39 +180,39 @@ def _send_to_code_server(abs_path: str, fallback: bool, verbose: bool) -> bool:
     """
     Handle code-server (browser-based VSCode).
 
-    code-server doesn't support --command flag, so we instruct the user
-    to open the image file manually once. After that, VSCode auto-refreshes
-    as the file updates (perfect for animations!).
+    Opens the file directly using code-server command.
     """
-    # Track if we've already given the user instructions
-    marker_file = '/tmp/tt_vscode_bridge_instructed'
-    first_call = not os.path.exists(marker_file)
+    # Try to find code-server binary
+    code_server_paths = [
+        '/usr/lib/code-server/lib/vscode/bin/remote-cli/code-server',
+        'code-server'
+    ]
 
-    if first_call:
-        # First call - give user instructions
-        print("\n" + "="*70)
-        print("📊 VSCODE VISUALIZATION - code-server Mode")
-        print("="*70)
-        print(f"\n🎯 ACTION REQUIRED (one-time setup):")
-        print(f"\n   1. Cmd/Ctrl+Click this path to open the image:")
-        print(f"      {abs_path}")
-        print(f"\n   2. Keep the image tab open")
-        print(f"\n   3. Watch it auto-refresh as the animation runs!")
-        print(f"\n💡 After opening once, all future frames will auto-update.")
-        print("="*70 + "\n")
-
-        # Mark that we've given instructions
+    for code_server_bin in code_server_paths:
         try:
-            with open(marker_file, 'w') as f:
-                f.write(abs_path)
-        except Exception:
-            pass  # Not critical if this fails
+            # Simply open the file in code-server
+            result = subprocess.run(
+                [code_server_bin, abs_path],
+                capture_output=True,
+                timeout=5
+            )
 
-        # Give user time to read and click
-        time.sleep(2)
+            if result.returncode == 0:
+                if verbose:
+                    print(f"✅ Opened in code-server: {os.path.basename(abs_path)}")
+                return True
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            # Try next path
+            continue
 
-    # Return True - file is saved and ready
-    return True
+    # Fallback if all code-server paths failed
+    if verbose:
+        print("ℹ️  code-server open failed", file=sys.stderr)
+    if fallback:
+        print(f"📊 View your visualization: {abs_path}")
+        print(f"   Cmd/Ctrl+Click the path above to open in VSCode")
+
+    return False
 
 
 def show_animation_frame(

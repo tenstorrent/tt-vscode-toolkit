@@ -1,16 +1,14 @@
 /**
- * EnvironmentManager - Manages Python environments for each terminal
+ * EnvironmentManager - Manages Python environments for manual activation
  *
  * Features:
- * - Tracks which environment is active in each terminal
- * - Auto-activates correct environment when terminal is created
- * - Allows manual switching via command palette
+ * - Allows manual environment switching via command palette
+ * - Tracks environment state for active terminals
  *
- * This solves the "environment drift" problem where users lose track
- * of which Python venv is active.
- *
- * Note: Status bar display has been removed to reduce clutter. Environment
- * switching is still available via command palette.
+ * Note: Automatic environment activation has been removed in favor of
+ * simple terminal management. Environments are now activated manually
+ * via command palette (Tenstorrent: Select Python Environment) or included
+ * directly in command strings.
  */
 
 import * as vscode from 'vscode';
@@ -41,22 +39,6 @@ export class EnvironmentManager {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Track terminal for environment status (does NOT auto-activate)
-   *
-   * @param terminal - Terminal to track
-   * @param terminalContext - Terminal context (determines environment)
-   */
-  trackTerminal(
-    terminal: vscode.Terminal,
-    terminalContext: TerminalContext
-  ): void {
-    const envConfig = ENVIRONMENT_REGISTRY[terminalContext];
-
-    // Store environment info
-    this.activeEnvironments.set(terminal, envConfig);
   }
 
   /**

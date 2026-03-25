@@ -423,6 +423,10 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 | N300, P150 | 13B | 128K | Yes (TP=2) | Medium models, multi-user |
 | T3K | 70B+ | 128K | Yes (TP=8) | Large models, production |
 
+### Q: What happens to running jobs and hardware utilization when a system suspends?
+
+**A:** When the system goes into suspend, all running jobs on Tenstorrent hardware are interrupted and effectively terminated, and hardware utilization drops to zero. On resume, the driver re-initializes the device (similar to a reset), so any workloads must be restarted. In normal cases you don't need a full reboot; if the device doesn't come back cleanly, run `tt-smi -r` (reset) or reboot the host.
+
 ---
 
 ## Installation & Setup
