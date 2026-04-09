@@ -8,7 +8,7 @@
     "color": "#1e1e2e",
     "theme": "dark"
   },
-  "publisher": "tenstorrent",
+  "publisher": "Tenstorrent",
   "repository": {
     "type": "git",
     "url": "https://github.com/tenstorrent/tt-vscode-toolkit"
