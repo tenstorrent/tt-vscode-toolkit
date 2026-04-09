@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.334] - 2026-04-09
+
+### Added
+- **Marketplace Icon**: Added 256×256 PNG icon (`assets/img/marketplace-icon.png`) for VSCode Marketplace listing
+  - Rasterized from `assets/img/tt_symbol_purple.svg` using the same brand color (#7c68fa)
+  - Set as root-level `icon` field in package.json (required by marketplace)
+- **Gallery Banner**: Added `galleryBanner` to package.json with dark theme (`#1e1e2e` background)
+  - Improves marketplace listing appearance
+
+### Fixed
+- **Extension Description**: Completed truncated description field in package.json
+  - Was: "Explore Tenstorrent hardware and software through interactive lessons and "
+  - Now: "Explore Tenstorrent hardware and software through interactive lessons, production templates, and hardware monitoring tools."
+
+---
+
 ## [0.0.333] - 2026-03-20
 
 ### Fixed

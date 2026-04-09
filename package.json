@@ -1,8 +1,13 @@
 {
   "name": "tt-vscode-toolkit",
   "displayName": "Tenstorrent VSCode Toolkit",
-  "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
-  "version": "0.0.333",
+  "description": "Explore Tenstorrent hardware and software through interactive lessons, projects, and demos",
+  "version": "0.0.334",
+  "icon": "assets/img/marketplace-icon.png",
+  "galleryBanner": {
+    "color": "#1e1e2e",
+    "theme": "dark"
+  },
   "publisher": "tenstorrent",
   "repository": {
     "type": "git",
