@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Extension Description**: Completed truncated description field in package.json
   - Was: "Explore Tenstorrent hardware and software through interactive lessons and "
-  - Now: "Explore Tenstorrent hardware and software through interactive lessons, production templates, and hardware monitoring tools."
+  - Now: "Explore Tenstorrent hardware and software through interactive lessons, projects, and demos."
 
 ---
 
