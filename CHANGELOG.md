@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.335] - 2026-04-10
+
+### Changed
+- **Bundling with webpack**: Extension now bundles all dependencies into a single `dist/extension.js` via webpack instead of shipping unbundled node_modules
+  - Replaced `isomorphic-dompurify` (which required jsdom and filesystem reads) with `sanitize-html` (pure JS, no DOM dependency)
+  - Added webpack, webpack-cli, ts-loader as dev dependencies
+  - `vscode:prepublish` now runs `webpack --mode production` instead of tsc
+  - `.vscodeignore` updated to exclude `node_modules/**` and `webpack.config.js`
+  - `npm run build` (tsc) remains available for dev/test use
+  - Package file count reduced from ~2186 to ~373; node_modules no longer shipped
+
+---
+
 ## [0.0.334] - 2026-04-09
 
 ### Added
