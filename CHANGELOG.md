@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.337] - 2026-04-15
+
+### Fixed
+- **`ttnn.__version__` crash in verify-installation** Check 2: replaced `ttnn.__version__` with `getattr(ttnn, '__version__', '(source build)')` — the attribute is absent when TTNN is imported from the tt-metal source tree (checkout mode) rather than a compiled pip install
+- **Stale Check 3 module path in verify-installation**: replaced `python3 -m ttnn.examples.usage.run_op_on_device` (module removed at pinned tt-metal commit) with a simple `[ -d ~/tt-metal ]` directory check that works in all environments
+
+### Added
+- **`tt-smi` added to tt-developer-image `venv-metal` and `venv-vllm`** (`docker/Dockerfile`): `pip install tt-smi` now runs alongside `huggingface-hub` so the hardware-detection lesson works out of the box in the developer container
+
+---
+
+## [0.0.336] - 2026-04-15
+
+### Added
+- **New lesson: Build tt-metal from Source** (`content/lessons/build-tt-metal.md`) — standalone reference covering clone, system deps, Python setuptools fix, build, env vars, and common errors. Targeted at QB2/pre-configured image users where `~/tt-metal` is absent. Includes Blackhole DispatchCoreAxis warning with bad/good code examples.
+- **p300c hardware support** across multiple lessons: added to `supportedHardware` and `validatedOn` in `vllm-production.md`, `verify-installation.md`, and `hardware-detection.md`
+- **QB2 callout in vllm-production.md**: P100/P300c section now explains that P300c is architecturally identical to P100 and that QB2 = 4× P300c operating as independent single-chip devices
+- **Llama-only warning in interactive-chat.md**: prominent callout at top of lesson directing QB2 and no-source-build users to the vLLM/Qwen3-0.6B path instead
+- **WH/BH Compatibility section in CLAUDE.md**: new guidance block covering DispatchCoreAxis, hf CLI migration, QB2 tt-metal absence, TT_METAL_ARCH_NAME, HF_MODEL requirement, and a per-lesson WH/BH compatibility checklist
+
+### Changed
+- **Lesson chain reordered**: `hardware-detection → download-model → verify-installation → interactive-chat` (previously verify-installation was step 2, before download-model)
+- **verify-installation.md rewritten** as diagnostic hub ("Verify Your Setup"): three checks with pass/fail interpretation and contextual links; no longer assumes `~/tt-metal` exists; QB2 callout explaining pre-configured images ship without source
+- **download-model.md rewritten**: Qwen3-0.6B is now the primary model (no license gate, works on all hardware including N150/P300c); Llama-3.1-8B-Instruct moved to optional section with N300+ DRAM warning; Steps 4-6 (tt-metal clone/setup) removed (now in build-tt-metal lesson)
+- **tt-installer.md category**: `advanced` → `first-inference`
+- **lesson-registry.json navigation updated**: previousLesson/nextLesson chain reflects new order; build-tt-metal entry added; verify-installation and download-model titles/descriptions synced with markdown front matter
+
+### Fixed
+- **DispatchCoreAxis.ROW crash on Blackhole** in three templates (`tt-chat-direct.py`, `tt-coding-assistant.py`, `tt-api-server-direct.py`): removed `ttnn.DispatchCoreAxis.ROW` argument from `DispatchCoreConfig` calls — TTNN auto-detects the correct axis per architecture
+- **`hf` CLI migration**: replaced deprecated `huggingface-cli` with `hf` CLI equivalents (`hf auth login`, `hf auth whoami`, `hf download`) in `download-model.md`, `interactive-chat.md`, `vllm-production.md`, and `terminalCommands.ts`
+- **HF_MODEL not exported**: added `export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct"` to the RUN_INFERENCE terminal command template in `terminalCommands.ts` — previously `simple_text_demo.py` would fail with missing env var
+- **setuptools/pkg_resources missing on QB2**: added `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install in the SETUP_ENVIRONMENT terminal command template
+
+---
+
 ## [0.0.335] - 2026-04-10
 
 ### Changed
