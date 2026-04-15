@@ -78,7 +78,7 @@
       "id": "tt-installer",
       "title": "Modern Setup with tt-installer 2.0",
       "description": "The fastest way to get started with Tenstorrent! Use tt-installer 2.0 for one-command installation of the full stack including drivers, firmware, tt-metalium containers, and Python environment.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "installation",
         "setup"
@@ -121,12 +121,13 @@
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 5,
       "order": 1,
       "previousLesson": "tt-installer",
-      "nextLesson": "verify-installation",
+      "nextLesson": "download-model",
       "completionEvents": [
         "onCommand:tenstorrent.runHardwareDetection"
       ],
@@ -134,8 +135,8 @@
     },
     {
       "id": "verify-installation",
-      "title": "Verify tt-metal Installation",
-      "description": "Test your tt-metal installation by running a sample operation on your Tenstorrent device.",
+      "title": "Verify Your Setup",
+      "description": "Check that your Tenstorrent hardware, TTNN, and optional tt-metal source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
       "category": "first-inference",
       "tags": [
         "installation"
@@ -150,12 +151,13 @@
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 5,
-      "order": 2,
-      "previousLesson": "hardware-detection",
-      "nextLesson": "download-model",
+      "order": 3,
+      "previousLesson": "download-model",
+      "nextLesson": "interactive-chat",
       "completionEvents": [
         "onCommand:tenstorrent.verifyInstallation"
       ],
@@ -164,7 +166,7 @@
     {
       "id": "download-model",
       "title": "Download Model and Run Inference",
-      "description": "Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent hardware.",
+      "description": "Download Qwen3-0.6B (the recommended model — no license gate, works on all hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware. Optionally download Llama-3.1-8B-Instruct for N300+ hardware.",
       "category": "first-inference",
       "tags": [
         "hardware",
@@ -184,9 +186,9 @@
         "n150"
       ],
       "estimatedMinutes": 10,
-      "order": 3,
-      "previousLesson": "verify-installation",
-      "nextLesson": "interactive-chat",
+      "order": 2,
+      "previousLesson": "hardware-detection",
+      "nextLesson": "verify-installation",
       "completionEvents": [
         "onCommand:tenstorrent.runInference"
       ],
@@ -298,11 +300,13 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300c"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 7,
@@ -849,7 +853,7 @@
     {
       "id": "forge-image-classification",
       "title": "Image Classification with TT-Forge",
-      "description": "Explore TT-Forge - Tenstorrent's MLIR-based compiler that brings PyTorch models to TT hardware! Start with validated models like MobileNetV2 for image classification. Learn forge.compile(), experiment with supported architectures, and understand the path to high-level model deployment.",
+      "description": "Compile a PyTorch MobileNetV2 model for Tenstorrent hardware using forge.compile() — no build required. The forge env is pre-installed: one command to activate, then classify images on real TT silicon.",
       "category": "compilers",
       "tags": [
         "hardware",
@@ -859,10 +863,19 @@
         "model"
       ],
       "supportedHardware": [
-        "n150"
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
       ],
-      "status": "blocked",
-      "estimatedMinutes": 20,
+      "status": "draft",
+      "validatedOn": [
+        "p300c"
+      ],
+      "estimatedMinutes": 10,
       "order": 11,
       "previousLesson": "cookbook-particle-life",
       "nextLesson": "tt-xla-jax",
@@ -873,23 +886,29 @@
     },
     {
       "id": "tt-xla-jax",
-      "title": "JAX Inference with TT-XLA",
-      "description": "Master TT-XLA - Tenstorrent's production-ready XLA-based compiler! Simple wheel installation, JAX integration via PJRT, and multi-chip support. Perfect for cloud environments with locked Python/tt-metal versions. Works with Python 3.10+, no rebuilding required!",
+      "title": "JAX and PyTorch/XLA on Tenstorrent",
+      "description": "Run JAX and PyTorch/XLA computations directly on TT hardware — no install needed. venv-forge ships pjrt_plugin_tt, JAX 0.7.1, and torch-xla pre-installed. Activate, import, and start dispatching tensors to silicon.",
       "category": "compilers",
       "tags": [
         "production",
-        "installation",
         "xla",
         "jax",
-        "inference"
+        "inference",
+        "multi-device"
       ],
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
+        "p100",
+        "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
+      "validatedOn": [
+        "p300c"
+      ],
       "estimatedMinutes": 10,
       "order": 12,
       "previousLesson": "forge-image-classification",
@@ -1101,6 +1120,34 @@
         "onCommand:tenstorrent.runComplexityExample"
       ],
       "markdownFile": "content/lessons/cs-fundamentals-07-complexity.md"
+    },
+    {
+      "id": "build-tt-metal",
+      "title": "Build tt-metal from Source",
+      "description": "Clone and build tt-metal from source. Required for Direct API (Generator API) lessons and for running tt-metal examples directly. QB2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
+      "category": "advanced",
+      "tags": [
+        "installation",
+        "build",
+        "source"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300c"
+      ],
+      "estimatedMinutes": 60,
+      "order": 13,
+      "completionEvents": [],
+      "markdownFile": "content/lessons/build-tt-metal.md"
     },
     {
       "id": "bounty-program",
