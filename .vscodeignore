@@ -16,13 +16,14 @@
 tsconfig.json
 tsconfig.test.json
 .mocharc.json
+webpack.config.js
 
 # Source files (only dist/ is needed)
 src/**
 test/**
 
-# We need to include node_modules since we're not bundling with webpack/esbuild
-# node_modules/** is commented out - dependencies must be included
+# Dependencies are bundled into dist/extension.js via webpack - exclude node_modules
+node_modules/**
 
 # Build artifacts
 *.vsix
@@ -51,14 +52,49 @@ TEST_SUMMARY.md
 # Vendor reference repos (NOT deployed with extension)
 vendor/**
 
-# Large asset files (keep in repo for documentation, exclude from package)
-# Exclude only files >2MB from package (by name)
-assets/img/samples/particle_life_multi_device.gif
-assets/img/particle_life.gif
-assets/img/game_of_life.gif
+# BINARIES AND ARCHIVES (primary scanner triggers)
+*.zip
+*.tar.gz
+*.tar
+*.patch
+*.diff
+*.mp4
+
+# CONTAINER / DEPLOYMENT FILES (moving to sister repo eventually)
+Dockerfile*
+.dockerignore
+docker-compose.yml
+podman-compose.yml
+koyeb.yaml
+.env*
+
+# DEV ARTIFACTS
+tmp/**
+.backups/**
+.github/**
+.husky/**
+
+# LARGE UNREFERENCED SAMPLE IMAGES (keep referenced images, drop bulk samples)
+assets/img/samples/frame_*.png
+assets/img/samples/gnu_cinemagraph_16frame.mp4
+dist/assets/img/samples/frame_*.png
 dist/assets/img/samples/particle_life_multi_device.gif
 dist/assets/img/particle_life.gif
 dist/assets/img/game_of_life.gif
+assets/img/samples/particle_life_multi_device.gif
+assets/img/particle_life.gif
+assets/img/game_of_life.gif
+
+# Misc dev docs not useful to users
+VLLM_INSTALLATION_DRIFT.md
+TT_METAL_PRECOMPILED.md
+COMMUNITY_GUIDELINES.md
+SECURITY.md
+LICENSE_understanding.txt
+experience_notes.md
+MULTI_DEVICE_FIX.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
 
 # Backup files
 *.bak

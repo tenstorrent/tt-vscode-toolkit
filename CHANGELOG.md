@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.335] - 2026-04-10
+
+### Changed
+- **Bundling with webpack**: Extension now bundles all dependencies into a single `dist/extension.js` via webpack instead of shipping unbundled node_modules
+  - Replaced `isomorphic-dompurify` (which required jsdom and filesystem reads) with `sanitize-html` (pure JS, no DOM dependency)
+  - Added webpack, webpack-cli, ts-loader as dev dependencies
+  - `vscode:prepublish` now runs lesson/URI validations before webpack (same as `npm run build`)
+  - `.vscodeignore` updated to exclude `node_modules/**` and `webpack.config.js`
+  - `npm run build` (tsc) remains available for dev/test use
+  - Package file count reduced from ~2186 to ~373; node_modules no longer shipped
+- **Marketplace metadata cleanup**: Removed "Tenstorrent" from user-visible fields as scanner experiment
+  - `displayName`: "Tenstorrent VSCode Toolkit" → "TT Developer Toolkit"
+  - `description`: Updated to focus on capabilities rather than brand name
+  - Activity bar `title`: "Tenstorrent" → "TT Toolkit"
+  - `publisher` field unchanged (tied to marketplace account)
+- **Icon paths moved to dist/**: `icon` and activity bar SVG now reference `dist/assets/img/` instead of root `assets/img/`, consistent with how other assets are served post-build
+- **engines.node added**: Documents actual Node >=20.9.0 requirement introduced by webpack-cli@^7
+
+### Fixed
+- **Suspicious content scan triggers eliminated** via `.vscodeignore` additions:
+  - Exclude `*.zip`, `*.tar.gz`, `*.tar`, `*.patch`, `*.diff`, `*.mp4` (binary/archive scanner triggers)
+  - Exclude `Dockerfile*`, `docker-compose.yml`, `podman-compose.yml`, `koyeb.yaml`, `.env*` (container/deployment files)
+  - Exclude `tmp/**`, `.backups/**`, `.github/**`, `.husky/**` (dev artifacts)
+  - Exclude root `assets/**` and `content/**` (already present in `dist/` via copy-content — eliminates duplication and ~16 MB)
+  - Exclude `dist/assets/img/samples/frame_*.png` (~8 MB of unreferenced sample frames)
+- **sanitize-html security improvements** in MarkdownRenderer:
+  - `style` attribute narrowed from all elements (`*`) to only the elements that use it in lesson content (`details`, `summary`, `div`, `span`, `td`, `th`)
+  - Added `allowedSchemesByTag` for `img` to permit `vscode-webview` and `vscode-resource` URI schemes, preventing webview images from being stripped by the sanitizer
+- **CLAUDE.md bundling section updated** to reflect that webpack bundling succeeded (removed stale "DO NOT bundle" warning)
+
+---
+
+## [0.0.334] - 2026-04-09
+
+### Added
+- **Marketplace Icon**: Added 256×256 PNG icon (`assets/img/marketplace-icon.png`) for VSCode Marketplace listing
+  - Rasterized from `assets/img/tt_symbol_purple.svg` using the same brand color (#7c68fa)
+  - Set as root-level `icon` field in package.json (required by marketplace)
+- **Gallery Banner**: Added `galleryBanner` to package.json with dark theme (`#1e1e2e` background)
+  - Improves marketplace listing appearance
+
+### Fixed
+- **Extension Description**: Completed truncated description field in package.json
+  - Was: "Explore Tenstorrent hardware and software through interactive lessons and "
+  - Now: "Explore Tenstorrent hardware and software through interactive lessons, projects, and demos."
+
+---
+
 ## [0.0.333] - 2026-03-20
 
 ### Fixed

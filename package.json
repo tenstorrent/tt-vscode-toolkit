@@ -1,9 +1,14 @@
 {
   "name": "tt-vscode-toolkit",
-  "displayName": "Tenstorrent VSCode Toolkit",
-  "description": "Explore Tenstorrent hardware and software through interactive lessons and ",
-  "version": "0.0.333",
-  "publisher": "tenstorrent",
+  "displayName": "TT Developer Toolkit",
+  "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
+  "version": "0.0.335",
+  "icon": "dist/assets/img/marketplace-icon.png",
+  "galleryBanner": {
+    "color": "#1e1e2e",
+    "theme": "dark"
+  },
+  "publisher": "Tenstorrent",
   "repository": {
     "type": "git",
     "url": "https://github.com/tenstorrent/tt-vscode-toolkit"
@@ -13,7 +18,8 @@
   },
   "homepage": "https://github.com/tenstorrent/tt-vscode-toolkit#readme",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.93.0",
+    "node": ">=20.9.0"
   },
   "categories": [
     "Education",
@@ -31,8 +37,8 @@
       "activitybar": [
         {
           "id": "tenstorrent-sidebar",
-          "title": "Tenstorrent",
-          "icon": "assets/img/tt_symbol_purple.svg"
+          "title": "TT Toolkit",
+          "icon": "dist/assets/img/tt_symbol_purple.svg"
         }
       ]
     },
@@ -572,7 +578,7 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "npm run clean && npm run validate:lessons && npm run validate:command-uris && webpack --mode production && npm run copy-content && npm run clean-pycache",
     "build": "npm run clean && npm run validate:lessons && npm run validate:command-uris && tsc -p ./ && npm run copy-content && npm run clean-pycache",
     "clean": "rm -rf dist/",
     "clean-pycache": "find dist -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true",
@@ -593,12 +599,11 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.20",
-    "@types/dompurify": "^3.0.5",
     "@types/js-yaml": "^4.0.9",
-    "@types/jsdom": "^27.0.0",
     "@types/marked": "^5.0.2",
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.6.2",
+    "@types/sanitize-html": "^2.16.1",
     "@types/vscode": "^1.93.0",
     "@vscode/vsce": "^3.7.1",
     "chai": "^4.5.0",
@@ -606,17 +611,18 @@
     "husky": "^9.1.7",
     "js-yaml": "^4.1.1",
     "mermaid": "^11.12.2",
-    "mocha": "^11.7.5",
+    "mocha": "^11.3.0",
+    "ts-loader": "^9.5.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "webpack": "^5.106.1",
+    "webpack-cli": "^7.0.2"
   },
   "dependencies": {
-    "dompurify": "^3.3.3",
     "gray-matter": "^4.0.3",
-    "isomorphic-dompurify": "^2.34.0",
-    "jsdom": "^27.3.0",
     "marked": "^17.0.1",
-    "marked-highlight": "^2.2.3"
+    "marked-highlight": "^2.2.3",
+    "sanitize-html": "^2.17.2"
   },
   "overrides": {
     "lodash": ">=4.17.23",

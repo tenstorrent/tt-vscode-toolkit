@@ -10,7 +10,7 @@
 
 import { marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 import * as fs from 'fs';
 import * as path from 'path';
 import matter from 'gray-matter';
@@ -212,10 +212,34 @@ export class MarkdownRenderer {
         return `<pre class="mermaid">${mermaidPlaceholder}${mermaidBlocks.length - 1}</pre>`;
       });
 
-      // Sanitize everything else
-      html = DOMPurify.sanitize(html, {
-        ADD_TAGS: ['button', 'div', 'pre'],  // Allow our command buttons, divs, and pre blocks
-        ADD_ATTR: ['data-command', 'class', 'data-args'],  // Allow our data attributes
+      // Sanitize everything else using sanitize-html (pure JS, no DOM/jsdom dependency)
+      html = sanitizeHtml(html, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+          'button', 'pre', 'div', 'span', 'details', 'summary',
+          'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img',
+        ]),
+        allowedAttributes: {
+          ...sanitizeHtml.defaults.allowedAttributes,
+          // style restricted to elements that use it in lesson content (e.g. <details> sections)
+          // rather than '*' to limit arbitrary inline CSS injection surface
+          '*': ['class', 'id'],
+          'details': ['class', 'style'],
+          'summary': ['class', 'style'],
+          'div': ['class', 'style'],
+          'span': ['class', 'style'],
+          'td': ['class', 'style'],
+          'th': ['class', 'style'],
+          'button': ['class', 'data-command', 'data-args', 'title'],
+          'pre': ['class'],
+          'code': ['class'],
+          'a': ['href', 'title', 'target'],
+          'img': ['src', 'alt', 'title', 'loading'],
+        },
+        // Allow vscode-webview / vscode-resource URI schemes used by webview.asWebviewUri()
+        // in addition to the sanitize-html defaults (http, https, ftp, mailto, //)
+        allowedSchemesByTag: {
+          'img': ['http', 'https', 'data', 'vscode-webview', 'vscode-resource'],
+        },
       });
 
       // Restore mermaid blocks with original unsanitized content
