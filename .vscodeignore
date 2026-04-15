@@ -22,7 +22,7 @@ webpack.config.js
 src/**
 test/**
 
-# Dependencies are now bundled into dist/extension.js via webpack - exclude node_modules
+# Dependencies are bundled into dist/extension.js via webpack - exclude node_modules
 node_modules/**
 
 # Build artifacts
@@ -52,14 +52,52 @@ TEST_SUMMARY.md
 # Vendor reference repos (NOT deployed with extension)
 vendor/**
 
-# Large asset files (keep in repo for documentation, exclude from package)
-# Exclude only files >2MB from package (by name)
-assets/img/samples/particle_life_multi_device.gif
-assets/img/particle_life.gif
-assets/img/game_of_life.gif
+# BINARIES AND ARCHIVES (primary scanner triggers)
+*.zip
+*.tar.gz
+*.tar
+*.patch
+*.diff
+*.mp4
+
+# CONTAINER / DEPLOYMENT FILES (moving to sister repo eventually)
+Dockerfile*
+.dockerignore
+docker-compose.yml
+podman-compose.yml
+koyeb.yaml
+.env*
+
+# DEV ARTIFACTS
+tmp/**
+.backups/**
+.github/**
+.husky/**
+
+# SOURCE ASSETS (already in dist/assets/ via copy-content — deduplication)
+assets/**
+
+# SOURCE CONTENT (already in dist/content/ via copy-content — deduplication)
+content/**
+
+# UNREFERENCED LARGE SAMPLE IMAGES IN DIST (not referenced in any lesson)
+dist/assets/img/samples/frame_*.png
+
+# Large dist GIF exclusions (prevent copy-content output from being packaged)
 dist/assets/img/samples/particle_life_multi_device.gif
 dist/assets/img/particle_life.gif
 dist/assets/img/game_of_life.gif
+
+# Misc dev docs not useful to users
+VLLM_INSTALLATION_DRIFT.md
+TT_METAL_PRECOMPILED.md
+COMMUNITY_GUIDELINES.md
+SECURITY.md
+LICENSE_understanding.txt
+experience_notes.md
+MULTI_DEVICE_FIX.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
 
 # Backup files
 *.bak

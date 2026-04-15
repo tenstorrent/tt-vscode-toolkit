@@ -90,23 +90,16 @@ npm run package       # Create .vsix (auto-adds -dev suffix for non-main branche
 - **Other branches:** `tt-vscode-toolkit-X.Y.Z-dev.vsix` (development)
 - Implemented in `scripts/package-extension.js` for easy identification of dev builds
 
-## ⚠️ NO BUNDLING (esbuild/webpack)
+## Bundling (webpack)
 
-**CRITICAL:** This extension CANNOT be bundled with esbuild or webpack.
+**v0.0.335+:** Extension successfully bundles with webpack via `vscode:prepublish`.
 
-**Attempts made:**
-- v0.0.125-126 (2025-01-06): First bundling attempt with esbuild
-- v0.0.226 (2025-01-07): Second bundling attempt with esbuild + jsdom external
+- `isomorphic-dompurify` (which needed jsdom) replaced with `sanitize-html` (pure JS)
+- `npm run build` (tsc) still available for dev/test
+- `npm run package` / `vsce package` runs webpack automatically via `vscode:prepublish`
+- Package file count reduced from ~2186 to ~373; node_modules no longer shipped
 
-**Why bundling fails:**
-1. **Tree data providers break** - "no data provider registered" errors
-2. **View registration fails** - Sidebar and toolbar additions disappear
-3. **Module resolution issues** - Dynamic imports and class exports break
-4. **jsdom file dependencies** - Even when marked external, causes runtime errors
-
-**Result:** Both attempts rolled back. Extension works correctly with full node_modules (~60MB, 2031 files).
-
-**DO NOT attempt bundling again.** The extension architecture is incompatible with bundlers.
+**Earlier failures (esbuild, v0.0.125-226):** esbuild + jsdom was incompatible; webpack + sanitize-html resolved those issues.
 
 ## Version Management
 

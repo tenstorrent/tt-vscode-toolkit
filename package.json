@@ -1,9 +1,9 @@
 {
   "name": "tt-vscode-toolkit",
-  "displayName": "Tenstorrent VSCode Toolkit",
-  "description": "Explore Tenstorrent hardware and software through interactive lessons, projects, and demos",
+  "displayName": "TT Developer Toolkit",
+  "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
   "version": "0.0.335",
-  "icon": "assets/img/marketplace-icon.png",
+  "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
     "theme": "dark"
@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/tenstorrent/tt-vscode-toolkit#readme",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.93.0",
+    "node": ">=20.9.0"
   },
   "categories": [
     "Education",
@@ -36,8 +37,8 @@
       "activitybar": [
         {
           "id": "tenstorrent-sidebar",
-          "title": "Tenstorrent",
-          "icon": "assets/img/tt_symbol_purple.svg"
+          "title": "TT Toolkit",
+          "icon": "dist/assets/img/tt_symbol_purple.svg"
         }
       ]
     },
@@ -577,7 +578,7 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run clean && webpack --mode production && npm run copy-content && npm run clean-pycache",
+    "vscode:prepublish": "npm run clean && npm run validate:lessons && npm run validate:command-uris && webpack --mode production && npm run copy-content && npm run clean-pycache",
     "build": "npm run clean && npm run validate:lessons && npm run validate:command-uris && tsc -p ./ && npm run copy-content && npm run clean-pycache",
     "clean": "rm -rf dist/",
     "clean-pycache": "find dist -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true",

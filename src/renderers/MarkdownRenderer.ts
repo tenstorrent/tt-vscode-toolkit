@@ -220,12 +220,25 @@ export class MarkdownRenderer {
         ]),
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
-          '*': ['class', 'style', 'id'],
+          // style restricted to elements that use it in lesson content (e.g. <details> sections)
+          // rather than '*' to limit arbitrary inline CSS injection surface
+          '*': ['class', 'id'],
+          'details': ['class', 'style'],
+          'summary': ['class', 'style'],
+          'div': ['class', 'style'],
+          'span': ['class', 'style'],
+          'td': ['class', 'style'],
+          'th': ['class', 'style'],
           'button': ['class', 'data-command', 'data-args', 'title'],
           'pre': ['class'],
           'code': ['class'],
           'a': ['href', 'title', 'target'],
           'img': ['src', 'alt', 'title', 'loading'],
+        },
+        // Allow vscode-webview / vscode-resource URI schemes used by webview.asWebviewUri()
+        // in addition to the sanitize-html defaults (http, https, ftp, mailto, //)
+        allowedSchemesByTag: {
+          'img': ['http', 'https', 'data', 'vscode-webview', 'vscode-resource'],
         },
       });
 
