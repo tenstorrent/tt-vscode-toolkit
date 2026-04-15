@@ -74,19 +74,16 @@ tmp/**
 .github/**
 .husky/**
 
-# SOURCE ASSETS (already in dist/assets/ via copy-content — deduplication)
-assets/**
-
-# SOURCE CONTENT (already in dist/content/ via copy-content — deduplication)
-content/**
-
-# UNREFERENCED LARGE SAMPLE IMAGES IN DIST (not referenced in any lesson)
+# LARGE UNREFERENCED SAMPLE IMAGES (keep referenced images, drop bulk samples)
+assets/img/samples/frame_*.png
+assets/img/samples/gnu_cinemagraph_16frame.mp4
 dist/assets/img/samples/frame_*.png
-
-# Large dist GIF exclusions (prevent copy-content output from being packaged)
 dist/assets/img/samples/particle_life_multi_device.gif
 dist/assets/img/particle_life.gif
 dist/assets/img/game_of_life.gif
+assets/img/samples/particle_life_multi_device.gif
+assets/img/particle_life.gif
+assets/img/game_of_life.gif
 
 # Misc dev docs not useful to users
 VLLM_INSTALLATION_DRIFT.md
