@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.361] - 2026-04-16
+
+### Fixed
+- **GitHub Pages CI build** (`npm run build:web`): added missing `isomorphic-dompurify` devDependency.
+  `build-web.js` requires this package at line 32 (`const DOMPurify = require('isomorphic-dompurify')`),
+  but it was only present in the prototype repo (`tt-vscode-toolkit-gh-pages`) and was not carried across
+  during the `feature/gh-pages` merge. Without it, `npm ci` in the Actions build job succeeds but
+  `npm run build:web` fails immediately with `MODULE_NOT_FOUND`, preventing any page generation.
+- **`scripts/build-web.js`**: corrected the header comment which incorrectly claimed "no new npm
+  dependencies"; the actual dependency list is now accurate.
+
+---
+
 ## [0.0.360] - 2026-04-16
 
 ### Fixed

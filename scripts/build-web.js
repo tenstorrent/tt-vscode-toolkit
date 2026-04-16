@@ -18,8 +18,8 @@
  *   site/assets/img/                       — copied from assets/img/
  *   site/assets/fonts/                     — Degular + RMMono from tt-ui (if available)
  *
- * No new npm dependencies: reuses gray-matter, marked, marked-highlight,
- * and sanitize-html which are already installed as devDependencies.
+ * Dependencies (devDependencies): gray-matter, marked, marked-highlight,
+ * highlight.js, isomorphic-dompurify, mermaid.
  */
 
 'use strict';
