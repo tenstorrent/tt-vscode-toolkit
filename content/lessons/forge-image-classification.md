@@ -49,22 +49,18 @@ source /etc/profile.d/tt-env-forge.sh
 
 That's the entire setup. No LLVM build, no Python version juggling, no CMake.
 
-Verify the stack is ready:
+[▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
 
-```bash
-python3 -c "
-import forge, jax, torch_xla
-print('forge     :', forge.__version__)
-print('jax       :', jax.__version__)
-print('tt devices:', jax.devices())
-"
-```
+Verify the full stack is ready:
+
+[✓ Verify Forge Stack](command:tenstorrent.verifyForgeStack)
 
 Expected output:
 
 ```
 forge     : 1.1.0.dev20260415...
 jax       : 0.7.1
+torch_xla : 2.9.0
 tt devices: [TtDevice(id=0)]
 ```
 
@@ -155,12 +151,7 @@ for i in range(5):
 
 [📝 Create Classifier Script](command:tenstorrent.createForgeClassifier)
 
-Run it:
-
-```bash
-source /etc/profile.d/tt-env-forge.sh
-python3 ~/tt-scratchpad/forge-classifier.py
-```
+[▶ Run Forge Classifier](command:tenstorrent.runForgeClassifier)
 
 Expected output:
 
@@ -175,8 +166,6 @@ Top 5 predictions:
    0.9%  lynx
    0.4%  Persian cat
 ```
-
-[▶ Run Forge Classifier](command:tenstorrent.runForgeClassifier)
 
 ---
 

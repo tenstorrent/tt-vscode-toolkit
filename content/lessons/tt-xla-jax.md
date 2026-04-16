@@ -46,16 +46,14 @@ pre-installed. There is no installation step — just activate and start computi
 source /etc/profile.d/tt-env-forge.sh
 ```
 
-Verify TT hardware is visible:
+[▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
 
-```bash
-python3 -c "import jax; print(jax.devices())"
-```
+Expected output:
 
 ```
-[TtDevice(id=0)]          # N150 / p300c single chip
+TT devices: [TtDevice(id=0)]          # N150 / p300c
 # or
-[TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # QB2
+TT devices: [TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # QB2
 ```
 
 [▶ Check TT Devices](command:tenstorrent.runHardwareDetection)
@@ -81,6 +79,8 @@ print(c.shape)            # (1024, 1024)
 print(c.devices())        # {TtDevice(id=0)}
 print(c[0, 0])            # 1024.0
 ```
+
+[▶ Run JAX Quickstart](command:tenstorrent.runJaxQuickstart)
 
 ---
 
@@ -165,6 +165,8 @@ print(result.shape)       # (4, 512, 512) on QB2
 print(result.sharding)    # shows per-device placement
 ```
 
+[▶ Run Multi-Device pmap Demo](command:tenstorrent.runJaxPmapDemo)
+
 ---
 
 ## PyTorch/XLA — PyTorch models on TT silicon
@@ -189,6 +191,8 @@ xm.mark_step()           # flush the XLA graph
 print(z.shape)            # torch.Size([256, 256])
 print(z.device)           # xla:0
 ```
+
+[▶ Run PyTorch/XLA Demo](command:tenstorrent.runPytorchXlaDemo)
 
 ### PyTorch model inference
 

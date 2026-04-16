@@ -136,7 +136,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   LOGIN_HF: {
     id: 'login-hf',
     name: 'Login to Hugging Face',
-    template: 'huggingface-cli login --token "$HF_TOKEN"',
+    template: 'hf auth login --token "$HF_TOKEN"',
     description: 'Authenticates with Hugging Face using your token',
   },
 
@@ -168,8 +168,8 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     id: 'setup-environment',
     name: 'Setup Python Environment',
     template:
-      'cd "{{ttMetalPath}}" && export PYTHONPATH=$(pwd) && pip install -r tt_metal/python_env/requirements-dev.txt',
-    description: 'Sets PYTHONPATH and installs Python dependencies for tt-metal',
+      'cd "{{ttMetalPath}}" && export PYTHONPATH=$(pwd) && pip install --upgrade pip setuptools wheel && pip install -r tt_metal/python_env/requirements-dev.txt',
+    description: 'Sets PYTHONPATH, upgrades pip/setuptools/wheel, and installs Python dependencies for tt-metal',
     variables: ['ttMetalPath'],
   },
 
@@ -178,8 +178,8 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     id: 'run-inference',
     name: 'Run Llama Inference',
     template:
-      'cd "{{ttMetalPath}}" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && pytest models/tt_transformers/demo/simple_text_demo.py -k performance-batch-1 --max_seq_len 1024 --max_generated_tokens 128',
-    description: 'Runs Llama inference demo with LLAMA_DIR set to the downloaded model',
+      'cd "{{ttMetalPath}}" && export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && pytest models/tt_transformers/demo/simple_text_demo.py -k performance-batch-1 --max_seq_len 1024 --max_generated_tokens 128',
+    description: 'Runs Llama inference demo with HF_MODEL and LLAMA_DIR set to the downloaded model',
     variables: ['ttMetalPath', 'modelPath'],
   },
 
@@ -371,32 +371,33 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   // Image Classification with TT-Forge (Lesson 11)
+  // forge + torch-xla are pre-installed in /opt/venv-forge — activate and go.
   BUILD_FORGE_FROM_SOURCE: {
     id: 'build-forge-from-source',
-    name: 'Build TT-Forge from Source',
-    template: 'unset TT_METAL_HOME && unset TT_METAL_VERSION && sudo apt-get update && sudo apt-get install -y python3.11 python3.11-venv python3.11-dev && mkdir -p ~/ttforge-toolchain ~/ttmlir-toolchain && cd ~ && git clone https://github.com/tenstorrent/tt-forge-fe.git && cd tt-forge-fe && export TTFORGE_TOOLCHAIN_DIR=~/ttforge-toolchain && export TTMLIR_TOOLCHAIN_DIR=~/ttmlir-toolchain && export TTFORGE_PYTHON_VERSION=python3.11 && source env/activate && git submodule update --init --recursive && cmake -B env/build env && cmake --build env/build && source env/activate && cmake -G Ninja -B build -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17 && cmake --build build && pip install pillow requests tabulate',
-    description: 'Builds TT-Forge from source with Python 3.11 in user directories (~/ttforge-toolchain). Takes 10-20 min.',
+    name: 'Activate Forge Environment',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import forge, jax; print(\'forge:\', forge.__version__); print(\'jax:\', jax.__version__); print(\'devices:\', jax.devices())"',
+    description: 'Activates the pre-installed venv-forge environment and verifies the forge stack',
   },
 
   INSTALL_FORGE: {
     id: 'install-forge',
-    name: 'Install TT-Forge (Wheels)',
-    template: 'unset TT_METAL_HOME && unset TT_METAL_VERSION && python3 -m venv ~/tt-forge-venv && source ~/tt-forge-venv/bin/activate && pip install tt_forge_fe --extra-index-url https://pypi.eng.aws.tenstorrent.com/ && pip install tt_tvm --extra-index-url https://pypi.eng.aws.tenstorrent.com/ && pip install pillow torch torchvision requests tabulate',
-    description: 'Creates venv and installs TT-Forge-FE wheels (quick but may have version issues). Clears environment variables first to prevent conflicts.',
+    name: 'Activate Forge Environment',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import forge, jax; print(\'forge:\', forge.__version__); print(\'jax:\', jax.__version__); print(\'devices:\', jax.devices())"',
+    description: 'Activates the pre-installed venv-forge environment (forge is pre-installed, no pip needed)',
   },
 
   TEST_FORGE_INSTALL: {
     id: 'test-forge-install',
-    name: 'Test Forge Installation',
-    template: 'cd ~/tt-forge-fe && source env/activate && python3 -c "import forge; print(f\'✓ TT-Forge {forge.__version__} loaded successfully\\!\')" && tt-smi',
-    description: 'Verifies forge module loads and TT device is detected (for source build)',
+    name: 'Verify Forge Stack',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import forge, jax, torch_xla; print(\'forge    :\', forge.__version__); print(\'jax      :\', jax.__version__); print(\'torch_xla:\', torch_xla.__version__); print(\'tt devices:\', jax.devices())"',
+    description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
   TEST_FORGE_INSTALL_WHEEL: {
     id: 'test-forge-install-wheel',
-    name: 'Test Forge Installation (Wheel)',
-    template: 'source ~/tt-forge-venv/bin/activate && python3 -c "import forge; print(f\'✓ TT-Forge {forge.__version__} loaded successfully\\!\')" && tt-smi',
-    description: 'Verifies forge module loads and TT device is detected (for wheel install)',
+    name: 'Verify Forge Stack',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import forge, jax, torch_xla; print(\'forge    :\', forge.__version__); print(\'jax      :\', jax.__version__); print(\'torch_xla:\', torch_xla.__version__); print(\'tt devices:\', jax.devices())"',
+    description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
   CREATE_FORGE_CLASSIFIER: {
@@ -410,59 +411,100 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_FORGE_CLASSIFIER: {
     id: 'run-forge-classifier',
     name: 'Run Image Classifier',
-    template: 'cd ~/tt-scratchpad && cd ~/tt-forge-fe && source env/activate && cd ~/tt-scratchpad && python tt-forge-classifier.py',
-    description: 'Runs MobileNetV2 image classification with TT-Forge on sample image (source build)',
+    template: 'source /etc/profile.d/tt-env-forge.sh && cd ~/tt-scratchpad && python3 tt-forge-classifier.py',
+    description: 'Activates venv-forge and runs MobileNetV2 image classification on TT hardware',
   },
 
   RUN_FORGE_CLASSIFIER_WHEEL: {
     id: 'run-forge-classifier-wheel',
-    name: 'Run Image Classifier (Wheel)',
-    template: 'cd ~/tt-scratchpad && source ~/tt-forge-venv/bin/activate && python tt-forge-classifier.py',
-    description: 'Runs MobileNetV2 image classification with TT-Forge on sample image (wheel install)',
+    name: 'Run Image Classifier (legacy)',
+    template: 'source /etc/profile.d/tt-env-forge.sh && cd ~/tt-scratchpad && python3 tt-forge-classifier.py',
+    description: 'Activates venv-forge and runs MobileNetV2 image classifier (alias)',
   },
 
   RUN_FORGE_CUSTOM_IMAGE: {
     id: 'run-forge-custom-image',
     name: 'Classify Custom Image',
-    template: 'cd ~/tt-scratchpad && source ~/tt-forge-venv/bin/activate && python tt-forge-classifier.py --image {{imagePath}}',
+    template: 'source /etc/profile.d/tt-env-forge.sh && cd ~/tt-scratchpad && python3 tt-forge-classifier.py --image {{imagePath}}',
     description: 'Classifies a user-provided image with TT-Forge compiled model',
     variables: ['imagePath'],
   },
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // venv-forge activation & verification (shared by forge + XLA lessons)
+  // ──────────────────────────────────────────────────────────────────────────
+
+  ACTIVATE_FORGE_ENV: {
+    id: 'activate-forge-env',
+    name: 'Activate Forge Environment',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import jax; print(\'TT devices:\', jax.devices())"',
+    description: 'Activates the pre-installed venv-forge environment and prints visible TT devices',
+  },
+
+  VERIFY_FORGE_STACK: {
+    id: 'verify-forge-stack',
+    name: 'Verify Forge Stack',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import forge, jax, torch_xla; print(\'forge    :\', forge.__version__); print(\'jax      :\', jax.__version__); print(\'torch_xla:\', torch_xla.__version__); print(\'tt devices:\', jax.devices())"',
+    description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
+  },
+
   // TT-XLA JAX Integration
-  INSTALL_TT_XLA: {
-    id: 'install-tt-xla',
-    name: 'Install TT-XLA PJRT Plugin',
-    template: 'cd ~ && python3 -m venv tt-xla-venv && source tt-xla-venv/bin/activate && pip install pjrt-plugin-tt --extra-index-url https://pypi.eng.aws.tenstorrent.com/ && pip install jax flax transformers',
-    description: 'Creates virtual environment and installs TT-XLA PJRT plugin with JAX support',
+  RUN_JAX_QUICKSTART: {
+    id: 'run-jax-quickstart',
+    name: 'Run JAX Quickstart',
+    template: "source /etc/profile.d/tt-env-forge.sh && python3 - <<'PYEOF'\nimport jax\nimport jax.numpy as jnp\na = jnp.ones((1024, 1024))\nb = jnp.ones((1024, 1024))\nc = a @ b\nprint('shape  :', c.shape)\nprint('device :', c.devices())\nprint('c[0,0] :', c[0, 0])  # expect 1024.0\nPYEOF",
+    description: 'Runs a 1024x1024 JAX matmul on TT hardware via venv-forge; prints shape, device, value',
   },
 
-  CREATE_TT_XLA_TEST: {
-    id: 'create-tt-xla-test',
-    name: 'Create TT-XLA Test Script',
-    template: 'mkdir -p ~/tt-scratchpad && cat > ~/tt-scratchpad/test-tt-xla.py << \'EOF\'\n#!/usr/bin/env python3\n"""\nTest TT-XLA installation with a simple JAX example.\n"""\nimport jax\nimport jax.numpy as jnp\n\n# Check available devices\nprint("Available JAX devices:")\nprint(jax.devices())\n\n# Try a simple computation\nx = jnp.array([1.0, 2.0, 3.0])\ny = jnp.array([4.0, 5.0, 6.0])\n\nresult = jnp.dot(x, y)\nprint(f"\\nDot product result: {result}")\nprint(f"Result device: {result.device()}")\n\nprint("\\n✓ TT-XLA is working!")\nEOF\nchmod +x ~/tt-scratchpad/test-tt-xla.py',
-    description: 'Creates a simple JAX test script to verify TT-XLA installation',
+  RUN_JAX_PMAP_DEMO: {
+    id: 'run-jax-pmap-demo',
+    name: 'Run JAX pmap Demo (multi-device)',
+    template: "source /etc/profile.d/tt-env-forge.sh && python3 - <<'PYEOF'\nimport jax\nimport jax.numpy as jnp\ndevices = jax.devices()\nn = len(devices)\nprint(f'Running across {n} TT device(s)')\n@jax.pmap\ndef matmul_per_device(A):\n    return A @ A.T\nA = jnp.ones((n, 512, 512))\nresult = matmul_per_device(A)\nprint('result shape :', result.shape)\nprint('sharding     :', result.sharding)\nPYEOF",
+    description: 'Maps a matmul across all TT devices using jax.pmap (QB2 uses all 4 chips)',
   },
 
-  TEST_TT_XLA_INSTALL: {
-    id: 'test-tt-xla-install',
-    name: 'Test TT-XLA Installation',
-    template: 'cd ~/tt-scratchpad && source ~/tt-xla-venv/bin/activate && python3 test-tt-xla.py',
-    description: 'Runs JAX test to verify TT-XLA PJRT plugin is working',
+  RUN_PYTORCH_XLA_DEMO: {
+    id: 'run-pytorch-xla-demo',
+    name: 'Run PyTorch/XLA Demo',
+    template: "source /etc/profile.d/tt-env-forge.sh && python3 - <<'PYEOF'\nimport torch\nimport torch_xla.core.xla_model as xm\ndevice = xm.xla_device()\nprint('TT device:', device)\nx = torch.randn(256, 256).to(device)\ny = torch.randn(256, 256).to(device)\nz = x @ y\nxm.mark_step()\nprint('z.shape :', z.shape)\nprint('z.device:', z.device)\nPYEOF",
+    description: 'Runs a PyTorch matmul on TT hardware via torch-xla (both pre-installed in venv-forge)',
   },
 
   DOWNLOAD_TT_XLA_DEMO: {
     id: 'download-tt-xla-demo',
     name: 'Download TT-XLA GPT-2 Demo',
-    template: 'cd ~/tt-scratchpad && curl -O https://raw.githubusercontent.com/tenstorrent/tt-forge/main/demos/tt-xla/nlp/jax/gpt_demo.py',
-    description: 'Downloads official GPT-2 demo from tt-forge repository',
+    template: 'git clone https://github.com/tenstorrent/tt-forge.git ~/tt-forge 2>/dev/null || (cd ~/tt-forge && git pull origin main)',
+    description: 'Clones the tt-forge repo (contains GPT-2, ALBERT, OPT, ResNet JAX demos)',
   },
 
   RUN_TT_XLA_DEMO: {
     id: 'run-tt-xla-demo',
     name: 'Run TT-XLA GPT-2 Demo',
-    template: 'cd ~/tt-scratchpad && source ~/tt-xla-venv/bin/activate && python3 gpt_demo.py',
-    description: 'Runs GPT-2 inference demo using JAX on TT hardware',
+    template: 'source /etc/profile.d/tt-env-forge.sh && cd ~/tt-forge/demos/tt-xla/nlp/jax && pip install -q -r requirements.txt && python3 gpt_demo.py',
+    description: 'Runs official GPT-2 next-token demo via JAX on TT hardware',
+  },
+
+  // These commands keep the registered handlers for installTtXla and testTtXlaInstall
+  // wired up (they display a helpful redirect rather than doing nothing).
+  INSTALL_TT_XLA: {
+    id: 'install-tt-xla',
+    name: 'Activate Forge Environment',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import jax; print(\'TT devices:\', jax.devices())"',
+    description: 'venv-forge is pre-installed — activates the environment instead',
+  },
+
+  CREATE_TT_XLA_TEST: {
+    id: 'create-tt-xla-test',
+    name: 'Run JAX Quickstart',
+    template: "source /etc/profile.d/tt-env-forge.sh && python3 - <<'PYEOF'\nimport jax, jax.numpy as jnp\nc = jnp.ones((1024, 1024)) @ jnp.ones((1024, 1024))\nprint('shape:', c.shape, 'device:', c.devices())\nPYEOF",
+    description: 'Runs a quick JAX matmul to verify TT-XLA is working',
+  },
+
+  TEST_TT_XLA_INSTALL: {
+    id: 'test-tt-xla-install',
+    name: 'Verify Forge Stack',
+    template: 'source /etc/profile.d/tt-env-forge.sh && python3 -c "import jax; print(jax.devices())"',
+    description: 'Verifies TT-XLA is accessible in venv-forge',
   },
 
   // ========================================

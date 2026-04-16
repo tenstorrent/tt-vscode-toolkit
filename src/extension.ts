@@ -2257,47 +2257,35 @@ async function startCodingAssistant(): Promise<void> {
 
 /**
  * Command: tenstorrent.buildForgeFromSource
- * Builds TT-Forge from source against your tt-metal installation
+ * Activates the pre-installed venv-forge environment (forge is pre-installed, no build needed)
  */
 function buildForgeFromSource(): void {
   const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.BUILD_FORGE_FROM_SOURCE.template;
-
-  runInTerminal(terminal, command);
-
+  runInTerminal(terminal, TERMINAL_COMMANDS.BUILD_FORGE_FROM_SOURCE.template);
   vscode.window.showInformationMessage(
-    '🔨 Building TT-Forge from source (10-20 min). This ensures compatibility with your tt-metal!'
+    'Activating venv-forge. forge, jax, and torch-xla are pre-installed.'
   );
 }
 
 /**
  * Command: tenstorrent.installForge
- * Installs TT-Forge-FE wheels (quick but may have version issues)
+ * Activates the pre-installed venv-forge environment (forge is pre-installed, no pip needed)
  */
 function installForge(): void {
   const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.INSTALL_FORGE.template;
-
-  runInTerminal(terminal, command);
-
+  runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_FORGE.template);
   vscode.window.showInformationMessage(
-    '📦 Installing TT-Forge wheels. If you get symbol errors, try building from source instead.'
+    'Activating venv-forge. forge, jax, and torch-xla are pre-installed.'
   );
 }
 
 /**
  * Command: tenstorrent.testForgeInstall
- * Tests forge installation and device detection
+ * Verifies the forge stack: imports forge, jax, torch_xla and prints versions + devices
  */
 function testForgeInstall(): void {
   const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.TEST_FORGE_INSTALL.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🔍 Testing forge installation. Check terminal for version and device status.'
-  );
+  runInTerminal(terminal, TERMINAL_COMMANDS.TEST_FORGE_INSTALL.template);
 }
 
 /**
@@ -2411,24 +2399,73 @@ function testTtXlaInstall(): void {
 
 /**
  * Command: tenstorrent.runTtXlaDemo
- * Downloads and runs official GPT-2 demo with TT-XLA
+ * Clones tt-forge and runs the official GPT-2 JAX demo
  */
 function runTtXlaDemo(): void {
   const terminal = getOrCreateSimpleTerminal();
-
-  // First download the demo
   const downloadCommand = TERMINAL_COMMANDS.DOWNLOAD_TT_XLA_DEMO.template;
   runInTerminal(terminal, downloadCommand);
-
-  // Then run it after a short delay
   setTimeout(() => {
     const runCommand = TERMINAL_COMMANDS.RUN_TT_XLA_DEMO.template;
     runInTerminal(terminal, runCommand);
-
     vscode.window.showInformationMessage(
-      '🎯 Running GPT-2 demo on TT hardware via JAX. First run may take a few minutes!'
+      '🎯 Running official GPT-2 JAX demo on TT hardware. First run may take a few minutes!'
     );
   }, 2000);
+}
+
+/**
+ * Command: tenstorrent.activateForgeEnv
+ * Sources venv-forge and prints visible TT devices — one button, done.
+ */
+function activateForgeEnv(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.ACTIVATE_FORGE_ENV.template);
+  vscode.window.showInformationMessage(
+    'Activating venv-forge. You should see TtDevice in the output.'
+  );
+}
+
+/**
+ * Command: tenstorrent.verifyForgeStack
+ * Imports forge, jax, and torch_xla and prints versions + device list.
+ */
+function verifyForgeStack(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.VERIFY_FORGE_STACK.template);
+}
+
+/**
+ * Command: tenstorrent.runJaxQuickstart
+ * Runs a 1024×1024 JAX matmul on TT hardware via venv-forge.
+ */
+function runJaxQuickstart(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_JAX_QUICKSTART.template);
+  vscode.window.showInformationMessage(
+    'Dispatching 1024×1024 matmul to TT hardware via JAX.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runJaxPmapDemo
+ * Maps a matmul across all TT devices with jax.pmap (QB2: 4 chips in parallel).
+ */
+function runJaxPmapDemo(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_JAX_PMAP_DEMO.template);
+  vscode.window.showInformationMessage(
+    'Running pmap matmul across all TT devices. QB2 uses all 4 chips in parallel.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runPytorchXlaDemo
+ * Runs a PyTorch 256×256 matmul on TT hardware via torch-xla.
+ */
+function runPytorchXlaDemo(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_PYTORCH_XLA_DEMO.template);
 }
 
 // ============================================================================
@@ -4573,10 +4610,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.createForgeClassifier', createForgeClassifier),
     vscode.commands.registerCommand('tenstorrent.runForgeClassifier', runForgeClassifier),
 
+    // Lesson 11+12 - venv-forge shared commands (Forge + TT-XLA lessons)
+    vscode.commands.registerCommand('tenstorrent.activateForgeEnv', activateForgeEnv),
+    vscode.commands.registerCommand('tenstorrent.verifyForgeStack', verifyForgeStack),
+
     // Lesson 12 - TT-XLA JAX Integration
     vscode.commands.registerCommand('tenstorrent.installTtXla', installTtXla),
     vscode.commands.registerCommand('tenstorrent.testTtXlaInstall', testTtXlaInstall),
     vscode.commands.registerCommand('tenstorrent.runTtXlaDemo', runTtXlaDemo),
+    vscode.commands.registerCommand('tenstorrent.runJaxQuickstart', runJaxQuickstart),
+    vscode.commands.registerCommand('tenstorrent.runJaxPmapDemo', runJaxPmapDemo),
+    vscode.commands.registerCommand('tenstorrent.runPytorchXlaDemo', runPytorchXlaDemo),
 
     // Lesson 13 - RISC-V Programming on Tensix Cores
     vscode.commands.registerCommand('tenstorrent.buildProgrammingExamples', buildProgrammingExamples),
