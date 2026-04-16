@@ -263,19 +263,83 @@ if (hljsExtension) {
 
 const WEB_RENDERER = new marked.Renderer();
 
-// Keep track of collected command blocks so we can inject them after their
-// anchor text (command buttons in flowing prose become inline code+links).
+/**
+ * Extract plain text from a marked token tree without recursing into marked's
+ * own renderer (which would cause infinite recursion in custom renderers).
+ * Handles nested em / strong / code / image tokens gracefully.
+ */
+function extractText(toks) {
+  return (toks || []).map(t => {
+    if (t.tokens && t.tokens.length) return extractText(t.tokens);
+    return t.text || t.raw || '';
+  }).join('');
+}
+
+/**
+ * Resolve a GitHub blob URL to a local site path if the file is available
+ * in our assets.  Returns the local path string (e.g. "/assets/img/foo.gif")
+ * or null when the URL doesn't match or the file doesn't exist on disk.
+ *
+ * Handles the VSCode-extension convention of linking previews to the GitHub
+ * blob viewer because GIFs can't be embedded in webviews:
+ *
+ *   [![Alt](/assets/img/preview.png)](https://github.com/…/file.gif)
+ *
+ * On the web we have the files locally, so we serve them directly.
+ */
+const GH_BLOB_RE = /^https:\/\/github\.com\/tenstorrent\/tt-vscode-toolkit\/blob\/main\/(.+)$/;
+
+function resolveGithubMediaToLocal(href) {
+  if (!href) return null;
+  const m = href.match(GH_BLOB_RE);
+  if (!m) return null;
+  const repoRelPath = m[1];  // e.g. "assets/img/game_of_life.gif"
+  const diskPath    = path.join(ROOT, repoRelPath);
+  if (!fs.existsSync(diskPath)) return null;
+  return '/' + repoRelPath;  // e.g. "/assets/img/game_of_life.gif"
+}
+
 WEB_RENDERER.link = function ({ href, title, tokens }) {
-  // Extract plain text from the token tree without recursing into marked.
-  // Handles nested em/strong/code tokens gracefully.
-  function extractText(toks) {
-    return (toks || []).map(t => {
-      if (t.tokens && t.tokens.length) return extractText(t.tokens);
-      return t.text || t.raw || '';
-    }).join('');
-  }
   const text = extractText(tokens);
 
+  // ---- GitHub-hosted media: upgrade to inline figure on the web ----------
+  //
+  // In VSCode webviews, GIFs and videos can't be embedded directly, so the
+  // lessons use a static PNG thumbnail linked to the GitHub blob viewer:
+  //
+  //   [![Alt](/assets/img/preview.png)](https://github.com/…/animation.gif)
+  //   [View full animation →](https://github.com/…/animation.gif)
+  //
+  // On GitHub Pages we have the files, so we show them inline instead.
+  const localMedia = resolveGithubMediaToLocal(href);
+  if (localMedia) {
+    const ext = path.extname(localMedia).toLowerCase();
+
+    // Linked thumbnail ([![img](preview)](github://.gif)) → inline GIF
+    const hasImageChild = tokens && tokens.some(t => t.type === 'image');
+    if (hasImageChild && (ext === '.gif' || ext === '.png')) {
+      const imgTok = tokens.find(t => t.type === 'image');
+      const alt = imgTok ? escapeHtml(imgTok.text || '') : escapeHtml(text);
+      const cap = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : '';
+      return `<figure class="tt-media-figure">` +
+             `<img src="${escapeAttr(localMedia)}" alt="${alt}" loading="lazy">${cap}` +
+             `</figure>`;
+    }
+
+    // Inline video from a linked thumbnail
+    if (hasImageChild && (ext === '.mp4' || ext === '.webm')) {
+      const cap = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : '';
+      return `<figure class="tt-media-figure">` +
+             `<video src="${escapeAttr(localMedia)}" autoplay loop muted playsinline controls>${cap}` +
+             `</video></figure>`;
+    }
+
+    // Plain text link (e.g. "View full animation →") → rewrite to local path
+    const titleStr = title ? ` title="${escapeAttr(title)}"` : '';
+    return `<a href="${escapeAttr(localMedia)}" class="tt-media-link"${titleStr}>${escapeHtml(text)}</a>`;
+  }
+
+  // ---- Non-GitHub links ----------------------------------------------------
   if (!href || !href.startsWith('command:')) {
     const escapedHref = escapeAttr(href || '');
     const titleStr = title ? ` title="${escapeAttr(title)}"` : '';
@@ -393,8 +457,11 @@ function renderLesson(markdownPath) {
   });
 
   html = DOMPurify.sanitize(html, {
-    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary'],
-    ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw'],
+    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
+               'figure', 'figcaption', 'video', 'source'],
+    ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
+               'autoplay', 'loop', 'muted', 'playsinline', 'controls',
+               'loading'],
   });
 
   // Restore mermaid content
@@ -1255,6 +1322,41 @@ body.tt-lesson-web {
   z-index: 201;
 }
 
+/* ===== Inline media figures (GIFs, videos) ===== */
+
+/*
+ * GIFs and videos that were linked to GitHub in the VSCode lesson source
+ * are promoted to inline figures on the web (we have the files locally).
+ */
+.tt-media-figure {
+  margin: 28px 0;
+  text-align: center;
+}
+
+.tt-media-figure img,
+.tt-media-figure video {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  display: block;
+  margin: 0 auto;
+}
+
+.tt-media-figure figcaption {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--tt-muted);
+  font-style: italic;
+}
+
+/* "View full animation" plain-text links that follow a figure */
+.tt-media-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--tt-primary);
+}
+
 /* ===== Mermaid diagram overrides ===== */
 
 /* Mermaid renders SVG inline; give it a bit of breathing room and
@@ -1526,8 +1628,11 @@ function renderMarkdownPage(filePath) {
     return `<pre class="mermaid">${MERMAID_PH}${mermaidBlocks.length - 1}</pre>`;
   });
   html = DOMPurify.sanitize(html, {
-    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary'],
-    ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw'],
+    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
+               'figure', 'figcaption', 'video', 'source'],
+    ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
+               'autoplay', 'loop', 'muted', 'playsinline', 'controls',
+               'loading'],
   });
   mermaidBlocks.forEach((mc, i) => {
     html = html.replace(`${MERMAID_PH}${i}`, mc);
