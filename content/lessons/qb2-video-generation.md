@@ -29,35 +29,27 @@ Your QB2 can generate original AI video — 5–7 minute clips of cinematic foot
 ## What You'll Build
 
 ```
-┌─────────────────────────────────────────────────────┐
-│               TT-TV Attractor Mode                  │
-│  (continuous generation + fullscreen playback loop) │
-└────────────────────────┬────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────┐
-│                  tt-gen (GTK4 GUI)                  │
-│  Prompt ──▶ Generate ──▶ Gallery ──▶ Export         │
-│  ✨ Prompt generator | 🎬 Hover previews | History  │
-└────────────────────────┬────────────────────────────┘
-                         │ HTTP POST /generate
-┌────────────────────────▼────────────────────────────┐
-│  tt-inference-server (Docker)                       │
-│  Wan2.2-T2V-A14B-Diffusers  ·  WAN transformer     │
-│  Port 8000                                          │
-└────────────────────────┬────────────────────────────┘
-                         │ TTNN dispatch
-┌────────────────────────▼────────────────────────────┐
-│  QuietBox 2 Hardware                                │
-│  2× P300 cards = 4× Blackhole chips = (2,2) mesh   │
-│  480 Tensix cores  ·  2,654 TFLOPS  ·  4× GDDR6    │
-└─────────────────────────────────────────────────────┘
-```
+┌─────────────────────┐
+│  TT-TV Attractor    │  fullscreen playback + auto-generation loop
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  tt-gen (GTK4 GUI)  │  prompt editor, gallery, queue, hover previews
+└──────────┬──────────┘
+           │ HTTP POST /generate
+           ▼
+┌─────────────────────┐
+│  tt-inference-server│  Wan2.2-T2V-A14B-Diffusers, port 8000 (Docker)
+└──────────┬──────────┘
+           │ TTNN dispatch
+           ▼
+┌─────────────────────┐
+│  QuietBox 2         │  2x P300, 4x Blackhole, (2,2) mesh, 2654 TFLOPS
+└─────────────────────┘
 
-**Secondary stack** — runs alongside, no TT hardware needed:
-
-```
-Qwen3-0.6B (CPU, port 8001)  ←  Prompt polish server
-word_banks.py + Markov chain  ←  Algorithmic stage
+  Qwen3-0.6B  (CPU, port 8001)  -- prompt polish, no TT hardware needed
+  word_banks + Markov chain      -- algorithmic generation stage
 ```
 
 **What you get at the end:**
