@@ -204,7 +204,7 @@ pip install huggingface_hub
 
 # Download motion module weights (1.7GB)
 mkdir -p ~/models/animatediff
-huggingface-cli download \
+hf download \
     guoyww/animatediff \
     mm_sd_v15_v2.ckpt \
     --local-dir ~/models/animatediff

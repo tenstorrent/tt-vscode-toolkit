@@ -204,7 +204,7 @@ python validate_reference.py
 
 **Inspect model configuration:**
 ```bash
-huggingface-cli download microsoft/Phi-3-mini-128k-instruct config.json --local-dir ~/models/Phi-3
+hf download microsoft/Phi-3-mini-128k-instruct config.json --local-dir ~/models/Phi-3
 cat ~/models/Phi-3/config.json
 ```
 

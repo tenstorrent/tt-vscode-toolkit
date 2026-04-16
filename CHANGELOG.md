@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.354] - 2026-04-16
+
+### Fixed
+- **All active lessons**: replaced remaining `huggingface-cli` commands with the current `hf` CLI equivalents — `huggingface-cli download` → `hf download`, `huggingface-cli whoami` → `hf auth whoami` (image-generation, animatediff-video-generation, bounty-program-model-bringup).
+
+---
+
 ## [0.0.353] - 2026-04-16
 
 ### Fixed

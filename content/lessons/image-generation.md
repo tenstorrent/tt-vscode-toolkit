@@ -589,7 +589,7 @@ Most pytest tests automatically clean up the device, so this is only needed if s
 **Model download fails:**
 ```bash
 # Check Hugging Face authentication
-huggingface-cli whoami
+hf auth whoami
 
 # SDXL Base 1.0 is publicly available - no special access needed
 # Visit: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
