@@ -13,13 +13,15 @@ supportedHardware:
   - t3k
   - p100
   - p150
-  - p300
+  - p300c
   - galaxy
 status: validated
 validatedOn:
   - n150
-  - p300
+  - p300c
 estimatedMinutes: 30
+validationDate: 2026-04-16
+validationNotes: Validated on P300C (QB2 QuietBox) — mel-spectrogram computation confirmed working; device opens cleanly on Blackhole; CLI arg fixed to accept audio file path
 ---
 
 ## Overview

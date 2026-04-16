@@ -683,13 +683,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 5,
       "order": 1,
@@ -717,13 +717,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 2,
@@ -749,13 +749,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 3,
@@ -781,13 +781,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 4,
@@ -813,13 +813,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 5,
@@ -845,13 +845,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 6,

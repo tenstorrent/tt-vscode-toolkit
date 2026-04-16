@@ -74,6 +74,7 @@ class AudioProcessor:
 # Example usage
 if __name__ == "__main__":
     import os
+    import sys
 
     # Check for required dependencies
     try:
@@ -87,7 +88,7 @@ if __name__ == "__main__":
 
     # Load and process audio
     print("\nProcessing audio...")
-    audio_file = "examples/sample.wav"  # Use your own file
+    audio_file = sys.argv[1] if len(sys.argv) > 1 else "examples/sample.wav"
 
     try:
         mel_spec = processor.compute_mel_spectrogram(audio_file)

@@ -8,6 +8,90 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 
+
+def _ttnn_conv2d_single_kernel(device, image_chw, kernel_2d):
+    """
+    Apply a 2D convolution kernel to each RGB channel independently using TTNN.
+
+    TTNN conv2d uses NHWC input format and requires explicit batch/spatial
+    dimensions. This helper treats each color channel as a separate single-
+    channel image in a batch (N=C, H, W, channels=1), which lets us use
+    standard conv2d (groups=0) and avoids depthwise grouping constraints.
+
+    Args:
+        device:     TTNN device handle
+        image_chw:  Float32 tensor of shape (C, H, W)
+        kernel_2d:  Float32 tensor of shape (kH, kW)
+
+    Returns:
+        Float32 tensor of shape (C, H, W)
+    """
+    C, H, W = image_chw.shape
+    kH, kW = kernel_2d.shape
+
+    # -- Input: (C, H, W) → NHWC batch (C, H, W, 1) -------------------------
+    # Each RGB channel becomes one single-channel image in a batch of C.
+    img_batch = image_chw.unsqueeze(-1)          # (C, H, W, 1)  NHWC
+
+    img_tt = ttnn.from_torch(
+        img_batch,
+        dtype=ttnn.bfloat16,
+        layout=ttnn.ROW_MAJOR_LAYOUT,
+        device=device,
+    )
+
+    # -- Weight: (out_channels=1, in_channels=1, kH, kW) --------------------
+    weight_4d = kernel_2d.unsqueeze(0).unsqueeze(0)   # (1, 1, kH, kW)
+
+    weight_tt = ttnn.from_torch(
+        weight_4d,
+        dtype=ttnn.bfloat16,
+        layout=ttnn.ROW_MAJOR_LAYOUT,
+        device=device,
+    )
+
+    # -- Zero bias: (1, 1, 1, out_channels=1) --------------------------------
+    bias_tt = ttnn.from_torch(
+        torch.zeros(1, 1, 1, 1, dtype=torch.float32),
+        dtype=ttnn.bfloat16,
+        layout=ttnn.ROW_MAJOR_LAYOUT,
+        device=device,
+    )
+
+    # -- "same" padding: each side = (kernel_size - 1) // 2 -----------------
+    pad_h = (kH - 1) // 2
+    pad_w = (kW - 1) // 2
+
+    conv_config = ttnn.Conv2dConfig(weights_dtype=ttnn.bfloat16)
+
+    # -- TTNN conv2d ---------------------------------------------------------
+    # batch_size=C: processes all C channels simultaneously as a batch.
+    # Output format from TTNN: (1, 1, C*H*W, out_channels=1) — flat NHW.
+    result_tt = ttnn.conv2d(
+        input_tensor=img_tt,
+        weight_tensor=weight_tt,
+        bias_tensor=bias_tt,
+        in_channels=1,
+        out_channels=1,
+        device=device,
+        kernel_size=(kH, kW),
+        stride=(1, 1),
+        padding=(pad_h, pad_w),
+        batch_size=C,
+        input_height=H,
+        input_width=W,
+        conv_config=conv_config,
+        groups=0,
+    )
+
+    # -- Reshape output back to (C, H, W) ------------------------------------
+    # TTNN outputs (1, 1, C*H*W, 1); drop the singleton dims and unflatten.
+    result_torch = ttnn.to_torch(result_tt)      # (1, 1, C*H*W, 1)
+    result = result_torch.reshape(C, H, W).float()
+
+    return result
+
+
 class ImageFilterBank:
     def __init__(self, device):
         """
@@ -76,7 +160,7 @@ class ImageFilterBank:
         return kernels
 
     def load_image(self, path):
-        """Load image as tensor."""
+        """Load image as float32 tensor in (C, H, W) format."""
         img = Image.open(path).convert('RGB')
         img_array = np.array(img).astype(np.float32) / 255.0  # Normalize to [0, 1]
         return torch.from_numpy(img_array).permute(2, 0, 1)  # (H, W, C) -> (C, H, W)
@@ -93,35 +177,25 @@ class ImageFilterBank:
 
     def apply_filter(self, image, filter_name):
         """
-        Apply named filter to image.
+        Apply named filter to image on Tenstorrent hardware via TTNN conv2d.
+
+        TTNN conv2d requires NHWC input, explicit spatial dimensions, and
+        keyword arguments. Each RGB channel is processed as a separate image
+        in a batch so a single 2D kernel can be applied uniformly.
 
         Args:
-            image: Tensor (C, H, W)
+            image: Float32 tensor (C, H, W)
             filter_name: Name from self.kernels
 
         Returns:
-            Filtered image tensor
+            Filtered image tensor (C, H, W)
         """
         if filter_name not in self.kernels:
             raise ValueError(f"Unknown filter: {filter_name}")
 
-        kernel = self.kernels[filter_name]
+        kernel = self.kernels[filter_name]  # (kH, kW)
 
-        # Move to device
-        img_tt = ttnn.from_torch(image.unsqueeze(0), device=self.device, layout=ttnn.TILE_LAYOUT)
-        kernel_tt = ttnn.from_torch(kernel.unsqueeze(0).unsqueeze(0), device=self.device, layout=ttnn.TILE_LAYOUT)
-
-        # Apply to each channel
-        filtered_channels = []
-        for c in range(image.shape[0]):
-            channel = img_tt[0, c:c+1, :, :]
-            filtered = ttnn.conv2d(channel, kernel_tt, padding='same')
-            filtered_channels.append(filtered)
-
-        # Stack channels
-        result = ttnn.concat(filtered_channels, dim=1)
-
-        return ttnn.to_torch(result).squeeze(0).cpu()
+        return _ttnn_conv2d_single_kernel(self.device, image.float(), kernel.float())
 
     def edge_detect_combined(self, image):
         """Sobel edge detection (combines X and Y gradients)."""
@@ -137,72 +211,44 @@ class ImageFilterBank:
         """
         Kuwahara filter approximation for oil painting effect.
 
-        Simplifies colors while preserving edges.
+        Simplifies colors while preserving edges via a box blur applied on
+        Tenstorrent hardware, then multiplied by quantized intensity values.
         """
-        # Convert to grayscale for intensity
+        # Quantize intensity for color simplification
         gray = image.mean(dim=0, keepdim=True)
-
-        # Quantize intensity
         quantized = torch.floor(gray * intensity_levels) / intensity_levels
 
-        # Apply bilateral-style smoothing
-        # (Simplified version - full Kuwahara is more complex)
-        img_tt = ttnn.from_torch(image.unsqueeze(0), device=self.device)
-
-        # Box blur as approximation
+        # Variable-size box kernel for the blur approximation
         kernel_size = radius * 2 + 1
-        box_kernel = torch.ones((kernel_size, kernel_size)) / (kernel_size ** 2)
-        kernel_tt = ttnn.from_torch(box_kernel.unsqueeze(0).unsqueeze(0), device=self.device)
+        box_kernel = torch.ones((kernel_size, kernel_size), dtype=torch.float32) / (kernel_size ** 2)
 
-        smoothed_channels = []
-        for c in range(3):
-            channel = img_tt[0, c:c+1, :, :]
-            smoothed = ttnn.conv2d(channel, kernel_tt, padding='same')
-            smoothed_channels.append(smoothed)
+        smoothed = _ttnn_conv2d_single_kernel(self.device, image.float(), box_kernel)
 
-        result = ttnn.concat(smoothed_channels, dim=1)
-        result_torch = ttnn.to_torch(result).squeeze(0).cpu()
-
-        # Combine with quantized colors
-        return result_torch * quantized.expand_as(result_torch)
+        # Blend smoothed result with quantized color map
+        return smoothed * quantized.expand_as(smoothed)
 
     def custom_kernel(self, image, kernel_matrix):
         """
-        Apply custom user-defined kernel.
+        Apply custom user-defined kernel on Tenstorrent hardware.
 
         Args:
-            image: Input image tensor
-            kernel_matrix: 2D numpy array or torch tensor
+            image: Input image tensor (C, H, W)
+            kernel_matrix: 2D numpy array or float32 torch tensor (kH, kW)
 
         Returns:
-            Filtered image
+            Filtered image (C, H, W)
         """
         if isinstance(kernel_matrix, np.ndarray):
             kernel_matrix = torch.from_numpy(kernel_matrix).float()
 
-        kernel_tt = ttnn.from_torch(
-            kernel_matrix.unsqueeze(0).unsqueeze(0),
-            device=self.device
-        )
-
-        img_tt = ttnn.from_torch(image.unsqueeze(0), device=self.device)
-
-        filtered_channels = []
-        for c in range(image.shape[0]):
-            channel = img_tt[0, c:c+1, :, :]
-            filtered = ttnn.conv2d(channel, kernel_tt, padding='same')
-            filtered_channels.append(filtered)
-
-        result = ttnn.concat(filtered_channels, dim=1)
-        return ttnn.to_torch(result).squeeze(0).cpu()
+        return _ttnn_conv2d_single_kernel(self.device, image.float(), kernel_matrix.float())
 
 
 # Example usage
 if __name__ == "__main__":
-    import ttnn
     import sys
 
-    device = ttnn.open_device(device_id=0)
+    device = ttnn.open_device(device_id=0, l1_small_size=8192)
     filters = ImageFilterBank(device)
 
     # Load image (use command line argument or default)
@@ -213,7 +259,6 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print(f"Error: Could not find image at {image_path}")
         print("Usage: python filters.py <path-to-image>")
-        print("Note: You may need to provide your own sample image")
         ttnn.close_device(device)
         sys.exit(1)
 
@@ -236,23 +281,23 @@ if __name__ == "__main__":
     axes[0].set_title("Original")
     axes[0].axis('off')
 
-    axes[1].imshow(edge.permute(1, 2, 0))
+    axes[1].imshow(edge.permute(1, 2, 0).clamp(0, 1))
     axes[1].set_title("Edge Detect")
     axes[1].axis('off')
 
-    axes[2].imshow(blurred.permute(1, 2, 0))
+    axes[2].imshow(blurred.permute(1, 2, 0).clamp(0, 1))
     axes[2].set_title("Gaussian Blur")
     axes[2].axis('off')
 
-    axes[3].imshow(sharpened.permute(1, 2, 0))
+    axes[3].imshow(sharpened.permute(1, 2, 0).clamp(0, 1))
     axes[3].set_title("Sharpened")
     axes[3].axis('off')
 
-    axes[4].imshow(embossed.permute(1, 2, 0))
+    axes[4].imshow(embossed.permute(1, 2, 0).clamp(0, 1))
     axes[4].set_title("Embossed")
     axes[4].axis('off')
 
-    axes[5].imshow(oil_paint.permute(1, 2, 0))
+    axes[5].imshow(oil_paint.permute(1, 2, 0).clamp(0, 1))
     axes[5].set_title("Oil Painting")
     axes[5].axis('off')
 

@@ -250,12 +250,12 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 👨‍🍳 Tenstorrent Cookbook
 *6 lessons, 6 validated*
 
-- **Tenstorrent Cookbook Overview** — `N150` `P300`
-- **Recipe 1: Conway's Game of Life** — `N150` `P300`
-- **Recipe 2: Audio Signal Processing** — `N150` `P300`
-- **Recipe 3: Mandelbrot Fractal Explorer** — `N150` `P300`
-- **Recipe 4: Custom Image Filters** — `N150` `P300`
-- **Recipe 5: Particle Life Simulator** — `N150` `P300`
+- **Tenstorrent Cookbook Overview** — `N150` `P300C`
+- **Recipe 1: Conway's Game of Life** — `N150` `P300C`
+- **Recipe 2: Audio Signal Processing** — `N150` `P300C`
+- **Recipe 3: Mandelbrot Fractal Explorer** — `N150` `P300C`
+- **Recipe 4: Custom Image Filters** — `N150` `P300C`
+- **Recipe 5: Particle Life Simulator** — `N150` `P300C`
 
 ### 🧠 CS Fundamentals
 *7 lessons, 0 validated*

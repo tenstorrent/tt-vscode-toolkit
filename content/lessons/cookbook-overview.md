@@ -14,13 +14,15 @@ supportedHardware:
   - t3k
   - p100
   - p150
-  - p300
+  - p300c
   - galaxy
 status: validated
 validatedOn:
   - n150
-  - p300
+  - p300c
 estimatedMinutes: 5
+validationDate: 2026-04-16
+validationNotes: All 5 cookbook recipes validated on P300C (QB2 QuietBox) with Blackhole architecture
 ---
 
 # Tenstorrent Cookbook: Learn by Building

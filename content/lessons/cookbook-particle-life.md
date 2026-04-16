@@ -13,13 +13,15 @@ supportedHardware:
   - t3k
   - p100
   - p150
-  - p300
+  - p300c
   - galaxy
 status: validated
 validatedOn:
   - n150
-  - p300
+  - p300c
 estimatedMinutes: 30
+validationDate: 2026-04-16
+validationNotes: Validated on P300C (QB2 QuietBox) — particle force calculations via ttnn.matmul confirmed working on Blackhole; multi-device path also available for 4x P300C systems
 ---
 
 ## Overview

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.351] - 2026-04-16
+
+### Fixed
+- **image_filters cookbook template rewritten** for current TTNN conv2d API: replaced non-existent positional `ttnn.conv2d(tensor, kernel, padding='same')` call with correct keyword-arg form (`input_tensor`, `weight_tensor`, `bias_tensor`, `in_channels`, `out_channels`, `device`, `kernel_size`, `stride`, `padding`, `batch_size`, `input_height`, `input_width`, `conv_config`, `groups`). RGB channels are now processed as a batch (`batch_size=C`, `in_channels=1`, `out_channels=1`) — avoids depthwise grouping constraints and keeps the API straightforward. Added `l1_small_size=8192` to `open_device`. Validated on P300C (QB2).
+- **audio_processor cookbook CLI**: hardcoded `examples/sample.wav` path replaced with `sys.argv[1]` fallback pattern, matching all other cookbooks.
+
+### Changed
+- **Cookbook lesson metadata**: corrected `p300` → `p300c` in `supportedHardware` and `validatedOn` for all six cookbook lessons (overview, game-of-life, audio-processor, mandelbrot, image-filters, particle-life); added `validationDate: 2026-04-16` and P300C-specific validation notes to each.
+
+---
+
 ## [0.0.350] - 2026-04-16
 
 ### Added
