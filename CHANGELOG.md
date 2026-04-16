@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.358] - 2026-04-16
+
+### Added
+- **GitHub Pages static site** (`npm run build:web`): generates a fully static web version of all lessons and reference pages, deployable via GitHub Actions to GitHub Pages.
+  - All 40 lessons and 5 reference pages (Welcome, FAQ, Step Zero, RISC-V Guide, Version Compatibility) rendered to `site/`.
+  - Two-column sidebar layout with lesson catalog, hardware filter chips, and mobile toggle.
+  - `command:tenstorrent.showLesson` links become HTML anchor links; terminal-command buttons become copyable shell blocks with a VS Code extension badge indicating web-disabled status.
+  - Mermaid diagrams rendered via vendored `mermaid.min.js`; no external CDN dependency.
+  - GitHub-linked GIFs and videos promoted to inline `<figure>` elements (local asset copies used on the web).
+  - Welcome page component styles scoped to prevent grid layout bleed.
+  - **Build-time syntax highlighting**: `highlight.js` (devDependency) wired through `marked-highlight`; code fences annotated at build time using Tenstorrent token colors from `themes/tenstorrent-theme.json` (keywords teal, strings pink, functions gold, types pink, comments slate).
+  - GitHub Actions workflow (`.github/workflows/gh-pages.yml`) deploys on push to `main` and `readiness/**`.
+
+---
+
 ## [0.0.357] - 2026-04-16
 
 ### Changed
