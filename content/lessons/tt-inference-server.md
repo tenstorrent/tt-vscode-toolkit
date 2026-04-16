@@ -749,10 +749,13 @@ python3 run.py --model Wan-2.2-T2V-1.3B --tt-device p100 \
 
 ---
 
-## Dev Branch — What's Coming (as of 2026-04-15)
+## What's New in main (as of 2026-04-16)
 
-The `dev` branch of tt-inference-server (VERSION 0.12.0) contains work that is
-not yet in a release. Here's a snapshot of what's active there:
+> **Note:** As of 2026-04-16, the `dev` branch has been retired.
+> All active development now lands directly on **`main`** before release.
+> Clone `main` for the latest features; it is the single development branch.
+
+Recent additions merged to `main`:
 
 ### C++ inference server with IPC
 
@@ -789,10 +792,6 @@ latest OpenAI SDK streaming patterns.
 `--multihost` flag and companion documentation (`docs/multihost_deployment.md`)
 support deploying prefill and decode on separate machines connected via
 high-speed fabric.
-
-> These features are under active development. Pin a dev branch commit if you
-> want to experiment — `run.py` accepts `--override-docker-image` to use a
-> custom build.
 
 ---
 

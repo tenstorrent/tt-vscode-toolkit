@@ -22,7 +22,7 @@ status: draft
 estimatedMinutes: 10
 ---
 
-# Lesson 9: Coding Assistant with Prompt Engineering
+# Coding Assistant with Prompt Engineering
 
 ## Overview
 
@@ -30,11 +30,15 @@ Build a **coding assistant** powered by Llama 3.1 8B running on your Tenstorrent
 hardware using tt-metal's Direct API. This lesson focuses on **prompt engineering** —
 the art of shaping model behavior through system prompts and conversation structure.
 
-> **QB2 / P300c / no `~/tt-metal`?** This lesson uses the Direct API which requires
-> a source build of tt-metal. If you don't have one, start with
-> [Build tt-metal](command:tenstorrent.showLesson?["build-tt-metal"]) first, or see
-> the [vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"])
-> for a Qwen3-based coding assistant that runs without a source build.
+> **Hardware requirement: N300 / T3K / P100 / P300c or larger.**
+> Llama 3.1 8B exhausts DRAM on a single N150 chip.
+>
+> **No `~/tt-metal` built yet?** See
+> [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+>
+> **N150 or QB2 users:** Skip to
+> [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) and use
+> `--model Qwen3-8B` with a coding system prompt — same result, no source build needed.
 
 ---
 
@@ -101,11 +105,12 @@ If missing, re-run the download from Lesson 3:
 
 ## Step 2: Install Dependencies (If Not Already Done)
 
-These were installed in Lesson 4, but run again if needed:
+The tt-metal Python venv from `create_venv.sh` includes most dependencies. If you
+need the Tenstorrent llama-models package (for the Generator API tokenizer):
 
-**Required packages:**
 ```bash
-pip install pi && pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag
+source ~/tt-metal/python_env/bin/activate
+pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag
 ```
 
 [🔧 Install Dependencies](command:tenstorrent.installInferenceDeps)
@@ -140,10 +145,15 @@ Launch your coding assistant! Model loads once (2-5 min), then enjoy fast respon
 
 **Environment setup:**
 ```bash
-cd ~/tt-metal && \
-  export LLAMA_DIR=~/models/Llama-3.1-8B-Instruct/original && \
-  export PYTHONPATH=$(pwd) && \
-  python3 ~/tt-scratchpad/tt-coding-assistant.py
+source ~/tt-metal/python_env/bin/activate
+export TT_METAL_HOME=~/tt-metal
+export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
+export LLAMA_DIR=~/models/Llama-3.1-8B-Instruct/original
+
+# For P100 / P300c (Blackhole):
+# export TT_METAL_ARCH_NAME=blackhole
+
+python3 ~/tt-scratchpad/tt-coding-assistant.py
 ```
 
 [💬 Start Coding Assistant](command:tenstorrent.startCodingAssistant)
@@ -218,16 +228,16 @@ Focus on being helpful, accurate, and educational."""
 
 ## Comparing Approaches: Prompt Engineering vs Model Specialization
 
-| Aspect | Prompt Engineering (Today) | Specialized Model (Future) |
-|--------|----------------------------|----------------------------|
-| **Model** | Llama 3.1 8B (general) | AlgoCode/Qwen Coder (specialized) |
-| **Setup** | Add system prompt | Download + convert weights |
-| **Compatibility** | ✅ Works today | ❌ Requires model adaptation |
-| **Performance** | 1-3 sec/query | 1-3 sec/query (similar) |
-| **Quality** | 80-85% of specialized | 100% (trained on code) |
-| **Flexibility** | Easy to modify prompts | Fixed model behavior |
-| **Learning Value** | High - transferable skill | Medium - model-specific |
-| **Production Use** | ✅ Common approach | ✅ When compatibility exists |
+| Aspect | Prompt Engineering (This lesson) | Dedicated Coder Model |
+|--------|----------------------------------|-----------------------|
+| **Model** | Llama 3.1 8B (general) | Qwen3-8B (coding-optimized) |
+| **Setup** | System prompt only | vLLM with `--model Qwen3-8B` |
+| **Hardware** | N300/T3K/P100/P300c | N300/T3K/P100/P300c |
+| **Performance** | 1-3 sec/query | 1-3 sec/query |
+| **Quality** | Excellent (Llama code quality is strong) | SOTA coding benchmark performance |
+| **Flexibility** | Easy to modify prompts | vLLM OpenAI-compatible API |
+| **Learning Value** | High — prompt skills transfer to all LLMs | Good — production API patterns |
+| **Production Use** | ✅ Common approach | ✅ Preferred when hardware permits |
 
 **Key Insight:** Prompt engineering often delivers 80%+ of specialized model quality with zero compatibility issues!
 
@@ -495,15 +505,15 @@ if "```python" in response:
    - Ensemble different approaches
 
 **Compare with Other Lessons:**
-- **Lesson 4:** Same Direct API, general chat → Learn the pattern
-- **Lesson 5:** Same approach + HTTP API → Add network access
-- **Lesson 9:** Same pattern + specialized prompting → Domain expertise
+- **Interactive Chat** — Same Direct API, general chat → Learn the pattern
+- **API Server** — Same approach + HTTP API → Add network access
+- **Coding Assistant (this lesson)** — Same pattern + specialized prompting → Domain expertise
 
 **Learning Path:**
-1. Master Direct API (Lessons 4, 9)
-2. Add HTTP layer (Lesson 5)
-3. Scale to production (Lesson 6 - vLLM)
-4. Integrate into tools (Lesson 7 - VSCode)
+1. Master Direct API (Interactive Chat, Coding Assistant)
+2. Add HTTP layer (API Server)
+3. Scale to production (vLLM Production)
+4. Integrate into tools (VSCode Chat Integration)
 
 ---
 
@@ -532,8 +542,9 @@ if "```python" in response:
 - Reduce `max_seq_len` in model initialization
 
 **Dependencies missing:**
-- Run Step 2 again to install pi and llama-models
-- Ensure using Tenstorrent's llama-models fork
+- Run Step 2 again to install llama-models
+- Ensure using Tenstorrent's llama-models fork (not the Meta upstream)
+- Verify tt-metal venv is active: `which python3` should point to `python_env/`
 
 ---
 
@@ -566,8 +577,12 @@ if "```python" in response:
 - Build custom tools using the same pattern
 
 **Swap in a stronger coding model:**
-Qwen3-8B (available via vLLM today on N300/T3K/P100/P300c) delivers significantly
-better coding performance. Use the same prompt engineering techniques from this lesson
-with `--model Qwen3-8B` in the
+Qwen3-8B (available via vLLM on N300/T3K/P100/P300c) delivers SOTA coding benchmark
+performance. Apply the same prompt engineering techniques from this lesson with
+`--model Qwen3-8B` in the
 [vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"]).
+
+**N150 and QB2 users:**
+Run Qwen3-0.6B via vLLM with a coding system prompt — it's remarkably capable for
+its size and is the easiest path to an on-device coding assistant on single-chip hardware.
 

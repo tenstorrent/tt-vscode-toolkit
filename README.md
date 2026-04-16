@@ -207,7 +207,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Production Inference with tt-inference-server** — `N150` `P100`
 - **Production Inference with vLLM** — `N150` `P300C`
 - **Image Generation with Stable Diffusion XL** — `N150`
-- **Video Generation via Frame-by-Frame SDXL** — *draft*
+- **Video Generation via Frame-by-Frame Diffusion** — *draft*
 
 ### 🔧 Compilers & Tools
 *2 lessons, 0 validated*
@@ -224,10 +224,10 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Generating Video on QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
-*2 lessons, 0 validated*
+*2 lessons, 1 validated*
 
 - **Bounty Program: Model Bring-Up** — *draft*
-- **Exploring TT-Metalium** — *draft*
+- **Exploring TT-Metalium** — `N150` `P300C`
 
 ### 🎓 Custom Training
 *8 lessons, 0 validated*

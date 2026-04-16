@@ -1,9 +1,9 @@
 ---
 id: video-generation-ttmetal
-title: Video Generation via Frame-by-Frame SDXL
+title: Video Generation via Frame-by-Frame Diffusion
 description: >-
-  Create videos by generating frames with Stable Diffusion XL on Tenstorrent hardware.
-  Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!
+  Create videos by generating frames with Stable Diffusion on Tenstorrent hardware.
+  Demonstrates hardware scaling from N150 to T3K - same code, faster performance!
 category: serving
 tags:
   - hardware
@@ -20,334 +20,315 @@ supportedHardware:
   - p100
   - p300c
 status: draft
-estimatedMinutes: 30
+estimatedMinutes: 60
 ---
 
-# Video Generation via Frame-by-Frame SDXL
+# Video Generation via Frame-by-Frame Diffusion
 
-## The Hardware Scaling Story
+## The Idea
 
-**Core Philosophy:** Write code for N150 (smallest hardware), watch it run exponentially faster on larger hardware.
+**Generate video one frame at a time, then stitch with ffmpeg.**
 
-This lesson demonstrates the Tenstorrent hardware advantage:
-- **Same code** runs on all hardware tiers
-- **N150 (1 chip):** Works (baseline)
-- **N300 (2 chips):** ~2x faster
-- **T3K (8 chips):** ~6x faster
-- **Galaxy (32 chips):** ~20x faster
+Rather than a native video generation model, this lesson uses the proven
+**Stable Diffusion 1.4** model that runs on every Tenstorrent chip — from
+a single N150 to a T3K (8 chips). Each frame is a text-to-image generation
+pass. A handful of carefully worded prompts becomes a short film.
 
-**No code changes needed** - just better hardware!
+**Hardware this works on:**
+- **N150 / N300** (Wormhole): `models/demos/wormhole/stable_diffusion/`
+- **P100 / P300c** (Blackhole): same demo, set `TT_METAL_ARCH_NAME=blackhole`
+- **T3K (8 chips)**: same code, passes more context in parallel
+
+**Requires `~/tt-metal` built from source.** If you don't have that yet, see
+[Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 ---
 
 ## What We'll Build
 
-A 10-second video showcasing "Tenstorrent at the 1964-1965 World's Fair" using:
-- **Stable Diffusion XL Base** (from Lesson 9 - image-generation)
-- **Frame-by-frame generation** (10 keyframes at 1024×1024)
-- **Hardware verification** (ensuring TT inference, not CPU fallback)
-- **ffmpeg stitching** (frames → smooth video)
+A short video showcasing "Tenstorrent at the 1964–1965 World's Fair" using:
+- **Stable Diffusion 1.4** (512×512 images, runs on single-chip hardware)
+- **10 frames** generated from creative prompts
+- **ffmpeg** to stitch frames into a smooth video
 
 ---
 
 ## Prerequisites
 
-- ✅ Completed Lesson 9 (Image Generation with SDXL)
-- ✅ tt-metal v0.65.1+ installed at `~/tt-metal`
-- ✅ Hardware: N150, N300, T3K, or P100
-- ✅ ffmpeg installed (for video stitching)
-- ✅ diffusers, transformers packages installed
+- ✅ `~/tt-metal` built from source (see Build tt-metal lesson)
+- ✅ tt-metal Python venv activated (`source ~/tt-metal/python_env/bin/activate`)
+- ✅ Hardware: N150, N300, T3K, P100, or P300c
+- ✅ HuggingFace account with `hf auth login` completed (for model download)
+- ✅ ffmpeg installed
 
----
-
-## Step 1: Understanding Video from Frames
-
-**Why frame-by-frame instead of native video?**
-
-Native video generation models (like **Mochi** in `tt_dit`) are available but experimental. Frame-by-frame generation using proven **SDXL** offers:
-
-1. Generate individual 1024×1024 frames with SDXL (proven in Lesson 9)
-2. Stitch frames together with ffmpeg
-3. Perfect for demonstrating hardware scaling!
-
-**This approach:**
-- ✅ Uses production-ready SDXL (validated in Lesson 9)
-- ✅ Exercises TT hardware for each frame (true hardware acceleration)
-- ✅ Demonstrates linear hardware scaling (2x chips = ~2x faster)
-- ✅ Produces high-quality 1024×1024 video
-
-**💡 Note:** For native video generation, check out **Mochi** in `models/experimental/tt_dit/pipelines/mochi/` (experimental as of v0.65.1).
-
----
-
-## Step 2: Hardware Detection
-
-First, verify your hardware tier:
-
-[🔍 Detect Hardware](command:tenstorrent.runHardwareDetection)
-
-Look for "Board Type" in the output (N150, N300, T3K, P100).
-
-**Set MESH_DEVICE for your hardware:**
-
-### N150 (Wormhole - Single Chip) - Most Common
+Install ffmpeg if needed:
 ```bash
-export MESH_DEVICE=N150
+sudo apt-get install -y ffmpeg
 ```
-**Expected performance:** ~4 minutes per 1024x1024 frame (first frame ~5 min with compilation)
 
 ---
 
-### N300 (Wormhole - Dual Chip)
+## Step 1: Set Up Environment
+
 ```bash
-export MESH_DEVICE=N300
+source ~/tt-metal/python_env/bin/activate
+export TT_METAL_HOME=~/tt-metal
+export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
+cd ~/tt-metal
 ```
-**Expected performance:** ~2 minutes per frame (~2x faster than N150)
 
----
-
-### T3K (Wormhole - 8 Chips)
+**For P100 / P300c (Blackhole):**
 ```bash
-export MESH_DEVICE=T3K
-```
-**Expected performance:** ~40 seconds per frame (~6x faster than N150)
-
----
-
-### P100 / P300c (Blackhole - Single Chip)
-```bash
-export MESH_DEVICE=P100
 export TT_METAL_ARCH_NAME=blackhole
 ```
-**Expected performance:** ~4 minutes per frame (similar to N150)
-
-> **P300c / QB2:** P300c is a single Blackhole chip — use `MESH_DEVICE=P100` and
-> `TT_METAL_ARCH_NAME=blackhole`. Requires `~/tt-metal` built from source (see
-> [Build tt-metal](command:tenstorrent.showLesson?["build-tt-metal"])).
-> QB2 = 4× P300c operating as 4 independent single-chip devices; run one script
-> instance per chip if you want to use all four.
 
 ---
 
-## Step 3: Create Video Prompts
+## Step 2: Authenticate with HuggingFace
 
-Create a file with your video's "storyboard" - one prompt per frame:
+The demo auto-downloads `CompVis/stable-diffusion-v1-4` on first run. You need
+a HuggingFace account and to be logged in:
 
 ```bash
-mkdir -p ~/tt-scratchpad
-cat > ~/tt-scratchpad/video_prompts.txt << 'EOF'
-# Tenstorrent at 1964-1965 World's Fair
+hf auth login
+# Enter your HuggingFace token when prompted
+```
 
-Tenstorrent pavilion at 1964 World's Fair, futuristic dome architecture, orange and white corporate colors, crowds in 1960s attire, Kodachrome photo
+Verify:
+```bash
+hf auth whoami
+```
 
-Vintage 1964 corporate display, Tenstorrent AI accelerator prototype, blinking lights, orange circuit boards, businessmen in suits examining technology, documentary photography
+---
 
-1960s scientist demonstrating Tenstorrent neural network computer, mainframe-style cabinet with orange panels, oscilloscope displays, amazed visitors watching, retro-futurism
+## Step 3: Create Your Video Prompts File
 
-1964 Tenstorrent brochure design, geometric mid-century modern graphics, orange and teal color scheme, optimistic corporate advertising aesthetic
+Create a JSON file describing your 10 frames. Each object has a single `"prompt"` key.
 
-Tenstorrent executives presenting at 1964 World's Fair press conference, vintage microphones, presentation boards, journalists with cameras
-
-Children and families interacting with Tenstorrent AI demonstration, 1960s interactive console, colorful buttons and displays, educational exhibit aesthetic
-
-Tenstorrent computing center at World's Fair, rows of AI accelerator cabinets, operators in white coats, blinking lights, 1960s corporate technology photography
-
-Tenstorrent pavilion at night, illuminated dome, World's Fair Unisphere in background, crowds, neon signs, vintage night photography
-
-Futuristic prediction display, 1960s interpretation of future technology, retro-futuristic artwork, optimistic mid-century illustration style
-
-Thank you for visiting Tenstorrent, 1964 corporate signage, World's Fair closing ceremony atmosphere, nostalgic vintage photograph, orange sunset lighting
+```bash
+mkdir -p ~/tt-scratchpad/worldsfair-video
+cat > ~/tt-scratchpad/worldsfair-video/prompts.json << 'EOF'
+[
+  {"prompt": "Tenstorrent pavilion at 1964 World's Fair, futuristic dome architecture, orange and white corporate colors, crowds in 1960s attire, Kodachrome photo"},
+  {"prompt": "vintage 1964 corporate display, Tenstorrent AI accelerator prototype, blinking lights, orange circuit boards, businessmen in suits examining technology, documentary photography"},
+  {"prompt": "1960s scientist demonstrating Tenstorrent neural network computer, mainframe-style cabinet with orange panels, oscilloscope displays, amazed visitors, retro-futurism"},
+  {"prompt": "1964 Tenstorrent brochure design, geometric mid-century modern graphics, orange and teal color scheme, optimistic corporate advertising aesthetic"},
+  {"prompt": "Tenstorrent executives presenting at 1964 World's Fair press conference, vintage microphones, presentation boards, journalists with cameras"},
+  {"prompt": "children and families interacting with Tenstorrent AI demonstration, 1960s interactive console, colorful buttons and displays, educational exhibit"},
+  {"prompt": "Tenstorrent computing center at World's Fair, rows of AI accelerator cabinets, operators in white coats, blinking lights, 1960s corporate technology photography"},
+  {"prompt": "Tenstorrent pavilion at night, illuminated dome, World's Fair Unisphere in background, neon signs, vintage night photography"},
+  {"prompt": "futuristic prediction display, 1960s interpretation of future technology, retro-futuristic artwork, optimistic mid-century illustration style"},
+  {"prompt": "thank you for visiting Tenstorrent, 1964 corporate signage, World's Fair closing ceremony, nostalgic vintage photograph, orange sunset lighting"}
+]
 EOF
 ```
 
-**Customize these prompts** for your own video theme!
+Feel free to replace these with your own theme!
 
 ---
 
 ## Step 4: Generate Frames
 
-Now generate each frame using SD 3.5 interactive mode:
+Run the batch demo with your prompts file. The demo downloads `CompVis/stable-diffusion-v1-4`
+on first run (a few hundred MB) then compiles kernels before the first image.
 
 ```bash
-cd ~/tt-scratchpad
-export PYTHONPATH=~/tt-metal:$PYTHONPATH
-pytest ~/tt-metal/models/experimental/stable_diffusion_35_large/demo.py
+cd ~/tt-metal
+pytest --disable-warnings \
+  --input-path="$HOME/tt-scratchpad/worldsfair-video/prompts.json" \
+  models/demos/wormhole/stable_diffusion/demo/demo.py::test_demo
 ```
 
-[🎨 Start Interactive Generation](command:tenstorrent.startInteractiveImageGen)
+**What happens:**
+1. Model weights download (first run only, ~2 min)
+2. Kernel compilation runs (first run only, ~5 min)
+3. Each frame generates in sequence
+4. Images save to the current directory as:
+   - `input_data_0_512x512_ttnn.png`
+   - `input_data_1_512x512_ttnn.png`
+   - ...
+   - `input_data_9_512x512_ttnn.png`
 
-**When prompted:**
-1. Enter first prompt from `video_prompts.txt`
-2. Wait for generation (~30-45s on N150)
-3. **Watch the Output Preview panel** - your generated image will automatically appear!
-4. Note the output filename
-5. Enter next prompt
-6. Repeat for all 10 prompts
+> **Note:** The default output path is the directory where you run pytest.
+> Run `cd ~/tt-metal` first so images land there, then move them afterward.
 
-**The Output Preview Panel:**
-- Located in the Tenstorrent sidebar (left panel)
-- Automatically displays each generated frame
-- Double-click image to open in editor
-- Right-click to save or copy
+**Expected generation time per frame (after compilation):**
+- **N150:** ~30–45 seconds per 512×512 frame
+- **N300:** ~15–25 seconds per frame (2 chips)
+- **T3K:** ~5–10 seconds per frame (8 chips)
+- **P100 / P300c:** ~30–45 seconds per frame (similar to N150)
 
-**Tip:** Rename generated files sequentially:
-```bash
-mv sd35_1024_1024.png frame_000.png
-mv sd35_1024_1024.png frame_001.png
-# ... etc
-```
-
-**Example output:**
-
-Each frame will be a high-quality 1024x1024 image capturing the retro-futuristic vision of Tenstorrent at the 1964-65 World's Fair. The Output Preview panel lets you see your progress in real-time!
+> **First frame is always slower** — kernel compilation adds 3–5 minutes on initial run.
+> Subsequent runs use cached compiled kernels and are much faster.
 
 ---
 
-## Step 5: Verify Hardware Utilization
+## Step 5: Collect Your Frames
 
-**Critical:** Ensure frames are generated on TT hardware, not CPU!
+Move the generated images to your video directory and rename them sequentially:
 
-During generation, you should see:
+```bash
+mkdir -p ~/tt-scratchpad/worldsfair-video/frames
+cd ~/tt-metal
+
+for i in $(seq 0 9); do
+  if [ -f "input_data_${i}_512x512_ttnn.png" ]; then
+    mv "input_data_${i}_512x512_ttnn.png" \
+       ~/tt-scratchpad/worldsfair-video/frames/frame_$(printf "%03d" $i).png
+    echo "Moved frame $i"
+  fi
+done
+
+ls ~/tt-scratchpad/worldsfair-video/frames/
 ```
-✓ Model loaded on TT hardware
-Generating 1024x1024 image (28 inference steps)...
-```
-
-**If you see CPU warnings** or extremely slow generation (>5 minutes), something is wrong.
 
 ---
 
 ## Step 6: Stitch Frames into Video
 
-Once all frames are generated, use ffmpeg to create the video:
-
 ```bash
-cd ~/tt-scratchpad
+cd ~/tt-scratchpad/worldsfair-video
 
-# Stitch at 2 fps (each frame shows for 0.5 seconds)
-ffmpeg -framerate 2 -pattern_type glob -i 'frame_*.png' \
-  -vf 'format=yuv420p,scale=1024:1024' \
+# 2 fps = each frame shows for 0.5 seconds → 10 frames = 5 second video
+ffmpeg -framerate 2 \
+  -pattern_type glob -i 'frames/frame_*.png' \
+  -vf 'format=yuv420p,scale=512:512' \
   -c:v libx264 -crf 18 \
   tenstorrent_worldsfair_1964.mp4
+
+echo "Done! Video saved as tenstorrent_worldsfair_1964.mp4"
 ```
 
-**Parameters explained:**
-- `-framerate 2`: 2 frames per second (10 frames = 5 second video)
-- `-pattern_type glob`: Use glob pattern for input files
-- `-i 'frame_*.png'`: Input pattern (matches frame_000.png, frame_001.png, etc.)
-- `-vf 'format=yuv420p,scale=1024:1024'`: Video filter for compatibility
-- `-c:v libx264`: H.264 codec (widely compatible)
-- `-crf 18`: Quality (lower = better, 18 is high quality)
+**ffmpeg parameters:**
+- `-framerate 2`: 2 frames per second (slow, cinematic for still images)
+- `-pattern_type glob`: match files with wildcard
+- `format=yuv420p`: broad player compatibility
+- `-crf 18`: high quality (lower = better, 18 is near-lossless)
 
-**Result:** `tenstorrent_worldsfair_1964.mp4` - your video!
-
-**View your video:**
-
-The completed video will automatically appear in the **Output Preview panel**! The preview pane now supports video playback with controls:
-- ▶️ Play/Pause controls
-- 🔁 Auto-loop enabled
-- 📺 Full video player in the sidebar
-- Double-click to open in default video player
-
-Your retro-futuristic Tenstorrent World's Fair video ad is complete!
+Try `-framerate 4` or `-framerate 1` for different pacing.
 
 ---
 
-## Step 7: Understanding the Scaling
+## Step 7: Try the Interactive Mode
 
-**Benchmark your generation:**
+For a more exploratory workflow — type a prompt, see the image immediately:
 
-If you generated 10 frames on N150 and each took ~4 minutes:
-- **Total time:** 2400 seconds (~40 minutes)
+```bash
+cd ~/tt-metal
+pytest models/demos/wormhole/stable_diffusion/demo/demo.py::test_interactive_demo
+```
 
-**Same code on larger hardware:**
-- **N300 (2 chips):** ~1200 seconds (~20 minutes) - **2x faster**
-- **T3K (8 chips):** ~400 seconds (~6.7 minutes) - **6x faster**
-- **Galaxy (32 chips):** ~120 seconds (~2 minutes) - **20x faster**
+The model stays loaded between prompts. Type a prompt, press Enter, and
+`interactive_512x512_ttnn.png` (or `interactive_256x256_ttnn.png`) appears in the
+current directory. Type `q` to exit.
 
-**This is the TT hardware advantage:** Write for N150, scale to Galaxy with zero code changes!
+Use this to iterate on your prompt wording before committing to a full 10-frame batch.
 
-**Note:** First frame includes model download and kernel compilation (~4-5 minutes). Subsequent frames are faster as compilation is cached. The timings above reflect warm runs after initial setup.
+---
+
+## Understanding Hardware Scaling
+
+The same demo code runs across hardware tiers — the difference is parallelism:
+
+| Hardware | Chips | Relative Speed | Use Case |
+|----------|-------|---------------|----------|
+| N150 | 1 | 1× (baseline) | Development, testing |
+| N300 | 2 | ~2× faster | Faster iteration |
+| T3K | 8 | ~6× faster | Production video |
+| P100 / P300c | 1 BH | ~1× | Blackhole validation |
+
+**Benchmark example (10 frames at 512×512):**
+- N150: ~350 seconds total (~35s/frame after warmup)
+- N300: ~200 seconds total
+- T3K: ~70 seconds total
+
+This is the TT hardware advantage: **write for N150, scale to T3K with zero code changes.**
+
+---
+
+## Customize Your Video
+
+### Adjust Frame Timing (ffmpeg)
+```bash
+# Slower: 1 fps (1 second per frame)
+ffmpeg -framerate 1 -pattern_type glob -i 'frames/frame_*.png' \
+  -vf 'format=yuv420p' -c:v libx264 -crf 18 output_slow.mp4
+
+# Faster: 4 fps
+ffmpeg -framerate 4 -pattern_type glob -i 'frames/frame_*.png' \
+  -vf 'format=yuv420p' -c:v libx264 -crf 18 output_fast.mp4
+```
+
+### Add a Crossfade Transition
+```bash
+# Use the minterpolate filter to interpolate between frames
+ffmpeg -framerate 2 -pattern_type glob -i 'frames/frame_*.png' \
+  -vf 'minterpolate=fps=24:mi_mode=mci,format=yuv420p' \
+  -c:v libx264 -crf 18 output_smooth.mp4
+```
+
+### Different Themes
+Replace the prompts JSON with any theme. Some ideas:
+- Historical photographs of your city
+- A product launch progression
+- An abstract art series ("impressionist painting of X in storm/calm/sunset")
+- A journey through a landscape
 
 ---
 
 ## Troubleshooting
 
-### "Generation is very slow (>10 minutes per frame)"
-**Likely cause:** Running on CPU, not TT hardware
+**"Generation is very slow (>5 min per frame after warmup)"**
 
-**Fix:**
-1. Check `MESH_DEVICE` is set correctly
-2. Verify tt-metal installation: `tt-smi`
-3. Check model loaded on TT hardware (look for confirmation in output)
+Likely running on CPU, not TT hardware:
+1. Check `TT_METAL_HOME` is set: `echo $TT_METAL_HOME`
+2. Verify venv is activated: `which python3` should show `tt-metal/python_env/`
+3. Check device: `tt-smi -s | grep board_type`
 
-**Note:** Normal N150 performance is ~4 minutes per frame. If you're seeing >10 minutes, it's likely running on CPU.
-
-### "Out of memory errors"
-**Solution:** Use smaller hardware config or reduce concurrent operations
-
-### "Frame quality inconsistent"
-**Solution:** Use consistent seeds or add more prompt detail
-
-### "Generation stuck or process killed - can't restart"
-**Problem:** After killing a stuck generation process, device may be in bad state
-
-**Fix:**
-1. Reset the device: `tt-smi -r`
-2. Wait for reset to complete (~30 seconds)
-3. Rerun your script - it will resume from last completed frame
-
-**How resume works:**
-- Script automatically detects existing `frame_*.png` files
-- Skips already-generated frames
-- Continues from where you left off
-- No manual intervention needed!
-
-**Example:**
+**"Device in bad state after a killed process"**
 ```bash
-# If you have frame_000.png through frame_003.png
-# Script automatically resumes from frame_004.png
-tt-smi -r  # Reset device first
-python3 ~/tt-scratchpad/generate_video_frames.py  # Auto-resumes!
+tt-smi -r   # Reset device
+# Wait ~30 seconds
+# Re-run pytest
 ```
+
+**"Module not found" errors**
+```bash
+source ~/tt-metal/python_env/bin/activate
+export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
+```
+
+**"huggingface-hub not authenticated"**
+```bash
+hf auth login
+```
+
+**"P300c / QB2: ROW dispatch error"**
+
+The SD demo uses `ttnn.open_device()` without hardcoding dispatch axis, so it should be Blackhole-safe. If you see dispatch errors, ensure `TT_METAL_ARCH_NAME=blackhole` is set.
+
+**"Ran out of frames to resume from"**
+
+If a run was interrupted, the demo can re-run and will overwrite existing files.
+Rename already-completed frames before re-running to preserve them.
 
 ---
 
 ## Key Takeaways
 
-- ✅ **Frame-by-frame video** works with SD 3.5 on TT hardware
-- ✅ **Hardware scaling** is automatic - same code, better performance
-- ✅ **Write for N150** - smallest hardware, guaranteed to work everywhere
-- ✅ **Production-ready** - proven approach from Lesson 9
-- ✅ **High quality** - 1024x1024 frames, state-of-the-art SD 3.5
-
-**The TT hardware story:** Start small, scale big - effortlessly!
+- ✅ **SD 1.4 runs on all single-chip Tenstorrent hardware** (N150, P300c, P100)
+- ✅ **Frame-by-frame video** is a practical approach for hardware without native video models
+- ✅ **Hardware scaling is automatic** — same pytest command, better hardware = faster
+- ✅ **First-run warmup** (download + compilation) is a one-time cost; subsequent runs are fast
+- ✅ **ffmpeg stitching** turns a folder of images into a shareable video in seconds
 
 ---
 
 ## What's Next?
 
-### Experiment with:
-1. **Different frame rates** - Try 1 fps (slower) or 5 fps (faster)
-2. **Transition frames** - Generate intermediate frames between keyframes
-3. **Longer videos** - 30+ frames for more complex stories
-4. **Custom themes** - Your own video concepts
-
-### Future Improvements:
-- Native video generation models (when available)
-- Temporal consistency between frames
-- Automated batch generation
-- Real-time video generation on Galaxy
-
----
-
-## Resources
-
-- **Lesson 9:** Image Generation with SD 3.5 (foundation for this lesson)
-- **tt-metal Docs:** https://docs.tenstorrent.com/
-- **ffmpeg Guide:** https://ffmpeg.org/documentation.html
-- **SD 3.5:** https://huggingface.co/stabilityai/stable-diffusion-3.5-large
-
----
-
-**Happy video creating! 🎬**
+- **AnimateDiff** — For native video animation with temporal consistency between frames:
+  [Native Video Animation with AnimateDiff](command:tenstorrent.showLesson?["animatediff-video-generation"])
+- **Image Generation** — Single image generation with Stable Diffusion:
+  [Image Generation](command:tenstorrent.showLesson?["image-generation"])
+- **Explore Metalium** — Understand the architecture running under these demos:
+  [Exploring TT-Metalium](command:tenstorrent.showLesson?["explore-metalium"])

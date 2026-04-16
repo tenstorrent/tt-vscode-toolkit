@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.359] - 2026-04-16
+
+### Changed
+- **explore-metalium lesson**: major revision — added "Run it right now" section
+  with `ttnn/tutorials/basic_python/` scripts (no Jupyter required), performance
+  context section, expanded model zoo with current demos, corrected tutorial path
+  (removed stale `2025_dx_rework/` subdirectory). Promoted to `status: validated`.
+- **video-generation-ttmetal lesson**: replaced SD 3.5 (Galaxy/QuietBox only) with
+  SD 1.4 (`CompVis/stable-diffusion-v1-4`), which works on N150, N300, T3K, P100,
+  and P300c. Fixed demo command path, output filename pattern
+  (`input_data_N_512x512_ttnn.png`), added HuggingFace auth step, added interactive
+  mode section. Removed incorrect SD 3.5 performance claims.
+- **coding-assistant lesson**: fixed `pip install pi` bug (stale/broken dependency),
+  added N300+ hardware requirement callout with N150/QB2 redirect, added explicit
+  venv activation to startup command, added `TT_METAL_ARCH_NAME=blackhole` note for
+  P100/P300c users. Removed stale hardcoded lesson number references.
+- **tt-inference-server lesson**: updated "Dev Branch" section to reflect that `dev`
+  branch was retired on 2026-04-16; development now lands directly on `main`.
+
+---
+
 ## [0.0.358] - 2026-04-16
 
 ### Added

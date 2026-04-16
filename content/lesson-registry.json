@@ -369,8 +369,8 @@
     },
     {
       "id": "video-generation-ttmetal",
-      "title": "Video Generation via Frame-by-Frame SDXL",
-      "description": "Create videos by generating frames with Stable Diffusion XL on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
+      "title": "Video Generation via Frame-by-Frame Diffusion",
+      "description": "Create videos by generating frames with Stable Diffusion on Tenstorrent hardware. Demonstrates hardware scaling from N150 to T3K - same code, faster performance!",
       "category": "serving",
       "tags": [
         "hardware",
@@ -389,7 +389,7 @@
         "p300c"
       ],
       "status": "draft",
-      "estimatedMinutes": 30,
+      "estimatedMinutes": 60,
       "order": 9,
       "previousLesson": "image-generation",
       "nextLesson": "coding-assistant",
@@ -1204,10 +1204,13 @@
     {
       "id": "explore-metalium",
       "title": "Exploring TT-Metalium",
-      "description": "Discover what's possible with TT-Metalium! Explore TTNN tutorials, browse the model zoo, and dive into programming examples. Learn the architecture, try Jupyter notebooks, and find inspiration for your own projects.",
+      "description": "Discover what's possible with TT-Metalium! Run TTNN operations immediately, explore the model zoo, and understand the architecture that powers Tenstorrent hardware — from first script to custom kernels.",
       "category": "advanced",
       "tags": [
-        "model"
+        "model",
+        "ttnn",
+        "metalium",
+        "architecture"
       ],
       "supportedHardware": [
         "n150",
@@ -1218,8 +1221,12 @@
         "p300c",
         "galaxy"
       ],
-      "status": "draft",
-      "estimatedMinutes": 10,
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300c"
+      ],
+      "estimatedMinutes": 30,
       "order": 15,
       "previousLesson": "bounty-program",
       "nextLesson": "animatediff-video-generation",
