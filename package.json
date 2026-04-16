@@ -589,6 +589,7 @@
     "validate:lessons": "node scripts/validate-lesson-registry.js",
     "validate:command-uris": "node scripts/validate-command-uris.js",
     "generate:lessons": "node scripts/generate-lesson-registry.js",
+    "build:web": "node scripts/build-web.js",
     "prepare": "husky install"
   },
   "devDependencies": {
