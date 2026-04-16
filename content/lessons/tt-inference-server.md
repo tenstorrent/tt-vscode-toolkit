@@ -21,7 +21,7 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: draft
+status: validated
 validatedOn:
   - n150
   - p100

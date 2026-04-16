@@ -17,7 +17,11 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: validated
+status: blocked
+blockReason: >-
+  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  Not available as a standalone package; lessons will return when ttml ships
+  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.357] - 2026-04-16
+
+### Changed
+- **build-tt-metal lesson**: moved from `advanced` category to `first-inference` — it is a prerequisite lesson, not an advanced topic.
+- **custom-training lessons (ct1–ct8)**: marked all eight as `status: blocked`. The `ttml` Python bindings require building from a tt-metal v0.67.0+ source tree alongside the Metal build; they are not available as a standalone pip package. Lessons will return when `ttml` ships as a prebuilt wheel.
+
+---
+
 ## [0.0.356] - 2026-04-16
 
 ### Fixed

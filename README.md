@@ -191,7 +191,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 
 ### 🚀 Your First Inference
-*6 lessons, 6 validated*
+*7 lessons, 7 validated*
 
 - **Modern Setup with tt-installer 2.0** — `N150` `P300C`
 - **Hardware Detection** — `N150` `P300C`
@@ -199,9 +199,10 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Download Model and Run Inference** — `N150` `P300C`
 - **Interactive Chat with Direct API** — `N150`
 - **HTTP API Server with Direct API** — `N150`
+- **Build tt-metal from Source** — `N150` `P300C`
 
 ### 🏭 Serving Models
-*4 lessons, 2 validated*
+*4 lessons, 3 validated*
 
 - **Production Inference with tt-inference-server** — `N150` `P100`
 - **Production Inference with vLLM** — `N150` `P300C`
@@ -223,14 +224,13 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Generating Video on QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
-*3 lessons, 1 validated*
+*2 lessons, 0 validated*
 
-- **Build tt-metal from Source** — `N150` `P300C`
 - **Bounty Program: Model Bring-Up** — *draft*
 - **Exploring TT-Metalium** — *draft*
 
 ### 🎓 Custom Training
-*8 lessons, 8 validated*
+*8 lessons, 0 validated*
 
 - **Understanding Custom Training** — `N150`
 - **Dataset Fundamentals** — `N150`

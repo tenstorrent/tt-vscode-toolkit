@@ -6,7 +6,7 @@ description: >-
   lessons and for running tt-metal examples directly. QB2 and pre-configured
   images do not ship with ~/tt-metal — start here if Check 3 in Verify Your
   Setup failed.
-category: advanced
+category: first-inference
 tags:
   - installation
   - build

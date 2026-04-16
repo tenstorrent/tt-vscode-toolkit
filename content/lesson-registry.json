@@ -285,7 +285,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "draft",
+      "status": "validated",
       "validatedOn": [
         "n150",
         "p100"
@@ -448,7 +448,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -479,7 +479,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -510,7 +510,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -542,7 +542,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -573,7 +573,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -604,7 +604,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -635,7 +635,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -666,7 +666,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -1150,7 +1150,7 @@
       "id": "build-tt-metal",
       "title": "Build tt-metal from Source",
       "description": "Clone and build tt-metal from source. Required for Direct API (Generator API) lessons and for running tt-metal examples directly. QB2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "installation",
         "build",
