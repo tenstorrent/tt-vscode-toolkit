@@ -15,10 +15,12 @@ supportedHardware:
   - t3k
   - p100
   - p150
+  - p300c
   - galaxy
 status: validated
 validatedOn:
   - n150
+  - p300c
 estimatedMinutes: 15
 ---
 
@@ -36,7 +38,7 @@ tt-installer 2.0 is a comprehensive installation script that:
 - ✅ **Uses modern containers** - tt-metalium runs in Podman containers (no complex builds)
 - ✅ **Configures your system** - Kernel drivers, HugePages, firmware automatically set up
 - ✅ **Provides production tools** - tt-smi, tt-flash, tt-inference-server included
-- ✅ **Supports multiple hardware** - Works with N150, N300, T3K, and Galaxy systems
+- ✅ **Supports multiple hardware** - Works with N150, N300, T3K, Galaxy, P100, P150, P300c, and QB2
 - ✅ **Offers flexibility** - Interactive or non-interactive modes, customizable options
 
 > **⚠️ IMPORTANT: Cloud and Container Environments**

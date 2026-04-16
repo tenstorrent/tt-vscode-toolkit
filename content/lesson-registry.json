@@ -89,11 +89,13 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 15,
       "order": 1,
@@ -117,6 +119,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -147,6 +150,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -179,11 +183,13 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 10,
       "order": 2,

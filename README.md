@@ -193,10 +193,10 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🚀 Your First Inference
 *6 lessons, 6 validated*
 
-- **Modern Setup with tt-installer 2.0** — `N150`
+- **Modern Setup with tt-installer 2.0** — `N150` `P300C`
 - **Hardware Detection** — `N150` `P300C`
 - **Verify Your Setup** — `N150` `P300C`
-- **Download Model and Run Inference** — `N150`
+- **Download Model and Run Inference** — `N150` `P300C`
 - **Interactive Chat with Direct API** — `N150`
 - **HTTP API Server with Direct API** — `N150`
 
