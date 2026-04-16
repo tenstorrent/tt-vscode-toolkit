@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.0.365",
+  "version": "0.0.366",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -442,12 +442,12 @@
       },
       {
         "command": "tenstorrent.buildForgeFromSource",
-        "title": "Build TT-Forge from Source (Recommended)",
+        "title": "Activate TT-Forge Environment (Recommended)",
         "category": "Tenstorrent"
       },
       {
         "command": "tenstorrent.installForge",
-        "title": "Install TT-Forge (Wheels)",
+        "title": "Activate TT-Forge Environment",
         "category": "Tenstorrent"
       },
       {

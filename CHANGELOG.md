@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.366] - 2026-04-16
+
+### Fixed
+- **lesson-registry.json**: `verify-installation` completion event corrected to `onCommand:tenstorrent.runHardwareDetection` (was `tenstorrent.verifyInstallation`, which the lesson no longer invokes)
+- **lesson-web.js**: added `.catch()` handlers to both `copyToClipboard` call sites so clipboard failures (permission denied, insecure context) surface as "Failed" feedback instead of unhandled rejections
+
+### Changed
+- **package.json commands**: renamed Command Palette titles for `tenstorrent.buildForgeFromSource` → "Activate TT-Forge Environment (Recommended)" and `tenstorrent.installForge` → "Activate TT-Forge Environment" to reflect that both commands activate a pre-installed venv rather than building/installing anything (command IDs unchanged for backward compatibility)
+
+---
+
 ## [0.0.365] - 2026-04-16
 
 ### Fixed

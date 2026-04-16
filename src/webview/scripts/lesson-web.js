@@ -74,6 +74,9 @@
         if (!pre) return;
         copyToClipboard(pre.textContent.trim()).then(function () {
           flashCopied(btn);
+        }).catch(function () {
+          btn.textContent = 'Failed';
+          setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
         });
       });
     });
@@ -105,6 +108,9 @@
         var text = (code || pre).textContent;
         copyToClipboard(text).then(function () {
           flashCopied(btn);
+        }).catch(function () {
+          btn.textContent = 'Failed';
+          setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
         });
       });
 

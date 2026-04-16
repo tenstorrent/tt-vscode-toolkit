@@ -163,7 +163,7 @@
       "previousLesson": "download-model",
       "nextLesson": "interactive-chat",
       "completionEvents": [
-        "onCommand:tenstorrent.verifyInstallation"
+        "onCommand:tenstorrent.runHardwareDetection"
       ],
       "markdownFile": "content/lessons/verify-installation.md"
     },
