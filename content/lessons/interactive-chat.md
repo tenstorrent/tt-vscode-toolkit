@@ -12,6 +12,7 @@ supportedHardware:
   - t3k
   - p100
   - p150
+  - p300c
   - galaxy
 status: validated
 validatedOn:

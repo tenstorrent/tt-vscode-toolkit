@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.352] - 2026-04-16
+
+### Changed
+- **interactive-chat lesson**: added `p300c` to `supportedHardware` (architecturally identical to P100; lesson already has the QB2/no-tt-metal caveat).
+- **api-server lesson**: added `p300c` to `supportedHardware`; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"` in prerequisite check.
+- **image-generation lesson**: added `p300c` to `supportedHardware`; added P300c hardware config section (`MESH_DEVICE=P100` + `TT_METAL_ARCH_NAME=blackhole`) with QB2 source-build note; added P300c row to hardware compatibility table; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"`.
+
+---
+
 ## [0.0.351] - 2026-04-16
 
 ### Fixed

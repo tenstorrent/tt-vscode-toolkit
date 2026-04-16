@@ -14,6 +14,7 @@ supportedHardware:
   - t3k
   - p100
   - p150
+  - p300c
   - galaxy
 status: validated
 validatedOn:
@@ -102,7 +103,7 @@ python3 -c "import flask; print('✓ flask installed')"
 - See [Download Model](command:tenstorrent.showLesson?["download-model"])
 - Quick download:
   ```bash
-  huggingface-cli login
+  hf auth login --token "$HF_TOKEN"
   hf download meta-llama/Llama-3.1-8B-Instruct \
     --local-dir ~/models/Llama-3.1-8B-Instruct
   ```
