@@ -134,32 +134,7 @@ Common outcomes:
 
 ---
 
-## Step 3: Fix Python environment (common on QB2 / Ubuntu 22+)
-
-Before installing Python requirements, upgrade core packaging tools:
-
-```bash
-pip install --upgrade pip setuptools wheel
-```
-
-This prevents a very common failure on fresh Ubuntu 22.04 and 24.04 installs
-where `pkg_resources` is missing or outdated.
-
-**If `mmcv` fails to build:** `mmcv` (a vision model utility) is listed in
-`tt_metal/python_env/requirements-dev.txt` but is only needed for image/video
-model work. If you are focused on LLM inference and `mmcv` fails (e.g. due to a
-CUDA mismatch or missing build tools), you can comment it out:
-
-```bash
-# Comment out mmcv in the requirements file before building:
-sed -i 's/^mmcv/#mmcv/' ~/tt-metal/tt_metal/python_env/requirements-dev.txt
-```
-
-This has no effect on LLM, transformer, or TTNN op lessons.
-
----
-
-## Step 4: Build
+## Step 3: Build
 
 ```bash
 cd ~/tt-metal
@@ -190,16 +165,59 @@ when switching branches or after a significant dependency change.
 
 ---
 
-## Step 5: Set environment variables
+## Step 4: Set up Python environment with uv
 
-After the build succeeds, export these variables before running any tt-metal
-Python scripts:
+tt-metal now uses [`uv`](https://docs.astral.sh/uv/) to manage its Python
+virtual environment. The `create_venv.sh` script installs `uv` automatically
+if it is not already on your system, then creates a venv and installs all
+model requirements into it.
 
 ```bash
+cd ~/tt-metal
+./create_venv.sh
+source python_env/bin/activate
+```
+
+What happens:
+- `uv` is installed to `~/.local/bin/` if not already present (takes ~10 sec)
+- A Python 3.10 virtual environment is created in `./python_env`
+- All requirements from `tt_metal/python_env/requirements-dev.txt` are
+  installed using `uv pip install` (faster than plain pip)
+- `tt-metal` itself is installed in editable mode (`uv pip install -e .`)
+
+**You will see `uv` output** — this is expected. `uv` replaces the older
+`pip install` calls and handles Python version management automatically.
+
+> **On Ubuntu 22.04:** `create_venv.sh` auto-detects the OS and pins
+> `wheel==0.45.1` to avoid a known setuptools regression. No manual fix needed.
+
+**If `mmcv` fails to build:** `mmcv` (a vision model utility) is listed in
+`tt_metal/python_env/requirements-dev.txt` but is only needed for image/video
+model work. If you are focused on LLM inference and `mmcv` fails, you can
+comment it out before running `create_venv.sh`:
+
+```bash
+sed -i 's/^mmcv/#mmcv/' ~/tt-metal/tt_metal/python_env/requirements-dev.txt
+```
+
+This has no effect on LLM, transformer, or TTNN op lessons.
+
+---
+
+## Step 5: Set environment variables
+
+After the build and venv setup succeed, export these variables before running
+any tt-metal Python scripts. Activate the venv first if you have not already:
+
+```bash
+source ~/tt-metal/python_env/bin/activate
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ```
+
+**`source python_env/bin/activate`** — activates the uv-managed venv created
+in Step 4. Required for `import ttnn` to resolve correctly.
 
 **`TT_METAL_HOME`** — tells the Metal runtime where the source tree lives
 (kernel files, device configs, etc.).
@@ -216,6 +234,7 @@ symbol: MPIX_Comm_revoke` when importing `ttnn` on multi-device systems.
 To avoid re-exporting after every login, add these lines to `~/.bashrc`:
 
 ```bash
+echo 'source ~/tt-metal/python_env/bin/activate' >> ~/.bashrc
 echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
 echo 'export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
@@ -274,12 +293,13 @@ config. If you copy example scripts from tt-metal and they hardcode
 
 | Error message | Fix |
 |---|---|
-| `ModuleNotFoundError: No module named 'pkg_resources'` | `pip install --upgrade pip setuptools wheel` |
+| `ModuleNotFoundError: No module named 'pkg_resources'` | Run `./create_venv.sh` (uv handles setuptools automatically) |
 | `ImportError: undefined symbol: MPIX_Comm_revoke` | `export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH` |
 | `fatal: no submodule mapping found` or missing header files | `git submodule update --init --recursive` inside `~/tt-metal` |
 | `ROW dispatch core axis is not supported for blackhole` | Use `DispatchCoreConfig(WORKER)` with no axis argument — see Blackhole note above |
 | Build exits with a linker or CMake error | `./build_metal.sh --clean && sudo ./install_dependencies.sh`, then rebuild |
 | `command not found: podman` during `install_dependencies.sh` | Install Docker: `sudo apt-get install -y docker.io` and re-run the script |
+| `Error: uv not found in PATH after installation` | Run `source ~/.bashrc` or `export PATH=$HOME/.local/bin:$PATH`, then retry `./create_venv.sh` |
 
 ---
 

@@ -413,6 +413,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1213,6 +1214,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",

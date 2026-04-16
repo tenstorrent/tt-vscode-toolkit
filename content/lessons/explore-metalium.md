@@ -14,6 +14,7 @@ supportedHardware:
   - t3k
   - p100
   - p150
+  - p300c
   - galaxy
 status: draft
 estimatedMinutes: 10
@@ -83,7 +84,7 @@ TTNN comes with interactive Jupyter notebooks that teach core concepts hands-on.
 
 ### Explore the Model Zoo
 
-Tenstorrent has implementations of dozens of popular models, from production LLMs to experimental vision models (as of December 2025).
+Tenstorrent has implementations of dozens of popular models, from production LLMs to experimental vision models .
 
 [🔍 Browse Model Zoo](command:tenstorrent.browseModelZoo)
 
@@ -107,7 +108,7 @@ Tenstorrent has implementations of dozens of popular models, from production LLM
 - **Mamba** - State-space models
 
 **🧪 Experimental Models** (`models/experimental/`)
-- **Grok** 🆕 - xAI's reasoning model (experimental port as of December 2025)
+- **Grok** 🆕 - xAI's reasoning model (experimental port)
 - **Gemma3 4B** 🆕 - Smaller Gemma variant
 - **nanoGPT** - Train your own GPT from scratch
 - **BlazePose** - Real-time pose estimation

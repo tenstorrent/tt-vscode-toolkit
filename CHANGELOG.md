@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.355] - 2026-04-16
+
+### Changed
+- **build-tt-metal lesson**: updated Step 3 (Python environment setup) to document the new `uv`-based `create_venv.sh` workflow — `create_venv.sh` now installs `uv` automatically and uses `uv venv` / `uv pip install` instead of plain pip. Added `source python_env/bin/activate` to Step 5 (env vars). Added `uv not found in PATH` error table entry.
+- **coding-assistant lesson**: removed stale "Future Model Options (Coming Soon as of December 2025)" section; replaced with current model availability table (Qwen3-0.6B, Qwen3-8B, Llama 3.1 8B all available now via vLLM). Added QB2/P300c prerequisite note. Added `p300c` to `supportedHardware`.
+- **explore-metalium lesson**: added `p300c` to `supportedHardware`; removed stale "as of December 2025" date references.
+
+---
+
 ## [0.0.354] - 2026-04-16
 
 ### Fixed

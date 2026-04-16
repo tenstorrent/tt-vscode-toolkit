@@ -16,6 +16,7 @@ supportedHardware:
   - t3k
   - p100
   - p150
+  - p300c
   - galaxy
 status: draft
 estimatedMinutes: 10
@@ -23,45 +24,47 @@ estimatedMinutes: 10
 
 # Lesson 9: Coding Assistant with Prompt Engineering
 
-## Future Model Options (Coming Soon as of December 2025)
+## Overview
 
-As tt-metal model support expands, you'll have access to specialized coding models:
+Build a **coding assistant** powered by Llama 3.1 8B running on your Tenstorrent
+hardware using tt-metal's Direct API. This lesson focuses on **prompt engineering** —
+the art of shaping model behavior through system prompts and conversation structure.
 
-**🔮 On the Horizon:**
-- **Llama 3.2 6B AlgoCode** - Specialized for algorithms, data structures, debugging
-  - *Blocker:* Weight conversion needed for tt-metal tile alignment (32x32)
-  - *Status:* Community fine-tune, requires model adaptation layer
-
-- **Qwen 2.5 Coder 7B** - Code generation, explanation, documentation
-  - *Blocker:* Requires N300 (TP=2, dual-chip) - N150 single-chip not supported
-  - *Status:* Waiting for single-chip optimization or N300 availability
-
-- **CodeLlama variants** - Multi-language code completion
-  - *Blocker:* Model architecture compatibility with Generator API
-  - *Status:* Research phase
-
-- **StarCoder2** - Open-source code generation
-  - *Blocker:* Architecture differs from Llama family
-  - *Status:* Requires custom tt-metal implementation
-
-**🎯 Today's Approach:**
-While we wait for these specialized models, we'll use **Llama 3.1 8B** with coding-focused prompt engineering. This teaches a critical skill: **getting maximum value from available models through smart prompting**.
-
-Prompt engineering often delivers 80% of the value of model specialization, with zero compatibility issues!
+> **QB2 / P300c / no `~/tt-metal`?** This lesson uses the Direct API which requires
+> a source build of tt-metal. If you don't have one, start with
+> [Build tt-metal](command:tenstorrent.showLesson?["build-tt-metal"]) first, or see
+> the [vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"])
+> for a Qwen3-based coding assistant that runs without a source build.
 
 ---
 
-## Overview
+### Model Options for Coding Assistants (April 2026)
 
-Build a **coding assistant** powered by Llama 3.1 8B running on your N150 hardware using tt-metal's Direct API. This lesson focuses on **prompt engineering** - the art of shaping model behavior through system prompts and conversation structure.
+Several coding-capable models now run on Tenstorrent hardware:
+
+| Model | Hardware | API | Notes |
+|-------|----------|-----|-------|
+| **Llama 3.1 8B** | N300/T3K/P100/P300c | Direct API or vLLM | General-purpose; best via vLLM |
+| **Qwen3-0.6B** | N150+ (all hardware) | vLLM | Tiny, fast, reasoning-capable |
+| **Qwen3-8B** | N300/T3K/P100/P300c | vLLM | Strong coding & math |
+| **Qwen3-32B+** | T3K/Galaxy | vLLM | SOTA coding performance |
+
+**This lesson uses Llama 3.1 8B via the Direct API** — the same pattern as Lessons 4–5,
+now specialized for coding tasks through prompt engineering.
+
+For a vLLM-based coding assistant (no `~/tt-metal` required, easier startup),
+see [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) and use
+`--model Qwen3-8B` with a coding system prompt.
+
+---
 
 **Why Prompt Engineering?**
-- ✅ **Works today** - Uses proven tt-metal compatible model
-- ✅ **Already downloaded** - No additional model required (from Lesson 3)
-- ✅ **Fast** - Direct API keeps model in memory (1-3 sec per query)
-- ✅ **Educational** - Learn how prompting shapes model behavior
-- ✅ **Transferable skills** - Prompt engineering works across all models
-- ✅ **Real-world technique** - Production systems use prompt engineering heavily
+- ✅ **Works today** — Uses proven tt-metal compatible model
+- ✅ **Already downloaded** — No additional model required (from Lesson 3)
+- ✅ **Fast** — Direct API keeps model in memory (1-3 sec per query)
+- ✅ **Educational** — Learn how prompting shapes model behavior
+- ✅ **Transferable skills** — Prompt engineering works across all models
+- ✅ **Real-world technique** — Production systems use prompt engineering heavily
 
 **What You'll Build:**
 - Interactive CLI coding assistant
@@ -72,7 +75,7 @@ Build a **coding assistant** powered by Llama 3.1 8B running on your N150 hardwa
 **Performance:**
 - Model loads once (2-5 min), then fast queries (1-3 sec)
 - Same hardware acceleration as Lesson 4
-- Native tt-metal performance on N150
+- Native tt-metal performance on N150+
 
 ---
 
@@ -446,11 +449,9 @@ if "```python" in response:
 
 ---
 
-## Performance on N150
+## Performance
 
-**Hardware:** Tenstorrent N150 (single chip, 72 Tensix cores)
-
-**Performance metrics:**
+**Performance metrics (Llama 3.1 8B Direct API):**
 - **First run:** 2-5 minutes (model load + kernel compilation)
 - **Subsequent queries:** 1-3 seconds per response
 - **Context length:** 128K tokens (Llama 3.1 native support)
@@ -564,6 +565,9 @@ if "```python" in response:
 - Integrate with your development workflow
 - Build custom tools using the same pattern
 
-**Looking ahead:**
-As tt-metal model support expands and weight conversion tools mature, you'll be able to swap in specialized coding models (AlgoCode, Qwen Coder, etc.) using the same architecture. The prompt engineering skills you learned here will remain valuable across all models!
+**Swap in a stronger coding model:**
+Qwen3-8B (available via vLLM today on N300/T3K/P100/P300c) delivers significantly
+better coding performance. Use the same prompt engineering techniques from this lesson
+with `--model Qwen3-8B` in the
+[vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"]).
 
