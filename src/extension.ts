@@ -1297,17 +1297,41 @@ function verifyInferenceServerPrereqs(): void {
 
 /**
  * Command: tenstorrent.startTtInferenceServer
- * Starts vLLM server via tt-inference-server with basic configuration
+ * Starts vLLM server via tt-inference-server with hardware auto-detection
  */
 function startTtInferenceServer(): void {
   const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER.template;
 
   vscode.window.showInformationMessage(
-    '🚀 Starting vLLM server via tt-inference-server. This may take 5-15 minutes on first run (downloads Docker image + model).'
+    'Starting vLLM server — hardware auto-detected via tt-smi. First run: 10-20 min (Docker image + model download).'
   );
 
   runInTerminal(terminal, command);
+}
+
+/**
+ * Command: tenstorrent.startTtInferenceServerN150
+ * Starts vLLM server pinned to N150 (Wormhole)
+ */
+function startTtInferenceServerN150(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER_N150.template);
+  vscode.window.showInformationMessage(
+    'Starting Llama-3.1-8B-Instruct on N150. First run: 10-20 min.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startTtInferenceServerN300
+ * Starts vLLM server pinned to N300 (Wormhole dual-chip)
+ */
+function startTtInferenceServerN300(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER_N300.template);
+  vscode.window.showInformationMessage(
+    'Starting Llama-3.1-8B-Instruct on N300. First run: 10-20 min.'
+  );
 }
 
 /**
@@ -4684,6 +4708,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Lesson 6 - tt-inference-server
     vscode.commands.registerCommand('tenstorrent.verifyInferenceServerPrereqs', verifyInferenceServerPrereqs),
     vscode.commands.registerCommand('tenstorrent.startTtInferenceServer', startTtInferenceServer),
+    vscode.commands.registerCommand('tenstorrent.startTtInferenceServerN150', startTtInferenceServerN150),
+    vscode.commands.registerCommand('tenstorrent.startTtInferenceServerN300', startTtInferenceServerN300),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerSimple', testTtInferenceServerSimple),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerStreaming', testTtInferenceServerStreaming),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerSampling', testTtInferenceServerSampling),

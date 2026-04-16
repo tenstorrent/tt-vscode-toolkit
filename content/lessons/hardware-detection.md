@@ -17,6 +17,7 @@ supportedHardware:
 status: validated
 validatedOn:
   - n150
+  - p300c
 estimatedMinutes: 5
 ---
 

@@ -86,7 +86,7 @@ def initialize_model():
     # Get mesh device
     MESH_DEVICE = ttnn.open_mesh_device(
         ttnn.MeshShape(1, len(ttnn.get_device_ids())),
-        dispatch_core_config=ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER, ttnn.DispatchCoreAxis.ROW),
+        dispatch_core_config=ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER),
     )
 
     print("📥 Loading model into memory...")

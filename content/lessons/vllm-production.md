@@ -15,9 +15,11 @@ supportedHardware:
   - n300
   - t3k
   - p100
+  - p300c
 status: validated
 validatedOn:
   - n150
+  - p300c
 estimatedMinutes: 30
 ---
 
@@ -121,7 +123,7 @@ python3 --version  # Need 3.10+
 - **No model?** → See [Download Model](command:tenstorrent.showLesson?["download-model"]) or download now:
 
   ```bash
-  huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
+  hf download meta-llama/Llama-3.1-8B-Instruct \
     --local-dir ~/models/Llama-3.1-8B-Instruct
   ```
 
@@ -146,7 +148,7 @@ You don't need 8B parameters for production AI. Qwen3-0.6B is a **game-changer**
 **Download Qwen3-0.6B:**
 
 ```bash
-huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
+hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 ```
 
 
@@ -170,7 +172,7 @@ huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 **Download Qwen2.5-Coder-1.5B-Instruct:**
 
 ```bash
-huggingface-cli download Qwen/Qwen2.5-Coder-1.5B-Instruct --local-dir ~/models/Qwen2.5-Coder-1.5B-Instruct
+hf download Qwen/Qwen2.5-Coder-1.5B-Instruct --local-dir ~/models/Qwen2.5-Coder-1.5B-Instruct
 ```
 
 **Takes ~2-3 minutes to download.** Perfect for:
@@ -183,7 +185,7 @@ huggingface-cli download Qwen/Qwen2.5-Coder-1.5B-Instruct --local-dir ~/models/Q
 **Need even more code power?** Try **Qwen2.5-Coder-7B-Instruct** (requires N300+):
 
 ```bash
-huggingface-cli download Qwen/Qwen2.5-Coder-7B-Instruct --local-dir ~/models/Qwen2.5-Coder-7B-Instruct
+hf download Qwen/Qwen2.5-Coder-7B-Instruct --local-dir ~/models/Qwen2.5-Coder-7B-Instruct
 ```
 
 ---
@@ -193,7 +195,7 @@ huggingface-cli download Qwen/Qwen2.5-Coder-7B-Instruct --local-dir ~/models/Qwe
 **📥 Gemma 3-1B-IT** - Slightly larger, Google quality
 
 ```bash
-huggingface-cli download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
+hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 ```
 
 - **1B params** (8x smaller than 8B)
@@ -206,7 +208,7 @@ huggingface-cli download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 **📥 Llama-3.1-8B-Instruct** - For N300/T3K/P100 only
 
 ```bash
-huggingface-cli download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
+hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
 ```
 
 **Requirements:**
@@ -601,7 +603,9 @@ source ~/activate-vllm-env.sh && \
 
 ---
 
-### P100 (Blackhole - Single Chip)
+### P100 / P300c (Blackhole - Single Chip)
+
+> **QB2 / QuietBox users:** P300c is architecturally identical to P100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A QuietBox 2 with 4× P300c = 4 independent single-chip devices; for most lessons use device 0 only.
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -617,7 +621,7 @@ source ~/activate-vllm-env.sh && \
 
 [🚀 Start vLLM Server (P100)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
 
-**⚠️ Remember:** P100 requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
+**⚠️ Remember:** P100/P300c requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
 
 **💡 Memory Tip:** These settings use 8K context to avoid OOM errors. For longer context (16K), use `--max-model-len 16384 --max-num-seqs 1`.
 
@@ -1192,7 +1196,7 @@ If larger models (8B params) exhaust your DRAM on N150, use smaller models:
 - **Qwen3-0.6B** - 0.6B params (13x smaller than 8B) ✅ **Best for N150**
   ```bash
   # Download and run Qwen3-0.6B
-  huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
+  hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 
   # Start server (use N150 command from Step 4 above)
   python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B ...
@@ -1201,7 +1205,7 @@ If larger models (8B params) exhaust your DRAM on N150, use smaller models:
 - **Gemma 3-1B-IT** - 1B params (8x smaller than 8B)
   ```bash
   # Download and run Gemma 3-1B-IT
-  huggingface-cli download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
+  hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 
   # Start server (use N150 command from Step 4 above)
   python ~/tt-scratchpad/start-vllm-server.py --model ~/models/gemma-3-1b-it ...

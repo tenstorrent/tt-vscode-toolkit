@@ -239,7 +239,7 @@ def chat_loop():
     # Get mesh device (handles N150, N300, T3K, etc.)
     mesh_device = ttnn.open_mesh_device(
         ttnn.MeshShape(1, len(ttnn.get_device_ids())),
-        dispatch_core_config=ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER, ttnn.DispatchCoreAxis.ROW),
+        dispatch_core_config=ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER),
     )
 
     try:

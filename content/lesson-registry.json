@@ -259,24 +259,30 @@
     {
       "id": "tt-inference-server",
       "title": "Production Inference with tt-inference-server",
-      "description": "Use Tenstorrent's official inference server for production deployments with simple CLI configuration.",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — N150, N300, T3K, P100, p300c, or QB2. tt-inference-server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
         "deployment",
-        "inference"
+        "inference",
+        "llama",
+        "docker"
       ],
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
+      ],
+      "status": "draft",
+      "validatedOn": [
+        "n150",
         "p100"
       ],
-      "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
-      "estimatedMinutes": 30,
+      "estimatedMinutes": 20,
       "order": 6,
       "previousLesson": "api-server",
       "nextLesson": "vllm-production",
@@ -1327,7 +1333,7 @@
     {
       "id": "qb2-video-generation",
       "title": "Generating Video on QuietBox 2",
-      "description": "Go from a fresh QB2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI, automated prompt generation, and TT-TV attractor mode",
+      "description": "Go from a fresh QB2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI and automated prompt generation",
       "category": "applications",
       "tags": [
         "qb2",

@@ -256,29 +256,30 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   VERIFY_INFERENCE_SERVER_PREREQS: {
     id: 'verify-inference-server-prereqs',
     name: 'Verify tt-inference-server Prerequisites',
-    template: 'echo "=== Checking Prerequisites ===" && which docker && ls ~/.local/lib/tt-inference-server/run.py && tt-smi && echo "=== ✓ All prerequisites OK ==="',
+    template: 'echo "=== Checking Prerequisites ===" && which docker && docker --version && ls ~/.local/lib/tt-inference-server/run.py && tt-smi -s | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f\'  board: {c[\"board_type\"]}\') for c in d[\"device_info\"]]" 2>/dev/null || tt-smi && echo "=== ✓ Prerequisites OK ==="',
     description: 'Verifies Docker is installed, tt-inference-server run.py exists, and hardware is detected',
   },
 
   START_TT_INFERENCE_SERVER: {
     id: 'start-tt-inference-server',
-    name: 'Start tt-inference-server (Basic)',
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --docker-server',
-    description: 'Starts vLLM server via tt-inference-server for Llama 3.1 8B on N150',
+    name: 'Start tt-inference-server (auto-detect hardware)',
+    // --tt-device omitted: run.py auto-detects via tt-smi. --no-auth skips JWT_SECRET requirement.
+    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --workflow server --docker-server --no-auth',
+    description: 'Starts vLLM server via tt-inference-server, auto-detecting hardware with --tt-device',
   },
 
   START_TT_INFERENCE_SERVER_N150: {
     id: 'start-tt-inference-server-n150',
-    name: 'Start tt-inference-server (N150 Config)',
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --docker-server',
-    description: 'Starts vLLM server via tt-inference-server optimized for N150 hardware',
+    name: 'Start tt-inference-server (N150)',
+    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 --workflow server --docker-server --no-auth',
+    description: 'Starts vLLM server for Llama-3.1-8B-Instruct on N150 (Wormhole, 64K context)',
   },
 
   START_TT_INFERENCE_SERVER_N300: {
     id: 'start-tt-inference-server-n300',
-    name: 'Start tt-inference-server (N300 Config)',
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --device n300 --workflow server --docker-server',
-    description: 'Starts vLLM server via tt-inference-server optimized for N300 dual-chip hardware',
+    name: 'Start tt-inference-server (N300)',
+    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --tt-device n300 --workflow server --docker-server --no-auth',
+    description: 'Starts vLLM server for Llama-3.1-8B-Instruct on N300 (Wormhole dual-chip, 128K context)',
   },
 
   TEST_TT_INFERENCE_SERVER_SIMPLE: {

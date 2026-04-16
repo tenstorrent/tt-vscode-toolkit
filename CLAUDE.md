@@ -13,6 +13,40 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
+## Hardware Compatibility Goal: Wormhole + Blackhole (QB2 Readiness, Apr 2026)
+
+All lessons and templates must work on both **Wormhole** (N150/N300/T3K/Galaxy) and
+**Blackhole** (P100/P150/P300c/QB2) hardware. Key constraints:
+
+- **P300c = P100 mode**: P300c is a single Blackhole chip; QB2 = 4× P300c operating
+  as 4 independent single-chip devices (not a mesh). Treat P300c exactly like P100.
+- **QB2 ships without `~/tt-metal`**: Pre-configured QB2 images have TTNN and vLLM
+  pre-installed but do not include the tt-metal source tree. Lessons must not assume
+  `~/tt-metal` exists — link to `build-tt-metal` lesson for users who need it.
+- **`hf` CLI, not `huggingface-cli`**: All lessons and templates must use the new
+  `hf` CLI commands: `hf auth login`, `hf auth whoami`, `hf download`.
+- **`DispatchCoreAxis.ROW` crashes on Blackhole**: Never use
+  `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER, ttnn.DispatchCoreAxis.ROW)`.
+  Use `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` — TTNN auto-detects
+  the correct axis (COL on Blackhole, ROW on Wormhole).
+- **`TT_METAL_ARCH_NAME`**: Must be `blackhole` for P-series, `wormhole_b0` for N-series.
+  Use `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` pattern to honour user-supplied values.
+- **Qwen3-0.6B first**: N150 and P300c reliably run Qwen3-0.6B. Llama-3.1-8B-Instruct
+  exhausts N150 DRAM and requires N300+ or P-series hardware. Lead with Qwen.
+
+### WH/BH Compatibility Checklist
+
+When authoring or reviewing a lesson or template, verify:
+
+- [ ] `hf` CLI used throughout (not `huggingface-cli`)
+- [ ] `DispatchCoreAxis.ROW` not present in any template
+- [ ] `~/tt-metal` existence not assumed without fallback / link to build-tt-metal
+- [ ] `p300c` added to `supportedHardware` and `validatedOn` in front matter where applicable
+- [ ] QB2 callout or note added for lessons that behave differently on QB2
+- [ ] `HF_MODEL` exported before any inference command that requires it
+- [ ] `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install
+  (fixes `pkg_resources` missing on fresh QB2 environments)
+
 ## 🔧 Recent Multi-Device API Update (Jan 2026)
 
 **IMPORTANT:** Multi-device TTNN code must now use `CreateDevices`/`CloseDevices` API.

@@ -2,773 +2,781 @@
 id: tt-inference-server
 title: Production Inference with tt-inference-server
 description: >-
-  Use Tenstorrent's official inference server for production deployments with
-  simple CLI configuration.
+  Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — N150, N300, T3K,
+  P100, p300c, or QB2. tt-inference-server automates Docker image selection,
+  model download, and server startup with a single command. OpenAI-compatible
+  API ready immediately.
 category: serving
 tags:
   - production
   - deployment
   - inference
+  - llama
+  - docker
 supportedHardware:
   - n150
   - n300
   - t3k
   - p100
-status: validated
+  - p150
+  - p300c
+  - galaxy
+status: draft
 validatedOn:
   - n150
-estimatedMinutes: 30
-validationDate: 2026-02-11
+  - p100
+estimatedMinutes: 20
+minTTMetalVersion: v0.65.1
+recommended_metal_version: v0.65.1
+validationDate: 2026-04-15
 validationNotes: >-
-  Validated with tt-inference-server v0.8.0 cloned from GitHub. Tested command structure, model support (Llama-3.1-8B-Instruct, Qwen3-8B, gemma-3-1b-it), and workflow options (server, benchmarks, tests, evals). Installation requires git clone of repository.
+  Rewritten for v0.12.0 Docker images; --tt-device auto-detection; Llama-3.1-8B
+  validated Complete on WH (N150/N300/T3K) and Experimental on BH (P100/p300c).
 ---
 
 # Production Inference with tt-inference-server
 
-Learn to use tt-inference-server, Tenstorrent's official workflow automation tool for deploying vLLM inference servers with hardware-aware configuration.
+[tt-inference-server](https://github.com/tenstorrent/tt-inference-server) is
+Tenstorrent's official workflow automation tool. Give it a model name and your
+hardware type and it handles everything: pulls the right Docker image (pre-built
+tt-metal + vLLM), downloads model weights, and starts an OpenAI-compatible
+inference server.
 
-## What is tt-inference-server?
+> **QB2 / p300c users:** Llama-3.1-8B is supported on P100/P150 hardware
+> (🛠️ Experimental status). Use `--tt-device p100` for p300c or QB2.
 
-tt-inference-server is Tenstorrent's official **workflow automation tool** that simplifies running vLLM inference servers on Tenstorrent hardware. It's NOT a standalone server - it's a smart wrapper that:
-
-**Key capabilities:**
-- ✅ **Automated vLLM deployment** - Starts vLLM servers in Docker with correct configs
-- ✅ **Hardware-aware** - Automatically configures for N150/N300/T3K/Galaxy
-- ✅ **Model-specific** - Each model has validated configuration (from MODEL_SPECS)
-- ✅ **Multiple workflows** - server, benchmarks, evals, reports, release
-- ✅ **Official support** - Maintained by Tenstorrent, tested with each release
-- ✅ **Simple CLI** - One command with model name and device type
-
-**Important:** tt-inference-server is a workflow runner that wraps vLLM. When you use `--workflow server`, it starts a vLLM server in Docker and exits, leaving the server running.
-
-## Where Does tt-inference-server Fit?
-
-Let's see how it compares to what you've learned so far:
-
-| Approach | What It Does | When to Use |
-|----------|--------------|-------------|
-| **Direct API (Lesson 4-5)** | Manual Python with Generator API | Learning, custom logic, prototyping |
-| **Custom Flask (Lesson 5)** | Your Flask server wrapping Generator | Custom applications, full control |
-| **tt-inference-server (This lesson)** | Automated vLLM deployment | Quick production setup with validated configs |
-| **vLLM directly (Lesson 7)** | Manual vLLM installation/config | Custom vLLM deployments, advanced tuning |
-
-**tt-inference-server is ideal when:**
-- You want production-ready serving without manual configuration
-- You want Tenstorrent-validated model configurations
-- You want Docker-based deployment
-- You don't need custom inference logic
+---
 
 ## Prerequisites
 
-Before starting, ensure you have:
+- **HF token** — Llama is gated on HuggingFace. Set once:
+  ```bash
+  export HF_TOKEN=hf_...          # your HuggingFace access token
+  ```
+- **Docker** — the server runs in a container. Verify:
+  ```bash
+  docker --version
+  ```
+- **Hardware detected** — confirm your card is visible:
 
-1. **tt-inference-server installed** (included with tt-installer 2.0)
-   ```bash
-   which tt-inference-server
-   # or check if run.py exists
-   ls ~/.local/lib/tt-inference-server/run.py
-```
+[▶ Detect Hardware](command:tenstorrent.runHardwareDetection)
 
-   **If not found:** Install with tt-installer (see Setup Information in welcome page)
-
-2. **Docker installed** (required for --docker-server)
-   ```bash
-   docker --version
-```
-
-   **Expected:** Docker 20.10+ or Podman 3.0+
-
-3. **Llama model available** (will be downloaded if not present)
-   - tt-inference-server can auto-download from HuggingFace
-   - Requires HF_TOKEN for gated models
-
-4. **Hardware detected** (from Lesson 1)
-   ```bash
-   tt-smi
-```
-
-   **Expected:** Your Tenstorrent device shown (N150, N300, T3K, etc.)
-
-[✅ Verify Prerequisites](command:tenstorrent.verifyInferenceServerPrereqs)
+[▶ Verify Prerequisites](command:tenstorrent.verifyInferenceServerPrereqs)
 
 ---
 
-## Step 1: Understand the Command Format
+## The Model: Llama-3.1-8B
 
-tt-inference-server uses this command structure:
+Llama-3.1-8B is the widest-coverage model in tt-inference-server — it runs on
+every current Tenstorrent board:
 
-```bash
-tt-inference-server --model <model-name> --device <device> --workflow <workflow> [options]
-```
+| Hardware | Device flag | Status | Max context |
+|----------|-------------|--------|-------------|
+| N150 | `--tt-device n150` | 🟢 Complete | 64 K |
+| N300 | `--tt-device n300` | 🟢 Complete | 128 K |
+| T3K (WH QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
+| P100 / p300c / QB2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| P150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
+| Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
 
-**Required arguments:**
-- `--model` - Model NAME (e.g., "Llama-3.1-8B-Instruct"), NOT a path
-- `--device` - Hardware type: `n150`, `n300`, `t3k`, `galaxy` (lowercase!)
-- `--workflow` - What to run: `server`, `benchmarks`, `evals`, `reports`, `release`
-
-**Common options:**
-- `--docker-server` - Run vLLM in Docker container (recommended)
-- `--local-server` - Run vLLM on localhost (not yet implemented)
-- `--service-port PORT` - Service port (default: 8000)
-- `--dev-mode` - Mount local code into container for development
-
-**Example:**
-```bash
-# Start vLLM server for Llama 3.1 8B on N150
-tt-inference-server \
-  --model Llama-3.1-8B-Instruct \
-  --device n150 \
-  --workflow server \
-  --docker-server
-```
-
-**What this does:**
-1. Looks up Llama-3.1-8B-Instruct in MODEL_SPECS
-2. Gets hardware-specific configuration for N150
-3. Downloads model weights if not present
-4. Starts vLLM server in Docker container
-5. Exits, leaving server running in background
+Two weight variants are available via MODEL_SPECS:
+- `Llama-3.1-8B` — base model (default)
+- `Llama-3.1-8B-Instruct` — instruction-tuned (use for chat)
 
 ---
 
-## Step 2: Start Your First Server
+## Start the Server
 
-Let's start a vLLM server for Llama 3.1 8B on your hardware.
+### Option A — Automated (run.py)
 
-**Quick Check:** Not sure which hardware you have?
+`run.py` selects the correct Docker image for your hardware, handles the
+volume, and downloads weights inside the container on first run.
 
-[🔍 Detect Hardware](command:tenstorrent.runHardwareDetection)
-
----
-
-**Choose your hardware configuration:**
-
-<details open style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 N150 (Wormhole - Single Chip)</b></summary>
+`--tt-device` can be omitted and will be **auto-detected** from your hardware
+via `tt-smi`:
 
 ```bash
-cd ~/tt-inference-server  # or wherever it's installed
+cd ~/.local/lib/tt-inference-server
+
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --device n150 \
   --workflow server \
-  --docker-server
+  --docker-server \
+  --no-auth
 ```
 
-**Configuration:** Optimized for single-chip development and testing
-
-</details>
-
-<details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 N300 (Wormhole - Dual Chip)</b></summary>
-
-```bash
-cd ~/tt-inference-server
-python3 run.py \
-  --model Llama-3.1-8B-Instruct \
-  --device n300 \
-  --workflow server \
-  --docker-server
-```
-
-**Configuration:** Tensor parallelism across 2 chips for higher throughput
-
-</details>
-
-<details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 T3K (Wormhole - 8 Chips)</b></summary>
-
-```bash
-cd ~/tt-inference-server
-python3 run.py \
-  --model Llama-3.1-8B-Instruct \
-  --device t3k \
-  --workflow server \
-  --docker-server
-```
-
-**Configuration:** Production-scale deployment across 8 chips
-
-</details>
-
-<details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 Galaxy (32 Chips)</b></summary>
-
-```bash
-cd ~/tt-inference-server
-python3 run.py \
-  --model Llama-3.1-8B-Instruct \
-  --device galaxy \
-  --workflow server \
-  --docker-server
-```
-
-**Configuration:** Data center scale with 32-chip mesh
-
-</details>
+Add `--tt-device <device>` if auto-detection doesn't match your hardware.
 
 ---
 
-**Expected output:**
-```text
-============================================================
-tt-inference-server run.py CLI args summary
-============================================================
+### Hardware-specific commands
 
-Model Options:
-  model:                      Llama-3.1-8B-Instruct
-  device:                     n150
-  workflow:                   server
+#### N150 (Wormhole — single chip, 64 K context)
 
-Starting inference server...
-Created Docker container ID: abc123def456
-Access container logs via: docker logs -f abc123def456
-Stop running container via: docker stop abc123def456
+```bash
+python3 run.py \
+  --model Llama-3.1-8B-Instruct \
+  --tt-device n150 \
+  --workflow server \
+  --docker-server \
+  --no-auth
 ```
 
-**⏱️ First run:** 5-15 minutes (downloads Docker image, downloads model weights)
-**⏱️ Subsequent runs:** 2-5 minutes (uses cached image and model)
-
-[🚀 Start tt-inference-server](command:tenstorrent.startTtInferenceServer)
-
-**Note:** The command exits after starting the server, but the Docker container keeps running in the background.
+[▶ Start Server (N150)](command:tenstorrent.startTtInferenceServerN150)
 
 ---
 
-## Step 3: Check Container Status
+#### N300 (Wormhole — dual chip, 128 K context)
 
-After starting, verify the container is running:
+```bash
+python3 run.py \
+  --model Llama-3.1-8B-Instruct \
+  --tt-device n300 \
+  --workflow server \
+  --docker-server \
+  --no-auth
+```
+
+[▶ Start Server (N300)](command:tenstorrent.startTtInferenceServerN300)
+
+---
+
+#### T3K — WH QuietBox / LoudBox (8 chips, 128 K context)
+
+```bash
+python3 run.py \
+  --model Llama-3.1-8B-Instruct \
+  --tt-device t3k \
+  --workflow server \
+  --docker-server \
+  --no-auth
+```
+
+---
+
+#### P100 / p300c / QB2 (Blackhole — 64 K context, Experimental)
+
+```bash
+python3 run.py \
+  --model Llama-3.1-8B-Instruct \
+  --tt-device p100 \
+  --workflow server \
+  --docker-server \
+  --no-auth
+```
+
+> QB2 exposes each p300c chip as an independent `p100` device. Run one server
+> per chip, each on a different `--service-port`, or use the T3K-class
+> configurations when available on future firmware.
+
+---
+
+### Option B — Direct docker run
+
+For full transparency, or when you want to run without `run.py`, use the
+container directly. Pass `--model` and `--tt-device` as container args; the
+container resolves the config from its bundled model spec catalog.
+
+**Wormhole (N150 / N300 / T3K):**
+
+```bash
+docker run \
+  --env "HF_TOKEN=$HF_TOKEN" \
+  --ipc host \
+  --publish 8000:8000 \
+  --device /dev/tenstorrent \
+  --mount type=bind,src=/dev/hugepages-1G,dst=/dev/hugepages-1G \
+  --volume volume_id_Llama-3.1-8B:/home/container_app_user/cache_root \
+  ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-22.04-amd64:0.12.0-25305db-6e67d2d \
+  --model Llama-3.1-8B-Instruct \
+  --tt-device n150
+```
+
+Change `--tt-device` to `n300` or `t3k` for those boards — same image.
+
+**Blackhole (P100 / p300c / QB2):**
+
+```bash
+docker run \
+  --env "HF_TOKEN=$HF_TOKEN" \
+  --ipc host \
+  --publish 8000:8000 \
+  --device /dev/tenstorrent \
+  --mount type=bind,src=/dev/hugepages-1G,dst=/dev/hugepages-1G \
+  --volume volume_id_Llama-3.1-8B:/home/container_app_user/cache_root \
+  ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-22.04-amd64:0.12.0-55fd115-aa4ae1e \
+  --model Llama-3.1-8B-Instruct \
+  --tt-device p100
+```
+
+Use `--print-docker-cmd` with `run.py` to see the exact command it would run:
+
+```bash
+python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+  --workflow server --docker-server --no-auth --print-docker-cmd
+```
+
+---
+
+## First Run
+
+**⏱️ First run:** 10–20 minutes — Docker image pull (~10 GB) + model weight download (~16 GB) inside the container.
+
+**⏱️ Subsequent runs:** 2–5 minutes — image and weights are cached.
+
+Watch for this in run.py output when the container is up:
+
+```
+INFO: Created Docker container ID: 6b8c7038a44a
+INFO: Access container logs via: docker logs -f 6b8c7038a44a
+INFO: Stop running container via: docker stop 6b8c7038a44a
+```
+
+Then watch the container logs until vLLM is ready:
+
+```bash
+docker logs -f 6b8c7038a44a
+```
+
+Look for:
+
+```
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
+
+---
+
+## Test the Server
+
+Once vLLM is ready, the server exposes a standard OpenAI-compatible API.
+
+**Quick test:**
+
+```bash
+curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model": "Llama-3.1-8B-Instruct",
+       "prompt": "Tenstorrent accelerators are designed for",
+       "max_tokens": 60}'
+```
+
+[▶ Test Server](command:tenstorrent.testTtInferenceServerSimple)
+
+**Streaming (token-by-token):**
+
+```bash
+curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model": "Llama-3.1-8B-Instruct",
+       "prompt": "Write a haiku about silicon:",
+       "max_tokens": 40,
+       "stream": true}'
+```
+
+[▶ Test Streaming](command:tenstorrent.testTtInferenceServerStreaming)
+
+**Python client (OpenAI SDK):**
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="unused")
+
+response = client.chat.completions.create(
+    model="Llama-3.1-8B-Instruct",
+    messages=[{"role": "user", "content": "What is a Tenstorrent accelerator?"}],
+    max_tokens=100,
+)
+print(response.choices[0].message.content)
+```
+
+[▶ Create Python Client](command:tenstorrent.createTtInferenceServerClient)
+
+---
+
+## Managing the Running Server
 
 ```bash
 # List running containers
 docker ps
 
-# Expected output
-CONTAINER ID   IMAGE                          STATUS         PORTS
-abc123def456   ghcr.io/tenstorrent/vllm...   Up 2 minutes   0.0.0.0:8000->8000/tcp
-```
+# Follow logs in real time
+docker logs -f <container-id>
 
-**View server logs:**
-```bash
-docker logs -f abc123def456  # Replace with your container ID
-```
+# Stop server
+docker stop <container-id>
 
-**Expected in logs:**
-```yaml
-INFO: Loading model Llama-3.1-8B-Instruct...
-INFO: Initializing Tenstorrent device (N150)...
-INFO: Model loaded successfully
-INFO: Starting vLLM server on port 8000
-INFO: Server ready to handle requests
+# Stop all tt-inference-server containers at once
+docker ps --filter ancestor=ghcr.io/tenstorrent/tt-inference-server \
+  --format '{{.ID}}' | xargs docker stop
 ```
 
 ---
 
-## Step 4: Test the Server
+## Beyond the Server: Other Workflows
 
-The server provides an OpenAI-compatible API. Test with curl:
+With the container already running, client-side workflows can run against it
+without restarting:
 
 ```bash
-curl -X POST http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "Llama-3.1-8B-Instruct",
-    "prompt": "Explain what a Tenstorrent AI accelerator is in one sentence.",
-    "max_tokens": 50,
-    "temperature": 0.7
-  }'
+cd ~/.local/lib/tt-inference-server
+
+# Quick smoke test (reduced samples)
+python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+  --workflow benchmarks --limit-samples-mode smoke-test
+
+# Full accuracy evals
+python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+  --workflow evals
+
+# Benchmarks + evals + reports in one pass (release certification)
+python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+  --workflow release --docker-server --no-auth
 ```
 
-**Expected response:**
-```json
-{
-  "id": "cmpl-abc123",
-  "object": "text_completion",
-  "created": 1234567890,
-  "model": "Llama-3.1-8B-Instruct",
-  "choices": [
-    {
-      "text": "A Tenstorrent AI accelerator is a specialized hardware chip designed to efficiently run deep learning workloads with high performance and energy efficiency.",
-      "index": 0,
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 12,
-    "completion_tokens": 28,
-    "total_tokens": 40
-  }
-}
-```
-
-[🧪 Test Server (Simple)](command:tenstorrent.testTtInferenceServerSimple)
+Results land in `~/.local/lib/tt-inference-server/workflow_logs/`.
 
 ---
 
-## Step 5: Understand Command-Line Options
+## Tuning vLLM Arguments
 
-tt-inference-server provides many options. Here are the most important:
+tt-inference-server's model specs set reasonable defaults for each model/device
+pair (block size 64, full context window, 32 concurrent sequences). Override
+any of them without rebuilding the container.
 
-### Required Arguments
+### Tool Use / Function Calling
 
-```bash
---model MODEL_NAME          # Model name from MODEL_SPECS
-                            # Examples: "Llama-3.1-8B-Instruct", "Qwen2.5-7B-Instruct"
+Enable the OpenAI tool-calling API by passing two flags to vLLM:
 
---device DEVICE_TYPE        # Hardware type (lowercase!)
-                            # Options: n150, n300, t3k, galaxy
+**Via `run.py`:**
 
---workflow WORKFLOW         # What to run
-                            # Options: server, benchmarks, evals, reports, release
-```
-
-### Optional Arguments
-
-**Server Deployment:**
-```bash
---docker-server             # Run in Docker container (recommended)
---local-server              # Run on localhost (not yet implemented)
---service-port PORT         # Service port (default: 8000)
---dev-mode                  # Mount local files into container for development
-```
-
-**Docker Configuration:**
-```bash
---override-docker-image IMG # Use custom Docker image instead of default
--it, --interactive          # Run Docker in interactive mode
-```
-
-**Advanced:**
-```bash
---device-id IDS             # Specific device IDs (e.g., "0,1,2,3")
---disable-trace-capture     # Skip trace capture for faster startup
---override-tt-config JSON   # Override TT config as JSON
---vllm-override-args JSON   # Override vLLM arguments as JSON
-```
-
-**For debugging:**
-```bash
---reset-venvs               # Remove .workflow_venvs/ if dependencies broken
---skip-system-sw-validation # Skip tt-smi/tt-topology verification
-```
-
-### Example Commands
-
-**N150 basic server:**
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --device n150 \
+  --tt-device n150 \
   --workflow server \
-  --docker-server
+  --docker-server \
+  --no-auth \
+  --vllm-override-args '{"enable-auto-tool-choice": true, "tool-call-parser": "llama3_json"}'
 ```
 
-**N300 with custom port:**
+**Via direct `docker run`** (remaining args pass straight through to `vllm serve`):
+
 ```bash
-python3 run.py \
+docker run ... \
+  ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-22.04-amd64:0.12.0-25305db-6e67d2d \
   --model Llama-3.1-8B-Instruct \
-  --device n300 \
-  --workflow server \
-  --docker-server \
-  --service-port 8001
+  --tt-device n150 \
+  --enable-auto-tool-choice \
+  --tool-call-parser llama3_json
 ```
 
-**T3K with specific devices:**
-```bash
-python3 run.py \
-  --model Llama-3.3-70B-Instruct \
-  --device t3k \
-  --workflow server \
-  --docker-server \
-  --device-id 0,1,2,3,4,5,6,7
-```
+**Parser by model family:**
 
----
+| Model family | `tool-call-parser` |
+|-------------|---------------------|
+| Llama 3.x | `llama3_json` |
+| Qwen / Hermes-format | `hermes` |
+| Mistral | `mistral` |
 
-## Step 6: Advanced Testing
+**Current limitation:** `tool_choice="none"` and `tool_choice="required"` are
+not yet supported in the TT vLLM fork. Only `tool_choice="auto"` works reliably.
 
-### Test with Streaming
-
-Request streaming responses (token-by-token):
-
-```bash
-curl -X POST http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "Llama-3.1-8B-Instruct",
-    "prompt": "Write a haiku about AI acceleration:",
-    "max_tokens": 100,
-    "stream": true
-  }'
-```
-
-**Expected:** Server-Sent Events stream
-
-```text
-data: {"choices":[{"text":"Silicon","finish_reason":null}]}
-
-data: {"choices":[{"text":" minds","finish_reason":null}]}
-
-data: {"choices":[{"text":" awakening","finish_reason":null}]}
-...
-data: [DONE]
-```
-
-[🌊 Test Streaming](command:tenstorrent.testTtInferenceServerStreaming)
-
-### Test with Different Sampling
-
-**High temperature (creative):**
-```bash
-curl -X POST http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "Llama-3.1-8B-Instruct",
-    "prompt": "Once upon a time",
-    "max_tokens": 50,
-    "temperature": 1.2,
-    "top_p": 0.95
-  }'
-```
-
-**Low temperature (deterministic):**
-```bash
-curl -X POST http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "Llama-3.1-8B-Instruct",
-    "prompt": "The capital of France is",
-    "max_tokens": 10,
-    "temperature": 0.1
-  }'
-```
-
-[🎲 Test Sampling Parameters](command:tenstorrent.testTtInferenceServerSampling)
-
-### Test with Python Client
-
-Create a Python client using the OpenAI SDK:
+Once the server is running with tool choice enabled, use the API normally:
 
 ```python
 from openai import OpenAI
 
-# Point to your local server
-client = OpenAI(
-    base_url="http://localhost:8000/v1",
-    api_key="dummy"  # Not used, but required by SDK
-)
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="unused")
 
-# Generate text
-response = client.completions.create(
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get the weather in a city",
+        "parameters": {
+            "type": "object",
+            "properties": {"city": {"type": "string"}},
+            "required": ["city"],
+        },
+    },
+}]
+
+response = client.chat.completions.create(
     model="Llama-3.1-8B-Instruct",
-    prompt="Explain quantum computing to a 5-year-old:",
-    max_tokens=100,
-    temperature=0.8
+    messages=[{"role": "user", "content": "What's the weather in Austin?"}],
+    tools=tools,
+    tool_choice="auto",
 )
-
-print(response.choices[0].text)
+print(response.choices[0].message.tool_calls)
 ```
-
-[📝 Create Python Client](command:tenstorrent.createTtInferenceServerClient)
 
 ---
 
-## Step 7: Explore Other Workflows
+### Reducing Context Length
 
-tt-inference-server supports multiple workflows beyond `server`:
+By default the server uses the full context window supported by the hardware
+(64 K on N150/P100, 128 K on N300/T3K). Reducing it lowers DRAM usage and
+can speed up model load:
 
-### Benchmarks Workflow
+```bash
+# Via run.py
+python3 run.py \
+  --model Llama-3.1-8B-Instruct \
+  --tt-device n150 \
+  --workflow server \
+  --docker-server \
+  --no-auth \
+  --vllm-override-args '{"max-model-len": 8192}'
 
-Run performance benchmarks on your model:
+# Via docker run (passthrough)
+... <image> --model Llama-3.1-8B-Instruct --tt-device n150 --max-model-len 8192
+```
+
+`max-model-len` must be a multiple of `block-size` (default 64). Values like
+4096, 8192, 16384, 32768 all work cleanly.
+
+---
+
+### Concurrency and Batch Limits
+
+The model spec sets `max-num-seqs` (concurrent in-flight sequences) and
+`max-num-batched-tokens` (tokens per forward pass). Lower them to reduce
+peak memory or raise them when throughput matters more than latency:
+
+```bash
+# Reduce to 8 concurrent users (lower memory, lower throughput)
+--vllm-override-args '{"max-num-seqs": 8}'
+
+# Increase for high-throughput batch workloads (N300/T3K only — needs headroom)
+--vllm-override-args '{"max-num-seqs": 64, "max-num-batched-tokens": 65536}'
+```
+
+Defaults for Llama-3.1-8B: `max-num-seqs=32`, `max-num-batched-tokens=65536`
+(N150) / `131072` (N300/T3K).
+
+---
+
+### Combining Multiple Overrides
+
+JSON keys are merged, so all overrides can go in one `--vllm-override-args`:
 
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --device n150 \
-  --workflow benchmarks \
-  --docker-server
+  --tt-device n150 \
+  --workflow server \
+  --docker-server \
+  --no-auth \
+  --vllm-override-args '{
+    "enable-auto-tool-choice": true,
+    "tool-call-parser": "llama3_json",
+    "max-model-len": 16384,
+    "max-num-seqs": 8
+  }'
 ```
 
-**What this does:**
-1. Starts vLLM server in Docker
-2. Runs benchmark client (random prompts, various lengths)
-3. Measures throughput, latency, tokens/sec
-4. Saves results to `workflow_logs/benchmarks_output/`
+Use `--print-docker-cmd` to verify the generated docker command before
+launching:
 
-### Evals Workflow
+```bash
+python3 run.py ... --print-docker-cmd
+```
 
-Run accuracy evaluations:
+---
+
+## Models Outside MODEL_SPECS
+
+The container resolves model configuration from a bundled `model_spec.json`
+with 60+ validated models. If your model isn't there, you have three options:
+
+### 1. Check by short name
+
+The container resolves both full HF repo IDs and short names (the last segment
+of the path). So `Llama-3.1-8B-Instruct` and
+`meta-llama/Llama-3.1-8B-Instruct` both work:
+
+```bash
+# These are equivalent
+... --model Llama-3.1-8B-Instruct --tt-device n150
+... --model meta-llama/Llama-3.1-8B-Instruct --tt-device n150
+```
+
+The full catalog includes Llama, Qwen, Mistral, Gemma, DeepSeek, Whisper,
+Stable Diffusion, FLUX, Mochi video, and more — see
+[model support docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/model_support/llm/README.md).
+
+### 2. Run vLLM directly (no MODEL_SPECS constraint)
+
+The [vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"])
+shows how to run vLLM directly on the host without tt-inference-server. This
+accepts any model path or HF repo and gives you full control over every vLLM
+flag — useful for models in development or private repos.
+
+### 3. Request official support
+
+Open an issue at
+[github.com/tenstorrent/tt-inference-server](https://github.com/tenstorrent/tt-inference-server/issues)
+to request a new model be added to MODEL_SPECS. Include your hardware type,
+model name, and any performance requirements.
+
+---
+
+## Non-Container Deployment (--local-server)
+
+If you have a built tt-metal checkout (e.g. via the Build tt-metal lesson),
+you can run vLLM directly on the host — no Docker required:
 
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --device n150 \
-  --workflow evals \
-  --docker-server
+  --tt-device n150 \
+  --workflow server \
+  --local-server \
+  --tt-metal-home /opt/tt-metal \
+  --host-hf-cache       # reuse your existing HF cache
 ```
 
-**What this does:**
-1. Starts vLLM server in Docker
-2. Runs evaluation tasks (MMLU, HellaSwag, etc.)
-3. Scores model accuracy
-4. Saves results to `workflow_logs/evals_output/`
+`--local-server` uses `REPO_ROOT/persistent_volume/` for logs and caches, and
+runs as the invoking user (no Docker volume permissions to manage).
 
-### Release Workflow
+---
 
-Run full validation (benchmarks + evals + reports):
+## HF Cache Tips
+
+If you've already downloaded model weights (e.g. via `hf download`), point
+`run.py` at them to skip the in-container download:
 
 ```bash
+# Reuse ~/.cache/huggingface (bare flag uses HF_HOME / ~/.cache/huggingface)
+python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+  --workflow server --docker-server --no-auth \
+  --host-hf-cache
+
+# Or point at a specific directory
+python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+  --workflow server --docker-server --no-auth \
+  --host-weights-dir ~/models/meta-llama/Llama-3.1-8B-Instruct
+```
+
+---
+
+## Cache Persistence
+
+tt-inference-server uses two separate cache directories inside the container —
+knowing how each is stored makes the difference between a 2-minute startup and
+a 10-minute one.
+
+### What gets cached where
+
+```
+cache_root/
+  weights/{model_name}/                              # HF model weights
+  tt_metal_cache/cache_{model_name}/{device_type}/   # compiled TT Metal kernels
+  tt_dit_cache/                                      # compiled WAN/Mochi tensor weights
+  logs/                                              # vLLM server logs
+```
+
+- **TT Metal kernels** (`tt_metal_cache/`) — compiled by vLLM on first run.
+  Subsequent starts load from this cache: ~2–5 min instead of 10–20 min.
+- **Media model tensor weights** (`tt_dit_cache/`) — compiled by video/image
+  models (WAN 2.2, Mochi). **Not cached by default** — stored in `/tmp/TT_DIT_CACHE`
+  inside the container and lost when the container stops.
+
+---
+
+### Docker named volumes (default — TT Metal kernels)
+
+By default `run.py` mounts a Docker named volume at `cache_root`. The TT Metal
+kernel cache survives container restarts automatically — no extra flags needed.
+
+You can verify the volume exists after the first run:
+
+```bash
+docker volume ls | grep Llama
+```
+
+---
+
+### Persisting media model caches (`TT_DIT_CACHE_DIR`)
+
+For video and image models (WAN 2.2, Mochi, FLUX) the container compiles tensor
+weights at startup and stores them in `TT_DIT_CACHE_DIR`. The default is
+`/tmp/TT_DIT_CACHE`, which is lost when the container stops.
+
+**First run without cache:** ~525 seconds (WAN 2.2 on QB2)
+**Subsequent runs with cache:** ~5 minutes
+
+Move the cache under `cache_root` so it lives in the persistent Docker volume:
+
+```bash
+# In your .env file (or export before running)
+TT_DIT_CACHE_DIR=/home/container_app_user/cache_root/tt_dit_cache
+```
+
+With `run.py`:
+
+```bash
+TT_DIT_CACHE_DIR=/home/container_app_user/cache_root/tt_dit_cache \
+python3 run.py --model Wan-2.2-T2V-1.3B --tt-device p100 \
+  --workflow server --docker-server --no-auth
+```
+
+With direct `docker run`, pass it as `-e`:
+
+```bash
+docker run \
+  -e "HF_TOKEN=$HF_TOKEN" \
+  -e "TT_DIT_CACHE_DIR=/home/container_app_user/cache_root/tt_dit_cache" \
+  --volume volume_id_Wan-2.2:/home/container_app_user/cache_root \
+  ... <image> --model Wan-2.2-T2V-1.3B --tt-device p100
+```
+
+---
+
+### Full host-side persistence (`--host-volume`)
+
+To survive **Docker image updates** (which create new named volumes), bind the
+entire `cache_root` to a host directory. All weights and all caches land on the
+host filesystem:
+
+```bash
+# Ensure the host directory is writable by UID 1000 (container user)
+sudo mkdir -p ~/tt-cache
+sudo chown 1000 ~/tt-cache
+
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --device n150 \
-  --workflow release \
-  --docker-server
+  --tt-device n150 \
+  --workflow server \
+  --docker-server \
+  --no-auth \
+  --host-volume ~/tt-cache
 ```
 
-**Use this before deploying a new model to production!**
-
----
-
-## Understanding MODEL_SPECS
-
-tt-inference-server uses MODEL_SPECS to define validated model configurations.
-
-**When you run:**
-```bash
-python3 run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --docker-server
-```
-
-**tt-inference-server looks up:**
-- Docker image: `ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-22.04-amd64:0.3.0-9b67e09-a91b644`
-- tt-metal commit: `9b67e09`
-- vLLM commit: `a91b644`
-- Hardware config for N150: max context, max concurrency, etc.
-- HuggingFace repo: `meta-llama/Llama-3.1-8B-Instruct`
-
-**Supported models (see vendor/tt-inference-server/README.md):**
-- Llama 3.1 8B (N150, N300, T3K)
-- Llama 3.1 70B (T3K, Galaxy)
-- Llama 3.2 1B/3B/11B/90B Vision
-- Qwen 2.5 7B/72B
-- Mistral 7B
-- And many more...
-
-Each model has a validated configuration tested by Tenstorrent.
-
----
-
-## Managing Running Servers
-
-### List Running Containers
+With `--host-volume`, `TT_DIT_CACHE_DIR` should still be set explicitly to keep
+it within the bound directory:
 
 ```bash
-docker ps
-```
-
-**Output:**
-```text
-CONTAINER ID   IMAGE                          STATUS         PORTS
-abc123def456   ghcr.io/tenstorrent/vllm...   Up 10 minutes  0.0.0.0:8000->8000/tcp
-```
-
-### View Logs
-
-```bash
-docker logs -f abc123def456  # Follow logs in real-time
-docker logs abc123def456      # View all logs
-```
-
-### Stop Server
-
-```bash
-docker stop abc123def456
-```
-
-### Remove Container
-
-```bash
-docker rm abc123def456
-```
-
-### Clean Up All
-
-```bash
-# Stop all tt-inference-server containers
-docker ps | grep vllm-tt-metal | awk '{print $1}' | xargs docker stop
-
-# Remove all stopped containers
-docker container prune
+TT_DIT_CACHE_DIR=~/tt-cache/tt_dit_cache \
+python3 run.py --model Wan-2.2-T2V-1.3B --tt-device p100 \
+  --workflow server --docker-server --no-auth \
+  --host-volume ~/tt-cache
 ```
 
 ---
 
-## Comparison: tt-inference-server vs Other Approaches
+### Skip HF hub checks at startup (`HF_HUB_OFFLINE`)
 
-| Feature | Direct API | Flask Server | tt-inference-server | vLLM Manual |
-|---------|------------|--------------|---------------------|-------------|
-| **Setup complexity** | Low | Medium | Low | High |
-| **Code required** | ✅ Yes | ✅ Yes | ❌ No | ⚠️ Minimal |
-| **Configuration** | Manual | Manual | Automated | Manual |
-| **Docker deployment** | ❌ Manual | ❌ Manual | ✅ Built-in | ⚠️ Manual |
-| **Validated configs** | ❌ No | ❌ No | ✅ Yes | ❌ No |
-| **Official support** | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes |
-| **Customization** | ✅ Full | ✅ Full | ⚠️ Limited | ✅ Full |
-| **OpenAI API compat** | ❌ No | ❌ No | ✅ Yes (vLLM) | ✅ Yes |
-| **Best for** | Learning | Prototyping | Quick production | Custom deployment |
+After weights are downloaded, the HF library still pings the hub at startup to
+check for updates. Disable this to cut several seconds off every startup:
 
-**Choose tt-inference-server when:**
-- ✅ You want Tenstorrent-validated configurations
-- ✅ You want quick production deployment
-- ✅ You want Docker-based deployment
-- ✅ You don't need custom inference logic
+```bash
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+  --workflow server --docker-server --no-auth
+```
 
-**Choose vLLM directly (next lesson) when:**
-- ✅ You need custom vLLM configuration
-- ✅ You want to understand vLLM internals
-- ✅ You're deploying outside Docker
-- ✅ You need maximum control
+Or add to your `.env`:
+
+```bash
+HF_HUB_OFFLINE=1
+TRANSFORMERS_OFFLINE=1
+```
+
+With direct `docker run`:
+
+```bash
+docker run \
+  -e "HF_TOKEN=$HF_TOKEN" \
+  -e "HF_HUB_OFFLINE=1" \
+  -e "TRANSFORMERS_OFFLINE=1" \
+  ... <image> --model Llama-3.1-8B-Instruct --tt-device n150
+```
+
+> **Note:** Set these only after the model is fully downloaded. With
+> `HF_HUB_OFFLINE=1` the container cannot fetch weights that aren't cached.
 
 ---
 
-## Troubleshooting
+### Sharing caches between `--docker-server` and `--local-server`
 
-### "tt-inference-server: command not found"
+`--docker-server` writes caches as UID 1000 (the container user).
+`--local-server` writes as your host user. If you switch between them without
+fixing ownership, the other mode can't read the cache.
 
-**Problem:** Server not installed.
+Fix ownership before switching:
 
-**Solution:** Install with tt-installer:
 ```bash
-/bin/bash -c "$(curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh)"
+# Switching from --docker-server → --local-server
+sudo chown -R $USER ~/tt-cache
+
+# Switching from --local-server → --docker-server
+sudo chown -R 1000 ~/tt-cache
 ```
 
-### "Cannot find model module 'Llama-3.1-8B-Instruct'"
+When using `--local-server`, caches land in `REPO_ROOT/persistent_volume/`
+unless overridden. Point `TT_DIT_CACHE_DIR` at a shared path if you want
+`--local-server` to reuse what Docker compiled:
 
-**Problem:** Model name not in MODEL_SPECS.
-
-**Solution:** Check supported models:
 ```bash
-# List all supported models
-python3 run.py --help | grep -A 100 "Available models"
-```
-
-Or check vendor/tt-inference-server/README.md for full model list.
-
-### "Docker daemon not running"
-
-**Problem:** Docker service not started.
-
-**Solution:**
-```bash
-sudo systemctl start docker
-# or
-sudo service docker start
-```
-
-### "Failed to detect Tenstorrent device"
-
-**Problem:** Hardware not detected.
-
-**Solution:**
-```bash
-# Check hardware
-tt-smi
-
-# Reset device if needed
-tt-smi -r
-
-# Skip validation (for debugging)
-python3 run.py ... --skip-system-sw-validation
-```
-
-### "Port 8000 already in use"
-
-**Problem:** Another service using port 8000.
-
-**Solution:** Use different port:
-```bash
-python3 run.py ... --service-port 8001
-```
-
-### Container starts but requests timeout
-
-**Problem:** Model not fully loaded yet.
-
-**Solution:** Wait for server to be fully ready:
-```bash
-# Watch logs until you see "Server ready"
-docker logs -f <container-id>
-
-# Health check
-curl http://localhost:8000/health
-```
-
-### "out of memory" in container
-
-**Problem:** Model too large for hardware.
-
-**Solution:** Use smaller model:
-- N150: Llama 3.1 8B, Llama 3.2 1B/3B
-- N300: Llama 3.1 8B, Qwen 2.5 7B
-- T3K: Llama 3.1 70B, Qwen 2.5 72B
-
----
-
-## Log Files and Debugging
-
-tt-inference-server creates organized logs:
-
-```text
-~/tt-inference-server/workflow_logs/
-├── run_logs/                  # Main run logs
-│   └── run_2025-01-15_10-30-00_Llama-3.1-8B-Instruct_n150_server.log
-├── docker_server/             # Docker container logs
-│   └── vllm_2025-01-15_10-30-00_Llama-3.1-8B-Instruct_n150_server.log
-├── benchmarks_output/         # Benchmark results
-├── evals_output/              # Evaluation results
-└── run_specs/                 # Model spec JSON files
-```
-
-**Useful for debugging:**
-```bash
-# Latest run log
-ls -lt ~/tt-inference-server/workflow_logs/run_logs/ | head -2
-
-# View specific run
-tail -f ~/tt-inference-server/workflow_logs/run_logs/run_*.log
+TT_DIT_CACHE_DIR=~/tt-cache/tt_dit_cache \
+python3 run.py --model Wan-2.2-T2V-1.3B --tt-device p100 \
+  --workflow server --local-server \
+  --tt-metal-home /opt/tt-metal
 ```
 
 ---
 
-## What You Learned
+## Dev Branch — What's Coming (as of 2026-04-15)
 
-- ✅ What tt-inference-server is (workflow automation tool for vLLM)
-- ✅ How to start a vLLM server with validated configuration
-- ✅ Understanding --model (name), --device (lowercase), --workflow
-- ✅ Testing with OpenAI-compatible API
-- ✅ Managing Docker containers
-- ✅ Using different workflows (server, benchmarks, evals, release)
-- ✅ Understanding MODEL_SPECS and validated configurations
+The `dev` branch of tt-inference-server (VERSION 0.12.0) contains work that is
+not yet in a release. Here's a snapshot of what's active there:
 
-**Key insight:** tt-inference-server is NOT a standalone server - it's a smart wrapper that deploys vLLM with Tenstorrent-validated configurations. This saves you from manual Docker image selection, model configuration, and hardware optimization.
+### C++ inference server with IPC
 
-**Next step:** Learn vLLM directly for maximum control and customization beyond what tt-inference-server provides.
+A new `tt-cppserver` backend provides a C++ server communicating with the vLLM
+Python layer via IPC, replacing the single-process Python server. Includes a
+`MemoryManager` that tracks device DRAM allocation and enables explicit cache
+management.
 
-Continue to Lesson 7: Production Inference with vLLM!
+### Session manager
+
+A persistent session manager that maintains model state across requests —
+useful for multi-turn chat without re-loading the model between conversations.
+
+### Disaggregated prefill / decode
+
+Separate prefill and decode stages can now run on different devices or pods,
+enabling higher throughput at scale. This matches the architecture used in
+large-scale deployments.
+
+### Grafana metrics dashboard
+
+Container exposes Prometheus-compatible metrics at `/metrics`; a bundled
+Grafana dashboard visualises throughput, latency, and token rates. Connect
+Grafana at `http://localhost:3000` after starting with the metrics profile.
+
+### OpenAI `/v1/responses` endpoint
+
+The server now implements the newer OpenAI Responses API (in addition to
+`/v1/completions` and `/v1/chat/completions`), allowing compatibility with the
+latest OpenAI SDK streaming patterns.
+
+### Multi-host deployment
+
+`--multihost` flag and companion documentation (`docs/multihost_deployment.md`)
+support deploying prefill and decode on separate machines connected via
+high-speed fabric.
+
+> These features are under active development. Pin a dev branch commit if you
+> want to experiment — `run.py` accepts `--override-docker-image` to use a
+> custom build.
 
 ---
 
-## Learn More
+## Next Steps
 
-**Documentation:**
-- tt-inference-server repo: [github.com/tenstorrent/tt-inference-server](https://github.com/tenstorrent/tt-inference-server)
-- Workflows User Guide: `vendor/tt-inference-server/docs/workflows_user_guide.md`
-- MODEL_SPECS: `vendor/tt-inference-server/workflows/model_spec.py`
-
-**Community:**
-- Discord: [discord.gg/tenstorrent](https://discord.gg/tenstorrent)
-- GitHub Issues: [github.com/tenstorrent/tt-inference-server/issues](https://github.com/tenstorrent/tt-inference-server/issues)
-
-**Related Lessons:**
-- Lesson 4-5: Direct API (custom inference logic)
-- Lesson 7: vLLM Production (manual vLLM deployment)
-- Lesson 8: VSCode Chat (using vLLM server)
+- [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — run vLLM directly without the workflow wrapper
+- [VSCode Chat →](command:tenstorrent.showLesson?["vscode-chat"]) — connect the inference server to the VSCode @tenstorrent chat participant
+- [tt-inference-server docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/workflows_user_guide.md) — full CLI reference

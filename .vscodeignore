@@ -73,6 +73,25 @@ tmp/**
 .backups/**
 .github/**
 .husky/**
+venv/**
+generated/**
+plans/**
+
+# Aider session files
+.aider*
+
+# Loose summary/notes MD files dropped into root (untracked)
+*_SUMMARY.md
+*_UPDATE.md
+*_GUIDE.md
+*_ANALYSIS.md
+*_IMPLEMENTATION.md
+*_COMPLETE.md
+*_FIXED.md
+*_STATUS.md
+*_SETUP.md
+*_REVIEW.md
+*_DEMOS.md
 
 # LARGE UNREFERENCED SAMPLE IMAGES (keep referenced images, drop bulk samples)
 assets/img/samples/frame_*.png

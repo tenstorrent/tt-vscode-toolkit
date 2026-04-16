@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.350] - 2026-04-16
+
+### Added
+- **Cache persistence section in tt-inference-server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT Metal kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on QB2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
+
+---
+
+## [0.0.340] - 2026-04-16
+
+### Added
+- **Advanced vLLM tuning section in tt-inference-server lesson**: `--vllm-override-args` reference covering tool use / function calling (`enable-auto-tool-choice`, `tool-call-parser`), context length reduction (`max-model-len`), concurrency limits (`max-num-seqs`, `max-num-batched-tokens`), and combining multiple overrides. Includes tool-call parser table by model family (Llama → `llama3_json`, Qwen/Hermes → `hermes`, Mistral → `mistral`) and note on `tool_choice="none"/"required"` not yet supported.
+- **Direct docker run vLLM passthrough tip**: container's `run_vllm_api_server.py` uses `parse_known_args()`, so any flags after `--tt-device` pass through directly to `vllm serve` — documented with examples.
+- **Models outside MODEL_SPECS section**: explains short-name resolution, catalog breadth (60+ models), fallback to direct vLLM, and how to request new model support.
+
+---
+
+## [0.0.339] - 2026-04-16
+
+### Changed
+- **tt-inference-server lesson rewritten** for current v0.12.0 Docker images and modern CLI: updated `--device` → `--tt-device` (with auto-detection note), added `--no-auth` to quickstart, added direct `docker run` commands per hardware family, added P100/p300c/QB2 support with Experimental status, added non-container `--local-server` section, added dev branch (v0.12.0) section covering C++ server, session manager, disaggregated prefill/decode, Grafana metrics, and `/v1/responses` endpoint. Llama-3.1-8B is now clearly framed as the universal model across all hardware.
+- **Terminal commands for tt-inference-server updated**: `--device` flag replaced with `--tt-device`; `--no-auth` added to all server start commands; prereq check improved to parse `tt-smi -s` JSON output.
+
+### Added
+- **`tenstorrent.startTtInferenceServerN150` command**: starts Llama-3.1-8B-Instruct on N150 with correct `--tt-device n150` flag
+- **`tenstorrent.startTtInferenceServerN300` command**: starts Llama-3.1-8B-Instruct on N300 with correct `--tt-device n300` flag
+
+---
+
 ## [0.0.337] - 2026-04-15
 
 ### Fixed

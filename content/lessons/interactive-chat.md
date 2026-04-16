@@ -23,6 +23,12 @@ estimatedMinutes: 10
 
 Build your own interactive chat application using tt-metal's Generator API directly.
 
+> **⚠️ Llama + tt-metal source required.** The Generator API used in this lesson is Llama-specific and requires `~/tt-metal` cloned and built from source. If you:
+> - Haven't accepted [Meta's data terms](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) for Llama access, or
+> - Don't have `~/tt-metal` built (QB2 and pre-configured images don't ship it)
+>
+> → Use the **[vLLM path with Qwen3-0.6B](command:tenstorrent.showLesson?["vllm-production"])** instead — no source build, no license gate, works on all hardware.
+
 ## Why Use the Direct API?
 
 The Generator API is the foundation for building real AI applications. This lesson teaches you how to:
@@ -131,7 +137,7 @@ ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
 
 **Quick model download:**
 ```bash
-huggingface-cli login
+hf auth login --token "$HF_TOKEN"
 hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
 ```
 
