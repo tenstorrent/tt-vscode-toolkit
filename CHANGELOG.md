@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.367] - 2026-04-16
+
+### Fixed
+- **terminalCommands.ts**: `DOWNLOAD_QWEN3_SMALL` now uses `--local-dir ~/models/Qwen3-0.6B` so the button downloads to the same path the lesson references
+- **download-model.md**: added symlink tip before Step 3 — explains how to point `~/models` at any storage location or link an existing HF cache snapshot, making the path consistent across all lessons regardless of download method
+- **.vscodeignore**: added `.git/` and `.vscode/` to prevent git metadata and local editor settings from being bundled into the `.vsix`
+- **about-extension.md**: updated Compilers command table to reflect current title "Activate TT-Forge Environment"; replaced pinned `0.0.363` VSIX filename example with `<version>` placeholder
+
+---
+
 ## [0.0.366] - 2026-04-16
 
 ### Fixed

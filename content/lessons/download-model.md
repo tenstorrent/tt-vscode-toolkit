@@ -172,6 +172,18 @@ hf auth login --token "$HF_TOKEN"
 
 ## Step 3: Download Qwen3-0.6B
 
+> **Tip — custom storage location:** All lessons use `~/models` as the model
+> directory. If your models live on a larger drive or shared storage, symlink
+> `~/models` there once and every lesson will find them automatically:
+> ```bash
+> ln -s /path/to/your/storage ~/models
+> ```
+> Already downloaded a model to the HF cache? Symlink the snapshot:
+> ```bash
+> mkdir -p ~/models
+> ln -sfn "$(ls ~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/ | tail -1 | xargs -I{} echo ~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/{})" ~/models/Qwen3-0.6B
+> ```
+
 Download Qwen3-0.6B — no license gate, no terms to accept, works on all
 Tenstorrent hardware:
 

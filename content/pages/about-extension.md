@@ -10,7 +10,7 @@ Releases are published at:
 
 **[github.com/tenstorrent/tt-vscode-toolkit/releases](https://github.com/tenstorrent/tt-vscode-toolkit/releases)**
 
-1. Open the **latest release** and download the `.vsix` file (e.g. `tt-vscode-toolkit-0.0.363.vsix`).
+1. Open the **latest release** and download the `.vsix` file (e.g. `tt-vscode-toolkit-<version>.vsix`).
 
 2. Install it in your editor — pick the method that matches your setup:
 
@@ -153,7 +153,7 @@ Beyond lessons, the extension registers 70+ commands accessible via the Command 
 | **Hardware** | Run Hardware Detection (tt-smi), Reset Device, Clear Device State |
 | **Models** | Set Hugging Face Token, Login to HuggingFace, Download Model |
 | **Inference** | Start tt-inference-server (N150/N300), Start vLLM Server (T3K/P100) |
-| **Compilers** | Build TT-Forge from Source, Install TT-XLA PJRT Plugin, Test TT-Forge Installation |
+| **Compilers** | Activate TT-Forge Environment, Install TT-XLA PJRT Plugin, Test TT-Forge Installation |
 | **Metalium** | Build Programming Examples, Run RISC-V Addition Example |
 | **Video gen** | Clone tt-local-generator, Start Wan2.2 Video Server, Launch tt-gen GUI |
 | **Templates** | Create Coding Assistant Script, Create API Server Script, Create Chat Script |

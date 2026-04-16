@@ -708,8 +708,8 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   DOWNLOAD_QWEN3_SMALL: {
     id: 'download-qwen3-small',
     name: 'Download Qwen3-0.6B Prompt Model',
-    template: 'hf download Qwen/Qwen3-0.6B',
-    description: 'Downloads the lightweight CPU-based prompt polish model to HF cache (~1.2 GB)',
+    template: 'mkdir -p ~/models && hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B',
+    description: 'Downloads Qwen3-0.6B to ~/models/Qwen3-0.6B (~1.2 GB); ~/models can be a symlink to any storage location',
   },
 
   START_WAN22_SERVER: {
