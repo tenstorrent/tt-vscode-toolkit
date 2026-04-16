@@ -1520,6 +1520,111 @@ body.tt-lesson-web {
 .page-welcome .lesson-content h3[style] {
   color: var(--tt-primary) !important;
 }
+
+/* ===== Syntax highlighting — Tenstorrent theme ===== */
+/*
+ * Token colors derived from themes/tenstorrent-theme.json semanticTokenColors.
+ * We keep the pre/code background transparent so lesson-theme.css's
+ * --vscode-textCodeBlock-background (#0F2A35) shows through.
+ */
+
+.hljs {
+  color: #E8F0F2;        /* base foreground */
+  background: transparent;
+}
+
+/* Keywords, control flow, operators */
+.hljs-keyword,
+.hljs-operator,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #4FD1C5;        /* teal */
+  font-weight: bold;
+}
+
+/* Strings and string template literals */
+.hljs-string,
+.hljs-template-variable,
+.hljs-doctag,
+.hljs-regexp {
+  color: #F5A7C0;        /* light pink */
+}
+
+/* Numbers, boolean literals */
+.hljs-number,
+.hljs-literal {
+  color: #E6B55E;        /* orange-yellow */
+}
+
+/* Function names, method calls */
+.hljs-title,
+.hljs-title.function_,
+.hljs-title.function_.invoke__ {
+  color: #F4C471;        /* golden yellow */
+}
+
+/* Class, type, and interface names */
+.hljs-title.class_,
+.hljs-type,
+.hljs-symbol {
+  color: #EC96B8;        /* pink */
+}
+
+/* Variables, properties, parameters */
+.hljs-variable,
+.hljs-variable.language_,
+.hljs-params,
+.hljs-attr {
+  color: #81E6D9;        /* light teal */
+}
+
+/* Comments */
+.hljs-comment,
+.hljs-quote {
+  color: #607D8B;        /* gray-blue */
+  font-style: italic;
+}
+
+/* Tag names in HTML/JSX/XML */
+.hljs-tag,
+.hljs-name {
+  color: #4FD1C5;        /* teal */
+}
+
+/* Attribute names */
+.hljs-attribute {
+  color: #81E6D9;        /* light teal */
+}
+
+/* Meta-directives: #include, @decorator, etc. */
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+  color: #B8E6D9;        /* pale teal */
+}
+
+/* Shell/bash command names and env-var substitutions */
+.hljs-section {
+  color: #F4C471;        /* golden yellow */
+  font-weight: bold;
+}
+
+/* Diff add/remove lines */
+.hljs-addition {
+  color: #27AE60;
+  background: rgba(39, 174, 96, 0.12);
+}
+
+.hljs-deletion {
+  color: #FF6B6B;
+  background: rgba(255, 107, 107, 0.12);
+}
+
+/* Link text */
+.hljs-link {
+  color: #4FD1C5;
+  text-decoration: underline;
+}
 `;
 
 
