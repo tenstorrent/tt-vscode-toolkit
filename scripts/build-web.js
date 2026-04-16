@@ -59,11 +59,12 @@ const MERMAID_SRC     = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'merm
  * ------------------------------------------------------------------ */
 
 const PAGES = [
-  { slug: 'welcome',       title: 'Welcome',              type: 'html',     file: 'welcome.html' },
-  { slug: 'faq',           title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
-  { slug: 'step-zero',     title: 'Step Zero',            type: 'markdown', file: 'step-zero.md' },
-  { slug: 'riscv-guide',   title: 'RISC-V Guide',         type: 'markdown', file: 'riscv-guide.md' },
-  { slug: 'version-compat',title: 'Version Compatibility',type: 'markdown', file: 'version-compatibility.md' },
+  { slug: 'welcome',          title: 'Welcome',              type: 'html',     file: 'welcome.html' },
+  { slug: 'about-extension',  title: 'Install & Overview',   type: 'markdown', file: 'about-extension.md' },
+  { slug: 'faq',              title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
+  { slug: 'step-zero',        title: 'Step Zero',            type: 'markdown', file: 'step-zero.md' },
+  { slug: 'riscv-guide',      title: 'RISC-V Guide',         type: 'markdown', file: 'riscv-guide.md' },
+  { slug: 'version-compat',   title: 'Version Compatibility',type: 'markdown', file: 'version-compatibility.md' },
 ];
 
 /* ------------------------------------------------------------------ *

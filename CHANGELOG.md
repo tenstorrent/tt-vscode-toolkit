@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.364] - 2026-04-16
+
+### Added
+- **"Install & Overview" reference page** (`content/pages/about-extension.md`): comprehensive extension documentation covering installation from GitHub releases (VS Code, Cursor/Windsurf, code-server — GUI and CLI paths for each), the full lesson library organized by category, all 70+ built-in commands by category, the hardware filter, and update instructions. Registered in the `PAGES` array and appears in the docs site sidebar as "Install & Overview".
+
+---
+
 ## [0.0.363] - 2026-04-16
 
 ### Security
