@@ -199,7 +199,7 @@ hf auth login --token "$HF_TOKEN"
 Verify auth works:
 
 ```bash
-hf whoami
+hf auth whoami
 ```
 
 ---

@@ -265,7 +265,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     name: 'Start tt-inference-server (auto-detect hardware)',
     // --tt-device omitted: run.py auto-detects via tt-smi. --no-auth skips JWT_SECRET requirement.
     template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --workflow server --docker-server --no-auth',
-    description: 'Starts vLLM server via tt-inference-server, auto-detecting hardware with --tt-device',
+    description: 'Starts vLLM server via tt-inference-server; hardware is auto-detected by run.py via tt-smi (no --tt-device flag needed)',
   },
 
   START_TT_INFERENCE_SERVER_N150: {

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.363] - 2026-04-16
+
+### Security
+- **Dependency overrides**: resolved all Cycode-flagged HIGH/MODERATE vulnerabilities in transitive deps introduced by the gh-pages feature:
+  - `lodash` / `lodash-es`: bumped override to `>=4.18.0` (fixes CVE-2026-4800 HIGH, CVE-2026-2950 MEDIUM)
+  - `picomatch`: added override `>=2.3.2` (fixes CVE-2026-33672 HIGH, CVE-2026-33671 HIGH)
+  - `brace-expansion@1`: added override `^1.1.13`; `brace-expansion@2`: added override `^2.0.3` (fixes CVE-2026-33750 MEDIUM)
+  - `serialize-javascript`: bumped override to `>=7.0.5` (fixes CVE-2026-34043 MEDIUM)
+  - `dompurify`: added override `>=3.3.4` (fixes GHSA-39q2-94rc-95cp MODERATE, introduced via isomorphic-dompurify)
+- **SAST — path traversal** (`build-web.js`): added `validateId()` (regex-gates lesson/page IDs to `[a-z0-9][a-z0-9-]*`) and `assertWithin(base, target)` (path containment guard); applied to `copyDirRecursive`, `buildLessonPage`, and `renderMarkdownPage`.
+- **SAST — XSS** (`build-web.js`): replaced manual `.replace()`-chain `escapeHtml`/`escapeAttr` with `sanitize-html` library calls (already a project dependency); validated lesson ID before embedding in `href` at the `showLesson` link renderer.
+
+### Fixed
+- **Font paths** (`lesson-web-vars.css`): changed `@font-face` `src` URLs from absolute (`/assets/fonts/…`) to relative (`fonts/…`). Absolute paths break on GitHub Pages project sites where the app is served from `/<repo>/` rather than `/`.
+- **Dead code** (`lesson-web.js`): removed unused `visibleCards` variable from the hardware filter loop.
+- **Content** (`qb2-video-generation.md`): changed `hf whoami` → `hf auth whoami` (correct huggingface-hub CLI syntax).
+- **Content** (`terminalCommands.ts`): corrected `START_TT_INFERENCE_SERVER` description — the template intentionally omits `--tt-device` because `run.py` auto-detects hardware via `tt-smi`.
+- **README**: reordered "Your First Inference" bullet list to match the lesson-registry walkthrough progression (Download Model before Verify Your Setup).
+
+---
+
 ## [0.0.362] - 2026-04-16
 
 ### Changed

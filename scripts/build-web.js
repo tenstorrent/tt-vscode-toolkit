@@ -30,6 +30,7 @@ const { marked }          = require('marked');
 const { markedHighlight } = require('marked-highlight');
 const matter              = require('gray-matter');
 const DOMPurify           = require('isomorphic-dompurify');
+const sanitizeHtml        = require('sanitize-html');
 
 /* ------------------------------------------------------------------ *
  * Paths                                                               *
@@ -360,7 +361,14 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
 
   // showLesson → internal navigation link
   if (commandId === 'tenstorrent.showLesson' && parsedArgs && parsedArgs[0]) {
-    const lessonId = parsedArgs[0];
+    // Validate the lesson ID before embedding in a URL/HTML attribute.
+    let lessonId;
+    try {
+      lessonId = validateId(String(parsedArgs[0]));
+    } catch (_) {
+      // Fall back to plain text if the ID is somehow malformed.
+      return `<span class="tt-lesson-ref">${text}</span>`;
+    }
     return `<a href="/lessons/${lessonId}/" class="tt-lesson-link">${text}</a>`;
   }
 
@@ -404,16 +412,52 @@ marked.use({ renderer: WEB_RENDERER });
  * HTML utilities                                                       *
  * ------------------------------------------------------------------ */
 
+/**
+ * Sanitize plain text for embedding in HTML content.
+ * Uses sanitize-html with no allowed tags so all markup is stripped and
+ * special characters in text nodes are entity-encoded.
+ */
 function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return sanitizeHtml(String(str), { allowedTags: [], allowedAttributes: {} });
 }
 
+/**
+ * Sanitize a string for use in an HTML attribute value.
+ * Strips all markup then encodes quote characters.
+ */
 function escapeAttr(str) {
-  return String(str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  const clean = sanitizeHtml(String(str || ''), { allowedTags: [], allowedAttributes: {} });
+  return clean.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
+ * Validate that an ID (lesson id, page slug) contains only safe characters.
+ * IDs must match [a-z0-9][a-z0-9-]* — the same constraint used in lesson-registry.json.
+ * Throws if the value would be unsafe to embed in a file path or HTML attribute.
+ *
+ * @param {string} id
+ * @returns {string} the validated id, unchanged
+ */
+function validateId(id) {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(String(id))) {
+    throw new Error(`Invalid lesson/page ID: "${id}" — must match [a-z0-9][a-z0-9-]*`);
+  }
+  return id;
+}
+
+/**
+ * Assert that `target` (an absolute path) is contained within `base`.
+ * Guards against path-traversal attacks when constructing output paths from
+ * registry-sourced values.
+ *
+ * @param {string} base   absolute directory that target must reside under
+ * @param {string} target absolute path to validate
+ */
+function assertWithin(base, target) {
+  const rel = path.relative(path.resolve(base), path.resolve(target));
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new Error(`Path traversal detected: "${target}" is outside "${base}"`);
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -421,10 +465,15 @@ function escapeAttr(str) {
  * ------------------------------------------------------------------ */
 
 function copyDirRecursive(src, dest) {
-  fs.mkdirSync(dest, { recursive: true });
-  fs.readdirSync(src).forEach(entry => {
-    const srcPath  = path.join(src, entry);
-    const destPath = path.join(dest, entry);
+  const srcBase  = path.resolve(src);
+  const destBase = path.resolve(dest);
+  fs.mkdirSync(destBase, { recursive: true });
+  fs.readdirSync(srcBase).forEach(entry => {
+    const srcPath  = path.resolve(srcBase, entry);
+    const destPath = path.resolve(destBase, entry);
+    // Guard against malformed directory entries escaping the source/dest roots.
+    assertWithin(srcBase, srcPath);
+    assertWithin(destBase, destPath);
     const stat = fs.statSync(srcPath);
     if (stat.isDirectory()) {
       copyDirRecursive(srcPath, destPath);
@@ -622,9 +671,15 @@ ${content}
  * ------------------------------------------------------------------ */
 
 function buildLessonPage(lesson) {
-  const markdownFile = path.join(ROOT, lesson.markdownFile);
+  // Validate the lesson ID — it will be used in output file paths and HTML attributes.
+  const lessonId = validateId(lesson.id);
+
+  // Validate that the markdown file resolves within the repo root.
+  const markdownFile = path.resolve(ROOT, lesson.markdownFile);
+  assertWithin(ROOT, markdownFile);
+
   if (!fs.existsSync(markdownFile)) {
-    console.warn(`  [SKIP] ${lesson.id}: markdown file not found at ${lesson.markdownFile}`);
+    console.warn(`  [SKIP] ${lessonId}: markdown file not found at ${lesson.markdownFile}`);
     return;
   }
 
@@ -656,7 +711,7 @@ function buildLessonPage(lesson) {
 
   const fullContent = bodyHtml + '\n' + navHtml;
 
-  const sidebar = buildSidebar(lesson.id);
+  const sidebar = buildSidebar(lessonId);
   const html = pageShell({
     title:     lesson.title,
     bodyClass: 'lesson-page',
@@ -665,9 +720,10 @@ function buildLessonPage(lesson) {
     content:   fullContent,
   });
 
-  const outDir = path.join(SITE, 'lessons', lesson.id);
+  const outDir = path.resolve(SITE, 'lessons', lessonId);
+  assertWithin(SITE, outDir);
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
+  fs.writeFileSync(path.resolve(outDir, 'index.html'), html, 'utf8');
   console.log(`  [OK]   ${lesson.id}`);
 }
 
@@ -1721,7 +1777,15 @@ function transformWelcomeHtml(rawHtml) {
  * ------------------------------------------------------------------ */
 
 function renderMarkdownPage(filePath) {
-  const raw = fs.readFileSync(filePath, 'utf8');
+  // Validate that the page file resolves within the repo content directories.
+  const resolvedPath = path.resolve(filePath);
+  try {
+    assertWithin(PAGES_DIR, resolvedPath);
+  } catch (_) {
+    // Allow files from LESSONS_DIR as well (some pages are lesson markdown files).
+    assertWithin(ROOT, resolvedPath);
+  }
+  const raw = fs.readFileSync(resolvedPath, 'utf8');
   const { content } = matter(raw);
   let html = marked.parse(content);
 

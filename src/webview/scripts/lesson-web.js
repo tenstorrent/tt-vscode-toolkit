@@ -160,7 +160,6 @@
 
         // Show/hide empty category sections
         document.querySelectorAll('.lesson-category-section').forEach(function (section) {
-          var visibleCards = section.querySelectorAll('.lesson-card:not([style*="none"])');
           // A card with display:none from the filter still exists in the DOM;
           // check inline style directly since querySelectorAll :visible is non-standard.
           var anyVisible = false;
