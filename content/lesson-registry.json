@@ -443,6 +443,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -473,6 +474,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -503,6 +505,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -534,6 +537,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -564,6 +568,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -594,6 +599,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -624,6 +630,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -654,6 +661,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -1152,6 +1160,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -1232,7 +1241,8 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300c"
       ],
       "status": "validated",
       "validatedOn": [

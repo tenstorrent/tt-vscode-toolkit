@@ -18,6 +18,7 @@ supportedHardware:
   - n300
   - t3k
   - p100
+  - p300c
 status: validated
 validatedOn:
   - n150

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.353] - 2026-04-16
+
+### Fixed
+- **build-tt-metal lesson**: added `p300c` to `supportedHardware` to match it already being in `validatedOn` (inconsistency).
+
+### Changed
+- **ct1–ct8 custom-training lessons**: added `p300c` to `supportedHardware` (tt-train supports Blackhole; p300c is architecturally identical to p100).
+- **animatediff-video-generation lesson**: added `p300c` to `supportedHardware` (same Blackhole arch as p100).
+
+---
+
 ## [0.0.352] - 2026-04-16
 
 ### Changed
