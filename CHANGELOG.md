@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.356] - 2026-04-16
+
+### Fixed
+- **cs-fundamentals-01–07 lessons**: corrected `p300` → `p300c` in `supportedHardware` (all seven conceptual lessons).
+
+### Changed
+- **tt-inference-server lesson**: added installation step — N150/N300/T3K/P100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (QB2/pre-configured images have it pre-installed).
+- **video-generation-ttmetal lesson**: added `p300c` to `supportedHardware`; added P300c/QB2 note to hardware selection section.
+
+---
+
 ## [0.0.355] - 2026-04-16
 
 ### Changed

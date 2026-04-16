@@ -18,6 +18,7 @@ supportedHardware:
   - n300
   - t3k
   - p100
+  - p300c
 status: draft
 estimatedMinutes: 30
 ---
@@ -113,12 +114,18 @@ export MESH_DEVICE=T3K
 
 ---
 
-### P100 (Blackhole - Single Chip)
+### P100 / P300c (Blackhole - Single Chip)
 ```bash
 export MESH_DEVICE=P100
 export TT_METAL_ARCH_NAME=blackhole
 ```
 **Expected performance:** ~4 minutes per frame (similar to N150)
+
+> **P300c / QB2:** P300c is a single Blackhole chip — use `MESH_DEVICE=P100` and
+> `TT_METAL_ARCH_NAME=blackhole`. Requires `~/tt-metal` built from source (see
+> [Build tt-metal](command:tenstorrent.showLesson?["build-tt-metal"])).
+> QB2 = 4× P300c operating as 4 independent single-chip devices; run one script
+> instance per chip if you want to use all four.
 
 ---
 

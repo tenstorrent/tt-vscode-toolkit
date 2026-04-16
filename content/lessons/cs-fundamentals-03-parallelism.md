@@ -15,7 +15,7 @@ supportedHardware:
   - t3k
   - p100
   - p150
-  - p300
+  - p300c
   - galaxy
 status: draft
 estimatedMinutes: 30

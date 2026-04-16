@@ -385,7 +385,8 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300c"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -958,7 +959,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -987,7 +988,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1016,7 +1017,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1045,7 +1046,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1074,7 +1075,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1103,7 +1104,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1132,7 +1133,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",

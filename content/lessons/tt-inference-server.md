@@ -49,6 +49,27 @@ inference server.
 
 ## Prerequisites
 
+### Install tt-inference-server
+
+**QB2 / pre-configured images:** tt-inference-server is pre-installed at
+`~/.local/lib/tt-inference-server`. Skip to the next section.
+
+**All other hardware (N150/N300/T3K/P100/P150):** Clone it:
+
+```bash
+git clone https://github.com/tenstorrent/tt-inference-server.git \
+  ~/.local/lib/tt-inference-server
+```
+
+Verify:
+```bash
+ls ~/.local/lib/tt-inference-server/run.py
+```
+
+---
+
+### Other Prerequisites
+
 - **HF token** — Llama is gated on HuggingFace. Set once:
   ```bash
   export HF_TOKEN=hf_...          # your HuggingFace access token
