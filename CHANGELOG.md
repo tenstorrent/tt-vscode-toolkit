@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.360] - 2026-04-16
+
+### Fixed
+- **Extension packaging** (`.vscodeignore`): created a comprehensive ignore file so the `.vsix` bundle contains only runtime assets.
+  - vsce 3.x ignores `.gitignore` when `.vscodeignore` is present (full filesystem scan mode); all exclusions must now be explicit.
+  - Excludes build/CI tooling (`src/`, `test/`, `scripts/`, `.github/`, webpack configs, Dockerfiles), developer docs (`docs/`, `plans/`, `.claude/`, `.husky/`, `CLAUDE.md`), machine-local directories (`venv/`, `.backups/`, `vendor/`), and scratch files (`**/*.backup`).
+  - Explicitly excludes web-only dist assets added by the GitHub Pages feature (`dist/src/webview/scripts/lesson-web.js`, `dist/src/webview/styles/lesson-web-vars.css`) — these are used only by `npm run build:web` and are not referenced by the VSCode extension webview.
+  - Result: `vsce ls` reports ~378 files (down from ~2 700 on a populated dev machine).
+- **`.gitignore`**: added `venv/` and `.backups/` which were present on developer machines but had never been listed.
+
+---
+
 ## [0.0.359] - 2026-04-16
 
 ### Changed
