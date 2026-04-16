@@ -1275,21 +1275,151 @@ body.tt-lesson-web {
 
 /* ===== Reference page overrides ===== */
 
-/* welcome.html has its own inline <style> that sets body { max-width: 900px }.
-   On the reference page, the .lesson-content wrapper provides the constraint
-   so we need to undo the body-level max-width. */
 .reference-page .lesson-content {
   max-width: 860px;
 }
 
-/* walkthrough-item list items in welcome.html get a pointer cursor since
-   their onclick now navigates.  Undo the cursor:not-allowed from disabled
-   rule in case they also happen to have data-vscode-command (they don't,
-   but defensive CSS). */
-.walkthrough-item {
+/* ===== Welcome page component styles ===== */
+/*
+ * These replicate welcome.html's inline styles, scoped to .page-welcome so
+ * they cannot bleed into the sidebar or other layout regions.
+ * Colors use our CSS variable system to stay theme-consistent.
+ */
+
+/* ASCII logo banner */
+.page-welcome .ascii-logo pre {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  line-height: 1.1;
+  color: var(--tt-primary);
+  background: var(--vscode-editor-background);
+  padding: 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0 0 24px;
+  border: 2px solid var(--tt-primary);
+}
+
+/* Hero callout panel */
+.page-welcome .hero {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--tt-primary) 15%, transparent) 0%,
+    color-mix(in srgb, var(--tt-primary)  5%, transparent) 100%);
+  border-left: 4px solid var(--tt-primary);
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+/* Section spacing */
+.page-welcome .section {
+  margin: 30px 0;
+}
+
+/* Directory / code info panel */
+.page-welcome .directory-info {
+  background: var(--vscode-editor-background);
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 13px;
+  margin: 15px 0;
+  border: 1px solid color-mix(in srgb, var(--tt-primary) 30%, transparent);
+}
+
+.page-welcome .directory-info code {
+  color: var(--tt-primary-light, var(--tt-primary));
+}
+
+/* Lesson walkthrough list */
+.page-welcome .walkthrough-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.page-welcome .walkthrough-item {
+  background: var(--vscode-editor-background);
+  border: 1px solid color-mix(in srgb, var(--tt-primary) 30%, transparent);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 10px 0;
+  cursor: pointer;
   transition: background 0.2s, border-color 0.2s, transform 0.15s;
 }
+
+.page-welcome .walkthrough-item:hover {
+  background: color-mix(in srgb, var(--tt-primary) 10%, var(--vscode-editor-background));
+  border-color: var(--tt-primary);
+  transform: translateX(4px);
+}
+
+.page-welcome .walkthrough-item h3 {
+  margin: 0 0 8px;
+  color: var(--tt-primary);
+  font-size: 1rem;
+  border: none;
+  padding: 0;
+}
+
+.page-welcome .walkthrough-item p {
+  margin: 0;
+  color: var(--tt-muted);
+  font-size: 0.875rem;
+}
+
+/* Quick-action button grid */
+.page-welcome .quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.page-welcome .quick-link {
+  display: block;
+  background: var(--tt-primary);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid var(--tt-primary);
+  transition: background 0.2s, transform 0.15s;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.page-welcome .quick-link:hover {
+  background: var(--tt-primary-light, var(--tt-primary));
+  filter: brightness(1.15);
+  transform: scale(1.03);
+  text-decoration: none;
+  color: white;
+}
+
+/* Disabled quick-link (data-vscode-command) overrides the hover transform */
+.page-welcome [data-vscode-command].quick-link {
+  transform: none !important;
+}
+
+/* Walkthrough badge pill */
+.page-welcome .walkthrough-badge {
+  display: inline-block;
+  background: var(--tt-primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  margin-left: 8px;
+}
+
+/* Section headings inside the welcome page use the site accent */
+.page-welcome .lesson-content h3[style] {
+  color: var(--tt-primary) !important;
+}
 `;
+
 
 }
 
@@ -1315,15 +1445,13 @@ const COMMAND_PAGE_MAP = {
 };
 
 function transformWelcomeHtml(rawHtml) {
-  // 1. Extract the <style> block from <head> so we can include it inline.
-  //    The custom CSS inside welcome.html uses VSCode CSS variables that our
-  //    lesson-web-vars.css already provides fallbacks for.
-  let headStyle = '';
-  rawHtml = rawHtml.replace(/<head[\s\S]*?<\/head>/i, head => {
-    const m = head.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-    if (m) headStyle = `<style>\n${m[1]}\n</style>\n`;
-    return '';
-  });
+  // 1. Strip the entire <head> block (including inline <style>).
+  //    welcome.html's inline styles use element-level selectors (body, h1, p, a,
+  //    ul li, strong) that bleed out of the content area and break the site's
+  //    CSS grid layout (particularly body { max-width:900px; margin:0 auto }).
+  //    The welcome-specific component styles (.hero, .walkthrough-item, etc.)
+  //    are re-implemented in lesson-web.css scoped to .page-welcome.
+  rawHtml = rawHtml.replace(/<head[\s\S]*?<\/head>/i, '');
 
   // 2. Extract <body> content
   const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
@@ -1378,7 +1506,7 @@ function transformWelcomeHtml(rawHtml) {
     }
   );
 
-  return headStyle + body;
+  return body;
 }
 
 /* ------------------------------------------------------------------ *
