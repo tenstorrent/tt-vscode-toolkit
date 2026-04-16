@@ -3974,6 +3974,118 @@ async function copyTrainingTemplates(): Promise<void> {
 }
 
 // ============================================================================
+// QB2 Video Generation Commands
+// ============================================================================
+
+/**
+ * Command: tenstorrent.cloneTtLocalGenerator
+ * Clones the tt-local-generator UI to ~/code/tt-local-generator.
+ */
+function cloneTtLocalGenerator(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CLONE_TT_LOCAL_GENERATOR.template);
+  vscode.window.showInformationMessage(
+    'Cloning tt-local-generator. Check the terminal — this takes about 30 seconds.'
+  );
+}
+
+/**
+ * Command: tenstorrent.setupVideoGenVendor
+ * Runs setup_vendor.sh to shallow-clone the pinned tt-inference-server SHA into vendor/.
+ */
+function setupVideoGenVendor(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.SETUP_VIDEO_GEN_VENDOR.template);
+  vscode.window.showInformationMessage(
+    'Setting up vendored inference server. This clones one specific commit — should be fast.'
+  );
+}
+
+/**
+ * Command: tenstorrent.applyVideoGenPatches
+ * Runs apply_patches.sh to inject QB2 hotpatches into vendor/tt-inference-server.
+ */
+function applyVideoGenPatches(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.APPLY_VIDEO_GEN_PATCHES.template);
+  vscode.window.showInformationMessage(
+    'Applying QB2 hotpatches to the vendored inference server.'
+  );
+}
+
+/**
+ * Command: tenstorrent.downloadWan22Model
+ * Downloads Wan2.2-T2V-A14B-Diffusers from HuggingFace (~118 GB).
+ */
+function downloadWan22Model(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.DOWNLOAD_WAN22_MODEL.template);
+  vscode.window.showInformationMessage(
+    'Downloading Wan2.2-T2V-A14B-Diffusers (~118 GB). This is a one-time download — expect 60–90 minutes on a fast connection.'
+  );
+}
+
+/**
+ * Command: tenstorrent.downloadQwen3Small
+ * Downloads Qwen3-0.6B from HuggingFace (~1.2 GB) for prompt polishing.
+ */
+function downloadQwen3Small(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.DOWNLOAD_QWEN3_SMALL.template);
+  vscode.window.showInformationMessage(
+    'Downloading Qwen3-0.6B (~1.2 GB). Should complete in a minute or two.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startWan22Server
+ * Starts the Wan2.2 video server on QB2 via start_wan_qb2.sh.
+ */
+function startWan22Server(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_WAN22_SERVER.template);
+  vscode.window.showInformationMessage(
+    'Starting Wan2.2 server. First-run warmup (TT kernel compilation) takes ~9 minutes — watch the terminal for "Application startup complete".'
+  );
+}
+
+/**
+ * Command: tenstorrent.startPromptGenServer
+ * Starts the Qwen3-0.6B prompt polish server on port 8001.
+ */
+function startPromptGenServer(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_PROMPT_GEN_SERVER.template);
+  vscode.window.showInformationMessage(
+    'Starting prompt generation server (Qwen3-0.6B, CPU). Loads in ~30 seconds.'
+  );
+}
+
+/**
+ * Command: tenstorrent.checkVideoServerHealth
+ * Checks health endpoints for the video server (8000) and prompt server (8001).
+ */
+function checkVideoServerHealth(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CHECK_VIDEO_SERVER_HEALTH.template);
+  vscode.window.showInformationMessage(
+    'Checking server health. Look for {"status":"ok"} on both ports.'
+  );
+}
+
+/**
+ * Command: tenstorrent.launchTtGen
+ * Launches the tt-gen GTK4 GUI.
+ */
+function launchTtGen(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.LAUNCH_TT_GEN.template);
+  vscode.window.showInformationMessage(
+    'Launching tt-gen GUI. Requires python3-gi (system apt package, not venv).'
+  );
+}
+
+// ============================================================================
 // Command Menu
 // ============================================================================
 
@@ -4662,6 +4774,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.createNanoTrickster', createNanoTrickster),
     vscode.commands.registerCommand('tenstorrent.trainFromScratch', trainFromScratch),
     vscode.commands.registerCommand('tenstorrent.testNanoTrickster', testNanoTrickster),
+
+    // QB2 Video Generation (qb2-video-generation lesson)
+    vscode.commands.registerCommand('tenstorrent.cloneTtLocalGenerator', cloneTtLocalGenerator),
+    vscode.commands.registerCommand('tenstorrent.setupVideoGenVendor', setupVideoGenVendor),
+    vscode.commands.registerCommand('tenstorrent.applyVideoGenPatches', applyVideoGenPatches),
+    vscode.commands.registerCommand('tenstorrent.downloadWan22Model', downloadWan22Model),
+    vscode.commands.registerCommand('tenstorrent.downloadQwen3Small', downloadQwen3Small),
+    vscode.commands.registerCommand('tenstorrent.startWan22Server', startWan22Server),
+    vscode.commands.registerCommand('tenstorrent.startPromptGenServer', startPromptGenServer),
+    vscode.commands.registerCommand('tenstorrent.checkVideoServerHealth', checkVideoServerHealth),
+    vscode.commands.registerCommand('tenstorrent.launchTtGen', launchTtGen),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),

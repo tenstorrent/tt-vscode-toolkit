@@ -501,6 +501,51 @@
         "category": "Tenstorrent"
       },
       {
+        "command": "tenstorrent.cloneTtLocalGenerator",
+        "title": "Clone tt-local-generator",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.setupVideoGenVendor",
+        "title": "Set Up Vendored Inference Server (Video Gen)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.applyVideoGenPatches",
+        "title": "Apply QB2 Video Generation Patches",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.downloadWan22Model",
+        "title": "Download Wan2.2-T2V-A14B Model",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.downloadQwen3Small",
+        "title": "Download Qwen3-0.6B Prompt Model",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.startWan22Server",
+        "title": "Start Wan2.2 Video Server (QB2)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.startPromptGenServer",
+        "title": "Start Prompt Generation Server",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.checkVideoServerHealth",
+        "title": "Check Video Server Health",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launchTtGen",
+        "title": "Launch tt-gen GUI",
+        "category": "Tenstorrent"
+      },
+      {
         "command": "tenstorrent.browseOpenBounties",
         "title": "Browse Open Bounties on GitHub",
         "category": "Tenstorrent"

@@ -1323,6 +1323,33 @@
       ],
       "estimatedMinutes": 45,
       "markdownFile": "content/lessons/qb2-openclaw-assistant.md"
+    },
+    {
+      "id": "qb2-video-generation",
+      "title": "Generating Video on QuietBox 2",
+      "description": "Go from a fresh QB2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI, automated prompt generation, and TT-TV attractor mode",
+      "category": "applications",
+      "tags": [
+        "qb2",
+        "p300x2",
+        "video-generation",
+        "wan2-2",
+        "text-to-video",
+        "diffusers",
+        "skyreels",
+        "docker"
+      ],
+      "supportedHardware": [
+        "p300x2"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "p300x2"
+      ],
+      "estimatedMinutes": 90,
+      "markdownFile": "content/lessons/qb2-video-generation.md",
+      "validationDate": "2026-04-15",
+      "validationNotes": "Full pipeline validated on QB2 (2× P300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs."
     }
   ]
 }

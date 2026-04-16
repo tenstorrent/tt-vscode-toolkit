@@ -671,6 +671,73 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'cd ~/tt-scratchpad/training && python -c "import torch; from nano_trickster import NanoTrickster; model = NanoTrickster(); model.load_state_dict(torch.load(\'output/nano_trickster/final_model.pt\')); model.eval(); tokenizer = torch.load(\'data/tokenizer.pt\'); stoi = tokenizer[\'stoi\']; itos = tokenizer[\'itos\']; prompt = \'ROMEO:\'; input_ids = torch.tensor([[stoi.get(c, 0) for c in prompt]]); generated = model.generate(input_ids, max_new_tokens=200, temperature=0.8); text = \'\'.join([itos.get(int(t), \'?\') for t in generated[0]]); print(text)"',
     description: 'Generate text with the trained nano-trickster model',
   },
+
+  // ========================================
+  // QB2 Video Generation (qb2-video-generation)
+  // ========================================
+
+  CLONE_TT_LOCAL_GENERATOR: {
+    id: 'clone-tt-local-generator',
+    name: 'Clone tt-local-generator',
+    template: 'git clone https://github.com/tenstorrent/tt-local-generator.git ~/code/tt-local-generator',
+    description: 'Clones the tt-local-generator video generation UI to ~/code/tt-local-generator',
+  },
+
+  SETUP_VIDEO_GEN_VENDOR: {
+    id: 'setup-video-gen-vendor',
+    name: 'Set Up Vendored Inference Server',
+    template: 'cd ~/code/tt-local-generator && ./bin/setup_vendor.sh',
+    description: 'Clones the pinned tt-inference-server commit into vendor/ (shallow clone, never touches ~/code/tt-inference-server)',
+  },
+
+  APPLY_VIDEO_GEN_PATCHES: {
+    id: 'apply-video-gen-patches',
+    name: 'Apply QB2 Hotpatches',
+    template: 'cd ~/code/tt-local-generator && ./bin/apply_patches.sh',
+    description: 'Applies QB2 hotpatches (config overrides, pipeline fixes) to the vendored tt-inference-server',
+  },
+
+  DOWNLOAD_WAN22_MODEL: {
+    id: 'download-wan22-model',
+    name: 'Download Wan2.2-T2V-A14B Model',
+    template: 'hf download Wan-AI/Wan2.2-T2V-A14B-Diffusers',
+    description: 'Downloads the 14B Wan2.2 text-to-video model from HuggingFace to HF cache (~118 GB, one-time)',
+  },
+
+  DOWNLOAD_QWEN3_SMALL: {
+    id: 'download-qwen3-small',
+    name: 'Download Qwen3-0.6B Prompt Model',
+    template: 'hf download Qwen/Qwen3-0.6B',
+    description: 'Downloads the lightweight CPU-based prompt polish model to HF cache (~1.2 GB)',
+  },
+
+  START_WAN22_SERVER: {
+    id: 'start-wan22-server',
+    name: 'Start Wan2.2 Video Server',
+    template: 'cd ~/code/tt-local-generator && ./bin/start_wan_qb2.sh',
+    description: 'Starts Wan2.2-T2V-A14B-Diffusers on QB2 (P300X2). First-run compilation takes ~9 min; subsequent starts take ~5 min.',
+  },
+
+  START_PROMPT_GEN_SERVER: {
+    id: 'start-prompt-gen-server',
+    name: 'Start Prompt Generation Server',
+    template: 'cd ~/code/tt-local-generator && ./bin/start_prompt_gen.sh',
+    description: 'Starts the Qwen3-0.6B prompt polish server on port 8001 (CPU-only, ~2.9 GB RAM)',
+  },
+
+  CHECK_VIDEO_SERVER_HEALTH: {
+    id: 'check-video-server-health',
+    name: 'Check Server Health',
+    template: 'echo "=== Video server (port 8000) ===" && curl -s http://localhost:8000/health | python3 -m json.tool 2>/dev/null || curl -s http://localhost:8000/health && echo "\n=== Prompt server (port 8001) ===" && curl -s http://localhost:8001/health | python3 -m json.tool 2>/dev/null || curl -s http://localhost:8001/health',
+    description: 'Checks health of both the video inference server (port 8000) and prompt server (port 8001)',
+  },
+
+  LAUNCH_TT_GEN: {
+    id: 'launch-tt-gen',
+    name: 'Launch tt-gen GUI',
+    template: 'cd ~/code/tt-local-generator && ./tt-gen',
+    description: 'Launches the GTK4 video generation GUI. Requires python3-gi (apt package, not venv).',
+  },
 };
 
 /**
