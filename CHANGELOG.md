@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.365] - 2026-04-16
+
+### Fixed
+- **verify-installation lesson**: "Run Hardware Check" button now correctly calls `tenstorrent.runHardwareDetection` instead of the non-existent `tenstorrent.verifyInstallation` command
+- **verify-installation lesson**: removed "Run tt-metal Source Check" button that referenced the same nonexistent command
+- **download-model lesson**: Qwen3-0.6B download button now calls `tenstorrent.downloadQwen3Small` instead of `tenstorrent.downloadModel` (which targets Llama)
+- **lesson-registry.json**: `download-model` completion event corrected from `onCommand:tenstorrent.runInference` to `onCommand:tenstorrent.downloadModel`
+
+---
+
 ## [0.0.364] - 2026-04-16
 
 ### Added

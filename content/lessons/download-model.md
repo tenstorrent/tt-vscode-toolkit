@@ -180,7 +180,7 @@ mkdir -p ~/models && hf download Qwen/Qwen3-0.6B \
   --local-dir ~/models/Qwen3-0.6B
 ```
 
-[⬇️ Download Qwen3-0.6B Model](command:tenstorrent.downloadModel)
+[⬇️ Download Qwen3-0.6B Model](command:tenstorrent.downloadQwen3Small)
 
 ## What Gets Downloaded
 

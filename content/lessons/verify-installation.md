@@ -62,7 +62,7 @@ Run this in your terminal:
 tt-smi -s
 ```
 
-[▶ Run Hardware Check](command:tenstorrent.verifyInstallation)
+[▶ Run Hardware Check](command:tenstorrent.runHardwareDetection)
 
 **Interpreting results:**
 
@@ -113,8 +113,6 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 [ -d ~/tt-metal ] && echo "✓ tt-metal source present at ~/tt-metal" \
   || echo "✗ ~/tt-metal not found — OK for vLLM path, needed for Generator API"
 ```
-
-[▶ Run tt-metal Source Check](command:tenstorrent.verifyInstallation)
 
 **Interpreting results:**
 

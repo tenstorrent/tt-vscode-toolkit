@@ -196,7 +196,7 @@
       "previousLesson": "hardware-detection",
       "nextLesson": "verify-installation",
       "completionEvents": [
-        "onCommand:tenstorrent.runInference"
+        "onCommand:tenstorrent.downloadModel"
       ],
       "markdownFile": "content/lessons/download-model.md"
     },
