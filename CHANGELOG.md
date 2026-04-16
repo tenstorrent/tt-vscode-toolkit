@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.362] - 2026-04-16
+
+### Changed
+- **coding-assistant**: rewritten around Aider + vLLM as the primary tool; now works on all hardware
+  (N150+) via Qwen3-0.6B; zero-conf `.aider.conf.yml` approach; prompt engineering reframed as
+  Aider system prompt customization; Direct API approach moved to comparison table
+
+---
+
 ## [0.0.361] - 2026-04-16
 
 ### Fixed

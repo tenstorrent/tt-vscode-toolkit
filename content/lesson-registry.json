@@ -400,13 +400,15 @@
     },
     {
       "id": "coding-assistant",
-      "title": "Coding Assistant with Prompt Engineering",
-      "description": "Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn how to shape model behavior through system prompts - a critical real-world skill!",
+      "title": "Coding Assistant with Aider",
+      "description": "Run a real AI coding assistant (Aider) against your local Tenstorrent vLLM server. One install, one command — then pair-program with your own on-device LLM. Also covers prompt engineering to customize behavior.",
       "category": "applications",
       "tags": [
         "coding",
         "assistant",
-        "model"
+        "model",
+        "aider",
+        "vllm"
       ],
       "supportedHardware": [
         "n150",
@@ -418,7 +420,7 @@
         "galaxy"
       ],
       "status": "draft",
-      "estimatedMinutes": 10,
+      "estimatedMinutes": 15,
       "order": 10,
       "previousLesson": "video-generation-ttmetal",
       "nextLesson": "ct1-understanding-training",

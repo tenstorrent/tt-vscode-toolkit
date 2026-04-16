@@ -218,7 +218,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🎯 Applications
 *4 lessons, 3 validated*
 
-- **Coding Assistant with Prompt Engineering** — *draft*
+- **Coding Assistant with Aider** — *draft*
 - **Native Video Animation with AnimateDiff** — `N150`
 - **OpenClaw AI Assistant on QuietBox 2** — `P300X2`
 - **Generating Video on QuietBox 2** — `P300X2`
