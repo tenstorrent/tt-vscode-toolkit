@@ -706,6 +706,12 @@ ${content}
 
 <script src="${siteUrl('/assets/vendor/mermaid.min.js')}"></script>
 <script src="${siteUrl('/assets/lesson-web.js')}"></script>
+
+<!-- PostHog analytics (matches docs.tenstorrent.com) -->
+<script>
+!function(t,e){var o,n,p,r;if(!e.__SV){window.posthog=e;e._i=[];e.init=function(i,s,a){function g(t,e){var o=e.split(".");if(o.length===2){t=t[o[0]];e=o[1];}t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)));};}p=t.createElement("script");p.type="text/javascript";p.crossOrigin="anonymous";p.async=!0;p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js";r=t.getElementsByTagName("script")[0];r.parentNode.insertBefore(p,r);var u=e;if(a!==void 0){u=e[a]=[];}else{a="posthog";}u.people=u.people||[];u.toString=function(t){var e="posthog";if(a!=="posthog"){e+="."+a;}if(!t){e+=" (stub)";}return e;};u.people.toString=function(){return u.toString(1)+".people (stub)";};e._i.push([i,s,a]);};e.__SV=1;}}(document,window.posthog||[]);
+posthog.init("phc_9LMRmHrCFvQNvDkPDjYBP5dZ6WchZ5bcM6T4Qj6tb0U",{api_host:"https://us.i.posthog.com",defaults:"2025-05-24",person_profiles:"identified_only"});
+</script>
 </body>
 </html>`;
 }
