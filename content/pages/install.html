@@ -7,7 +7,7 @@
 <style>
 /* ── Install page layout ───────────────────────────────────────────────── */
 
-.install-page .lesson-content {
+.page-install .lesson-content {
   max-width: 100%;
   padding: 0;
 }
@@ -261,6 +261,7 @@
   font-size: 0.75rem;
   color: rgba(226, 232, 240, 0.75);
   font-family: var(--tt-font-mono);
+  pointer-events: none; /* let clicks pass through to the media below */
 }
 
 /* YouTube embed: preserves 16:9 aspect ratio at any column width */
@@ -683,7 +684,7 @@
       <div class="install-yt-wrap">
         <iframe src="https://www.youtube.com/embed/k1VHzQBQJ0"
                 title="Tenstorrent hardware demo"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                 allowfullscreen
                 loading="lazy"></iframe>
       </div>
@@ -716,7 +717,7 @@
       <div class="install-yt-wrap">
         <iframe src="https://www.youtube.com/embed/WTIPj5M8kug"
                 title="Tenstorrent developer toolkit demo"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                 allowfullscreen
                 loading="lazy"></iframe>
       </div>

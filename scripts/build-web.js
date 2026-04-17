@@ -68,7 +68,7 @@ const MERMAID_SRC     = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'merm
  * ------------------------------------------------------------------ */
 
 const PAGES = [
-  { slug: 'install',          title: 'Install',              type: 'fragment', file: 'install.html',              noSidebar: true },
+  { slug: 'install',          title: 'Install',              type: 'fragment', file: 'install.html' },
   { slug: 'welcome',          title: 'Welcome',              type: 'html',     file: 'welcome.html' },
   { slug: 'about-extension',  title: 'Install & Overview',   type: 'markdown', file: 'about-extension.md' },
   { slug: 'faq',              title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
@@ -571,8 +571,8 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
 
   let html = `<nav class="tt-sidebar" id="tt-sidebar" aria-label="Lessons">\n`;
   html += `<div class="sidebar-header">\n`;
-  html += `<a href="${siteUrl('/lessons/')}" class="sidebar-logo" aria-label="Tenstorrent Lessons home">`;
-  html += `<span class="sidebar-logo-text">Tenstorrent<br><strong>Lessons</strong></span>`;
+  html += `<a href="${siteUrl('/lessons/')}" class="sidebar-logo" aria-label="TT Developer Toolkit home">`;
+  html += `<span class="sidebar-logo-text"><strong>tt-vscode-toolkit</strong></span>`;
   html += `</a>\n`;
   html += `</div>\n`;
 
@@ -1043,6 +1043,14 @@ body.tt-lesson-web {
 }
 
 .tt-full-width-content .lesson-content {
+  max-width: 100%;
+  padding: 0;
+}
+
+/* Override lesson-theme.css 900px cap for the install landing page.
+   Body class is page-install (set by buildPages bodyClass template).
+   Applies whether or not the sidebar is present. */
+body.page-install .lesson-content {
   max-width: 100%;
   padding: 0;
 }
