@@ -16,6 +16,7 @@ supportedHardware:
   - n300
   - t3k
   - p100
+  - p300c
 status: validated
 validatedOn:
   - n150
@@ -90,7 +91,8 @@ Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN accelera
 |----------|--------|-------------|-------|
 | **N150** (Wormhole) | ✅ Supported | ~12-15 sec/image | Optimized single-chip config |
 | **N300** (Wormhole) | ✅ Supported | ~8-10 sec/image | Faster with 2 chips |
-| **P100** (Blackhole) | ⚠️ Experimental (as of December 2025) | ~12-15 sec/image | Similar to N150, newer arch |
+| **P100** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Same Blackhole arch as P300c |
+| **P300c** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Single Blackhole chip; use `MESH_DEVICE=P100` |
 | **T3K** (Wormhole) | ✅ Supported | ~5-8 sec/image | Production scale (8 chips) |
 
 **All hardware benefits from native TT-NN acceleration!** The model runs directly on Tensix cores using hardware-specific operators.
@@ -140,7 +142,7 @@ We'll use **Stable Diffusion XL Base 1.0** which runs natively on Tenstorrent ha
 The model will be automatically downloaded from Hugging Face the first time you run it. Login to enable downloading:
 
 ```bash
-huggingface-cli login
+hf auth login --token "$HF_TOKEN"
 ```
 
 [🔐 Login to Hugging Face](command:tenstorrent.loginHuggingFace)
@@ -194,7 +196,28 @@ export TT_METAL_ARCH_NAME=blackhole  # Required for Blackhole
 
 **Performance:** ~12-15 seconds per 1024x1024 image (similar to N150)
 
-**⚠️ Note:** P100 support is experimental (as of December 2025). Please report any issues!
+**⚠️ Note:** Blackhole SDXL support is experimental. Please report any issues!
+
+</details>
+
+<details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 P300c (Blackhole - Single Chip / QB2)</b></summary>
+
+```bash
+export MESH_DEVICE=P100          # P300c runs in single-chip P100 mode
+export TT_METAL_ARCH_NAME=blackhole
+```
+
+**Performance:** ~12-15 seconds per 1024x1024 image
+
+P300c is a single Blackhole chip — identical instruction set to P100.
+Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
+
+**QB2 note:** QB2 ships without `~/tt-metal`. You must clone and build
+tt-metal from source before running SDXL. See
+[Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+
+**⚠️ Note:** Blackhole SDXL support is experimental. Please report any issues!
 
 </details>
 
@@ -566,7 +589,7 @@ Most pytest tests automatically clean up the device, so this is only needed if s
 **Model download fails:**
 ```bash
 # Check Hugging Face authentication
-huggingface-cli whoami
+hf auth whoami
 
 # SDXL Base 1.0 is publicly available - no special access needed
 # Visit: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0

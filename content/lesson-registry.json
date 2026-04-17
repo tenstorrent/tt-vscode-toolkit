@@ -78,7 +78,7 @@
       "id": "tt-installer",
       "title": "Modern Setup with tt-installer 2.0",
       "description": "The fastest way to get started with Tenstorrent! Use tt-installer 2.0 for one-command installation of the full stack including drivers, firmware, tt-metalium containers, and Python environment.",
-      "category": "advanced",
+      "category": "first-inference",
       "tags": [
         "installation",
         "setup"
@@ -89,11 +89,13 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 15,
       "order": 1,
@@ -117,16 +119,18 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 5,
       "order": 1,
       "previousLesson": "tt-installer",
-      "nextLesson": "verify-installation",
+      "nextLesson": "download-model",
       "completionEvents": [
         "onCommand:tenstorrent.runHardwareDetection"
       ],
@@ -134,8 +138,8 @@
     },
     {
       "id": "verify-installation",
-      "title": "Verify tt-metal Installation",
-      "description": "Test your tt-metal installation by running a sample operation on your Tenstorrent device.",
+      "title": "Verify Your Setup",
+      "description": "Check that your Tenstorrent hardware, TTNN, and optional tt-metal source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
       "category": "first-inference",
       "tags": [
         "installation"
@@ -146,25 +150,27 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 5,
-      "order": 2,
-      "previousLesson": "hardware-detection",
-      "nextLesson": "download-model",
+      "order": 3,
+      "previousLesson": "download-model",
+      "nextLesson": "interactive-chat",
       "completionEvents": [
-        "onCommand:tenstorrent.verifyInstallation"
+        "onCommand:tenstorrent.runHardwareDetection"
       ],
       "markdownFile": "content/lessons/verify-installation.md"
     },
     {
       "id": "download-model",
       "title": "Download Model and Run Inference",
-      "description": "Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent hardware.",
+      "description": "Download Qwen3-0.6B (the recommended model — no license gate, works on all hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware. Optionally download Llama-3.1-8B-Instruct for N300+ hardware.",
       "category": "first-inference",
       "tags": [
         "hardware",
@@ -177,18 +183,20 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 10,
-      "order": 3,
-      "previousLesson": "verify-installation",
-      "nextLesson": "interactive-chat",
+      "order": 2,
+      "previousLesson": "hardware-detection",
+      "nextLesson": "verify-installation",
       "completionEvents": [
-        "onCommand:tenstorrent.runInference"
+        "onCommand:tenstorrent.downloadModel"
       ],
       "markdownFile": "content/lessons/download-model.md"
     },
@@ -207,6 +215,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -239,6 +248,7 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
@@ -257,24 +267,30 @@
     {
       "id": "tt-inference-server",
       "title": "Production Inference with tt-inference-server",
-      "description": "Use Tenstorrent's official inference server for production deployments with simple CLI configuration.",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — N150, N300, T3K, P100, p300c, or QB2. tt-inference-server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
         "deployment",
-        "inference"
+        "inference",
+        "llama",
+        "docker"
       ],
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p100"
       ],
-      "estimatedMinutes": 30,
+      "estimatedMinutes": 20,
       "order": 6,
       "previousLesson": "api-server",
       "nextLesson": "vllm-production",
@@ -298,11 +314,13 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300c"
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 7,
@@ -329,7 +347,8 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300c"
       ],
       "status": "validated",
       "validatedOn": [
@@ -350,8 +369,8 @@
     },
     {
       "id": "video-generation-ttmetal",
-      "title": "Video Generation via Frame-by-Frame SDXL",
-      "description": "Create videos by generating frames with Stable Diffusion XL on Tenstorrent hardware. Demonstrates hardware scaling from N150 to Galaxy - same code, exponentially faster performance!",
+      "title": "Video Generation via Frame-by-Frame Diffusion",
+      "description": "Create videos by generating frames with Stable Diffusion on Tenstorrent hardware. Demonstrates hardware scaling from N150 to T3K - same code, faster performance!",
       "category": "serving",
       "tags": [
         "hardware",
@@ -366,10 +385,11 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300c"
       ],
       "status": "draft",
-      "estimatedMinutes": 30,
+      "estimatedMinutes": 60,
       "order": 9,
       "previousLesson": "image-generation",
       "nextLesson": "coding-assistant",
@@ -380,13 +400,15 @@
     },
     {
       "id": "coding-assistant",
-      "title": "Coding Assistant with Prompt Engineering",
-      "description": "Build an AI coding assistant using Llama 3.1 8B and prompt engineering. Learn how to shape model behavior through system prompts - a critical real-world skill!",
+      "title": "Coding Assistant with Aider",
+      "description": "Run a real AI coding assistant (Aider) against your local Tenstorrent vLLM server. One install, one command — then pair-program with your own on-device LLM. Also covers prompt engineering to customize behavior.",
       "category": "applications",
       "tags": [
         "coding",
         "assistant",
-        "model"
+        "model",
+        "aider",
+        "vllm"
       ],
       "supportedHardware": [
         "n150",
@@ -394,10 +416,11 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
-      "estimatedMinutes": 10,
+      "estimatedMinutes": 15,
       "order": 10,
       "previousLesson": "video-generation-ttmetal",
       "nextLesson": "ct1-understanding-training",
@@ -424,9 +447,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -454,9 +478,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -484,9 +509,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -515,9 +541,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -545,9 +572,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -575,9 +603,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -605,9 +634,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -635,9 +665,10 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "validated",
+      "status": "blocked",
       "validatedOn": [
         "n150"
       ],
@@ -667,13 +698,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 5,
       "order": 1,
@@ -701,13 +732,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 2,
@@ -733,13 +764,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 3,
@@ -765,13 +796,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 4,
@@ -797,13 +828,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 5,
@@ -829,13 +860,13 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "validated",
       "validatedOn": [
         "n150",
-        "p300"
+        "p300c"
       ],
       "estimatedMinutes": 30,
       "order": 6,
@@ -849,7 +880,7 @@
     {
       "id": "forge-image-classification",
       "title": "Image Classification with TT-Forge",
-      "description": "Explore TT-Forge - Tenstorrent's MLIR-based compiler that brings PyTorch models to TT hardware! Start with validated models like MobileNetV2 for image classification. Learn forge.compile(), experiment with supported architectures, and understand the path to high-level model deployment.",
+      "description": "Compile a PyTorch MobileNetV2 model for Tenstorrent hardware using forge.compile() — no build required. The forge env is pre-installed: one command to activate, then classify images on real TT silicon.",
       "category": "compilers",
       "tags": [
         "hardware",
@@ -859,10 +890,19 @@
         "model"
       ],
       "supportedHardware": [
-        "n150"
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
       ],
-      "status": "blocked",
-      "estimatedMinutes": 20,
+      "status": "draft",
+      "validatedOn": [
+        "p300c"
+      ],
+      "estimatedMinutes": 10,
       "order": 11,
       "previousLesson": "cookbook-particle-life",
       "nextLesson": "tt-xla-jax",
@@ -873,23 +913,29 @@
     },
     {
       "id": "tt-xla-jax",
-      "title": "JAX Inference with TT-XLA",
-      "description": "Master TT-XLA - Tenstorrent's production-ready XLA-based compiler! Simple wheel installation, JAX integration via PJRT, and multi-chip support. Perfect for cloud environments with locked Python/tt-metal versions. Works with Python 3.10+, no rebuilding required!",
+      "title": "JAX and PyTorch/XLA on Tenstorrent",
+      "description": "Run JAX and PyTorch/XLA computations directly on TT hardware — no install needed. venv-forge ships pjrt_plugin_tt, JAX 0.7.1, and torch-xla pre-installed. Activate, import, and start dispatching tensors to silicon.",
       "category": "compilers",
       "tags": [
         "production",
-        "installation",
         "xla",
         "jax",
-        "inference"
+        "inference",
+        "multi-device"
       ],
       "supportedHardware": [
         "n150",
         "n300",
         "t3k",
+        "p100",
+        "p150",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
+      "validatedOn": [
+        "p300c"
+      ],
       "estimatedMinutes": 10,
       "order": 12,
       "previousLesson": "forge-image-classification",
@@ -915,7 +961,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -944,7 +990,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -973,7 +1019,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1002,7 +1048,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1031,7 +1077,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1060,7 +1106,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1089,7 +1135,7 @@
         "t3k",
         "p100",
         "p150",
-        "p300",
+        "p300c",
         "galaxy"
       ],
       "status": "draft",
@@ -1101,6 +1147,35 @@
         "onCommand:tenstorrent.runComplexityExample"
       ],
       "markdownFile": "content/lessons/cs-fundamentals-07-complexity.md"
+    },
+    {
+      "id": "build-tt-metal",
+      "title": "Build tt-metal from Source",
+      "description": "Clone and build tt-metal from source. Required for Direct API (Generator API) lessons and for running tt-metal examples directly. QB2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
+      "category": "first-inference",
+      "tags": [
+        "installation",
+        "build",
+        "source"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300c"
+      ],
+      "estimatedMinutes": 60,
+      "order": 13,
+      "completionEvents": [],
+      "markdownFile": "content/lessons/build-tt-metal.md"
     },
     {
       "id": "bounty-program",
@@ -1131,10 +1206,13 @@
     {
       "id": "explore-metalium",
       "title": "Exploring TT-Metalium",
-      "description": "Discover what's possible with TT-Metalium! Explore TTNN tutorials, browse the model zoo, and dive into programming examples. Learn the architecture, try Jupyter notebooks, and find inspiration for your own projects.",
+      "description": "Discover what's possible with TT-Metalium! Run TTNN operations immediately, explore the model zoo, and understand the architecture that powers Tenstorrent hardware — from first script to custom kernels.",
       "category": "advanced",
       "tags": [
-        "model"
+        "model",
+        "ttnn",
+        "metalium",
+        "architecture"
       ],
       "supportedHardware": [
         "n150",
@@ -1142,10 +1220,15 @@
         "t3k",
         "p100",
         "p150",
+        "p300c",
         "galaxy"
       ],
-      "status": "draft",
-      "estimatedMinutes": 10,
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300c"
+      ],
+      "estimatedMinutes": 30,
       "order": 15,
       "previousLesson": "bounty-program",
       "nextLesson": "animatediff-video-generation",
@@ -1170,7 +1253,8 @@
         "n150",
         "n300",
         "t3k",
-        "p100"
+        "p100",
+        "p300c"
       ],
       "status": "validated",
       "validatedOn": [
@@ -1276,6 +1360,33 @@
       ],
       "estimatedMinutes": 45,
       "markdownFile": "content/lessons/qb2-openclaw-assistant.md"
+    },
+    {
+      "id": "qb2-video-generation",
+      "title": "Generating Video on QuietBox 2",
+      "description": "Go from a fresh QB2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI and automated prompt generation",
+      "category": "applications",
+      "tags": [
+        "qb2",
+        "p300x2",
+        "video-generation",
+        "wan2-2",
+        "text-to-video",
+        "diffusers",
+        "skyreels",
+        "docker"
+      ],
+      "supportedHardware": [
+        "p300x2"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "p300x2"
+      ],
+      "estimatedMinutes": 90,
+      "markdownFile": "content/lessons/qb2-video-generation.md",
+      "validationDate": "2026-04-15",
+      "validationNotes": "Full pipeline validated on QB2 (2× P300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs."
     }
   ]
 }

@@ -2,8 +2,9 @@
 id: download-model
 title: Download Model and Run Inference
 description: >-
-  Download the Llama-3.1-8B-Instruct model and run inference on your Tenstorrent
-  hardware.
+  Download Qwen3-0.6B (the recommended model — no license gate, works on all
+  hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware.
+  Optionally download Llama-3.1-8B-Instruct for N300+ hardware.
 category: first-inference
 tags:
   - hardware
@@ -15,20 +16,25 @@ supportedHardware:
   - t3k
   - p100
   - p150
+  - p300c
   - galaxy
 status: validated
 validatedOn:
   - n150
+  - p300c
 estimatedMinutes: 10
 ---
 
 # Download Model from Hugging Face
 
-Download the Llama-3.1-8B-Instruct model from Hugging Face to run AI workloads on your Tenstorrent hardware.
+Download **Qwen3-0.6B** — the recommended model for Tenstorrent hardware. It's
+tiny (0.6B parameters), fast, reasoning-capable, and requires no special license
+agreement. Works reliably on every supported device including N150 and P300c.
 
 ## Prerequisites
 
-You'll need a **Hugging Face access token** to download models. If you don't have one:
+You'll need a **Hugging Face access token** to download models. If you don't
+have one:
 
 1. Go to [huggingface.co](https://huggingface.co)
 2. Sign up or log in
@@ -39,7 +45,7 @@ You'll need a **Hugging Face access token** to download models. If you don't hav
 
 ## Starting Fresh?
 
-If you're jumping directly to this lesson, let's check your setup:
+If you're jumping directly to this lesson, let's verify your setup:
 
 ### Quick Prerequisite Checks
 
@@ -50,8 +56,8 @@ tt-smi -s
 # Python installed?
 python3 --version  # Need 3.10+
 
-# huggingface-cli installed?
-which huggingface-cli || pip install huggingface-hub[cli]
+# hf CLI installed? (included with huggingface-hub)
+which hf || pip install huggingface-hub
 ```
 
 **All checks passed?** Continue below to download the model.
@@ -66,10 +72,11 @@ which huggingface-cli || pip install huggingface-hub[cli]
 Check if you're already logged in to Hugging Face:
 
 ```bash
-huggingface-cli whoami
+hf auth whoami
 ```
 
-**If this shows your username:** You're already authenticated! Skip to [Step 3: Download the Model](#step-3-download-the-model).
+**If this shows your username:** You're already authenticated! Skip to
+[Step 3: Download the Model](#step-3-download-qwen3-0-6b).
 
 **If it shows an error:** Continue with Step 1 below to authenticate.
 
@@ -77,26 +84,27 @@ huggingface-cli whoami
 
 ### Model Already Downloaded?
 
-Check if the model already exists:
+Check if Qwen3-0.6B is already present:
 
 ```bash
-ls ~/models/Llama-3.1-8B-Instruct/config.json
+ls ~/models/Qwen3-0.6B/config.json
 ```
 
-**If the file exists:** Model is already downloaded! You can skip to the next lesson or verify the download below.
+**If the file exists:** Model is already downloaded! You can skip to the next
+lesson.
 
 **Verify download contents:**
 ```bash
-# Check HuggingFace format (for Lessons 6-7)
-ls ~/models/Llama-3.1-8B-Instruct/config.json
-ls ~/models/Llama-3.1-8B-Instruct/model*.safetensors
-
-# Check Meta format (for Lessons 4-5, 9)
-ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
-ls ~/models/Llama-3.1-8B-Instruct/original/params.json
+ls ~/models/Qwen3-0.6B/config.json
+ls ~/models/Qwen3-0.6B/model*.safetensors
 ```
 
-**All files present?** You're good to go! Continue to Lesson 4.
+**If you already have Llama-3.1-8B-Instruct:**
+```bash
+ls ~/models/Llama-3.1-8B-Instruct/config.json
+```
+
+**All files present?** You're good to go!
 
 **Missing files?** Redownload using Step 3 below.
 
@@ -104,19 +112,13 @@ ls ~/models/Llama-3.1-8B-Instruct/original/params.json
 
 ## Understanding Model Formats
 
-This model comes in **two formats** for different tools:
-
-**1. Meta Format (in `original/` subdirectory):**
-- Files: `consolidated.00.pth`, `params.json`, `tokenizer.model`
-- Used by: Direct API (Lessons 4-5), Coding Assistant (Lesson 9)
-- Path: `~/models/Llama-3.1-8B-Instruct/original/`
-
-**2. HuggingFace Format (in root directory):**
+**Qwen3-0.6B uses HuggingFace format only:**
 - Files: `config.json`, `model.safetensors`, `tokenizer.json`
-- Used by: vLLM (Lessons 6-7), TT-Jukebox (standalone tool)
-- Path: `~/models/Llama-3.1-8B-Instruct/`
+- Used by: vLLM (Lessons 6-7), Direct API (Lessons 4-5)
+- Path: `~/models/Qwen3-0.6B/`
 
-**Why download both?** It ensures all lessons work without additional downloads later.
+The HuggingFace format is the standard for modern models and is compatible with
+all Tenstorrent inference tools.
 
 ---
 
@@ -128,13 +130,15 @@ This model comes in **two formats** for different tools:
 echo $HF_TOKEN
 ```
 
-**If you see your token:** It's already set! Skip to [Step 2: Authenticate](#step-2-authenticate).
+**If you see your token:** It's already set! Skip to
+[Step 2: Authenticate](#step-2-authenticate).
 
 **If it's empty:** Set your token using one of these methods:
 
 ### Method 1: Via Extension (Recommended)
 
-When you click the button below, you'll be prompted to enter your token securely:
+When you click the button below, you'll be prompted to enter your token
+securely:
 
 [🔑 Enter Your Hugging Face Token](command:tenstorrent.setHuggingFaceToken)
 
@@ -144,7 +148,8 @@ When you click the button below, you'll be prompted to enter your token securely
 export HF_TOKEN=your_token_from_huggingface
 ```
 
-**Note:** This only lasts for your current terminal session. For permanent setup, add it to `~/.bashrc` or `~/.zshrc`:
+**Note:** This only lasts for your current terminal session. For permanent
+setup, add it to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
 echo 'export HF_TOKEN=your_token_from_huggingface' >> ~/.bashrc
@@ -155,126 +160,87 @@ source ~/.bashrc
 
 ## Step 2: Authenticate
 
-Once your token is set, authenticate with Hugging Face using this command:
+Once your token is set, authenticate with Hugging Face:
 
 ```bash
-huggingface-cli login --token "$HF_TOKEN"
+hf auth login --token "$HF_TOKEN"
 ```
 
 [✓ Authenticate with Hugging Face](command:tenstorrent.loginHuggingFace)
 
-## Step 3: Download the Model
+---
 
-Download the Llama-3.1-8B-Instruct model to `~/models/Llama-3.1-8B-Instruct`:
+## Step 3: Download Qwen3-0.6B
+
+> **Tip — custom storage location:** All lessons use `~/models` as the model
+> directory. If your models live on a larger drive or shared storage, symlink
+> `~/models` there once and every lesson will find them automatically:
+> ```bash
+> ln -s /path/to/your/storage ~/models
+> ```
+> Already downloaded a model to the HF cache? Symlink the snapshot:
+> ```bash
+> mkdir -p ~/models
+> ln -sfn "$(ls ~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/ | tail -1 | xargs -I{} echo ~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/{})" ~/models/Qwen3-0.6B
+> ```
+
+Download Qwen3-0.6B — no license gate, no terms to accept, works on all
+Tenstorrent hardware:
+
+```bash
+mkdir -p ~/models && hf download Qwen/Qwen3-0.6B \
+  --local-dir ~/models/Qwen3-0.6B
+```
+
+[⬇️ Download Qwen3-0.6B Model](command:tenstorrent.downloadQwen3Small)
+
+## What Gets Downloaded
+
+The Qwen3-0.6B model includes:
+- **Model weights** — HuggingFace `.safetensors` format
+- **Tokenizer files** — `tokenizer.json`, `tokenizer_config.json`
+- **Config files** — `config.json`, `generation_config.json`
+- **Total size** — approximately 1.2GB
+
+The download typically completes in under a minute on a fast connection.
+
+---
+
+## Optional: Llama-3.1-8B-Instruct (Gated Model)
+
+> **Note:** Meta requires accepting their data license at
+> [huggingface.co/meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct)
+> before this download will succeed. If you prefer open models or haven't
+> accepted Meta's terms, **Qwen3-0.6B is an excellent alternative**.
+
+> **Hardware requirement:** Llama-3.1-8B-Instruct requires **N300 or higher**
+> for reliable operation. It consistently exhausts DRAM on N150 and P300c.
+> Qwen3-0.6B is the recommended choice for those devices.
+
+If you've accepted Meta's license terms and are running on N300/T3K/P100/Galaxy,
+you can download Llama-3.1-8B-Instruct:
 
 ```bash
 mkdir -p ~/models && hf download meta-llama/Llama-3.1-8B-Instruct \
   --local-dir ~/models/Llama-3.1-8B-Instruct
 ```
 
-[⬇️ Download Llama 3.1-8B Model](command:tenstorrent.downloadModel)
+**What gets downloaded (~16GB):**
+- HuggingFace format files — `config.json`, `model.safetensors`, etc. (for vLLM)
+- Meta original format files — `params.json`, `consolidated.00.pth`,
+  `tokenizer.model` (in `original/` subdirectory, for Direct API)
 
-## What Gets Downloaded
+---
 
-The model includes:
-- **HuggingFace format files** - `config.json`, `model.safetensors`, etc. (for vLLM)
-- **Meta original format files** - `params.json`, `consolidated.00.pth`, `tokenizer.model` (in `original/` subdirectory, for Direct API)
-- **Tokenizer files** - Compatible with both formats
-- **Full model weights** - ~16GB total
+## Next Steps
 
-**Note:** This downloads the complete model with all formats. The download is approximately 16GB and may take several minutes depending on your internet connection.
+You've successfully downloaded your model and are ready to run inference.
 
-**Why both formats?**
-- Direct API (Lessons 4-5) uses Meta's native format in `original/` subdirectory
-- vLLM (Lessons 6-7) uses HuggingFace format in the root directory
-
-## Step 4: Get TT-Metal Repository
-
-To run inference with the downloaded model, you'll need the TT-Metal repository. Many cloud images have this pre-installed at `~/tt-metal`.
-
-This will clone the repository (if needed):
-
-```bash
-git clone https://github.com/tenstorrent/tt-metal.git "/path/you/choose" --recurse-submodules
-```
-
-[📦 Setup TT-Metal Repository](command:tenstorrent.cloneTTMetal)
-
-**What this does:**
-- Checks if `~/tt-metal` already exists on your system
-- If found, offers to use the existing installation
-- If not found, asks where you'd like to clone it (defaults to `~/tt-metal`)
-- Clones the repository from GitHub with all submodules
-
-The TT-Metal repository contains the inference demo scripts and all necessary tools to run Llama models on Tenstorrent hardware.
-
-## Step 5: Setup Python Environment
-
-Before running inference, set up the Python environment with all required dependencies.
-
-This command will execute (using your tt-metal location):
-
-```bash
-cd "/path/to/tt-metal" && \
-  export PYTHONPATH=$(pwd) && \
-  pip install -r tt_metal/python_env/requirements-dev.txt
-```
-
-[🐍 Install Python Dependencies](command:tenstorrent.setupEnvironment)
-
-**What this does:**
-- Sets the `PYTHONPATH` to the tt-metal directory
-- Installs Python dependencies from `requirements-dev.txt`
-- Prepares the environment for running model demos
-
-This step ensures all Python packages needed for inference are installed and configured correctly.
-
-## Step 6: Run Llama Inference Demo
-
-Now for the exciting part - run actual inference with Llama 3.1-8B on your Tenstorrent hardware!
-
-This command will execute:
-
-```bash
-cd "/path/to/tt-metal" && \
-  export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct" && \
-  export LLAMA_DIR="$HOME/models/Llama-3.1-8B-Instruct/original" && \
-  export PYTHONPATH=$(pwd) && \
-  pytest models/tt_transformers/demo/simple_text_demo.py \
-    -k performance-batch-1 \
-    --max_seq_len 1024 \
-    --max_generated_tokens 128
-```
-
-[🚀 Run Inference Now!](command:tenstorrent.runInference)
-
-**What this does:**
-- Runs the `simple_text_demo.py` script using pytest
-- Generates text using the Llama 3.1-8B model
-- Demonstrates performance on Tenstorrent hardware
-
-**Expected Output:**
-You'll see:
-- Model loading and initialization messages
-- Generated text output from the model
-- Performance metrics (tokens per second)
-- Inference completion confirmation
-
-**Note:** The first run may take a few minutes as the model loads and compiles kernels for your Tenstorrent device. Subsequent runs will be faster due to caching.
-
-## Congratulations!
-
-You've successfully:
-- ✅ Detected your Tenstorrent hardware
-- ✅ Verified your tt-metal installation
-- ✅ Downloaded a production-ready LLM
-- ✅ **Run inference on Tenstorrent hardware!**
-
-You're now ready to explore more advanced use cases, optimize performance, and integrate Tenstorrent into your AI workflows.
+**Next: Verify Your Setup →** [verify-installation](command:tenstorrent.showLesson?["verify-installation"])
 
 ## Learn More
 
+- [Qwen3-0.6B on Hugging Face](https://huggingface.co/Qwen/Qwen3-0.6B)
 - [Llama 3.1 model on Hugging Face](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct)
 - [TT-Metal GitHub Repository](https://github.com/tenstorrent/tt-metal)
 - [TT-NN Documentation](https://docs.tenstorrent.com/tt-metal/latest/ttnn/)
-- [Model Performance Guide](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/PERF.md)

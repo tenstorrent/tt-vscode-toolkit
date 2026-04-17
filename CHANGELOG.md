@@ -7,6 +7,264 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.367] - 2026-04-16
+
+### Fixed
+- **terminalCommands.ts**: `DOWNLOAD_QWEN3_SMALL` now uses `--local-dir ~/models/Qwen3-0.6B` so the button downloads to the same path the lesson references
+- **download-model.md**: added symlink tip before Step 3 — explains how to point `~/models` at any storage location or link an existing HF cache snapshot, making the path consistent across all lessons regardless of download method
+- **.vscodeignore**: added `.git/` and `.vscode/` to prevent git metadata and local editor settings from being bundled into the `.vsix`
+- **about-extension.md**: updated Compilers command table to reflect current title "Activate TT-Forge Environment"; replaced pinned `0.0.363` VSIX filename example with `<version>` placeholder
+
+---
+
+## [0.0.366] - 2026-04-16
+
+### Fixed
+- **lesson-registry.json**: `verify-installation` completion event corrected to `onCommand:tenstorrent.runHardwareDetection` (was `tenstorrent.verifyInstallation`, which the lesson no longer invokes)
+- **lesson-web.js**: added `.catch()` handlers to both `copyToClipboard` call sites so clipboard failures (permission denied, insecure context) surface as "Failed" feedback instead of unhandled rejections
+
+### Changed
+- **package.json commands**: renamed Command Palette titles for `tenstorrent.buildForgeFromSource` → "Activate TT-Forge Environment (Recommended)" and `tenstorrent.installForge` → "Activate TT-Forge Environment" to reflect that both commands activate a pre-installed venv rather than building/installing anything (command IDs unchanged for backward compatibility)
+
+---
+
+## [0.0.365] - 2026-04-16
+
+### Fixed
+- **verify-installation lesson**: "Run Hardware Check" button now correctly calls `tenstorrent.runHardwareDetection` instead of the non-existent `tenstorrent.verifyInstallation` command
+- **verify-installation lesson**: removed "Run tt-metal Source Check" button that referenced the same nonexistent command
+- **download-model lesson**: Qwen3-0.6B download button now calls `tenstorrent.downloadQwen3Small` instead of `tenstorrent.downloadModel` (which targets Llama)
+- **lesson-registry.json**: `download-model` completion event corrected from `onCommand:tenstorrent.runInference` to `onCommand:tenstorrent.downloadModel`
+
+---
+
+## [0.0.364] - 2026-04-16
+
+### Added
+- **"Install & Overview" reference page** (`content/pages/about-extension.md`): comprehensive extension documentation covering installation from GitHub releases (VS Code, Cursor/Windsurf, code-server — GUI and CLI paths for each), the full lesson library organized by category, all 70+ built-in commands by category, the hardware filter, and update instructions. Registered in the `PAGES` array and appears in the docs site sidebar as "Install & Overview".
+
+---
+
+## [0.0.363] - 2026-04-16
+
+### Security
+- **Dependency overrides**: resolved all Cycode-flagged HIGH/MODERATE vulnerabilities in transitive deps introduced by the gh-pages feature:
+  - `lodash` / `lodash-es`: bumped override to `>=4.18.0` (fixes CVE-2026-4800 HIGH, CVE-2026-2950 MEDIUM)
+  - `picomatch`: added override `>=2.3.2` (fixes CVE-2026-33672 HIGH, CVE-2026-33671 HIGH)
+  - `brace-expansion@1`: added override `^1.1.13`; `brace-expansion@2`: added override `^2.0.3` (fixes CVE-2026-33750 MEDIUM)
+  - `serialize-javascript`: bumped override to `>=7.0.5` (fixes CVE-2026-34043 MEDIUM)
+  - `dompurify`: added override `>=3.3.4` (fixes GHSA-39q2-94rc-95cp MODERATE, introduced via isomorphic-dompurify)
+- **SAST — path traversal** (`build-web.js`): added `validateId()` (regex-gates lesson/page IDs to `[a-z0-9][a-z0-9-]*`) and `assertWithin(base, target)` (path containment guard); applied to `copyDirRecursive`, `buildLessonPage`, and `renderMarkdownPage`.
+- **SAST — XSS** (`build-web.js`): replaced manual `.replace()`-chain `escapeHtml`/`escapeAttr` with `sanitize-html` library calls (already a project dependency); validated lesson ID before embedding in `href` at the `showLesson` link renderer.
+
+### Fixed
+- **Font paths** (`lesson-web-vars.css`): changed `@font-face` `src` URLs from absolute (`/assets/fonts/…`) to relative (`fonts/…`). Absolute paths break on GitHub Pages project sites where the app is served from `/<repo>/` rather than `/`.
+- **Dead code** (`lesson-web.js`): removed unused `visibleCards` variable from the hardware filter loop.
+- **Content** (`qb2-video-generation.md`): changed `hf whoami` → `hf auth whoami` (correct huggingface-hub CLI syntax).
+- **Content** (`terminalCommands.ts`): corrected `START_TT_INFERENCE_SERVER` description — the template intentionally omits `--tt-device` because `run.py` auto-detects hardware via `tt-smi`.
+- **README**: reordered "Your First Inference" bullet list to match the lesson-registry walkthrough progression (Download Model before Verify Your Setup).
+
+---
+
+## [0.0.362] - 2026-04-16
+
+### Changed
+- **coding-assistant**: rewritten around Aider + vLLM as the primary tool; now works on all hardware
+  (N150+) via Qwen3-0.6B; zero-conf `.aider.conf.yml` approach; prompt engineering reframed as
+  Aider system prompt customization; Direct API approach moved to comparison table
+
+---
+
+## [0.0.361] - 2026-04-16
+
+### Fixed
+- **GitHub Pages CI build** (`npm run build:web`): added missing `isomorphic-dompurify` devDependency.
+  `build-web.js` requires this package at line 32 (`const DOMPurify = require('isomorphic-dompurify')`),
+  but it was only present in the prototype repo (`tt-vscode-toolkit-gh-pages`) and was not carried across
+  during the `feature/gh-pages` merge. Without it, `npm ci` in the Actions build job succeeds but
+  `npm run build:web` fails immediately with `MODULE_NOT_FOUND`, preventing any page generation.
+- **`scripts/build-web.js`**: corrected the header comment which incorrectly claimed "no new npm
+  dependencies"; the actual dependency list is now accurate.
+
+---
+
+## [0.0.360] - 2026-04-16
+
+### Fixed
+- **Extension packaging** (`.vscodeignore`): created a comprehensive ignore file so the `.vsix` bundle contains only runtime assets.
+  - vsce 3.x ignores `.gitignore` when `.vscodeignore` is present (full filesystem scan mode); all exclusions must now be explicit.
+  - Excludes build/CI tooling (`src/`, `test/`, `scripts/`, `.github/`, webpack configs, Dockerfiles), developer docs (`docs/`, `plans/`, `.claude/`, `.husky/`, `CLAUDE.md`), machine-local directories (`venv/`, `.backups/`, `vendor/`), and scratch files (`**/*.backup`).
+  - Explicitly excludes web-only dist assets added by the GitHub Pages feature (`dist/src/webview/scripts/lesson-web.js`, `dist/src/webview/styles/lesson-web-vars.css`) — these are used only by `npm run build:web` and are not referenced by the VSCode extension webview.
+  - Result: `vsce ls` reports ~378 files (down from ~2 700 on a populated dev machine).
+- **`.gitignore`**: added `venv/` and `.backups/` which were present on developer machines but had never been listed.
+
+---
+
+## [0.0.359] - 2026-04-16
+
+### Changed
+- **explore-metalium lesson**: major revision — added "Run it right now" section
+  with `ttnn/tutorials/basic_python/` scripts (no Jupyter required), performance
+  context section, expanded model zoo with current demos, corrected tutorial path
+  (removed stale `2025_dx_rework/` subdirectory). Promoted to `status: validated`.
+- **video-generation-ttmetal lesson**: replaced SD 3.5 (Galaxy/QuietBox only) with
+  SD 1.4 (`CompVis/stable-diffusion-v1-4`), which works on N150, N300, T3K, P100,
+  and P300c. Fixed demo command path, output filename pattern
+  (`input_data_N_512x512_ttnn.png`), added HuggingFace auth step, added interactive
+  mode section. Removed incorrect SD 3.5 performance claims.
+- **coding-assistant lesson**: fixed `pip install pi` bug (stale/broken dependency),
+  added N300+ hardware requirement callout with N150/QB2 redirect, added explicit
+  venv activation to startup command, added `TT_METAL_ARCH_NAME=blackhole` note for
+  P100/P300c users. Removed stale hardcoded lesson number references.
+- **tt-inference-server lesson**: updated "Dev Branch" section to reflect that `dev`
+  branch was retired on 2026-04-16; development now lands directly on `main`.
+
+---
+
+## [0.0.358] - 2026-04-16
+
+### Added
+- **GitHub Pages static site** (`npm run build:web`): generates a fully static web version of all lessons and reference pages, deployable via GitHub Actions to GitHub Pages.
+  - All 40 lessons and 5 reference pages (Welcome, FAQ, Step Zero, RISC-V Guide, Version Compatibility) rendered to `site/`.
+  - Two-column sidebar layout with lesson catalog, hardware filter chips, and mobile toggle.
+  - `command:tenstorrent.showLesson` links become HTML anchor links; terminal-command buttons become copyable shell blocks with a VS Code extension badge indicating web-disabled status.
+  - Mermaid diagrams rendered via vendored `mermaid.min.js`; no external CDN dependency.
+  - GitHub-linked GIFs and videos promoted to inline `<figure>` elements (local asset copies used on the web).
+  - Welcome page component styles scoped to prevent grid layout bleed.
+  - **Build-time syntax highlighting**: `highlight.js` (devDependency) wired through `marked-highlight`; code fences annotated at build time using Tenstorrent token colors from `themes/tenstorrent-theme.json` (keywords teal, strings pink, functions gold, types pink, comments slate).
+  - GitHub Actions workflow (`.github/workflows/gh-pages.yml`) deploys on push to `main` and `readiness/**`.
+
+---
+
+## [0.0.357] - 2026-04-16
+
+### Changed
+- **build-tt-metal lesson**: moved from `advanced` category to `first-inference` — it is a prerequisite lesson, not an advanced topic.
+- **custom-training lessons (ct1–ct8)**: marked all eight as `status: blocked`. The `ttml` Python bindings require building from a tt-metal v0.67.0+ source tree alongside the Metal build; they are not available as a standalone pip package. Lessons will return when `ttml` ships as a prebuilt wheel.
+
+---
+
+## [0.0.356] - 2026-04-16
+
+### Fixed
+- **cs-fundamentals-01–07 lessons**: corrected `p300` → `p300c` in `supportedHardware` (all seven conceptual lessons).
+
+### Changed
+- **tt-inference-server lesson**: added installation step — N150/N300/T3K/P100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (QB2/pre-configured images have it pre-installed).
+- **video-generation-ttmetal lesson**: added `p300c` to `supportedHardware`; added P300c/QB2 note to hardware selection section.
+
+---
+
+## [0.0.355] - 2026-04-16
+
+### Changed
+- **build-tt-metal lesson**: updated Step 3 (Python environment setup) to document the new `uv`-based `create_venv.sh` workflow — `create_venv.sh` now installs `uv` automatically and uses `uv venv` / `uv pip install` instead of plain pip. Added `source python_env/bin/activate` to Step 5 (env vars). Added `uv not found in PATH` error table entry.
+- **coding-assistant lesson**: removed stale "Future Model Options (Coming Soon as of December 2025)" section; replaced with current model availability table (Qwen3-0.6B, Qwen3-8B, Llama 3.1 8B all available now via vLLM). Added QB2/P300c prerequisite note. Added `p300c` to `supportedHardware`.
+- **explore-metalium lesson**: added `p300c` to `supportedHardware`; removed stale "as of December 2025" date references.
+
+---
+
+## [0.0.354] - 2026-04-16
+
+### Fixed
+- **All active lessons**: replaced remaining `huggingface-cli` commands with the current `hf` CLI equivalents — `huggingface-cli download` → `hf download`, `huggingface-cli whoami` → `hf auth whoami` (image-generation, animatediff-video-generation, bounty-program-model-bringup).
+
+---
+
+## [0.0.353] - 2026-04-16
+
+### Fixed
+- **build-tt-metal lesson**: added `p300c` to `supportedHardware` to match it already being in `validatedOn` (inconsistency).
+
+### Changed
+- **ct1–ct8 custom-training lessons**: added `p300c` to `supportedHardware` (tt-train supports Blackhole; p300c is architecturally identical to p100).
+- **animatediff-video-generation lesson**: added `p300c` to `supportedHardware` (same Blackhole arch as p100).
+
+---
+
+## [0.0.352] - 2026-04-16
+
+### Changed
+- **interactive-chat lesson**: added `p300c` to `supportedHardware` (architecturally identical to P100; lesson already has the QB2/no-tt-metal caveat).
+- **api-server lesson**: added `p300c` to `supportedHardware`; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"` in prerequisite check.
+- **image-generation lesson**: added `p300c` to `supportedHardware`; added P300c hardware config section (`MESH_DEVICE=P100` + `TT_METAL_ARCH_NAME=blackhole`) with QB2 source-build note; added P300c row to hardware compatibility table; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"`.
+
+---
+
+## [0.0.351] - 2026-04-16
+
+### Fixed
+- **image_filters cookbook template rewritten** for current TTNN conv2d API: replaced non-existent positional `ttnn.conv2d(tensor, kernel, padding='same')` call with correct keyword-arg form (`input_tensor`, `weight_tensor`, `bias_tensor`, `in_channels`, `out_channels`, `device`, `kernel_size`, `stride`, `padding`, `batch_size`, `input_height`, `input_width`, `conv_config`, `groups`). RGB channels are now processed as a batch (`batch_size=C`, `in_channels=1`, `out_channels=1`) — avoids depthwise grouping constraints and keeps the API straightforward. Added `l1_small_size=8192` to `open_device`. Validated on P300C (QB2).
+- **audio_processor cookbook CLI**: hardcoded `examples/sample.wav` path replaced with `sys.argv[1]` fallback pattern, matching all other cookbooks.
+
+### Changed
+- **Cookbook lesson metadata**: corrected `p300` → `p300c` in `supportedHardware` and `validatedOn` for all six cookbook lessons (overview, game-of-life, audio-processor, mandelbrot, image-filters, particle-life); added `validationDate: 2026-04-16` and P300C-specific validation notes to each.
+
+---
+
+## [0.0.350] - 2026-04-16
+
+### Added
+- **Cache persistence section in tt-inference-server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT Metal kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on QB2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
+
+---
+
+## [0.0.340] - 2026-04-16
+
+### Added
+- **Advanced vLLM tuning section in tt-inference-server lesson**: `--vllm-override-args` reference covering tool use / function calling (`enable-auto-tool-choice`, `tool-call-parser`), context length reduction (`max-model-len`), concurrency limits (`max-num-seqs`, `max-num-batched-tokens`), and combining multiple overrides. Includes tool-call parser table by model family (Llama → `llama3_json`, Qwen/Hermes → `hermes`, Mistral → `mistral`) and note on `tool_choice="none"/"required"` not yet supported.
+- **Direct docker run vLLM passthrough tip**: container's `run_vllm_api_server.py` uses `parse_known_args()`, so any flags after `--tt-device` pass through directly to `vllm serve` — documented with examples.
+- **Models outside MODEL_SPECS section**: explains short-name resolution, catalog breadth (60+ models), fallback to direct vLLM, and how to request new model support.
+
+---
+
+## [0.0.339] - 2026-04-16
+
+### Changed
+- **tt-inference-server lesson rewritten** for current v0.12.0 Docker images and modern CLI: updated `--device` → `--tt-device` (with auto-detection note), added `--no-auth` to quickstart, added direct `docker run` commands per hardware family, added P100/p300c/QB2 support with Experimental status, added non-container `--local-server` section, added dev branch (v0.12.0) section covering C++ server, session manager, disaggregated prefill/decode, Grafana metrics, and `/v1/responses` endpoint. Llama-3.1-8B is now clearly framed as the universal model across all hardware.
+- **Terminal commands for tt-inference-server updated**: `--device` flag replaced with `--tt-device`; `--no-auth` added to all server start commands; prereq check improved to parse `tt-smi -s` JSON output.
+
+### Added
+- **`tenstorrent.startTtInferenceServerN150` command**: starts Llama-3.1-8B-Instruct on N150 with correct `--tt-device n150` flag
+- **`tenstorrent.startTtInferenceServerN300` command**: starts Llama-3.1-8B-Instruct on N300 with correct `--tt-device n300` flag
+
+---
+
+## [0.0.337] - 2026-04-15
+
+### Fixed
+- **`ttnn.__version__` crash in verify-installation** Check 2: replaced `ttnn.__version__` with `getattr(ttnn, '__version__', '(source build)')` — the attribute is absent when TTNN is imported from the tt-metal source tree (checkout mode) rather than a compiled pip install
+- **Stale Check 3 module path in verify-installation**: replaced `python3 -m ttnn.examples.usage.run_op_on_device` (module removed at pinned tt-metal commit) with a simple `[ -d ~/tt-metal ]` directory check that works in all environments
+
+### Added
+- **`tt-smi` added to tt-developer-image `venv-metal` and `venv-vllm`** (`docker/Dockerfile`): `pip install tt-smi` now runs alongside `huggingface-hub` so the hardware-detection lesson works out of the box in the developer container
+
+---
+
+## [0.0.336] - 2026-04-15
+
+### Added
+- **New lesson: Build tt-metal from Source** (`content/lessons/build-tt-metal.md`) — standalone reference covering clone, system deps, Python setuptools fix, build, env vars, and common errors. Targeted at QB2/pre-configured image users where `~/tt-metal` is absent. Includes Blackhole DispatchCoreAxis warning with bad/good code examples.
+- **p300c hardware support** across multiple lessons: added to `supportedHardware` and `validatedOn` in `vllm-production.md`, `verify-installation.md`, and `hardware-detection.md`
+- **QB2 callout in vllm-production.md**: P100/P300c section now explains that P300c is architecturally identical to P100 and that QB2 = 4× P300c operating as independent single-chip devices
+- **Llama-only warning in interactive-chat.md**: prominent callout at top of lesson directing QB2 and no-source-build users to the vLLM/Qwen3-0.6B path instead
+- **WH/BH Compatibility section in CLAUDE.md**: new guidance block covering DispatchCoreAxis, hf CLI migration, QB2 tt-metal absence, TT_METAL_ARCH_NAME, HF_MODEL requirement, and a per-lesson WH/BH compatibility checklist
+
+### Changed
+- **Lesson chain reordered**: `hardware-detection → download-model → verify-installation → interactive-chat` (previously verify-installation was step 2, before download-model)
+- **verify-installation.md rewritten** as diagnostic hub ("Verify Your Setup"): three checks with pass/fail interpretation and contextual links; no longer assumes `~/tt-metal` exists; QB2 callout explaining pre-configured images ship without source
+- **download-model.md rewritten**: Qwen3-0.6B is now the primary model (no license gate, works on all hardware including N150/P300c); Llama-3.1-8B-Instruct moved to optional section with N300+ DRAM warning; Steps 4-6 (tt-metal clone/setup) removed (now in build-tt-metal lesson)
+- **tt-installer.md category**: `advanced` → `first-inference`
+- **lesson-registry.json navigation updated**: previousLesson/nextLesson chain reflects new order; build-tt-metal entry added; verify-installation and download-model titles/descriptions synced with markdown front matter
+
+### Fixed
+- **DispatchCoreAxis.ROW crash on Blackhole** in three templates (`tt-chat-direct.py`, `tt-coding-assistant.py`, `tt-api-server-direct.py`): removed `ttnn.DispatchCoreAxis.ROW` argument from `DispatchCoreConfig` calls — TTNN auto-detects the correct axis per architecture
+- **`hf` CLI migration**: replaced deprecated `huggingface-cli` with `hf` CLI equivalents (`hf auth login`, `hf auth whoami`, `hf download`) in `download-model.md`, `interactive-chat.md`, `vllm-production.md`, and `terminalCommands.ts`
+- **HF_MODEL not exported**: added `export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct"` to the RUN_INFERENCE terminal command template in `terminalCommands.ts` — previously `simple_text_demo.py` would fail with missing env var
+- **setuptools/pkg_resources missing on QB2**: added `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install in the SETUP_ENVIRONMENT terminal command template
+
+---
+
 ## [0.0.335] - 2026-04-10
 
 ### Changed

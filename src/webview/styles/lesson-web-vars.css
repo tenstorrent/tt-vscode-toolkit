@@ -1,0 +1,259 @@
+/**
+ * lesson-web-vars.css
+ *
+ * Web-only CSS for the GitHub Pages lesson site.  Loaded before lesson-theme.css.
+ *
+ * Responsibilities:
+ *  1. @font-face declarations for Degular (body), DegularDisplay (headings),
+ *     RMMono (mono), and IBM Plex Mono (code) — fonts copied from tt-ui by build-web.js
+ *  2. Fallback values for all VSCode CSS custom properties (dark theme by default,
+ *     matching the Tenstorrent dark developer palette)
+ *  3. Light theme overrides via @media (prefers-color-scheme: light), styled to
+ *     match the docs.tenstorrent.com visual identity
+ *
+ * Font sources: /code/tt-ui/src/fonts/ (same as docs.tenstorrent.com)
+ * Light theme palette derived from docs.tenstorrent.com/_static/tt_theme.css
+ */
+
+/* ===================================================================== *
+ * Fonts                                                                  *
+ * ===================================================================== */
+
+@font-face {
+  font-family: 'DegularDisplay';
+  src: url('fonts/DegularDisplay-Light.otf') format('opentype');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DegularDisplay';
+  src: url('fonts/DegularDisplay-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DegularDisplay';
+  src: url('fonts/DegularDisplay-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Degular';
+  src: url('fonts/DegularText-Medium.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Degular';
+  src: url('fonts/DegularText-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Degular';
+  src: url('fonts/DegularText-MediumItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RMMono';
+  src: url('fonts/RMMono-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RMMono';
+  src: url('fonts/RMMono-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBMPlexMono';
+  src: url('fonts/IBMPlexMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBMPlexMono';
+  src: url('fonts/IBMPlexMono-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBMPlexMono';
+  src: url('fonts/IBMPlexMono-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBMPlexMono';
+  src: url('fonts/IBMPlexMono-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBMPlexMono';
+  src: url('fonts/IBMPlexMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ===================================================================== *
+ * Dark theme (default — matches Tenstorrent developer dark palette)     *
+ * ===================================================================== */
+
+:root {
+  /* Core foreground / background */
+  --vscode-foreground: #e2e8f0;
+  --vscode-editor-foreground: #e2e8f0;
+  --vscode-editor-background: #1a2332;
+
+  /* Panel / sidebar */
+  --vscode-panel-background: #151e2b;
+  --vscode-panel-border: #2d3748;
+  --vscode-sideBar-background: #111827;
+  --vscode-sideBar-foreground: #e2e8f0;
+  --vscode-sideBar-border: #2d3748;
+
+  /* Input fields */
+  --vscode-input-background: #1a2332;
+  --vscode-input-foreground: #e2e8f0;
+  --vscode-input-border: #2d3748;
+  --vscode-input-placeholderForeground: #718096;
+
+  /* Buttons */
+  --vscode-button-background: #3293b2;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-hoverBackground: #3fb7de;
+  --vscode-button-secondaryBackground: #2d3748;
+  --vscode-button-secondaryForeground: #e2e8f0;
+  --vscode-button-secondaryHoverBackground: #4a5568;
+
+  /* Text links */
+  --vscode-textLink-foreground: #3fb7de;
+  --vscode-textLink-activeForeground: #63c7e9;
+
+  /* Code blocks */
+  --vscode-textCodeBlock-background: #0f1923;
+  --vscode-textPreformat-foreground: #98daf0;
+
+  /* Typography — Degular/DegularDisplay matching docs.tenstorrent.com */
+  --vscode-font-family: 'Degular', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --vscode-font-size: 16px;
+  --vscode-editor-font-family: 'RMMono', 'IBMPlexMono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  --vscode-editor-font-size: 14px;
+  --tt-font-display: 'DegularDisplay', 'Degular', system-ui, sans-serif;
+  --tt-font-interface: 'Degular', system-ui, sans-serif;
+  --tt-font-mono: 'RMMono', 'IBMPlexMono', monospace;
+
+  /* Selection */
+  --vscode-editor-selectionBackground: rgba(50, 147, 178, 0.3);
+  --vscode-editor-selectionHighlightBackground: rgba(50, 147, 178, 0.15);
+
+  /* List items */
+  --vscode-list-activeSelectionBackground: rgba(50, 147, 178, 0.2);
+  --vscode-list-activeSelectionForeground: #e2e8f0;
+  --vscode-list-hoverBackground: rgba(50, 147, 178, 0.08);
+
+  /* Scrollbar */
+  --vscode-scrollbarSlider-background: rgba(255, 255, 255, 0.1);
+  --vscode-scrollbarSlider-hoverBackground: rgba(255, 255, 255, 0.2);
+  --vscode-scrollbarSlider-activeBackground: rgba(255, 255, 255, 0.3);
+
+  /* Focus border */
+  --vscode-focusBorder: #3293b2;
+
+  /* Badge */
+  --vscode-badge-background: #3293b2;
+  --vscode-badge-foreground: #ffffff;
+
+  /* Progress bar */
+  --vscode-progressBar-background: #3293b2;
+}
+
+/* Display headings use DegularDisplay (matches docs.tenstorrent.com) */
+h1, h2 {
+  font-family: var(--tt-font-display, 'DegularDisplay', system-ui, sans-serif);
+  font-weight: 300;
+}
+
+h3, h4, h5, h6 {
+  font-family: var(--tt-font-interface, 'Degular', system-ui, sans-serif);
+}
+
+/* ===================================================================== *
+ * Light theme — mirrors docs.tenstorrent.com palette                    *
+ * Activates automatically when the OS/browser is in light mode.         *
+ * ===================================================================== */
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* docs.tenstorrent.com color system */
+    --vscode-foreground: #202020;
+    --vscode-editor-foreground: #202020;
+    --vscode-editor-background: #ffffff;
+
+    --vscode-panel-background: #edeff9;
+    --vscode-panel-border: #d7dbeb;
+    --vscode-sideBar-background: #edeff9;
+    --vscode-sideBar-foreground: #202020;
+    --vscode-sideBar-border: #d7dbeb;
+
+    --vscode-input-background: #ffffff;
+    --vscode-input-foreground: #202020;
+    --vscode-input-border: #ccd2f9;
+    --vscode-input-placeholderForeground: #6d7288;
+
+    /* Accent: docs site uses #5164e0 (blue-purple) */
+    --vscode-button-background: #5164e0;
+    --vscode-button-foreground: #ffffff;
+    --vscode-button-hoverBackground: #4756e1;
+    --vscode-button-secondaryBackground: #d7dbeb;
+    --vscode-button-secondaryForeground: #202020;
+    --vscode-button-secondaryHoverBackground: #ccd2f9;
+
+    --vscode-textLink-foreground: #5164e0;
+    --vscode-textLink-activeForeground: #342c63;
+
+    --vscode-textCodeBlock-background: #f0f2fc;
+    --vscode-textPreformat-foreground: #d03a1b;
+
+    --vscode-list-activeSelectionBackground: rgba(81, 100, 224, 0.12);
+    --vscode-list-activeSelectionForeground: #202020;
+    --vscode-list-hoverBackground: rgba(81, 100, 224, 0.06);
+
+    --vscode-scrollbarSlider-background: rgba(0, 0, 0, 0.12);
+    --vscode-scrollbarSlider-hoverBackground: rgba(0, 0, 0, 0.2);
+    --vscode-scrollbarSlider-activeBackground: rgba(0, 0, 0, 0.3);
+
+    --vscode-focusBorder: #5164e0;
+    --vscode-badge-background: #5164e0;
+    --vscode-badge-foreground: #ffffff;
+    --vscode-progressBar-background: #5164e0;
+
+    /* Override Tenstorrent brand tokens for light mode */
+    --tt-primary: #5164e0;
+    --tt-primary-light: #7b8cea;
+    --tt-primary-dark: #2a3898;
+    --tt-secondary: #5347a4;
+    --tt-accent: #74c5df;    /* teal from docs site */
+    --tt-code-bg: #f0f2fc;
+    --tt-border: rgba(32, 32, 32, 0.12);
+    --tt-hover-bg: rgba(81, 100, 224, 0.06);
+    --tt-muted: rgba(32, 32, 32, 0.55);
+  }
+}

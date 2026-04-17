@@ -191,44 +191,46 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 
 ### 🚀 Your First Inference
-*5 lessons, 5 validated*
+*7 lessons, 7 validated*
 
-- **Hardware Detection** — `N150`
-- **Verify tt-metal Installation** — `N150`
-- **Download Model and Run Inference** — `N150`
+- **Modern Setup with tt-installer 2.0** — `N150` `P300C`
+- **Hardware Detection** — `N150` `P300C`
+- **Download Model and Run Inference** — `N150` `P300C`
+- **Verify Your Setup** — `N150` `P300C`
 - **Interactive Chat with Direct API** — `N150`
 - **HTTP API Server with Direct API** — `N150`
+- **Build tt-metal from Source** — `N150` `P300C`
 
 ### 🏭 Serving Models
 *4 lessons, 3 validated*
 
-- **Production Inference with tt-inference-server** — `N150`
-- **Production Inference with vLLM** — `N150`
+- **Production Inference with tt-inference-server** — `N150` `P100`
+- **Production Inference with vLLM** — `N150` `P300C`
 - **Image Generation with Stable Diffusion XL** — `N150`
-- **Video Generation via Frame-by-Frame SDXL** — *draft*
+- **Video Generation via Frame-by-Frame Diffusion** — *draft*
 
 ### 🔧 Compilers & Tools
 *2 lessons, 0 validated*
 
-- **Image Classification with TT-Forge** — *⚠️ blocked*
-- **JAX Inference with TT-XLA** — *draft*
+- **Image Classification with TT-Forge** — `P300C`
+- **JAX and PyTorch/XLA on Tenstorrent** — `P300C`
 
 ### 🎯 Applications
-*3 lessons, 2 validated*
+*4 lessons, 3 validated*
 
-- **Coding Assistant with Prompt Engineering** — *draft*
+- **Coding Assistant with Aider** — *draft*
 - **Native Video Animation with AnimateDiff** — `N150`
 - **OpenClaw AI Assistant on QuietBox 2** — `P300X2`
+- **Generating Video on QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
-*3 lessons, 1 validated*
+*2 lessons, 1 validated*
 
-- **Modern Setup with tt-installer 2.0** — `N150`
 - **Bounty Program: Model Bring-Up** — *draft*
-- **Exploring TT-Metalium** — *draft*
+- **Exploring TT-Metalium** — `N150` `P300C`
 
 ### 🎓 Custom Training
-*8 lessons, 8 validated*
+*8 lessons, 0 validated*
 
 - **Understanding Custom Training** — `N150`
 - **Dataset Fundamentals** — `N150`
@@ -248,12 +250,12 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 👨‍🍳 Tenstorrent Cookbook
 *6 lessons, 6 validated*
 
-- **Tenstorrent Cookbook Overview** — `N150` `P300`
-- **Recipe 1: Conway's Game of Life** — `N150` `P300`
-- **Recipe 2: Audio Signal Processing** — `N150` `P300`
-- **Recipe 3: Mandelbrot Fractal Explorer** — `N150` `P300`
-- **Recipe 4: Custom Image Filters** — `N150` `P300`
-- **Recipe 5: Particle Life Simulator** — `N150` `P300`
+- **Tenstorrent Cookbook Overview** — `N150` `P300C`
+- **Recipe 1: Conway's Game of Life** — `N150` `P300C`
+- **Recipe 2: Audio Signal Processing** — `N150` `P300C`
+- **Recipe 3: Mandelbrot Fractal Explorer** — `N150` `P300C`
+- **Recipe 4: Custom Image Filters** — `N150` `P300C`
+- **Recipe 5: Particle Life Simulator** — `N150` `P300C`
 
 ### 🧠 CS Fundamentals
 *7 lessons, 0 validated*

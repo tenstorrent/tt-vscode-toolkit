@@ -1297,17 +1297,41 @@ function verifyInferenceServerPrereqs(): void {
 
 /**
  * Command: tenstorrent.startTtInferenceServer
- * Starts vLLM server via tt-inference-server with basic configuration
+ * Starts vLLM server via tt-inference-server with hardware auto-detection
  */
 function startTtInferenceServer(): void {
   const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER.template;
 
   vscode.window.showInformationMessage(
-    '🚀 Starting vLLM server via tt-inference-server. This may take 5-15 minutes on first run (downloads Docker image + model).'
+    'Starting vLLM server — hardware auto-detected via tt-smi. First run: 10-20 min (Docker image + model download).'
   );
 
   runInTerminal(terminal, command);
+}
+
+/**
+ * Command: tenstorrent.startTtInferenceServerN150
+ * Starts vLLM server pinned to N150 (Wormhole)
+ */
+function startTtInferenceServerN150(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER_N150.template);
+  vscode.window.showInformationMessage(
+    'Starting Llama-3.1-8B-Instruct on N150. First run: 10-20 min.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startTtInferenceServerN300
+ * Starts vLLM server pinned to N300 (Wormhole dual-chip)
+ */
+function startTtInferenceServerN300(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER_N300.template);
+  vscode.window.showInformationMessage(
+    'Starting Llama-3.1-8B-Instruct on N300. First run: 10-20 min.'
+  );
 }
 
 /**
@@ -2257,47 +2281,35 @@ async function startCodingAssistant(): Promise<void> {
 
 /**
  * Command: tenstorrent.buildForgeFromSource
- * Builds TT-Forge from source against your tt-metal installation
+ * Activates the pre-installed venv-forge environment (forge is pre-installed, no build needed)
  */
 function buildForgeFromSource(): void {
   const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.BUILD_FORGE_FROM_SOURCE.template;
-
-  runInTerminal(terminal, command);
-
+  runInTerminal(terminal, TERMINAL_COMMANDS.BUILD_FORGE_FROM_SOURCE.template);
   vscode.window.showInformationMessage(
-    '🔨 Building TT-Forge from source (10-20 min). This ensures compatibility with your tt-metal!'
+    'Activating venv-forge. forge, jax, and torch-xla are pre-installed.'
   );
 }
 
 /**
  * Command: tenstorrent.installForge
- * Installs TT-Forge-FE wheels (quick but may have version issues)
+ * Activates the pre-installed venv-forge environment (forge is pre-installed, no pip needed)
  */
 function installForge(): void {
   const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.INSTALL_FORGE.template;
-
-  runInTerminal(terminal, command);
-
+  runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_FORGE.template);
   vscode.window.showInformationMessage(
-    '📦 Installing TT-Forge wheels. If you get symbol errors, try building from source instead.'
+    'Activating venv-forge. forge, jax, and torch-xla are pre-installed.'
   );
 }
 
 /**
  * Command: tenstorrent.testForgeInstall
- * Tests forge installation and device detection
+ * Verifies the forge stack: imports forge, jax, torch_xla and prints versions + devices
  */
 function testForgeInstall(): void {
   const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.TEST_FORGE_INSTALL.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🔍 Testing forge installation. Check terminal for version and device status.'
-  );
+  runInTerminal(terminal, TERMINAL_COMMANDS.TEST_FORGE_INSTALL.template);
 }
 
 /**
@@ -2411,24 +2423,73 @@ function testTtXlaInstall(): void {
 
 /**
  * Command: tenstorrent.runTtXlaDemo
- * Downloads and runs official GPT-2 demo with TT-XLA
+ * Clones tt-forge and runs the official GPT-2 JAX demo
  */
 function runTtXlaDemo(): void {
   const terminal = getOrCreateSimpleTerminal();
-
-  // First download the demo
   const downloadCommand = TERMINAL_COMMANDS.DOWNLOAD_TT_XLA_DEMO.template;
   runInTerminal(terminal, downloadCommand);
-
-  // Then run it after a short delay
   setTimeout(() => {
     const runCommand = TERMINAL_COMMANDS.RUN_TT_XLA_DEMO.template;
     runInTerminal(terminal, runCommand);
-
     vscode.window.showInformationMessage(
-      '🎯 Running GPT-2 demo on TT hardware via JAX. First run may take a few minutes!'
+      '🎯 Running official GPT-2 JAX demo on TT hardware. First run may take a few minutes!'
     );
   }, 2000);
+}
+
+/**
+ * Command: tenstorrent.activateForgeEnv
+ * Sources venv-forge and prints visible TT devices — one button, done.
+ */
+function activateForgeEnv(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.ACTIVATE_FORGE_ENV.template);
+  vscode.window.showInformationMessage(
+    'Activating venv-forge. You should see TtDevice in the output.'
+  );
+}
+
+/**
+ * Command: tenstorrent.verifyForgeStack
+ * Imports forge, jax, and torch_xla and prints versions + device list.
+ */
+function verifyForgeStack(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.VERIFY_FORGE_STACK.template);
+}
+
+/**
+ * Command: tenstorrent.runJaxQuickstart
+ * Runs a 1024×1024 JAX matmul on TT hardware via venv-forge.
+ */
+function runJaxQuickstart(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_JAX_QUICKSTART.template);
+  vscode.window.showInformationMessage(
+    'Dispatching 1024×1024 matmul to TT hardware via JAX.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runJaxPmapDemo
+ * Maps a matmul across all TT devices with jax.pmap (QB2: 4 chips in parallel).
+ */
+function runJaxPmapDemo(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_JAX_PMAP_DEMO.template);
+  vscode.window.showInformationMessage(
+    'Running pmap matmul across all TT devices. QB2 uses all 4 chips in parallel.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runPytorchXlaDemo
+ * Runs a PyTorch 256×256 matmul on TT hardware via torch-xla.
+ */
+function runPytorchXlaDemo(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_PYTORCH_XLA_DEMO.template);
 }
 
 // ============================================================================
@@ -3937,6 +3998,118 @@ async function copyTrainingTemplates(): Promise<void> {
 }
 
 // ============================================================================
+// QB2 Video Generation Commands
+// ============================================================================
+
+/**
+ * Command: tenstorrent.cloneTtLocalGenerator
+ * Clones the tt-local-generator UI to ~/code/tt-local-generator.
+ */
+function cloneTtLocalGenerator(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CLONE_TT_LOCAL_GENERATOR.template);
+  vscode.window.showInformationMessage(
+    'Cloning tt-local-generator. Check the terminal — this takes about 30 seconds.'
+  );
+}
+
+/**
+ * Command: tenstorrent.setupVideoGenVendor
+ * Runs setup_vendor.sh to shallow-clone the pinned tt-inference-server SHA into vendor/.
+ */
+function setupVideoGenVendor(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.SETUP_VIDEO_GEN_VENDOR.template);
+  vscode.window.showInformationMessage(
+    'Setting up vendored inference server. This clones one specific commit — should be fast.'
+  );
+}
+
+/**
+ * Command: tenstorrent.applyVideoGenPatches
+ * Runs apply_patches.sh to inject QB2 hotpatches into vendor/tt-inference-server.
+ */
+function applyVideoGenPatches(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.APPLY_VIDEO_GEN_PATCHES.template);
+  vscode.window.showInformationMessage(
+    'Applying QB2 hotpatches to the vendored inference server.'
+  );
+}
+
+/**
+ * Command: tenstorrent.downloadWan22Model
+ * Downloads Wan2.2-T2V-A14B-Diffusers from HuggingFace (~118 GB).
+ */
+function downloadWan22Model(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.DOWNLOAD_WAN22_MODEL.template);
+  vscode.window.showInformationMessage(
+    'Downloading Wan2.2-T2V-A14B-Diffusers (~118 GB). This is a one-time download — expect 60–90 minutes on a fast connection.'
+  );
+}
+
+/**
+ * Command: tenstorrent.downloadQwen3Small
+ * Downloads Qwen3-0.6B from HuggingFace (~1.2 GB) for prompt polishing.
+ */
+function downloadQwen3Small(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.DOWNLOAD_QWEN3_SMALL.template);
+  vscode.window.showInformationMessage(
+    'Downloading Qwen3-0.6B (~1.2 GB). Should complete in a minute or two.'
+  );
+}
+
+/**
+ * Command: tenstorrent.startWan22Server
+ * Starts the Wan2.2 video server on QB2 via start_wan_qb2.sh.
+ */
+function startWan22Server(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_WAN22_SERVER.template);
+  vscode.window.showInformationMessage(
+    'Starting Wan2.2 server. First-run warmup (TT kernel compilation) takes ~9 minutes — watch the terminal for "Application startup complete".'
+  );
+}
+
+/**
+ * Command: tenstorrent.startPromptGenServer
+ * Starts the Qwen3-0.6B prompt polish server on port 8001.
+ */
+function startPromptGenServer(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_PROMPT_GEN_SERVER.template);
+  vscode.window.showInformationMessage(
+    'Starting prompt generation server (Qwen3-0.6B, CPU). Loads in ~30 seconds.'
+  );
+}
+
+/**
+ * Command: tenstorrent.checkVideoServerHealth
+ * Checks health endpoints for the video server (8000) and prompt server (8001).
+ */
+function checkVideoServerHealth(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CHECK_VIDEO_SERVER_HEALTH.template);
+  vscode.window.showInformationMessage(
+    'Checking server health. Look for {"status":"ok"} on both ports.'
+  );
+}
+
+/**
+ * Command: tenstorrent.launchTtGen
+ * Launches the tt-gen GTK4 GUI.
+ */
+function launchTtGen(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.LAUNCH_TT_GEN.template);
+  vscode.window.showInformationMessage(
+    'Launching tt-gen GUI. Requires python3-gi (system apt package, not venv).'
+  );
+}
+
+// ============================================================================
 // Command Menu
 // ============================================================================
 
@@ -4535,6 +4708,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Lesson 6 - tt-inference-server
     vscode.commands.registerCommand('tenstorrent.verifyInferenceServerPrereqs', verifyInferenceServerPrereqs),
     vscode.commands.registerCommand('tenstorrent.startTtInferenceServer', startTtInferenceServer),
+    vscode.commands.registerCommand('tenstorrent.startTtInferenceServerN150', startTtInferenceServerN150),
+    vscode.commands.registerCommand('tenstorrent.startTtInferenceServerN300', startTtInferenceServerN300),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerSimple', testTtInferenceServerSimple),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerStreaming', testTtInferenceServerStreaming),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerSampling', testTtInferenceServerSampling),
@@ -4573,10 +4748,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.createForgeClassifier', createForgeClassifier),
     vscode.commands.registerCommand('tenstorrent.runForgeClassifier', runForgeClassifier),
 
+    // Lesson 11+12 - venv-forge shared commands (Forge + TT-XLA lessons)
+    vscode.commands.registerCommand('tenstorrent.activateForgeEnv', activateForgeEnv),
+    vscode.commands.registerCommand('tenstorrent.verifyForgeStack', verifyForgeStack),
+
     // Lesson 12 - TT-XLA JAX Integration
     vscode.commands.registerCommand('tenstorrent.installTtXla', installTtXla),
     vscode.commands.registerCommand('tenstorrent.testTtXlaInstall', testTtXlaInstall),
     vscode.commands.registerCommand('tenstorrent.runTtXlaDemo', runTtXlaDemo),
+    vscode.commands.registerCommand('tenstorrent.runJaxQuickstart', runJaxQuickstart),
+    vscode.commands.registerCommand('tenstorrent.runJaxPmapDemo', runJaxPmapDemo),
+    vscode.commands.registerCommand('tenstorrent.runPytorchXlaDemo', runPytorchXlaDemo),
 
     // Lesson 13 - RISC-V Programming on Tensix Cores
     vscode.commands.registerCommand('tenstorrent.buildProgrammingExamples', buildProgrammingExamples),
@@ -4618,6 +4800,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.createNanoTrickster', createNanoTrickster),
     vscode.commands.registerCommand('tenstorrent.trainFromScratch', trainFromScratch),
     vscode.commands.registerCommand('tenstorrent.testNanoTrickster', testNanoTrickster),
+
+    // QB2 Video Generation (qb2-video-generation lesson)
+    vscode.commands.registerCommand('tenstorrent.cloneTtLocalGenerator', cloneTtLocalGenerator),
+    vscode.commands.registerCommand('tenstorrent.setupVideoGenVendor', setupVideoGenVendor),
+    vscode.commands.registerCommand('tenstorrent.applyVideoGenPatches', applyVideoGenPatches),
+    vscode.commands.registerCommand('tenstorrent.downloadWan22Model', downloadWan22Model),
+    vscode.commands.registerCommand('tenstorrent.downloadQwen3Small', downloadQwen3Small),
+    vscode.commands.registerCommand('tenstorrent.startWan22Server', startWan22Server),
+    vscode.commands.registerCommand('tenstorrent.startPromptGenServer', startPromptGenServer),
+    vscode.commands.registerCommand('tenstorrent.checkVideoServerHealth', checkVideoServerHealth),
+    vscode.commands.registerCommand('tenstorrent.launchTtGen', launchTtGen),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),
