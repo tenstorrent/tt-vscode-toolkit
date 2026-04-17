@@ -69,6 +69,42 @@ CLAUDE.md
 .secretlintignore
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Source content / theme directories
+#
+# Both are copied into dist/ by the copy-content build step. Shipping the
+# originals alongside dist/ doubles the file count for no benefit.
+# The extension references dist/content/ and dist/themes/ at runtime.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+content/
+themes/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GitHub Pages artifacts (not needed inside the VSCode extension)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.nojekyll
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Session / scratch implementation notes
+#
+# Artefacts left in the repo root by aider / Claude Code sessions.
+# Not user-facing documentation; not needed at extension runtime.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+QB2_*.md
+QWEN3_*.md
+IMPLEMENTATION_*.md
+INSTALLATION_BUGS_FIXED.md
+MODEL_ROULETTE_*.md
+P300C_*.md
+PYPI_*.md
+TT_METAL_BUILD_*.md
+TT_METAL_PRECOMPILED.md
+VALIDATION_UPDATE_*.md
+VERSION_UPDATE_*.md
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Backup / scratch files
 # ═══════════════════════════════════════════════════════════════════════════════
 
