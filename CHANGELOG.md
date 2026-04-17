@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.368] - 2026-04-17
+
+### Added
+- **`/install` landing page** (`content/pages/install.html`): rich full-width landing page for the GitHub Pages site at `/install/`. Includes hero with TT logo + screenshot, stats bar (42+ lessons, 9 tracks, 70+ commands), feature grid, media gallery (GIFs, images, MP4 cinemagraph), lesson track cards for all 9 categories, and tabbed install instructions (VS Code / Cursor-Windsurf / code-server / CLI). Download button fetches the latest `.vsix` asset from the GitHub Releases API client-side so the link is always current.
+- **`noSidebar` page option** in `build-web.js`: pages with `noSidebar: true` get a full-width layout (`tt-full-width-content`) with no sidebar toggle; all other pages unaffected. The `install` page appears in the sidebar nav on all other docs pages.
+- **`type: 'fragment'`** page type in `build-web.js`: reads the source file as a raw HTML body fragment (no VSCode welcome-page transformations), suitable for rich custom HTML pages.
+- **`on: release: published`** trigger in `gh-pages.yml`: the Pages site rebuilds automatically when a new release is published, keeping OG meta and any build-time content current.
+
+---
+
 ## [0.0.367] - 2026-04-16
 
 ### Fixed

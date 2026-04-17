@@ -59,6 +59,7 @@ const MERMAID_SRC     = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'merm
  * ------------------------------------------------------------------ */
 
 const PAGES = [
+  { slug: 'install',          title: 'Install',              type: 'fragment', file: 'install.html',              noSidebar: true },
   { slug: 'welcome',          title: 'Welcome',              type: 'html',     file: 'welcome.html' },
   { slug: 'about-extension',  title: 'Install & Overview',   type: 'markdown', file: 'about-extension.md' },
   { slug: 'faq',              title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
@@ -635,7 +636,22 @@ function statusBadge(status) {
  * Full page shell                                                      *
  * ------------------------------------------------------------------ */
 
-function pageShell({ title, bodyClass = '', head = '', sidebar, meta = '', content }) {
+function pageShell({ title, bodyClass = '', head = '', sidebar, meta = '', content, noSidebar = false }) {
+  const bodyClasses = noSidebar
+    ? `${escapeAttr(bodyClass)} tt-lesson-web no-sidebar`
+    : `${escapeAttr(bodyClass)} tt-lesson-web`;
+
+  const sidebarHtml = noSidebar ? '' : `
+<button id="sidebar-toggle" aria-expanded="false" aria-controls="tt-sidebar"
+        aria-label="Toggle lesson navigation">☰</button>
+
+${sidebar}
+`;
+
+  const mainTag = noSidebar
+    ? `<main class="tt-full-width-content" id="main-content">`
+    : `<main class="tt-main-content" id="main-content">`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -647,14 +663,9 @@ function pageShell({ title, bodyClass = '', head = '', sidebar, meta = '', conte
   <link rel="stylesheet" href="/assets/lesson-web.css">
 ${head}
 </head>
-<body class="${escapeAttr(bodyClass)} tt-lesson-web">
-
-<button id="sidebar-toggle" aria-expanded="false" aria-controls="tt-sidebar"
-        aria-label="Toggle lesson navigation">☰</button>
-
-${sidebar}
-
-<main class="tt-main-content" id="main-content">
+<body class="${bodyClasses}">
+${sidebarHtml}
+${mainTag}
   ${meta ? `<div class="tt-lesson-meta">${meta}</div>\n` : ''}
   <div class="lesson-content">
 ${content}
@@ -1006,6 +1017,22 @@ body.tt-lesson-web {
 .tt-main-content {
   grid-area: main;
   overflow-y: auto;
+  padding: 0;
+}
+
+/* Full-width layout for sidebar-less pages (e.g. /install/) */
+.tt-lesson-web.no-sidebar {
+  display: block;
+}
+
+.tt-full-width-content {
+  width: 100%;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.tt-full-width-content .lesson-content {
+  max-width: 100%;
   padding: 0;
 }
 
@@ -1826,7 +1853,11 @@ function buildPages() {
     let bodyContent;
     let extraHead = '';
 
-    if (page.type === 'html') {
+    if (page.type === 'fragment') {
+      // Raw HTML body fragment — used as-is with no VSCode-specific transformations.
+      // The file contains only body content (no <html>/<head>/<body> tags).
+      bodyContent = fs.readFileSync(filePath, 'utf8');
+    } else if (page.type === 'html') {
       const raw = fs.readFileSync(filePath, 'utf8');
       bodyContent = transformWelcomeHtml(raw);
       // transformWelcomeHtml prepends any <style> block inline in bodyContent
@@ -1841,6 +1872,7 @@ function buildPages() {
       sidebar,
       head:      extraHead,
       content:   bodyContent,
+      noSidebar: page.noSidebar || false,
     });
 
     const outDir = path.join(SITE, page.slug);

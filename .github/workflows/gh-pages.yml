@@ -6,6 +6,8 @@ on:
       - main
       - 'readiness/**'
       - 'feature/gh-pages'
+  release:
+    types: [published]
   workflow_dispatch:
 
 # Restrict to one deploy at a time; cancel in-flight runs if a newer push arrives
