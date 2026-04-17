@@ -330,6 +330,15 @@
   margin: 0 0 0.6rem;
 }
 
+.install-track-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.install-track-card:hover .install-track-name a {
+  color: var(--tt-primary-light);
+}
+
 .install-track-lessons {
   list-style: none;
   padding: 0;
@@ -346,34 +355,6 @@
 
 .install-track-lessons li:last-child { border-bottom: none; }
 
-.install-track-status {
-  display: inline-block;
-  margin-top: 0.75rem;
-  font-family: var(--tt-font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.2em 0.55em;
-  border-radius: 3px;
-}
-
-.install-track-status.validated {
-  background: rgba(73, 156, 141, 0.15);
-  color: var(--tt-success);
-  border: 1px solid rgba(73, 156, 141, 0.3);
-}
-
-.install-track-status.partial {
-  background: rgba(255, 183, 27, 0.1);
-  color: var(--tt-warning);
-  border: 1px solid rgba(255, 183, 27, 0.25);
-}
-
-.install-track-status.coming-soon {
-  background: rgba(255,255,255,0.04);
-  color: var(--tt-muted);
-  border: 1px solid var(--tt-border);
-}
 
 /* ── Install instructions ──────────────────────────────────────────────── */
 
@@ -768,114 +749,105 @@
       <div class="install-track-header">
         <span class="install-track-emoji">🚀</span>
       </div>
-      <p class="install-track-name">Your First Inference</p>
+      <p class="install-track-name"><a href="/lessons/tt-installer/">Your First Inference</a></p>
       <ul class="install-track-lessons">
         <li>Modern Setup with tt-installer 2.0</li>
         <li>Hardware Detection</li>
         <li>Download Model &amp; Run Inference</li>
       </ul>
-      <span class="install-track-status validated">All validated</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">🏭</span>
       </div>
-      <p class="install-track-name">Serving &amp; APIs</p>
+      <p class="install-track-name"><a href="/lessons/tt-inference-server/">Serving &amp; APIs</a></p>
       <ul class="install-track-lessons">
         <li>Production Inference with tt-inference-server</li>
         <li>Production Inference with vLLM</li>
         <li>Image Generation with Stable Diffusion XL</li>
       </ul>
-      <span class="install-track-status validated">Validated</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">🎬</span>
       </div>
-      <p class="install-track-name">Applications</p>
+      <p class="install-track-name"><a href="/lessons/coding-assistant/">Applications</a></p>
       <ul class="install-track-lessons">
         <li>Native Video Animation with AnimateDiff</li>
         <li>OpenClaw AI Assistant on QuietBox&nbsp;2</li>
         <li>Generating Video on QuietBox&nbsp;2</li>
       </ul>
-      <span class="install-track-status partial">Mostly validated</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">🍳</span>
       </div>
-      <p class="install-track-name">Cookbook</p>
+      <p class="install-track-name"><a href="/lessons/cookbook-overview/">Cookbook</a></p>
       <ul class="install-track-lessons">
         <li>Recipe 1: Conway's Game of Life</li>
         <li>Recipe 3: Mandelbrot Fractal Explorer</li>
         <li>Recipe 5: Particle Life Simulator</li>
       </ul>
-      <span class="install-track-status validated">All validated</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">🔧</span>
       </div>
-      <p class="install-track-name">Compilers &amp; Frameworks</p>
+      <p class="install-track-name"><a href="/lessons/forge-image-classification/">Compilers &amp; Frameworks</a></p>
       <ul class="install-track-lessons">
         <li>Image Classification with TT-Forge</li>
         <li>JAX and PyTorch/XLA on Tenstorrent</li>
       </ul>
-      <span class="install-track-status coming-soon">In progress</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">🧠</span>
       </div>
-      <p class="install-track-name">Advanced</p>
+      <p class="install-track-name"><a href="/lessons/explore-metalium/">Advanced</a></p>
       <ul class="install-track-lessons">
         <li>Exploring TT-Metalium</li>
         <li>Bounty Program: Model Bring-Up</li>
       </ul>
-      <span class="install-track-status partial">Metalium validated</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">🎓</span>
       </div>
-      <p class="install-track-name">CS Fundamentals</p>
+      <p class="install-track-name"><a href="/lessons/cs-fundamentals-01-computer/">CS Fundamentals</a></p>
       <ul class="install-track-lessons">
         <li>RISC-V &amp; Computer Architecture</li>
         <li>The Memory Hierarchy</li>
         <li>Parallel Computing</li>
       </ul>
-      <span class="install-track-status coming-soon">In development</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">⚙️</span>
       </div>
-      <p class="install-track-name">Custom Training</p>
+      <p class="install-track-name"><a href="/lessons/ct1-understanding-training/">Custom Training</a></p>
       <ul class="install-track-lessons">
         <li>Understanding Custom Training</li>
         <li>Dataset Fundamentals</li>
         <li>Configuration Patterns</li>
       </ul>
-      <span class="install-track-status coming-soon">Coming soon</span>
     </div>
 
     <div class="install-track-card">
       <div class="install-track-header">
         <span class="install-track-emoji">🚢</span>
       </div>
-      <p class="install-track-name">Deployment</p>
+      <p class="install-track-name"><a href="/lessons/deploy-vscode-to-koyeb/">Deployment</a></p>
       <ul class="install-track-lessons">
         <li>Deploy tt-vscode-toolkit to Koyeb</li>
         <li>Deploy Your Work to Koyeb</li>
       </ul>
-      <span class="install-track-status validated">All validated</span>
     </div>
 
   </div>
