@@ -28,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`type: 'fragment'`** page type in `build-web.js`: reads the source file as a raw HTML body fragment (no VSCode welcome-page transformations), suitable for rich custom HTML pages.
 - **`on: release: published`** trigger in `gh-pages.yml`: the Pages site rebuilds automatically when a new release is published, keeping OG meta and any build-time content current.
 
+### Fixed
+- **`.vscodeignore`**: eliminated ~143 duplicate files from the VSIX bundle
+  - Added `content/` and `themes/` exclusions — these source directories are copied into `dist/` at build time; shipping both doubled lesson/template/theme files for no benefit
+  - Added `.nojekyll` exclusion (GitHub Pages artifact, not needed in the VSCode extension)
+  - Added patterns to exclude session/scratch markdown docs (`QB2_*.md`, `QWEN3_*.md`, `IMPLEMENTATION_*.md`, etc.) that were leaking into the bundle from the repo root
+  - Result: 381 → 238 files in the VSIX
+
 ---
 
 ## [0.0.367] - 2026-04-16
