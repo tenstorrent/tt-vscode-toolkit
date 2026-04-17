@@ -571,7 +571,7 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
 
   let html = `<nav class="tt-sidebar" id="tt-sidebar" aria-label="Lessons">\n`;
   html += `<div class="sidebar-header">\n`;
-  html += `<a href="${siteUrl('/lessons/')}" class="sidebar-logo" aria-label="TT Developer Toolkit home">`;
+  html += `<a href="${siteUrl('/')}" class="sidebar-logo" aria-label="TT Developer Toolkit home">`;
   html += `<span class="sidebar-logo-text"><strong>tt-vscode-toolkit</strong></span>`;
   html += `</a>\n`;
   html += `</div>\n`;
