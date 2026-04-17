@@ -7,7 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.0.368] - 2026-04-17
+## [0.0.369] - 2026-04-16
+
+### Fixed
+- **GitHub Pages 404s**: all generated URLs now use a `siteUrl()` helper that prepends `SITE_BASE_PATH` (set to `/tt-vscode-toolkit` in CI). Fixes broken CSS, JS, images, and navigation links when served as a project site at `tenstorrent.github.io/tt-vscode-toolkit/`.
+- **`fragment` page BASE_PATH**: absolute paths inside `content/pages/install.html` (`/assets/img/...`, `/lessons/`, etc.) are now rewritten with the base-path prefix at build time.
+
+### Changed
+- **Site root is now the install/landing page**: `site/index.html` is a copy of `site/install/index.html`. Visiting the root URL shows the landing page instead of the lesson catalog.
+- **Lesson catalog moved to `/lessons/`**: `buildHomePage()` now writes `site/lessons/index.html`; sidebar logo links to `/lessons/` accordingly.
+- **`gh-pages.yml`**: added `SITE_BASE_PATH: /tt-vscode-toolkit` env var to the build step so production CI picks up the correct path prefix automatically.
+
+---
+
+## [0.0.368] - 2026-04-16
 
 ### Added
 - **`/install` landing page** (`content/pages/install.html`): rich full-width landing page for the GitHub Pages site at `/install/`. Includes hero with TT logo + screenshot, stats bar (42+ lessons, 9 tracks, 70+ commands), feature grid, media gallery (GIFs, images, MP4 cinemagraph), lesson track cards for all 9 categories, and tabbed install instructions (VS Code / Cursor-Windsurf / code-server / CLI). Download button fetches the latest `.vsix` asset from the GitHub Releases API client-side so the link is always current.

@@ -38,6 +38,10 @@ jobs:
 
       - name: Build web site
         run: npm run build:web
+        env:
+          # Set the repo sub-path so generated URLs are correct on GitHub Pages.
+          # Change to '' if the site is served from a custom domain root.
+          SITE_BASE_PATH: /tt-vscode-toolkit
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -9,7 +9,9 @@
  *   node scripts/build-web.js --out /tmp/site
  *
  * Output:
- *   site/index.html                        — lesson catalog home page
+ *   site/index.html                        — install/landing page (root, copy of site/install/)
+ *   site/install/index.html                — install/landing page (canonical path)
+ *   site/lessons/index.html                — lesson catalog
  *   site/lessons/<id>/index.html           — one page per lesson
  *   site/assets/lesson-theme.css           — copied from src/webview/styles/
  *   site/assets/lesson-web-vars.css        — VSCode variable fallbacks
@@ -44,6 +46,13 @@ const outIdx = process.argv.indexOf('--out');
 const SITE = outIdx !== -1
   ? path.resolve(process.argv[outIdx + 1])
   : path.join(ROOT, 'site');
+
+// Base path for GitHub Pages project sites (e.g. '/tt-vscode-toolkit').
+// Set via SITE_BASE_PATH env var; empty string = serve from domain root (local dev, custom domain).
+const BASE_PATH = (process.env.SITE_BASE_PATH || '').replace(/\/$/, '');
+
+/** Prepend BASE_PATH to every absolute site URL. */
+function siteUrl(p) { return BASE_PATH + p; }
 
 const REGISTRY_PATH   = path.join(ROOT, 'content', 'lesson-registry.json');
 const LESSONS_DIR     = path.join(ROOT, 'content', 'lessons');
@@ -562,7 +571,7 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
 
   let html = `<nav class="tt-sidebar" id="tt-sidebar" aria-label="Lessons">\n`;
   html += `<div class="sidebar-header">\n`;
-  html += `<a href="/" class="sidebar-logo" aria-label="Tenstorrent Lessons home">`;
+  html += `<a href="${siteUrl('/lessons/')}" class="sidebar-logo" aria-label="Tenstorrent Lessons home">`;
   html += `<span class="sidebar-logo-text">Tenstorrent<br><strong>Lessons</strong></span>`;
   html += `</a>\n`;
   html += `</div>\n`;
@@ -575,7 +584,7 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
     catLessons.forEach(lesson => {
       const isActive = lesson.id === activeLessonId;
       const activeClass = isActive ? ' class="active"' : '';
-      const href = isActive ? '#' : `/lessons/${lesson.id}/`;
+      const href = isActive ? '#' : siteUrl(`/lessons/${lesson.id}/`);
       html += `<li${activeClass}>`;
       html += `<a href="${escapeAttr(href)}"`;
       if (isActive) html += ` aria-current="page"`;
@@ -592,7 +601,7 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
   PAGES.forEach(page => {
     const isActive = page.slug === activePageSlug;
     const activeClass = isActive ? ' class="active"' : '';
-    const href = isActive ? '#' : `/${page.slug}/`;
+    const href = isActive ? '#' : siteUrl(`/${page.slug}/`);
     html += `<li${activeClass}>`;
     html += `<a href="${escapeAttr(href)}"`;
     if (isActive) html += ` aria-current="page"`;
@@ -658,9 +667,9 @@ ${sidebar}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)} — Tenstorrent Lessons</title>
-  <link rel="stylesheet" href="/assets/lesson-web-vars.css">
-  <link rel="stylesheet" href="/assets/lesson-theme.css">
-  <link rel="stylesheet" href="/assets/lesson-web.css">
+  <link rel="stylesheet" href="${siteUrl('/assets/lesson-web-vars.css')}">
+  <link rel="stylesheet" href="${siteUrl('/assets/lesson-theme.css')}">
+  <link rel="stylesheet" href="${siteUrl('/assets/lesson-web.css')}">
 ${head}
 </head>
 <body class="${bodyClasses}">
@@ -672,8 +681,8 @@ ${content}
   </div>
 </main>
 
-<script src="/assets/vendor/mermaid.min.js"></script>
-<script src="/assets/lesson-web.js"></script>
+<script src="${siteUrl('/assets/vendor/mermaid.min.js')}"></script>
+<script src="${siteUrl('/assets/lesson-web.js')}"></script>
 </body>
 </html>`;
 }
@@ -713,10 +722,10 @@ function buildLessonPage(lesson) {
   if (prev || next) {
     navHtml = `<nav class="lesson-nav" aria-label="Lesson navigation">`;
     navHtml += prev
-      ? `<a class="nav-prev" href="/lessons/${escapeAttr(prev.id)}/">← ${escapeHtml(prev.title)}</a>`
+      ? `<a class="nav-prev" href="${siteUrl('/lessons/' + escapeAttr(prev.id) + '/')}">← ${escapeHtml(prev.title)}</a>`
       : `<span></span>`;
     navHtml += next
-      ? `<a class="nav-next" href="/lessons/${escapeAttr(next.id)}/">${escapeHtml(next.title)} →</a>`
+      ? `<a class="nav-next" href="${siteUrl('/lessons/' + escapeAttr(next.id) + '/')}">${escapeHtml(next.title)} →</a>`
       : `<span></span>`;
     navHtml += `</nav>`;
   }
@@ -786,7 +795,7 @@ function buildHomePage() {
       const badges = (lesson.supportedHardware || []).map(hwBadge).join('');
       const timeStr = lesson.estimatedMinutes ? `<span class="card-time">${lesson.estimatedMinutes} min</span>` : '';
       const statusStr = statusBadge(lesson.status);
-      catalogHtml += `<a class="lesson-card" href="/lessons/${escapeAttr(lesson.id)}/" data-hw="${escapeAttr(hwAttr)}">\n`;
+      catalogHtml += `<a class="lesson-card" href="${siteUrl('/lessons/' + escapeAttr(lesson.id) + '/')}" data-hw="${escapeAttr(hwAttr)}">\n`;
       catalogHtml += `  <div class="card-header">\n`;
       catalogHtml += `    <h3 class="card-title">${escapeHtml(lesson.title)}</h3>\n`;
       catalogHtml += `    <div class="card-badges">${badges} ${timeStr} ${statusStr}</div>\n`;
@@ -808,8 +817,10 @@ function buildHomePage() {
     content:   catalogHtml,
   });
 
-  fs.writeFileSync(path.join(SITE, 'index.html'), html, 'utf8');
-  console.log('  [OK]   index.html (catalog)');
+  const lessonsOutDir = path.join(SITE, 'lessons');
+  fs.mkdirSync(lessonsOutDir, { recursive: true });
+  fs.writeFileSync(path.join(lessonsOutDir, 'index.html'), html, 'utf8');
+  console.log('  [OK]   lessons/index.html (catalog)');
 }
 
 /* ------------------------------------------------------------------ *
@@ -1856,7 +1867,15 @@ function buildPages() {
     if (page.type === 'fragment') {
       // Raw HTML body fragment — used as-is with no VSCode-specific transformations.
       // The file contains only body content (no <html>/<head>/<body> tags).
-      bodyContent = fs.readFileSync(filePath, 'utf8');
+      let raw = fs.readFileSync(filePath, 'utf8');
+      // Apply BASE_PATH prefix to all absolute site URLs in the fragment so it
+      // works on GitHub Pages project sites (e.g. /tt-vscode-toolkit/assets/...).
+      if (BASE_PATH) {
+        // Replace href="/... and src="/... with the base-path prefix.
+        // Skips external URLs (http/https) and anchor-only hrefs (#...).
+        raw = raw.replace(/(href|src)="(\/(?!\/)[^"]*?)"/g, (_, attr, p) => `${attr}="${BASE_PATH}${p}"`);
+      }
+      bodyContent = raw;
     } else if (page.type === 'html') {
       const raw = fs.readFileSync(filePath, 'utf8');
       bodyContent = transformWelcomeHtml(raw);
@@ -1879,6 +1898,13 @@ function buildPages() {
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
     console.log(`  [OK]   ${page.slug}/index.html`);
+
+    // The install page is also the site root — write it to site/index.html
+    // so visiting tenstorrent.github.io/tt-vscode-toolkit/ shows the landing page.
+    if (page.slug === 'install') {
+      fs.writeFileSync(path.join(SITE, 'index.html'), html, 'utf8');
+      console.log(`  [OK]   index.html (root — copy of install)`);
+    }
   });
 }
 
@@ -1910,7 +1936,7 @@ function build() {
     sidebar: buildSidebar(null),
     content: `<h1>404 <strong>Not Found</strong></h1>
 <p>The page you're looking for doesn't exist.</p>
-<p><a href="/">Back to lessons</a></p>`,
+<p><a href="${siteUrl('/lessons/')}">Back to lessons</a></p>`,
   });
   fs.writeFileSync(path.join(SITE, '404.html'), notFoundHtml, 'utf8');
   console.log('\n  [OK]   404.html');
