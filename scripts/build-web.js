@@ -576,6 +576,25 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
   html += `</a>\n`;
   html += `</div>\n`;
 
+  // Top pages — untitled section above lesson categories.
+  // 'install' is intentionally excluded (the logo link at top already goes home).
+  const TOP_PAGE_SLUGS = ['welcome', 'about-extension', 'step-zero'];
+  html += `<section class="sidebar-category sidebar-top-pages">\n`;
+  html += `<ul class="sidebar-lesson-list">\n`;
+  TOP_PAGE_SLUGS.forEach(slug => {
+    const page = PAGES.find(p => p.slug === slug);
+    if (!page) return;
+    const isActive = page.slug === activePageSlug;
+    const activeClass = isActive ? ' class="active"' : '';
+    const href = isActive ? '#' : siteUrl(`/${page.slug}/`);
+    html += `<li${activeClass}>`;
+    html += `<a href="${escapeAttr(href)}"`;
+    if (isActive) html += ` aria-current="page"`;
+    html += `>${escapeHtml(page.title)}</a>`;
+    html += `</li>\n`;
+  });
+  html += `</ul>\n</section>\n`;
+
   categories.forEach(cat => {
     const catLessons = lessons.filter(l => l.category === cat);
     html += `<section class="sidebar-category">\n`;
@@ -594,21 +613,25 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
     html += `</ul>\n</section>\n`;
   });
 
-  // Reference pages section (welcome, FAQ, guides)
-  html += `<section class="sidebar-category">\n`;
-  html += `<h3 class="sidebar-category-title">Reference</h3>\n`;
-  html += `<ul class="sidebar-lesson-list">\n`;
-  PAGES.forEach(page => {
-    const isActive = page.slug === activePageSlug;
-    const activeClass = isActive ? ' class="active"' : '';
-    const href = isActive ? '#' : siteUrl(`/${page.slug}/`);
-    html += `<li${activeClass}>`;
-    html += `<a href="${escapeAttr(href)}"`;
-    if (isActive) html += ` aria-current="page"`;
-    html += `>${escapeHtml(page.title)}</a>`;
-    html += `</li>\n`;
-  });
-  html += `</ul>\n</section>\n`;
+  // Reference section — remaining pages not already in the top section or excluded.
+  const SIDEBAR_EXCLUDED = new Set(['install', ...TOP_PAGE_SLUGS]);
+  const refPages = PAGES.filter(p => !SIDEBAR_EXCLUDED.has(p.slug));
+  if (refPages.length > 0) {
+    html += `<section class="sidebar-category">\n`;
+    html += `<h3 class="sidebar-category-title">Reference</h3>\n`;
+    html += `<ul class="sidebar-lesson-list">\n`;
+    refPages.forEach(page => {
+      const isActive = page.slug === activePageSlug;
+      const activeClass = isActive ? ' class="active"' : '';
+      const href = isActive ? '#' : siteUrl(`/${page.slug}/`);
+      html += `<li${activeClass}>`;
+      html += `<a href="${escapeAttr(href)}"`;
+      if (isActive) html += ` aria-current="page"`;
+      html += `>${escapeHtml(page.title)}</a>`;
+      html += `</li>\n`;
+    });
+    html += `</ul>\n</section>\n`;
+  }
 
   html += `</nav>\n`;
   return html;
@@ -924,7 +947,7 @@ function webLayoutCss() {
 
 body.tt-lesson-web {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 290px 1fr;
   grid-template-rows: auto;
   grid-template-areas: "sidebar main";
   min-height: 100vh;
@@ -975,6 +998,14 @@ body.tt-lesson-web {
 
 .sidebar-category {
   padding: 16px 0 8px;
+}
+
+/* Top pages section (Welcome, Install & Overview, Step Zero) sits above
+   lesson categories with a subtle divider below it. */
+.sidebar-top-pages {
+  padding-top: 8px;
+  border-bottom: 1px solid var(--tt-border, rgba(255,255,255,0.1));
+  margin-bottom: 4px;
 }
 
 .sidebar-category-title {
