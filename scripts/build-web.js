@@ -68,7 +68,7 @@ const MERMAID_SRC     = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'merm
  * ------------------------------------------------------------------ */
 
 const PAGES = [
-  { slug: 'install',          title: 'Install',              type: 'fragment', file: 'install.html' },
+  { slug: 'install',          title: 'Install',              type: 'fragment', file: 'install.html', noSidebar: true },
   { slug: 'welcome',          title: 'Welcome',              type: 'html',     file: 'welcome.html' },
   { slug: 'about-extension',  title: 'Install & Overview',   type: 'markdown', file: 'about-extension.md' },
   { slug: 'faq',              title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
@@ -380,7 +380,7 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
       // Fall back to plain text if the ID is somehow malformed.
       return `<span class="tt-lesson-ref">${text}</span>`;
     }
-    return `<a href="/lessons/${lessonId}/" class="tt-lesson-link">${text}</a>`;
+    return `<a href="${siteUrl('/lessons/' + lessonId + '/')}" class="tt-lesson-link">${text}</a>`;
   }
 
   // Action command → terminal command display block
@@ -707,11 +707,11 @@ ${content}
 <script src="${siteUrl('/assets/vendor/mermaid.min.js')}"></script>
 <script src="${siteUrl('/assets/lesson-web.js')}"></script>
 
-<!-- PostHog analytics (matches docs.tenstorrent.com) -->
+${BASE_PATH ? `<!-- PostHog analytics — only injected on production builds (SITE_BASE_PATH set). -->
 <script>
 !function(t,e){var o,n,p,r;if(!e.__SV){window.posthog=e;e._i=[];e.init=function(i,s,a){function g(t,e){var o=e.split(".");if(o.length===2){t=t[o[0]];e=o[1];}t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)));};}p=t.createElement("script");p.type="text/javascript";p.crossOrigin="anonymous";p.async=!0;p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js";r=t.getElementsByTagName("script")[0];r.parentNode.insertBefore(p,r);var u=e;if(a!==void 0){u=e[a]=[];}else{a="posthog";}u.people=u.people||[];u.toString=function(t){var e="posthog";if(a!=="posthog"){e+="."+a;}if(!t){e+=" (stub)";}return e;};u.people.toString=function(){return u.toString(1)+".people (stub)";};e._i.push([i,s,a]);};e.__SV=1;}}(document,window.posthog||[]);
 posthog.init("phc_9LMRmHrCFvQNvDkPDjYBP5dZ6WchZ5bcM6T4Qj6tb0U",{api_host:"https://us.i.posthog.com",defaults:"2025-05-24",person_profiles:"identified_only"});
-</script>
+</script>` : ''}
 </body>
 </html>`;
 }
@@ -751,10 +751,10 @@ function buildLessonPage(lesson) {
   if (prev || next) {
     navHtml = `<nav class="lesson-nav" aria-label="Lesson navigation">`;
     navHtml += prev
-      ? `<a class="nav-prev" href="${siteUrl('/lessons/' + escapeAttr(prev.id) + '/')}">← ${escapeHtml(prev.title)}</a>`
+      ? `<a class="nav-prev" href="${escapeAttr(siteUrl('/lessons/' + prev.id + '/'))}">← ${escapeHtml(prev.title)}</a>`
       : `<span></span>`;
     navHtml += next
-      ? `<a class="nav-next" href="${siteUrl('/lessons/' + escapeAttr(next.id) + '/')}">${escapeHtml(next.title)} →</a>`
+      ? `<a class="nav-next" href="${escapeAttr(siteUrl('/lessons/' + next.id + '/'))}">` + `${escapeHtml(next.title)} →</a>`
       : `<span></span>`;
     navHtml += `</nav>`;
   }
@@ -824,7 +824,7 @@ function buildHomePage() {
       const badges = (lesson.supportedHardware || []).map(hwBadge).join('');
       const timeStr = lesson.estimatedMinutes ? `<span class="card-time">${lesson.estimatedMinutes} min</span>` : '';
       const statusStr = statusBadge(lesson.status);
-      catalogHtml += `<a class="lesson-card" href="${siteUrl('/lessons/' + escapeAttr(lesson.id) + '/')}" data-hw="${escapeAttr(hwAttr)}">\n`;
+      catalogHtml += `<a class="lesson-card" href="${escapeAttr(siteUrl('/lessons/' + lesson.id + '/'))}" data-hw="${escapeAttr(hwAttr)}">\n`;
       catalogHtml += `  <div class="card-header">\n`;
       catalogHtml += `    <h3 class="card-title">${escapeHtml(lesson.title)}</h3>\n`;
       catalogHtml += `    <div class="card-badges">${badges} ${timeStr} ${statusStr}</div>\n`;
@@ -1786,9 +1786,9 @@ body.page-install .lesson-content {
 
 /** VSCode commands that correspond to reference pages on this site. */
 const COMMAND_PAGE_MAP = {
-  'tenstorrent.showStepZero': '/step-zero/',
-  'tenstorrent.showFaq':      '/faq/',
-  'tenstorrent.showWelcome':  '/welcome/',
+  'tenstorrent.showStepZero': siteUrl('/step-zero/'),
+  'tenstorrent.showFaq':      siteUrl('/faq/'),
+  'tenstorrent.showWelcome':  siteUrl('/welcome/'),
 };
 
 function transformWelcomeHtml(rawHtml) {
@@ -1812,7 +1812,7 @@ function transformWelcomeHtml(rawHtml) {
   //    These onclick attrs appear on <li class="walkthrough-item"> elements.
   body = body.replace(
     /onclick="openWalkthrough\('([^']+)'\)"/g,
-    (_, lessonId) => `onclick="window.location='/lessons/${lessonId}/'" style="cursor:pointer"`
+    (_, lessonId) => `onclick="window.location='${siteUrl('/lessons/' + lessonId + '/')}'" style="cursor:pointer"`
   );
 
   // 5. Transform executeCommand('cmd') onclick handlers.
@@ -1918,7 +1918,7 @@ function buildPages() {
       if (BASE_PATH) {
         // Replace href="/... and src="/... with the base-path prefix.
         // Skips external URLs (http/https) and anchor-only hrefs (#...).
-        raw = raw.replace(/(href|src)="(\/(?!\/)[^"]*?)"/g, (_, attr, p) => `${attr}="${BASE_PATH}${p}"`);
+        raw = raw.replace(/(href|src|poster)="(\/(?!\/)[^"]*?)"/g, (_, attr, p) => `${attr}="${BASE_PATH}${p}"`);
       }
       bodyContent = raw;
     } else if (page.type === 'html') {

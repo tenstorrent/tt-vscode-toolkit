@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.370] - 2026-04-17
+
+### Fixed
+- **`noSidebar: true`** added to install page entry in `PAGES` — it was rendering with a sidebar despite being a full-width landing page
+- **Fragment BASE_PATH rewrite** extended to include `poster` attribute (video poster images were broken on GitHub Pages project sites)
+- **`transformWelcomeHtml` and `renderCommandLink`** hard-coded absolute paths (`/lessons/`, `/faq/`, `/step-zero/`, `/welcome/`) now go through `siteUrl()` so they include `SITE_BASE_PATH` on GitHub Pages deployments
+- **`COMMAND_PAGE_MAP`** values now call `siteUrl()` at init time, fixing navigate-to-page commands in the welcome page
+- **PostHog analytics** now gated on `SITE_BASE_PATH` being set (production builds only); local `npm run build:web` no longer emits tracking code
+- **nav prev/next and catalog card `href`** now wrap `siteUrl()` output in `escapeAttr()` for consistency with the rest of the file
+- **CHANGELOG 0.0.369 entry**: corrected sidebar logo description (links to site root `/`, not `/lessons/`)
+- **Install page tab ARIA**: added `aria-controls`, `aria-labelledby`, `role="tabpanel"`, `tabindex`, and Left/Right/Home/End keyboard navigation per WAI-ARIA tab pattern
+
+---
+
 ## [0.0.369] - 2026-04-16
 
 ### Fixed
@@ -15,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Site root is now the install/landing page**: `site/index.html` is a copy of `site/install/index.html`. Visiting the root URL shows the landing page instead of the lesson catalog.
-- **Lesson catalog moved to `/lessons/`**: `buildHomePage()` now writes `site/lessons/index.html`; sidebar logo links to `/lessons/` accordingly.
+- **Lesson catalog moved to `/lessons/`**: `buildHomePage()` now writes `site/lessons/index.html`; sidebar logo links to the site root (`/`), which now displays the install landing page.
 - **`gh-pages.yml`**: added `SITE_BASE_PATH: /tt-vscode-toolkit` env var to the build step so production CI picks up the correct path prefix automatically.
 
 ---

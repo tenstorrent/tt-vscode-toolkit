@@ -871,14 +871,14 @@
   </p>
 
   <div class="install-tabs" role="tablist" aria-label="Editor install instructions">
-    <button class="install-tab active" role="tab" aria-selected="true"  data-tab="vscode">VS Code</button>
-    <button class="install-tab"        role="tab" aria-selected="false" data-tab="cursor">Cursor / Windsurf</button>
-    <button class="install-tab"        role="tab" aria-selected="false" data-tab="code-server">code-server</button>
-    <button class="install-tab"        role="tab" aria-selected="false" data-tab="cli">CLI one-liner</button>
+    <button class="install-tab active" role="tab" id="tab-btn-vscode"       aria-selected="true"  aria-controls="tab-vscode"       data-tab="vscode">VS Code</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cursor"        aria-selected="false" aria-controls="tab-cursor"        data-tab="cursor">Cursor / Windsurf</button>
+    <button class="install-tab"        role="tab" id="tab-btn-code-server"   aria-selected="false" aria-controls="tab-code-server"   data-tab="code-server">code-server</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cli"           aria-selected="false" aria-controls="tab-cli"           data-tab="cli">CLI one-liner</button>
   </div>
 
   <!-- VS Code -->
-  <div class="install-tab-panel active" id="tab-vscode">
+  <div class="install-tab-panel active" id="tab-vscode" role="tabpanel" aria-labelledby="tab-btn-vscode" tabindex="0">
     <div class="install-step">
       <span class="install-step-num">1</span>
       <div class="install-step-body">
@@ -907,7 +907,7 @@
   </div>
 
   <!-- Cursor / Windsurf -->
-  <div class="install-tab-panel" id="tab-cursor">
+  <div class="install-tab-panel" id="tab-cursor" role="tabpanel" aria-labelledby="tab-btn-cursor" tabindex="0">
     <div class="install-step">
       <span class="install-step-num">1</span>
       <div class="install-step-body">
@@ -932,7 +932,7 @@
   </div>
 
   <!-- code-server -->
-  <div class="install-tab-panel" id="tab-code-server">
+  <div class="install-tab-panel" id="tab-code-server" role="tabpanel" aria-labelledby="tab-btn-code-server" tabindex="0">
     <div class="install-step">
       <span class="install-step-num">1</span>
       <div class="install-step-body">
@@ -954,7 +954,7 @@
   </div>
 
   <!-- CLI one-liner -->
-  <div class="install-tab-panel" id="tab-cli">
+  <div class="install-tab-panel" id="tab-cli" role="tabpanel" aria-labelledby="tab-btn-cli" tabindex="0">
     <div class="install-step">
       <span class="install-step-num">1</span>
       <div class="install-step-body">
@@ -1022,20 +1022,31 @@
     .catch(function () { /* fallback href already points to /releases/latest */ });
 
   /* ── Tab switching ── */
-  var tabs = document.querySelectorAll('.install-tab');
-  tabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      tabs.forEach(function (t) {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-      });
-      document.querySelectorAll('.install-tab-panel').forEach(function (p) {
-        p.classList.remove('active');
-      });
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-      var panel = document.getElementById('tab-' + tab.dataset.tab);
-      if (panel) panel.classList.add('active');
+  var tabs = Array.from(document.querySelectorAll('.install-tab'));
+  function activateTab(tab) {
+    tabs.forEach(function (t) {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+      t.setAttribute('tabindex', '-1');
+    });
+    document.querySelectorAll('.install-tab-panel').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    tab.setAttribute('tabindex', '0');
+    tab.focus();
+    var panel = document.getElementById('tab-' + tab.dataset.tab);
+    if (panel) panel.classList.add('active');
+  }
+  tabs.forEach(function (tab, i) {
+    tab.setAttribute('tabindex', tab.classList.contains('active') ? '0' : '-1');
+    tab.addEventListener('click', function () { activateTab(tab); });
+    tab.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { activateTab(tabs[(i + 1) % tabs.length]); e.preventDefault(); }
+      if (e.key === 'ArrowLeft')  { activateTab(tabs[(i - 1 + tabs.length) % tabs.length]); e.preventDefault(); }
+      if (e.key === 'Home') { activateTab(tabs[0]); e.preventDefault(); }
+      if (e.key === 'End')  { activateTab(tabs[tabs.length - 1]); e.preventDefault(); }
     });
   });
 
