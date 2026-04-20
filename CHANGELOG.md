@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.370] - 2026-04-17
+
+### Fixed
+- **`noSidebar: true`** added to install page entry in `PAGES` — it was rendering with a sidebar despite being a full-width landing page
+- **Fragment BASE_PATH rewrite** extended to include `poster` attribute (video poster images were broken on GitHub Pages project sites)
+- **`transformWelcomeHtml` and `renderCommandLink`** hard-coded absolute paths (`/lessons/`, `/faq/`, `/step-zero/`, `/welcome/`) now go through `siteUrl()` so they include `SITE_BASE_PATH` on GitHub Pages deployments
+- **`COMMAND_PAGE_MAP`** values now call `siteUrl()` at init time, fixing navigate-to-page commands in the welcome page
+- **PostHog analytics** now gated on `SITE_BASE_PATH` being set (production builds only); local `npm run build:web` no longer emits tracking code
+- **nav prev/next and catalog card `href`** now wrap `siteUrl()` output in `escapeAttr()` for consistency with the rest of the file
+- **CHANGELOG 0.0.369 entry**: corrected sidebar logo description (links to site root `/`, not `/lessons/`)
+- **Install page tab ARIA**: added `aria-controls`, `aria-labelledby`, `role="tabpanel"`, `tabindex`, and Left/Right/Home/End keyboard navigation per WAI-ARIA tab pattern
+
+---
+
+## [0.0.369] - 2026-04-16
+
+### Fixed
+- **GitHub Pages 404s**: all generated URLs now use a `siteUrl()` helper that prepends `SITE_BASE_PATH` (set to `/tt-vscode-toolkit` in CI). Fixes broken CSS, JS, images, and navigation links when served as a project site at `tenstorrent.github.io/tt-vscode-toolkit/`.
+- **`fragment` page BASE_PATH**: absolute paths inside `content/pages/install.html` (`/assets/img/...`, `/lessons/`, etc.) are now rewritten with the base-path prefix at build time.
+
+### Changed
+- **Site root is now the install/landing page**: `site/index.html` is a copy of `site/install/index.html`. Visiting the root URL shows the landing page instead of the lesson catalog.
+- **Lesson catalog moved to `/lessons/`**: `buildHomePage()` now writes `site/lessons/index.html`; sidebar logo links to the site root (`/`), which now displays the install landing page.
+- **`gh-pages.yml`**: added `SITE_BASE_PATH: /tt-vscode-toolkit` env var to the build step so production CI picks up the correct path prefix automatically.
+
+---
+
+## [0.0.368] - 2026-04-16
+
+### Added
+- **`/install` landing page** (`content/pages/install.html`): rich full-width landing page for the GitHub Pages site at `/install/`. Includes hero with TT logo + screenshot, stats bar (42+ lessons, 9 tracks, 70+ commands), feature grid, media gallery (GIFs, images, MP4 cinemagraph), lesson track cards for all 9 categories, and tabbed install instructions (VS Code / Cursor-Windsurf / code-server / CLI). Download button fetches the latest `.vsix` asset from the GitHub Releases API client-side so the link is always current.
+- **`noSidebar` page option** in `build-web.js`: pages with `noSidebar: true` get a full-width layout (`tt-full-width-content`) with no sidebar toggle; all other pages unaffected. The `install` page appears in the sidebar nav on all other docs pages.
+- **`type: 'fragment'`** page type in `build-web.js`: reads the source file as a raw HTML body fragment (no VSCode welcome-page transformations), suitable for rich custom HTML pages.
+- **`on: release: published`** trigger in `gh-pages.yml`: the Pages site rebuilds automatically when a new release is published, keeping OG meta and any build-time content current.
+
+### Fixed
+- **`.vscodeignore`**: eliminated ~143 duplicate files from the VSIX bundle
+  - Added `content/` and `themes/` exclusions — these source directories are copied into `dist/` at build time; shipping both doubled lesson/template/theme files for no benefit
+  - Added `.nojekyll` exclusion (GitHub Pages artifact, not needed in the VSCode extension)
+  - Added patterns to exclude session/scratch markdown docs (`QB2_*.md`, `QWEN3_*.md`, `IMPLEMENTATION_*.md`, etc.) that were leaking into the bundle from the repo root
+  - Result: 381 → 238 files in the VSIX
+
+---
+
 ## [0.0.367] - 2026-04-16
 
 ### Fixed

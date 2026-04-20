@@ -51,16 +51,11 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 ┌──────────────────┐
 │ OpenClaw Gateway │ Process query, search memory, call LLM
 └────────┬─────────┘
-         │ HTTP POST to http://127.0.0.1:8001/v1/chat/completions
-         ▼
-┌──────────────────┐
-│ Proxy :8001      │ Strip incompatible API fields (strict, store)
-└────────┬─────────┘
          │ HTTP POST to http://127.0.0.1:8000/v1/chat/completions
          ▼
 ┌──────────────────┐
 │ vLLM :8000       │ Llama-3.3-70B-Instruct with tool calling
-│ (Docker)         │
+│ (Docker)         │ (accepts all OpenClaw API fields natively)
 └────────┬─────────┘
          │ Inference with TT-Metal + vLLM optimizations
          ▼
@@ -189,7 +184,7 @@ python3 run.py \
 
 **`--no-auth`** (Simplifies local setup)
 - No API keys needed for local-only deployment
-- Proxy will handle any auth if needed
+- Safe for single-user local deployments
 - Safe for single-user systems
 
 **`--dev-mode`** (Enables advanced features)
@@ -302,10 +297,10 @@ ls -la
 - Workspace directories
 - Memory databases (auto-generated)
 
-**`proxy/vllm-proxy.py`**
-- Compatibility layer for OpenClaw ↔ vLLM
-- Strips API fields not supported by Docker vLLM
-- Runs on port 8001 (forwards to vLLM on 8000)
+**`proxy/vllm-proxy.py`** *(legacy, no longer needed)*
+- Originally stripped `strict`, `store`, `prompt_cache_key` for an older image
+- All current TT vLLM images accept these fields natively (`extra="allow"`)
+- OpenClaw connects directly to port 8000 now
 
 ---
 
@@ -375,7 +370,7 @@ ls ~/code/tt-inference-server/README.md
 4. **OpenClaw Journey** (CLAUDE.md)
    - Complete installation story
    - 70B deployment process
-   - vLLM proxy solution
+   - vLLM compatibility research
    - Troubleshooting database
 
 **Memory search configuration (already in openclaw.json):**
@@ -408,49 +403,7 @@ ls ~/code/tt-inference-server/README.md
 
 ---
 
-## Step 5: Start the Compatibility Proxy
-
-OpenClaw sends API fields (`strict`, `store`, `prompt_cache_key`) that the Docker vLLM doesn't support. The proxy strips these fields before forwarding.
-
-**CRITICAL:** Proxy must start BEFORE OpenClaw gateway, or gateway will connect directly to vLLM and fail.
-
-```bash
-# Start proxy in background
-cd ~/tt-claw
-python3 proxy/vllm-proxy.py &
-
-# Verify it's running
-curl http://localhost:8001/v1/models
-# Should return model list (forwarded from :8000)
-
-# Check proxy process
-ps aux | grep vllm-proxy
-# Should show: python3 proxy/vllm-proxy.py
-```
-
-**🔄 Start Proxy**
-
-**What the proxy does:**
-1. Listens on port 8001
-2. Receives requests from OpenClaw
-3. Parses JSON and removes incompatible fields
-4. Forwards clean request to vLLM (:8000)
-5. Returns vLLM response to OpenClaw
-
-**Debug mode (if troubleshooting):**
-```bash
-# Stop background proxy
-pkill -f vllm-proxy
-
-# Run in foreground with verbose logging
-cd ~/tt-claw
-python3 proxy/vllm-proxy.py --debug
-# Shows all requests and field stripping
-```
-
----
-
-## Step 6: Start OpenClaw Gateway
+## Step 5: Start OpenClaw Gateway
 
 The gateway is the WebSocket server that manages agents, memory, and LLM interactions.
 
@@ -480,7 +433,7 @@ cd ~/openclaw
 ✓ Loading configuration from ~/tt-claw/runtime/openclaw.json
 ✓ Indexing documentation: 45 lessons + TT docs
 ✓ Memory databases created: main.sqlite (50 MB)
-✓ Provider "vllm" ready: http://127.0.0.1:8001/v1
+✓ Provider "vllm" ready: http://127.0.0.1:8000/v1
 ✓ Gateway listening on ws://127.0.0.1:18789
 ```
 
@@ -704,19 +657,12 @@ Edit `~/tt-claw/runtime/openclaw.json`:
 curl http://localhost:8000/v1/models
 # Should return model list
 
-# 2. Verify proxy is running
-curl http://localhost:8001/v1/models
-# Should also return model list (proxied)
+# 2. Check openclaw.json points to port 8000 (not 8001)
+grep baseUrl ~/tt-claw/runtime/openclaw.json
+# Should show: "baseUrl": "http://127.0.0.1:8000/v1"
 
-# 3. Check proxy process
-ps aux | grep vllm-proxy
-# Must be running BEFORE gateway starts
-
-# 4. Restart in correct order
-pkill -f vllm-proxy
+# 3. Restart gateway
 pkill -f 'openclaw.*gateway'
-cd ~/tt-claw && python3 proxy/vllm-proxy.py &
-sleep 2
 cd ~/openclaw && ./openclaw.sh gateway run
 ```
 
@@ -826,40 +772,31 @@ docker system prune -f
 docker logs $(docker ps -aq | head -1) | tail -100
 ```
 
-### Proxy Returns 400 Bad Request
+### Gateway Gets 400 Bad Request from vLLM
 
 **Symptom:** Gateway connects but gets "400 Bad Request" from vLLM
 
+All current TT vLLM images accept unknown fields silently (including `strict`, `store`,
+`prompt_cache_key` that OpenClaw sends). If you're seeing 400 errors, the issue is
+likely a model name mismatch or malformed payload, not the extra fields.
+
 **Solution:**
 ```bash
-# 1. Verify proxy is actually stripping fields
-# Run proxy in debug mode:
-pkill -f vllm-proxy
-cd ~/tt-claw
-python3 proxy/vllm-proxy.py --debug
-
-# Send test request (in another terminal)
-curl -X POST http://localhost:8001/v1/chat/completions \
+# 1. Test vLLM directly with the exact model name OpenClaw uses
+curl -X POST http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "meta-llama/Llama-3.3-70B-Instruct",
     "messages": [{"role": "user", "content": "Hi"}],
     "strict": true,
-    "store": true
+    "store": false
   }'
+# Both strict and store are accepted — should return 200 OK
 
-# Debug proxy should show:
-# "Stripped fields: strict, store"
-# "Response: 200 OK"
-
-# 2. If still getting 400, check vLLM directly
-curl -X POST http://localhost:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "meta-llama/Llama-3.3-70B-Instruct",
-    "messages": [{"role": "user", "content": "Hi"}]
-  }'
-# Should return 200 OK (no strict/store fields)
+# 2. Verify the model ID in openclaw.json matches what vLLM reports
+curl http://localhost:8000/v1/models | python3 -m json.tool
+grep '"id"' ~/tt-claw/runtime/openclaw.json
+# IDs must match exactly
 ```
 
 ---
@@ -881,7 +818,6 @@ Agent Framework Layer:
   └─ Multi-Agent Support (main + 3 adventure game agents)
 
 LLM Inference Layer:
-  ├─ vLLM Proxy (API compatibility, port 8001)
   ├─ vLLM Server (inference engine, port 8000)
   └─ Model: Llama-3.3-70B-Instruct (128K context, tool calling)
 
@@ -1002,7 +938,7 @@ You've deployed a complete AI assistant on your QuietBox 2:
 - ✅ **70B model running** on 4x Blackhole chips with tool calling
 - ✅ **Memory search** indexing 45+ lessons and TT documentation
 - ✅ **OpenClaw gateway** managing agents and LLM interactions
-- ✅ **Compatibility proxy** handling API field translations
+- ✅ **Direct vLLM connection** — no proxy needed, all API fields accepted natively
 - ✅ **Terminal UI** for interactive queries
 
 **Test it now:**

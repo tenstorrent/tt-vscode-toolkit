@@ -6,6 +6,8 @@ on:
       - main
       - 'readiness/**'
       - 'feature/gh-pages'
+  release:
+    types: [published]
   workflow_dispatch:
 
 # Restrict to one deploy at a time; cancel in-flight runs if a newer push arrives
@@ -36,6 +38,10 @@ jobs:
 
       - name: Build web site
         run: npm run build:web
+        env:
+          # Set the repo sub-path so generated URLs are correct on GitHub Pages.
+          # Change to '' if the site is served from a custom domain root.
+          SITE_BASE_PATH: /tt-vscode-toolkit
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -46,8 +52,8 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
-    # Only deploy from the main branch; readiness/* branches build but don't deploy
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/gh-pages'
+    # Deploy from main/feature-gh-pages on push, or from any branch on manual trigger
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/gh-pages' || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

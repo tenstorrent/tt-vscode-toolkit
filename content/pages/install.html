@@ -1,0 +1,1084 @@
+<!-- install.html — landing page body fragment for /install/
+     Wrapped by pageShell() in build-web.js (noSidebar: true).
+     Inherits all CSS variables from lesson-web-vars.css + lesson-theme.css.
+     Edit this file directly to update the landing page content.
+-->
+
+<style>
+/* ── Install page layout ───────────────────────────────────────────────── */
+
+.page-install .lesson-content {
+  max-width: 100%;
+  padding: 0;
+}
+
+/* Single horizontal padding token used everywhere — 6% of viewport, floored at 1.5rem */
+.install-edge {
+  padding-left: clamp(1.5rem, 6vw, 7rem);
+  padding-right: clamp(1.5rem, 6vw, 7rem);
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+
+.install-hero {
+  background: radial-gradient(ellipse 140% 90% at 65% 45%, #0d2035 0%, #0a1420 55%, #070d14 100%);
+  border-bottom: 1px solid var(--tt-border);
+  padding-top: 5rem;
+  padding-bottom: 4rem;
+}
+
+.install-hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.install-hero-logo {
+  height: 2rem;
+  width: auto;
+  margin-bottom: 1.75rem;
+  opacity: 0.95;
+}
+
+.install-hero-text h1 {
+  font-family: var(--tt-font-display);
+  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--vscode-foreground);
+  margin: 0 0 1rem;
+}
+
+.install-hero-text h1 span {
+  color: var(--tt-primary-light);
+}
+
+.install-tagline {
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: var(--tt-muted);
+  margin: 0 0 2rem;
+}
+
+.install-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.install-dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--vscode-button-background);
+  color: #fff;
+  font-family: var(--tt-font-interface);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.install-dl-btn:hover {
+  background: var(--vscode-button-hoverBackground);
+  box-shadow: 0 0 0 3px rgba(50, 147, 178, 0.25);
+  color: #fff;
+  text-decoration: none;
+}
+
+.install-dl-btn svg { flex-shrink: 0; }
+
+.install-version-badge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  background: rgba(50, 147, 178, 0.12);
+  border: 1px solid rgba(50, 147, 178, 0.35);
+  color: var(--tt-primary-light);
+  font-family: var(--tt-font-mono);
+  font-size: 0.82rem;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.install-version-badge.visible { opacity: 1; }
+
+.install-cli-note {
+  font-size: 0.85rem;
+  color: var(--tt-muted);
+  margin: 0;
+}
+
+.install-cli-note code {
+  font-family: var(--tt-font-mono);
+  background: var(--tt-code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.82rem;
+}
+
+.install-secondary-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.install-secondary-links a {
+  font-size: 0.9rem;
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+}
+
+.install-secondary-links a:hover { text-decoration: underline; }
+
+.install-hero-screenshot img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7), 0 6px 24px rgba(0, 0, 0, 0.5);
+  display: block;
+}
+
+/* ── Section common ────────────────────────────────────────────────────── */
+
+.install-section {
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+  border-bottom: 1px solid var(--tt-border);
+}
+
+.install-section:last-of-type { border-bottom: none; }
+
+.install-section-label {
+  font-family: var(--tt-font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tt-primary);
+  margin: 0 0 0.5rem;
+}
+
+.install-section-heading {
+  font-family: var(--tt-font-display);
+  font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+  font-weight: 300;
+  color: var(--vscode-foreground);
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.install-section-sub {
+  font-size: 1rem;
+  color: var(--tt-muted);
+  max-width: 54rem;
+  margin: 0 0 2.5rem;
+  line-height: 1.6;
+}
+
+/* ── Features grid ─────────────────────────────────────────────────────── */
+
+.install-features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.install-feature-card {
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--tt-border);
+  border-radius: 8px;
+  padding: 1.75rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.install-feature-card:hover {
+  border-color: var(--tt-primary);
+  box-shadow: 0 0 0 1px rgba(50, 147, 178, 0.15), 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.install-feature-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.75rem;
+  line-height: 1;
+}
+
+.install-feature-title {
+  font-family: var(--tt-font-interface);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--vscode-foreground);
+  margin: 0 0 0.5rem;
+}
+
+.install-feature-desc {
+  font-size: 0.875rem;
+  color: var(--tt-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Gallery ───────────────────────────────────────────────────────────── */
+
+.install-gallery-grid {
+  columns: 4;
+  column-gap: 1rem;
+}
+
+.install-gallery-item {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--tt-border);
+  position: relative;
+}
+
+.install-gallery-item img,
+.install-gallery-item video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.install-gallery-item video { cursor: pointer; }
+
+.install-gallery-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(transparent, rgba(7, 13, 20, 0.85));
+  font-size: 0.75rem;
+  color: rgba(226, 232, 240, 0.75);
+  font-family: var(--tt-font-mono);
+  pointer-events: none; /* let clicks pass through to the media below */
+}
+
+/* YouTube embed: preserves 16:9 aspect ratio at any column width */
+.install-yt-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.install-yt-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.install-gallery-wide {
+  column-span: all;
+  margin-bottom: 1rem;
+}
+
+.install-gallery-wide img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--tt-border);
+  display: block;
+}
+
+/* ── Lesson tracks ─────────────────────────────────────────────────────── */
+
+.install-tracks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.install-track-card {
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--tt-border);
+  border-radius: 8px;
+  padding: 1.4rem;
+  transition: border-color 0.15s;
+}
+
+.install-track-card:hover { border-color: var(--tt-primary); }
+
+.install-track-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.install-track-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.install-track-name {
+  font-family: var(--tt-font-interface);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--vscode-foreground);
+  margin: 0 0 0.6rem;
+}
+
+.install-track-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.install-track-card:hover .install-track-name a {
+  color: var(--tt-primary-light);
+}
+
+.install-track-lessons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.install-track-lessons li {
+  font-size: 0.8rem;
+  color: var(--tt-muted);
+  padding: 0.2rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  line-height: 1.4;
+}
+
+.install-track-lessons li:last-child { border-bottom: none; }
+
+
+/* ── Install instructions ──────────────────────────────────────────────── */
+
+.install-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--tt-border);
+  margin-bottom: 2rem;
+}
+
+.install-tab {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.88rem;
+  font-family: var(--tt-font-interface);
+  color: var(--tt-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  transition: color 0.15s, border-color 0.15s;
+  user-select: none;
+}
+
+.install-tab:hover { color: var(--vscode-foreground); }
+
+.install-tab.active {
+  color: var(--tt-primary-light);
+  border-bottom-color: var(--tt-primary);
+}
+
+.install-tab-panel { display: none; }
+.install-tab-panel.active { display: block; }
+
+.install-step {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.install-step-num {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: rgba(50, 147, 178, 0.15);
+  border: 1px solid rgba(50, 147, 178, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--tt-font-mono);
+  font-size: 0.78rem;
+  color: var(--tt-primary-light);
+  margin-top: 0.1rem;
+}
+
+.install-step-body { flex: 1; }
+
+.install-step-body p {
+  margin: 0 0 0.6rem;
+  font-size: 0.93rem;
+  color: var(--vscode-foreground);
+  line-height: 1.55;
+}
+
+.install-step-body code {
+  font-family: var(--tt-font-mono);
+  background: var(--tt-code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.84em;
+}
+
+.install-cmd {
+  position: relative;
+  background: var(--tt-code-bg);
+  border: 1px solid var(--tt-border);
+  border-radius: 6px;
+  padding: 0.9rem 3.5rem 0.9rem 1rem;
+  font-family: var(--tt-font-mono);
+  font-size: 0.84rem;
+  color: var(--vscode-foreground);
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0;
+}
+
+.install-cmd-copy {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  background: rgba(50, 147, 178, 0.1);
+  border: 1px solid rgba(50, 147, 178, 0.25);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: var(--tt-font-interface);
+  color: var(--tt-primary-light);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.install-cmd-copy:hover { background: rgba(50, 147, 178, 0.2); }
+
+/* ── Footer links ──────────────────────────────────────────────────────── */
+
+.install-footer-links {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  background: var(--vscode-sideBar-background);
+}
+
+.install-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.install-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.install-footer-brand img {
+  height: 1.4rem;
+  width: auto;
+  opacity: 0.7;
+}
+
+.install-footer-brand span {
+  font-size: 0.85rem;
+  color: var(--tt-muted);
+}
+
+.install-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.install-footer-nav a {
+  font-size: 0.85rem;
+  color: var(--tt-muted);
+  text-decoration: none;
+  transition: color 0.12s;
+}
+
+.install-footer-nav a:hover { color: var(--vscode-textLink-foreground); }
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media (max-width: 1200px) {
+  .install-gallery-grid { columns: 3; }
+}
+
+@media (max-width: 1023px) {
+  .install-hero-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .install-hero-screenshot { max-width: 820px; margin: 0 auto; }
+  .install-features-grid { grid-template-columns: repeat(2, 1fr); }
+  .install-tracks-grid { grid-template-columns: repeat(2, 1fr); }
+  .install-gallery-grid { columns: 2; }
+}
+
+@media (max-width: 639px) {
+  .install-hero { padding-top: 3rem; padding-bottom: 2.5rem; }
+  .install-section { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+  .install-features-grid { grid-template-columns: 1fr; }
+  .install-tracks-grid { grid-template-columns: 1fr; }
+  .install-gallery-grid { columns: 1; }
+  .install-footer-inner { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════ -->
+<section class="install-hero install-edge">
+  <div class="install-hero-inner">
+
+    <div class="install-hero-text">
+      <img class="install-hero-logo"
+           src="/assets/img/tt_logo_color_dark_backgrounds.svg"
+           alt="Tenstorrent">
+
+      <h1>TT&nbsp;<span>Developer</span>&nbsp;Toolkit</h1>
+
+      <p class="install-tagline">
+        Interactive AI lessons, hardware monitoring, and production inference templates —
+        all inside your editor. Works on Wormhole&nbsp;(N150, N300, T3K) and
+        Blackhole&nbsp;(P150, P300, QB2) hardware.
+      </p>
+
+      <div class="install-cta">
+        <a id="download-btn"
+           class="install-dl-btn"
+           href="https://github.com/tenstorrent/tt-vscode-toolkit/releases/latest">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download latest .vsix
+        </a>
+        <span id="dl-version" class="install-version-badge"></span>
+      </div>
+
+      <p class="install-cli-note">
+        Or via terminal:
+        <code>gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix' &amp;&amp; code --install-extension tt-vscode-toolkit-*.vsix</code>
+      </p>
+
+      <div class="install-secondary-links">
+        <a href="/lessons/">Browse lessons →</a>
+        <a href="/about-extension/">Extension guide →</a>
+        <a href="https://github.com/tenstorrent/tt-vscode-toolkit" target="_blank" rel="noopener">GitHub →</a>
+      </div>
+    </div>
+
+    <div class="install-hero-screenshot">
+      <img src="/assets/img/screenshot.png"
+           alt="TT Developer Toolkit — lesson panel inside VS Code showing interactive lessons with hardware badges and one-click terminal commands"
+           loading="eager">
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════════════════════ -->
+<section class="install-section install-edge">
+  <p class="install-section-label">Built-in features</p>
+  <h2 class="install-section-heading">Everything you need to ship on real AI hardware</h2>
+  <p class="install-section-sub">
+    More than documentation — the toolkit runs shell commands for you, monitors your hardware,
+    and manages inference servers, all without leaving your editor.
+  </p>
+
+  <div class="install-features-grid">
+    <div class="install-feature-card">
+      <div class="install-feature-icon">📖</div>
+      <p class="install-feature-title">Interactive Lessons</p>
+      <p class="install-feature-desc">
+        One-click buttons that run the exact terminal commands described in the text.
+        No copy-pasting, no tab-switching — the editor does the work.
+      </p>
+    </div>
+    <div class="install-feature-card">
+      <div class="install-feature-icon">🔧</div>
+      <p class="install-feature-title">Hardware Filter</p>
+      <p class="install-feature-desc">
+        Select your device — N150, N300, T3K, P100, QB2 — and the lesson panel narrows
+        to only lessons validated on your hardware. Filter state persists across sessions.
+      </p>
+    </div>
+    <div class="install-feature-card">
+      <div class="install-feature-icon">🚀</div>
+      <p class="install-feature-title">Live Server Control</p>
+      <p class="install-feature-desc">
+        Start and stop vLLM, tt-inference-server, and the prompt generator directly
+        from the extension. Logs stream into a collapsible panel until the health check clears.
+      </p>
+    </div>
+    <div class="install-feature-card">
+      <div class="install-feature-icon">⌨️</div>
+      <p class="install-feature-title">70+ Commands</p>
+      <p class="install-feature-desc">
+        Every common operation — hardware detection, model download, environment setup,
+        compiler activation — wired into the Command Palette
+        (<code>Ctrl+Shift+P</code>).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     GALLERY
+════════════════════════════════════════════════════════════ -->
+<section class="install-section install-edge">
+  <p class="install-section-label">What you can build</p>
+  <h2 class="install-section-heading">Generated on Tenstorrent hardware</h2>
+  <p class="install-section-sub">
+    Sample outputs from the Cookbook lessons and applications — all running on the
+    Wormhole and Blackhole chips the extension targets.
+  </p>
+
+  <div class="install-gallery-grid">
+
+    <div class="install-gallery-item">
+      <img src="/assets/img/game_of_life.gif"
+           alt="Conway's Game of Life running on TT cores — Recipe 1"
+           loading="lazy">
+      <span class="install-gallery-caption">Recipe 1 — Conway's Game of Life</span>
+    </div>
+
+    <div class="install-gallery-item">
+      <img src="/assets/img/mandelbrot.png"
+           alt="Mandelbrot fractal explorer — Recipe 3"
+           loading="lazy">
+      <span class="install-gallery-caption">Recipe 3 — Mandelbrot Explorer</span>
+    </div>
+
+    <!-- YouTube: QB2 / Wormhole demo -->
+    <div class="install-gallery-item">
+      <div class="install-yt-wrap">
+        <iframe src="https://www.youtube.com/embed/k1VHzQBQJ0w"
+                title="Tenstorrent hardware demo"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                allowfullscreen
+                loading="lazy"></iframe>
+      </div>
+      <span class="install-gallery-caption">Tenstorrent hardware in action</span>
+    </div>
+
+    <div class="install-gallery-item">
+      <img src="/assets/img/particle_life.gif"
+           alt="Particle Life emergent behavior simulation — Recipe 5"
+           loading="lazy">
+      <span class="install-gallery-caption">Recipe 5 — Particle Life Simulator</span>
+    </div>
+
+    <div class="install-gallery-item">
+      <img src="/assets/img/julia.png"
+           alt="Julia set fractal"
+           loading="lazy">
+      <span class="install-gallery-caption">Julia Set variant</span>
+    </div>
+
+    <div class="install-gallery-item">
+      <img src="/assets/img/samples/particle_life_multi_device.gif"
+           alt="Particle Life running across multiple TT devices"
+           loading="lazy">
+      <span class="install-gallery-caption">Particle Life — multi-device</span>
+    </div>
+
+    <!-- YouTube: second demo -->
+    <div class="install-gallery-item">
+      <div class="install-yt-wrap">
+        <iframe src="https://www.youtube.com/embed/WTIPj5M8kug"
+                title="Tenstorrent developer toolkit demo"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                allowfullscreen
+                loading="lazy"></iframe>
+      </div>
+      <span class="install-gallery-caption">TT Developer Toolkit walkthrough</span>
+    </div>
+
+    <div class="install-gallery-item">
+      <img src="/assets/img/sd35_snowy_cabin.png"
+           alt="Stable Diffusion XL image generation — snowy cabin"
+           loading="lazy">
+      <span class="install-gallery-caption">Stable Diffusion XL — image generation</span>
+    </div>
+
+    <div class="install-gallery-item">
+      <video autoplay muted loop playsinline
+             poster="/assets/img/samples/frame_v2_000.png"
+             aria-label="Video cinemagraph generated on Tenstorrent hardware">
+        <source src="/assets/img/samples/gnu_cinemagraph_16frame.mp4" type="video/mp4">
+      </video>
+      <span class="install-gallery-caption">AnimateDiff / Wan2.2 — video generation</span>
+    </div>
+
+  </div>
+
+  <!-- mel spectrogram — full-bleed accent row -->
+  <div class="install-gallery-wide" style="margin-top:1rem">
+    <img src="/assets/img/mel_spectrogram.png"
+         alt="Mel spectrogram from Recipe 2 — Audio Signal Processing on TT hardware"
+         loading="lazy">
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LESSON TRACKS
+════════════════════════════════════════════════════════════ -->
+<section class="install-section install-edge">
+  <p class="install-section-label">Lesson library</p>
+  <h2 class="install-section-heading">What you'll learn</h2>
+  <p class="install-section-sub">
+    From your first inference run to deploying production-grade inference servers —
+    each track builds on the last.
+  </p>
+
+  <div class="install-tracks-grid">
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🚀</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/tt-installer/">Your First Inference</a></p>
+      <ul class="install-track-lessons">
+        <li>Modern Setup with tt-installer 2.0</li>
+        <li>Hardware Detection</li>
+        <li>Download Model &amp; Run Inference</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🏭</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/tt-inference-server/">Serving &amp; APIs</a></p>
+      <ul class="install-track-lessons">
+        <li>Production Inference with tt-inference-server</li>
+        <li>Production Inference with vLLM</li>
+        <li>Image Generation with Stable Diffusion XL</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🎬</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/coding-assistant/">Applications</a></p>
+      <ul class="install-track-lessons">
+        <li>Native Video Animation with AnimateDiff</li>
+        <li>OpenClaw AI Assistant on QuietBox&nbsp;2</li>
+        <li>Generating Video on QuietBox&nbsp;2</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🍳</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/cookbook-overview/">Cookbook</a></p>
+      <ul class="install-track-lessons">
+        <li>Recipe 1: Conway's Game of Life</li>
+        <li>Recipe 3: Mandelbrot Fractal Explorer</li>
+        <li>Recipe 5: Particle Life Simulator</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🔧</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/forge-image-classification/">Compilers &amp; Frameworks</a></p>
+      <ul class="install-track-lessons">
+        <li>Image Classification with TT-Forge</li>
+        <li>JAX and PyTorch/XLA on Tenstorrent</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🧠</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/explore-metalium/">Advanced</a></p>
+      <ul class="install-track-lessons">
+        <li>Exploring TT-Metalium</li>
+        <li>Bounty Program: Model Bring-Up</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🎓</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/cs-fundamentals-01-computer/">CS Fundamentals</a></p>
+      <ul class="install-track-lessons">
+        <li>RISC-V &amp; Computer Architecture</li>
+        <li>The Memory Hierarchy</li>
+        <li>Parallel Computing</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">⚙️</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/ct1-understanding-training/">Custom Training</a></p>
+      <ul class="install-track-lessons">
+        <li>Understanding Custom Training</li>
+        <li>Dataset Fundamentals</li>
+        <li>Configuration Patterns</li>
+      </ul>
+    </div>
+
+    <div class="install-track-card">
+      <div class="install-track-header">
+        <span class="install-track-emoji">🚢</span>
+      </div>
+      <p class="install-track-name"><a href="/lessons/deploy-vscode-to-koyeb/">Deployment</a></p>
+      <ul class="install-track-lessons">
+        <li>Deploy tt-vscode-toolkit to Koyeb</li>
+        <li>Deploy Your Work to Koyeb</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <p style="margin-top:2rem; text-align:center;">
+    <a href="/lessons/" style="color:var(--vscode-textLink-foreground); font-size:0.9rem;">
+      Browse all lessons →
+    </a>
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     INSTALL INSTRUCTIONS
+════════════════════════════════════════════════════════════ -->
+<section class="install-section install-edge">
+  <p class="install-section-label">Get started</p>
+  <h2 class="install-section-heading">Install in your editor</h2>
+  <p class="install-section-sub">
+    The extension ships as a <code>.vsix</code> file and installs the same way in
+    VS&nbsp;Code, Cursor, Windsurf, and code-server.
+  </p>
+
+  <div class="install-tabs" role="tablist" aria-label="Editor install instructions">
+    <button class="install-tab active" role="tab" id="tab-btn-vscode"       aria-selected="true"  aria-controls="tab-vscode"       data-tab="vscode">VS Code</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cursor"        aria-selected="false" aria-controls="tab-cursor"        data-tab="cursor">Cursor / Windsurf</button>
+    <button class="install-tab"        role="tab" id="tab-btn-code-server"   aria-selected="false" aria-controls="tab-code-server"   data-tab="code-server">code-server</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cli"           aria-selected="false" aria-controls="tab-cli"           data-tab="cli">CLI one-liner</button>
+  </div>
+
+  <!-- VS Code -->
+  <div class="install-tab-panel active" id="tab-vscode" role="tabpanel" aria-labelledby="tab-btn-vscode" tabindex="0">
+    <div class="install-step">
+      <span class="install-step-num">1</span>
+      <div class="install-step-body">
+        <p>Download the <code>.vsix</code> from the latest GitHub release.</p>
+        <pre class="install-cmd" id="cmd-vscode-dl">gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix'</pre>
+        <button class="install-cmd-copy" data-target="cmd-vscode-dl">Copy</button>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">2</span>
+      <div class="install-step-body">
+        <p>Install via the terminal:</p>
+        <pre class="install-cmd" id="cmd-vscode-install">code --install-extension tt-vscode-toolkit-*.vsix</pre>
+        <button class="install-cmd-copy" data-target="cmd-vscode-install">Copy</button>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">3</span>
+      <div class="install-step-body">
+        <p>
+          Reload VS Code — the <strong>TT Toolkit</strong> icon will appear in the Activity Bar.
+          Click it to open the Lessons panel and pick your hardware.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cursor / Windsurf -->
+  <div class="install-tab-panel" id="tab-cursor" role="tabpanel" aria-labelledby="tab-btn-cursor" tabindex="0">
+    <div class="install-step">
+      <span class="install-step-num">1</span>
+      <div class="install-step-body">
+        <p>Download the <code>.vsix</code> from the latest release.</p>
+        <pre class="install-cmd" id="cmd-cursor-dl">gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix'</pre>
+        <button class="install-cmd-copy" data-target="cmd-cursor-dl">Copy</button>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">2</span>
+      <div class="install-step-body">
+        <p>
+          Open the Extensions panel (<code>Ctrl+Shift+X</code>), click the
+          <strong>⋯</strong> menu, choose <strong>Install from VSIX…</strong>
+          and select the downloaded file.
+        </p>
+        <p style="color:var(--tt-muted); font-size:0.85rem;">
+          Both Cursor and Windsurf are compatible with standard <code>.vsix</code> packages.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- code-server -->
+  <div class="install-tab-panel" id="tab-code-server" role="tabpanel" aria-labelledby="tab-btn-code-server" tabindex="0">
+    <div class="install-step">
+      <span class="install-step-num">1</span>
+      <div class="install-step-body">
+        <p>Download and install in one command:</p>
+        <pre class="install-cmd" id="cmd-cs-install">gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix' \
+  && code-server --install-extension tt-vscode-toolkit-*.vsix</pre>
+        <button class="install-cmd-copy" data-target="cmd-cs-install">Copy</button>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">2</span>
+      <div class="install-step-body">
+        <p>
+          Or via the GUI: open the Extensions panel (<code>Ctrl+Shift+X</code>),
+          click <strong>⋯</strong> → <strong>Install from VSIX…</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLI one-liner -->
+  <div class="install-tab-panel" id="tab-cli" role="tabpanel" aria-labelledby="tab-btn-cli" tabindex="0">
+    <div class="install-step">
+      <span class="install-step-num">1</span>
+      <div class="install-step-body">
+        <p>
+          One command downloads and installs the latest release (requires
+          <a href="https://cli.github.com" target="_blank" rel="noopener">GitHub CLI</a>):
+        </p>
+        <pre class="install-cmd" id="cmd-cli-oneliner">gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix' \
+  && code --install-extension tt-vscode-toolkit-*.vsix</pre>
+        <button class="install-cmd-copy" data-target="cmd-cli-oneliner">Copy</button>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">2</span>
+      <div class="install-step-body">
+        <p>
+          Re-running the same command updates to the latest version
+          (use <code>--clobber</code> to overwrite the existing <code>.vsix</code>).
+        </p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER LINKS
+════════════════════════════════════════════════════════════ -->
+<footer class="install-footer-links install-edge">
+  <div class="install-footer-inner">
+    <div class="install-footer-brand">
+      <img src="/assets/img/tt_logo_color_dark_backgrounds.svg" alt="Tenstorrent">
+      <span>TT Developer Toolkit</span>
+    </div>
+    <nav class="install-footer-nav">
+      <a href="/lessons/">Lessons</a>
+      <a href="/about-extension/">Extension Guide</a>
+      <a href="/faq/">FAQ</a>
+      <a href="https://github.com/tenstorrent/tt-vscode-toolkit" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/tenstorrent/tt-vscode-toolkit/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://github.com/tenstorrent/tt-vscode-toolkit/issues" target="_blank" rel="noopener">Issues</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  /* ── GitHub API: populate download button with latest release ── */
+  fetch('https://api.github.com/repos/tenstorrent/tt-vscode-toolkit/releases/latest')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var vsix = (data.assets || []).find(function (a) { return a.name.endsWith('.vsix'); });
+      if (vsix) {
+        var btn = document.getElementById('download-btn');
+        if (btn) btn.href = vsix.browser_download_url;
+      }
+      if (data.tag_name) {
+        var badge = document.getElementById('dl-version');
+        if (badge) {
+          badge.textContent = data.tag_name;
+          badge.classList.add('visible');
+        }
+      }
+    })
+    .catch(function () { /* fallback href already points to /releases/latest */ });
+
+  /* ── Tab switching ── */
+  var tabs = Array.from(document.querySelectorAll('.install-tab'));
+  function activateTab(tab) {
+    tabs.forEach(function (t) {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+      t.setAttribute('tabindex', '-1');
+    });
+    document.querySelectorAll('.install-tab-panel').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    tab.setAttribute('tabindex', '0');
+    tab.focus();
+    var panel = document.getElementById('tab-' + tab.dataset.tab);
+    if (panel) panel.classList.add('active');
+  }
+  tabs.forEach(function (tab, i) {
+    tab.setAttribute('tabindex', tab.classList.contains('active') ? '0' : '-1');
+    tab.addEventListener('click', function () { activateTab(tab); });
+    tab.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { activateTab(tabs[(i + 1) % tabs.length]); e.preventDefault(); }
+      if (e.key === 'ArrowLeft')  { activateTab(tabs[(i - 1 + tabs.length) % tabs.length]); e.preventDefault(); }
+      if (e.key === 'Home') { activateTab(tabs[0]); e.preventDefault(); }
+      if (e.key === 'End')  { activateTab(tabs[tabs.length - 1]); e.preventDefault(); }
+    });
+  });
+
+  /* ── Command copy buttons ── */
+  document.querySelectorAll('.install-cmd-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = document.getElementById(btn.dataset.target);
+      if (!pre) return;
+      var text = pre.textContent.trim();
+      var originalText = btn.textContent;
+      var writeText = navigator.clipboard && navigator.clipboard.writeText
+        ? navigator.clipboard.writeText(text)
+        : new Promise(function (resolve, reject) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            document.execCommand('copy') ? resolve() : reject();
+            document.body.removeChild(ta);
+          });
+      writeText
+        .then(function () {
+          btn.textContent = 'Copied!';
+          setTimeout(function () { btn.textContent = originalText; }, 2000);
+        })
+        .catch(function () {
+          btn.textContent = 'Failed';
+          setTimeout(function () { btn.textContent = originalText; }, 2000);
+        });
+    });
+  });
+}());
+</script>

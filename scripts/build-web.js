@@ -9,7 +9,9 @@
  *   node scripts/build-web.js --out /tmp/site
  *
  * Output:
- *   site/index.html                        — lesson catalog home page
+ *   site/index.html                        — install/landing page (root, copy of site/install/)
+ *   site/install/index.html                — install/landing page (canonical path)
+ *   site/lessons/index.html                — lesson catalog
  *   site/lessons/<id>/index.html           — one page per lesson
  *   site/assets/lesson-theme.css           — copied from src/webview/styles/
  *   site/assets/lesson-web-vars.css        — VSCode variable fallbacks
@@ -45,6 +47,13 @@ const SITE = outIdx !== -1
   ? path.resolve(process.argv[outIdx + 1])
   : path.join(ROOT, 'site');
 
+// Base path for GitHub Pages project sites (e.g. '/tt-vscode-toolkit').
+// Set via SITE_BASE_PATH env var; empty string = serve from domain root (local dev, custom domain).
+const BASE_PATH = (process.env.SITE_BASE_PATH || '').replace(/\/$/, '');
+
+/** Prepend BASE_PATH to every absolute site URL. */
+function siteUrl(p) { return BASE_PATH + p; }
+
 const REGISTRY_PATH   = path.join(ROOT, 'content', 'lesson-registry.json');
 const LESSONS_DIR     = path.join(ROOT, 'content', 'lessons');
 const PAGES_DIR       = path.join(ROOT, 'content', 'pages');
@@ -59,6 +68,7 @@ const MERMAID_SRC     = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'merm
  * ------------------------------------------------------------------ */
 
 const PAGES = [
+  { slug: 'install',          title: 'Install',              type: 'fragment', file: 'install.html', noSidebar: true },
   { slug: 'welcome',          title: 'Welcome',              type: 'html',     file: 'welcome.html' },
   { slug: 'about-extension',  title: 'Install & Overview',   type: 'markdown', file: 'about-extension.md' },
   { slug: 'faq',              title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
@@ -370,7 +380,7 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
       // Fall back to plain text if the ID is somehow malformed.
       return `<span class="tt-lesson-ref">${text}</span>`;
     }
-    return `<a href="/lessons/${lessonId}/" class="tt-lesson-link">${text}</a>`;
+    return `<a href="${siteUrl('/lessons/' + lessonId + '/')}" class="tt-lesson-link">${text}</a>`;
   }
 
   // Action command → terminal command display block
@@ -561,10 +571,29 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
 
   let html = `<nav class="tt-sidebar" id="tt-sidebar" aria-label="Lessons">\n`;
   html += `<div class="sidebar-header">\n`;
-  html += `<a href="/" class="sidebar-logo" aria-label="Tenstorrent Lessons home">`;
-  html += `<span class="sidebar-logo-text">Tenstorrent<br><strong>Lessons</strong></span>`;
+  html += `<a href="${siteUrl('/')}" class="sidebar-logo" aria-label="TT Developer Toolkit home">`;
+  html += `<span class="sidebar-logo-text"><strong>tt-vscode-toolkit</strong></span>`;
   html += `</a>\n`;
   html += `</div>\n`;
+
+  // Top pages — untitled section above lesson categories.
+  // 'install' is intentionally excluded (the logo link at top already goes home).
+  const TOP_PAGE_SLUGS = ['welcome', 'about-extension', 'step-zero'];
+  html += `<section class="sidebar-category sidebar-top-pages">\n`;
+  html += `<ul class="sidebar-lesson-list">\n`;
+  TOP_PAGE_SLUGS.forEach(slug => {
+    const page = PAGES.find(p => p.slug === slug);
+    if (!page) return;
+    const isActive = page.slug === activePageSlug;
+    const activeClass = isActive ? ' class="active"' : '';
+    const href = isActive ? '#' : siteUrl(`/${page.slug}/`);
+    html += `<li${activeClass}>`;
+    html += `<a href="${escapeAttr(href)}"`;
+    if (isActive) html += ` aria-current="page"`;
+    html += `>${escapeHtml(page.title)}</a>`;
+    html += `</li>\n`;
+  });
+  html += `</ul>\n</section>\n`;
 
   categories.forEach(cat => {
     const catLessons = lessons.filter(l => l.category === cat);
@@ -574,7 +603,7 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
     catLessons.forEach(lesson => {
       const isActive = lesson.id === activeLessonId;
       const activeClass = isActive ? ' class="active"' : '';
-      const href = isActive ? '#' : `/lessons/${lesson.id}/`;
+      const href = isActive ? '#' : siteUrl(`/lessons/${lesson.id}/`);
       html += `<li${activeClass}>`;
       html += `<a href="${escapeAttr(href)}"`;
       if (isActive) html += ` aria-current="page"`;
@@ -584,21 +613,25 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
     html += `</ul>\n</section>\n`;
   });
 
-  // Reference pages section (welcome, FAQ, guides)
-  html += `<section class="sidebar-category">\n`;
-  html += `<h3 class="sidebar-category-title">Reference</h3>\n`;
-  html += `<ul class="sidebar-lesson-list">\n`;
-  PAGES.forEach(page => {
-    const isActive = page.slug === activePageSlug;
-    const activeClass = isActive ? ' class="active"' : '';
-    const href = isActive ? '#' : `/${page.slug}/`;
-    html += `<li${activeClass}>`;
-    html += `<a href="${escapeAttr(href)}"`;
-    if (isActive) html += ` aria-current="page"`;
-    html += `>${escapeHtml(page.title)}</a>`;
-    html += `</li>\n`;
-  });
-  html += `</ul>\n</section>\n`;
+  // Reference section — remaining pages not already in the top section or excluded.
+  const SIDEBAR_EXCLUDED = new Set(['install', ...TOP_PAGE_SLUGS]);
+  const refPages = PAGES.filter(p => !SIDEBAR_EXCLUDED.has(p.slug));
+  if (refPages.length > 0) {
+    html += `<section class="sidebar-category">\n`;
+    html += `<h3 class="sidebar-category-title">Reference</h3>\n`;
+    html += `<ul class="sidebar-lesson-list">\n`;
+    refPages.forEach(page => {
+      const isActive = page.slug === activePageSlug;
+      const activeClass = isActive ? ' class="active"' : '';
+      const href = isActive ? '#' : siteUrl(`/${page.slug}/`);
+      html += `<li${activeClass}>`;
+      html += `<a href="${escapeAttr(href)}"`;
+      if (isActive) html += ` aria-current="page"`;
+      html += `>${escapeHtml(page.title)}</a>`;
+      html += `</li>\n`;
+    });
+    html += `</ul>\n</section>\n`;
+  }
 
   html += `</nav>\n`;
   return html;
@@ -635,34 +668,50 @@ function statusBadge(status) {
  * Full page shell                                                      *
  * ------------------------------------------------------------------ */
 
-function pageShell({ title, bodyClass = '', head = '', sidebar, meta = '', content }) {
+function pageShell({ title, bodyClass = '', head = '', sidebar, meta = '', content, noSidebar = false }) {
+  const bodyClasses = noSidebar
+    ? `${escapeAttr(bodyClass)} tt-lesson-web no-sidebar`
+    : `${escapeAttr(bodyClass)} tt-lesson-web`;
+
+  const sidebarHtml = noSidebar ? '' : `
+<button id="sidebar-toggle" aria-expanded="false" aria-controls="tt-sidebar"
+        aria-label="Toggle lesson navigation">☰</button>
+
+${sidebar}
+`;
+
+  const mainTag = noSidebar
+    ? `<main class="tt-full-width-content" id="main-content">`
+    : `<main class="tt-main-content" id="main-content">`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)} — Tenstorrent Lessons</title>
-  <link rel="stylesheet" href="/assets/lesson-web-vars.css">
-  <link rel="stylesheet" href="/assets/lesson-theme.css">
-  <link rel="stylesheet" href="/assets/lesson-web.css">
+  <link rel="stylesheet" href="${siteUrl('/assets/lesson-web-vars.css')}">
+  <link rel="stylesheet" href="${siteUrl('/assets/lesson-theme.css')}">
+  <link rel="stylesheet" href="${siteUrl('/assets/lesson-web.css')}">
 ${head}
 </head>
-<body class="${escapeAttr(bodyClass)} tt-lesson-web">
-
-<button id="sidebar-toggle" aria-expanded="false" aria-controls="tt-sidebar"
-        aria-label="Toggle lesson navigation">☰</button>
-
-${sidebar}
-
-<main class="tt-main-content" id="main-content">
+<body class="${bodyClasses}">
+${sidebarHtml}
+${mainTag}
   ${meta ? `<div class="tt-lesson-meta">${meta}</div>\n` : ''}
   <div class="lesson-content">
 ${content}
   </div>
 </main>
 
-<script src="/assets/vendor/mermaid.min.js"></script>
-<script src="/assets/lesson-web.js"></script>
+<script src="${siteUrl('/assets/vendor/mermaid.min.js')}"></script>
+<script src="${siteUrl('/assets/lesson-web.js')}"></script>
+
+${BASE_PATH ? `<!-- PostHog analytics — only injected on production builds (SITE_BASE_PATH set). -->
+<script>
+!function(t,e){var o,n,p,r;if(!e.__SV){window.posthog=e;e._i=[];e.init=function(i,s,a){function g(t,e){var o=e.split(".");if(o.length===2){t=t[o[0]];e=o[1];}t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)));};}p=t.createElement("script");p.type="text/javascript";p.crossOrigin="anonymous";p.async=!0;p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js";r=t.getElementsByTagName("script")[0];r.parentNode.insertBefore(p,r);var u=e;if(a!==void 0){u=e[a]=[];}else{a="posthog";}u.people=u.people||[];u.toString=function(t){var e="posthog";if(a!=="posthog"){e+="."+a;}if(!t){e+=" (stub)";}return e;};u.people.toString=function(){return u.toString(1)+".people (stub)";};e._i.push([i,s,a]);};e.__SV=1;}}(document,window.posthog||[]);
+posthog.init("phc_9LMRmHrCFvQNvDkPDjYBP5dZ6WchZ5bcM6T4Qj6tb0U",{api_host:"https://us.i.posthog.com",defaults:"2025-05-24",person_profiles:"identified_only"});
+</script>` : ''}
 </body>
 </html>`;
 }
@@ -702,10 +751,10 @@ function buildLessonPage(lesson) {
   if (prev || next) {
     navHtml = `<nav class="lesson-nav" aria-label="Lesson navigation">`;
     navHtml += prev
-      ? `<a class="nav-prev" href="/lessons/${escapeAttr(prev.id)}/">← ${escapeHtml(prev.title)}</a>`
+      ? `<a class="nav-prev" href="${escapeAttr(siteUrl('/lessons/' + prev.id + '/'))}">← ${escapeHtml(prev.title)}</a>`
       : `<span></span>`;
     navHtml += next
-      ? `<a class="nav-next" href="/lessons/${escapeAttr(next.id)}/">${escapeHtml(next.title)} →</a>`
+      ? `<a class="nav-next" href="${escapeAttr(siteUrl('/lessons/' + next.id + '/'))}">` + `${escapeHtml(next.title)} →</a>`
       : `<span></span>`;
     navHtml += `</nav>`;
   }
@@ -775,7 +824,7 @@ function buildHomePage() {
       const badges = (lesson.supportedHardware || []).map(hwBadge).join('');
       const timeStr = lesson.estimatedMinutes ? `<span class="card-time">${lesson.estimatedMinutes} min</span>` : '';
       const statusStr = statusBadge(lesson.status);
-      catalogHtml += `<a class="lesson-card" href="/lessons/${escapeAttr(lesson.id)}/" data-hw="${escapeAttr(hwAttr)}">\n`;
+      catalogHtml += `<a class="lesson-card" href="${escapeAttr(siteUrl('/lessons/' + lesson.id + '/'))}" data-hw="${escapeAttr(hwAttr)}">\n`;
       catalogHtml += `  <div class="card-header">\n`;
       catalogHtml += `    <h3 class="card-title">${escapeHtml(lesson.title)}</h3>\n`;
       catalogHtml += `    <div class="card-badges">${badges} ${timeStr} ${statusStr}</div>\n`;
@@ -797,8 +846,10 @@ function buildHomePage() {
     content:   catalogHtml,
   });
 
-  fs.writeFileSync(path.join(SITE, 'index.html'), html, 'utf8');
-  console.log('  [OK]   index.html (catalog)');
+  const lessonsOutDir = path.join(SITE, 'lessons');
+  fs.mkdirSync(lessonsOutDir, { recursive: true });
+  fs.writeFileSync(path.join(lessonsOutDir, 'index.html'), html, 'utf8');
+  console.log('  [OK]   lessons/index.html (catalog)');
 }
 
 /* ------------------------------------------------------------------ *
@@ -902,7 +953,7 @@ function webLayoutCss() {
 
 body.tt-lesson-web {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 290px 1fr;
   grid-template-rows: auto;
   grid-template-areas: "sidebar main";
   min-height: 100vh;
@@ -953,6 +1004,14 @@ body.tt-lesson-web {
 
 .sidebar-category {
   padding: 16px 0 8px;
+}
+
+/* Top pages section (Welcome, Install & Overview, Step Zero) sits above
+   lesson categories with a subtle divider below it. */
+.sidebar-top-pages {
+  padding-top: 8px;
+  border-bottom: 1px solid var(--tt-border, rgba(255,255,255,0.1));
+  margin-bottom: 4px;
 }
 
 .sidebar-category-title {
@@ -1006,6 +1065,30 @@ body.tt-lesson-web {
 .tt-main-content {
   grid-area: main;
   overflow-y: auto;
+  padding: 0;
+}
+
+/* Full-width layout for sidebar-less pages (e.g. /install/) */
+.tt-lesson-web.no-sidebar {
+  display: block;
+}
+
+.tt-full-width-content {
+  width: 100%;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.tt-full-width-content .lesson-content {
+  max-width: 100%;
+  padding: 0;
+}
+
+/* Override lesson-theme.css 900px cap for the install landing page.
+   Body class is page-install (set by buildPages bodyClass template).
+   Applies whether or not the sidebar is present. */
+body.page-install .lesson-content {
+  max-width: 100%;
   padding: 0;
 }
 
@@ -1703,9 +1786,9 @@ body.tt-lesson-web {
 
 /** VSCode commands that correspond to reference pages on this site. */
 const COMMAND_PAGE_MAP = {
-  'tenstorrent.showStepZero': '/step-zero/',
-  'tenstorrent.showFaq':      '/faq/',
-  'tenstorrent.showWelcome':  '/welcome/',
+  'tenstorrent.showStepZero': siteUrl('/step-zero/'),
+  'tenstorrent.showFaq':      siteUrl('/faq/'),
+  'tenstorrent.showWelcome':  siteUrl('/welcome/'),
 };
 
 function transformWelcomeHtml(rawHtml) {
@@ -1729,7 +1812,7 @@ function transformWelcomeHtml(rawHtml) {
   //    These onclick attrs appear on <li class="walkthrough-item"> elements.
   body = body.replace(
     /onclick="openWalkthrough\('([^']+)'\)"/g,
-    (_, lessonId) => `onclick="window.location='/lessons/${lessonId}/'" style="cursor:pointer"`
+    (_, lessonId) => `onclick="window.location='${siteUrl('/lessons/' + lessonId + '/')}'" style="cursor:pointer"`
   );
 
   // 5. Transform executeCommand('cmd') onclick handlers.
@@ -1826,7 +1909,19 @@ function buildPages() {
     let bodyContent;
     let extraHead = '';
 
-    if (page.type === 'html') {
+    if (page.type === 'fragment') {
+      // Raw HTML body fragment — used as-is with no VSCode-specific transformations.
+      // The file contains only body content (no <html>/<head>/<body> tags).
+      let raw = fs.readFileSync(filePath, 'utf8');
+      // Apply BASE_PATH prefix to all absolute site URLs in the fragment so it
+      // works on GitHub Pages project sites (e.g. /tt-vscode-toolkit/assets/...).
+      if (BASE_PATH) {
+        // Replace href="/... and src="/... with the base-path prefix.
+        // Skips external URLs (http/https) and anchor-only hrefs (#...).
+        raw = raw.replace(/(href|src|poster)="(\/(?!\/)[^"]*?)"/g, (_, attr, p) => `${attr}="${BASE_PATH}${p}"`);
+      }
+      bodyContent = raw;
+    } else if (page.type === 'html') {
       const raw = fs.readFileSync(filePath, 'utf8');
       bodyContent = transformWelcomeHtml(raw);
       // transformWelcomeHtml prepends any <style> block inline in bodyContent
@@ -1841,12 +1936,20 @@ function buildPages() {
       sidebar,
       head:      extraHead,
       content:   bodyContent,
+      noSidebar: page.noSidebar || false,
     });
 
     const outDir = path.join(SITE, page.slug);
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
     console.log(`  [OK]   ${page.slug}/index.html`);
+
+    // The install page is also the site root — write it to site/index.html
+    // so visiting tenstorrent.github.io/tt-vscode-toolkit/ shows the landing page.
+    if (page.slug === 'install') {
+      fs.writeFileSync(path.join(SITE, 'index.html'), html, 'utf8');
+      console.log(`  [OK]   index.html (root — copy of install)`);
+    }
   });
 }
 
@@ -1878,7 +1981,7 @@ function build() {
     sidebar: buildSidebar(null),
     content: `<h1>404 <strong>Not Found</strong></h1>
 <p>The page you're looking for doesn't exist.</p>
-<p><a href="/">Back to lessons</a></p>`,
+<p><a href="${siteUrl('/lessons/')}">Back to lessons</a></p>`,
   });
   fs.writeFileSync(path.join(SITE, '404.html'), notFoundHtml, 'utf8');
   console.log('\n  [OK]   404.html');
