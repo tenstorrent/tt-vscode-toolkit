@@ -1,73 +1,73 @@
 {
   "version": "1.0.0",
-  "_warning": "⚠️  PARTIALLY AUTO-GENERATED - Source of truth: Markdown front matter in content/lessons/*.md. Fields like id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes MUST match markdown. Fields like order, previousLesson, nextLesson, completionEvents are manually maintained here. Run 'npm run validate:lessons' to check sync. See CLAUDE.md for workflow.",
+  "_warning": "\u26a0\ufe0f  PARTIALLY AUTO-GENERATED - Source of truth: Markdown front matter in content/lessons/*.md. Fields like id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes MUST match markdown. Fields like order, previousLesson, nextLesson, completionEvents are manually maintained here. Run 'npm run validate:lessons' to check sync. See CLAUDE.md for workflow.",
   "categories": [
     {
       "id": "welcome",
-      "title": "👋 Your journey begins here",
+      "title": "\ud83d\udc4b Your journey begins here",
       "description": "Get started with resources and documentation",
       "order": 1,
       "icon": "home"
     },
     {
       "id": "first-inference",
-      "title": "🚀 Your First Inference",
+      "title": "\ud83d\ude80 Your First Inference",
       "description": "Set up hardware and run your first model",
       "order": 2,
       "icon": "rocket"
     },
     {
       "id": "serving",
-      "title": "🏭 Serving Models",
+      "title": "\ud83c\udfed Serving Models",
       "description": "Production deployment and serving infrastructure",
       "order": 3,
       "icon": "server"
     },
     {
       "id": "compilers",
-      "title": "🔧 Compilers & Tools",
+      "title": "\ud83d\udd27 Compilers & Tools",
       "description": "TT-Forge, TT-XLA, and compiler toolchains",
       "order": 4,
       "icon": "tools"
     },
     {
       "id": "applications",
-      "title": "🎯 Applications",
+      "title": "\ud83c\udfaf Applications",
       "description": "Build real-world applications with AI",
       "order": 5,
       "icon": "lightbulb"
     },
     {
       "id": "advanced",
-      "title": "🎓 Advanced Topics",
+      "title": "\ud83c\udf93 Advanced Topics",
       "description": "Low-level programming, installation, and community contributions",
       "order": 6,
       "icon": "mortar-board"
     },
     {
       "id": "custom-training",
-      "title": "🎓 Custom Training",
+      "title": "\ud83c\udf93 Custom Training",
       "description": "Fine-tune and train custom AI models on Tenstorrent hardware",
       "order": 7,
       "icon": "graduation-cap"
     },
     {
       "id": "deployment",
-      "title": "☁️ Deployment",
+      "title": "\u2601\ufe0f Deployment",
       "description": "Deploy your applications to cloud platforms",
       "order": 8,
       "icon": "cloud"
     },
     {
       "id": "cookbook",
-      "title": "👨‍🍳 Tenstorrent Cookbook",
+      "title": "\ud83d\udc68\u200d\ud83c\udf73 Tenstorrent Cookbook",
       "description": "Learn by building! 5 hands-on projects: Game of Life, Audio Processing, Mandelbrot Fractals, Image Filters, and Particle Life",
       "order": 9,
       "icon": "beaker"
     },
     {
       "id": "cs-fundamentals",
-      "title": "🧠 CS Fundamentals",
+      "title": "\ud83e\udde0 CS Fundamentals",
       "description": "Computer architecture, memory, parallelism, and systems programming on real hardware",
       "order": 10,
       "icon": "circuit-board"
@@ -139,7 +139,7 @@
     {
       "id": "verify-installation",
       "title": "Verify Your Setup",
-      "description": "Check that your Tenstorrent hardware, TTNN, and optional tt-metal source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
+      "description": "Check that your Tenstorrent hardware, TTNN, and optional tt-metal source are ready before running your first model. A diagnostic checkpoint \u2014 returns you here after any setup work.",
       "category": "first-inference",
       "tags": [
         "installation"
@@ -170,7 +170,7 @@
     {
       "id": "download-model",
       "title": "Download Model and Run Inference",
-      "description": "Download Qwen3-0.6B (the recommended model — no license gate, works on all hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware. Optionally download Llama-3.1-8B-Instruct for N300+ hardware.",
+      "description": "Download Qwen3-0.6B (the recommended model \u2014 no license gate, works on all hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware. Optionally download Llama-3.1-8B-Instruct for N300+ hardware.",
       "category": "first-inference",
       "tags": [
         "hardware",
@@ -267,7 +267,7 @@
     {
       "id": "tt-inference-server",
       "title": "Production Inference with tt-inference-server",
-      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — N150, N300, T3K, P100, p300c, or QB2. tt-inference-server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes \u2014 N150, N300, T3K, P100, p300c, or QB2. tt-inference-server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
@@ -401,7 +401,7 @@
     {
       "id": "coding-assistant",
       "title": "Coding Assistant with Aider",
-      "description": "Run a real AI coding assistant (Aider) against your local Tenstorrent vLLM server. One install, one command — then pair-program with your own on-device LLM. Also covers prompt engineering to customize behavior.",
+      "description": "Run a real AI coding assistant (Aider) against your local Tenstorrent vLLM server. One install, one command \u2014 then pair-program with your own on-device LLM. Also covers prompt engineering to customize behavior.",
       "category": "applications",
       "tags": [
         "coding",
@@ -848,7 +848,7 @@
     {
       "id": "cookbook-particle-life",
       "title": "Recipe 5: Particle Life Simulator",
-      "description": "Simulate emergent complexity from simple particle interactions! Features N² force calculations, multi-species dynamics, and multi-device acceleration for QuietBox systems. Beautiful chaos from simple physics!",
+      "description": "Simulate emergent complexity from simple particle interactions! Features N\u00b2 force calculations, multi-species dynamics, and multi-device acceleration for QuietBox systems. Beautiful chaos from simple physics!",
       "category": "cookbook",
       "tags": [
         "ttnn",
@@ -880,7 +880,7 @@
     {
       "id": "forge-image-classification",
       "title": "Image Classification with TT-Forge",
-      "description": "Compile a PyTorch MobileNetV2 model for Tenstorrent hardware using forge.compile() — no build required. The forge env is pre-installed: one command to activate, then classify images on real TT silicon.",
+      "description": "Compile a PyTorch MobileNetV2 model for Tenstorrent hardware using forge.compile() \u2014 no build required. The forge env is pre-installed: one command to activate, then classify images on real TT silicon.",
       "category": "compilers",
       "tags": [
         "hardware",
@@ -914,7 +914,7 @@
     {
       "id": "tt-xla-jax",
       "title": "JAX and PyTorch/XLA on Tenstorrent",
-      "description": "Run JAX and PyTorch/XLA computations directly on TT hardware — no install needed. venv-forge ships pjrt_plugin_tt, JAX 0.7.1, and torch-xla pre-installed. Activate, import, and start dispatching tensors to silicon.",
+      "description": "Run JAX and PyTorch/XLA computations directly on TT hardware \u2014 no install needed. venv-forge ships pjrt_plugin_tt, JAX 0.7.1, and torch-xla pre-installed. Activate, import, and start dispatching tensors to silicon.",
       "category": "compilers",
       "tags": [
         "production",
@@ -1151,7 +1151,7 @@
     {
       "id": "build-tt-metal",
       "title": "Build tt-metal from Source",
-      "description": "Clone and build tt-metal from source. Required for Direct API (Generator API) lessons and for running tt-metal examples directly. QB2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
+      "description": "Clone and build tt-metal from source. Required for Direct API (Generator API) lessons and for running tt-metal examples directly. QB2 and pre-configured images do not ship with ~/tt-metal \u2014 start here if Check 3 in Verify Your Setup failed.",
       "category": "first-inference",
       "tags": [
         "installation",
@@ -1206,7 +1206,7 @@
     {
       "id": "explore-metalium",
       "title": "Exploring TT-Metalium",
-      "description": "Discover what's possible with TT-Metalium! Run TTNN operations immediately, explore the model zoo, and understand the architecture that powers Tenstorrent hardware — from first script to custom kernels.",
+      "description": "Discover what's possible with TT-Metalium! Run TTNN operations immediately, explore the model zoo, and understand the architecture that powers Tenstorrent hardware \u2014 from first script to custom kernels.",
       "category": "advanced",
       "tags": [
         "model",
@@ -1364,7 +1364,7 @@
     {
       "id": "qb2-video-generation",
       "title": "Generating Video on QuietBox 2",
-      "description": "Go from a fresh QB2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI and automated prompt generation",
+      "description": "Go from a fresh QB2 to AI-generated video clips in one session \u2014 Wan2.2-T2V-A14B on 4\u00d7 Blackhole chips with a GTK4 GUI and automated prompt generation",
       "category": "applications",
       "tags": [
         "qb2",
@@ -1386,7 +1386,38 @@
       "estimatedMinutes": 90,
       "markdownFile": "content/lessons/qb2-video-generation.md",
       "validationDate": "2026-04-15",
-      "validationNotes": "Full pipeline validated on QB2 (2× P300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs."
+      "validationNotes": "Full pipeline validated on QB2 (2\u00d7 P300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480\u00d7832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs.",
+      "nextLesson": "qb2-local-agents"
+    },
+    {
+      "id": "qb2-local-agents",
+      "title": "Local AI Agents on QuietBox 2",
+      "description": "Build real AI agents in pure Python \u2014 web research, codebase navigation, multi-agent pipelines, and stateful text adventures \u2014 all running locally on your QB2's 32B/70B models",
+      "category": "applications",
+      "tags": [
+        "qb2",
+        "p300x2",
+        "agents",
+        "smolagents",
+        "crewai",
+        "openai-agents-sdk",
+        "tool-calling",
+        "32b",
+        "70b",
+        "local-inference"
+      ],
+      "supportedHardware": [
+        "p300x2"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "p300x2"
+      ],
+      "estimatedMinutes": 60,
+      "markdownFile": "content/lessons/qb2-local-agents.md",
+      "previousLesson": "qb2-video-generation",
+      "validationDate": "2026-04-21",
+      "validationNotes": "All five demo scripts validated on QB2 (p300x2) with Qwen3-32B (hermes parser) and Llama-3.3-70B-Instruct (llama3_json parser). Tool calling confirmed working. Research agent, code explorer, writing pipeline, and dungeon master all produce expected output."
     }
   ]
 }
