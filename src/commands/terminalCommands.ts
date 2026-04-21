@@ -739,6 +739,80 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'cd ~/code/tt-local-generator && ./tt-gen',
     description: 'Launches the GTK4 video generation GUI. Requires python3-gi (apt package, not venv).',
   },
+
+  // ========================================
+  // QB2 Local Agents (qb2-local-agents lesson)
+  // ========================================
+
+  START_QB2_AGENTS_SERVER_QWEN: {
+    id: 'start-qb2-agents-server-qwen',
+    name: 'Start Qwen3-32B Agent Server',
+    template: "cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 --workflow server --docker-server --no-auth --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"hermes\"}'",
+    description: 'Starts vLLM with Qwen3-32B and tool calling enabled via tt-inference-server (hermes parser)',
+  },
+
+  START_QB2_AGENTS_SERVER_LLAMA: {
+    id: 'start-qb2-agents-server-llama',
+    name: 'Start Llama-3.3-70B Agent Server',
+    template: "cd ~/code/tt-inference-server && python3 run.py --model Llama-3.3-70B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"llama3_json\"}'",
+    description: 'Starts vLLM with Llama-3.3-70B-Instruct and tool calling enabled via tt-inference-server (llama3_json parser)',
+  },
+
+  CHECK_AGENT_SERVER_HEALTH: {
+    id: 'check-agent-server-health',
+    name: 'Check Agent Server Health',
+    template: 'curl -s http://localhost:8000/v1/models | python3 -m json.tool 2>/dev/null || curl http://localhost:8000/v1/models',
+    description: 'Checks the vLLM server on port 8000 and lists available models',
+  },
+
+  CLONE_TT_AGENTS: {
+    id: 'clone-tt-agents',
+    name: 'Clone tt-agents Repository',
+    template: 'git clone https://github.com/tenstorrent/tt-agents.git ~/code/tt-agents 2>/dev/null || (cd ~/code/tt-agents && git pull origin main) && cd ~/code/tt-agents && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt',
+    description: 'Clones (or updates) tt-agents to ~/code/tt-agents and installs Python dependencies',
+  },
+
+  COPY_AGENTS_TO_SCRATCHPAD: {
+    id: 'copy-agents-to-scratchpad',
+    name: 'Copy Agent Scripts to Scratchpad',
+    template: 'mkdir -p ~/tt-scratchpad/agents && cp ~/code/tt-agents/*.py ~/tt-scratchpad/agents/ && cp ~/code/tt-agents/requirements.txt ~/tt-scratchpad/agents/ && cp ~/code/tt-agents/world.json ~/tt-scratchpad/agents/ && echo "✓ Agent scripts copied to ~/tt-scratchpad/agents/"',
+    description: 'Copies all agent scripts, requirements, and world.json to ~/tt-scratchpad/agents/ for safe experimentation',
+  },
+
+  RUN_AGENTS_VERIFY: {
+    id: 'run-agents-verify',
+    name: 'Run Agent Tool Verification',
+    template: 'python3 ~/code/tt-agents/00_verify_tools.py',
+    description: 'Runs the tool-calling verification script: confirms inference, tool calls, and structured output all work',
+  },
+
+  RUN_RESEARCH_AGENT: {
+    id: 'run-research-agent',
+    name: 'Run Research Agent (Demo 1)',
+    template: 'python3 ~/code/tt-agents/01_research_agent.py',
+    description: 'Runs Demo 1: smolagents CodeAgent that searches the web and synthesizes a cited report',
+  },
+
+  RUN_CODE_EXPLORER: {
+    id: 'run-code-explorer',
+    name: 'Run Code Explorer (Demo 2)',
+    template: 'python3 ~/code/tt-agents/02_code_explorer.py',
+    description: 'Runs Demo 2: OpenAI Agents SDK tool-calling agent that explores a local codebase',
+  },
+
+  RUN_WRITING_PIPELINE: {
+    id: 'run-writing-pipeline',
+    name: 'Run Writing Pipeline (Demo 3)',
+    template: 'python3 ~/code/tt-agents/03_writing_pipeline.py',
+    description: 'Runs Demo 3: CrewAI multi-agent writing pipeline (Researcher → Writer → Editor) with format picker',
+  },
+
+  RUN_DUNGEON_MASTER: {
+    id: 'run-dungeon-master',
+    name: 'Run Dungeon Master (Demo 4)',
+    template: 'python3 ~/code/tt-agents/04_dungeon_master.py',
+    description: 'Runs Demo 4: smolagents ToolCallingAgent persistent-world dungeon master with generative tools',
+  },
 };
 
 /**

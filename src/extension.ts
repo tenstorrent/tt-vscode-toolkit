@@ -4110,6 +4110,130 @@ function launchTtGen(): void {
 }
 
 // ============================================================================
+// QB2 Local Agents (qb2-local-agents lesson)
+// ============================================================================
+
+/**
+ * Command: tenstorrent.startQb2AgentsServerQwen
+ * Starts vLLM with Qwen3-32B and hermes tool-call parser.
+ */
+function startQb2AgentsServerQwen(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_QB2_AGENTS_SERVER_QWEN.template);
+  vscode.window.showInformationMessage(
+    'Starting Qwen3-32B agent server. Warmup takes ~5 min (up to 20 min on first run).'
+  );
+}
+
+/**
+ * Command: tenstorrent.startQb2AgentsServerLlama
+ * Starts vLLM with Llama-3.3-70B-Instruct and llama3_json tool-call parser.
+ */
+function startQb2AgentsServerLlama(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_QB2_AGENTS_SERVER_LLAMA.template);
+  vscode.window.showInformationMessage(
+    'Starting Llama-3.3-70B-Instruct agent server. Warmup takes ~5 min (up to 20 min on first run).'
+  );
+}
+
+/**
+ * Command: tenstorrent.checkAgentServerHealth
+ * Lists available models from the vLLM server on port 8000.
+ */
+function checkAgentServerHealth(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CHECK_AGENT_SERVER_HEALTH.template);
+  vscode.window.showInformationMessage(
+    'Checking agent server health. Look for your model in the response.'
+  );
+}
+
+/**
+ * Command: tenstorrent.cloneTtAgents
+ * Clones tt-agents and installs Python dependencies.
+ */
+function cloneTtAgents(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CLONE_TT_AGENTS.template);
+  vscode.window.showInformationMessage(
+    'Cloning tt-agents and installing dependencies. Check the terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.copyAgentsToScratchpad
+ * Copies agent scripts and world.json to ~/tt-scratchpad/agents/.
+ */
+function copyAgentsToScratchpad(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.COPY_AGENTS_TO_SCRATCHPAD.template);
+  vscode.window.showInformationMessage(
+    'Agent scripts copied to ~/tt-scratchpad/agents/ — hack away without touching the originals.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runAgentsVerify
+ * Runs the 00_verify_tools.py pre-flight check.
+ */
+function runAgentsVerify(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_AGENTS_VERIFY.template);
+  vscode.window.showInformationMessage(
+    'Running agent verification. All three checks (inference, tool_call, structured) should pass.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runResearchAgent
+ * Runs Demo 1: smolagents CodeAgent web research pipeline.
+ */
+function runResearchAgent(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_RESEARCH_AGENT.template);
+  vscode.window.showInformationMessage(
+    'Starting research agent. Pick a topic or press Enter to accept today\'s suggestion.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runCodeExplorer
+ * Runs Demo 2: OpenAI Agents SDK codebase explorer.
+ */
+function runCodeExplorer(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_CODE_EXPLORER.template);
+  vscode.window.showInformationMessage(
+    'Starting code explorer. Ask questions about any local codebase.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runWritingPipeline
+ * Runs Demo 3: CrewAI multi-agent writing pipeline.
+ */
+function runWritingPipeline(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_WRITING_PIPELINE.template);
+  vscode.window.showInformationMessage(
+    'Starting writing pipeline. Choose a format or press Enter for today\'s rotation.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runDungeonMaster
+ * Runs Demo 4: smolagents persistent-world dungeon master.
+ */
+function runDungeonMaster(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_DUNGEON_MASTER.template);
+  vscode.window.showInformationMessage(
+    'Starting dungeon master. State persists in world_session.json between sessions.'
+  );
+}
+
+// ============================================================================
 // Command Menu
 // ============================================================================
 
@@ -4811,6 +4935,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.startPromptGenServer', startPromptGenServer),
     vscode.commands.registerCommand('tenstorrent.checkVideoServerHealth', checkVideoServerHealth),
     vscode.commands.registerCommand('tenstorrent.launchTtGen', launchTtGen),
+
+    // QB2 Local Agents (qb2-local-agents lesson)
+    vscode.commands.registerCommand('tenstorrent.startQb2AgentsServerQwen', startQb2AgentsServerQwen),
+    vscode.commands.registerCommand('tenstorrent.startQb2AgentsServerLlama', startQb2AgentsServerLlama),
+    vscode.commands.registerCommand('tenstorrent.checkAgentServerHealth', checkAgentServerHealth),
+    vscode.commands.registerCommand('tenstorrent.cloneTtAgents', cloneTtAgents),
+    vscode.commands.registerCommand('tenstorrent.copyAgentsToScratchpad', copyAgentsToScratchpad),
+    vscode.commands.registerCommand('tenstorrent.runAgentsVerify', runAgentsVerify),
+    vscode.commands.registerCommand('tenstorrent.runResearchAgent', runResearchAgent),
+    vscode.commands.registerCommand('tenstorrent.runCodeExplorer', runCodeExplorer),
+    vscode.commands.registerCommand('tenstorrent.runWritingPipeline', runWritingPipeline),
+    vscode.commands.registerCommand('tenstorrent.runDungeonMaster', runDungeonMaster),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),
