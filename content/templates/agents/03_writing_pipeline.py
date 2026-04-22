@@ -102,9 +102,6 @@ FORMATS = [
     ),
 ]
 
-PROMPT_TIMEOUT = 10
-
-
 def pick_format(headless: bool) -> tuple[str, str]:
     daily_idx = datetime.date.today().toordinal() % len(FORMATS)
     label, instruction = FORMATS[daily_idx]

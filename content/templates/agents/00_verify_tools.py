@@ -74,8 +74,15 @@ def test_tool_call(client: openai.OpenAI, model: str) -> bool:
     )
     if has_tool_call:
         tc = choice.message.tool_calls[0]
-        args = json.loads(tc.function.arguments)
-        print(f"  ✓ Tool called: {tc.function.name}({args})")
+        try:
+            args = json.loads(tc.function.arguments)
+            print(f"  ✓ Tool called: {tc.function.name}({args})")
+        except json.JSONDecodeError:
+            raw = (tc.function.arguments or "")[:200]
+            print(f"  ✗ Tool called {tc.function.name!r}, but arguments were not valid JSON")
+            print(f"    Raw arguments: {raw}")
+            print("    Hint: check --tool-call-parser matches your model (hermes vs llama3_json)")
+            return False
     else:
         content = choice.message.content or ""
         print(f"  ✗ No tool call. finish_reason={choice.finish_reason!r}")
