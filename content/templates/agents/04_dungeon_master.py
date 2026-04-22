@@ -34,15 +34,49 @@ Install deps:
 import argparse
 import json
 import os
+import re
 import random
 import sys
 from pathlib import Path
 
 try:
     from smolagents import OpenAIServerModel, ToolCallingAgent, tool
+    from smolagents.monitoring import AgentLogger, LogLevel
+    from rich.panel import Panel
 except ImportError:
     print("ERROR: smolagents not installed. Run: pip install smolagents")
     sys.exit(1)
+
+
+class _QuietLogger(AgentLogger):
+    """Shows only tool names (not arguments or observations); suppresses the
+    spurious 'If you want to return an answer' warning."""
+
+    _MUTE = "If you want to return an answer"
+
+    def __init__(self):
+        super().__init__(level=LogLevel.INFO)
+
+    def log(self, *args, level=LogLevel.INFO, **kwargs):
+        for arg in args:
+            if isinstance(arg, Panel):
+                try:
+                    text = getattr(getattr(arg, "renderable", None), "plain", "") or ""
+                    m = re.match(r"Calling tool: '(\w+)'", text)
+                    if m and m.group(1) != "final_answer":
+                        print(f"  [{m.group(1)}]", flush=True)
+                except Exception:
+                    pass
+                return  # suppress all other Panel content (step summaries, etc.)
+        if args and isinstance(args[0], str) and "Observations:" in args[0]:
+            return
+        if int(level) <= LogLevel.ERROR:
+            self.console.print(*args, **kwargs)
+
+    def log_error(self, error_message: str) -> None:
+        if self._MUTE in error_message:
+            return
+        super().log_error(error_message)
 
 BASE_URL = os.environ.get("VLLM_BASE_URL", "http://localhost:8000/v1")
 DEFAULT_MODEL = os.environ.get("VLLM_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
@@ -413,7 +447,7 @@ def main():
         model=model,
         instructions=DM_SYSTEM_PROMPT,
         max_steps=15,
-        verbosity_level=1,
+        logger=_QuietLogger(),
     )
 
     print("\nThe DM is setting the scene...\n")
