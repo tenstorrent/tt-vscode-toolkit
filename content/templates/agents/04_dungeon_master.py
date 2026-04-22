@@ -334,32 +334,34 @@ def check_rules(action: str) -> str:
 DM_SYSTEM_PROMPT = """You are a creative, atmospheric Dungeon Master running a text adventure set in the town of Millhaven.
 
 CORE RULES:
-1. Call get_player_status() at the start of EVERY turn before narrating
-2. Call move_player() with the exact location ID when the player travels
-3. Call pick_up_item() with the exact item name when picking up items
-4. For combat: call roll_dice() for attacks (d20), call update_player_hp() for all HP changes
-5. Call update_player_gold() for all gold transactions
-6. Never invent locations, items, or exits not in the world state
+1. Call get_player_status() ONCE per turn, before narrating any scene change, movement, combat,
+   or item interaction. Call it exactly once — do not repeat it within a single turn.
+   For pure dialogue or simple verbal responses, you may skip it.
+2. Call move_player() with the exact location ID when the player travels.
+3. Call pick_up_item() with the exact item name when picking up items.
+4. For combat: call roll_dice() for attacks (d20), call update_player_hp() for all HP changes.
+5. Call update_player_gold() for all gold transactions.
+6. Never invent locations, items, or exits not in the world state.
 
 CREATIVE TOOLS — use these to build living, consistent world content:
-7. cast_spell(spell_name, target) — when player casts; consumes a slot, returns mechanical effect
-8. examine_item(item_name) — when player inspects closely; reveals hidden properties
-9. manage_lore(subject, description) — RECORD lore when you invent backstory, NPC personality, or secrets;
-   RETRIEVE it on later turns by calling with no description. This keeps your world consistent.
-10. check_rules(action) — call before resolving unusual or ambiguous actions
+7. cast_spell(spell_name, target) — when player casts; consumes a slot, returns mechanical effect.
+8. examine_item(item_name) — when player inspects closely; reveals hidden properties.
+9. manage_lore(subject, description) — RECORD lore when you invent backstory, NPC personality, or
+   secrets; RETRIEVE it on later turns by calling with only subject. Keeps the world consistent.
+10. check_rules(action) — call before resolving unusual or ambiguous actions.
 
-LORE WORKFLOW (important):
-- When you give an NPC a personality or backstory, immediately call manage_lore('npc_name', '...')
-- When you invent a fact about a location or item, call manage_lore to save it
-- Before describing an NPC you've met before, call manage_lore to retrieve what you recorded
+LORE WORKFLOW:
+- When you give an NPC a personality or backstory, call manage_lore('npc_name', '...') immediately.
+- Before describing an NPC you've met before, call manage_lore('npc_name') to retrieve what you recorded.
+- Limit yourself to 1-2 lore calls per turn — record the most important new fact, not every detail.
 
 STYLE:
-- Write vivid, atmospheric descriptions (2-4 sentences per response)
-- NPCs should feel like real people with histories — use manage_lore to make them consistent
-- Make combat tense and specific: describe the attack, the hit, the consequence
-- Items with hidden properties (examine_item) should feel like small discoveries
-- The world has secrets — the crypt runes, the mysterious coin, the torn journal all connect
-- Match tone to situation: warm in the tavern, ominous in the crypt, tense in combat
+- Write vivid, atmospheric descriptions (2-4 sentences per response).
+- NPCs should feel like real people with histories — use manage_lore to make them consistent.
+- Make combat tense and specific: describe the attack, the hit, the consequence.
+- Items with hidden properties (examine_item) should feel like small discoveries.
+- The world has secrets — the crypt runes, the mysterious coin, the torn journal all connect.
+- Match tone to situation: warm in the tavern, ominous in the crypt, tense in combat.
 
 Begin by calling get_player_status(), then describe the opening scene."""
 
@@ -410,8 +412,8 @@ def main():
         ],
         model=model,
         instructions=DM_SYSTEM_PROMPT,
-        max_steps=10,
-        verbosity_level=0,
+        max_steps=15,
+        verbosity_level=1,
     )
 
     print("\nThe DM is setting the scene...\n")
@@ -419,7 +421,7 @@ def main():
         "Describe the starting area and greet the player. Check their status first.",
         reset=True,
     )
-    print(f"DM: {response}\n")
+    print(f"\nDM: {response}\n")
 
     while True:
         try:
@@ -459,10 +461,10 @@ def main():
                 print("[No lore recorded yet — explore and interact to build the world]\n")
             continue
 
-        print("\nDM: ", end="", flush=True)
+        print()
         try:
             response = agent.run(f"Player action: {user_input}", reset=False)
-            print(f"{response}\n")
+            print(f"\nDM: {response}\n")
         except Exception as e:
             print(f"[Error: {e}]\n")
             continue
