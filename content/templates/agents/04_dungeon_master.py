@@ -37,19 +37,15 @@ import os
 import re
 import random
 import sys
+import urllib.request
 from pathlib import Path
 
 try:
     from smolagents import OpenAIServerModel, ToolCallingAgent, tool
     from smolagents.monitoring import AgentLogger, LogLevel
-except ImportError:
-    print("ERROR: smolagents not installed. Run: pip install smolagents")
-    sys.exit(1)
-
-try:
     from rich.panel import Panel
 except ImportError:
-    print("ERROR: rich not installed. Run: pip install rich")
+    print("ERROR: smolagents not installed. Run: pip install smolagents")
     sys.exit(1)
 
 
@@ -84,7 +80,22 @@ class _QuietLogger(AgentLogger):
         super().log_error(error_message)
 
 BASE_URL = os.environ.get("VLLM_BASE_URL", "http://localhost:8000/v1")
-DEFAULT_MODEL = os.environ.get("VLLM_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
+_FALLBACK_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
+
+
+def _detect_model() -> str:
+    """Query the vLLM endpoint and return the first loaded model ID."""
+    if model_env := os.environ.get("VLLM_MODEL"):
+        return model_env
+    try:
+        with urllib.request.urlopen(f"{BASE_URL}/models", timeout=3) as resp:
+            data = json.loads(resp.read())
+        return data["data"][0]["id"]
+    except Exception:
+        return _FALLBACK_MODEL
+
+
+DEFAULT_MODEL = _detect_model()
 WORLD_FILE = Path(__file__).parent / "world.json"
 SESSION_FILE = Path(__file__).parent / "world_session.json"
 
@@ -422,7 +433,7 @@ def main():
     print(f"Endpoint: {BASE_URL}")
     state_src = "world.json (fresh)" if args.reset or not SESSION_FILE.exists() else "world_session.json (saved)"
     print(f"State:    {state_src}")
-    print("\nTip: 70B gives the best narrative. Qwen3-32B is faster (~8s vs ~14s/turn).")
+    print("\nTip: 70B gives richer narrative; 32B responds in ~8s. Override with --model.")
     print("Commands: 'status' | 'lore' | 'quit'")
     print("-" * 70)
 
