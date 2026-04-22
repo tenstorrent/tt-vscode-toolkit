@@ -377,14 +377,16 @@ python3 ~/code/tt-agents/01_research_agent.py \
 
 Point this at any directory and ask questions. This is what a local coding assistant looks like at the architectural level — it actually reads your files.
 
+Run it from any project directory and it explores that directory by default:
+
 ```bash
-python3 ~/code/tt-agents/02_code_explorer.py \
-    --dir ~/code/tt-inference-server/workflows
+cd ~/code/tt-agents
+python3 02_code_explorer.py
 ```
 
 [Run Code Explorer](command:tenstorrent.runCodeExplorer)
 
-**Explore your own code:**
+**Point it at a specific directory:**
 
 ```bash
 python3 ~/code/tt-agents/02_code_explorer.py \
@@ -396,40 +398,47 @@ python3 ~/code/tt-agents/02_code_explorer.py \
 
 ```bash
 python3 ~/code/tt-agents/02_code_explorer.py \
-    --dir ~/code/tt-inference-server/workflows \
+    --dir ~/code/tt-agents \
     --compare
 ```
 
-**Sample output:**
+**Sample output** (run from `~/code/tt-agents`):
 
 ```
 ======================================================================
 tt-agents Proof 2: Codebase Explorer (OpenAI Agents SDK)
 ======================================================================
 Endpoint: http://localhost:8000/v1
-Directory: /home/ttuser/code/tt-inference-server/workflows
+Directory: /home/ttuser/code/tt-agents
 
 Query:
-  Which LLM models support P300X2 and what tool parsers do they use?
+  Summarize this codebase, how it is organized, and which files
+  are most important to understand first.
 
 ======================================================================
 Model: Qwen/Qwen3-32B
 ======================================================================
-Based on my analysis of the workflow files:
+Based on my analysis:
 
-**P300X2-supported LLM models:**
+**What it does:** Five standalone agent demos spanning three frameworks
+(smolagents, OpenAI Agents SDK, CrewAI), each demonstrating a different
+agentic pattern against a local vLLM endpoint.
 
-1. **Qwen3-32B** (model_spec.py, lines 1347–1363)
-   - tool_call_parser: `hermes`
-   - reasoning_parser: `qwen3`
-   - Context: 128K tokens
-   - Status: FUNCTIONAL
+**Most important files:**
 
-2. **Llama-3.3-70B-Instruct** (model_spec.py, lines 1837–1863)
-   - tool_call_parser: `llama3_json`
-   - Also aliases: Llama-3.1-70B-Instruct, DeepSeek-R1-Distill-Llama-70B
-   - Context: 128K tokens
-   - Status: FUNCTIONAL
+1. **00_verify_tools.py** — Run this first. Confirms the vLLM server is
+   up, tool calling is working, and structured output parses correctly.
+
+2. **01_research_agent.py** — smolagents CodeAgent. Web search + page
+   reading + synthesis. The simplest demonstration of a real work loop.
+
+3. **04_dungeon_master.py** — The most complex. Shows persistent state
+   via world.json, generative tools (cast_spell, examine_item, manage_lore),
+   and how tool-grounded agents avoid hallucinating world state.
+
+4. **world.json** — The DM's ground truth. Edit this to extend the world.
+
+5. **requirements.txt** — Install order matters; upgrade pip first.
 
 ✓ Code exploration complete
 ```
@@ -489,7 +498,7 @@ python3 ~/code/tt-agents/02_code_explorer.py \
     --query "I'm reviewing a PR that changes authentication. Explain the current auth flow in detail so I can spot regressions."
 ```
 
-**Exploring your QB2's own inference server:**
+**Exploring your QB2's inference server config:**
 ```bash
 python3 ~/code/tt-agents/02_code_explorer.py \
     --dir ~/code/tt-inference-server \

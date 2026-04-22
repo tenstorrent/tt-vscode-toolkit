@@ -10,8 +10,8 @@ Demonstrates:
   - Quality difference: 32B vs 70B visible on code comprehension tasks
 
 Usage:
-  python3 02_code_explorer.py
-  python3 02_code_explorer.py --dir ~/code/tt-inference-server/workflows
+  python3 02_code_explorer.py                           (explores current directory)
+  python3 02_code_explorer.py --dir ~/code/myproject
   python3 02_code_explorer.py --model "meta-llama/Llama-3.3-70B-Instruct" --compare
   python3 02_code_explorer.py --query "What API endpoints does this expose?"
 
@@ -142,8 +142,8 @@ def main():
     parser = argparse.ArgumentParser(description="Codebase explorer agent demo (OpenAI Agents SDK)")
     parser.add_argument(
         "--dir",
-        default="~/code/tt-inference-server/workflows",
-        help="Directory to explore",
+        default=".",
+        help="Directory to explore (default: current working directory)",
     )
     parser.add_argument("--model", default=DEFAULT_MODEL, help="Model ID on vLLM")
     parser.add_argument("--query", default=None, help="Custom question about the codebase")
@@ -154,12 +154,12 @@ def main():
     )
     args = parser.parse_args()
 
-    target_dir = os.path.expanduser(args.dir)
+    target_dir = os.path.abspath(os.path.expanduser(args.dir))
     default_query = (
-        f"Look in the directory {target_dir}. "
-        "Which LLM models support the P300X2 device? "
-        "For each model, what tool_call_parser_name is configured? "
-        "Show me the exact code lines that define this."
+        f"Explore the directory {target_dir}. "
+        "Summarize what this codebase does, how it is organized, "
+        "and which files are most important to understand first. "
+        "List the top 5 files with a one-sentence description of each."
     )
     query = args.query or default_query
 
