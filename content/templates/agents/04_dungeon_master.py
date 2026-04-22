@@ -42,9 +42,14 @@ from pathlib import Path
 try:
     from smolagents import OpenAIServerModel, ToolCallingAgent, tool
     from smolagents.monitoring import AgentLogger, LogLevel
-    from rich.panel import Panel
 except ImportError:
     print("ERROR: smolagents not installed. Run: pip install smolagents")
+    sys.exit(1)
+
+try:
+    from rich.panel import Panel
+except ImportError:
+    print("ERROR: rich not installed. Run: pip install rich")
     sys.exit(1)
 
 
