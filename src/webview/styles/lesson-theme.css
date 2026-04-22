@@ -177,12 +177,23 @@ pre {
   padding: 16px;
   overflow-x: auto;
   margin: 16px 0;
+  /* Explicit whitespace control — VSCode webview can override user-agent pre styles */
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: var(--vscode-font-size);
+  line-height: 1.5;
 }
 
 pre code {
   background: transparent;
   padding: 0;
   border: none;
+  /* Inherit pre's whitespace settings rather than code's inline defaults */
+  white-space: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 /* Inline code */
