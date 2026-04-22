@@ -134,8 +134,19 @@ def make_agent(model_id: str) -> Agent:
 
 
 async def run_query(agent: Agent, query: str) -> str:
-    result = await Runner.run(agent, query)
-    return result.final_output
+    try:
+        result = await Runner.run(agent, query)
+        return result.final_output
+    except Exception as e:
+        if "maximum context length" in str(e) or "context_length_exceeded" in str(e):
+            return (
+                "[Context limit reached before the agent could finish.\n"
+                "Tips:\n"
+                "  • Use --query with a narrower question (one file, one function, one concept)\n"
+                "  • Use --dir pointing at a subdirectory rather than the whole project\n"
+                "  • Ask about specific files directly: --query 'explain src/auth/login.py'\n]"
+            )
+        raise
 
 
 def main():

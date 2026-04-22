@@ -103,6 +103,27 @@ SESSION_FILE = Path(__file__).parent / "world_session.json"
 _world_state: dict = {}
 
 
+def _is_context_error(exc: Exception) -> bool:
+    return "maximum context length" in str(exc) or "context_length_exceeded" in str(exc)
+
+
+def _prune_memory(agent, keep_turns: int = 4) -> int:
+    """Drop the oldest conversation turns from the agent's memory.
+
+    Finds TaskStep boundaries and slices off everything before the
+    (len - keep_turns)th turn, so recent context is preserved.
+    Returns the number of steps removed.
+    """
+    from smolagents.memory import TaskStep
+    steps = agent.memory.steps
+    task_indices = [i for i, s in enumerate(steps) if isinstance(s, TaskStep)]
+    if len(task_indices) <= keep_turns:
+        return 0
+    cut_at = task_indices[-keep_turns]
+    agent.memory.steps = steps[cut_at:]
+    return cut_at
+
+
 # ── World state helpers ───────────────────────────────────────────────────────
 
 def load_world(reset: bool = False) -> dict:
@@ -516,7 +537,19 @@ def main():
             response = agent.run(f"Player action: {user_input}", reset=False)
             print(f"\nDM: {response}\n")
         except Exception as e:
-            print(f"[Error: {e}]\n")
+            if _is_context_error(e):
+                dropped = _prune_memory(agent, keep_turns=4)
+                if dropped:
+                    print(f"  [Session history trimmed ({dropped} old steps removed) — retrying...]\n")
+                    try:
+                        response = agent.run(f"Player action: {user_input}", reset=False)
+                        print(f"\nDM: {response}\n")
+                    except Exception as e2:
+                        print(f"[Still over context after pruning. Type 'quit' and restart with --reset.]\n")
+                else:
+                    print("[Context full and nothing left to trim. Type 'quit' and restart with --reset.]\n")
+            else:
+                print(f"[Error: {e}]\n")
             continue
 
         if _world_state["player"]["hp"] <= 0:
