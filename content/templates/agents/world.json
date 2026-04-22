@@ -1,0 +1,119 @@
+{
+  "player": {
+    "name": "Adventurer",
+    "hp": 100,
+    "max_hp": 100,
+    "gold": 10,
+    "inventory": ["torch", "short sword", "leather armor"],
+    "location": "town_square",
+    "spellbook": ["magic_missile", "healing_word", "shield"],
+    "spell_slots": {"1": 3, "2": 2}
+  },
+  "locations": {
+    "town_square": {
+      "name": "Town Square",
+      "description": "A weathered fountain marks the center of Millhaven. The water runs clear but cold, fed by a spring no one has found. Paths lead north to the Dark Forest, east to the Rusty Axe, south to the dungeon entrance, and west to the open market. The library sits in a narrow alley off the square.",
+      "exits": ["forest", "rusty_axe", "dungeon_entrance", "marketplace", "library"],
+      "npcs": ["merchant"],
+      "items": []
+    },
+    "rusty_axe": {
+      "name": "The Rusty Axe Tavern",
+      "description": "A low-ceilinged room thick with woodsmoke and the smell of barley. The barkeep is a former adventurer who lost two fingers to a trap and never went back underground.",
+      "exits": ["town_square"],
+      "npcs": ["barkeep"],
+      "items": ["healing_potion", "mysterious_coin"]
+    },
+    "marketplace": {
+      "name": "The Open Market",
+      "description": "Stalls selling spell components, monster pelts, and stranger things. A blacksmith's hammer rings from the far corner. An herbalist watches you from under a wide-brimmed hat.",
+      "exits": ["town_square"],
+      "npcs": ["blacksmith", "herbalist"],
+      "items": ["iron_shield", "health_herbs"]
+    },
+    "library": {
+      "name": "The Archivist's Library",
+      "description": "Floor-to-ceiling shelves of crumbling tomes, many in languages the archivist admits she can't read. A single lamp burns on a table covered in notes. Something scratches inside the walls.",
+      "exits": ["town_square"],
+      "npcs": ["archivist"],
+      "items": ["scroll_of_identify", "ancient_map"]
+    },
+    "forest": {
+      "name": "Dark Forest",
+      "description": "Ancient oaks block the sky within thirty feet of the treeline. The path in is clear. The path back always seems slightly different.",
+      "exits": ["town_square"],
+      "npcs": [],
+      "items": ["wolfsbane", "crow_feather"],
+      "encounter_chance": 0.4
+    },
+    "dungeon_entrance": {
+      "name": "Dungeon Entrance",
+      "description": "Crumbling stone steps lead down into darkness that doesn't smell like ordinary dark. The locals call it the Old Mouth. They don't say it fondly.",
+      "exits": ["town_square", "dungeon_level1"],
+      "npcs": [],
+      "items": ["iron_spike"]
+    },
+    "dungeon_level1": {
+      "name": "Dungeon — Level 1",
+      "description": "Damp corridors. A torch bracket holds a flame that wasn't lit when you arrived but is now. The walls are carved with runes that look almost like a language.",
+      "exits": ["dungeon_entrance", "crypt"],
+      "npcs": [],
+      "items": ["rusty_key", "torn_journal"],
+      "encounter_chance": 0.6
+    },
+    "crypt": {
+      "name": "The Old Crypt",
+      "description": "Older than the dungeon above it. The runes here glow faintly amber. The air is dry and tastes like iron. Something in the far corner is watching you, but when you look directly at it, there's nothing there.",
+      "exits": ["dungeon_level1"],
+      "npcs": ["lich_spirit"],
+      "items": ["soul_gem", "necromancer_tome"],
+      "encounter_chance": 0.8
+    }
+  },
+  "item_details": {
+    "healing_potion":    {"description": "A vial of red liquid, warm to the touch.",       "hidden": "Restores 2d8+4 HP. Brewed with ingredients from the marketplace."},
+    "mysterious_coin":   {"description": "Wrong metal, wrong weight, wrong face.",          "hidden": "The date on the back is forty years in the future."},
+    "iron_shield":       {"description": "Dented but solid round shield.",                  "hidden": "+2 AC when equipped. The dent was made by something with claws."},
+    "health_herbs":      {"description": "Dried herbs, smell of pine and copper.",          "hidden": "Heals 1d6 HP raw, or brewed into a 3d6 potion with a fire source."},
+    "scroll_of_identify":{"description": "Tightly rolled, wax seal intact.",               "hidden": "Reveals true properties of any magical item. Single use."},
+    "ancient_map":       {"description": "Hand-drawn dungeon map, rooms circled in red.",   "hidden": "Shows a level below the crypt that has no stairs on the current map."},
+    "wolfsbane":         {"description": "Sprig of wolfsbane, slightly luminescent.",       "hidden": "Repels lycanthropes. Also a component in protection rituals."},
+    "crow_feather":      {"description": "Jet black, unusually large. Still warm.",        "hidden": "Magical. Usable in divination. Came from no ordinary crow."},
+    "iron_spike":        {"description": "Foot-long iron spike, useful for wedging doors.", "hidden": "The runes on it suggest it was made to hold something specific shut."},
+    "rusty_key":         {"description": "Heavy iron key, corroded but functional.",        "hidden": "Opens more than one lock. The archivist is looking for this."},
+    "torn_journal":      {"description": "Surviving pages of dungeon notes.",               "hidden": "Last entry: 'The crypt is not a dead end. It is a door. Do not open what is inside the door.'"},
+    "soul_gem":          {"description": "Cloudy quartz the size of a fist.",              "hidden": "Something moves inside it when no one is looking. Extremely dangerous."},
+    "necromancer_tome":  {"description": "Bound in leather that is not animal.",            "hidden": "Pages are blank until you ask them a question. Currently cursed."},
+    "torch":             {"description": "Standard wooden torch. Burns for one hour.",      "hidden": "Shadows in the dungeon avoid its light more than they should."},
+    "short sword":       {"description": "Worn but well-maintained single-edged blade.",    "hidden": "1d6 damage. Has a maker's mark that matches one in the torn journal."},
+    "leather armor":     {"description": "Supple leather armor, laced at the sides.",      "hidden": "AC 11. Someone repaired the left shoulder recently, with different thread."}
+  },
+  "spells": {
+    "magic_missile": {
+      "description": "Three glowing darts streak unerringly to their target. Cannot miss.",
+      "damage": 12,
+      "slot": 1,
+      "range": "120 feet"
+    },
+    "healing_word": {
+      "description": "A word of power restores vitality in a creature you can see.",
+      "heal": 10,
+      "slot": 1,
+      "range": "60 feet"
+    },
+    "shield": {
+      "description": "An invisible barrier of force deflects incoming attacks until your next turn.",
+      "effect": "+5 AC until next turn",
+      "slot": 1,
+      "range": "self"
+    }
+  },
+  "lore": {},
+  "enemies": {
+    "goblin":   {"name": "Goblin Scout",      "hp": 20, "attack": 5,  "gold": 3, "note": "Small and fast, cowardly alone."},
+    "wolf":     {"name": "Forest Wolf",       "hp": 35, "attack": 8,  "gold": 2, "note": "Runs larger than normal. Nobody talks about why."},
+    "skeleton": {"name": "Skeleton Warrior",  "hp": 40, "attack": 10, "gold": 5, "note": "Wears armor that predates the town. Doesn't speak, but remembers."},
+    "shadow":   {"name": "Dungeon Shadow",    "hp": 28, "attack": 14, "gold": 0, "note": "Immune to nonmagical weapons. Vulnerable to light."}
+  },
+  "turn": 0
+}

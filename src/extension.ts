@@ -866,7 +866,7 @@ async function createChatScript(): Promise<void> {
 
   // Get the template path from the extension
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-chat.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-chat.py');
 
   // Check if template exists
   if (!fs.existsSync(templatePath)) {
@@ -954,7 +954,7 @@ async function createApiServer(): Promise<void> {
 
   // Get the template path from the extension
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-api-server.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-api-server.py');
 
   // Check if template exists
   if (!fs.existsSync(templatePath)) {
@@ -1096,7 +1096,7 @@ async function createChatScriptDirect(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-chat-direct.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-chat-direct.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -1172,7 +1172,7 @@ async function createApiServerDirect(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-api-server-direct.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-api-server-direct.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -1489,7 +1489,7 @@ async function startVllmServer(): Promise<void> {
 
   if (!fs.existsSync(starterPath)) {
     const extensionPath = extensionContext.extensionPath;
-    const templatePath = path.join(extensionPath, 'content', 'templates', 'start-vllm-server.py');
+    const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
 
     if (fs.existsSync(templatePath)) {
       fs.copyFileSync(templatePath, starterPath);
@@ -1603,7 +1603,7 @@ async function startVllmServerForHardware(
 
   if (!fs.existsSync(starterPath)) {
     const extensionPath = extensionContext.extensionPath;
-    const templatePath = path.join(extensionPath, 'content', 'templates', 'start-vllm-server.py');
+    const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
 
     if (fs.existsSync(templatePath)) {
       fs.copyFileSync(templatePath, starterPath);
@@ -1731,7 +1731,7 @@ async function createVllmStarter(): Promise<void> {
 
   // Copy template
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'start-vllm-server.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage('❌ Template not found: start-vllm-server.py');
@@ -1774,7 +1774,7 @@ async function installAllScripts(): Promise<void> {
   }
 
   const extensionPath = extensionContext.extensionPath;
-  const templatesDir = path.join(extensionPath, 'content', 'templates');
+  const templatesDir = path.join(extensionPath, 'dist', 'content', 'templates');
 
   // List of scripts to install (the ones referenced in lessons)
   const scriptsToInstall = [
@@ -2206,7 +2206,7 @@ async function createCodingAssistantScript(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-coding-assistant.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-coding-assistant.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -2322,7 +2322,7 @@ async function createForgeClassifier(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-forge-classifier.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-forge-classifier.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -2800,14 +2800,20 @@ async function showWelcome(context: vscode.ExtensionContext): Promise<void> {
     { viewColumn: vscode.ViewColumn.One, preserveFocus: false },
     {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')]
+      localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
+        vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')
+      ]
     }
   );
 
   // Load welcome HTML
   const fs = await import('fs');
   const path = await import('path');
-  const welcomePath = path.join(context.extensionPath, 'content', 'pages', 'welcome.html');
+  const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+    ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+    : path.join(context.extensionPath, 'content', 'pages');
+  const welcomePath = path.join(pagesBase, 'welcome.html');
 
   if (fs.existsSync(welcomePath)) {
     panel.webview.html = fs.readFileSync(welcomePath, 'utf8');
@@ -2848,6 +2854,7 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
     {
       enableScripts: true,
       localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
       ]
@@ -2858,15 +2865,19 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
   const path = await import('path');
 
   try {
+    const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+      ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+      : path.join(context.extensionPath, 'content', 'pages');
+
     // Read FAQ markdown
-    const faqPath = path.join(context.extensionPath, 'content', 'pages', 'FAQ.md');
+    const faqPath = path.join(pagesBase, 'FAQ.md');
 
     // Use MarkdownRenderer for consistency
     const renderer = new MarkdownRenderer();
     const rendered = await renderer.renderFile(faqPath);
 
     // Read template
-    const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
+    const templatePath = path.join(pagesBase, 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Update CSP to allow CDN resources
@@ -2912,6 +2923,7 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
     {
       enableScripts: true,
       localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
       ]
@@ -2922,15 +2934,19 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
   const path = await import('path');
 
   try {
+    const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+      ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+      : path.join(context.extensionPath, 'content', 'pages');
+
     // Read RISC-V guide markdown
-    const guidePath = path.join(context.extensionPath, 'content', 'pages', 'riscv-guide.md');
+    const guidePath = path.join(pagesBase, 'riscv-guide.md');
 
     // Use MarkdownRenderer for consistency
     const renderer = new MarkdownRenderer();
     const rendered = await renderer.renderFile(guidePath);
 
     // Read template
-    const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
+    const templatePath = path.join(pagesBase, 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Update CSP to allow CDN resources
@@ -2977,6 +2993,7 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
     {
       enableScripts: true,
       localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
       ]
@@ -2987,15 +3004,19 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
   const path = await import('path');
 
   try {
+    const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+      ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+      : path.join(context.extensionPath, 'content', 'pages');
+
     // Read Step Zero markdown
-    const stepZeroPath = path.join(context.extensionPath, 'content', 'pages', 'step-zero.md');
+    const stepZeroPath = path.join(pagesBase, 'step-zero.md');
 
     // Use MarkdownRenderer for proper mermaid support
     const renderer = new MarkdownRenderer();
     const rendered = await renderer.renderFile(stepZeroPath);
 
     // Read template
-    const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
+    const templatePath = path.join(pagesBase, 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Inject mermaid.js script tags before closing </body>
@@ -4110,6 +4131,130 @@ function launchTtGen(): void {
 }
 
 // ============================================================================
+// QB2 Local Agents (qb2-local-agents lesson)
+// ============================================================================
+
+/**
+ * Command: tenstorrent.startQb2AgentsServerQwen
+ * Starts vLLM with Qwen3-32B and hermes tool-call parser.
+ */
+function startQb2AgentsServerQwen(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_QB2_AGENTS_SERVER_QWEN.template);
+  vscode.window.showInformationMessage(
+    'Starting Qwen3-32B agent server. Warmup takes ~5 min (up to 20 min on first run).'
+  );
+}
+
+/**
+ * Command: tenstorrent.startQb2AgentsServerLlama
+ * Starts vLLM with Llama-3.3-70B-Instruct and llama3_json tool-call parser.
+ */
+function startQb2AgentsServerLlama(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_QB2_AGENTS_SERVER_LLAMA.template);
+  vscode.window.showInformationMessage(
+    'Starting Llama-3.3-70B-Instruct agent server. Warmup takes ~5 min (up to 20 min on first run).'
+  );
+}
+
+/**
+ * Command: tenstorrent.checkAgentServerHealth
+ * Lists available models from the vLLM server on port 8000.
+ */
+function checkAgentServerHealth(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CHECK_AGENT_SERVER_HEALTH.template);
+  vscode.window.showInformationMessage(
+    'Checking agent server health. Look for your model in the response.'
+  );
+}
+
+/**
+ * Command: tenstorrent.cloneTtAgents
+ * Clones tt-agents and installs Python dependencies.
+ */
+function cloneTtAgents(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.CLONE_TT_AGENTS.template);
+  vscode.window.showInformationMessage(
+    'Cloning tt-agents and installing dependencies. Check the terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.copyAgentsToScratchpad
+ * Copies agent scripts and world.json to ~/tt-scratchpad/agents/.
+ */
+function copyAgentsToScratchpad(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.COPY_AGENTS_TO_SCRATCHPAD.template);
+  vscode.window.showInformationMessage(
+    'Agent scripts copied to ~/tt-scratchpad/agents/ — hack away without touching the originals.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runAgentsVerify
+ * Runs the 00_verify_tools.py pre-flight check.
+ */
+function runAgentsVerify(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_AGENTS_VERIFY.template);
+  vscode.window.showInformationMessage(
+    'Running agent verification. All three checks (inference, tool_call, structured) should pass.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runResearchAgent
+ * Runs Demo 1: smolagents CodeAgent web research pipeline.
+ */
+function runResearchAgent(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_RESEARCH_AGENT.template);
+  vscode.window.showInformationMessage(
+    'Starting research agent. Pick a topic or press Enter to accept today\'s suggestion.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runCodeExplorer
+ * Runs Demo 2: OpenAI Agents SDK codebase explorer.
+ */
+function runCodeExplorer(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_CODE_EXPLORER.template);
+  vscode.window.showInformationMessage(
+    'Starting code explorer. Ask questions about any local codebase.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runWritingPipeline
+ * Runs Demo 3: CrewAI multi-agent writing pipeline.
+ */
+function runWritingPipeline(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_WRITING_PIPELINE.template);
+  vscode.window.showInformationMessage(
+    'Starting writing pipeline. Choose a format or press Enter for today\'s rotation.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runDungeonMaster
+ * Runs Demo 4: smolagents persistent-world dungeon master.
+ */
+function runDungeonMaster(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_DUNGEON_MASTER.template);
+  vscode.window.showInformationMessage(
+    'Starting dungeon master. State persists in world_session.json between sessions.'
+  );
+}
+
+// ============================================================================
 // Command Menu
 // ============================================================================
 
@@ -4228,7 +4373,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [
-        vscode.Uri.joinPath(this.context.extensionUri, 'assets'),
+        vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'assets'),
         vscode.Uri.file(require('os').homedir())
       ]
     };
@@ -4304,7 +4449,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     } else {
       // Show default logo with telemetry animation
       imageUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'img', 'tt_logo_color_dark_backgrounds.svg')
+        vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'assets', 'img', 'tt_logo_color_dark_backgrounds.svg')
       );
       altText = 'Tenstorrent';
     }
@@ -4811,6 +4956,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.startPromptGenServer', startPromptGenServer),
     vscode.commands.registerCommand('tenstorrent.checkVideoServerHealth', checkVideoServerHealth),
     vscode.commands.registerCommand('tenstorrent.launchTtGen', launchTtGen),
+
+    // QB2 Local Agents (qb2-local-agents lesson)
+    vscode.commands.registerCommand('tenstorrent.startQb2AgentsServerQwen', startQb2AgentsServerQwen),
+    vscode.commands.registerCommand('tenstorrent.startQb2AgentsServerLlama', startQb2AgentsServerLlama),
+    vscode.commands.registerCommand('tenstorrent.checkAgentServerHealth', checkAgentServerHealth),
+    vscode.commands.registerCommand('tenstorrent.cloneTtAgents', cloneTtAgents),
+    vscode.commands.registerCommand('tenstorrent.copyAgentsToScratchpad', copyAgentsToScratchpad),
+    vscode.commands.registerCommand('tenstorrent.runAgentsVerify', runAgentsVerify),
+    vscode.commands.registerCommand('tenstorrent.runResearchAgent', runResearchAgent),
+    vscode.commands.registerCommand('tenstorrent.runCodeExplorer', runCodeExplorer),
+    vscode.commands.registerCommand('tenstorrent.runWritingPipeline', runWritingPipeline),
+    vscode.commands.registerCommand('tenstorrent.runDungeonMaster', runDungeonMaster),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),

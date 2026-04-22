@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.0.370",
+  "version": "0.0.400",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -618,6 +618,56 @@
       {
         "command": "tenstorrent.runParticleLife",
         "title": "Run Particle Life Simulation",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.startQb2AgentsServerQwen",
+        "title": "Start Qwen3-32B Agent Server",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.startQb2AgentsServerLlama",
+        "title": "Start Llama-3.3-70B Agent Server",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.checkAgentServerHealth",
+        "title": "Check Agent Server Health",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.cloneTtAgents",
+        "title": "Clone tt-agents Repository",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.copyAgentsToScratchpad",
+        "title": "Copy Agent Scripts to Scratchpad",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runAgentsVerify",
+        "title": "Run Agent Tool Verification",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runResearchAgent",
+        "title": "Run Research Agent (Demo 1)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runCodeExplorer",
+        "title": "Run Code Explorer (Demo 2)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runWritingPipeline",
+        "title": "Run Writing Pipeline (Demo 3)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runDungeonMaster",
+        "title": "Run Dungeon Master (Demo 4)",
         "category": "Tenstorrent"
       }
     ]

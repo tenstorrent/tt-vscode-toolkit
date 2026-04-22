@@ -11,6 +11,7 @@
  */
 
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import * as path from 'path';
 import { LessonRegistry } from '../utils';
 import { ProgressTracker } from '../state';
@@ -145,11 +146,11 @@ export class LessonWebviewManager {
         transformImageUrl: (url: string) => this.transformImageUrl(url)
       });
 
-      // Render markdown
-      const contentPath = path.join(
-        this.context.extensionPath,
-        lesson.markdownFile
-      );
+      // Render markdown — try dist/ prefix first (packaged ext), fall back to source tree (dev mode)
+      let contentPath = path.join(this.context.extensionPath, 'dist', lesson.markdownFile);
+      if (!fs.existsSync(contentPath)) {
+        contentPath = path.join(this.context.extensionPath, lesson.markdownFile);
+      }
       const rendered = await renderer.renderFile(contentPath);
 
       // Get webview URIs
