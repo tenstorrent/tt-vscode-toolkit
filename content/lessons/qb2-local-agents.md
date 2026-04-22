@@ -683,13 +683,16 @@ python3 ~/code/tt-agents/04_dungeon_master.py --reset
 tt-agents Proof 4: Dungeon Master Agent (smolagents)
 ======================================================================
 Model:    meta-llama/Llama-3.3-70B-Instruct
-State:    ~/code/tt-agents/world.json
+Endpoint: http://localhost:8000/v1
+State:    world.json (fresh)
 
-Tip: 70B gives the best narrative quality. Qwen3-32B is faster (~8s vs ~14s).
-Commands: 'status' = see stats | 'quit' = exit and save
+Tip: 70B gives the best narrative. Qwen3-32B is faster (~8s vs ~14s/turn).
+Commands: 'status' | 'lore' | 'quit'
 ----------------------------------------------------------------------
 
 The DM is setting the scene...
+
+  [get_player_status]
 
 DM: You stand in the Town Square of Millhaven, where the fountain gurgles
     with clear water cold from the mountain springs. Three paths open before
@@ -702,6 +705,10 @@ DM: You stand in the Town Square of Millhaven, where the fountain gurgles
 
 You: Go to the rusty axe
 
+  [get_player_status]
+  [move_player]
+  [manage_lore]
+
 DM: You push through the heavy oak door of the Rusty Axe. Woodsmoke and
     roasted meat. A barkeep polishes mugs with professional disinterest.
     Two farmers argue quietly over a corner table. In the dim light behind
@@ -711,8 +718,10 @@ DM: You push through the heavy oak door of the Rusty Axe. Woodsmoke and
 
 You: Pick up the healing potion
 
-DM: [checking world state...]
-    You reach over the bar with practiced nonchalance. The potion slides
+  [get_player_status]
+  [pick_up_item]
+
+DM: You reach over the bar with practiced nonchalance. The potion slides
     into your pack while the barkeep's attention stays on his mug. It's
     warm from sitting near the hearthfire.
     Inventory: torch, short sword, leather armor, healing_potion.
@@ -720,9 +729,13 @@ DM: [checking world state...]
 You: status
 [Status] HP: 100/100 | Gold: 10 g | Location: The Rusty Axe Tavern
 [Inventory] torch, short sword, leather armor, healing_potion
+[Spells] magic_missile, healing_word, shield  |  Slots: L1:3  L2:2
 [Exits] town_square
 
 You: Ask the barkeep about the dungeon
+
+  [manage_lore]
+  [manage_lore]
 
 DM: The barkeep sets the mug down deliberately and meets your eyes for the
     first time. "People go in," he says. "Most of them even come back out,
@@ -732,6 +745,9 @@ DM: The barkeep sets the mug down deliberately and meets your eyes for the
     names a price that doesn't involve gold.
 
 You: examine the mysterious coin
+
+  [get_player_status]
+  [examine_item]
 
 DM: You turn the coin over in your fingers. The metal is wrong — too light,
     too warm, with a slight give to it that copper shouldn't have. The face
@@ -754,6 +770,8 @@ Farewell, adventurer!
 [Lore entries created this session: 3]
 [Turns played: 5]
 ```
+
+> **Reading the tool lines:** The bracketed names (`[move_player]`, `[manage_lore]`, ...) appear while the DM is thinking — each one is a real JSON tool call made against the world state. They tell you what the agent is doing during the wait without flooding the screen with argument JSON. A turn with `[manage_lore]` twice means the DM invented something new about that NPC and recorded it for future consistency.
 
 ### How It Works
 
