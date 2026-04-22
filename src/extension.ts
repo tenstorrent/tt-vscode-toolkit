@@ -866,7 +866,7 @@ async function createChatScript(): Promise<void> {
 
   // Get the template path from the extension
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-chat.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-chat.py');
 
   // Check if template exists
   if (!fs.existsSync(templatePath)) {
@@ -954,7 +954,7 @@ async function createApiServer(): Promise<void> {
 
   // Get the template path from the extension
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-api-server.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-api-server.py');
 
   // Check if template exists
   if (!fs.existsSync(templatePath)) {
@@ -1096,7 +1096,7 @@ async function createChatScriptDirect(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-chat-direct.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-chat-direct.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -1172,7 +1172,7 @@ async function createApiServerDirect(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-api-server-direct.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-api-server-direct.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -1489,7 +1489,7 @@ async function startVllmServer(): Promise<void> {
 
   if (!fs.existsSync(starterPath)) {
     const extensionPath = extensionContext.extensionPath;
-    const templatePath = path.join(extensionPath, 'content', 'templates', 'start-vllm-server.py');
+    const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
 
     if (fs.existsSync(templatePath)) {
       fs.copyFileSync(templatePath, starterPath);
@@ -1603,7 +1603,7 @@ async function startVllmServerForHardware(
 
   if (!fs.existsSync(starterPath)) {
     const extensionPath = extensionContext.extensionPath;
-    const templatePath = path.join(extensionPath, 'content', 'templates', 'start-vllm-server.py');
+    const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
 
     if (fs.existsSync(templatePath)) {
       fs.copyFileSync(templatePath, starterPath);
@@ -1731,7 +1731,7 @@ async function createVllmStarter(): Promise<void> {
 
   // Copy template
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'start-vllm-server.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage('❌ Template not found: start-vllm-server.py');
@@ -1774,7 +1774,7 @@ async function installAllScripts(): Promise<void> {
   }
 
   const extensionPath = extensionContext.extensionPath;
-  const templatesDir = path.join(extensionPath, 'content', 'templates');
+  const templatesDir = path.join(extensionPath, 'dist', 'content', 'templates');
 
   // List of scripts to install (the ones referenced in lessons)
   const scriptsToInstall = [
@@ -2206,7 +2206,7 @@ async function createCodingAssistantScript(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-coding-assistant.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-coding-assistant.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -2322,7 +2322,7 @@ async function createForgeClassifier(): Promise<void> {
   const os = await import('os');
 
   const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'content', 'templates', 'tt-forge-classifier.py');
+  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-forge-classifier.py');
 
   if (!fs.existsSync(templatePath)) {
     vscode.window.showErrorMessage(
@@ -2800,14 +2800,20 @@ async function showWelcome(context: vscode.ExtensionContext): Promise<void> {
     { viewColumn: vscode.ViewColumn.One, preserveFocus: false },
     {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')]
+      localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
+        vscode.Uri.joinPath(context.extensionUri, 'content', 'pages')
+      ]
     }
   );
 
   // Load welcome HTML
   const fs = await import('fs');
   const path = await import('path');
-  const welcomePath = path.join(context.extensionPath, 'content', 'pages', 'welcome.html');
+  const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+    ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+    : path.join(context.extensionPath, 'content', 'pages');
+  const welcomePath = path.join(pagesBase, 'welcome.html');
 
   if (fs.existsSync(welcomePath)) {
     panel.webview.html = fs.readFileSync(welcomePath, 'utf8');
@@ -2848,6 +2854,7 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
     {
       enableScripts: true,
       localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
       ]
@@ -2858,15 +2865,19 @@ async function showFaq(context: vscode.ExtensionContext): Promise<void> {
   const path = await import('path');
 
   try {
+    const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+      ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+      : path.join(context.extensionPath, 'content', 'pages');
+
     // Read FAQ markdown
-    const faqPath = path.join(context.extensionPath, 'content', 'pages', 'FAQ.md');
+    const faqPath = path.join(pagesBase, 'FAQ.md');
 
     // Use MarkdownRenderer for consistency
     const renderer = new MarkdownRenderer();
     const rendered = await renderer.renderFile(faqPath);
 
     // Read template
-    const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
+    const templatePath = path.join(pagesBase, 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Update CSP to allow CDN resources
@@ -2912,6 +2923,7 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
     {
       enableScripts: true,
       localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
       ]
@@ -2922,15 +2934,19 @@ async function showRiscvGuide(context: vscode.ExtensionContext): Promise<void> {
   const path = await import('path');
 
   try {
+    const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+      ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+      : path.join(context.extensionPath, 'content', 'pages');
+
     // Read RISC-V guide markdown
-    const guidePath = path.join(context.extensionPath, 'content', 'pages', 'riscv-guide.md');
+    const guidePath = path.join(pagesBase, 'riscv-guide.md');
 
     // Use MarkdownRenderer for consistency
     const renderer = new MarkdownRenderer();
     const rendered = await renderer.renderFile(guidePath);
 
     // Read template
-    const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
+    const templatePath = path.join(pagesBase, 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Update CSP to allow CDN resources
@@ -2977,6 +2993,7 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
     {
       enableScripts: true,
       localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, 'dist', 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'content', 'pages'),
         vscode.Uri.joinPath(context.extensionUri, 'dist', 'src', 'webview')
       ]
@@ -2987,15 +3004,19 @@ async function showStepZero(context: vscode.ExtensionContext): Promise<void> {
   const path = await import('path');
 
   try {
+    const pagesBase = fs.existsSync(path.join(context.extensionPath, 'dist', 'content', 'pages'))
+      ? path.join(context.extensionPath, 'dist', 'content', 'pages')
+      : path.join(context.extensionPath, 'content', 'pages');
+
     // Read Step Zero markdown
-    const stepZeroPath = path.join(context.extensionPath, 'content', 'pages', 'step-zero.md');
+    const stepZeroPath = path.join(pagesBase, 'step-zero.md');
 
     // Use MarkdownRenderer for proper mermaid support
     const renderer = new MarkdownRenderer();
     const rendered = await renderer.renderFile(stepZeroPath);
 
     // Read template
-    const templatePath = path.join(context.extensionPath, 'content', 'pages', 'faq-template.html');
+    const templatePath = path.join(pagesBase, 'faq-template.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Inject mermaid.js script tags before closing </body>
@@ -4352,7 +4373,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [
-        vscode.Uri.joinPath(this.context.extensionUri, 'assets'),
+        vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'assets'),
         vscode.Uri.file(require('os').homedir())
       ]
     };
@@ -4428,7 +4449,7 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
     } else {
       // Show default logo with telemetry animation
       imageUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'img', 'tt_logo_color_dark_backgrounds.svg')
+        vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'assets', 'img', 'tt_logo_color_dark_backgrounds.svg')
       );
       altText = 'Tenstorrent';
     }

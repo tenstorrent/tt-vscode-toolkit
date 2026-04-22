@@ -69,13 +69,15 @@ CLAUDE.md
 .secretlintignore
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Source content / theme directories
+# Source content / theme / asset directories
 #
-# Both are copied into dist/ by the copy-content build step. Shipping the
+# All are copied into dist/ by the copy-content build step. Shipping the
 # originals alongside dist/ doubles the file count for no benefit.
-# The extension references dist/content/ and dist/themes/ at runtime.
+# The extension references dist/content/, dist/themes/, and dist/assets/ at
+# runtime. assets/ stays in the repo for GitHub/gh-pages image rendering.
 # ═══════════════════════════════════════════════════════════════════════════════
 
+assets/
 content/
 themes/
 

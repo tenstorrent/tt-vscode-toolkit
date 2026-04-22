@@ -34,11 +34,11 @@ export class LessonRegistry {
    */
   async load(): Promise<void> {
     try {
-      const registryPath = path.join(
-        this.extensionContext.extensionPath,
-        'content',
-        'lesson-registry.json'
-      );
+      // Try dist/content/ first (packaged extension), fall back to content/ (dev mode without copy-content)
+      let registryPath = path.join(this.extensionContext.extensionPath, 'dist', 'content', 'lesson-registry.json');
+      if (!fs.existsSync(registryPath)) {
+        registryPath = path.join(this.extensionContext.extensionPath, 'content', 'lesson-registry.json');
+      }
 
       if (!fs.existsSync(registryPath)) {
         throw new Error(`Lesson registry not found at: ${registryPath}`);

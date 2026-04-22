@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.400] - 2026-04-21
+
+### Fixed
+- **`assets/img/` no longer packaged twice in the `.vsix`**: `ImagePreviewViewProvider` now references `dist/assets/img/` (consistent with all other webviews) instead of the repo-root `assets/img/` directory. Added `assets/` to `.vscodeignore` so only `dist/assets/` ships with the extension. `assets/img/` remains in the repo untouched for GitHub and gh-pages image rendering.
+
+---
+
 ## [0.0.370] - 2026-04-17
 
 ### Fixed
