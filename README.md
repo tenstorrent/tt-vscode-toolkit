@@ -402,21 +402,20 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.0.268 (2026-01-09)
+### Latest Release: v0.0.401 (2026-04-23)
 
 **Highlights:**
-- 🐳 Docker support with container orchestration
-- 📊 Consolidated status bar with sysfs telemetry
-- 🎨 Color-coded hardware validation badges
-- 🤝 Open-source documentation and GitHub workflows
-- 🔧 CS Fundamentals lesson fixes and ttnn API improvements
+- ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole/Blackhole chip grids
+- 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the tt-lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
+- 🎮 **Browser playground** — write and run TT-Lang kernels client-side with Pyodide; kernels: eltwise_add, fused_mma, matmul_relu, matmul_1d
+- 🔬 **Dev Container** — `devcontainer.json` for simulator-only development; extension detects context and routes commands accordingly
+- ☁️ **Cloud simulator API skeleton** — FastAPI + WebSocket execution server with `/sim-test` PR comment trigger
+- 🔍 **Drift detection scripts** — `check-sim-lite-drift.py` (fork vs upstream), `check-vendor-drift.py` (all vendor repos: tt-metal, tt-vllm, tt-inference-server, tt-forge-models, ttsim)
 
-### Previous Release: v0.0.243 (2026-01-09)
+### Previous Release: v0.0.400 (2026-04-21)
 
 **Highlights:**
-- 📚 New technical documentation structure (ARCHITECTURE, TESTING, PACKAGING)
-- 🎯 README streamlined (50% reduction in size)
-- 🎨 Monochrome sidebar icon for better theme compatibility
+- Fixed `assets/img/` being packaged twice in the `.vsix` bundle
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 
@@ -424,8 +423,7 @@ We welcome contributions! Here's how to get involved:
 
 | Version | Status | Notes |
 |---------|--------|-------|
-| 0.1.x | ✅ Current | Active development, full support |
-| 0.0.x | ⚠️ Legacy | Community support only |
+| 0.0.x | ✅ Current | Active development, full support |
 
 ---
 
@@ -441,9 +439,8 @@ This software assists in programming Tenstorrent products. However, making, usin
 
 This extension depends on several open-source projects:
 - **marked** (MIT) - Markdown parsing
-- **DOMPurify** (Apache-2.0 or MPL-2.0) - HTML sanitization
+- **sanitize-html** (MIT) - HTML sanitization
 - **mermaid** (MIT) - Diagram rendering
-- **jsdom** (MIT) - DOM implementation
 
 Run `npm list --prod` to see all production dependencies.
 
