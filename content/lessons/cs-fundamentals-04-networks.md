@@ -44,6 +44,20 @@ You have 880 cores. They need to share data. How do they communicate?
 
 ## Part 1: CS Theory - Network Fundamentals
 
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "src", "ms": 400 },
+  { "step": "highlight", "cores": [[7,7]], "color": "pink", "label": "dst", "ms": 400 },
+  { "step": "pause", "ms": 500 },
+  { "step": "transfer", "from": [1,1], "to": [7,7], "ms": 1200 },
+  { "step": "pause", "ms": 300 },
+  { "step": "transfer", "from": [3,4], "to": [7,2], "ms": 900 },
+  { "step": "transfer", "from": [5,6], "to": [2,3], "ms": 900 },
+  { "step": "pause", "ms": 800 },
+  { "step": "clear" }
+]
+```
+
 ### The Communication Problem
 
 **Scenario:** Core 0 needs data from Core 100's memory.

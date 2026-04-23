@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.4.0",
+  "version": "0.0.401",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -713,7 +713,10 @@
     "validate:command-uris": "node scripts/validate-command-uris.js",
     "generate:lessons": "node scripts/generate-lesson-registry.js",
     "build:web": "node scripts/build-web.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "check:sim-drift": "python3 scripts/check-sim-lite-drift.py",
+    "test:sim-lite": "python3 content/web/ttlang-sim-lite/test_sim_lite.py",
+    "check:vendor-drift": "python3 scripts/check-vendor-drift.py"
   },
   "devDependencies": {
     "@types/chai": "^4.3.20",

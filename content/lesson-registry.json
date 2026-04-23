@@ -1418,6 +1418,35 @@
       "previousLesson": "qb2-video-generation",
       "validationDate": "2026-04-21",
       "validationNotes": "All five demo scripts validated on QB2 (p300x2) with Qwen3-32B (hermes parser) and Llama-3.3-70B-Instruct (llama3_json parser). Tool calling confirmed working. Research agent, code explorer, writing pipeline, and dungeon master all produce expected output."
+    },
+    {
+      "id": "tt-lang-intro",
+      "title": "Introduction to tt-lang",
+      "description": "Write your first tt-lang kernel: a concurrent compute + data-movement program that runs on the Tensix grid. Try it live in the browser via ttlang-sim-lite.",
+      "category": "compilers",
+      "tags": [
+        "tt-lang",
+        "simulator",
+        "kernels",
+        "tensix"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 20,
+      "order": 8,
+      "previousLesson": "cs-fundamentals-07-complexity",
+      "nextLesson": null,
+      "completionEvents": [],
+      "markdownFile": "content/lessons/tt-lang-intro.md"
     }
   ]
 }

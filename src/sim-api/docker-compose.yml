@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  tt-sim-api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      # Comma-separated API keys (leave blank to disable auth for local dev)
+      API_KEYS: ""
+      EXEC_TIMEOUT: "30"
+      SIM_HOME: /sim
+    volumes:
+      # Mount local ~/sim directory containing libttsim_*.so binaries
+      - "${HOME}/sim:/sim:ro"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

@@ -45,6 +45,20 @@ How do you use them? When does adding more cores help? When does it hurt?
 
 ## Part 1: CS Theory - The Laws of Parallelism
 
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[1,1]], "color": "pink", "label": "1 core · 1.0×", "ms": 500 },
+  { "step": "pause", "ms": 900 },
+  { "step": "unhighlight" },
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1]], "color": "tensixActive", "label": "8 cores · 5.3×", "ms": 500 },
+  { "step": "pause", "ms": 900 },
+  { "step": "unhighlight" },
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8]], "color": "tensixActive", "label": "64 cores · 21.4× (10% serial)", "ms": 600 },
+  { "step": "pause", "ms": 1500 },
+  { "step": "clear" }
+]
+```
+
 ### Amdahl's Law (1967)
 
 **The most important equation in parallel computing:**

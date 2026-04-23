@@ -166,8 +166,20 @@ export class LessonWebviewManager {
         )
       );
 
+      const tensixVizCssUri = this.panel.webview.asWebviewUri(
+        vscode.Uri.file(
+          path.join(this.context.extensionPath, 'dist', 'src', 'webview', 'tensix-viz', 'tensix-viz.css')
+        )
+      );
+
+      const tensixVizJsUri = this.panel.webview.asWebviewUri(
+        vscode.Uri.file(
+          path.join(this.context.extensionPath, 'dist', 'src', 'webview', 'tensix-viz', 'tensix-viz.js')
+        )
+      );
+
       // Generate HTML
-      const html = this.generateHTML(lesson, rendered.html, cssUri, jsUri);
+      const html = this.generateHTML(lesson, rendered.html, cssUri, jsUri, tensixVizCssUri, tensixVizJsUri);
 
       // Set webview content
       this.panel.webview.html = html;
@@ -194,7 +206,9 @@ export class LessonWebviewManager {
     lesson: LessonMetadata,
     content: string,
     cssUri: vscode.Uri,
-    jsUri: vscode.Uri
+    jsUri: vscode.Uri,
+    tensixVizCssUri?: vscode.Uri,
+    tensixVizJsUri?: vscode.Uri
   ): string {
     const nonce = getNonce();
 
@@ -206,6 +220,7 @@ export class LessonWebviewManager {
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' ${this.panel!.webview.cspSource} https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:;">
   <title>${this.escapeHtml(lesson.title)}</title>
   <link rel="stylesheet" href="${cssUri}">
+  ${tensixVizCssUri ? `<link rel="stylesheet" href="${tensixVizCssUri}">` : ''}
   <!-- Prism.js for syntax highlighting (VSCode-like theme) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" nonce="${nonce}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" nonce="${nonce}">
@@ -275,6 +290,8 @@ export class LessonWebviewManager {
       }
     })();
   </script>
+
+  ${tensixVizJsUri ? `<script nonce="${nonce}" src="${tensixVizJsUri}"></script>` : ''}
 
   <script nonce="${nonce}" src="${jsUri}"></script>
 </body>

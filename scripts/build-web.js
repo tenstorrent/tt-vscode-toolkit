@@ -51,6 +51,10 @@ const SITE = outIdx !== -1
 // Set via SITE_BASE_PATH env var; empty string = serve from domain root (local dev, custom domain).
 const BASE_PATH = (process.env.SITE_BASE_PATH || '').replace(/\/$/, '');
 
+// Optional: WebSocket URL of the TT Simulator Cloud API (for playground: cloud lessons).
+// Set via TTSIM_API_URL env var at build time.
+const TTSIM_API_URL = (process.env.TTSIM_API_URL || '').trim();
+
 /** Prepend BASE_PATH to every absolute site URL. */
 function siteUrl(p) { return BASE_PATH + p; }
 
@@ -68,13 +72,14 @@ const MERMAID_SRC     = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'merm
  * ------------------------------------------------------------------ */
 
 const PAGES = [
-  { slug: 'install',          title: 'Install',              type: 'fragment', file: 'install.html', noSidebar: true },
-  { slug: 'welcome',          title: 'Welcome',              type: 'html',     file: 'welcome.html' },
-  { slug: 'about-extension',  title: 'Install & Overview',   type: 'markdown', file: 'about-extension.md' },
-  { slug: 'faq',              title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
-  { slug: 'step-zero',        title: 'Step Zero',            type: 'markdown', file: 'step-zero.md' },
-  { slug: 'riscv-guide',      title: 'RISC-V Guide',         type: 'markdown', file: 'riscv-guide.md' },
-  { slug: 'version-compat',   title: 'Version Compatibility',type: 'markdown', file: 'version-compatibility.md' },
+  { slug: 'install',           title: 'Install',              type: 'fragment', file: 'install.html', noSidebar: true },
+  { slug: 'welcome',           title: 'Welcome',              type: 'html',     file: 'welcome.html' },
+  { slug: 'about-extension',   title: 'Install & Overview',   type: 'markdown', file: 'about-extension.md' },
+  { slug: 'faq',               title: 'FAQ',                  type: 'markdown', file: 'FAQ.md' },
+  { slug: 'step-zero',         title: 'Step Zero',            type: 'markdown', file: 'step-zero.md' },
+  { slug: 'riscv-guide',       title: 'RISC-V Guide',         type: 'markdown', file: 'riscv-guide.md' },
+  { slug: 'version-compat',    title: 'Version Compatibility',type: 'markdown', file: 'version-compatibility.md' },
+  { slug: 'tensix-playground', title: 'Tensix Grid Playground', type: 'markdown', file: 'tensix-playground.md' },
 ];
 
 /* ------------------------------------------------------------------ *
@@ -250,10 +255,15 @@ try {
   hljsExtension = markedHighlight({
     langPrefix: 'hljs language-',
     highlight(code, lang) {
+      // Custom fences (tensix_viz, mermaid) must NOT be auto-highlighted —
+      // their content is parsed by our renderer, not displayed as code.
+      if (lang && lang.startsWith('tensix_viz')) return code;
+      if (lang && lang === 'mermaid') return code;
       if (lang && hljs.getLanguage(lang)) {
         return hljs.highlight(code, { language: lang }).value;
       }
-      return hljs.highlightAuto(code).value;
+      // For unknown langs skip auto-highlight to avoid mangling literal content.
+      return code;
     },
   });
 } catch (_) {
@@ -409,10 +419,47 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
 };
 
 // Mermaid fences → preserve as raw <pre class="mermaid"> for client-side rendering
+// tensix_viz fences → interactive Canvas visualizer component
 WEB_RENDERER.code = function ({ text, lang }) {
   if (lang === 'mermaid') {
     return `<pre class="mermaid">${escapeHtml(text)}</pre>\n`;
   }
+
+  if (lang && lang.startsWith('tensix_viz')) {
+    // Parse options from the lang string: tensix_viz arch=wormhole scene=noc-routing
+    const opts = {};
+    lang.replace(/(\w+)=(\S+)/g, (_, k, v) => { opts[k] = v; });
+    const arch = opts.arch || 'wormhole';
+
+    // Validate JSON — fall back to [] on bad input
+    let scriptJson = '[]';
+    try { scriptJson = JSON.stringify(JSON.parse(text)); } catch (_) {}
+
+    const archLabel = arch === 'blackhole'
+      ? 'Blackhole (P100/P150/P300c)'
+      : 'Wormhole (N150/N300/T3K)';
+
+    // DOMPurify strips <script> tags, so store JSON in a data attribute.
+    // Controls and legend are inside the container so auto-init querySelector works.
+    return `
+<div class="tensix-viz-wrapper">
+  <div class="tensix-viz-header">
+    <span class="tensix-viz-title">⬡ Tensix Grid Visualizer</span>
+    <span class="tensix-viz-arch-badge">${escapeHtml(archLabel)}</span>
+  </div>
+  <div class="tensix-viz-body">
+    <div class="tensix-viz-container" data-arch="${escapeHtml(arch)}" data-script="${escapeAttr(scriptJson)}">
+      <canvas class="tensix-viz-canvas" width="520" height="320"></canvas>
+      <div class="tensix-viz-controls">
+        <button class="tv-play">▶</button>
+        <button class="tv-step">⏭</button>
+      </div>
+      <div class="tv-legend"></div>
+    </div>
+  </div>
+</div>`;
+  }
+
   // Default: delegate to marked's default code renderer by returning false
   return false;
 };
@@ -520,6 +567,7 @@ function renderLesson(markdownPath) {
     ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
                'figure', 'figcaption', 'video', 'source'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
+               'data-arch', 'data-script',
                'autoplay', 'loop', 'muted', 'playsinline', 'controls',
                'loading'],
   });
@@ -668,7 +716,36 @@ function statusBadge(status) {
  * Full page shell                                                      *
  * ------------------------------------------------------------------ */
 
-function pageShell({ title, bodyClass = '', head = '', sidebar, meta = '', content, noSidebar = false }) {
+function buildPlaygroundSection() {
+  return `
+<section class="tt-playground-section">
+  <h2>Run in Browser</h2>
+  <p>Try this kernel in your browser using <strong>ttlang-sim-lite</strong> — no hardware required.
+     The simulator runs entirely client-side via <a href="https://pyodide.org" target="_blank" rel="noreferrer">Pyodide</a>
+     (Python in WebAssembly), using a numpy backend instead of torch.</p>
+  <div class="tt-playground-mount"
+       data-worker-url="/assets/playground/pyodide-worker.js"
+       data-sim-lite-base="/assets/ttlang-sim-lite"></div>
+</section>
+`;
+}
+
+function buildCloudPlaygroundSection() {
+  const apiNote = TTSIM_API_URL
+    ? `Connects to the TT Simulator API at <code>${TTSIM_API_URL.replace(/\/execute$/, '')}</code>.`
+    : 'No cloud API URL configured at build time — set <code>TTSIM_API_URL</code> to enable execution.';
+  return `
+<section class="tt-playground-section">
+  <h2>Run on Simulator</h2>
+  <p>Execute this kernel on the cloud-hosted <strong>TT Simulator</strong>.
+     ${apiNote}
+     If the server is unreachable, use the <a href="../tt-lang-intro/">local Pyodide playground</a> instead.</p>
+  <div class="tt-cloud-playground-mount"></div>
+</section>
+`;
+}
+
+function pageShell({ title, bodyClass = '', head = '', sidebar, meta = '', content, noSidebar = false, hasPlayground = false, hasCloudPlayground = false }) {
   const bodyClasses = noSidebar
     ? `${escapeAttr(bodyClass)} tt-lesson-web no-sidebar`
     : `${escapeAttr(bodyClass)} tt-lesson-web`;
@@ -730,6 +807,13 @@ ${content}
 
 <script src="${siteUrl('/assets/vendor/mermaid.min.js')}"></script>
 <script src="${siteUrl('/assets/lesson-web.js')}"></script>
+<link rel="stylesheet" href="${siteUrl('/assets/tensix-viz/tensix-viz.css')}">
+<script src="${siteUrl('/assets/tensix-viz/tensix-viz.js')}"></script>
+${hasPlayground ? `<link rel="stylesheet" href="${siteUrl('/assets/playground/playground.css')}">
+<script src="${siteUrl('/assets/playground/playground.js')}" defer></script>` : ''}
+${hasCloudPlayground ? `<link rel="stylesheet" href="${siteUrl('/assets/playground/playground.css')}">
+<script>window.TTSIM_API_URL = ${JSON.stringify(TTSIM_API_URL)};</script>
+<script src="${siteUrl('/assets/playground/cloud-playground.js')}" defer></script>` : ''}
 </body>
 </html>`;
 }
@@ -750,6 +834,11 @@ function buildLessonPage(lesson) {
     console.warn(`  [SKIP] ${lessonId}: markdown file not found at ${lesson.markdownFile}`);
     return;
   }
+
+  const rawMd = fs.readFileSync(markdownFile, 'utf8');
+  const { data: frontMatter } = matter(rawMd);
+  const hasPlayground = frontMatter.playground === 'ttlang-sim';
+  const hasCloudPlayground = frontMatter.playground === 'cloud';
 
   const bodyHtml = renderLesson(markdownFile);
 
@@ -777,15 +866,22 @@ function buildLessonPage(lesson) {
     navHtml += `</nav>`;
   }
 
-  const fullContent = bodyHtml + '\n' + navHtml;
+  const playgroundHtml = hasPlayground
+    ? buildPlaygroundSection()
+    : hasCloudPlayground
+      ? buildCloudPlaygroundSection()
+      : '';
+  const fullContent = bodyHtml + playgroundHtml + '\n' + navHtml;
 
   const sidebar = buildSidebar(lessonId);
   const html = pageShell({
-    title:     lesson.title,
-    bodyClass: 'lesson-page',
+    title:            lesson.title,
+    bodyClass:        'lesson-page',
     sidebar,
-    meta:      metaHtml,
-    content:   fullContent,
+    meta:             metaHtml,
+    content:          fullContent,
+    hasPlayground,
+    hasCloudPlayground,
   });
 
   const outDir = path.resolve(SITE, 'lessons', lessonId);
@@ -908,6 +1004,38 @@ function copyAssets() {
   if (fs.existsSync(ASSETS_IMG_DIR)) {
     copyDirRecursive(ASSETS_IMG_DIR, imgOut);
     console.log(`  [OK]   assets/img/ (recursive)`);
+  }
+
+  // Tensix Grid Visualizer JS + CSS
+  const tensixVizSrc = path.join(ROOT, 'src', 'webview', 'tensix-viz');
+  const tensixVizOut = path.join(assetsOut, 'tensix-viz');
+  fs.mkdirSync(tensixVizOut, { recursive: true });
+  ['tensix-viz.js', 'tensix-viz.css'].forEach(f => {
+    const src = path.join(tensixVizSrc, f);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, path.join(tensixVizOut, f));
+      console.log(`  [OK]   assets/tensix-viz/${f}`);
+    }
+  });
+
+  // Playground (pyodide-worker.js, playground.js, playground.css)
+  const playgroundSrc = path.join(ROOT, 'src', 'webview', 'playground');
+  const playgroundOut = path.join(assetsOut, 'playground');
+  fs.mkdirSync(playgroundOut, { recursive: true });
+  ['playground.js', 'playground.css', 'pyodide-worker.js', 'sw.js', 'cloud-playground.js'].forEach(f => {
+    const src = path.join(playgroundSrc, f);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, path.join(playgroundOut, f));
+      console.log(`  [OK]   assets/playground/${f}`);
+    }
+  });
+
+  // ttlang-sim-lite Python package (served statically; Pyodide worker fetches each file)
+  const simLiteSrc = path.join(ROOT, 'content', 'web', 'ttlang-sim-lite');
+  const simLiteOut = path.join(assetsOut, 'ttlang-sim-lite');
+  if (fs.existsSync(simLiteSrc)) {
+    copyDirRecursive(simLiteSrc, simLiteOut);
+    console.log(`  [OK]   assets/ttlang-sim-lite/`);
   }
 
   // Mermaid.js (vendored from node_modules — ~2.7 MB, no CDN dependency)
@@ -1902,6 +2030,7 @@ function renderMarkdownPage(filePath) {
     ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
                'figure', 'figcaption', 'video', 'source'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
+               'data-arch', 'data-script',
                'autoplay', 'loop', 'muted', 'playsinline', 'controls',
                'loading'],
   });

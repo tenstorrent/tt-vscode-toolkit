@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-04-23
+
+### Added
+- **Phase 4: Cloud Execution API** — `src/sim-api/api_server.py`: FastAPI + WebSocket server with `POST /execute` (synchronous) and `WS /execute` (streaming) endpoints; three backends: `ttlang-sim`, `ttsim-wh`, `ttsim-bh`; auth via `X-API-Key` header; 30s default timeout; `/health` endpoint reports backend availability.
+- **`src/sim-api/Dockerfile`** — production image based on `tt-lang-dist-ubuntu-22-04`; installs FastAPI + uvicorn + websockets; configures `SIM_HOME` mount point for ttsim binaries.
+- **`src/sim-api/docker-compose.yml`** — local development compose file; mounts `~/sim` into `/sim` read-only; configurable auth via `API_KEYS` env var.
+- **Cloud Playground widget** (`src/webview/playground/cloud-playground.js`) — browser playground that executes kernels via WebSocket to the simulator API; backend picker (ttlang-sim / ttsim-wh / ttsim-bh); streams stdout/stderr incrementally; connectivity health check on mount; falls back gracefully when API is unreachable.
+- **`tenstorrent.simulatorApiUrl` setting** — workspace setting for the WebSocket URL of the cloud simulator (e.g. `ws://localhost:8080/execute`).
+- **`tenstorrent.runInCloudSimulator` command** — VSCode command that reads the active editor selection (or full file), prompts for backend, and streams execution output to a `TT Simulator` Output Channel via WebSocket.
+- **`playground: cloud` front matter** — lessons can set `playground: cloud` to embed the cloud playground widget instead of the local Pyodide playground; `build-web.js` injects `window.TTSIM_API_URL` from `$TTSIM_API_URL` env var at build time.
+- **`sim-test` GitHub Actions workflow** — `.github/workflows/sim-test.yml` triggered by `/sim-test` PR comment; extracts the first ` ```python ` block, runs it via `ttlang-sim` inside the `tt-lang-dist` container, and posts stdout/stderr as a PR comment with pass/fail reaction.
+
+---
+
+## [0.3.0] - 2026-04-23
+
+### Added
+- **Phase 3: Dev Container** — `.devcontainer/devcontainer.json` using `tt-lang-dist-ubuntu-22-04` image; `.devcontainer/post-create.sh` installs greenlet/numpy/pydantic and creates the `/opt/ttlang-toolchain` marker.
+- **`detectExecutionContext()`** in `extension.ts` — detects `devcontainer-sim` context via container env vars + `/opt/ttlang-toolchain` marker or `TTLANG_SIM_ONLY=1`.
+- **Simulator mode status bar** — status bar item shows `$(beaker) Tenstorrent [Simulator]` with warning background when in dev container sim mode.
+- **`guardHardwareOnly()`** helper — hardware-only commands (`runHardwareDetection`, `startVllmServer`) show an info message and skip execution in sim mode instead of silently failing.
+- **Playground: kernel selector dropdown** — playground toolbar now has a `<select>` with four starter kernels: eltwise_add, hello_tensor, scale_add (broadcast demo), and matmul_1d. Switching loads the snippet into the editor.
+- **Service worker** (`src/webview/playground/sw.js`) — caches Pyodide CDN assets (cache-first) and ttlang-sim-lite Python files (stale-while-revalidate). Pyodide's ~10 MB download only happens once per browser.
+- **`matmul_1d.py` kernel** — row-partitioned matrix multiply `C = A @ B` in `content/web/ttlang-sim-lite/kernels/`. Verified passing with max error < 1e-5.
+
+### Changed
+- Playground worker run timeout extended from 30s to 60s to accommodate larger kernels.
+
+---
+
+## [0.2.0] - 2026-04-22
+
+### Added
+- **Phase 2: ttlang-sim-lite** — numpy-backed fork of `ttlang-sim` (pure Python, no torch dependency) that runs in Pyodide (Python-in-WebAssembly). All 25+ simulator modules ported with torch→numpy swap; 5/5 test suite passes including a full eltwise_add kernel simulation with greenlet-scheduled compute + data-movement threads.
+- **Browser playground** — `src/webview/playground/`: `pyodide-worker.js` (Pyodide Web Worker), `playground.js` (controller), `playground.css` (TT-themed UI). Lessons with `playground: ttlang-sim` front matter get a "Run in Browser" section injected automatically.
+- **`build-web.js` playground integration** — detects `playground: ttlang-sim` in lesson front matter, injects `.tt-playground-mount` div, copies `assets/playground/` and `assets/ttlang-sim-lite/` to GH Pages site.
+- **tt-lang-intro lesson** — introductory lesson covering the Tensix thread model and eltwise_add kernel, with browser playground enabled.
+- **`content/web/ttlang-sim-lite/kernels/eltwise_add.py`** — starter kernel that exercises compute + two DM threads across a simulated Tensix grid.
+
+### Fixed
+- **Module load-order in sim-lite bootstrap** — `dfb`, `pipe`, `sharding` now load before `copyhandlers`/`copy` to prevent Python's auto-import from creating duplicate class objects that break `HANDLER_REGISTRY` key identity.
+- **numpy equivalents for torch in-place ops** — replaced `.copy_()` with `np.copyto()`, `.expand()` with `np.broadcast_to()`, `.contiguous()` with `np.ascontiguousarray()`, `.permute()` with `np.transpose()` throughout `dfb.py`, `copyhandlers.py`, and `math.py`.
+- **Diagnostics stub** in `diagnostics.py` extended with `TTLangCompileError` and `SourceDiagnostic` stubs for sim-lite context.
+
+---
+
 ## [0.0.400] - 2026-04-21
 
 ### Fixed

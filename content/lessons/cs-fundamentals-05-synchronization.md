@@ -44,6 +44,23 @@ You have 880 cores running simultaneously. They share data. What could go wrong?
 
 ## Part 1: CS Theory - The Fundamentals of Synchronization
 
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[2,2],[2,3]], "color": "tensixActive", "label": "compute", "ms": 400 },
+  { "step": "highlight", "cores": [[3,2],[3,3]], "color": "pink", "label": "data movement", "ms": 400 },
+  { "step": "pause", "ms": 500 },
+  { "step": "transfer", "from": [3,2], "to": [2,2], "ms": 600 },
+  { "step": "transfer", "from": [3,3], "to": [2,3], "ms": 600 },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [2,2], "text": "✓" },
+  { "step": "label", "core": [2,3], "text": "✓" },
+  { "step": "transfer", "from": [2,2], "to": [3,2], "ms": 600 },
+  { "step": "transfer", "from": [2,3], "to": [3,3], "ms": 600 },
+  { "step": "pause", "ms": 800 },
+  { "step": "clear" }
+]
+```
+
 ### The Problem: Race Conditions
 
 **Scenario:** Two cores increment a shared counter

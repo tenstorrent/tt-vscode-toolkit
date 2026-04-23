@@ -1,0 +1,180 @@
+/* SPDX-FileCopyrightText: (c) 2025 Tenstorrent AI ULC */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+/* ── tt-lang Kernel Playground ─────────────────────────────────────────────── */
+
+.tt-playground {
+    border: 1px solid #2a4a55;
+    border-radius: 8px;
+    background: #0f2a35;
+    color: #e8f0f2;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    margin: 2rem 0;
+    overflow: hidden;
+}
+
+.tt-pg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    background: #1a3c47;
+    border-bottom: 1px solid #2a4a55;
+}
+
+.tt-pg-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #4fd1c5;
+}
+
+.tt-pg-badge {
+    font-size: 0.7rem;
+    color: #607d8b;
+    font-style: italic;
+}
+
+.tt-pg-editor-wrap {
+    padding: 0;
+    border-bottom: 1px solid #1a3c47;
+}
+
+.tt-pg-editor {
+    width: 100%;
+    min-height: 260px;
+    padding: 1rem;
+    background: #0d1f27;
+    color: #e8f0f2;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    border: none;
+    outline: none;
+    resize: vertical;
+    box-sizing: border-box;
+    tab-size: 4;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.tt-pg-editor:focus {
+    box-shadow: inset 0 0 0 2px #4fd1c530;
+}
+
+.tt-pg-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #1a3c47;
+    border-bottom: 1px solid #2a4a55;
+    flex-wrap: wrap;
+}
+
+.tt-pg-btn {
+    padding: 0.3rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #2a4a55;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.tt-pg-run {
+    background: #4fd1c5;
+    color: #0f2a35;
+    border-color: #4fd1c5;
+}
+
+.tt-pg-run:hover:not(:disabled) {
+    background: #81e6d9;
+    border-color: #81e6d9;
+}
+
+.tt-pg-run:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.tt-pg-reset,
+.tt-pg-clear-out {
+    background: transparent;
+    color: #b0c4de;
+    border-color: #2a4a55;
+}
+
+.tt-pg-reset:hover,
+.tt-pg-clear-out:hover {
+    border-color: #4fd1c5;
+    color: #4fd1c5;
+}
+
+.tt-pg-kernel-select {
+    padding: 0.25rem 0.5rem;
+    background: #0d1f27;
+    color: #b0c4de;
+    border: 1px solid #2a4a55;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.tt-pg-kernel-select:focus {
+    outline: none;
+    border-color: #4fd1c5;
+}
+
+.tt-pg-status {
+    font-size: 0.75rem;
+    color: #607d8b;
+    margin-left: 0.25rem;
+    flex: 1;
+}
+
+.tt-pg-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #2a4a55;
+    border-top-color: #4fd1c5;
+    border-radius: 50%;
+    animation: tt-spin 0.7s linear infinite;
+}
+
+@keyframes tt-spin {
+    to { transform: rotate(360deg); }
+}
+
+.tt-pg-output {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    min-height: 100px;
+    max-height: 320px;
+    overflow-y: auto;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    background: #0d1f27;
+    color: #e8f0f2;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.tt-pg-stderr {
+    color: #ff6b6b;
+}
+
+/* Mount point (before JS initializes it) */
+.tt-playground-mount::before {
+    content: 'Loading playground…';
+    display: block;
+    padding: 1rem;
+    color: #607d8b;
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+.tt-playground-mount:not(:empty)::before {
+    content: none;
+}

@@ -1,0 +1,14 @@
+[
+  { "step": "highlight", "cores": [[1,1]], "color": "teal",  "label": "src", "ms": 400 },
+  { "step": "highlight", "cores": [[7,7]], "color": "pink",  "label": "dst", "ms": 400 },
+  { "step": "pause", "ms": 600 },
+  { "step": "transfer", "from": [1,1], "to": [7,7], "ms": 1200 },
+  { "step": "pause", "ms": 300 },
+  { "step": "transfer", "from": [7,7], "to": [4,4], "ms": 900 },
+  { "step": "pause", "ms": 300 },
+  { "step": "transfer", "from": [4,4], "to": [2,6], "ms": 900 },
+  { "step": "pause", "ms": 300 },
+  { "step": "transfer", "from": [2,6], "to": [8,3], "ms": 1100 },
+  { "step": "pause", "ms": 800 },
+  { "step": "clear" }
+]

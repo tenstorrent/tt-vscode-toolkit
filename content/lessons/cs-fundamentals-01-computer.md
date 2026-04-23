@@ -44,6 +44,20 @@ By the end of this module, you'll understand:
 
 ## Part 1: CS Theory - What is a Computer?
 
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[4,4]], "color": "tensixActive", "label": "Tensix core", "ms": 600 },
+  { "step": "pause", "ms": 700 },
+  { "step": "label", "core": [4,4], "text": "FDE" },
+  { "step": "transfer", "from": [4,4], "to": [4,5], "ms": 600 },
+  { "step": "transfer", "from": [4,5], "to": [4,4], "ms": 600 },
+  { "step": "pause", "ms": 500 },
+  { "step": "transfer", "from": [4,4], "to": [5,4], "ms": 600 },
+  { "step": "pause", "ms": 800 },
+  { "step": "clear" }
+]
+```
+
 ### The Von Neumann Architecture (1945)
 
 Every modern computer - your laptop, your phone, your GPU, this Tenstorrent chip - follows the same fundamental architecture proposed by John von Neumann in 1945:

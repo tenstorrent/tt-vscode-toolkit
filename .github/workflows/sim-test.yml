@@ -1,0 +1,116 @@
+name: Simulator Test
+
+on:
+  issue_comment:
+    types: [created]
+
+# Only run when a PR comment contains /sim-test
+jobs:
+  check-trigger:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/sim-test')
+    outputs:
+      pr_number: ${{ github.event.issue.number }}
+      comment_id: ${{ github.event.comment.id }}
+    steps:
+      - name: Acknowledge trigger
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'eyes',
+            });
+
+  sim-test:
+    needs: check-trigger
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/tenstorrent/tt-lang/tt-lang-dist-ubuntu-22-04:latest
+    env:
+      SIM_TIMEOUT: "60"
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ needs.check-trigger.outputs.pr_number }}/head
+
+      - name: Install ttlang-sim-lite test dependencies
+        run: pip install --quiet greenlet numpy pydantic
+
+      - name: Extract code block from comment
+        id: extract
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const body = context.payload.comment.body;
+            // Match first ```python ... ``` block after /sim-test
+            const m = body.match(/```python\s*\n([\s\S]*?)```/);
+            if (!m) {
+              core.setFailed('No ```python code block found in the comment after /sim-test');
+              return '';
+            }
+            return m[1];
+
+      - name: Write extracted code to file
+        run: |
+          cat << 'PYEOF' > /tmp/sim_test_code.py
+          ${{ steps.extract.outputs.result }}
+          PYEOF
+
+      - name: Run ttlang-sim
+        id: run_sim
+        run: |
+          set +e
+          timeout "$SIM_TIMEOUT" ttlang-sim /tmp/sim_test_code.py > /tmp/sim_stdout.txt 2> /tmp/sim_stderr.txt
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          cat /tmp/sim_stdout.txt
+          cat /tmp/sim_stderr.txt >&2
+          set -e
+
+      - name: Post results as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const stdout = fs.readFileSync('/tmp/sim_stdout.txt', 'utf8').trim();
+            const stderr = fs.readFileSync('/tmp/sim_stderr.txt', 'utf8').trim();
+            const exitCode = '${{ steps.run_sim.outputs.exit_code }}';
+            const passed = exitCode === '0';
+
+            const icon = passed ? '✅' : '❌';
+            const heading = passed ? 'Simulator test passed' : 'Simulator test failed';
+
+            let body = `${icon} **${heading}** (exit code: ${exitCode})\n\n`;
+
+            if (stdout) {
+              body += `<details open>\n<summary>stdout</summary>\n\n\`\`\`\n${stdout}\n\`\`\`\n</details>\n\n`;
+            }
+            if (stderr) {
+              body += `<details>\n<summary>stderr</summary>\n\n\`\`\`\n${stderr}\n\`\`\`\n</details>\n`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ needs.check-trigger.outputs.pr_number }},
+              body,
+            });
+
+            // Add reaction to original /sim-test comment
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: ${{ needs.check-trigger.outputs.comment_id }},
+              content: passed ? '+1' : '-1',
+            });
+
+            if (!passed) {
+              core.setFailed(`Simulator test exited with code ${exitCode}`);
+            }
