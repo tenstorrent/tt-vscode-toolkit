@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.0.400",
+  "version": "0.4.0",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -78,6 +78,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show lessons that haven't been validated on hardware yet. When enabled (default), all lessons including draft and blocked lessons are displayed. Disable to show only validated lessons in production builds."
+        },
+        "tenstorrent.simulatorApiUrl": {
+          "type": "string",
+          "default": "",
+          "description": "WebSocket URL of the TT Simulator API server (e.g. ws://localhost:8080/execute). When set, the 'Run in Cloud Simulator' command streams output from this server instead of running locally."
         }
       }
     },
@@ -86,6 +91,18 @@
         "command": "tenstorrent.showLesson",
         "title": "Show Lesson",
         "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.showTensixViz",
+        "title": "Open Tensix Visualizer",
+        "category": "Tenstorrent",
+        "icon": "$(circuit-board)"
+      },
+      {
+        "command": "tenstorrent.runInCloudSimulator",
+        "title": "Run in Cloud Simulator",
+        "category": "Tenstorrent",
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "tenstorrent.refreshLessons",
@@ -668,6 +685,11 @@
       {
         "command": "tenstorrent.runDungeonMaster",
         "title": "Run Dungeon Master (Demo 4)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runStoryboardPipeline",
+        "title": "Run Storyboard Pipeline (Demo 5)",
         "category": "Tenstorrent"
       }
     ]

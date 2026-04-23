@@ -84,8 +84,11 @@ describe('Markdown Validation Tests', () => {
                 // This is acceptable but not ideal - could be improved
                 // Not failing the test, just noting it
               } else {
-                // Verify it's a valid language specifier (alphanumeric, dash, underscore)
-                expect(remainder, `${file}:${lineNumber} - Invalid language specifier: '${remainder}'`).to.match(/^[a-zA-Z0-9_-]+$/);
+                // Verify it's a valid language specifier (alphanumeric, dash, underscore).
+                // Some blocks include parameters after the language (e.g. `tensix_viz arch=wormhole`);
+                // validate only the first token so parameters don't trip the pattern check.
+                const lang = remainder.split(/\s+/)[0];
+                expect(lang, `${file}:${lineNumber} - Invalid language specifier: '${remainder}'`).to.match(/^[a-zA-Z0-9_-]+$/);
               }
 
               inCodeBlock = true;

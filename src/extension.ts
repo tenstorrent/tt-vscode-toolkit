@@ -17,6 +17,7 @@
 
 import * as vscode from 'vscode';
 import { TERMINAL_COMMANDS, replaceVariables } from './commands/terminalCommands';
+import { registerVizCommands } from './commands/vizCommands';
 
 // Configuration imports
 import { getModelConfig, getModelBasePath, getModelOriginalPath, DEFAULT_MODEL_KEY } from './config';
@@ -57,6 +58,52 @@ const STATE_KEYS = {
 
 
 let commandMenuStatusBarItem: vscode.StatusBarItem | undefined;
+
+// ── Execution context detection ───────────────────────────────────────────────
+
+type ExecContext = 'hardware' | 'devcontainer-sim' | 'none';
+
+/**
+ * Determine whether the extension is running in a tt-lang dev container
+ * (simulator-only mode) or in a normal environment that may have hardware.
+ *
+ * The 'devcontainer-sim' context is detected by the presence of the
+ * ttlang toolchain (/opt/ttlang-toolchain) combined with a container
+ * indicator env var, OR by the explicit TTLANG_SIM_ONLY=1 override.
+ */
+function detectExecutionContext(): ExecContext {
+  const fs = require('fs') as typeof import('fs');
+  const inContainer = !!(
+    process.env.REMOTE_CONTAINERS ||
+    process.env.CODESPACES ||
+    process.env.CONTAINER_ID
+  );
+  const hasSimToolchain =
+    fs.existsSync('/opt/ttlang-toolchain') ||
+    process.env.TTLANG_SIM_ONLY === '1';
+  if (inContainer && hasSimToolchain) return 'devcontainer-sim';
+  return 'none';
+}
+
+/** Cached result — context does not change during a session. */
+let _cachedExecCtx: ExecContext | null = null;
+function getExecContext(): ExecContext {
+  if (_cachedExecCtx === null) _cachedExecCtx = detectExecutionContext();
+  return _cachedExecCtx;
+}
+
+/**
+ * Show an info message when a hardware-only command is invoked in simulator mode.
+ * Returns true if the caller should abort (i.e. we are in sim mode).
+ */
+async function guardHardwareOnly(featureName: string): Promise<boolean> {
+  if (getExecContext() !== 'devcontainer-sim') return false;
+  await vscode.window.showInformationMessage(
+    `${featureName} requires Tenstorrent hardware and is not available in simulator mode.`,
+    { modal: false }
+  );
+  return true;
+}
 
 /**
  * Global EnvironmentManager for tracking Python environments per terminal
@@ -375,7 +422,8 @@ function testMetaliumContainer(): void {
  * Runs the tt-smi command to detect and display connected Tenstorrent devices.
  * This is Step 1 in the walkthrough.
  */
-function runHardwareDetection(): void {
+async function runHardwareDetection(): Promise<void> {
+  if (await guardHardwareOnly('Hardware detection (tt-smi)')) return;
   const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.TT_SMI.template;
 
@@ -1474,6 +1522,7 @@ function installVllm(): void {
  * Creates a custom starter script that registers TT models and uses local model path.
  */
 async function startVllmServer(): Promise<void> {
+  if (await guardHardwareOnly('vLLM server')) return;
   const path = await import('path');
   const fs = await import('fs');
   const os = await import('os');
@@ -4254,6 +4303,18 @@ function runDungeonMaster(): void {
   );
 }
 
+/**
+ * Command: tenstorrent.runStoryboardPipeline
+ * Runs Demo 5: two-stage CrewAI + smolagents pipeline demonstrating model lifecycle.
+ */
+function runStoryboardPipeline(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_STORYBOARD_PIPELINE.template);
+  vscode.window.showInformationMessage(
+    'Starting storyboard pipeline (--simulate). Remove --simulate to run full server lifecycle.'
+  );
+}
+
 // ============================================================================
 // Command Menu
 // ============================================================================
@@ -4617,6 +4678,122 @@ class TenstorrentImagePreviewProvider implements vscode.WebviewViewProvider {
 }
 
 // ============================================================================
+// Cloud Simulator Command
+// ============================================================================
+
+/**
+ * Connects to the configured TT Simulator API WebSocket server and streams
+ * execution output to a dedicated "TT Simulator" Output Channel.
+ *
+ * The user is prompted for code to run (defaulting to the active editor
+ * selection or full file). The WebSocket URL comes from the
+ * `tenstorrent.simulatorApiUrl` workspace setting.
+ */
+async function runInCloudSimulator(): Promise<void> {
+  const config = vscode.workspace.getConfiguration('tenstorrent');
+  const apiUrl = config.get<string>('simulatorApiUrl', '').trim();
+
+  if (!apiUrl) {
+    const action = await vscode.window.showWarningMessage(
+      'No TT Simulator API URL configured. Set tenstorrent.simulatorApiUrl in your settings.',
+      'Open Settings'
+    );
+    if (action === 'Open Settings') {
+      vscode.commands.executeCommand(
+        'workbench.action.openSettings',
+        'tenstorrent.simulatorApiUrl'
+      );
+    }
+    return;
+  }
+
+  // Resolve WS endpoint
+  const wsUrl = apiUrl.endsWith('/execute')
+    ? apiUrl
+    : apiUrl.replace(/\/?$/, '/execute');
+
+  // Gather code from active editor (selection → full file) or prompt user
+  let code = '';
+  const editor = vscode.window.activeTextEditor;
+  if (editor) {
+    const sel = editor.selection;
+    code = sel.isEmpty
+      ? editor.document.getText()
+      : editor.document.getText(sel);
+  }
+
+  if (!code.trim()) {
+    const input = await vscode.window.showInputBox({
+      prompt: 'Paste Python code to run on the cloud simulator',
+      placeHolder: 'print("hello from the simulator")',
+    });
+    if (!input) return;
+    code = input;
+  }
+
+  // Backend picker
+  const backendPick = await vscode.window.showQuickPick(
+    [
+      { label: 'ttlang-sim', description: 'Pure Python Tensix simulator' },
+      { label: 'ttsim-wh', description: 'Wormhole hardware emulation binary' },
+      { label: 'ttsim-bh', description: 'Blackhole hardware emulation binary' },
+    ],
+    { title: 'Select simulator backend', placeHolder: 'ttlang-sim' }
+  );
+  if (!backendPick) return;
+  const backend = backendPick.label;
+
+  // Output channel (persistent, reused across calls)
+  const channel = vscode.window.createOutputChannel('TT Simulator');
+  channel.show(true);
+  channel.appendLine(`--- Running on ${backend} via ${wsUrl} ---`);
+
+  // Use the ws package dynamically. In the extension host Node.js environment,
+  // ws is available as a transitive dependency of vscode-languageclient.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let WsClass: any;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    WsClass = require('ws');
+  } catch {
+    vscode.window.showErrorMessage(
+      'Could not load the ws WebSocket module. The TT Simulator command requires the ws package.'
+    );
+    return;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ws: any = new WsClass(wsUrl);
+
+  ws.on('open', () => {
+    ws.send(JSON.stringify({ code, backend, timeout: 30 }));
+  });
+
+  ws.on('message', (raw: Buffer | string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let msg: any;
+    try {
+      msg = JSON.parse(raw.toString());
+    } catch {
+      return;
+    }
+    if (msg.type === 'stdout' || msg.type === 'stderr' || msg.type === 'error') {
+      channel.append(msg.data ?? '');
+    } else if (msg.type === 'exit') {
+      channel.appendLine(`\n--- exit code ${msg.code} ---`);
+      ws.close();
+    }
+  });
+
+  ws.on('error', (err: Error) => {
+    channel.appendLine(`\n[WebSocket error] ${err.message}`);
+    vscode.window.showErrorMessage(
+      `TT Simulator connection failed: ${err.message}`
+    );
+  });
+}
+
+// ============================================================================
 // Extension Lifecycle
 // ============================================================================
 
@@ -4968,10 +5145,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runCodeExplorer', runCodeExplorer),
     vscode.commands.registerCommand('tenstorrent.runWritingPipeline', runWritingPipeline),
     vscode.commands.registerCommand('tenstorrent.runDungeonMaster', runDungeonMaster),
+    vscode.commands.registerCommand('tenstorrent.runStoryboardPipeline', runStoryboardPipeline),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),
     vscode.commands.registerCommand('tenstorrent.copyBountyChecklist', copyBountyChecklist),
+
+    // Cloud Simulator
+    vscode.commands.registerCommand('tenstorrent.runInCloudSimulator', runInCloudSimulator),
 
     // Device Management
     vscode.commands.registerCommand('tenstorrent.resetDevice', resetDevice),
@@ -5000,14 +5181,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Add all command registrations to subscriptions for proper cleanup
   context.subscriptions.push(...commands);
 
+  // Tensix Grid Visualizer commands
+  registerVizCommands(context);
+
   // Initialize command menu statusbar item (left side, high priority)
   commandMenuStatusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,
     1000 // High priority = far left
   );
 
-  commandMenuStatusBarItem.text = '$(circuit-board) Tenstorrent';
-  commandMenuStatusBarItem.tooltip = 'Tenstorrent Commands';
+  const execCtx = detectExecutionContext();
+  if (execCtx === 'devcontainer-sim') {
+    commandMenuStatusBarItem.text = '$(beaker) Tenstorrent [Simulator]';
+    commandMenuStatusBarItem.tooltip =
+      'Running in simulator mode (ttlang-sim dev container). No hardware required.';
+    commandMenuStatusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+  } else {
+    commandMenuStatusBarItem.text = '$(circuit-board) Tenstorrent';
+    commandMenuStatusBarItem.tooltip = 'Tenstorrent Commands';
+  }
   commandMenuStatusBarItem.command = 'tenstorrent.showCommandMenu';
   commandMenuStatusBarItem.show();
 

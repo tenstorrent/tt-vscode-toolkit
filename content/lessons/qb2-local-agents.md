@@ -880,6 +880,191 @@ The Dungeon Master is the smallest possible version of all of these. Once you un
 
 ---
 
+## Demo 5: Storyboard to Pixel Art Pipeline
+
+**Frameworks:** CrewAI (Stage 1) + smolagents ToolCallingAgent (Stage 2) | **~280 lines** | **Models:** Llama-3.3-70B → Qwen3-32B
+
+[Run Storyboard Pipeline](command:tenstorrent.runStoryboardPipeline)
+
+> The VSCode button runs with `--simulate` so it works even when your QB2 is busy. Remove that flag when you want to see the full server lifecycle.
+
+This demo shows what none of the others do: **the multi-model lifecycle**. Different tasks benefit from different model sizes. The storyboard stage needs the 70B's narrative creativity — it's inventing visual language, palette, and scene-by-scene descriptions from scratch. The prompt engineering stage needs precise, structured output (JSON tool calls against a known schema) — the 32B handles that reliably and twice as fast.
+
+What the pipeline teaches:
+
+1. **Model selection by task** — choose the right size for the right job, not the same model for everything
+2. **Server lifecycle from Python** — `docker stop` → `tt-smi -r` → `run.py` — all as managed subprocesses
+3. **`tt-smi -r` as a required step** — loading a second model without resetting chips causes hardware faults; the script explains why inline
+4. **JSON artifact handoff** — `storyboard.json` is the bridge between two entirely separate model invocations
+5. **Chip targeting** — `--device-id 0,1` and `--device-id 2,3` shown in the dual-server launch commands
+
+### Pipeline Architecture
+
+```
+[User picks theme]
+        │
+        ▼
+┌─────────────────────────────┐
+│  Stage 1: Storyboard         │  CrewAI, 3 agents, Llama-3.3-70B
+│  ConceptDirector             │  → visual concept + named palette
+│  StoryboardWriter            │  → 4-6 scene descriptions
+│  ArtDirector                 │  → pixel art constraints per scene
+└────────────┬────────────────┘
+             │ saves storyboard.json
+             ▼
+┌─────────────────────────────┐
+│  Model Switch               │  orchestrator (stdlib only)
+│  docker stop <container>    │
+│  tt-smi -r                  │  ← required between model loads
+│  run.py --model Qwen3-32B   │
+└────────────┬────────────────┘
+             │
+             ▼
+┌─────────────────────────────┐
+│  Stage 2: Prompt Engineering │  smolagents ToolCallingAgent, Qwen3-32B
+│  refine_scene_prompt         │  → structured pixel art prompt per scene
+│  check_palette_consistency   │  → palette coherence check across all scenes
+└────────────┬────────────────┘
+             │ saves pixelart_prompts.json
+             ▼
+        [pipeline_summary.txt — timing + all prompts]
+```
+
+### Running It
+
+```bash
+# --simulate: shows all server commands but doesn't run them
+# Works with whatever model is currently loaded — good for trying the pipeline
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --simulate
+
+# Full lifecycle: Stage 1 on 70B, switch to 32B, Stage 2
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py
+
+# Pick your own theme
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --theme "haunted lighthouse"
+
+# One model for both stages (faster iteration)
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model
+
+# Dual-server: run both models simultaneously on separate chip pairs
+# Stage 1 → port 8000 (chips 0,1)  |  Stage 2 → port 8001 (chips 2,3)
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --dual-server
+```
+
+### What Gets Produced
+
+```bash
+storyboard.json         # Scene descriptions, palette, constraints (Stage 1 output)
+pixelart_prompts.json   # Final prompts per scene (Stage 2 output)
+pipeline_summary.txt    # Human-readable run log with timing per stage
+```
+
+Sample `storyboard.json` (from theme "a Game Boy with a cracked screen still running Tetris, battery low"):
+
+```json
+{
+  "theme": "a Game Boy with a cracked screen still running Tetris, battery low",
+  "hardware_era": "Game Boy",
+  "palette": "Game Boy dark #0F380F, medium dark #306230, medium light #8BAC0F, lightest #9BBC0F",
+  "lighting": "cold CRT phosphor glow, no warm tones",
+  "technique": "dithered gradients, 2bpp tile constraints",
+  "scenes": [
+    {
+      "id": 1,
+      "title": "The Cracked Screen",
+      "description": "A close-up of scratched plastic casing, a hairline crack bisecting the screen diagonally. Tetris blocks still fall in the bottom half, unaware.",
+      "mood": "melancholy",
+      "pixel_constraints": "16x16 tiles, 4-shade green palette, no off-palette colors, crack rendered as 1-pixel dark line"
+    },
+    {
+      "id": 2,
+      "title": "Battery Warning",
+      "description": "The battery indicator blinks in the corner — one bar left. The play field dims slightly, the dithering pattern loosening at the edges.",
+      "mood": "anxious",
+      "pixel_constraints": "8x8 battery sprite, 2-color blink cycle, scanline fade on outer tiles"
+    }
+  ]
+}
+```
+
+### The Server Lifecycle in Code
+
+The model switch is the most instructive part — three operations, stdlib only:
+
+```python
+def switch_models(prompt_model: str, simulate: bool) -> None:
+    # 1. Stop the running container (finds it by name filter)
+    _stop_server(simulate=simulate)
+
+    # 2. Reset chip state — required between model loads
+    #    Without this: the second model may fail to initialize or corrupt chip state
+    _reset_chips(simulate=simulate)
+
+    # 3. Launch the new model as a background subprocess, then poll until ready
+    _start_server(prompt_model, port=8000, simulate=simulate)
+    if not simulate:
+        _wait_for_server(port=8000)   # polls /v1/models every 10s, up to 15 min
+```
+
+The `--simulate` flag prints all three commands without executing them — so you can see the full lifecycle without touching the hardware.
+
+### Dual-Server Mode
+
+With four chips (QB2 = two P300 cards), you can run both models simultaneously:
+
+```python
+# chips 0,1 → Llama-3.3-70B on port 8000
+# chips 2,3 → Qwen3-32B on port 8001
+_start_server(creative_model, port=8000, device_ids=[0, 1])
+_start_server(prompt_model, port=8001, device_ids=[2, 3])
+```
+
+Stage 1 hits port 8000, Stage 2 hits port 8001. No chip reset between stages — both models are loaded from the start and torn down together at the end. The tradeoff: startup takes longer (two models loading), but the inter-stage pause disappears entirely.
+
+### Advanced: CPU Orchestrator Mode
+
+There's a third option — and it's the most efficient when you only have one chip pair: run Stage 2 on a small Qwen3 model on the **host CPU** while Stage 1 occupies the TT hardware.
+
+```bash
+python3 05_storyboard_to_pixelart.py --cpu-orchestrator
+python3 05_storyboard_to_pixelart.py --cpu-orchestrator --cpu-model Qwen/Qwen3-1.7B
+```
+
+The `--cpu-orchestrator` flag:
+1. Launches `prompt_server.py` (from [tt-local-generator](https://github.com/tenstorrent/tt-local-generator)) as a background subprocess on port 8002
+2. Stage 1 runs on TT hardware (70B) as normal
+3. **No `docker stop`, no `tt-smi -r`, no restart** — Stage 2 hits the CPU server directly
+4. At the end, the CPU server subprocess is terminated
+
+The CPU model runs via HuggingFace `transformers` with `device_map="cpu"`:
+
+```python
+# From prompt_server.py — the pattern that makes this work
+_model = AutoModelForCausalLM.from_pretrained(
+    "Qwen/Qwen3-0.6B",
+    torch_dtype=torch.bfloat16,  # half-precision — fits in ~1.2 GB RAM
+    device_map="cpu",
+    trust_remote_code=True,
+)
+```
+
+**Why Qwen3-0.6B works for orchestration**: The prompt-engineering task is structured and repetitive — take a scene description, append style tags, check consistency. A 0.6B model at ~19 tok/s on a modern CPU handles this well. Stage 1 (open-ended narrative creativity across a whole storyboard) genuinely needs the 70B.
+
+**The trade-off**:
+- `--cpu-orchestrator`: zero chip downtime, but Stage 2 is slower (~4-8 min for 5 scenes vs. ~1-2 min on 32B)
+- Default model switch: 70B → 32B swap takes ~10-15 min (stop + reset + reload), then Stage 2 is fast
+- `--dual-server`: fastest inter-stage, but requires four chips
+
+| Mode | Chip downtime | Stage 2 speed | Hardware req |
+|------|---------------|---------------|--------------|
+| Default (switch) | ~10-15 min | Fast (32B on TT) | 2 chips |
+| `--cpu-orchestrator` | 0 | Slow (0.6B on CPU) | 2 chips |
+| `--dual-server` | 0 | Fast (32B on TT) | 4 chips |
+
+The CPU orchestrator is particularly useful when the hardware is already committed to another job, or when you want to keep a long-running creative model loaded and fire off prompt-engineering passes on demand.
+
+---
+
 ## Modify the Scripts
 
 The scripts in `~/tt-scratchpad/agents/` are your starting point for building real things.
@@ -1081,16 +1266,41 @@ pip install ddgs
 
 If you cloned an older version of tt-agents or built your own requirements.txt, make sure it lists `ddgs>=9.0.0` (not `duckduckgo-search`).
 
+### Storyboard pipeline Stage 1 produces invalid JSON
+
+The art director agent sometimes wraps its output in markdown code fences. The script strips these automatically, but if the model outputs narrative prose instead of JSON, a fallback storyboard is used with a single scene.
+
+```bash
+# Check what Stage 1 actually produced
+cat ~/code/tt-agents/storyboard.json
+
+# If it looks wrong, run with a more constrained theme
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --simulate \
+    --theme "knight vs dragon" --single-model
+```
+
+A narrower, more concrete theme gives the art director less room to wander.
+
+### `docker stop` fails in switch_models / `tt-smi -r` not found
+
+Both commands require Docker and tt-smi to be installed and accessible. In `--simulate` mode, neither is called — the commands are only printed. If you see errors running without `--simulate`, verify:
+
+```bash
+which docker && docker ps   # Docker must be running
+which tt-smi && tt-smi -s   # tt-smi must be on PATH
+```
+
 ---
 
 ## What You've Built
 
-You've run four different agentic patterns against your QB2's local inference endpoint:
+You've run five different agentic patterns against your QB2's local inference endpoint:
 
 - ✅ **Research synthesis** — multi-hop web search with cited output (smolagents CodeAgent)
 - ✅ **Codebase Q&A** — file navigation and code comprehension (OpenAI Agents SDK)
 - ✅ **Multi-role pipeline** — specialized agents handing off to each other (CrewAI)
 - ✅ **Stateful interactivity** — tool-grounded persistent world state (smolagents ToolCallingAgent)
+- ✅ **Multi-model lifecycle** — model selection by task, server lifecycle, JSON artifact handoff (CrewAI + smolagents)
 
 More importantly, you've seen the three things that make these patterns work:
 
@@ -1098,7 +1308,7 @@ More importantly, you've seen the three things that make these patterns work:
 2. **Large context** — vLLM defaults to 32K tokens in this config, which is enough for multi-turn sessions and full research loops; bump `max_model_len` in the server config for longer sessions
 3. **Local inference** that lets you iterate without API bills, rate limits, or data leaving your machine
 
-The scripts are short on purpose. Each one is a skeleton you can grow. The code explorer becomes your codebase assistant. The writing pipeline becomes your documentation tool. The dungeon master becomes your customer service bot or personal task tracker. The research agent becomes the thing that briefs you before every meeting.
+The scripts are short on purpose. Each one is a skeleton you can grow. The code explorer becomes your codebase assistant. The writing pipeline becomes your documentation tool. The dungeon master becomes your customer service bot or personal task tracker. The research agent becomes the thing that briefs you before every meeting. The storyboard pipeline becomes any multi-model workflow where different tasks genuinely need different model sizes.
 
 ---
 

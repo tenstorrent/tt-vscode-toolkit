@@ -813,6 +813,13 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'python3 ~/code/tt-agents/04_dungeon_master.py',
     description: 'Runs Demo 4: smolagents ToolCallingAgent persistent-world dungeon master with generative tools',
   },
+
+  RUN_STORYBOARD_PIPELINE: {
+    id: 'run-storyboard-pipeline',
+    name: 'Run Storyboard Pipeline (Demo 5)',
+    template: 'python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --simulate',
+    description: 'Runs Demo 5: two-stage CrewAI + smolagents pipeline demonstrating model lifecycle — storyboard (70B) → pixel art prompts (32B)',
+  },
 };
 
 /**
