@@ -399,7 +399,7 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
     const safeId   = escapeAttr(commandId);
     const safeText = escapeHtml(cmdText);
     // VS Code badge links to the extension on the Marketplace
-    const mktUrl   = 'https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tenstorrent-toolkit';
+    const mktUrl   = 'https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit';
     return `<div class="tt-web-command" data-command="${safeId}">` +
            `<div class="tt-web-command-header">` +
            `<span class="tt-web-command-label">${escapeHtml(text)}</span>` +
