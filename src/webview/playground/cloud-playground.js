@@ -183,20 +183,41 @@ print("PASSED")
             fetch(healthUrl, { signal: AbortSignal.timeout(5000) })
                 .then(r => r.json())
                 .then(data => {
-                    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    const backends = Object.entries(data.backends || {})
+                    const okBackends = Object.entries(data.backends || {})
                         .filter(([, ok]) => ok)
-                        .map(([b]) => `<code>${esc(b)}</code>`)
-                        .join(', ');
-                    this._noticeEl.innerHTML =
-                        `<span class="tt-pg-notice-ok">✓ Cloud simulator connected. Available: ${backends || 'none'}</span>`;
+                        .map(([b]) => b);
+                    const span = document.createElement('span');
+                    span.className = 'tt-pg-notice-ok';
+                    span.appendChild(document.createTextNode('✓ Cloud simulator connected. Available: '));
+                    if (okBackends.length === 0) {
+                        span.appendChild(document.createTextNode('none'));
+                    } else {
+                        okBackends.forEach((b, i) => {
+                            const code = document.createElement('code');
+                            code.textContent = b;
+                            span.appendChild(code);
+                            if (i < okBackends.length - 1) {
+                                span.appendChild(document.createTextNode(', '));
+                            }
+                        });
+                    }
+                    this._noticeEl.textContent = '';
+                    this._noticeEl.appendChild(span);
                 })
                 .catch(() => {
-                    this._noticeEl.innerHTML = `
-<span class="tt-pg-notice-warn">
-  ⚠ Cloud simulator unreachable at <code>${CLOUD_API_URL}</code>.
-  <a href="#pyodide-playground">Use the local Pyodide playground instead.</a>
-</span>`;
+                    const span = document.createElement('span');
+                    span.className = 'tt-pg-notice-warn';
+                    span.appendChild(document.createTextNode('⚠ Cloud simulator unreachable at '));
+                    const code = document.createElement('code');
+                    code.textContent = CLOUD_API_URL;
+                    span.appendChild(code);
+                    span.appendChild(document.createTextNode('. '));
+                    const link = document.createElement('a');
+                    link.href = '#pyodide-playground';
+                    link.textContent = 'Use the local Pyodide playground instead.';
+                    span.appendChild(link);
+                    this._noticeEl.textContent = '';
+                    this._noticeEl.appendChild(span);
                     this._runBtn.disabled = true;
                 });
         }

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.404] - 2026-04-24
+
+### Fixed
+
+- **`src/webview/playground/cloud-playground.js`** — replaced `innerHTML` + manual `esc()` helper in the health-check notice block with DOM `createElement`/`textContent`/`appendChild` calls, eliminating the XSS surface entirely and resolving Cycode re-scan findings after v0.0.403.
+
+---
+
 ## [0.0.403] - 2026-04-24
 
 ### Fixed
