@@ -95,6 +95,46 @@
 
 .install-dl-btn svg { flex-shrink: 0; }
 
+.install-mkt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--tt-primary);
+  color: #0a1420;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.install-mkt-btn:hover {
+  background: var(--tt-primary-light);
+  transform: translateY(-1px);
+}
+.install-mkt-btn svg { flex-shrink: 0; }
+
+.install-dl-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--tt-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--tt-primary);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.install-dl-btn-secondary:hover {
+  background: rgba(79, 209, 197, 0.08);
+}
+.install-dl-btn-secondary svg { flex-shrink: 0; }
+
 .install-version-badge {
   display: inline-block;
   padding: 0.3rem 0.75rem;
@@ -585,13 +625,21 @@
       </p>
 
       <div class="install-cta">
+        <a class="install-mkt-btn"
+           href="https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit"
+           target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H9zM9 9h5v5H9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          Install from VS Code Marketplace
+        </a>
         <a id="download-btn"
-           class="install-dl-btn"
+           class="install-dl-btn-secondary"
            href="https://github.com/tenstorrent/tt-vscode-toolkit/releases/latest">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Download latest .vsix
+          Download .vsix
         </a>
         <a href="/lessons/" class="install-browse-btn">
           Browse Lessons — no hardware needed →
@@ -601,7 +649,7 @@
 
       <p class="install-cli-note">
         Or via terminal:
-        <code>gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix' &amp;&amp; code --install-extension tt-vscode-toolkit-*.vsix</code>
+        <code>code --install-extension Tenstorrent.tt-vscode-toolkit</code>
       </p>
 
       <div class="install-secondary-links">
