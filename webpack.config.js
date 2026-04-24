@@ -13,6 +13,7 @@ const config = {
   },
   externals: {
     vscode: 'commonjs vscode',   // The vscode module is provided by VSCode at runtime
+    ws: 'commonjs ws',           // ws is a transitive dep of vscode-languageclient; available at runtime
   },
   resolve: {
     extensions: ['.ts', '.js'],
