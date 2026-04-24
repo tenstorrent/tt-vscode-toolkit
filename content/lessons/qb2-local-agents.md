@@ -30,23 +30,25 @@ You have a QuietBox 2. You're probably using it to chat with a 70B model and thi
 
 The interesting part is that you now have the hardware to run **AI agents that actually work** — systems that search the web, read files, hand tasks between specialized roles, and maintain state across a full session. These patterns fall apart at 7B. They come together at 32B. They shine at 70B.
 
-This lesson is the raw-Python antidote to the OpenClaw lesson. No frameworks to configure, no services to restart, no JSON files to edit. Five scripts. `pip install`. `python3 run.py`. You see every tool call, every step, every decision the model makes.
+This lesson is the raw-Python antidote to the OpenClaw lesson. No frameworks to configure, no services to restart, no JSON files to edit. Seven scripts. `pip install`. `python3 run.py`. You see every tool call, every step, every decision the model makes.
 
 ---
 
 ## What You'll Build
 
-Five standalone demos that grow from simple to sophisticated:
+Seven scripts that grow from single tool calls to multi-model pipelines:
 
 ```
-00_verify_tools.py    ── Confirm inference + tool calling work (run this first)
-01_research_agent.py  ── Web search + synthesis via smolagents (60 lines)
-02_code_explorer.py   ── Codebase Q&A via OpenAI Agents SDK (80 lines)
-03_writing_pipeline.py── Researcher → Writer → Editor via CrewAI (100 lines)
-04_dungeon_master.py  ── Stateful interactive agent via smolagents (120 lines)
+00_verify_tools.py         ── Confirm inference + tool calling work (run this first)
+01_research_agent.py       ── Web search + synthesis via smolagents (60 lines)
+02_code_explorer.py        ── Codebase Q&A via OpenAI Agents SDK (80 lines)
+03_writing_pipeline.py     ── Researcher → Writer → Editor via CrewAI (100 lines)
+04_dungeon_master.py       ── Stateful interactive agent via smolagents (120 lines)
+05_storyboard_to_pixelart.py ── Two-stage storyboard pipeline: CrewAI + smolagents (280 lines)
+06_landscape_svg.py        ── Parameterized generative landscape SVG, no framework (120 lines)
 ```
 
-Each demo uses a different framework to show you the landscape. By the end you'll know which framework to reach for and why, and you'll have a foundation to build real things on top of.
+Each script uses a different pattern — from single-call structured generation to multi-model lifecycle management. By the end you'll know which approach to reach for and why.
 
 ---
 
@@ -81,6 +83,9 @@ A 3-step loop with 7B succeeds barely half the time. The same loop with 32B work
 | Code explorer (3 hops) | ~1–2 min | Qwen3-32B or Llama-3.3-70B |
 | Writing pipeline (3 agents) | ~5–15 min | Qwen3-32B |
 | DM response (per turn) | ~10–16 s | Llama-3.3-70B (recommended) |
+| Storyboard pipeline (--single-model) | ~8–20 min | Qwen3-32B or Llama-3.3-70B |
+| Storyboard pipeline (full switch) | ~25–45 min | 70B → 32B (includes ~10–15 min switch) |
+| Landscape SVG (single call) | ~30–60 s | Qwen3-32B or Llama-3.3-70B |
 
 ---
 
@@ -1268,11 +1273,12 @@ print(asyncio.run(Runner.run(agent, "Summarize ~/code/tt-agents/README.md")).fin
 | **smolagents ToolCallingAgent** | Stateful/interactive agents | JSON tool calls — more auditable, better for interactive sessions |
 | **OpenAI Agents SDK** | Production tools, async | Explicit JSON schemas via `@function_tool`, async-first, close to the metal |
 | **CrewAI** | Multi-role pipelines | Role-based orchestration — the cleanest pattern for Researcher → Writer → Editor flows |
+| **Direct OpenAI client** | Single structured generation | No framework needed — prompt in, structured output out; use when there's nothing to orchestrate |
 
 **Which model?**
 
 - Qwen3-32B: 8 s/response, reliable tool calling, `hermes` parser — use for everything except narrative tasks
-- Llama-3.3-70B: 14 s/response, better reasoning depth, `llama3_json` parser — use when output quality matters more than speed (writing pipeline, dungeon master, complex code review)
+- Llama-3.3-70B: 14 s/response, better reasoning depth, `llama3_json` parser — use when output quality matters more than speed (writing pipeline, dungeon master, storyboard Stage 1)
 
 ---
 
@@ -1382,13 +1388,15 @@ which tt-smi && tt-smi -s   # tt-smi must be on PATH
 
 ## What You've Built
 
-You've run five different agentic patterns against your QB2's local inference endpoint:
+You've run seven different patterns against your QB2's local inference endpoint:
 
 - ✅ **Research synthesis** — multi-hop web search with cited output (smolagents CodeAgent)
 - ✅ **Codebase Q&A** — file navigation and code comprehension (OpenAI Agents SDK)
 - ✅ **Multi-role pipeline** — specialized agents handing off to each other (CrewAI)
 - ✅ **Stateful interactivity** — tool-grounded persistent world state (smolagents ToolCallingAgent)
 - ✅ **Multi-model lifecycle** — model selection by task, server lifecycle, JSON artifact handoff (CrewAI + smolagents)
+- ✅ **Structured creative generation** — SVG storyboard panels assembled into a browsable HTML document
+- ✅ **Parameterized generation** — CLI flags shape a single structured prompt; the model fills in the geometry (no framework)
 
 More importantly, you've seen the three things that make these patterns work:
 
@@ -1396,7 +1404,7 @@ More importantly, you've seen the three things that make these patterns work:
 2. **Large context** — vLLM defaults to 32K tokens in this config, which is enough for multi-turn sessions and full research loops; bump `max_model_len` in the server config for longer sessions
 3. **Local inference** that lets you iterate without API bills, rate limits, or data leaving your machine
 
-The scripts are short on purpose. Each one is a skeleton you can grow. The code explorer becomes your codebase assistant. The writing pipeline becomes your documentation tool. The dungeon master becomes your customer service bot or personal task tracker. The research agent becomes the thing that briefs you before every meeting. The storyboard pipeline becomes any multi-model workflow where different tasks genuinely need different model sizes.
+The scripts are short on purpose. Each one is a skeleton you can grow. The code explorer becomes your codebase assistant. The writing pipeline becomes your documentation tool. The dungeon master becomes your customer service bot or personal task tracker. The research agent becomes the thing that briefs you before every meeting. The storyboard pipeline becomes any multi-model workflow where different tasks genuinely need different model sizes. The landscape generator becomes any tool where structured prompting replaces a framework — data visualizations, diagrams, reports, config files.
 
 ---
 
