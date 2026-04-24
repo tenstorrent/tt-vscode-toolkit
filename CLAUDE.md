@@ -234,7 +234,7 @@ See `LESSON_METADATA.md` for complete documentation.
 }
 ```
 
-**Hardware values:** `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`, `simulator`
+**Hardware values:** `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`, `sim`
 
 **Status values:**
 - `validated` - Tested and ready for production release

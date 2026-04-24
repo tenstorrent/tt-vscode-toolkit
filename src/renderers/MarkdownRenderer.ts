@@ -80,8 +80,8 @@ export class MarkdownRenderer {
             return code;
           }
 
-          // Skip mermaid blocks - they need special handling in custom renderer
-          if (lang === 'mermaid') {
+          // Skip mermaid and tensix_viz blocks — handled by custom renderer
+          if (lang === 'mermaid' || (lang && lang.startsWith('tensix_viz'))) {
             return code;
           }
 
@@ -96,7 +96,7 @@ export class MarkdownRenderer {
     // Configure marked v17 API with custom renderers for command buttons and images
     marked.use({
       renderer: {
-        // Custom code block renderer to handle mermaid diagrams
+        // Custom code block renderer to handle mermaid diagrams and tensix_viz
         code(token: any): string | false {
           const code = token.text;
           const lang = token.lang || '';
@@ -105,6 +105,39 @@ export class MarkdownRenderer {
           if (lang === 'mermaid') {
             // Escape HTML entities so browser doesn't try to parse mermaid syntax as HTML
             return `<pre class="mermaid">${self.escapeHtml(code)}</pre>\n`;
+          }
+
+          // Handle tensix_viz fences — emit same structure as build-web.js so
+          // tensix-viz.js autoInit() can find and wire up the canvas.
+          if (lang && lang.startsWith('tensix_viz')) {
+            const opts: Record<string, string> = {};
+            lang.replace(/(\w+)=(\S+)/g, (_: string, k: string, v: string) => { opts[k] = v; return ''; });
+            const arch = opts.arch || 'wormhole';
+            const archLabel = arch === 'blackhole'
+              ? 'Blackhole (P100/P150/P300c)'
+              : 'Wormhole (N150/N300/T3K)';
+
+            let scriptJson = '[]';
+            try { scriptJson = JSON.stringify(JSON.parse(code)); } catch (_) {}
+            const safeScript = scriptJson.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+            return `
+<div class="tensix-viz-wrapper">
+  <div class="tensix-viz-header">
+    <span class="tensix-viz-title">⬡ Tensix Grid Visualizer</span>
+    <span class="tensix-viz-arch-badge">${self.escapeHtml(archLabel)}</span>
+  </div>
+  <div class="tensix-viz-body">
+    <div class="tensix-viz-container" data-arch="${self.escapeHtml(arch)}" data-script="${safeScript}">
+      <canvas class="tensix-viz-canvas" width="520" height="320"></canvas>
+      <div class="tensix-viz-controls">
+        <button class="tv-play">▶</button>
+        <button class="tv-step">⏭</button>
+      </div>
+      <div class="tv-legend"></div>
+    </div>
+  </div>
+</div>`;
           }
 
           // Default behavior for other code blocks - let marked handle it
@@ -217,6 +250,7 @@ export class MarkdownRenderer {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat([
           'button', 'pre', 'div', 'span', 'details', 'summary',
           'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img',
+          'canvas',  // tensix-viz grid
         ]),
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
@@ -225,7 +259,7 @@ export class MarkdownRenderer {
           '*': ['class', 'id'],
           'details': ['class', 'style'],
           'summary': ['class', 'style'],
-          'div': ['class', 'style'],
+          'div': ['class', 'style', 'data-arch', 'data-script'],  // tensix-viz container attrs
           'span': ['class', 'style'],
           'td': ['class', 'style'],
           'th': ['class', 'style'],
@@ -234,6 +268,7 @@ export class MarkdownRenderer {
           'code': ['class'],
           'a': ['href', 'title', 'target'],
           'img': ['src', 'alt', 'title', 'loading'],
+          'canvas': ['class', 'width', 'height'],
         },
         // Allow vscode-webview / vscode-resource URI schemes used by webview.asWebviewUri()
         // in addition to the sanitize-html defaults (http, https, ftp, mailto, //)

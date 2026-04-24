@@ -7,6 +7,99 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.405] - 2026-04-24
+
+### Fixed
+
+- **`.github/workflows/sim-test.yml`** — extract-code step now slices the comment body at the `/sim-test` marker before matching the python fence, so code blocks that appear *before* the trigger in the same comment are not accidentally executed.
+- **`content/web/ttlang-sim-lite/test_sim_lite.py`** — changed `BASE` to point at the underscore (`ttlang_sim_lite/`) directory so the test exercises the Python-importable package rather than the hyphen-named mirror; both trees are now kept in sync.
+- **`content/web/ttlang_sim_lite/test_sim_lite.py`** — synced with the hyphen version: added `_run_kernel()` helper and `test_fused_mma_kernel` / `test_matmul_relu_kernel` test functions with corresponding run calls.
+
+---
+
+## [0.0.404] - 2026-04-24
+
+### Fixed
+
+- **`src/webview/playground/cloud-playground.js`** — replaced `innerHTML` + manual `esc()` helper in the health-check notice block with DOM `createElement`/`textContent`/`appendChild` calls, eliminating the XSS surface entirely and resolving Cycode re-scan findings after v0.0.403.
+
+---
+
+## [0.0.403] - 2026-04-24
+
+### Fixed
+
+- **`sim-test.yml`** — added `author_association` guard (MEMBER/OWNER/COLLABORATOR only) so arbitrary commenters cannot trigger CI code execution; addresses Copilot PR review finding.
+- **`content/web/ttlang_sim_lite/kernels/eltwise_add.py`** and **`matmul_1d.py`** (both sim-lite trees) — fixed grid/node axis swap: `grid_cols, grid_rows = grid_size(dims=2)` was backwards; corrected to `grid_rows, grid_cols`. Same for `node_col, node_row → node_row, node_col`. Silent on square grids but wrong for non-square partitioning.
+- **`content/templates/agents/04_dungeon_master.py`** — split combined `smolagents`+`rich` import block into separate `try/except` blocks so the error message correctly identifies which package is missing.
+- **`content/templates/agents/02_code_explorer.py`** — removed stray trailing `]` from context-length error message string.
+- **`src/webview/playground/cloud-playground.js`** — escape backend names from health-check API response before inserting into `innerHTML`.
+
+---
+
+## [0.0.402] - 2026-04-23
+
+### Changed
+
+- **CS Fundamentals lessons 01, 03, 04, 05** — all `tensix_viz` fences changed from `arch=wormhole` to `arch=blackhole` so the Blackhole chip layout renders by default.
+- **CS Fundamentals lesson 01** — replaced ASCII box art showing 5 RISC-V processors inside a Tensix core (BRISC, NCRISC, TRISC0/1/2 + L1 SRAM) with a mermaid `graph TD` diagram.
+- **CS Fundamentals lesson 02** — replaced ASCII memory hierarchy box (Registers → L1 SRAM → DRAM via NoC) with a mermaid `flowchart TD`; replaced two plain-text "Traditional CPU vs Tenstorrent" code blocks with a side-by-side mermaid `graph LR` comparison; replaced plain-text CPU and GPU memory spec blocks with markdown tables.
+- **CS Fundamentals lesson 04** — removed redundant ASCII topology art (Bus, Crossbar, Mesh) that preceded the existing mermaid diagram; replaced ASCII bandwidth-vs-size line chart with a mermaid `xychart-beta`.
+- **CS Fundamentals lesson 06** — replaced plain-text web-request-layer stack (7 steps with ↓ arrows) with a mermaid `flowchart TD`; replaced plain-text deep-learning framework stack with a mermaid `flowchart TD`.
+- **CS Fundamentals lesson 07** — replaced ASCII Tensix Core box diagram with a mermaid `flowchart TD`; converted ASCII Flash Attention summary box to a styled markdown blockquote.
+
+---
+
+## [0.0.401] - 2026-04-23
+
+### Added
+
+**Tensix Grid Visualizer (Phase 1)**
+- **`tensix-viz.js`** — Canvas-based animated chip grid renderer supporting Wormhole (8×8) and Blackhole (10×8) architectures. Step types: `highlight`, `transfer`, `heatmap`, `pause`, `label`. DPR-aware rendering for HiDPI/Retina screens; shadow-free drawing for 60fps in VSCode webviews. Auto-loops on completion with 600ms pause between cycles.
+- **`tensix-viz.css`** — TT-themed wrapper with header bar, arch badge, and play/step controls.
+- **`vizCommands.ts`** — VSCode command `tenstorrent.showTensixViz` opens a standalone Tensix Grid Visualizer panel with four built-in scenes (noc-routing, parallelism-scale, kernel-dispatch, single-core).
+- **`build-web.js` tensix_viz fence** — ` ```tensix_viz arch=wormhole ` fenced blocks in lesson markdown render to interactive canvas components on the GH Pages site.
+- **`LessonWebviewManager`** — injects `tensix-viz.js` and `tensix-viz.css` into lesson webview HTML so visualizers work inside VSCode.
+- **`MarkdownRenderer` sanitize-html allowlist** — extended to preserve `<canvas>` elements and `data-arch`/`data-script` attributes that `tensix-viz.js` requires for `autoInit()`.
+- **`lesson-web.js` autoInit** — wires up all `.tensix-viz-container` elements after page load in both the VSCode webview and the GH Pages browser.
+- **CS Fundamentals lessons** (01, 03, 04, 05) — added `tensix_viz` fence blocks illustrating computer architecture, parallelism, NOC routing, and synchronization concepts.
+
+**ttlang-sim-lite — numpy simulator fork (Phase 2)**
+- **`content/web/ttlang-sim-lite/`** — pure-Python, torch-free fork of `~/code/tt-lang/python/sim/`. All 25+ simulator modules ported with torch→numpy swap. Runs in Pyodide (Python-in-WebAssembly) for browser-side kernel execution.
+- **Kernels**: `eltwise_add.py`, `fused_mma.py` (3-thread DFB a·b+c), `matmul_relu.py` (k-reduction accumulator + fused ReLU), `matmul_1d.py` (row-partitioned matmul).
+- **Browser playground** (`src/webview/playground/`) — `pyodide-worker.js` (Pyodide Web Worker), `playground.js` (controller with kernel selector dropdown), `playground.css` (TT-themed UI), `sw.js` (service worker caching Pyodide + sim-lite for offline use).
+- **Cloud playground** (`cloud-playground.js`) — executes kernels over WebSocket to the simulator API; falls back gracefully when API is unreachable.
+- **`tt-lang-intro` lesson** — new lesson covering the Tensix thread model and eltwise_add kernel with browser playground.
+
+**Dev Container (Phase 3)**
+- **`.devcontainer/devcontainer.json`** — `tt-lang-dist-ubuntu-22-04` image with greenlet/numpy/pydantic post-create install and `/opt/ttlang-toolchain` marker.
+- **`detectExecutionContext()`** — detects `devcontainer-sim` mode via container env vars; status bar shows `$(beaker) Tenstorrent [Simulator]`; hardware-only commands gracefully skip execution in sim mode.
+
+**Cloud Execution API skeleton (Phase 4)**
+- **`src/sim-api/api_server.py`** — FastAPI + WebSocket server; `POST /execute` (sync) and `WS /execute` (streaming); backends: `ttlang-sim`, `ttsim-wh`, `ttsim-bh`; `X-API-Key` auth; 30s timeout; `/health` endpoint.
+- **`src/sim-api/Dockerfile` + `docker-compose.yml`** — production image and local dev compose.
+- **`sim-test` GitHub Actions workflow** — triggered by `/sim-test` PR comment; runs the first Python block via `ttlang-sim` and posts results as a PR comment.
+
+**Tests and tooling**
+- **`test/lesson-tests/tensix-viz.test.ts`** — 14 Mocha tests: fence HTML structure, arch variants, JSON payload preservation, sanitize-html allowlist, per-lesson fence body validation (480 total tests passing).
+- **`test_sim_lite.py`** — extended from 5 to 7 tests; new: `fused_mma` (3-thread DFB model) and `matmul_relu` (k-reduction accumulator) kernel tests.
+- **`scripts/check-sim-lite-drift.py`** — compares public API surface of ttlang-sim-lite fork against upstream `~/code/tt-lang/python/sim/`; reports new symbols, signature changes, and new module files. Run: `npm run check:sim-drift`.
+- **`scripts/check-vendor-drift.py`** — vendor repo freshness checker for tt-metal, tt-vllm, tt-inference-server, tt-forge-models, ttsim, tt-xla, tt-forge-onnx; shows commits-behind, changed Python API surface (with `--show-api`), and `model_spec.json` model catalog diffs. Run: `npm run check:vendor-drift`.
+- **`npm run check:sim-drift`**, **`check:vendor-drift`**, **`test:sim-lite`** scripts added.
+
+**Other**
+- **`install.html`** — added "Browse Lessons — no hardware needed →" CTA in hero; reorganized gallery into logical sections (videos, GIFs, fractals/signal); removed single-device particle life GIF in favor of multi-device version.
+- **`tensix-playground.md`** — standalone Tensix Grid Visualizer playground page for GH Pages.
+- **`scripts/serve-dev.py`** — local dev server for testing GH Pages output.
+
+### Fixed
+- **Float labels persisting across animation steps** — `_floatLabelData` now cleared in `reset()`, `_stepUnhighlight()`, and `_stepClear()`.
+- **Choppy unhighlight** — `_stepUnhighlight` now fades over 250ms via `requestAnimationFrame` instead of instant deletion.
+- **Blurry canvas on HiDPI / VSCode webviews** — canvas buffer scaled up by `devicePixelRatio`; layout math uses logical CSS-pixel coordinates via `_logicalW` / `_logicalH`.
+- **Shadow blur performance** — `_drawHighlight` replaced `ctx.shadowBlur` (128 ops/frame at 64 highlighted cores) with a simple bright border stroke.
+
+---
+
 ## [0.0.400] - 2026-04-21
 
 ### Fixed

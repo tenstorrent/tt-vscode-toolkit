@@ -36,6 +36,21 @@ BASE_URL = os.environ.get("VLLM_BASE_URL", "http://localhost:8000/v1")
 DEFAULT_MODEL = os.environ.get("VLLM_MODEL", "Qwen/Qwen3-32B")
 RESEARCH_FILE = Path(__file__).parent / "last_research.txt"
 
+
+def _partial_research(agent) -> str:
+    """Extract any usable text output from completed steps after a context error."""
+    from smolagents.memory import ActionStep
+    chunks = []
+    for step in agent.memory.steps:
+        if not isinstance(step, ActionStep):
+            continue
+        out = step.action_output
+        if out and isinstance(out, str) and len(out) > 80:
+            chunks.append(out.strip())
+    if not chunks:
+        return "[No usable partial output recovered — the session ran out of context before producing results.]"
+    return "\n\n---\n\n".join(chunks[-4:])
+
 SUGGESTIONS = [
     # Tech
     (
@@ -174,15 +189,29 @@ def main():
     print("-" * 70)
 
     agent = build_agent(args.model, verbose=not args.quiet)
-    result = agent.run(query)
+    try:
+        result = agent.run(query)
+        label = "FINAL RESULT"
+        footer = f"✓ Completed in {agent.step_number} steps"
+    except Exception as e:
+        if "maximum context length" not in str(e) and "context_length_exceeded" not in str(e):
+            raise
+        print("\n[Context limit reached — extracting partial research gathered so far...]")
+        result = _partial_research(agent)
+        label = f"PARTIAL RESULT (context limit reached after {agent.step_number} steps)"
+        footer = (
+            "Tips to avoid this:\n"
+            "  • Use a more specific --query (narrower topic, fewer sources needed)\n"
+            "  • Add --max-steps 4 to stop earlier with what's gathered\n"
+            "  • The partial result below was saved and can still feed 03_writing_pipeline.py"
+        )
 
     print("\n" + "=" * 70)
-    print("FINAL RESULT:")
+    print(label)
     print("=" * 70)
     print(result)
-    print(f"\n✓ Completed in {agent.step_number} steps")
+    print(f"\n{footer}")
 
-    # Save for the writing pipeline (03_writing_pipeline.py picks this up automatically)
     RESEARCH_FILE.write_text(f"Topic: {query}\n\n{result}")
     print(f"\n[Research saved → {RESEARCH_FILE.name}]")
     print("[Tip: run 03_writing_pipeline.py next to turn this into any format you choose]")

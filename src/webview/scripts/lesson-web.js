@@ -179,6 +179,30 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Sidebar: scroll active item into view                                *
+   * ------------------------------------------------------------------ */
+
+  function initSidebarActiveScroll() {
+    var sidebar = document.getElementById('tt-sidebar');
+    if (!sidebar) return;
+    var active = sidebar.querySelector('li.active');
+    if (!active) return;
+
+    // The sidebar header is sticky and sits above the scrollable content.
+    // Measure it so we don't scroll the active item underneath it.
+    var header = sidebar.querySelector('.sidebar-header');
+    var headerHeight = header ? header.offsetHeight : 0;
+
+    // Target: center the active item vertically in the remaining visible area.
+    var sidebarHeight = sidebar.clientHeight;
+    var itemTop  = active.offsetTop;       // relative to sidebar scroll origin
+    var itemMid  = itemTop + active.offsetHeight / 2;
+    var target   = itemMid - (sidebarHeight - headerHeight) / 2 - headerHeight;
+
+    sidebar.scrollTop = Math.max(0, target);
+  }
+
+  /* ------------------------------------------------------------------ *
    * Sidebar: mobile toggle                                               *
    * ------------------------------------------------------------------ */
 
@@ -263,6 +287,7 @@
     initCodeBlockCopyButtons();
     initHardwareFilter();
     initSidebarToggle();
+    initSidebarActiveScroll();
     initAnchorScroll();
     initMermaid();
   }

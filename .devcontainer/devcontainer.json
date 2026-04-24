@@ -1,0 +1,38 @@
+{
+  "name": "Tenstorrent tt-lang Simulator",
+  "image": "ghcr.io/tenstorrent/tt-lang/tt-lang-dist-ubuntu-22-04:latest",
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "tenstorrent.tt-vscode-toolkit",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "tamasfe.even-better-toml"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "remoteEnv": {
+    "TTLANG_SIM_ONLY": "1",
+    "PYTHONPATH": "/workspace"
+  },
+
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+  ],
+
+  "workspaceFolder": "/workspace",
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "forwardPorts": [8000, 8080]
+}

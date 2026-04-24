@@ -44,6 +44,20 @@ By the end of this module, you'll understand:
 
 ## Part 1: CS Theory - What is a Computer?
 
+```tensix_viz arch=blackhole
+[
+  { "step": "highlight", "cores": [[4,4]], "color": "tensixActive", "label": "Tensix core", "ms": 600 },
+  { "step": "pause", "ms": 700 },
+  { "step": "label", "core": [4,4], "text": "FDE" },
+  { "step": "transfer", "from": [4,4], "to": [4,5], "ms": 600 },
+  { "step": "transfer", "from": [4,5], "to": [4,4], "ms": 600 },
+  { "step": "pause", "ms": 500 },
+  { "step": "transfer", "from": [4,4], "to": [5,4], "ms": 600 },
+  { "step": "pause", "ms": 800 },
+  { "step": "clear" }
+]
+```
+
 ### The Von Neumann Architecture (1945)
 
 Every modern computer - your laptop, your phone, your GPU, this Tenstorrent chip - follows the same fundamental architecture proposed by John von Neumann in 1945:
@@ -169,27 +183,27 @@ Your framework hides the hardware... until it doesn't:
 
 A Tenstorrent Wormhole chip contains **176 Tensix cores**. Each Tensix contains **5 RISC-V processors**:
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│  Tensix Core (one of 176)                               │
-│                                                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │   BRISC      │  │   NCRISC     │  │   TRISC0     │  │
-│  │ (Data Move)  │  │ (Data Move)  │  │  (Unpack)    │  │
-│  │  RV32IM      │  │  RV32IM      │  │  RV32IM      │  │
-│  └──────────────┘  └──────────────┘  └──────────────┘  │
-│                                                          │
-│  ┌──────────────┐  ┌──────────────┐                     │
-│  │   TRISC1     │  │   TRISC2     │                     │
-│  │   (Math)     │  │   (Pack)     │                     │
-│  │   RV32IM     │  │   RV32IM     │                     │
-│  └──────────────┘  └──────────────┘                     │
-│                                                          │
-│  Shared: 1.5 MB L1 SRAM                                 │
-└─────────────────────────────────────────────────────────┘
-
-176 Tensix × 5 RISC-V cores = 880 processors
+```mermaid
+graph TD
+    subgraph TENSIX["Tensix Core (one of 176)"]
+        BRISC["BRISC\n(Data Move · RV32IM)"]
+        NCRISC["NCRISC\n(Data Move · RV32IM)"]
+        TRISC0["TRISC0\n(Unpack · RV32IM)"]
+        TRISC1["TRISC1\n(Math · RV32IM)"]
+        TRISC2["TRISC2\n(Pack · RV32IM)"]
+        L1["Shared: 1.5 MB L1 SRAM"]
+        BRISC & NCRISC & TRISC0 & TRISC1 & TRISC2 --> L1
+    end
+    style TENSIX fill:#0F2A35,stroke:#4FD1C5,color:#E8F0F2
+    style BRISC fill:#1A3C47,stroke:#4FD1C5,color:#4FD1C5
+    style NCRISC fill:#1A3C47,stroke:#4FD1C5,color:#4FD1C5
+    style TRISC0 fill:#1A3C47,stroke:#81E6D9,color:#81E6D9
+    style TRISC1 fill:#1A3C47,stroke:#EC96B8,color:#EC96B8
+    style TRISC2 fill:#1A3C47,stroke:#81E6D9,color:#81E6D9
+    style L1 fill:#2D3142,stroke:#4FD1C5,color:#E8F0F2
 ```
+
+**176 Tensix × 5 RISC-V cores = 880 processors**
 
 **Today, we focus on BRISC (RISCV_0)** - the primary data movement processor.
 

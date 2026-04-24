@@ -124,6 +124,30 @@
   font-size: 0.82rem;
 }
 
+.install-browse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--tt-primary-light);
+  font-family: var(--tt-font-interface);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid rgba(50, 147, 178, 0.5);
+  border-radius: 6px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.install-browse-btn:hover {
+  background: rgba(50, 147, 178, 0.12);
+  border-color: var(--tt-primary-light);
+  text-decoration: none;
+  color: var(--tt-primary-light);
+}
+
 .install-secondary-links {
   display: flex;
   flex-wrap: wrap;
@@ -138,6 +162,14 @@
 }
 
 .install-secondary-links a:hover { text-decoration: underline; }
+
+/* constrain tall gallery images so they don't overwhelm the grid */
+.install-gallery-item.gallery-constrained img,
+.install-gallery-item.gallery-constrained video {
+  max-height: 220px;
+  object-fit: cover;
+  object-position: center;
+}
 
 .install-hero-screenshot img {
   width: 100%;
@@ -561,6 +593,9 @@
           </svg>
           Download latest .vsix
         </a>
+        <a href="/lessons/" class="install-browse-btn">
+          Browse Lessons — no hardware needed →
+        </a>
         <span id="dl-version" class="install-version-badge"></span>
       </div>
 
@@ -570,7 +605,6 @@
       </p>
 
       <div class="install-secondary-links">
-        <a href="/lessons/">Browse lessons →</a>
         <a href="/about-extension/">Extension guide →</a>
         <a href="https://github.com/tenstorrent/tt-vscode-toolkit" target="_blank" rel="noopener">GitHub →</a>
       </div>
@@ -646,20 +680,7 @@
 
   <div class="install-gallery-grid">
 
-    <div class="install-gallery-item">
-      <img src="/assets/img/game_of_life.gif"
-           alt="Conway's Game of Life running on TT cores — Recipe 1"
-           loading="lazy">
-      <span class="install-gallery-caption">Recipe 1 — Conway's Game of Life</span>
-    </div>
-
-    <div class="install-gallery-item">
-      <img src="/assets/img/mandelbrot.png"
-           alt="Mandelbrot fractal explorer — Recipe 3"
-           loading="lazy">
-      <span class="install-gallery-caption">Recipe 3 — Mandelbrot Explorer</span>
-    </div>
-
+    <!-- Row 1: videos -->
     <!-- YouTube: QB2 / Wormhole demo -->
     <div class="install-gallery-item">
       <div class="install-yt-wrap">
@@ -670,27 +691,6 @@
                 loading="lazy"></iframe>
       </div>
       <span class="install-gallery-caption">Tenstorrent hardware in action</span>
-    </div>
-
-    <div class="install-gallery-item">
-      <img src="/assets/img/particle_life.gif"
-           alt="Particle Life emergent behavior simulation — Recipe 5"
-           loading="lazy">
-      <span class="install-gallery-caption">Recipe 5 — Particle Life Simulator</span>
-    </div>
-
-    <div class="install-gallery-item">
-      <img src="/assets/img/julia.png"
-           alt="Julia set fractal"
-           loading="lazy">
-      <span class="install-gallery-caption">Julia Set variant</span>
-    </div>
-
-    <div class="install-gallery-item">
-      <img src="/assets/img/samples/particle_life_multi_device.gif"
-           alt="Particle Life running across multiple TT devices"
-           loading="lazy">
-      <span class="install-gallery-caption">Particle Life — multi-device</span>
     </div>
 
     <!-- YouTube: second demo -->
@@ -706,13 +706,6 @@
     </div>
 
     <div class="install-gallery-item">
-      <img src="/assets/img/sd35_snowy_cabin.png"
-           alt="Stable Diffusion XL image generation — snowy cabin"
-           loading="lazy">
-      <span class="install-gallery-caption">Stable Diffusion XL — image generation</span>
-    </div>
-
-    <div class="install-gallery-item">
       <video autoplay muted loop playsinline
              poster="/assets/img/samples/frame_v2_000.png"
              aria-label="Video cinemagraph generated on Tenstorrent hardware">
@@ -721,13 +714,50 @@
       <span class="install-gallery-caption">AnimateDiff / Wan2.2 — video generation</span>
     </div>
 
-  </div>
+    <div class="install-gallery-item">
+      <img src="/assets/img/sd35_snowy_cabin.png"
+           alt="Stable Diffusion XL image generation — snowy cabin"
+           loading="lazy">
+      <span class="install-gallery-caption">Stable Diffusion XL — image generation</span>
+    </div>
 
-  <!-- mel spectrogram — full-bleed accent row -->
-  <div class="install-gallery-wide" style="margin-top:1rem">
-    <img src="/assets/img/mel_spectrogram.png"
-         alt="Mel spectrogram from Recipe 2 — Audio Signal Processing on TT hardware"
-         loading="lazy">
+    <!-- Row 2: GIFs and simulations -->
+    <div class="install-gallery-item">
+      <img src="/assets/img/game_of_life.gif"
+           alt="Conway's Game of Life running on TT cores — Recipe 1"
+           loading="lazy">
+      <span class="install-gallery-caption">Recipe 1 — Conway's Game of Life</span>
+    </div>
+
+    <div class="install-gallery-item">
+      <img src="/assets/img/samples/particle_life_multi_device.gif"
+           alt="Particle Life emergent behavior simulation across multiple TT devices"
+           loading="lazy">
+      <span class="install-gallery-caption">Recipe 5 — Particle Life (multi-device)</span>
+    </div>
+
+    <!-- Row 3: fractals and signal processing -->
+    <div class="install-gallery-item gallery-constrained">
+      <img src="/assets/img/mandelbrot.png"
+           alt="Mandelbrot fractal explorer — Recipe 3"
+           loading="lazy">
+      <span class="install-gallery-caption">Recipe 3 — Mandelbrot Explorer</span>
+    </div>
+
+    <div class="install-gallery-item gallery-constrained">
+      <img src="/assets/img/julia.png"
+           alt="Julia set fractal"
+           loading="lazy">
+      <span class="install-gallery-caption">Julia Set variant</span>
+    </div>
+
+    <div class="install-gallery-item gallery-constrained">
+      <img src="/assets/img/mel_spectrogram.png"
+           alt="Mel spectrogram from Recipe 2 — Audio Signal Processing on TT hardware"
+           loading="lazy">
+      <span class="install-gallery-caption">Recipe 2 — Mel Spectrogram</span>
+    </div>
+
   </div>
 
 </section>

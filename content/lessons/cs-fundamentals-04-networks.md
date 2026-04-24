@@ -44,6 +44,20 @@ You have 880 cores. They need to share data. How do they communicate?
 
 ## Part 1: CS Theory - Network Fundamentals
 
+```tensix_viz arch=blackhole
+[
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "src", "ms": 400 },
+  { "step": "highlight", "cores": [[7,7]], "color": "pink", "label": "dst", "ms": 400 },
+  { "step": "pause", "ms": 500 },
+  { "step": "transfer", "from": [1,1], "to": [7,7], "ms": 1200 },
+  { "step": "pause", "ms": 300 },
+  { "step": "transfer", "from": [3,4], "to": [7,2], "ms": 900 },
+  { "step": "transfer", "from": [5,6], "to": [2,3], "ms": 900 },
+  { "step": "pause", "ms": 800 },
+  { "step": "clear" }
+]
+```
+
 ### The Communication Problem
 
 **Scenario:** Core 0 needs data from Core 100's memory.
@@ -73,41 +87,19 @@ Core 0 → [Send message via NoC] → Core 100
 How do you connect N nodes? Many options:
 
 #### 1. Bus (Shared Medium)
-```
-Core 0 --- Core 1 --- Core 2 --- ... --- Core N
-     └──────────[Shared Bus]──────────┘
-```
+
 **Pros:** Simple, cheap
 **Cons:** Only one message at a time (serialization), doesn't scale
 **Example:** Old computer systems, PCIe bus
 
 #### 2. Crossbar (Full Connectivity)
-```
-     C0  C1  C2  C3
-   ┌─┼──┼──┼──┼─┐
-C0 │ ╳  │  │  │ │
-   ├─┼──┼──┼──┼─┤
-C1 │ │  ╳  │  │ │
-   ├─┼──┼──┼──┼─┤
-C2 │ │  │  ╳  │ │
-   ├─┼──┼──┼──┼─┤
-C3 │ │  │  │  ╳ │
-   └─┼──┼──┼──┼─┘
-```
+
 **Pros:** Any-to-any communication, no contention
 **Cons:** O(N²) wires, doesn't scale beyond ~100 nodes
 **Example:** Small routers, interconnects
 
 #### 3. Mesh (Tenstorrent's Choice)
-```
-┌───┬───┬───┬───┐
-│ 0 │ 1 │ 2 │ 3 │
-├───┼───┼───┼───┤
-│ 4 │ 5 │ 6 │ 7 │
-├───┼───┼───┼───┤
-│ 8 │ 9 │10 │11 │
-└───┴───┴───┴───┘
-```
+
 **Pros:** Scales well (O(N) wires), regular structure, good for 2D chips
 **Cons:** Multi-hop latency (corner to corner takes many hops)
 **Example:** Intel Xeon Phi, Google TPU, Tenstorrent
@@ -449,18 +441,14 @@ Size 4096 bytes:  ~160 cycles → 25.6 bytes/cycle (bandwidth-saturated)
 Size 16384 bytes: ~600 cycles → 27.3 bytes/cycle
 ```
 
-**Graph: Bandwidth vs Size**
-```
-Bandwidth
-   ▲
-30 │                    ┌────────── (Saturated)
-   │                  ┌─┘
-20 │              ┌──┘
-   │          ┌──┘
-10 │      ┌──┘
-   │  ┌──┘
- 0 └──┴────┴────┴────┴────┴────> Message Size
-     4   64  256  1K  4K  16K
+**Graph: Bandwidth vs Message Size**
+
+```mermaid
+xychart-beta
+    title "NoC Bandwidth vs Message Size"
+    x-axis ["4 B", "64 B", "256 B", "1 KB", "4 KB", "16 KB"]
+    y-axis "Bandwidth (bytes/cycle)" 0 --> 32
+    line [1.0, 6.4, 12.8, 21.3, 25.6, 27.3]
 ```
 
 **Takeaway:** Small messages waste bandwidth (latency overhead). Large messages amortize latency.
