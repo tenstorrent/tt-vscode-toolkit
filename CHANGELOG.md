@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.402] - 2026-04-23
+
+### Changed
+
+- **CS Fundamentals lessons 01, 03, 04, 05** — all `tensix_viz` fences changed from `arch=wormhole` to `arch=blackhole` so the Blackhole chip layout renders by default.
+- **CS Fundamentals lesson 01** — replaced ASCII box art showing 5 RISC-V processors inside a Tensix core (BRISC, NCRISC, TRISC0/1/2 + L1 SRAM) with a mermaid `graph TD` diagram.
+- **CS Fundamentals lesson 02** — replaced ASCII memory hierarchy box (Registers → L1 SRAM → DRAM via NoC) with a mermaid `flowchart TD`; replaced two plain-text "Traditional CPU vs Tenstorrent" code blocks with a side-by-side mermaid `graph LR` comparison; replaced plain-text CPU and GPU memory spec blocks with markdown tables.
+- **CS Fundamentals lesson 04** — removed redundant ASCII topology art (Bus, Crossbar, Mesh) that preceded the existing mermaid diagram; replaced ASCII bandwidth-vs-size line chart with a mermaid `xychart-beta`.
+- **CS Fundamentals lesson 06** — replaced plain-text web-request-layer stack (7 steps with ↓ arrows) with a mermaid `flowchart TD`; replaced plain-text deep-learning framework stack with a mermaid `flowchart TD`.
+- **CS Fundamentals lesson 07** — replaced ASCII Tensix Core box diagram with a mermaid `flowchart TD`; converted ASCII Flash Attention summary box to a styled markdown blockquote.
+
+---
+
 ## [0.0.401] - 2026-04-23
 
 ### Added

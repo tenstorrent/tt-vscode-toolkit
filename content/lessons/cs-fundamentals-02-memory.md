@@ -210,29 +210,17 @@ output = dropout(batchnorm(relu(x)))  # Intermediate results stay in registers
 
 ### Tenstorrent's Memory Architecture
 
-```text
-┌─────────────────────────────────────────────────────┐
-│  BRISC Processor (one of 880)                       │
-│                                                      │
-│  ┌──────────────────────────────────────────────┐  │
-│  │  Registers: 32 × 32-bit                      │  │
-│  │  Access: 0 cycles                            │  │
-│  │  Size: 128 bytes                             │  │
-│  └──────────────────────────────────────────────┘  │
-│                         ↓                            │
-│  ┌──────────────────────────────────────────────┐  │
-│  │  L1 SRAM: 1.5 MB (shared by 5 cores)        │  │
-│  │  Access: 1-2 cycles                          │  │
-│  │  Bandwidth: ~1 TB/s (to local core)         │  │
-│  └──────────────────────────────────────────────┘  │
-│                         ↓                            │
-└─────────────────────────────────────────────────────┘
-                          ↓ NoC
-┌─────────────────────────────────────────────────────┐
-│  DRAM: 1 GB per channel (12 channels = 12 GB)      │
-│  Access: 200+ cycles (via NoC)                      │
-│  Bandwidth: ~100 GB/s aggregate                     │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph PROC["BRISC Processor (one of 880)"]
+        REG["**Registers** — 32 × 32-bit\nAccess: 0 cycles · Size: 128 bytes"]
+        L1["**L1 SRAM** — 1.5 MB (shared by 5 cores)\nAccess: 1–2 cycles · Bandwidth: ~1 TB/s"]
+        REG --> L1
+    end
+    L1 -->|"NoC"| DRAM["**DRAM** — 12 GB (1 GB × 12 channels)\nAccess: 200+ cycles · Bandwidth: ~100 GB/s"]
+    style REG fill:#1A3C47,stroke:#4FD1C5,color:#E8F0F2
+    style L1 fill:#2D3142,stroke:#81E6D9,color:#E8F0F2
+    style DRAM fill:#0F2A35,stroke:#607D8B,color:#E8F0F2
 ```
 
 **Key differences from a typical CPU:**
@@ -273,22 +261,23 @@ int x = *(int*)l1_addr;  // Fast (1 cycle)
 
 ### Near-Memory Compute
 
-**Traditional architecture (CPU):**
+```mermaid
+graph LR
+    subgraph trad["Traditional (CPU)"]
+        CPU["CPU"] <-->|"slow bus ⚠"| D1["DRAM"]
+    end
+    subgraph tt["Tenstorrent"]
+        CORE["Tensix Core\n(Compute + 1.5 MB SRAM)"] <-->|"NoC"| D2["DRAM"]
+    end
+    style CPU fill:#5347a4,stroke:#fff,color:#fff
+    style D1 fill:#607D8B,stroke:#fff,color:#fff
+    style CORE fill:#1A3C47,stroke:#4FD1C5,color:#4FD1C5
+    style D2 fill:#2D3142,stroke:#81E6D9,color:#E8F0F2
 ```
-CPU <--[slow bus]--> DRAM
-```
-- Compute happens far from memory
-- All data must travel over slow bus
-- Bus becomes bottleneck
 
-**Tenstorrent architecture:**
-```
-Tensix Core (Compute + 1.5 MB SRAM) <--[NoC]--> DRAM
-```
-- Compute happens NEXT to fast memory (L1)
-- Only bring working set from DRAM once
-- Do lots of computation on L1 data
-- **Memory-bandwidth advantage**
+**Traditional (CPU):** Compute happens far from memory — all data must travel over the slow bus, which becomes the bottleneck.
+
+**Tenstorrent:** Compute happens next to fast L1 SRAM — bring the working set from DRAM once, do many operations in L1. **Memory-bandwidth advantage.**
 
 **This is why Tenstorrent is good at AI workloads** - lots of reuse of data in L1.
 
@@ -651,25 +640,27 @@ for (int i0 = 0; i0 < 1000; i0 += BLOCK) {
 ### CPUs (Intel, AMD, ARM)
 
 Modern CPUs have 3-4 levels of cache:
-```
-L1: 32-64 KB per core, 4 cycles
-L2: 256 KB - 1 MB per core, 12 cycles
-L3: 8-32 MB shared, 40 cycles
-DRAM: 16-64 GB, 200 cycles
-```
+
+| Level | Size | Latency |
+|-------|------|---------|
+| L1 cache | 32–64 KB per core | ~4 cycles |
+| L2 cache | 256 KB – 1 MB per core | ~12 cycles |
+| L3 cache | 8–32 MB shared | ~40 cycles |
+| DRAM | 16–64 GB | ~200 cycles |
 
 **Similar hierarchy, automatic management** (vs Tenstorrent's explicit control).
 
 ### GPUs (NVIDIA, AMD)
 
 GPU memory hierarchy:
-```
-Registers: 64 KB per SM, 0 cycles
-Shared memory: 48-100 KB per SM, 1-2 cycles (like L1)
-L1 cache: 128 KB per SM, automatic
-L2 cache: 6-50 MB, automatic
-Global memory (GDDR): 16-80 GB, 200+ cycles (like DRAM)
-```
+
+| Level | Size | Latency |
+|-------|------|---------|
+| Registers | 64 KB per SM | 0 cycles |
+| Shared memory | 48–100 KB per SM | 1–2 cycles (like L1) |
+| L1 cache | 128 KB per SM | automatic |
+| L2 cache | 6–50 MB | automatic |
+| Global memory (GDDR) | 16–80 GB | 200+ cycles |
 
 **CUDA programming is all about managing shared memory** (equivalent to our L1 SRAM).
 

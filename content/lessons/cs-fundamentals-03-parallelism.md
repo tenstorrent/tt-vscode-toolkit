@@ -45,7 +45,7 @@ How do you use them? When does adding more cores help? When does it hurt?
 
 ## Part 1: CS Theory - The Laws of Parallelism
 
-```tensix_viz arch=wormhole
+```tensix_viz arch=blackhole
 [
   { "step": "highlight", "cores": [[1,1]], "color": "pink", "label": "1 core · 1.0×", "ms": 500 },
   { "step": "pause", "ms": 900 },

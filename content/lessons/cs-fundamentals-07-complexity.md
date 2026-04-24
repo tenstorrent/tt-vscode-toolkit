@@ -893,27 +893,21 @@ add  t2, t0, t1
 
 **Now in Module 7, you understand:**
 
-```text
-┌─────────────────────────────────────────┐
-│ Flash Attention across 880 RISC-V cores │
-│                                         │
-│ Each core:                              │
-│ - Executes RISC-V instructions         │
-│ - Has 1 MB L1 SRAM (near-memory)       │
-│ - Communicates via NoC                  │
-│ - Runs at 1 GHz                         │
-│                                         │
-│ Together:                               │
-│ - 880 cores × 1 MB = 880 MB on-chip     │
-│ - 4-6x speedup vs GPU (O(n²)→O(n))      │
-│ - Tile-based memory access patterns     │
-│ - Explicit synchronization (no cache)   │
-│                                         │
-│ Same fetch-decode-execute cycle.        │
-│ Same RISC-V ISA (RV32IM).               │
-│ Now orchestrated at massive scale.      │
-└─────────────────────────────────────────┘
-```
+> **Flash Attention across 880 RISC-V cores**
+>
+> **Each core:**
+> - Executes RISC-V instructions
+> - Has 1 MB L1 SRAM (near-memory compute)
+> - Communicates via NoC
+> - Runs at 1 GHz
+>
+> **Together:**
+> - 880 cores × 1 MB = 880 MB on-chip
+> - 4–6× speedup vs GPU (O(n²) → O(n) in practice)
+> - Tile-based memory access patterns
+> - Explicit synchronization (no cache coherence overhead)
+>
+> Same fetch-decode-execute cycle. Same RISC-V ISA (RV32IM). Now orchestrated at massive scale.
 
 ### **The Seven-Module Journey:**
 
@@ -949,30 +943,19 @@ add  t2, t0, t1
 
 **Not just "880 of something."** Each Tensix core is:
 
-```text
-┌──────────────────────────────────┐
-│  Tensix Core (RISC-V RV32IM)     │
-│                                  │
-│  ┌─────────────────────────┐    │
-│  │ RISC-V Processor (BRISC)│    │
-│  │ - 1 GHz clock           │    │
-│  │ - 32-bit registers      │    │
-│  │ - Integer + multiply    │    │
-│  └──────────┬──────────────┘    │
-│             │                    │
-│  ┌──────────▼──────────────┐    │
-│  │ 1 MB L1 SRAM            │    │
-│  │ - 32 bytes/cycle BW     │    │
-│  │ - 3-5 cycle latency     │    │
-│  └──────────┬──────────────┘    │
-│             │                    │
-│  ┌──────────▼──────────────┐    │
-│  │ FPU + SFPU + MatMul     │    │
-│  │ (accelerators)          │    │
-│  └─────────────────────────┘    │
-│                                  │
-│  Connected to 12×12 NoC mesh    │
-└──────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph CORE["Tensix Core (RISC-V RV32IM)"]
+        BRISC["RISC-V Processor (BRISC)\n• 1 GHz clock\n• 32-bit registers\n• Integer + multiply"]
+        L1["1 MB L1 SRAM\n• 32 bytes/cycle BW\n• 3–5 cycle latency"]
+        FPU["FPU + SFPU + MatMul\n(accelerators)"]
+        BRISC --> L1 --> FPU
+    end
+    CORE --- NOC["Connected to 12×12 NoC mesh"]
+    style BRISC fill:#1A3C47,stroke:#4FD1C5,color:#4FD1C5
+    style L1 fill:#2D3142,stroke:#81E6D9,color:#E8F0F2
+    style FPU fill:#1A3C47,stroke:#EC96B8,color:#EC96B8
+    style NOC fill:#0F2A35,stroke:#607D8B,color:#E8F0F2
 ```
 
 **880 of these = supercomputer on a chip.**

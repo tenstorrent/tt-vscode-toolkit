@@ -44,7 +44,7 @@ You have 880 cores running simultaneously. They share data. What could go wrong?
 
 ## Part 1: CS Theory - The Fundamentals of Synchronization
 
-```tensix_viz arch=wormhole
+```tensix_viz arch=blackhole
 [
   { "step": "highlight", "cores": [[2,2],[2,3]], "color": "tensixActive", "label": "compute", "ms": 400 },
   { "step": "highlight", "cores": [[3,2],[3,3]], "color": "pink", "label": "data movement", "ms": 400 },

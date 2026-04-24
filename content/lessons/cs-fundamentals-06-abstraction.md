@@ -151,40 +151,32 @@ for i in range(1000000):
 
 A typical web request:
 
-```
-1. JavaScript (fetch API)
-   ↓
-2. Browser (HTTP engine)
-   ↓
-3. Operating system (TCP/IP stack)
-   ↓
-4. Network driver (Ethernet)
-   ↓
-5. Physical network (cables, switches)
-   ↓
-6. Server OS (TCP/IP stack)
-   ↓
-7. Application server (Node.js, Python)
+```mermaid
+flowchart TD
+    A["JavaScript (fetch API)"] --> B["Browser (HTTP engine)"]
+    B --> C["Operating System (TCP/IP stack)"]
+    C --> D["Network Driver (Ethernet)"]
+    D --> E["Physical Network (cables, switches)"]
+    E --> F["Server OS (TCP/IP stack)"]
+    F --> G["Application Server (Node.js, Python)"]
+    style A fill:#ff6b6b,stroke:#fff,color:#fff
+    style G fill:#3293b2,stroke:#fff,color:#fff
 ```
 
 **Each layer adds ~1-10ms latency.** Understanding the stack helps optimize.
 
 ### Deep Learning: The AI Framework Stack
 
-```
-PyTorch (Python API)
-    ↓
-TorchScript (Graph representation)
-    ↓
-ONNX (Intermediate representation)
-    ↓
-TensorRT/XLA (Optimizing compiler)
-    ↓
-CUDA/ROCm (GPU programming)
-    ↓
-GPU Assembly (PTX/AMDGPU)
-    ↓
-Silicon (NVIDIA A100, AMD MI300)
+```mermaid
+flowchart TD
+    A["PyTorch (Python API)"] --> B["TorchScript (Graph representation)"]
+    B --> C["ONNX (Intermediate representation)"]
+    C --> D["TensorRT/XLA (Optimizing compiler)"]
+    D --> E["CUDA/ROCm (GPU programming)"]
+    E --> F["GPU Assembly (PTX/AMDGPU)"]
+    F --> G["Silicon (NVIDIA A100, AMD MI300)"]
+    style A fill:#ff6b6b,stroke:#fff,color:#fff
+    style G fill:#499c8d,stroke:#fff,color:#fff
 ```
 
 **Each layer:**
