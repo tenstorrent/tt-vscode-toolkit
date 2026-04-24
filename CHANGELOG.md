@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.407] - 2026-04-24
+
+### Added
+
+- **Marketplace publishing** — extension now auto-publishes to the VS Code Marketplace on every tagged release via the `publish-marketplace` CI job in `release.yml`
+- **VS Code Marketplace badge** in `README.md` linking to the marketplace listing
+- **Marketplace install option** added as Option 1 (Recommended) in `README.md` installation section
+- **Marketplace hero button** on the site install page (`content/pages/install.html`) as the primary CTA
+- **Marketplace install tab** added as the default tab in the site install instructions
+
+### Fixed
+
+- **`scripts/build-web.js`** — corrected wrong extension ID in `mktUrl` from `Tenstorrent.tenstorrent-toolkit` to `Tenstorrent.tt-vscode-toolkit`; regenerated all site lesson pages
+
+---
+
 ## [0.0.406] - 2026-04-24
 
 ### Fixed
