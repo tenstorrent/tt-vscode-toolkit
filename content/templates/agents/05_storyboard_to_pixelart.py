@@ -725,15 +725,15 @@ def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
 def _grid_to_ansi(grid: list[str], palette: dict[str, str]) -> str:
     """Render a palette-indexed grid as ANSI truecolor block characters."""
     rgb = {k: _hex_to_rgb(v) for k, v in palette.items()}
+    # Fall back to the darkest palette color for unrecognised chars rather than space,
+    # so a key-mismatch from the LLM produces a visible (if wrong-colored) image.
+    fallback = next(iter(rgb.values()), (64, 64, 64))
     rows = []
     for row in grid:
         line = ""
         for ch in row:
-            if ch in rgb:
-                r, g, b = rgb[ch]
-                line += f"\033[38;2;{r};{g};{b}m█\033[0m"
-            else:
-                line += " "
+            r, g, b = rgb.get(ch, fallback)
+            line += f"\033[38;2;{r};{g};{b}m█\033[0m"
         rows.append(line)
     return "\n".join(rows)
 
@@ -800,23 +800,40 @@ def run_stage3(storyboard: dict, prompts: list[dict], model_id: str, base_url: s
         slug  = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_")
         print(f"  [scene {sid}: {title}]", flush=True)
 
+        # Pre-assign uppercase letters to palette hex values so the LLM
+        # has no ambiguity about which character maps to which color.
+        hex_colors = re.findall(r"#[0-9A-Fa-f]{6}", ref_palette)
+        key_letters = "ABCDEFGHIJ"
+        key_assignments = "\n".join(
+            f"  {key_letters[i]} → {h}"
+            for i, h in enumerate(hex_colors[:len(key_letters)])
+        ) or "  A → #888888"
+        valid_keys = ", ".join(key_letters[:len(hex_colors)] or ["A"])
+        example_row = (key_letters[0] * 4 + key_letters[min(1, len(hex_colors)-1)] * 4) * (_GRID_W // 8)
+
         task = (
             f"You are a pixel artist. Render scene {sid}: \"{title}\" as a "
             f"{_GRID_W}×{_GRID_H} pixel art grid.\n\n"
             f"Hardware era: {era}\n"
-            f"Palette reference: {ref_palette}\n"
             f"Technique: {technique}\n"
-            f"Scene description: {p['prompt']}\n\n"
-            "Output a JSON object ONLY — no prose, no markdown fences:\n"
+            f"Scene: {p['prompt']}\n\n"
+            f"PALETTE — use ONLY these exact uppercase letter keys:\n"
+            f"{key_assignments}\n\n"
+            "OUTPUT — a JSON object, no prose, no markdown fences:\n"
             "{\n"
-            '  "palette": {"A": "#hexcolor", "B": "#hexcolor"},\n'
-            '  "grid": ["AAABBBCCCDDD...", ...]'
-            "\n}\n\n"
-            f"Constraints:\n"
-            f"- grid must be exactly {_GRID_W} chars wide and {_GRID_H} rows tall\n"
-            "- use 2–6 colors max; stay close to the reference palette hex values\n"
-            "- compose foreground / background with purpose\n"
-            "- apply the technique: flat fills for flat tiles, alternating chars for dithering"
+            f'  "palette": {{"{key_letters[0]}": "{hex_colors[0] if hex_colors else "#888888"}", ...}},\n'
+            f'  "grid": [\n'
+            f'    "{example_row}",\n'
+            f'    ... exactly {_GRID_H} rows total\n'
+            "  ]\n"
+            "}\n\n"
+            f"RULES (strictly enforced):\n"
+            f"- Every character in every row must be one of: {valid_keys}\n"
+            f"- NO spaces, NO dots, NO other characters whatsoever\n"
+            f"- Each row: exactly {_GRID_W} characters\n"
+            f"- Total rows: exactly {_GRID_H}\n"
+            "- Compose the scene: sky/background fills top rows, ground/floor fills bottom rows\n"
+            "- Apply the technique: flat fills for solid areas, alternating keys for dithering"
         )
 
         try:
