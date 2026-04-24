@@ -50,8 +50,11 @@ jobs:
           result-encoding: string
           script: |
             const body = context.payload.comment.body;
-            // Match first ```python ... ``` block after /sim-test
-            const m = body.match(/```python\s*\n([\s\S]*?)```/);
+            // Slice to the /sim-test marker so earlier code blocks in the comment
+            // (e.g. "here is what I tried") are not accidentally executed.
+            const triggerIdx = body.indexOf('/sim-test');
+            const afterTrigger = triggerIdx === -1 ? body : body.slice(triggerIdx);
+            const m = afterTrigger.match(/```python\s*\n([\s\S]*?)```/);
             if (!m) {
               core.setFailed('No ```python code block found in the comment after /sim-test');
               return '';

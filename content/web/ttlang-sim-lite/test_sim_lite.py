@@ -19,7 +19,11 @@ sys.path = [p for p in sys.path if os.path.abspath(p) != _script_dir]
 import types
 import importlib.util
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+# The Python-importable canonical copy lives in the sibling ttlang_sim_lite/ directory.
+# Point BASE there so this test exercises the actual importable package, not the
+# hyphen-named mirror that Python cannot import by name.
+_HYPHEN_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE = os.path.join(os.path.dirname(_HYPHEN_DIR), 'ttlang_sim_lite')
 PKG = "ttlang_sim_lite"
 
 # ──────────────────────────────────────────────────────────────────────────────

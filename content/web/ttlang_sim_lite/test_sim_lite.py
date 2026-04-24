@@ -106,16 +106,31 @@ def test_from_to_torch():
     assert np.allclose(a_np, recovered, atol=1e-5), "from_torch/to_torch roundtrip failed"
 
 
-def test_eltwise_add_kernel():
-    """Run eltwise_add kernel through the full greenlet-scheduled simulator."""
+def _run_kernel(name):
+    """Load and run a kernel's main() from the kernels/ subdirectory."""
     import importlib.util as ilu
     spec = ilu.spec_from_file_location(
-        "eltwise_add_kernel",
-        os.path.join(BASE, "kernels", "eltwise_add.py"),
+        name,
+        os.path.join(BASE, "kernels", f"{name}.py"),
     )
     mod = ilu.module_from_spec(spec)
     spec.loader.exec_module(mod)
     mod.main()
+
+
+def test_eltwise_add_kernel():
+    """Run eltwise_add kernel through the full greenlet-scheduled simulator."""
+    _run_kernel("eltwise_add")
+
+
+def test_fused_mma_kernel():
+    """Run fused multiply-add (a*b+c) kernel: verifies the three-thread DFB model."""
+    _run_kernel("fused_mma")
+
+
+def test_matmul_relu_kernel():
+    """Run fused matmul+bias+ReLU kernel: verifies k-reduction accumulator ping-pong."""
+    _run_kernel("matmul_relu")
 
 
 def test_tensor_arithmetic():
@@ -145,6 +160,8 @@ test("from_to_torch roundtrip", test_from_to_torch)
 test("dtype aliases", test_dtype_aliases)
 test("tensor arithmetic", test_tensor_arithmetic)
 test("eltwise_add kernel (full sim)", test_eltwise_add_kernel)
+test("fused_mma kernel (a*b+c, 3-thread DFB)", test_fused_mma_kernel)
+test("matmul_relu kernel (k-reduction + ReLU)", test_matmul_relu_kernel)
 
 print("=" * 40)
 print(f"Results: {PASSED} passed, {FAILED} failed")

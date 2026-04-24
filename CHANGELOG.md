@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.405] - 2026-04-24
+
+### Fixed
+
+- **`.github/workflows/sim-test.yml`** — extract-code step now slices the comment body at the `/sim-test` marker before matching the python fence, so code blocks that appear *before* the trigger in the same comment are not accidentally executed.
+- **`content/web/ttlang-sim-lite/test_sim_lite.py`** — changed `BASE` to point at the underscore (`ttlang_sim_lite/`) directory so the test exercises the Python-importable package rather than the hyphen-named mirror; both trees are now kept in sync.
+- **`content/web/ttlang_sim_lite/test_sim_lite.py`** — synced with the hyphen version: added `_run_kernel()` helper and `test_fused_mma_kernel` / `test_matmul_relu_kernel` test functions with corresponding run calls.
+
+---
+
 ## [0.0.404] - 2026-04-24
 
 ### Fixed
