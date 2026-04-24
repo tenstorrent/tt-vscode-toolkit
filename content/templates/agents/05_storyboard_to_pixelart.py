@@ -710,10 +710,16 @@ _SVG_CELL = 20  # pixels per cell in SVG output
 
 
 def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
-    h = hex_color.lstrip("#")
-    if len(h) == 3:
-        h = "".join(c * 2 for c in h)
-    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    """Convert a hex color string to (r, g, b). Returns mid-gray on any bad input."""
+    try:
+        h = hex_color.strip().lstrip("#")
+        if len(h) == 3:
+            h = "".join(c * 2 for c in h)
+        if len(h) != 6:
+            return (128, 128, 128)
+        return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    except (ValueError, AttributeError):
+        return (128, 128, 128)
 
 
 def _grid_to_ansi(grid: list[str], palette: dict[str, str]) -> str:
@@ -753,8 +759,11 @@ def _grid_to_svg(grid: list[str], palette: dict[str, str]) -> str:
 
 def _parse_grid(raw: str) -> tuple[dict[str, str], list[str]] | tuple[None, None]:
     """Extract (palette, grid) from LLM response. Returns (None, None) on failure."""
-    cleaned = re.sub(r"^```(?:json)?\s*", "", raw.strip(), flags=re.MULTILINE)
+    # Strip Qwen3 thinking blocks before searching for JSON
+    cleaned = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL)
+    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned.strip(), flags=re.MULTILINE)
     cleaned = re.sub(r"```\s*$", "", cleaned.strip(), flags=re.MULTILINE)
+    # Find the last (outermost) JSON object — avoids matching inner fragments
     m = re.search(r"\{.*\}", cleaned, re.DOTALL)
     if not m:
         return None, None
@@ -816,6 +825,9 @@ def run_stage3(storyboard: dict, prompts: list[dict], model_id: str, base_url: s
                 messages=[{"role": "user", "content": task}],
                 max_tokens=1024,
                 temperature=0.3,
+                # Disable Qwen3 extended thinking for this structured-output step —
+                # thinking preamble interferes with JSON parsing and burns tokens.
+                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
             )
             raw = resp.choices[0].message.content or ""
         except Exception as e:
@@ -824,23 +836,29 @@ def run_stage3(storyboard: dict, prompts: list[dict], model_id: str, base_url: s
 
         palette, grid = _parse_grid(raw)
         if palette is None or not grid:
-            print(f"    [warning: could not parse grid response for scene {sid}]")
+            print(f"    [warning: could not parse grid for scene {sid} — skipping]")
             continue
 
         if make_ansi:
-            ansi_art = _grid_to_ansi(grid, palette)
-            ans_path = Path(__file__).parent / f"scene_{sid}_{slug}.ans"
-            ans_path.write_text(ansi_art)
-            print(f"\n  Scene {sid}: {title}")
-            print(ansi_art)
-            print()
-            created.append(ans_path.name)
+            try:
+                ansi_art = _grid_to_ansi(grid, palette)
+                ans_path = Path(__file__).parent / f"scene_{sid}_{slug}.ans"
+                ans_path.write_text(ansi_art)
+                print(f"\n  Scene {sid}: {title}")
+                print(ansi_art)
+                print()
+                created.append(ans_path.name)
+            except Exception as e:
+                print(f"    [warning: ANSI render failed for scene {sid} — {e}]")
 
         if make_svg:
-            svg_path = Path(__file__).parent / f"scene_{sid}_{slug}.svg"
-            svg_path.write_text(_grid_to_svg(grid, palette))
-            print(f"  [saved → {svg_path.name}]")
-            created.append(svg_path.name)
+            try:
+                svg_path = Path(__file__).parent / f"scene_{sid}_{slug}.svg"
+                svg_path.write_text(_grid_to_svg(grid, palette))
+                print(f"  [saved → {svg_path.name}]")
+                created.append(svg_path.name)
+            except Exception as e:
+                print(f"    [warning: SVG render failed for scene {sid} — {e}]")
 
     if created:
         print(f"\n[Stage 3 complete — {len(created)} file(s) created]")
@@ -954,7 +972,15 @@ def main():
         switch_models(args.prompt_model, simulate=args.simulate)
 
     # ── Stage 2: Pixel art prompts ─────────────────────────────────────────────
-    stage2_model = args.cpu_model if args.cpu_orchestrator else args.prompt_model
+    # In single-model mode, creative_model holds the actual running model ID
+    # (either auto-detected or the same as prompt_model). Use it so the API
+    # call matches the server's loaded model name exactly.
+    if args.cpu_orchestrator:
+        stage2_model = args.cpu_model
+    elif args.single_model:
+        stage2_model = args.creative_model
+    else:
+        stage2_model = args.prompt_model
     t2_start = time.time()
     prompts = run_stage2(storyboard, stage2_model, stage2_url)
     t2 = time.time() - t2_start
