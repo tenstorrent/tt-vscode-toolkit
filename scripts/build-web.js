@@ -724,8 +724,8 @@ function buildPlaygroundSection() {
      The simulator runs entirely client-side via <a href="https://pyodide.org" target="_blank" rel="noreferrer">Pyodide</a>
      (Python in WebAssembly), using a numpy backend instead of torch.</p>
   <div class="tt-playground-mount"
-       data-worker-url="/assets/playground/pyodide-worker.js"
-       data-sim-lite-base="/assets/ttlang-sim-lite"></div>
+       data-worker-url="${siteUrl('/assets/playground/pyodide-worker.js')}"
+       data-sim-lite-base="${siteUrl('/assets/ttlang-sim-lite')}"></div>
 </section>
 `;
 }

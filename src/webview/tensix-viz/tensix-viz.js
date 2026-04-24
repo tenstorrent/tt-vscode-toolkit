@@ -92,6 +92,7 @@
     this._running     = false;
     this._stepMode    = false;
     this._rafId       = null;
+    this._animGen     = 0;      // incremented on reset(); guards stale async callbacks
     this._resolveStep = null;
 
     this._cellW = 0;
@@ -413,6 +414,7 @@
   };
 
   TensixViz.prototype.reset = function () {
+    this._animGen++;             // invalidate any pending async callbacks from prior play()
     this._running = false;
     if (this._rafId) { cancelAnimationFrame(this._rafId); this._rafId = null; }
     this._highlights    = {};
@@ -428,14 +430,15 @@
   TensixViz.prototype._runLoop = function () {
     const self = this;
     self._running = true;
+    const gen = self._animGen;   // snapshot; if reset() fires, _animGen increments past this
 
     function next() {
-      if (!self._running) return;
+      if (!self._running || self._animGen !== gen) return;
       if (self._scriptQueue.length === 0) {
         if (self._loop && self._loopScript) {
           // Pause briefly before looping
           setTimeout(function () {
-            if (!self._running) return;
+            if (!self._running || self._animGen !== gen) return;
             self._highlights    = {};
             self._particles     = [];
             self._heatmap       = null;
@@ -493,6 +496,7 @@
     const color = step.color || 'tensixActive';
     const label = step.label || '';
     const ms    = (step.ms || 600) / self.speed;
+    const gen   = self._animGen;
 
     // Pulse animation: alpha 0 → 1 over ms/2, hold, then done
     const start = performance.now();
@@ -506,6 +510,7 @@
     if (label) self._floatLabel(cores, label);
 
     function tick(now) {
+      if (self._animGen !== gen) return;
       const elapsed = now - start;
       const alpha   = elapsed < half ? elapsed / half : 1;
       cores.forEach(([col, row]) => {
@@ -554,7 +559,9 @@
     });
 
     const start = performance.now();
+    const gen   = self._animGen;
     function tick(now) {
+      if (self._animGen !== gen) return;
       const t = Math.min(1, (now - start) / ms);
       cores.forEach(function (cr) {
         const key = cr[0] + ',' + cr[1];
@@ -590,8 +597,10 @@
 
     const particle = { x: p0.x, y: p0.y, color, radius: Math.max(3, self._cellW * 0.15) };
     self._particles.push(particle);
+    const gen = self._animGen;
 
     function tick(now) {
+      if (self._animGen !== gen) return;
       const t = Math.min(1, (now - start) / ms);
       // Ease in-out
       const e = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
@@ -623,9 +632,11 @@
   };
 
   TensixViz.prototype._stepHeatmap = function (step, done) {
-    this._heatmap = step.data || null;
-    this.render();
-    setTimeout(done, (step.ms || 200) / this.speed);
+    const self = this;
+    const gen  = self._animGen;
+    self._heatmap = step.data || null;
+    self.render();
+    setTimeout(function () { if (self._animGen === gen) done(); }, (step.ms || 200) / self.speed);
   };
 
   TensixViz.prototype._stepLabel = function (step, done) {
@@ -645,7 +656,9 @@
   };
 
   TensixViz.prototype._stepPause = function (step, done) {
-    setTimeout(done, (step.ms || 500) / this.speed);
+    const self = this;
+    const gen  = self._animGen;
+    setTimeout(function () { if (self._animGen === gen) done(); }, (step.ms || 500) / self.speed);
   };
 
   // ─── Floating label (above the highlighted region) ──────────────────────────
@@ -756,8 +769,15 @@
 
       if (legendEl) viz.renderLegend(legendEl);
 
-      // Auto-play on page load after short delay — loop continuously
-      setTimeout(function () { viz._loop = true; viz.play(script); }, 600);
+      // Defer auto-play until the browser is idle so Mermaid diagram rendering
+      // doesn't compete with the first animation frame. Falls back to a plain
+      // timeout for Safari, which lacks requestIdleCallback.
+      var startViz = function () { viz._loop = true; viz.play(script); };
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(startViz, { timeout: 3000 });
+      } else {
+        setTimeout(startViz, 1500);
+      }
 
       if (playBtn) {
         playBtn.addEventListener('click', function () {

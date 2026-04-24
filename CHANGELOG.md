@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.406] - 2026-04-24
+
+### Fixed
+
+- **`src/webview/tensix-viz/tensix-viz.js`** — added `_animGen` generation counter to prevent stale async callbacks from corrupting new animation instances after `reset()`+`play()`. Every `setTimeout`/`requestAnimationFrame` callback in `_stepPause`, `_stepHeatmap`, `_stepHighlight`, `_stepUnhighlight`, and `_stepTransfer` now captures the current gen at call time and bails early if it has advanced, eliminating the dual-animation-loop jank seen on the live docs site.
+- **`src/webview/tensix-viz/tensix-viz.js`** — `autoInit` now defers the initial `play()` call via `requestIdleCallback({ timeout: 3000 })` (Safari fallback: `setTimeout(1500)`) so Mermaid diagram rendering no longer competes with the first animation frame.
+- **`scripts/build-web.js`** — `buildPlaygroundSection()` now wraps `data-worker-url` and `data-sim-lite-base` attribute values with `siteUrl()`, fixing 404s for the Pyodide worker and ttlang-sim-lite assets on the production GitHub Pages site (where the path is prefixed with `/tt-vscode-toolkit`).
+
+---
+
 ## [0.0.405] - 2026-04-24
 
 ### Fixed
