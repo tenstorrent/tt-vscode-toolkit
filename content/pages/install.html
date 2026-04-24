@@ -919,19 +919,54 @@
   <p class="install-section-label">Get started</p>
   <h2 class="install-section-heading">Install in your editor</h2>
   <p class="install-section-sub">
-    The extension ships as a <code>.vsix</code> file and installs the same way in
-    VS&nbsp;Code, Cursor, Windsurf, and code-server.
+    The easiest way is the VS&nbsp;Code Marketplace — one click or one command. A
+    <code>.vsix</code> is also available for Cursor, Windsurf, and code-server.
   </p>
 
   <div class="install-tabs" role="tablist" aria-label="Editor install instructions">
-    <button class="install-tab active" role="tab" id="tab-btn-vscode"       aria-selected="true"  aria-controls="tab-vscode"       data-tab="vscode">VS Code</button>
-    <button class="install-tab"        role="tab" id="tab-btn-cursor"        aria-selected="false" aria-controls="tab-cursor"        data-tab="cursor">Cursor / Windsurf</button>
-    <button class="install-tab"        role="tab" id="tab-btn-code-server"   aria-selected="false" aria-controls="tab-code-server"   data-tab="code-server">code-server</button>
-    <button class="install-tab"        role="tab" id="tab-btn-cli"           aria-selected="false" aria-controls="tab-cli"           data-tab="cli">CLI one-liner</button>
+    <button class="install-tab active" role="tab" id="tab-btn-marketplace"   aria-selected="true"  aria-controls="tab-marketplace"   data-tab="marketplace">Marketplace</button>
+    <button class="install-tab"        role="tab" id="tab-btn-vscode"        aria-selected="false" aria-controls="tab-vscode"         data-tab="vscode">VS Code .vsix</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cursor"        aria-selected="false" aria-controls="tab-cursor"         data-tab="cursor">Cursor / Windsurf</button>
+    <button class="install-tab"        role="tab" id="tab-btn-code-server"   aria-selected="false" aria-controls="tab-code-server"    data-tab="code-server">code-server</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cli"           aria-selected="false" aria-controls="tab-cli"            data-tab="cli">CLI one-liner</button>
   </div>
 
-  <!-- VS Code -->
-  <div class="install-tab-panel active" id="tab-vscode" role="tabpanel" aria-labelledby="tab-btn-vscode" tabindex="0">
+  <!-- Marketplace -->
+  <div class="install-tab-panel active" id="tab-marketplace" role="tabpanel" aria-labelledby="tab-btn-marketplace" tabindex="0">
+    <div class="install-step">
+      <span class="install-step-num">1</span>
+      <div class="install-step-body">
+        <p>Install directly from the VS&nbsp;Code Marketplace with one command:</p>
+        <pre class="install-cmd" id="cmd-mkt-install">code --install-extension Tenstorrent.tt-vscode-toolkit</pre>
+        <button class="install-cmd-copy" data-target="cmd-mkt-install">Copy</button>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">2</span>
+      <div class="install-step-body">
+        <p>
+          Or open VS&nbsp;Code, press <code>Ctrl+Shift+X</code>, search for
+          <strong>TT Developer Toolkit</strong>, and click <strong>Install</strong>.
+        </p>
+        <p>
+          <a href="https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit"
+             target="_blank" rel="noopener">Open in Marketplace →</a>
+        </p>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">3</span>
+      <div class="install-step-body">
+        <p>
+          Reload VS&nbsp;Code — the <strong>TT Toolkit</strong> icon will appear in the Activity Bar.
+          Click it to open the Lessons panel and pick your hardware.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VS Code .vsix -->
+  <div class="install-tab-panel" id="tab-vscode" role="tabpanel" aria-labelledby="tab-btn-vscode" tabindex="0">
     <div class="install-step">
       <span class="install-step-num">1</span>
       <div class="install-step-body">
