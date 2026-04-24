@@ -56,7 +56,13 @@ jobs:
 
             ### Installation
 
-            **Manual Installation:**
+            **VS Code Marketplace (Recommended):**
+            ```
+            code --install-extension Tenstorrent.tt-vscode-toolkit
+            ```
+            Or search **TT Developer Toolkit** in the Extensions panel.
+
+            **Manual VSIX install:**
             1. Download `tt-vscode-toolkit-${{ steps.package_version.outputs.version }}.vsix` below
             2. In VSCode: Extensions → ⋯ → Install from VSIX
             3. Open the welcome page: `Ctrl+Shift+P` → "Tenstorrent: Show Welcome Page"
@@ -99,7 +105,6 @@ jobs:
     name: Publish to VS Code Marketplace
     runs-on: ubuntu-latest
     needs: create-release
-    if: false  # Disabled - enable when ready to publish to marketplace
 
     steps:
       - name: Checkout repository
