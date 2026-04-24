@@ -1426,7 +1426,7 @@
       "category": "compilers",
       "tags": [
         "tt-lang",
-        "simulator",
+        "sim",
         "kernels",
         "tensix"
       ],
@@ -1438,7 +1438,7 @@
         "p150",
         "p300c",
         "galaxy",
-        "simulator"
+        "sim"
       ],
       "status": "draft",
       "estimatedMinutes": 20,

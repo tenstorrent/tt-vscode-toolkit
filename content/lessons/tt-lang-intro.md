@@ -7,7 +7,7 @@ description: >-
 category: compilers
 tags:
   - tt-lang
-  - simulator
+  - sim
   - kernels
   - tensix
 supportedHardware:
@@ -18,7 +18,7 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-  - simulator
+  - sim
 status: draft
 estimatedMinutes: 20
 playground: ttlang-sim
