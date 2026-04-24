@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.408] - 2026-04-24
+
+### Changed
+
+- **CS fundamentals Tensix visualizer scripts** — rewrote all four scene scripts to use the full Blackhole grid (140 Tensix cores across 17×12):
+  - cs-01: DRAM band highlights memory, single core steps through FETCH→DECODE→EXEC, then reveals all 140 cores
+  - cs-03: Progressive Amdahl's Law reveal (1 → 14 → 70 → 140 cores) with serial bottleneck highlighted in red
+  - cs-04: Full-chip NOC mesh lighting with XY-routed cross-chip transfers demonstrating 2D routing
+  - cs-05: All-core compute phase, barrier synchronisation convergence, then barrier release back to full compute
+
+---
+
 ## [0.0.407] - 2026-04-24
 
 ### Added
