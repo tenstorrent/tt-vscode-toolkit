@@ -732,11 +732,11 @@ for (int i = my_start; i < my_end; i++) {
 
 After this module, you should understand:
 
-✅ **Amdahl's Law** - Serial portions limit speedup
-✅ **SPMD Pattern** - Same program, different data
-✅ **Communication Costs** - Why 880 cores isn't 880x faster
-✅ **Load Balancing** - All cores must finish at the same time
-✅ **Efficiency** - Speedup / # cores (90%+ is excellent)
+- ✅ **Amdahl's Law** - Serial portions limit speedup
+- ✅ **SPMD Pattern** - Same program, different data
+- ✅ **Communication Costs** - Why 880 cores isn't 880x faster
+- ✅ **Load Balancing** - All cores must finish at the same time
+- ✅ **Efficiency** - Speedup / # cores (90%+ is excellent)
 
 ### The Core Insight
 

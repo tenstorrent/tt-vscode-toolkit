@@ -681,11 +681,11 @@ GPU memory hierarchy:
 
 After completing this module, you should understand:
 
-✅ **Memory Hierarchy** - Registers → L1 → DRAM, each 10x slower
-✅ **Latency vs Bandwidth** - Two different concepts, both matter
-✅ **Locality of Reference** - Why some code is 100x faster
-✅ **Near-Memory Compute** - Tenstorrent's architectural advantage
-✅ **Practical Optimization** - Prefetching, blocking, data layout
+- ✅ **Memory Hierarchy** - Registers → L1 → DRAM, each 10x slower
+- ✅ **Latency vs Bandwidth** - Two different concepts, both matter
+- ✅ **Locality of Reference** - Why some code is 100x faster
+- ✅ **Near-Memory Compute** - Tenstorrent's architectural advantage
+- ✅ **Practical Optimization** - Prefetching, blocking, data layout
 
 ### The Core Insight
 

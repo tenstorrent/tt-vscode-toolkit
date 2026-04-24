@@ -603,11 +603,11 @@ Other RISC-V chips exist, but typically:
 
 After completing this module, you should understand:
 
-✅ **Von Neumann Architecture** - The fetch-decode-execute cycle is fundamental
-✅ **RISC-V ISA** - Simple instructions executed quickly
-✅ **Memory Hierarchy** - DRAM is slow, L1 SRAM is fast (Module 2 deepens this)
-✅ **Explicit Control** - No OS, no abstractions, you control everything
-✅ **One Core Mastered** - Now we can scale to 880 cores (Module 3)
+- ✅ **Von Neumann Architecture** - The fetch-decode-execute cycle is fundamental
+- ✅ **RISC-V ISA** - Simple instructions executed quickly
+- ✅ **Memory Hierarchy** - DRAM is slow, L1 SRAM is fast (Module 2 deepens this)
+- ✅ **Explicit Control** - No OS, no abstractions, you control everything
+- ✅ **One Core Mastered** - Now we can scale to 880 cores (Module 3)
 
 ### What We Skipped (For Now)
 

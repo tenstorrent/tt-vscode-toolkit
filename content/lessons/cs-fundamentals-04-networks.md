@@ -770,11 +770,11 @@ Clos Network (multi-level mesh)
 
 After this module, you should understand:
 
-✅ **Network Topologies** - Mesh scales, crossbar doesn't
-✅ **Routing Algorithms** - XY routing is simple and deadlock-free
-✅ **Latency vs Bandwidth** - Small messages are latency-bound, large messages are bandwidth-bound
-✅ **NoC Architecture** - 176 cores connected via 2D mesh with 5-port routers
-✅ **Communication Patterns** - Multicast, reduction, nearest-neighbor
+- ✅ **Network Topologies** - Mesh scales, crossbar doesn't
+- ✅ **Routing Algorithms** - XY routing is simple and deadlock-free
+- ✅ **Latency vs Bandwidth** - Small messages are latency-bound, large messages are bandwidth-bound
+- ✅ **NoC Architecture** - 176 cores connected via 2D mesh with 5-port routers
+- ✅ **Communication Patterns** - Multicast, reduction, nearest-neighbor
 
 ### The Core Insight
 

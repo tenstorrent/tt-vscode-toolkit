@@ -802,11 +802,11 @@ else:
 
 After this module, you should understand:
 
-✅ **Race Conditions** - Concurrent access without synchronization causes bugs
-✅ **Synchronization Primitives** - Locks, barriers, semaphores coordinate cores
-✅ **Deadlock** - Circular waiting causes infinite blocking
-✅ **Cache Coherence** - x86 has it (automatic), Tenstorrent doesn't (explicit)
-✅ **Explicit Barriers** - `noc_async_read/write_barrier()` ensures ordering
+- ✅ **Race Conditions** - Concurrent access without synchronization causes bugs
+- ✅ **Synchronization Primitives** - Locks, barriers, semaphores coordinate cores
+- ✅ **Deadlock** - Circular waiting causes infinite blocking
+- ✅ **Cache Coherence** - x86 has it (automatic), Tenstorrent doesn't (explicit)
+- ✅ **Explicit Barriers** - `noc_async_read/write_barrier()` ensures ordering
 
 ### The Core Insight
 

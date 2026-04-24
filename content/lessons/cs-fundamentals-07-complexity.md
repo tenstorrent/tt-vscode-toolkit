@@ -749,13 +749,13 @@ Time: ~months to train (1000x more parameters)
 
 After completing all 7 modules, you should understand:
 
-✅ **Module 1:** Computers execute instructions (fetch-decode-execute)
-✅ **Module 2:** Memory hierarchy dominates performance (cache is king)
-✅ **Module 3:** Parallelism has limits (Amdahl's Law)
-✅ **Module 4:** Communication costs matter (networks are bottlenecks)
-✅ **Module 5:** Synchronization is hard (explicit is visible)
-✅ **Module 6:** Abstractions hide complexity (use the right level)
-✅ **Module 7:** Complexity + constants + hardware = real performance
+- ✅ **Module 1:** Computers execute instructions (fetch-decode-execute)
+- ✅ **Module 2:** Memory hierarchy dominates performance (cache is king)
+- ✅ **Module 3:** Parallelism has limits (Amdahl's Law)
+- ✅ **Module 4:** Communication costs matter (networks are bottlenecks)
+- ✅ **Module 5:** Synchronization is hard (explicit is visible)
+- ✅ **Module 6:** Abstractions hide complexity (use the right level)
+- ✅ **Module 7:** Complexity + constants + hardware = real performance
 
 ### The Ultimate Insight
 
@@ -984,10 +984,10 @@ flowchart TD
 
 You've completed the CS Fundamentals series. You now have:
 
-✅ Deep understanding of RISC-V computer architecture
-✅ Hands-on experience with 880-core RISC-V programming
-✅ Performance optimization skills grounded in real hardware
-✅ Foundation for advanced RISC-V topics
+- ✅ Deep understanding of RISC-V computer architecture
+- ✅ Hands-on experience with 880-core RISC-V programming
+- ✅ Performance optimization skills grounded in real hardware
+- ✅ Foundation for advanced RISC-V topics
 
 **What you've learned applies to:**
 - **Other RISC-V systems** - SiFive, StarFive, Esperanto chips
