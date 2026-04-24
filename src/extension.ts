@@ -4315,6 +4315,18 @@ function runStoryboardPipeline(): void {
   );
 }
 
+/**
+ * Command: tenstorrent.runLandscapeSvg
+ * Runs Demo 6: parameterized generative landscape SVG via direct LLM call.
+ */
+function runLandscapeSvg(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_LANDSCAPE_SVG.template);
+  vscode.window.showInformationMessage(
+    'Generating landscape SVG (--simulate). Remove --simulate and add --palette / --mountains / --clouds / --stars to generate real SVG.'
+  );
+}
+
 // ============================================================================
 // Command Menu
 // ============================================================================
@@ -5146,6 +5158,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runWritingPipeline', runWritingPipeline),
     vscode.commands.registerCommand('tenstorrent.runDungeonMaster', runDungeonMaster),
     vscode.commands.registerCommand('tenstorrent.runStoryboardPipeline', runStoryboardPipeline),
+    vscode.commands.registerCommand('tenstorrent.runLandscapeSvg', runLandscapeSvg),
 
     // Bounty Program
     vscode.commands.registerCommand('tenstorrent.browseOpenBounties', browseOpenBounties),

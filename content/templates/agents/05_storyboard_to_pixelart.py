@@ -30,8 +30,8 @@ Usage:
   python3 05_storyboard_to_pixelart.py --creative-model "meta-llama/Llama-3.3-70B-Instruct"
   python3 05_storyboard_to_pixelart.py --prompt-model "Qwen/Qwen3-32B"
   python3 05_storyboard_to_pixelart.py --ansi                 (Stage 3: render each scene as ANSI block art)
-  python3 05_storyboard_to_pixelart.py --svg                  (Stage 3: render each scene as SVG pixel grid)
-  python3 05_storyboard_to_pixelart.py --ansi --svg           (both — ANSI prints to terminal, SVG saved)
+  python3 05_storyboard_to_pixelart.py --svg                  (Stage 3: SVG storyboard panels + storyboard.html)
+  python3 05_storyboard_to_pixelart.py --ansi --svg           (both — ANSI pixel art + SVG illustrated panels)
 
 Install deps:
   pip install crewai smolagents openai
@@ -96,9 +96,10 @@ TT_INFERENCE_DIR = Path(os.environ.get(
 DEFAULT_CREATIVE_MODEL = os.environ.get("VLLM_CREATIVE_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
 DEFAULT_PROMPT_MODEL   = os.environ.get("VLLM_PROMPT_MODEL", "Qwen/Qwen3-32B")
 
-STORYBOARD_FILE = Path(__file__).parent / "storyboard.json"
-PROMPTS_FILE    = Path(__file__).parent / "pixelart_prompts.json"
-SUMMARY_FILE    = Path(__file__).parent / "pipeline_summary.txt"
+STORYBOARD_FILE    = Path(__file__).parent / "storyboard.json"
+PROMPTS_FILE       = Path(__file__).parent / "pixelart_prompts.json"
+SUMMARY_FILE       = Path(__file__).parent / "pipeline_summary.txt"
+STORYBOARD_HTML    = Path(__file__).parent / "storyboard.html"
 
 # Module-level state shared across Stage 2 tools (mirrors 04_dungeon_master.py pattern)
 _storyboard: dict = {}
@@ -704,9 +705,11 @@ def write_summary(theme: str, creative_model: str, prompt_model: str,
 # The LLM generates a compact palette-indexed pixel grid; we convert it to
 # ANSI truecolor block chars (terminal) and/or SVG rects (file).
 
-_GRID_W = 16   # columns
-_GRID_H = 12   # rows
-_SVG_CELL = 20  # pixels per cell in SVG output
+_GRID_W = 16       # columns (ANSI pixel grid)
+_GRID_H = 12       # rows (ANSI pixel grid)
+_SVG_CELL = 20     # pixels per cell in SVG pixel grid output
+_SVG_PANEL_W = 320  # storyboard panel width
+_SVG_PANEL_H = 180  # storyboard panel height
 
 
 def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
@@ -776,109 +779,309 @@ def _parse_grid(raw: str) -> tuple[dict[str, str], list[str]] | tuple[None, None
         return None, None
 
 
+# ── Stage 3 helpers: SVG storyboard panels ─────────────────────────────────────
+
+def _parse_svg(raw: str) -> str | None:
+    """Extract and lightly validate SVG markup from an LLM response."""
+    cleaned = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL)
+    cleaned = re.sub(r"```(?:svg|xml)?\s*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"```\s*", "", cleaned.strip())
+    m = re.search(r"(<svg\b[^>]*?>.*?</svg>)", cleaned, re.DOTALL | re.IGNORECASE)
+    if not m:
+        return None
+    svg = m.group(1)
+    try:
+        import xml.etree.ElementTree as ET
+        ET.fromstring(svg)
+        return svg
+    except Exception:
+        # Accept if it has recognisable shape elements — the model may emit minor XML quirks
+        if any(tag in svg for tag in ("<rect", "<path", "<polygon", "<circle", "<ellipse")):
+            return svg
+        return None
+
+
+def _fallback_svg_panel(sid: int, title: str, hex_colors: list[str]) -> str:
+    """Simple placeholder SVG used when LLM panel generation fails for a scene."""
+    w, h  = _SVG_PANEL_W, _SVG_PANEL_H
+    bg    = hex_colors[0] if hex_colors else "#1a1a2e"
+    mid   = hex_colors[len(hex_colors) // 2] if hex_colors else "#444466"
+    light = hex_colors[-1] if hex_colors else "#ccccdd"
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}">'
+        f'<rect width="{w}" height="{h}" fill="{bg}"/>'
+        f'<rect y="{int(h * 0.65)}" width="{w}" height="{int(h * 0.35)}" fill="{mid}"/>'
+        f'<text x="{w // 2}" y="{int(h * 0.46)}" text-anchor="middle" '
+        f'dominant-baseline="middle" fill="{light}" font-family="monospace" font-size="11">'
+        f'Scene {sid}</text>'
+        f'</svg>'
+    )
+
+
+def _generate_svg_panel(
+    client: "OpenAI",
+    model_id: str,
+    sid: int,
+    title: str,
+    description: str,
+    mood: str,
+    era: str,
+    hex_colors: list[str],
+) -> str | None:
+    """Ask the LLM to draw an SVG storyboard panel illustration for one scene."""
+    colors   = hex_colors[:6] if hex_colors else ["#1a1a2e", "#2a2a4e", "#6a6a9e", "#aaaacc"]
+    c_dark   = colors[0]
+    c_mid    = colors[len(colors) // 2]
+    c_light  = colors[-1]
+    c_ground = colors[min(1, len(colors) - 1)]
+    color_list = ", ".join(colors)
+
+    task = (
+        f"Draw a storyboard panel SVG ({_SVG_PANEL_W}×{_SVG_PANEL_H}px) for:\n"
+        f"Scene {sid}: \"{title}\"\n"
+        f"Description: {description}\n"
+        f"Mood: {mood}  |  Hardware era: {era}\n\n"
+        f"Palette (use ONLY these colors): {color_list}\n\n"
+        f"Build the SVG with these layers in order:\n"
+        f"1. In <defs>: a linearGradient id='sky' from {c_dark} (top) to {c_mid} (bottom)\n"
+        f"2. Sky: <rect width='{_SVG_PANEL_W}' height='{_SVG_PANEL_H}' fill='url(#sky)'/>\n"
+        f"3. Ground: a <rect> or <polygon> in {c_ground} covering the bottom 35-50px\n"
+        f"4. Silhouettes: 1-3 shapes in {c_dark} representing the scene subjects — "
+        f"buildings, figures, trees, machines, whatever fits the scene. "
+        f"Use <polygon points=...> for blocky shapes or <path d=...> for organic ones. "
+        f"Make them recognizable outlines, not just rectangles.\n"
+        f"5. Accent: one small element in {c_light} for mood — a lit window, "
+        f"moon disc, spark, or glowing spot. Use <circle> or <ellipse>.\n\n"
+        f"SVG must start: <svg xmlns=\"http://www.w3.org/2000/svg\" "
+        f"width=\"{_SVG_PANEL_W}\" height=\"{_SVG_PANEL_H}\">\n"
+        f"SVG must end: </svg>\n"
+        f"No <text>, no <image>, no external hrefs, no XML comments in the output.\n"
+        f"Output ONLY the complete SVG. No explanation, no markdown."
+    )
+
+    try:
+        resp = client.chat.completions.create(
+            model=model_id,
+            messages=[{"role": "user", "content": task}],
+            max_tokens=2048,
+            temperature=0.5,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+        )
+        raw = resp.choices[0].message.content or ""
+        return _parse_svg(raw)
+    except Exception as e:
+        print(f"    [warning: SVG panel LLM call failed — {e}]")
+        return None
+
+
+def _assemble_storyboard_html(storyboard: dict, panels: list[dict]) -> Path:
+    """Embed all scene SVG panels into a single storyboard.html."""
+    theme       = storyboard.get("theme", "Storyboard")
+    hardware    = storyboard.get("hardware_era", "")
+    palette_str = storyboard.get("palette", "")
+    lighting    = storyboard.get("lighting", "")
+    technique   = storyboard.get("technique", "")
+
+    hex_colors = re.findall(r"#[0-9A-Fa-f]{6}", palette_str)
+    swatches = "".join(
+        f'<div class="swatch" style="background:{h}" title="{h}"></div>'
+        for h in hex_colors
+    )
+
+    meta_parts = [p for p in [
+        f"<strong>{hardware}</strong>" if hardware else "",
+        lighting, technique,
+    ] if p]
+
+    panels_html_parts = []
+    for p in panels:
+        desc = p.get("description", "")
+        if len(desc) > 180:
+            desc = desc[:177] + "…"
+        svg = p["svg"]
+        # Inject viewBox so the inline SVG scales properly to the column width
+        if 'viewBox' not in svg and f'width="{_SVG_PANEL_W}"' in svg:
+            svg = svg.replace(
+                f'width="{_SVG_PANEL_W}" height="{_SVG_PANEL_H}"',
+                f'width="{_SVG_PANEL_W}" height="{_SVG_PANEL_H}" '
+                f'viewBox="0 0 {_SVG_PANEL_W} {_SVG_PANEL_H}" preserveAspectRatio="xMidYMid meet"',
+            )
+        panels_html_parts.append(
+            f'<div class="panel">\n'
+            f'  <div class="panel-svg">{svg}</div>\n'
+            f'  <div class="panel-info">\n'
+            f'    <div class="scene-num">Scene {p["id"]}</div>\n'
+            f'    <div class="scene-title">{p["title"]}</div>\n'
+            f'    <div class="scene-mood">{p["mood"]}</div>\n'
+            f'    <div class="scene-desc">{desc}</div>\n'
+            f'  </div>\n'
+            f'</div>'
+        )
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Storyboard: {theme}</title>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ background: #0e0e0e; color: #bbb; font-family: 'Courier New', monospace; padding: 32px; }}
+h1 {{ color: #eee; font-size: 1.3rem; margin-bottom: 10px; font-weight: normal; letter-spacing: 0.02em; }}
+.meta {{ color: #666; font-size: 0.78rem; line-height: 1.9; margin-bottom: 14px; }}
+.palette {{ display: flex; gap: 5px; align-items: center; margin-bottom: 28px; }}
+.swatch {{ width: 16px; height: 16px; border-radius: 2px; flex-shrink: 0; }}
+.panels {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 860px; }}
+.panel {{ background: #161616; border: 1px solid #282828; border-radius: 3px; overflow: hidden; }}
+.panel-svg {{ display: block; line-height: 0; }}
+.panel-svg svg {{ display: block; width: 100%; height: auto; }}
+.panel-info {{ padding: 10px 12px 12px; border-top: 1px solid #222; }}
+.scene-num {{ color: #555; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }}
+.scene-title {{ color: #ddd; font-size: 0.92rem; font-weight: bold; margin-bottom: 4px; }}
+.scene-mood {{ color: #888; font-size: 0.73rem; font-style: italic; margin-bottom: 6px; }}
+.scene-desc {{ color: #666; font-size: 0.7rem; line-height: 1.55; }}
+</style>
+</head>
+<body>
+<h1>{theme}</h1>
+<div class="meta">{' &nbsp;·&nbsp; '.join(meta_parts)}</div>
+<div class="palette">{swatches}</div>
+<div class="panels">
+{''.join(panels_html_parts)}
+</div>
+</body>
+</html>"""
+
+    STORYBOARD_HTML.write_text(html)
+    return STORYBOARD_HTML
+
+
 def run_stage3(storyboard: dict, prompts: list[dict], model_id: str, base_url: str,
                make_ansi: bool, make_svg: bool) -> None:
-    """For each scene, ask the LLM to generate a pixel grid and render it as ANSI / SVG."""
+    """Stage 3: visual rendering — two independent modes, both optional.
+
+    --ansi  Palette-indexed 16×12 pixel grid from LLM → ANSI truecolor block art.
+            Good for quick terminal preview; kept as the lightweight fast path.
+
+    --svg   Full SVG illustration per scene (320×180, paths + gradients + silhouettes)
+            → individual scene_N_title.svg files + assembled storyboard.html.
+            This is the proper storyboard view: panels in a 2-column grid with
+            scene numbers, titles, moods, and descriptions.
+
+    Both modes can run together; each uses a separate LLM call with its own prompt.
+    """
     if not make_ansi and not make_svg:
         return
 
     modes = " + ".join(filter(None, ["ANSI" if make_ansi else "", "SVG" if make_svg else ""]))
-    print(f"\n[Stage 3: Pixel Art Rendering ({modes}) — {model_id}]")
+    print(f"\n[Stage 3: Storyboard Rendering ({modes}) — {model_id}]")
     if make_ansi:
-        print("  ANSI output requires a truecolor terminal (most modern terminals qualify).")
+        print("  ANSI: palette-indexed pixel grid (truecolor terminal required)")
+    if make_svg:
+        print("  SVG: illustrated storyboard panels → storyboard.html")
 
-    client = OpenAI(base_url=base_url, api_key="none")
-    era       = storyboard.get("hardware_era", "pixel art")
-    technique = storyboard.get("technique", "flat tiles")
+    client      = OpenAI(base_url=base_url, api_key="none")
+    era         = storyboard.get("hardware_era", "pixel art")
+    technique   = storyboard.get("technique", "flat tiles")
     ref_palette = storyboard.get("palette", "")
+    hex_colors  = re.findall(r"#[0-9A-Fa-f]{6}", ref_palette)
 
-    created: list[str] = []
+    svg_panels:   list[dict] = []   # collected for HTML assembly at the end
+    ansi_created: list[str]  = []
+    svg_created:  list[str]  = []
 
     for p in prompts:
         sid   = p["id"]
         title = p["title"]
         slug  = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_")
+        scene = next((s for s in storyboard.get("scenes", []) if s["id"] == sid), {})
+        description = scene.get("description", "")
+        mood        = scene.get("mood", "neutral")
         print(f"  [scene {sid}: {title}]", flush=True)
 
-        # Pre-assign uppercase letters to palette hex values so the LLM
-        # has no ambiguity about which character maps to which color.
-        hex_colors = re.findall(r"#[0-9A-Fa-f]{6}", ref_palette)
-        key_letters = "ABCDEFGHIJ"
-        key_assignments = "\n".join(
-            f"  {key_letters[i]} → {h}"
-            for i, h in enumerate(hex_colors[:len(key_letters)])
-        ) or "  A → #888888"
-        valid_keys = ", ".join(key_letters[:len(hex_colors)] or ["A"])
-        example_row = (key_letters[0] * 4 + key_letters[min(1, len(hex_colors)-1)] * 4) * (_GRID_W // 8)
-
-        task = (
-            f"You are a pixel artist. Render scene {sid}: \"{title}\" as a "
-            f"{_GRID_W}×{_GRID_H} pixel art grid.\n\n"
-            f"Hardware era: {era}\n"
-            f"Technique: {technique}\n"
-            f"Scene: {p['prompt']}\n\n"
-            f"PALETTE — use ONLY these exact uppercase letter keys:\n"
-            f"{key_assignments}\n\n"
-            "OUTPUT — a JSON object, no prose, no markdown fences:\n"
-            "{\n"
-            f'  "palette": {{"{key_letters[0]}": "{hex_colors[0] if hex_colors else "#888888"}", ...}},\n'
-            f'  "grid": [\n'
-            f'    "{example_row}",\n'
-            f'    ... exactly {_GRID_H} rows total\n'
-            "  ]\n"
-            "}\n\n"
-            f"RULES (strictly enforced):\n"
-            f"- Every character in every row must be one of: {valid_keys}\n"
-            f"- NO spaces, NO dots, NO other characters whatsoever\n"
-            f"- Each row: exactly {_GRID_W} characters\n"
-            f"- Total rows: exactly {_GRID_H}\n"
-            "- Compose the scene: sky/background fills top rows, ground/floor fills bottom rows\n"
-            "- Apply the technique: flat fills for solid areas, alternating keys for dithering"
-        )
-
-        try:
-            resp = client.chat.completions.create(
-                model=model_id,
-                messages=[{"role": "user", "content": task}],
-                max_tokens=1024,
-                temperature=0.3,
-                # Disable Qwen3 extended thinking for this structured-output step —
-                # thinking preamble interferes with JSON parsing and burns tokens.
-                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
-            )
-            raw = resp.choices[0].message.content or ""
-        except Exception as e:
-            print(f"    [warning: LLM call failed — {e}]")
-            continue
-
-        palette, grid = _parse_grid(raw)
-        if palette is None or not grid:
-            print(f"    [warning: could not parse grid for scene {sid} — skipping]")
-            continue
-
+        # ── ANSI: palette-indexed pixel grid → block art ────────────────────
         if make_ansi:
+            key_letters = "ABCDEFGHIJ"
+            key_assignments = "\n".join(
+                f"  {key_letters[i]} → {h}"
+                for i, h in enumerate(hex_colors[:len(key_letters)])
+            ) or "  A → #888888"
+            valid_keys  = ", ".join(key_letters[:len(hex_colors)] or ["A"])
+            example_row = (key_letters[0] * 4 + key_letters[min(1, len(hex_colors)-1)] * 4) * (_GRID_W // 8)
+
+            grid_task = (
+                f"You are a pixel artist. Render scene {sid}: \"{title}\" as a "
+                f"{_GRID_W}×{_GRID_H} pixel art grid.\n\n"
+                f"Hardware era: {era}\n"
+                f"Technique: {technique}\n"
+                f"Scene: {p['prompt']}\n\n"
+                f"PALETTE — use ONLY these exact uppercase letter keys:\n"
+                f"{key_assignments}\n\n"
+                "OUTPUT — a JSON object, no prose, no markdown fences:\n"
+                "{\n"
+                f'  "palette": {{"{key_letters[0]}": "{hex_colors[0] if hex_colors else "#888888"}", ...}},\n'
+                f'  "grid": [\n'
+                f'    "{example_row}",\n'
+                f'    ... exactly {_GRID_H} rows total\n'
+                "  ]\n"
+                "}\n\n"
+                f"RULES:\n"
+                f"- Every character must be one of: {valid_keys}\n"
+                f"- NO spaces, NO dots, NO other characters\n"
+                f"- Each row: exactly {_GRID_W} characters\n"
+                f"- Total rows: exactly {_GRID_H}\n"
+                "- Sky fills top rows, ground fills bottom rows\n"
+                "- Alternate keys for dithering where the technique calls for it"
+            )
             try:
-                ansi_art = _grid_to_ansi(grid, palette)
-                ans_path = Path(__file__).parent / f"scene_{sid}_{slug}.ans"
-                ans_path.write_text(ansi_art)
-                print(f"\n  Scene {sid}: {title}")
-                print(ansi_art)
-                print()
-                created.append(ans_path.name)
+                resp = client.chat.completions.create(
+                    model=model_id,
+                    messages=[{"role": "user", "content": grid_task}],
+                    max_tokens=1024,
+                    temperature=0.3,
+                    extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+                )
+                raw = resp.choices[0].message.content or ""
+                grid_palette, grid = _parse_grid(raw)
+                if grid_palette and grid:
+                    ansi_art = _grid_to_ansi(grid, grid_palette)
+                    ans_path = Path(__file__).parent / f"scene_{sid}_{slug}.ans"
+                    ans_path.write_text(ansi_art)
+                    print(f"\n  Scene {sid}: {title}")
+                    print(ansi_art)
+                    print()
+                    ansi_created.append(ans_path.name)
+                else:
+                    print(f"    [warning: could not parse pixel grid for scene {sid}]")
             except Exception as e:
                 print(f"    [warning: ANSI render failed for scene {sid} — {e}]")
 
+        # ── SVG: illustrated storyboard panel ───────────────────────────────
         if make_svg:
-            try:
-                svg_path = Path(__file__).parent / f"scene_{sid}_{slug}.svg"
-                svg_path.write_text(_grid_to_svg(grid, palette))
-                print(f"  [saved → {svg_path.name}]")
-                created.append(svg_path.name)
-            except Exception as e:
-                print(f"    [warning: SVG render failed for scene {sid} — {e}]")
+            svg = _generate_svg_panel(
+                client, model_id, sid, title, description, mood, era, hex_colors
+            )
+            if svg is None:
+                print(f"    [using fallback panel for scene {sid}]")
+                svg = _fallback_svg_panel(sid, title, hex_colors)
+            svg_path = Path(__file__).parent / f"scene_{sid}_{slug}.svg"
+            svg_path.write_text(svg)
+            print(f"  [saved → {svg_path.name}]")
+            svg_created.append(svg_path.name)
+            svg_panels.append({
+                "id": sid, "title": title, "mood": mood,
+                "description": description, "svg": svg,
+            })
 
-    if created:
-        print(f"\n[Stage 3 complete — {len(created)} file(s) created]")
+    # Assemble the HTML storyboard from all illustrated panels
+    if make_svg and svg_panels:
+        html_path = _assemble_storyboard_html(storyboard, svg_panels)
+        print(f"\n  [storyboard.html — {len(svg_panels)} panels assembled]")
+        print(f"  open in browser: file://{html_path.resolve()}")
+        svg_created.append(html_path.name)
+
+    total = len(ansi_created) + len(svg_created)
+    if total:
+        print(f"\n[Stage 3 complete — {total} file(s) created]")
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────
@@ -1037,7 +1240,8 @@ def main():
     if args.ansi:
         print(f"  scene_*.ans           → ANSI block art (cat to terminal)")
     if args.svg:
-        print(f"  scene_*.svg           → SVG pixel grids (open in browser)")
+        print(f"  scene_*.svg           → SVG storyboard panels")
+        print(f"  storyboard.html       → assembled storyboard (open in browser)")
     if not args.ansi and not args.svg:
         print()
         print("Next: render the prompts.")

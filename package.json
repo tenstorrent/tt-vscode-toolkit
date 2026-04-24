@@ -691,6 +691,11 @@
         "command": "tenstorrent.runStoryboardPipeline",
         "title": "Run Storyboard Pipeline (Demo 5)",
         "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runLandscapeSvg",
+        "title": "Generate Landscape SVG (Demo 6)",
+        "category": "Tenstorrent"
       }
     ]
   },

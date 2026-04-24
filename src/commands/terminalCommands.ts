@@ -820,6 +820,12 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --simulate',
     description: 'Runs Demo 5: two-stage CrewAI + smolagents pipeline demonstrating model lifecycle — storyboard (70B) → pixel art prompts (32B)',
   },
+  RUN_LANDSCAPE_SVG: {
+    id: 'run-landscape-svg',
+    name: 'Generate Landscape SVG (Demo 6)',
+    template: 'python3 ~/code/tt-agents/06_landscape_svg.py --simulate',
+    description: 'Runs Demo 6: parameterized generative landscape SVG — direct LLM → SVG with gradients, terrain, clouds, stars',
+  },
 };
 
 /**

@@ -1083,44 +1083,73 @@ _model = AutoModelForCausalLM.from_pretrained(
 
 The CPU orchestrator is particularly useful when the hardware is already committed to another job, or when you want to keep a long-running creative model loaded and fire off prompt-engineering passes on demand.
 
-### Stage 3: Render the Art Directly
+### Stage 3: Render the Storyboard
 
-After Stage 2 produces `pixelart_prompts.json`, you can ask the same model to render each scene as actual pixel art — no image generation server required:
+After Stage 2 produces `pixelart_prompts.json`, Stage 3 takes two independent paths depending on the flag you pass:
 
 ```bash
-# ANSI block art printed to terminal
+# ANSI mode: pixel art grid printed to terminal
 python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model --ansi
 
-# SVG pixel grid saved to scene_N_title.svg
+# SVG mode: illustrated storyboard panels + assembled HTML
 python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model --svg
 
-# Both at once
+# Both at once (separate LLM calls per scene)
 python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model --ansi --svg
 ```
 
-**ANSI mode** renders each scene as a grid of Unicode block characters (`█`) with ANSI truecolor escape codes, printed directly to the terminal. Requires a terminal with truecolor support — which includes most modern terminals (iTerm2, Kitty, GNOME Terminal, Windows Terminal, etc.).
+**ANSI mode** asks the LLM for a compact palette-indexed grid (16×12, letters as color keys) and renders it as Unicode block characters (`█`) with ANSI truecolor escape codes. Printed directly to the terminal; also saved as `scene_N_title.ans`. Requires truecolor terminal support.
 
-**SVG mode** generates a crisp `scene_N_title.svg` per scene — a grid of `<rect>` elements at 20px per pixel with `shape-rendering="crispEdges"`. Open in any browser.
+**SVG mode** asks the LLM to draw a proper storyboard panel illustration per scene — 320×180 SVG with a gradient sky, silhouetted subjects, ground plane, and a mood accent. Each scene is saved as `scene_N_title.svg` and then all panels are assembled into a single `storyboard.html` with a 2-column grid layout, scene numbers, titles, moods, and descriptions under each panel.
 
-Both modes work by asking the LLM for a compact palette-indexed grid:
-
-```json
-{
-  "palette": {"A": "#0F380F", "B": "#306230", "C": "#8BAC0F", "D": "#9BBC0F"},
-  "grid": [
-    "DDDDDDDDDDDDDDDD",
-    "DDDDCCCCCCCCDDDD",
-    "CCCCBBBBBBBBCCCC",
-    "CCCCBBBBBBBBCCCC",
-    "BBBBAAAAAAABBBB",
-    ...
-  ]
-}
+```
+storyboard.html
+  ┌──────────────┐  ┌──────────────┐
+  │  Scene 1     │  │  Scene 2     │
+  │  [SVG panel] │  │  [SVG panel] │
+  │  title       │  │  title       │
+  │  mood        │  │  mood        │
+  └──────────────┘  └──────────────┘
+  ┌──────────────┐  ┌──────────────┐
+  │  Scene 3     │  │  Scene 4     │
+  ...
 ```
 
-The script converts this to either format algorithmically — so even if the LLM gets the exact hex values slightly wrong, the output still forms a coherent image using the intended color relationships.
+If the LLM produces invalid SVG for a scene, the script falls back to a simple placeholder panel so the HTML assembles cleanly regardless.
 
-This is Stage 3 as a **third API pattern**: while Stage 1 uses CrewAI's `LLM` wrapper and Stage 2 uses smolagents' `OpenAIServerModel`, Stage 3 calls the OpenAI client directly — `client.chat.completions.create()` with no framework overhead, just structured generation.
+This is Stage 3 as a **third API pattern**: while Stage 1 uses CrewAI's `LLM` wrapper and Stage 2 uses smolagents' `OpenAIServerModel`, Stage 3 calls the OpenAI client directly — `client.chat.completions.create()` with no framework overhead.
+
+---
+
+## Demo 6: Generative Landscape SVG
+
+**File:** `~/tt-scratchpad/agents/06_landscape_svg.py`
+**Framework:** none — direct OpenAI client
+**Demonstrates:** parameterized LLM prompts that produce SVG with gradients, layered terrain, and atmospheric effects
+
+The simplest possible demo: one LLM call, one SVG file. Pass flags describing the scene you want; the script builds a structured prompt and asks the model to generate a complete 800×450 landscape with proper `<defs>` gradients, mountain `<polygon>` shapes, cloud `<ellipse>` groups, and a sun or moon.
+
+```bash
+# Sunset with mountains (default)
+python3 ~/code/tt-agents/06_landscape_svg.py
+
+# Night sky with stars
+python3 ~/code/tt-agents/06_landscape_svg.py --palette blue --no-mountains --stars
+
+# Full scene
+python3 ~/code/tt-agents/06_landscape_svg.py --palette purple --mountains --clouds --stars
+
+# See the prompt without calling the model
+python3 ~/code/tt-agents/06_landscape_svg.py --palette red --simulate
+```
+
+**Palette choices:** `sunset` · `blue` · `purple` · `red` · `orange`
+
+Each palette defines a complete color system — sky gradient (3 stops), mountain depth layers, cloud color, atmospheric glow, sun/moon, ground — so all colors in the generated SVG are harmonically related without the LLM having to invent them.
+
+**Why no framework?** The task doesn't need agents, tools, or multi-step reasoning. It's a single structured generation: prompt in, SVG out. Reaching for CrewAI or smolagents here would add complexity with no benefit. This demo exists to show the contrast — knowing when to use a framework is as important as knowing how.
+
+**The key prompt technique:** Instead of asking the model to "draw a landscape," the prompt specifies every layer explicitly — which gradient IDs to define in `<defs>`, which colors to use for each mountain ridge, that polygon points must span `0,450` to `800,450` to close at the bottom edge. The LLM's job is to fill in the actual shape coordinates, not to make architectural decisions.
 
 ---
 
