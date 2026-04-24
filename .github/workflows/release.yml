@@ -125,6 +125,7 @@ jobs:
           npm run package
 
       - name: Publish to VS Code Marketplace
+        if: ${{ env.VSCE_PAT != '' }}
         run: npx vsce publish --packagePath *.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
