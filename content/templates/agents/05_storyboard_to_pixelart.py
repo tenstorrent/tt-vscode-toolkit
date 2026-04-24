@@ -29,6 +29,9 @@ Usage:
   python3 05_storyboard_to_pixelart.py --cpu-orchestrator --cpu-model "Qwen/Qwen3-1.7B"
   python3 05_storyboard_to_pixelart.py --creative-model "meta-llama/Llama-3.3-70B-Instruct"
   python3 05_storyboard_to_pixelart.py --prompt-model "Qwen/Qwen3-32B"
+  python3 05_storyboard_to_pixelart.py --ansi                 (Stage 3: render each scene as ANSI block art)
+  python3 05_storyboard_to_pixelart.py --svg                  (Stage 3: render each scene as SVG pixel grid)
+  python3 05_storyboard_to_pixelart.py --ansi --svg           (both — ANSI prints to terminal, SVG saved)
 
 Install deps:
   pip install crewai smolagents openai
@@ -55,6 +58,12 @@ try:
     from smolagents.monitoring import AgentLogger, LogLevel
 except ImportError:
     print("ERROR: smolagents not installed. Run: pip install smolagents")
+    sys.exit(1)
+
+try:
+    from openai import OpenAI
+except ImportError:
+    print("ERROR: openai not installed. Run: pip install openai")
     sys.exit(1)
 
 try:
@@ -186,6 +195,25 @@ def _start_server(model: str, port: int = 8000, device_ids: list[int] | None = N
 
     if not simulate:
         subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def _detect_running_model(base_url: str) -> str | None:
+    """Return the model ID currently loaded on the server, or None if no server is up."""
+    try:
+        url = f"{base_url.rstrip('/')}/models"
+        with urllib.request.urlopen(url, timeout=5) as r:
+            return json.loads(r.read())["data"][0]["id"]
+    except Exception:
+        return None
+
+
+def _same_model_family(a: str, b: str) -> bool:
+    """True if two model IDs belong to the same family (e.g. both Qwen3, both Llama)."""
+    al, bl = a.lower(), b.lower()
+    for family in ("qwen", "llama", "mistral", "gemma", "phi"):
+        if family in al and family in bl:
+            return True
+    return al == bl
 
 
 def _wait_for_server(port: int = 8000, timeout: int = 900) -> str:
@@ -672,6 +700,152 @@ def write_summary(theme: str, creative_model: str, prompt_model: str,
     SUMMARY_FILE.write_text("\n".join(lines))
 
 
+# ── Stage 3: ANSI + SVG rendering ─────────────────────────────────────────────
+# The LLM generates a compact palette-indexed pixel grid; we convert it to
+# ANSI truecolor block chars (terminal) and/or SVG rects (file).
+
+_GRID_W = 16   # columns
+_GRID_H = 12   # rows
+_SVG_CELL = 20  # pixels per cell in SVG output
+
+
+def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
+    h = hex_color.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+
+
+def _grid_to_ansi(grid: list[str], palette: dict[str, str]) -> str:
+    """Render a palette-indexed grid as ANSI truecolor block characters."""
+    rgb = {k: _hex_to_rgb(v) for k, v in palette.items()}
+    rows = []
+    for row in grid:
+        line = ""
+        for ch in row:
+            if ch in rgb:
+                r, g, b = rgb[ch]
+                line += f"\033[38;2;{r};{g};{b}m█\033[0m"
+            else:
+                line += " "
+        rows.append(line)
+    return "\n".join(rows)
+
+
+def _grid_to_svg(grid: list[str], palette: dict[str, str]) -> str:
+    """Render a palette-indexed grid as an SVG with crisp pixel rects."""
+    cols = max((len(r) for r in grid), default=_GRID_W)
+    rows = len(grid)
+    w, h = cols * _SVG_CELL, rows * _SVG_CELL
+    rects = []
+    for ri, row in enumerate(grid):
+        for ci, ch in enumerate(row):
+            fill = palette.get(ch, "#888888")
+            x, y = ci * _SVG_CELL, ri * _SVG_CELL
+            rects.append(f'  <rect x="{x}" y="{y}" width="{_SVG_CELL}" height="{_SVG_CELL}" fill="{fill}"/>')
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'width="{w}" height="{h}" viewBox="0 0 {w} {h}" shape-rendering="crispEdges">\n'
+        + "\n".join(rects)
+        + "\n</svg>"
+    )
+
+
+def _parse_grid(raw: str) -> tuple[dict[str, str], list[str]] | tuple[None, None]:
+    """Extract (palette, grid) from LLM response. Returns (None, None) on failure."""
+    cleaned = re.sub(r"^```(?:json)?\s*", "", raw.strip(), flags=re.MULTILINE)
+    cleaned = re.sub(r"```\s*$", "", cleaned.strip(), flags=re.MULTILINE)
+    m = re.search(r"\{.*\}", cleaned, re.DOTALL)
+    if not m:
+        return None, None
+    try:
+        data = json.loads(m.group(0))
+        palette = {str(k): str(v) for k, v in data.get("palette", {}).items()}
+        grid = [str(r) for r in data.get("grid", [])]
+        return (palette, grid) if palette and grid else (None, None)
+    except (json.JSONDecodeError, TypeError):
+        return None, None
+
+
+def run_stage3(storyboard: dict, prompts: list[dict], model_id: str, base_url: str,
+               make_ansi: bool, make_svg: bool) -> None:
+    """For each scene, ask the LLM to generate a pixel grid and render it as ANSI / SVG."""
+    if not make_ansi and not make_svg:
+        return
+
+    modes = " + ".join(filter(None, ["ANSI" if make_ansi else "", "SVG" if make_svg else ""]))
+    print(f"\n[Stage 3: Pixel Art Rendering ({modes}) — {model_id}]")
+    if make_ansi:
+        print("  ANSI output requires a truecolor terminal (most modern terminals qualify).")
+
+    client = OpenAI(base_url=base_url, api_key="none")
+    era       = storyboard.get("hardware_era", "pixel art")
+    technique = storyboard.get("technique", "flat tiles")
+    ref_palette = storyboard.get("palette", "")
+
+    created: list[str] = []
+
+    for p in prompts:
+        sid   = p["id"]
+        title = p["title"]
+        slug  = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_")
+        print(f"  [scene {sid}: {title}]", flush=True)
+
+        task = (
+            f"You are a pixel artist. Render scene {sid}: \"{title}\" as a "
+            f"{_GRID_W}×{_GRID_H} pixel art grid.\n\n"
+            f"Hardware era: {era}\n"
+            f"Palette reference: {ref_palette}\n"
+            f"Technique: {technique}\n"
+            f"Scene description: {p['prompt']}\n\n"
+            "Output a JSON object ONLY — no prose, no markdown fences:\n"
+            "{\n"
+            '  "palette": {"A": "#hexcolor", "B": "#hexcolor"},\n'
+            '  "grid": ["AAABBBCCCDDD...", ...]'
+            "\n}\n\n"
+            f"Constraints:\n"
+            f"- grid must be exactly {_GRID_W} chars wide and {_GRID_H} rows tall\n"
+            "- use 2–6 colors max; stay close to the reference palette hex values\n"
+            "- compose foreground / background with purpose\n"
+            "- apply the technique: flat fills for flat tiles, alternating chars for dithering"
+        )
+
+        try:
+            resp = client.chat.completions.create(
+                model=model_id,
+                messages=[{"role": "user", "content": task}],
+                max_tokens=1024,
+                temperature=0.3,
+            )
+            raw = resp.choices[0].message.content or ""
+        except Exception as e:
+            print(f"    [warning: LLM call failed — {e}]")
+            continue
+
+        palette, grid = _parse_grid(raw)
+        if palette is None or not grid:
+            print(f"    [warning: could not parse grid response for scene {sid}]")
+            continue
+
+        if make_ansi:
+            ansi_art = _grid_to_ansi(grid, palette)
+            ans_path = Path(__file__).parent / f"scene_{sid}_{slug}.ans"
+            ans_path.write_text(ansi_art)
+            print(f"\n  Scene {sid}: {title}")
+            print(ansi_art)
+            print()
+            created.append(ans_path.name)
+
+        if make_svg:
+            svg_path = Path(__file__).parent / f"scene_{sid}_{slug}.svg"
+            svg_path.write_text(_grid_to_svg(grid, palette))
+            print(f"  [saved → {svg_path.name}]")
+            created.append(svg_path.name)
+
+    if created:
+        print(f"\n[Stage 3 complete — {len(created)} file(s) created]")
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -698,10 +872,26 @@ def main():
                              "no chip reset. TT hardware stays fully occupied with Stage 1.")
     parser.add_argument("--cpu-model", default=DEFAULT_CPU_MODEL,
                         help="CPU orchestrator model (default: Qwen/Qwen3-0.6B; try Qwen/Qwen3-1.7B for quality)")
+    # Stage 3: pixel art rendering
+    parser.add_argument("--ansi", action="store_true",
+                        help="Stage 3: render each scene as ANSI truecolor block art (prints to terminal)")
+    parser.add_argument("--svg", action="store_true",
+                        help="Stage 3: render each scene as an SVG pixel grid (saved to scene_N_title.svg)")
     args = parser.parse_args()
 
-    # --single-model: use the prompt model for both (32B is faster for iteration)
-    if args.single_model:
+    # Auto-detect single-model: if the running model is the same family as --prompt-model
+    # (e.g. Qwen3-32B is loaded and prompt-model is also Qwen), skip the switch entirely.
+    # Explicit --single-model always wins; dual-server and cpu-orchestrator manage their own routing.
+    _auto_detected = False
+    if not args.single_model and not args.dual_server and not args.cpu_orchestrator:
+        running = _detect_running_model(BASE_URL_PRIMARY)
+        if running and _same_model_family(running, args.prompt_model):
+            args.single_model = True
+            args.creative_model = running   # use exact loaded ID, not the default string
+            _auto_detected = True
+
+    # Manual --single-model (not auto-detected): normalise creative model to prompt model
+    if args.single_model and not _auto_detected:
         args.creative_model = args.prompt_model
 
     print("=" * 70)
@@ -713,6 +903,8 @@ def main():
     else:
         print(f"Stage 2 model: {args.prompt_model}  (pixel art prompts, TT hardware)")
     print(f"Endpoint:      {BASE_URL_PRIMARY}")
+    if _auto_detected:
+        print(f"[auto: {args.creative_model} detected — using for both stages, no model switch needed]")
     if args.simulate:
         print("[--simulate: server operations printed but not executed]")
     if args.dual_server:
@@ -770,6 +962,12 @@ def main():
 
     t_total = time.time() - t_start
 
+    # ── Stage 3: Pixel art rendering ──────────────────────────────────────────
+    # Uses the Stage 2 model (already loaded) — no server change needed.
+    if args.ansi or args.svg:
+        run_stage3(storyboard, prompts, stage2_model, stage2_url,
+                   make_ansi=args.ansi, make_svg=args.svg)
+
     # ── Teardown ───────────────────────────────────────────────────────────────
     if args.dual_server:
         teardown_dual_server(simulate=args.simulate)
@@ -793,6 +991,15 @@ def main():
     print(f"  storyboard.json       → {STORYBOARD_FILE.name}")
     print(f"  pixelart_prompts.json → {PROMPTS_FILE.name}")
     print(f"  pipeline_summary.txt  → {SUMMARY_FILE.name}")
+    if args.ansi:
+        print(f"  scene_*.ans           → ANSI block art (cat to terminal)")
+    if args.svg:
+        print(f"  scene_*.svg           → SVG pixel grids (open in browser)")
+    if not args.ansi and not args.svg:
+        print()
+        print("Next: render the prompts.")
+        print("  LLM-rendered (no extra model): re-run with --ansi or --svg")
+        print("  Image generation (Flux on TT): cd ~/code/tt-local-generator && ./bin/start_flux.sh")
 
 
 if __name__ == "__main__":

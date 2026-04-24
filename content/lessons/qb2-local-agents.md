@@ -951,6 +951,14 @@ python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model
 python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --dual-server
 ```
 
+**Auto-detect single-model:** If you already have a Qwen model loaded when you start the pipeline, the script detects it and automatically skips the model switch — no flags needed. You'll see a line like:
+
+```
+[auto: Qwen/Qwen3-32B detected — using for both stages, no model switch needed]
+```
+
+This covers the common case where you're iterating: start your Qwen server once, run the pipeline as many times as you like.
+
 ### What Gets Produced
 
 ```bash
@@ -958,6 +966,18 @@ storyboard.json         # Scene descriptions, palette, constraints (Stage 1 outp
 pixelart_prompts.json   # Final prompts per scene (Stage 2 output)
 pipeline_summary.txt    # Human-readable run log with timing per stage
 ```
+
+**Running the prompts:** The prompts in `pixelart_prompts.json` are ready for any image generation API. If you have Flux running via tt-local-generator:
+
+```bash
+# Start Flux on TT hardware
+cd ~/code/tt-local-generator && ./bin/start_flux.sh
+
+# POST each scene prompt to the image generation endpoint
+# http://localhost:8000/v1/images/generations
+```
+
+Or pipe them into any external image generation service that accepts text prompts — the format is standard and provider-agnostic.
 
 Sample `storyboard.json` (from theme "a Game Boy with a cracked screen still running Tetris, battery low"):
 
@@ -1062,6 +1082,45 @@ _model = AutoModelForCausalLM.from_pretrained(
 | `--dual-server` | 0 | Fast (32B on TT) | 4 chips |
 
 The CPU orchestrator is particularly useful when the hardware is already committed to another job, or when you want to keep a long-running creative model loaded and fire off prompt-engineering passes on demand.
+
+### Stage 3: Render the Art Directly
+
+After Stage 2 produces `pixelart_prompts.json`, you can ask the same model to render each scene as actual pixel art — no image generation server required:
+
+```bash
+# ANSI block art printed to terminal
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model --ansi
+
+# SVG pixel grid saved to scene_N_title.svg
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model --svg
+
+# Both at once
+python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model --ansi --svg
+```
+
+**ANSI mode** renders each scene as a grid of Unicode block characters (`█`) with ANSI truecolor escape codes, printed directly to the terminal. Requires a terminal with truecolor support — which includes most modern terminals (iTerm2, Kitty, GNOME Terminal, Windows Terminal, etc.).
+
+**SVG mode** generates a crisp `scene_N_title.svg` per scene — a grid of `<rect>` elements at 20px per pixel with `shape-rendering="crispEdges"`. Open in any browser.
+
+Both modes work by asking the LLM for a compact palette-indexed grid:
+
+```json
+{
+  "palette": {"A": "#0F380F", "B": "#306230", "C": "#8BAC0F", "D": "#9BBC0F"},
+  "grid": [
+    "DDDDDDDDDDDDDDDD",
+    "DDDDCCCCCCCCDDDD",
+    "CCCCBBBBBBBBCCCC",
+    "CCCCBBBBBBBBCCCC",
+    "BBBBAAAAAAABBBB",
+    ...
+  ]
+}
+```
+
+The script converts this to either format algorithmically — so even if the LLM gets the exact hex values slightly wrong, the output still forms a coherent image using the intended color relationships.
+
+This is Stage 3 as a **third API pattern**: while Stage 1 uses CrewAI's `LLM` wrapper and Stage 2 uses smolagents' `OpenAIServerModel`, Stage 3 calls the OpenAI client directly — `client.chat.completions.create()` with no framework overhead, just structured generation.
 
 ---
 
