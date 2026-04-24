@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.403] - 2026-04-24
+
+### Fixed
+
+- **`sim-test.yml`** — added `author_association` guard (MEMBER/OWNER/COLLABORATOR only) so arbitrary commenters cannot trigger CI code execution; addresses Copilot PR review finding.
+- **`content/web/ttlang_sim_lite/kernels/eltwise_add.py`** and **`matmul_1d.py`** (both sim-lite trees) — fixed grid/node axis swap: `grid_cols, grid_rows = grid_size(dims=2)` was backwards; corrected to `grid_rows, grid_cols`. Same for `node_col, node_row → node_row, node_col`. Silent on square grids but wrong for non-square partitioning.
+- **`content/templates/agents/04_dungeon_master.py`** — split combined `smolagents`+`rich` import block into separate `try/except` blocks so the error message correctly identifies which package is missing.
+- **`content/templates/agents/02_code_explorer.py`** — removed stray trailing `]` from context-length error message string.
+- **`src/webview/playground/cloud-playground.js`** — escape backend names from health-check API response before inserting into `innerHTML`.
+
+---
+
 ## [0.0.402] - 2026-04-23
 
 ### Changed

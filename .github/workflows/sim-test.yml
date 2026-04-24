@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/sim-test')
+      contains(github.event.comment.body, '/sim-test') &&
+      contains(fromJSON('["MEMBER","OWNER","COLLABORATOR"]'), github.event.comment.author_association)
     outputs:
       pr_number: ${{ github.event.issue.number }}
       comment_id: ${{ github.event.comment.id }}

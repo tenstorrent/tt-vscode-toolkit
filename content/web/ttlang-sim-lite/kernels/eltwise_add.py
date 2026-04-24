@@ -27,7 +27,7 @@ def eltwise_add(a_in: ttnn.Tensor, b_in: ttnn.Tensor, out: ttnn.Tensor) -> None:
     row_tiles = a_in.shape[0] // TILE_SIZE // GRANULARITY
     col_tiles = a_in.shape[1] // TILE_SIZE
 
-    grid_cols, grid_rows = ttl.grid_size(dims=2)
+    grid_rows, grid_cols = ttl.grid_size(dims=2)
     rows_per_node = -(-row_tiles // grid_rows)
     cols_per_node = -(-col_tiles // grid_cols)
 
@@ -37,7 +37,7 @@ def eltwise_add(a_in: ttnn.Tensor, b_in: ttnn.Tensor, out: ttnn.Tensor) -> None:
 
     @ttl.compute()
     def compute():
-        node_col, node_row = ttl.node(dims=2)
+        node_row, node_col = ttl.node(dims=2)
         for local_row in range(rows_per_node):
             row = node_row * rows_per_node + local_row
             if row < row_tiles:
@@ -53,7 +53,7 @@ def eltwise_add(a_in: ttnn.Tensor, b_in: ttnn.Tensor, out: ttnn.Tensor) -> None:
 
     @ttl.datamovement()
     def read():
-        node_col, node_row = ttl.node(dims=2)
+        node_row, node_col = ttl.node(dims=2)
         for local_row in range(rows_per_node):
             row = node_row * rows_per_node + local_row
             if row < row_tiles:
@@ -69,7 +69,7 @@ def eltwise_add(a_in: ttnn.Tensor, b_in: ttnn.Tensor, out: ttnn.Tensor) -> None:
 
     @ttl.datamovement()
     def write():
-        node_col, node_row = ttl.node(dims=2)
+        node_row, node_col = ttl.node(dims=2)
         for local_row in range(rows_per_node):
             row = node_row * rows_per_node + local_row
             if row < row_tiles:

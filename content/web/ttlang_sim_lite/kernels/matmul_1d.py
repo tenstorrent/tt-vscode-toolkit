@@ -24,7 +24,7 @@ def matmul_1d(A: ttnn.Tensor, B: ttnn.Tensor, C: ttnn.Tensor) -> None:
     K_tiles = A.shape[1] // TILE_SIZE
     N_tiles = B.shape[1] // TILE_SIZE
 
-    grid_cols, grid_rows = ttl.grid_size(dims=2)
+    grid_rows, grid_cols = ttl.grid_size(dims=2)
     rows_per_node = -(-M_tiles // grid_rows)
 
     a_dfb = ttl.make_dataflow_buffer_like(A, shape=(1, 1), block_count=2)
@@ -33,7 +33,7 @@ def matmul_1d(A: ttnn.Tensor, B: ttnn.Tensor, C: ttnn.Tensor) -> None:
 
     @ttl.compute()
     def compute():
-        node_col, node_row = ttl.node(dims=2)
+        node_row, node_col = ttl.node(dims=2)
         for local_m in range(rows_per_node):
             m = node_row * rows_per_node + local_m
             if m >= M_tiles:
@@ -49,7 +49,7 @@ def matmul_1d(A: ttnn.Tensor, B: ttnn.Tensor, C: ttnn.Tensor) -> None:
 
     @ttl.datamovement()
     def read():
-        node_col, node_row = ttl.node(dims=2)
+        node_row, node_col = ttl.node(dims=2)
         for local_m in range(rows_per_node):
             m = node_row * rows_per_node + local_m
             if m >= M_tiles:
@@ -62,7 +62,7 @@ def matmul_1d(A: ttnn.Tensor, B: ttnn.Tensor, C: ttnn.Tensor) -> None:
 
     @ttl.datamovement()
     def write():
-        node_col, node_row = ttl.node(dims=2)
+        node_row, node_col = ttl.node(dims=2)
         for local_m in range(rows_per_node):
             m = node_row * rows_per_node + local_m
             if m >= M_tiles:

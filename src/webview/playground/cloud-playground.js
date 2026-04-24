@@ -183,9 +183,10 @@ print("PASSED")
             fetch(healthUrl, { signal: AbortSignal.timeout(5000) })
                 .then(r => r.json())
                 .then(data => {
+                    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                     const backends = Object.entries(data.backends || {})
                         .filter(([, ok]) => ok)
-                        .map(([b]) => `<code>${b}</code>`)
+                        .map(([b]) => `<code>${esc(b)}</code>`)
                         .join(', ');
                     this._noticeEl.innerHTML =
                         `<span class="tt-pg-notice-ok">✓ Cloud simulator connected. Available: ${backends || 'none'}</span>`;
