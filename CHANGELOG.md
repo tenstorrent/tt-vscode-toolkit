@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.409] - 2026-04-25
+
+### Fixed
+
+- **`ws` direct dependency** — added `ws` as an explicit production dependency to avoid relying on transitive availability from `vscode-languageclient`; webpack externalises it so it resolves correctly at runtime in the VS Code extension host
+
+---
+
 ## [0.0.408] - 2026-04-24
 
 ### Changed
