@@ -104,7 +104,7 @@ python3 -c "import ttnn; print('✓ Ready')"       # tt-metal working?
 code --install-extension Tenstorrent.tt-vscode-toolkit
 ```
 
-Or search **"tt-vscode-toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`).
+Or search **"TT Developer Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`) (`tt-vscode-toolkit`).
 
 → [Open in VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
 

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.410] - 2026-04-25
+
+### Fixed
+
+- **Branding consistency in user-facing docs** — updated README search instruction, install.html search instruction and screenshot alt text, and about-extension.md page title to use display name "TT Developer Toolkit" instead of the extension ID `tt-vscode-toolkit`
+- **about-extension.md** — added Marketplace install section at the top so users see the simplest install path first
+
+---
+
 ## [0.0.409] - 2026-04-25
 
 ### Fixed
