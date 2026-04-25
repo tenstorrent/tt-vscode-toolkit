@@ -302,23 +302,25 @@ Query:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 1 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ─ Executing this code:
-results = web_search(query="open source AI inference hardware 2025 alternatives NVIDIA")
-print(results)
+    results = web_search(query="open source AI inference hardware 2025 alternatives NVIDIA")
+    print(results)
+
  ─ Execution logs:
-[search results...]
+    [search results...]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ─ Executing this code:
-page = visit_webpage(url="https://tenstorrent.com/hardware/quietbox")
-print(page[:3000])
+    page = visit_webpage(url="https://tenstorrent.com/hardware/quietbox")
+    print(page[:3000])
+
  ─ Execution logs:
-[page content...]
+    [page content...]
 
 ...
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 5 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ─ Executing this code:
-final_answer("Open-source AI inference hardware has matured significantly...")
+    final_answer("Open-source AI inference hardware has matured significantly...")
 
 ======================================================================
 FINAL RESULT:
@@ -732,6 +734,7 @@ DM: You reach over the bar with practiced nonchalance. The potion slides
     Inventory: torch, short sword, leather armor, healing_potion.
 
 You: status
+
 [Status] HP: 100/100 | Gold: 10 g | Location: The Rusty Axe Tavern
 [Inventory] torch, short sword, leather armor, healing_potion
 [Spells] magic_missile, healing_word, shield  |  Slots: L1:3  L2:2
@@ -760,16 +763,21 @@ DM: You turn the coin over in your fingers. The metal is wrong — too light,
     read it twice before it registers: forty years from now.
 
 You: lore
+
 [World Lore — recorded by the DM this session]
+
   barkeep: Former adventurer named Oswin. Lost two fingers to a pressure
     plate on Level 3. Retired the day his partner didn't come back. Knows
     more about the dungeon than he admits.
+
   mysterious_coin: Origin unknown. The date suggests either a forgery, a
     time anomaly, or something the archivist would recognize immediately.
+
   crypt runes: Pre-date the town by at least three centuries. The archivist
     has a partial translation she won't share.
 
 You: quit
+
 Farewell, adventurer!
 [World state saved to world_session.json]
 [Lore entries created this session: 3]
