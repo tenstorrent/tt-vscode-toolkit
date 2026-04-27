@@ -70,30 +70,45 @@
   margin-bottom: 1.25rem;
 }
 
-.install-dl-btn {
+.install-mkt-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  background: var(--vscode-button-background);
-  color: #fff;
-  font-family: var(--tt-font-interface);
-  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--tt-primary);
+  color: #0a1420;
   font-weight: 600;
-  text-decoration: none;
+  font-size: 0.95rem;
   border-radius: 6px;
-  transition: background 0.15s, box-shadow 0.15s;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
   white-space: nowrap;
 }
-
-.install-dl-btn:hover {
-  background: var(--vscode-button-hoverBackground);
-  box-shadow: 0 0 0 3px rgba(50, 147, 178, 0.25);
-  color: #fff;
-  text-decoration: none;
+.install-mkt-btn:hover {
+  background: var(--tt-primary-light);
+  transform: translateY(-1px);
 }
+.install-mkt-btn svg { flex-shrink: 0; }
 
-.install-dl-btn svg { flex-shrink: 0; }
+.install-dl-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--tt-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--tt-primary);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.install-dl-btn-secondary:hover {
+  background: rgba(79, 209, 197, 0.08);
+}
+.install-dl-btn-secondary svg { flex-shrink: 0; }
 
 .install-version-badge {
   display: inline-block;
@@ -585,13 +600,21 @@
       </p>
 
       <div class="install-cta">
+        <a class="install-mkt-btn"
+           href="https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit"
+           target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H9zM9 9h5v5H9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          Install from VS Code Marketplace
+        </a>
         <a id="download-btn"
-           class="install-dl-btn"
+           class="install-dl-btn-secondary"
            href="https://github.com/tenstorrent/tt-vscode-toolkit/releases/latest">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Download latest .vsix
+          Download .vsix
         </a>
         <a href="/lessons/" class="install-browse-btn">
           Browse Lessons — no hardware needed →
@@ -601,7 +624,7 @@
 
       <p class="install-cli-note">
         Or via terminal:
-        <code>gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix' &amp;&amp; code --install-extension tt-vscode-toolkit-*.vsix</code>
+        <code>code --install-extension Tenstorrent.tt-vscode-toolkit</code>
       </p>
 
       <div class="install-secondary-links">
@@ -702,7 +725,7 @@
                 allowfullscreen
                 loading="lazy"></iframe>
       </div>
-      <span class="install-gallery-caption">TT Developer Toolkit walkthrough</span>
+      <span class="install-gallery-caption">tt-vscode-toolkit walkthrough</span>
     </div>
 
     <div class="install-gallery-item">
@@ -896,19 +919,54 @@
   <p class="install-section-label">Get started</p>
   <h2 class="install-section-heading">Install in your editor</h2>
   <p class="install-section-sub">
-    The extension ships as a <code>.vsix</code> file and installs the same way in
-    VS&nbsp;Code, Cursor, Windsurf, and code-server.
+    The easiest way is the VS&nbsp;Code Marketplace — one click or one command. A
+    <code>.vsix</code> is also available for Cursor, Windsurf, and code-server.
   </p>
 
   <div class="install-tabs" role="tablist" aria-label="Editor install instructions">
-    <button class="install-tab active" role="tab" id="tab-btn-vscode"       aria-selected="true"  aria-controls="tab-vscode"       data-tab="vscode">VS Code</button>
-    <button class="install-tab"        role="tab" id="tab-btn-cursor"        aria-selected="false" aria-controls="tab-cursor"        data-tab="cursor">Cursor / Windsurf</button>
-    <button class="install-tab"        role="tab" id="tab-btn-code-server"   aria-selected="false" aria-controls="tab-code-server"   data-tab="code-server">code-server</button>
-    <button class="install-tab"        role="tab" id="tab-btn-cli"           aria-selected="false" aria-controls="tab-cli"           data-tab="cli">CLI one-liner</button>
+    <button class="install-tab active" role="tab" id="tab-btn-marketplace"   aria-selected="true"  aria-controls="tab-marketplace"   data-tab="marketplace">Marketplace</button>
+    <button class="install-tab"        role="tab" id="tab-btn-vscode"        aria-selected="false" aria-controls="tab-vscode"         data-tab="vscode">VS Code .vsix</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cursor"        aria-selected="false" aria-controls="tab-cursor"         data-tab="cursor">Cursor / Windsurf</button>
+    <button class="install-tab"        role="tab" id="tab-btn-code-server"   aria-selected="false" aria-controls="tab-code-server"    data-tab="code-server">code-server</button>
+    <button class="install-tab"        role="tab" id="tab-btn-cli"           aria-selected="false" aria-controls="tab-cli"            data-tab="cli">CLI one-liner</button>
   </div>
 
-  <!-- VS Code -->
-  <div class="install-tab-panel active" id="tab-vscode" role="tabpanel" aria-labelledby="tab-btn-vscode" tabindex="0">
+  <!-- Marketplace -->
+  <div class="install-tab-panel active" id="tab-marketplace" role="tabpanel" aria-labelledby="tab-btn-marketplace" tabindex="0">
+    <div class="install-step">
+      <span class="install-step-num">1</span>
+      <div class="install-step-body">
+        <p>Install directly from the VS&nbsp;Code Marketplace with one command:</p>
+        <pre class="install-cmd" id="cmd-mkt-install">code --install-extension Tenstorrent.tt-vscode-toolkit</pre>
+        <button class="install-cmd-copy" data-target="cmd-mkt-install">Copy</button>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">2</span>
+      <div class="install-step-body">
+        <p>
+          Or open VS&nbsp;Code, press <code>Ctrl+Shift+X</code>, search for
+          <strong>TT Developer Toolkit</strong> (extension ID: <code>Tenstorrent.tt-vscode-toolkit</code>), and click <strong>Install</strong>.
+        </p>
+        <p>
+          <a href="https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit"
+             target="_blank" rel="noopener noreferrer">Open in Marketplace →</a>
+        </p>
+      </div>
+    </div>
+    <div class="install-step">
+      <span class="install-step-num">3</span>
+      <div class="install-step-body">
+        <p>
+          Reload VS&nbsp;Code — the <strong>TT Toolkit</strong> icon will appear in the Activity Bar.
+          Click it to open the Lessons panel and pick your hardware.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VS Code .vsix -->
+  <div class="install-tab-panel" id="tab-vscode" role="tabpanel" aria-labelledby="tab-btn-vscode" tabindex="0">
     <div class="install-step">
       <span class="install-step-num">1</span>
       <div class="install-step-body">
@@ -1017,7 +1075,7 @@
   <div class="install-footer-inner">
     <div class="install-footer-brand">
       <img src="/assets/img/tt_logo_color_dark_backgrounds.svg" alt="Tenstorrent">
-      <span>TT Developer Toolkit</span>
+      <span>tt-vscode-toolkit</span>
     </div>
     <nav class="install-footer-nav">
       <a href="/lessons/">Lessons</a>

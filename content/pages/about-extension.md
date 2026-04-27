@@ -1,6 +1,24 @@
 # TT Developer Toolkit — Extension Guide
 
-The **TT Developer Toolkit** is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole (N150, N300, T3K) and Blackhole (P100, P150, P300, P300C, QB2) hardware.
+**TT Developer Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole (N150, N300, T3K) and Blackhole (P100, P150, P300, P300C, QB2) hardware.
+
+---
+
+## Installing from the Marketplace
+
+The easiest way to install is directly from the VS Code Marketplace:
+
+1. Open the Extensions panel (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. Search for **TT Developer Toolkit**
+3. Click **Install**
+
+Or use the CLI:
+
+```bash
+code --install-extension Tenstorrent.tt-vscode-toolkit
+```
+
+→ [Open in VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
 
 ---
 

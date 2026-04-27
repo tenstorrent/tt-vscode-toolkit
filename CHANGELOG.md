@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.410] - 2026-04-25
+
+### Fixed
+
+- **Branding consistency in user-facing docs** — updated README search instruction, install.html search instruction and screenshot alt text, and about-extension.md page title to use display name "TT Developer Toolkit" instead of the extension ID `tt-vscode-toolkit`
+- **about-extension.md** — added Marketplace install section at the top so users see the simplest install path first
+
+---
+
+## [0.0.409] - 2026-04-25
+
+### Fixed
+
+- **`ws` direct dependency** — added `ws` as an explicit production dependency to avoid relying on transitive availability from `vscode-languageclient`; webpack externalises it so it resolves correctly at runtime in the VS Code extension host
+
+---
+
+## [0.0.408] - 2026-04-24
+
+### Changed
+
+- **CS fundamentals Tensix visualizer scripts** — rewrote all four scene scripts to use the full Blackhole grid (140 Tensix cores across 17×12):
+  - cs-01: DRAM band highlights memory, single core steps through FETCH→DECODE→EXEC, then reveals all 140 cores
+  - cs-03: Progressive Amdahl's Law reveal (1 → 14 → 70 → 140 cores) with serial bottleneck highlighted in red
+  - cs-04: Full-chip NOC mesh lighting with XY-routed cross-chip transfers demonstrating 2D routing
+  - cs-05: All-core compute phase, barrier synchronisation convergence, then barrier release back to full compute
+
+---
+
+## [0.0.407] - 2026-04-24
+
+### Added
+
+- **Marketplace publishing** — extension now auto-publishes to the VS Code Marketplace on every tagged release via the `publish-marketplace` CI job in `release.yml`
+- **VS Code Marketplace badge** in `README.md` linking to the marketplace listing
+- **Marketplace install option** added as Option 1 (Recommended) in `README.md` installation section
+- **Marketplace hero button** on the site install page (`content/pages/install.html`) as the primary CTA
+- **Marketplace install tab** added as the default tab in the site install instructions
+
+### Fixed
+
+- **`scripts/build-web.js`** — corrected wrong extension ID in `mktUrl` from `Tenstorrent.tenstorrent-toolkit` to `Tenstorrent.tt-vscode-toolkit`; regenerated all site lesson pages
+
+---
+
+## [0.0.406] - 2026-04-24
+
+### Fixed
+
+- **`src/webview/tensix-viz/tensix-viz.js`** — added `_animGen` generation counter to prevent stale async callbacks from corrupting new animation instances after `reset()`+`play()`. Every `setTimeout`/`requestAnimationFrame` callback in `_stepPause`, `_stepHeatmap`, `_stepHighlight`, `_stepUnhighlight`, and `_stepTransfer` now captures the current gen at call time and bails early if it has advanced, eliminating the dual-animation-loop jank seen on the live docs site.
+- **`src/webview/tensix-viz/tensix-viz.js`** — `autoInit` now defers the initial `play()` call via `requestIdleCallback({ timeout: 3000 })` (Safari fallback: `setTimeout(1500)`) so Mermaid diagram rendering no longer competes with the first animation frame.
+- **`scripts/build-web.js`** — `buildPlaygroundSection()` now wraps `data-worker-url` and `data-sim-lite-base` attribute values with `siteUrl()`, fixing 404s for the Pyodide worker and ttlang-sim-lite assets on the production GitHub Pages site (where the path is prefixed with `/tt-vscode-toolkit`).
+
+---
+
 ## [0.0.405] - 2026-04-24
 
 ### Fixed

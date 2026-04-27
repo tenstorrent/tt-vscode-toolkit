@@ -293,10 +293,10 @@ This approach could achieve near-linear scaling (3.5-4x on 4 devices) by elimina
 
 ### What You Accomplished
 
-✅ **Distributed N² algorithm** across multiple chips
-✅ **2x real-world speedup** on 4-device system
-✅ **Foundation for further optimization** targeting 3-4x
-✅ **Production-scale parallel computing** on TT hardware
+- ✅ **Distributed N² algorithm** across multiple chips
+- ✅ **2x real-world speedup** on 4-device system
+- ✅ **Foundation for further optimization** targeting 3-4x
+- ✅ **Production-scale parallel computing** on TT hardware
 
 **This demonstrates:** Multi-chip workload distribution, performance benchmarking, and scaling efficiency analysis - essential skills for production deployments!
 

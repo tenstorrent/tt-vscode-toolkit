@@ -46,14 +46,19 @@ You have 880 cores. They need to share data. How do they communicate?
 
 ```tensix_viz arch=blackhole
 [
-  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "src", "ms": 400 },
-  { "step": "highlight", "cores": [[7,7]], "color": "pink", "label": "dst", "ms": 400 },
-  { "step": "pause", "ms": 500 },
-  { "step": "transfer", "from": [1,1], "to": [7,7], "ms": 1200 },
-  { "step": "pause", "ms": 300 },
-  { "step": "transfer", "from": [3,4], "to": [7,2], "ms": 900 },
-  { "step": "transfer", "from": [5,6], "to": [2,3], "ms": 900 },
-  { "step": "pause", "ms": 800 },
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[9,1],[10,1],[11,1],[12,1],[13,1],[14,1],[15,1],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2],[15,2],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[9,3],[10,3],[11,3],[12,3],[13,3],[14,3],[15,3],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[9,5],[10,5],[11,5],[12,5],[13,5],[14,5],[15,5],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[15,6],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[9,7],[10,7],[11,7],[12,7],[13,7],[14,7],[15,7],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[1,9],[2,9],[3,9],[4,9],[5,9],[6,9],[7,9],[9,9],[10,9],[11,9],[12,9],[13,9],[14,9],[15,9],[1,10],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10],[9,10],[10,10],[11,10],[12,10],[13,10],[14,10],[15,10]], "color": "tensixActive", "label": "140-node 2D Mesh NOC", "ms": 700 },
+  { "step": "pause", "ms": 600 },
+  { "step": "highlight", "cores": [[1,1]], "color": "pink", "label": "src [1,1] → dst [15,10] · XY routing", "ms": 400 },
+  { "step": "highlight", "cores": [[15,10]], "color": "gold", "label": "horizontal first, then vertical", "ms": 400 },
+  { "step": "transfer", "from": [1,1], "to": [15,10], "ms": 1400 },
+  { "step": "pause", "ms": 600 },
+  { "step": "unhighlight" },
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[9,1],[10,1],[11,1],[12,1],[13,1],[14,1],[15,1],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2],[15,2],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[9,3],[10,3],[11,3],[12,3],[13,3],[14,3],[15,3],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[9,5],[10,5],[11,5],[12,5],[13,5],[14,5],[15,5],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[15,6],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[9,7],[10,7],[11,7],[12,7],[13,7],[14,7],[15,7],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[1,9],[2,9],[3,9],[4,9],[5,9],[6,9],[7,9],[9,9],[10,9],[11,9],[12,9],[13,9],[14,9],[15,9],[1,10],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10],[9,10],[10,10],[11,10],[12,10],[13,10],[14,10],[15,10]], "color": "tensixActive", "label": "Concurrent traffic — mesh carries all paths simultaneously", "ms": 400 },
+  { "step": "transfer", "from": [15,1], "to": [1,10], "ms": 1200 },
+  { "step": "transfer", "from": [1,3], "to": [7,8], "ms": 900 },
+  { "step": "transfer", "from": [9,3], "to": [15,8], "ms": 900 },
+  { "step": "transfer", "from": [4,1], "to": [12,10], "ms": 1100 },
+  { "step": "pause", "ms": 1500 },
   { "step": "clear" }
 ]
 ```
@@ -765,11 +770,11 @@ Clos Network (multi-level mesh)
 
 After this module, you should understand:
 
-✅ **Network Topologies** - Mesh scales, crossbar doesn't
-✅ **Routing Algorithms** - XY routing is simple and deadlock-free
-✅ **Latency vs Bandwidth** - Small messages are latency-bound, large messages are bandwidth-bound
-✅ **NoC Architecture** - 176 cores connected via 2D mesh with 5-port routers
-✅ **Communication Patterns** - Multicast, reduction, nearest-neighbor
+- ✅ **Network Topologies** - Mesh scales, crossbar doesn't
+- ✅ **Routing Algorithms** - XY routing is simple and deadlock-free
+- ✅ **Latency vs Bandwidth** - Small messages are latency-bound, large messages are bandwidth-bound
+- ✅ **NoC Architecture** - 176 cores connected via 2D mesh with 5-port routers
+- ✅ **Communication Patterns** - Multicast, reduction, nearest-neighbor
 
 ### The Core Insight
 

@@ -62,10 +62,10 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 
 ## Case Study: Phi-3-mini-128k-instruct (Issue #19416)
 
-**Model**: microsoft/Phi-3-mini-128k-instruct (3.8B parameters)
-**Hardware**: N150 / N300 / LoudBox
-**Theoretical Max**: 48 tokens/second/user
-**Result**: ✅ **Successfully merged to main** - Now part of tt-metal
+- **Model**: microsoft/Phi-3-mini-128k-instruct (3.8B parameters)
+- **Hardware**: N150 / N300 / LoudBox
+- **Theoretical Max**: 48 tokens/second/user
+- **Result**: ✅ **Successfully merged to main** - Now part of tt-metal
 
 ### Timeline
 

@@ -808,11 +808,11 @@ vLLM:         100 req/s    (100x faster!)
 
 After this module, you should understand:
 
-✅ **The Abstraction Stack** - Python → C → Assembly → Silicon
-✅ **Compilation Pipeline** - How source code becomes machine code
-✅ **JIT Compilation** - Runtime optimization (JAX, PyTorch)
-✅ **Abstraction Tradeoffs** - Convenience vs control vs performance
-✅ **When to Optimize** - Profile first, drop down levels only when necessary
+- ✅ **The Abstraction Stack** - Python → C → Assembly → Silicon
+- ✅ **Compilation Pipeline** - How source code becomes machine code
+- ✅ **JIT Compilation** - Runtime optimization (JAX, PyTorch)
+- ✅ **Abstraction Tradeoffs** - Convenience vs control vs performance
+- ✅ **When to Optimize** - Profile first, drop down levels only when necessary
 
 ### The Core Insight
 

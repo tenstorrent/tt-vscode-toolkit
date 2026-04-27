@@ -849,12 +849,12 @@ Hardware Layer:
 
 ### Key Features
 
-✅ **Fully Local** - No data leaves your machine
-✅ **Hardware Accelerated** - 70B model on QB2's Blackhole chips
-✅ **Self-Documenting** - Knows all 45+ lessons by heart
-✅ **Extensible** - Build custom agents and skills
-✅ **Production Ready** - Used for real demos and development
-✅ **Open Source** - All code and configs available
+- ✅ **Fully Local** - No data leaves your machine
+- ✅ **Hardware Accelerated** - 70B model on QB2's Blackhole chips
+- ✅ **Self-Documenting** - Knows all 45+ lessons by heart
+- ✅ **Extensible** - Build custom agents and skills
+- ✅ **Production Ready** - Used for real demos and development
+- ✅ **Open Source** - All code and configs available
 
 ---
 

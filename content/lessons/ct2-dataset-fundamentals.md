@@ -332,11 +332,11 @@ The learning patterns you observe with Shakespeare **directly transfer** to your
 
 When you train on Shakespeare and watch the progression from random characters to coherent dialogue, you learn:
 
-✅ **How transformers learn** - Hierarchically, from structure to meaning
-✅ **What makes a good dataset** - Clear structure, consistent patterns, sufficient examples
-✅ **How to evaluate learning** - Observable quality improvement over time
-✅ **When to stop training** - When loss plateaus and output quality stabilizes
-✅ **Why architecture matters** - Deeper models capture deeper patterns
+- ✅ **How transformers learn** - Hierarchically, from structure to meaning
+- ✅ **What makes a good dataset** - Clear structure, consistent patterns, sufficient examples
+- ✅ **How to evaluate learning** - Observable quality improvement over time
+- ✅ **When to stop training** - When loss plateaus and output quality stabilizes
+- ✅ **Why architecture matters** - Deeper models capture deeper patterns
 
 **This knowledge transfers to every dataset you'll ever create.**
 

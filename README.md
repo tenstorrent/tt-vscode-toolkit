@@ -2,6 +2,7 @@
 
 **Interactive learning and development tools for Tenstorrent AI accelerators**
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/Tenstorrent.tt-vscode-toolkit.svg?label=VS%20Code%20Marketplace)](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![VSCode](https://img.shields.io/badge/VSCode-1.93%2B-blue.svg)](https://code.visualstudio.com/)
 
@@ -97,17 +98,27 @@ python3 -c "import ttnn; print('✓ Ready')"       # tt-metal working?
 
 ### Installation
 
-#### Option 1: Install from VSIX Package (Recommended)
+#### Option 1: VS Code Marketplace (Recommended)
 
 ```bash
-# Download the latest release
-# Install extension
-code --install-extension tt-vscode-toolkit-*.vsix
-
-# Restart VSCode
+code --install-extension Tenstorrent.tt-vscode-toolkit
 ```
 
-#### Option 2: Build from Source
+Or search **"TT Developer Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`) (`tt-vscode-toolkit`).
+
+→ [Open in VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
+
+#### Option 2: Install from VSIX Package
+
+```bash
+# Download the latest release from GitHub
+gh release download --repo tenstorrent/tt-vscode-toolkit --pattern '*.vsix'
+
+# Install extension
+code --install-extension tt-vscode-toolkit-*.vsix
+```
+
+#### Option 3: Build from Source
 
 ```bash
 # Clone repository
@@ -117,10 +128,8 @@ cd tt-vscode-toolkit
 # Install dependencies
 npm install
 
-# Build extension
+# Build and package extension
 npm run build
-
-# Package extension
 npm run package
 
 # Install

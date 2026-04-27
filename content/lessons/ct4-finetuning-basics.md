@@ -406,11 +406,11 @@ You are all resolved rather to die than to famish?
 
 Shakespeare is the "Hello World" of language model training - a classic dataset that teaches transferable principles. See **CT2: Dataset Fundamentals** (The Shakespeare Dataset section) for the full pedagogical history and learning patterns of this corpus.
 
-✅ **Rich structure** - Character names, dialogue format, stage directions provide strong learning signal
-✅ **Sufficient size** - 1.1MB is ideal for a 6-layer, 384-dim model (not too small, not overwhelming)
-✅ **Continuous text** - Character-level modeling learns from natural flow without tokenization
-✅ **Clear patterns** - Dramatic format shows hierarchical learning in action
-✅ **Fast iteration** - See complete training progression in 20-30 minutes
+- ✅ **Rich structure** - Character names, dialogue format, stage directions provide strong learning signal
+- ✅ **Sufficient size** - 1.1MB is ideal for a 6-layer, 384-dim model (not too small, not overwhelming)
+- ✅ **Continuous text** - Character-level modeling learns from natural flow without tokenization
+- ✅ **Clear patterns** - Dramatic format shows hierarchical learning in action
+- ✅ **Fast iteration** - See complete training progression in 20-30 minutes
 
 **What makes it pedagogically perfect**: You can **SEE** the model learning hierarchically:
 - **Stage 1 (10 epochs):** Structure - line breaks, capitalization, character format
