@@ -65,6 +65,42 @@ Real measured improvements from production projects:
 
 ## What People Have Built
 
+These are real projects built with tt-lang — each started as a "what if" and
+ended with custom Tensix kernels running in production or close to it.
+
+**[SkyReels-1.3B](https://github.com/zoecarver/tt-lang-models)** — The full
+WAN transformer block fused into a single kernel on QB2 (4-chip Blackhole).
+Five ops collapsed into one: input tiles stream in once, compute flows through
+L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op
+TTNN dispatch at production model dimensions.
+
+**[WAN Animate 14B](https://github.com/tenstorrent/tt-lang)** — A 40-layer,
+5120-hidden diffusion transformer brought up on a 4-chip QB2 (2×2 mesh).
+TT-Lang kernels cover 3D RoPE, AdaLN modulation, and attention softcap.
+The bring-up involved debugging seven integration bugs across the pipeline in
+a single session — possible because the functional simulator catches DFB
+deadlocks before touching hardware.
+
+**[Freeciv game AI](https://github.com/tenstorrent/tt-lang)** — tt-lang
+kernels accelerating Freeciv's map generation (Perlin noise terrain) and
+pathfinding, developed and validated entirely in the functional simulator. A
+game AI that started as a "what if we ran this on Tensix?" and ended with
+working Tensix kernels — no hardware required to get there.
+
+**[DFlash speculative decoder](https://github.com/zoecarver/dflash)** — A
+draft model that proposes 16 tokens in parallel, verified by Qwen3-30B as the
+target. Draft kernels (RoPE, RMSNorm, SiLU, residuals) run entirely on-device
+via TT-Lang. Result: 5–6× decode speedup end-to-end, 93ms draft forward pass
+with caching (vs 887ms without), acceptance rate matching the PyTorch
+reference.
+
+**[Oasis — real-time Minecraft](https://github.com/zoecarver/open-oasis)** —
+A 500M diffusion transformer generating Minecraft frames on a single Blackhole
+card, running at 8 FPS in a single captured trace with 4-way tensor
+parallelism. Interactive browser play across 26 Atari games. Everything the
+DiT needs — denoising, VAE decode, video output — runs in one end-to-end
+trace.
+
 ## Getting tt-lang
 
 ## The Tensix Thread Model
