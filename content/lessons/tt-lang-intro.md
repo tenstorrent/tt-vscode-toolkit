@@ -353,4 +353,79 @@ multi-node grids simply by adding `ttl.node()` work partitioning around it.
 
 ## Claude Code Slash Commands
 
+The TT Developer Toolkit installs a set of `/ttl-*` slash commands for Claude
+Code that take you from an idea — or an existing kernel in another language —
+to a validated, profiled tt-lang kernel in one session.
+
+**Example workflow:** you have a PyTorch multi-head attention function and want
+a Tensix kernel for it.
+
+```bash
+/ttl-import attention.py
+```
+
+Translates CUDA, Triton, PyTorch, or TTNN code to a tt-lang DFB pattern.
+Handles the mechanical mapping: ops become compute thread logic, tensor loads
+become DM0 reads, tensor stores become DM1 writes. Output is a runnable `.py`
+file ready for simulation.
+
+```bash
+/ttl-simulate attention_ttl.py
+```
+
+Runs the kernel in the functional simulator. Catches DFB deadlocks, shape
+mismatches, and thread synchronization bugs before you touch hardware. Iterate
+here — simulation is fast and catches most correctness issues.
+
+```bash
+/ttl-test attention_ttl.py
+```
+
+Generates a correctness test suite comparing tt-lang output against a NumPy or
+PyTorch reference. Covers edge cases: small matrices, non-tile-aligned shapes,
+zero inputs, and the shapes your model actually runs at.
+
+```bash
+/ttl-profile attention_ttl.py
+```
+
+Returns per-line cycle counts. Shows which DFB `wait()` calls are blocking
+compute and where the throughput bottleneck is — typically L1 buffer depth too
+small, or the DM thread stalling on DRAM latency.
+
+```bash
+/ttl-optimize attention_ttl.py
+```
+
+Applies targeted optimizations based on profile output: increase DFB depth for
+double-buffering, adjust tile sizes to fit L1, reorder loops to hide DMA
+latency. Returns an improved kernel file.
+
+```bash
+/ttl-export attention_ttl.py
+```
+
+Compiles through LLVM → tt-mlir → tt-metal and produces production C++ for use
+in a tt-metal project. Also emits intermediate MLIR at each compiler pass for
+debugging.
+
+```bash
+/ttl-bug "description"
+```
+
+Files a structured bug report with a minimal reproducer when the compiler or
+simulator behaves unexpectedly.
+
+### Command reference
+
+| Command | When to reach for it |
+|---------|---------------------|
+| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TTNN |
+| `/ttl-simulate <file>` | After any change — validate before profiling or hardware |
+| `/ttl-test <file>` | Simulation passes — build a regression suite |
+| `/ttl-profile <file>` | Kernel is correct, want to find the bottleneck |
+| `/ttl-optimize <file>` | Profile shows where to improve |
+| `/ttl-export <file>` | Ready for production — generate C++ for tt-metal |
+| `/ttl-bug <desc>` | Compiler or simulator behaves unexpectedly |
+
 ## What's Next
