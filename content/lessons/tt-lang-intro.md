@@ -103,6 +103,63 @@ trace.
 
 ## Getting tt-lang
 
+### Browser (already done)
+
+The playground above is the browser path. No install, no hardware. Use it to
+prototype and explore before setting up a local environment.
+
+### Local — ttsim (no Tenstorrent hardware required)
+
+ttsim is a full-system simulator for Wormhole and Blackhole. It runs any
+tt-metal/tt-lang workload on Linux/x86_64 — including Windows via WSL2 —
+without a Tenstorrent card. Results are bit-exact with silicon for all
+documented code paths.
+
+**Prerequisites:** tt-metal built and `TT_METAL_HOME` set.
+See the [Build tt-metal lesson](command:tenstorrent.showLesson?["build-tt-metal"]) if you haven't done this yet.
+
+```bash
+# Download the simulator binary — choose Wormhole or Blackhole
+mkdir -p ~/sim && cd ~/sim
+
+# Wormhole (N150, N300, T3K, Galaxy)
+wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
+cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
+
+# OR: Blackhole (P100, P150, P300c, QB2)
+wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so
+cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
+```
+
+Set the simulator env vars and run any tt-metal example:
+
+```bash
+export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so   # or libttsim_bh.so for Blackhole
+export TT_METAL_SLOW_DISPATCH_MODE=1              # required — fast dispatch is in progress
+
+cd $TT_METAL_HOME
+./build/programming_examples/metal_example_add_2_integers_in_riscv
+```
+
+Check [ttsim releases](https://github.com/tenstorrent/ttsim/releases/latest) for newer versions — the download URL format is stable, just replace the version number.
+
+### Local — build tt-lang
+
+```bash
+git clone https://github.com/tenstorrent/tt-lang.git
+cd tt-lang
+# Follow docs/sphinx/build.md for CMake options and build modes
+source build/env/activate   # required before running any tt-lang command
+python examples/eltwise_add.py
+```
+
+`source build/env/activate` must be run every new shell session before using tt-lang. The [tt-lang docs](https://github.com/tenstorrent/tt-lang) cover build options including simulator-only mode (no hardware required).
+
+### Real hardware
+
+If you have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
+`TT_METAL_SLOW_DISPATCH_MODE` variables. Everything else is identical.
+
 ## The Tensix Thread Model
 
 ## Kernel Patterns
