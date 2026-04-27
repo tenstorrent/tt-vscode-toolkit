@@ -429,3 +429,16 @@ simulator behaves unexpectedly.
 | `/ttl-bug <desc>` | Compiler or simulator behaves unexpectedly |
 
 ## What's Next
+
+- **[tt-lang on GitHub](https://github.com/tenstorrent/tt-lang)** — source
+  code, examples directory, build docs, and the full programming guide
+- **[zoecarver/tt-lang-models](https://github.com/zoecarver/tt-lang-models)**
+  — reference model implementations: DFlash, Engram, Oasis, nanochat, Gemma4,
+  Qwen-Image, LingBot-World, and more
+- **[zoecarver/tt-lang-kernels](https://github.com/zoecarver/tt-lang-kernels)**
+  — standalone kernel library, originally imported from LeetGPU challenges
+- **[ttsim releases](https://github.com/tenstorrent/ttsim/releases/latest)**
+  — latest simulator binaries for Wormhole and Blackhole
+- **[tt-mlir](https://github.com/tenstorrent/tt-mlir)** — the MLIR-based
+  compiler stack that tt-lang targets; useful when debugging compiler output
+  or writing custom compiler passes
