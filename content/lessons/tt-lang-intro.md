@@ -162,6 +162,35 @@ If you have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
 
 ## The Tensix Thread Model
 
+Every Tensix core runs three threads simultaneously:
+
+| Thread | Role |
+|--------|------|
+| **Compute** | Math — matrix ops, activations, reductions |
+| **Data Movement 0** | Load input tiles from DRAM → local L1 buffer |
+| **Data Movement 1** | Store output tiles from L1 buffer → DRAM |
+
+The threads communicate through a **Dataflow Buffer (DFB)** — a typed ring
+buffer that provides zero-copy handoffs and automatic backpressure between
+threads:
+
+```
+DRAM ──[DM0 reads]──► DFB_in ──[Compute]──► DFB_out ──[DM1 writes]──► DRAM
+```
+
+A DFB has a fixed number of slots (`block_count`). The producer thread calls
+`reserve()` to claim an empty slot and fill it. The consumer thread calls
+`wait()` to block until a filled slot is available. When the consumer is done,
+the slot is released back to the producer. This gives you double-buffering and
+pipeline overlap with no manual synchronization.
+
+**`wait()` vs `reserve()`** — the two roles:
+- `wait()` — consumer: blocks until a filled slot is ready to read
+- `reserve()` — producer: blocks until an empty slot is available to write
+
+The DFB scheduler handles all synchronization. You express the data dependency;
+the runtime manages the pipeline.
+
 ## Kernel Patterns
 
 ## Claude Code Slash Commands
