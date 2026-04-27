@@ -193,6 +193,164 @@ the runtime manages the pipeline.
 
 ## Kernel Patterns
 
+### Element-Wise Addition
+
+> **Try it now:** select "Element-wise Add" in the playground above.
+
+```python
+import numpy as np
+import ttl
+import ttnn
+
+TILE_SIZE = 32
+
+@ttl.operation(grid="auto")
+def eltwise_add(a_in: ttnn.Tensor, b_in: ttnn.Tensor, out: ttnn.Tensor) -> None:
+    row_tiles = a_in.shape[0] // TILE_SIZE
+    col_tiles = a_in.shape[1] // TILE_SIZE
+
+    # Typed ring buffers — one slot per tile, depth 2 (double-buffer)
+    a_dfb = ttl.make_dataflow_buffer_like(a_in, shape=(1, 1), block_count=2)
+    b_dfb = ttl.make_dataflow_buffer_like(b_in, shape=(1, 1), block_count=2)
+    out_dfb = ttl.make_dataflow_buffer_like(out, shape=(1, 1), block_count=2)
+
+    @ttl.compute()
+    def compute():
+        for row in range(row_tiles):
+            for col in range(col_tiles):
+                with a_dfb.wait() as a_blk, b_dfb.wait() as b_blk, out_dfb.reserve() as o_blk:
+                    o_blk.store(a_blk + b_blk)  # element-wise add
+
+    @ttl.datamovement()
+    def read():
+        for row in range(row_tiles):
+            for col in range(col_tiles):
+                with a_dfb.reserve() as a_blk, b_dfb.reserve() as b_blk:
+                    ttl.copy(a_in[row:row+1, col:col+1], a_blk).wait()
+                    ttl.copy(b_in[row:row+1, col:col+1], b_blk).wait()
+
+    @ttl.datamovement()
+    def write():
+        for row in range(row_tiles):
+            for col in range(col_tiles):
+                with out_dfb.wait() as o_blk:
+                    ttl.copy(o_blk, out[row:row+1, col:col+1]).wait()
+```
+
+**`@ttl.compute()`** — defines the math thread. It _waits_ on filled input buffers and
+_reserves_ output buffer slots. The `with` statements are blocking: compute pauses until
+the data movement thread fills the slot.
+
+**`@ttl.datamovement()`** — defines a DMA thread. It _reserves_ input buffer slots,
+fills them from DRAM, then releases them to compute. The second DM thread
+drains the output buffer.
+
+**`a_dfb.wait()` vs `a_dfb.reserve()`** — `wait()` blocks until a filled slot is
+available (consumer role); `reserve()` blocks until an empty slot is available (producer
+role). The DFB scheduler handles all synchronization.
+
+### Fused Operations: Three Inputs, One DMA Trip Out
+
+> **Try it now:** select "Fused Multiply-Add" in the playground above.
+
+The `eltwise_add` kernel shows the basic pattern but only uses two inputs. A more
+representative real-world case is a **fused multiply-add**: `y = a * b + c`.
+
+With a naive implementation you'd write three separate kernels, each making a DRAM round-trip.
+With tt-lang you wire three DFBs and fuse everything in a single L1 pass:
+
+```python
+@ttl.operation(grid=(1, 1))
+def fused_mma(a, b, c, y):
+    rows = a.shape[0] // TILE_SIZE
+    cols = a.shape[1] // TILE_SIZE
+    a_dfb = ttl.make_dataflow_buffer_like(a, shape=(1,1), block_count=2)
+    b_dfb = ttl.make_dataflow_buffer_like(b, shape=(1,1), block_count=2)
+    c_dfb = ttl.make_dataflow_buffer_like(c, shape=(1,1), block_count=2)
+    y_dfb = ttl.make_dataflow_buffer_like(y, shape=(1,1), block_count=2)
+
+    @ttl.compute()
+    def compute():
+        for _ in range(rows):
+            for _ in range(cols):
+                with (a_dfb.wait() as ab, b_dfb.wait() as bb,
+                      c_dfb.wait() as cb, y_dfb.reserve() as yb):
+                    yb.store(ab * bb + cb)   # fused in L1 — one DMA trip out
+
+    @ttl.datamovement()
+    def read():
+        for r in range(rows):
+            for c in range(cols):
+                with a_dfb.reserve() as ab, b_dfb.reserve() as bb, c_dfb.reserve() as cb:
+                    ttl.copy(a[r, c], ab).wait()
+                    ttl.copy(b[r, c], bb).wait()
+                    ttl.copy(c[r, c], cb).wait()
+
+    @ttl.datamovement()
+    def write():
+        for r in range(rows):
+            for c in range(cols):
+                with y_dfb.wait() as yb:
+                    ttl.copy(yb, y[r, c]).wait()
+```
+
+The compute thread issues one `store` that computes `a*b+c` entirely in L1 registers.
+Only the final result travels to DRAM — three reads in, one write out per tile.
+
+### Matrix Multiply: The K-Reduction Accumulator
+
+> **Try it now:** select "Matmul + Bias + ReLU" in the playground above.
+
+Matrix multiply is the canonical heavy workload. The inner product loop over K requires
+accumulating partial tile products, and where those partials live matters enormously:
+
+- **DRAM accumulation** — write each partial product out and read it back. Prohibitively
+  slow; L1 bandwidth to DRAM is the bottleneck.
+- **L1 accumulator via DFB ping-pong** — keep the running sum in L1 by making `acc_dfb`
+  both a producer and consumer within the compute thread. This is what tt-lang does.
+
+The pattern looks like this:
+
+```python
+@ttl.operation(grid=(1, 1))
+def matmul_relu(a, b, bias, y):
+    M, K, N = a.shape[0]//TILE_SIZE, a.shape[1]//TILE_SIZE, b.shape[1]//TILE_SIZE
+    a_dfb    = ttl.make_dataflow_buffer_like(a,    shape=(1,1), block_count=2)
+    b_dfb    = ttl.make_dataflow_buffer_like(b,    shape=(1,1), block_count=2)
+    bias_dfb = ttl.make_dataflow_buffer_like(bias, shape=(1,1), block_count=2)
+    acc_dfb  = ttl.make_dataflow_buffer_like(y,    shape=(1,1), block_count=2)  # ping-pong
+    y_dfb    = ttl.make_dataflow_buffer_like(y,    shape=(1,1), block_count=2)
+
+    @ttl.compute()
+    def compute():
+        for _ in range(M):
+            for _ in range(N):
+                with acc_dfb.reserve() as acc:       # initialize accumulator to zero
+                    acc.store(ttl.math.fill(acc, 0))
+
+                for _ in range(K):
+                    # consume previous partial sum, add a@b tile, push updated sum
+                    with (a_dfb.wait() as ab, b_dfb.wait() as bb,
+                          acc_dfb.wait() as prev):    # reads slot 0
+                        with acc_dfb.reserve() as acc: # writes slot 1
+                            acc.store(prev + ab @ bb)
+                        # push() (slot 1 visible) happens before pop() (slot 0 freed)
+                        # next iteration: reads slot 1, writes slot 0 — true ping-pong
+
+                with bias_dfb.wait() as bib, acc_dfb.wait() as acc:
+                    with y_dfb.reserve() as yb:
+                        yb.store(ttl.math.relu(acc + bib))  # fused bias + ReLU
+    ...
+```
+
+The two `acc_dfb` slots alternate roles each k-step. `push()` on the new slot runs
+before `pop()` on the old one, so there is always one valid partial sum in L1. No
+DRAM writes occur until the k-loop finishes. The final step fuses the bias addition
+and ReLU activation into the same tile write.
+
+This is the foundational matmul pattern in tt-lang — the same structure scales to
+multi-node grids simply by adding `ttl.node()` work partitioning around it.
+
 ## Claude Code Slash Commands
 
 ## What's Next
