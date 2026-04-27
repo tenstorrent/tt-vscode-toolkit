@@ -343,7 +343,7 @@ without a Tenstorrent card. Results are bit-exact with silicon for all
 documented code paths.
 
 **Prerequisites:** tt-metal built and `TT_METAL_HOME` set.
-See the [Build tt-metal lesson](command:tt-vscode-toolkit.openLesson?%22build-tt-metal%22) if you haven't done this yet.
+See the [Build tt-metal lesson](command:tenstorrent.showLesson?["build-tt-metal"]) if you haven't done this yet.
 
 ```bash
 # Download the simulator binary — choose Wormhole or Blackhole

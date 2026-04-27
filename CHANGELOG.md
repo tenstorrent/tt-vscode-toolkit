@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.411] - 2026-04-25
+
+### Changed
+
+- **tt-lang lesson rewrite** — expanded `tt-lang-intro` from a technical reference into a full getting-started guide: browser playground opening, DRAM wall motivation with real benchmark numbers, project showcase (SkyReels, WAN Animate, Freeciv, DFlash, Oasis), ttsim setup instructions, Tensix thread model with DFB explanation, kernel deep-dives with playground callouts, and Claude Code `/ttl-*` slash commands workflow
+
+---
+
 ## [0.0.410] - 2026-04-25
 
 ### Fixed
