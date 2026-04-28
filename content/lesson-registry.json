@@ -1441,7 +1441,7 @@
         "sim"
       ],
       "status": "draft",
-      "estimatedMinutes": 20,
+      "estimatedMinutes": 25,
       "order": 8,
       "previousLesson": "cs-fundamentals-07-complexity",
       "nextLesson": null,
