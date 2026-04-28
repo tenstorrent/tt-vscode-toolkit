@@ -1,0 +1,35 @@
+# Catches misspelled or inconsistently-cased product names in prose.
+# Code blocks and inline code are excluded from Vale's text scope by default.
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: error
+ignorecase: false
+action:
+  name: replace
+swap:
+  # vLLM — camelCase with lowercase v
+  '(?i)\bVLLM\b': vLLM
+  '\bvllm\b': vLLM
+  '\bVllm\b': vLLM
+  # tt-metal — lowercase with hyphen in prose (not TT Metal, TTMetal, etc.)
+  'TT Metal(?!ium)': TT-Metal
+  '\bTTMetal\b': TT-Metal
+  '\btt metal\b': tt-metal
+  # TT-Metalium — must keep full name
+  '\bTT Metalium\b': TT-Metalium
+  '\bTTMetalium\b': TT-Metalium
+  # tt-lang
+  '\bTTLang\b': tt-lang
+  '\btt lang\b': tt-lang
+  # tt-xla
+  'TT XLA': TT-XLA
+  '\bTTXLA\b': TT-XLA
+  # tt-forge
+  'TT Forge(?!-fe)': TT-Forge
+  '\bTTForge\b': TT-Forge
+  # tt-inference-server
+  '\btt_inference_server\b': tt-inference-server
+  'TTInferenceServer': tt-inference-server
+  # CLI tools
+  '\bTTSMI\b': tt-smi
+  '\btt_smi\b': tt-smi

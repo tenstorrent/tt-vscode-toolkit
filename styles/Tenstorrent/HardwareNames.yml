@@ -1,0 +1,15 @@
+# Hardware architecture and product names must be capitalised in prose.
+# These are correct in code (export TT_METAL_ARCH_NAME=wormhole_b0) but
+# wrong in sentences ("the wormhole chip supports...").
+# Vale applies this to text scope only — code blocks are excluded.
+extends: substitution
+message: "Capitalise hardware names in prose: use '%s' instead of '%s'."
+level: warning
+ignorecase: false
+action:
+  name: replace
+swap:
+  '\bwormhole\b': Wormhole
+  '\bblackhole\b': Blackhole
+  '\bgrayskull\b': Grayskull
+  '\btensix\b': Tensix

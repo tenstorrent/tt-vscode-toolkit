@@ -1,0 +1,38 @@
+# H1 and H2 headings should use title case per the Tenstorrent style guide.
+extends: capitalization
+message: "H1/H2 headings should use title case. Did you mean '%s'?"
+level: warning
+scope: heading.h1
+match: $title
+# Common small words OK in lowercase within title-case headings
+# Project names that start lowercase are exempt from title-case checks.
+# Vale's capitalization rule only supports exact-string exceptions (no regex).
+exceptions:
+  - a
+  - an
+  - and
+  - as
+  - at
+  - but
+  - by
+  - for
+  - from
+  - in
+  - nor
+  - of
+  - on
+  - or
+  - the
+  - to
+  - up
+  - via
+  - with
+  # Tenstorrent project names that start lowercase
+  - tt-lang
+  - tt-metal
+  - tt-forge
+  - tt-xla
+  - tt-installer
+  - tt-inference-server
+  - ttsim
+  - vLLM

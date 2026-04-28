@@ -716,6 +716,8 @@
     "docker:run": "podman run -it -p 8080:8080 -e PASSWORD=tenstorrent tt-vscode-toolkit:latest",
     "validate:lessons": "node scripts/validate-lesson-registry.js",
     "validate:command-uris": "node scripts/validate-command-uris.js",
+    "lint:docs": "vale content/lessons/ content/pages/ docs/",
+    "lint:docs:errors": "vale --minAlertLevel=error content/lessons/ content/pages/ docs/",
     "generate:lessons": "node scripts/generate-lesson-registry.js",
     "build:web": "node scripts/build-web.js",
     "prepare": "husky install",
