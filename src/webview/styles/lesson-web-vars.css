@@ -254,6 +254,6 @@ h3, h4, h5, h6 {
     --tt-code-bg: #f0f2fc;
     --tt-border: rgba(32, 32, 32, 0.12);
     --tt-hover-bg: rgba(81, 100, 224, 0.06);
-    --tt-muted: rgba(32, 32, 32, 0.55);
+    --tt-muted: rgba(32, 32, 32, 0.82);
   }
 }

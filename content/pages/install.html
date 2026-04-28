@@ -47,7 +47,7 @@
   font-weight: 300;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: var(--vscode-foreground);
+  color: #f0f4f8; /* fixed light color — hero bg is always dark regardless of OS theme */
   margin: 0 0 1rem;
 }
 
@@ -58,7 +58,7 @@
 .install-tagline {
   font-size: 1.1rem;
   line-height: 1.65;
-  color: var(--tt-muted);
+  color: rgba(224, 236, 248, 0.78); /* fixed light color — hero bg is always dark regardless of OS theme */
   margin: 0 0 2rem;
 }
 
@@ -127,13 +127,14 @@
 
 .install-cli-note {
   font-size: 0.85rem;
-  color: var(--tt-muted);
+  color: rgba(224, 236, 248, 0.6); /* fixed light color — hero bg is always dark regardless of OS theme */
   margin: 0;
 }
 
 .install-cli-note code {
   font-family: var(--tt-font-mono);
-  background: var(--tt-code-bg);
+  background: rgba(255, 255, 255, 0.12); /* fixed — hero bg is always dark, never use theme var here */
+  color: #e0ecf8;
   padding: 0.15em 0.4em;
   border-radius: 3px;
   font-size: 0.82rem;

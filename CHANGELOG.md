@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.414] - 2026-04-28
+
+### Fixed
+
+- **"Or via terminal" code chip invisible in light mode** — `.install-cli-note code` was using `var(--tt-code-bg)` which flips to near-white (`#f0f2fc`) in light mode while text inherited the near-white hero color, making it invisible; replaced with hardcoded `rgba(255,255,255,0.12)` background and `#e0ecf8` text since the hero background is always dark
+
+---
+
+## [0.0.413] - 2026-04-28
+
+### Fixed
+
+- **light-mode secondary text contrast** — `--tt-muted` was defined via `color-mix` at 60% in `lesson-theme.css`, which loads after `lesson-web-vars.css` and overrode the light-mode value set there; added an `@media (prefers-color-scheme: light)` override at the end of `lesson-theme.css` setting `--tt-muted: #2a2a2a` so section sub-headings, feature card descriptions, and all secondary text on white backgrounds renders near-black
+
+---
+
+## [0.0.412] - 2026-04-28
+
+### Fixed
+
+- **install page contrast on light-mode OS** — hero heading ("TT Developer Toolkit") and tagline paragraph used `var(--vscode-foreground)` / `var(--tt-muted)`, which switch to near-black in light mode while the hero background is always dark; replaced with hardcoded near-white values (`#f0f4f8`, `rgba(224,236,248,0.78)`, `rgba(224,236,248,0.6)`) so text is readable regardless of OS color-scheme preference
+
+---
+
 ## [0.0.411] - 2026-04-25
 
 ### Changed
