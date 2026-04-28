@@ -130,7 +130,9 @@ function autoLinkFirstMentions(html) {
       if (linked.has(term)) continue;
       const idx = text.indexOf(term);
       if (idx === -1) continue;
-      // Require the character after the term to be non-alphanumeric (no partial matches)
+      // Require surrounding characters to be non-alphanumeric (no partial matches)
+      const before = text[idx - 1];
+      if (before && /[a-zA-Z0-9_]/.test(before)) continue;
       const after = text[idx + term.length];
       if (after && /[a-zA-Z0-9_]/.test(after)) continue;
       text = text.slice(0, idx)
@@ -400,7 +402,7 @@ function resolveGithubMediaToLocal(href) {
 WEB_RENDERER.heading = function ({ tokens, depth }) {
   const text = extractText(tokens);
   const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  return `<h${depth} id="${escapeAttr(id)}">${text}</h${depth}>\n`;
+  return `<h${depth} id="${escapeAttr(id)}">${escapeHtml(text)}</h${depth}>\n`;
 };
 
 WEB_RENDERER.link = function ({ href, title, tokens }) {

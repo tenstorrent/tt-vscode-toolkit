@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.417] - 2026-04-28
+
+### Fixed
+
+- **`install.html` Marketplace CTA** — added `noreferrer` to `rel="noopener"` on the VS Code Marketplace link to prevent referrer leakage to third-party origins
+- **`install.html` YouTube gallery caption** — changed caption text from `tt-vscode-toolkit` to `TT Developer Toolkit` to match the extension display name
+- **`install.html` footer brand** — changed footer brand `<span>` from `tt-vscode-toolkit` to `TT Developer Toolkit`
+- **`webpack.config.js` `ws` external** — removed `ws` from webpack externals; `ws` is listed as a dependency in `package.json` and used in `extension.ts`, so webpack must bundle it rather than expect it at runtime in the VSIX
+- **`scripts/build-web.js` `autoLinkFirstMentions` word-boundary** — added pre-character boundary check (alongside the existing post-character check) to prevent auto-linking substrings inside larger words
+- **`scripts/build-web.js` heading XSS** — applied `escapeHtml()` to heading text in `WEB_RENDERER.heading` to prevent malformed HTML or injection from headings containing special characters
+
+---
+
 ## [0.0.416] - 2026-04-28
 
 ### Changed
