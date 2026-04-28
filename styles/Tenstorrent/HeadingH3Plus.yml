@@ -1,0 +1,7 @@
+# H3 and below should use sentence case per the Tenstorrent style guide.
+# Only the first word and proper nouns/acronyms should be capitalised.
+extends: capitalization
+message: "H3+ headings should use sentence case. Did you mean '%s'?"
+level: suggestion
+scope: heading.h3
+match: $sentence

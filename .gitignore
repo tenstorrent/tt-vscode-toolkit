@@ -29,3 +29,6 @@ venv/
 # Lesson-registry auto-backup files (machine-local, generated on each save)
 .backups/
 
+# Vale downloaded style packages (fetched by `vale sync`, not committed)
+styles/Google/
+

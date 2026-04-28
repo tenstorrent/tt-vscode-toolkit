@@ -567,3 +567,17 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* ── Light-mode overrides ──────────────────────────────────────────────────
+ * lesson-theme.css loads after lesson-web-vars.css, so light-mode variable
+ * overrides must live here to win the cascade.
+ *
+ * --tt-muted uses color-mix at 60% above, which renders as mid-grey (~#777)
+ * on a white background — not readable enough. Override to near-black so
+ * secondary text (section sub-headings, card descriptions, etc.) is legible.
+ * ────────────────────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --tt-muted: #2a2a2a;
+  }
+}

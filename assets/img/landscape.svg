@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450">
+  <defs>
+    <linearGradient id="sky" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A0A2E" />
+      <stop offset="50%" stop-color="#8B1A4A" />
+      <stop offset="100%" stop-color="#FF6B35" />
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FF4500" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#FF4500" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#sky)" />
+  <ellipse cx="400" cy="225" rx="300" ry="150" fill="url(#glow)" />
+  <polygon fill="#4A2040" points="0,450 100,126 200,140 300,130 400,150 500,126 600,145 700,130 800,450" />
+  <polygon fill="#2A1020" points="0,450 120,180 240,195 360,180 480,200 600,185 720,190 800,450" />
+  <polygon fill="#1A0A15" points="0,450 150,234 250,250 350,240 450,261 550,245 650,260 750,255 800,450" />
+  <circle cx="500" cy="200" r="44" fill="#FFD700" />
+  <rect x="0" y="342" width="800" height="108" fill="#0F0805" />
+</svg>

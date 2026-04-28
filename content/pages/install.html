@@ -47,7 +47,7 @@
   font-weight: 300;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: var(--vscode-foreground);
+  color: #f0f4f8; /* fixed light color — hero bg is always dark regardless of OS theme */
   margin: 0 0 1rem;
 }
 
@@ -58,7 +58,7 @@
 .install-tagline {
   font-size: 1.1rem;
   line-height: 1.65;
-  color: var(--tt-muted);
+  color: rgba(224, 236, 248, 0.78); /* fixed light color — hero bg is always dark regardless of OS theme */
   margin: 0 0 2rem;
 }
 
@@ -127,13 +127,14 @@
 
 .install-cli-note {
   font-size: 0.85rem;
-  color: var(--tt-muted);
+  color: rgba(224, 236, 248, 0.6); /* fixed light color — hero bg is always dark regardless of OS theme */
   margin: 0;
 }
 
 .install-cli-note code {
   font-family: var(--tt-font-mono);
-  background: var(--tt-code-bg);
+  background: rgba(255, 255, 255, 0.12); /* fixed — hero bg is always dark, never use theme var here */
+  color: #e0ecf8;
   padding: 0.15em 0.4em;
   border-radius: 3px;
   font-size: 0.82rem;
@@ -602,7 +603,7 @@
       <div class="install-cta">
         <a class="install-mkt-btn"
            href="https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit"
-           target="_blank" rel="noopener">
+           target="_blank" rel="noopener noreferrer">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H9zM9 9h5v5H9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
           </svg>
@@ -698,7 +699,8 @@
   <h2 class="install-section-heading">Generated on Tenstorrent hardware</h2>
   <p class="install-section-sub">
     Sample outputs from the Cookbook lessons and applications — all running on the
-    Wormhole and Blackhole chips the extension targets.
+    Wormhole and Blackhole chips the extension targets. Agent-generated art from
+    the Local AI Agents lesson runs on QuietBox&nbsp;2.
   </p>
 
   <div class="install-gallery-grid">
@@ -725,7 +727,7 @@
                 allowfullscreen
                 loading="lazy"></iframe>
       </div>
-      <span class="install-gallery-caption">tt-vscode-toolkit walkthrough</span>
+      <span class="install-gallery-caption">TT Developer Toolkit walkthrough</span>
     </div>
 
     <div class="install-gallery-item">
@@ -779,6 +781,14 @@
            alt="Mel spectrogram from Recipe 2 — Audio Signal Processing on TT hardware"
            loading="lazy">
       <span class="install-gallery-caption">Recipe 2 — Mel Spectrogram</span>
+    </div>
+
+    <!-- Row 4: agent-generated art (QB2 local agents lesson) -->
+    <div class="install-gallery-item">
+      <img src="/assets/img/landscape.svg"
+           alt="Generative landscape SVG created by a local AI agent on QB2"
+           loading="lazy">
+      <span class="install-gallery-caption">Local agents — generative landscape</span>
     </div>
 
   </div>
@@ -1075,7 +1085,7 @@
   <div class="install-footer-inner">
     <div class="install-footer-brand">
       <img src="/assets/img/tt_logo_color_dark_backgrounds.svg" alt="Tenstorrent">
-      <span>tt-vscode-toolkit</span>
+      <span>TT Developer Toolkit</span>
     </div>
     <nav class="install-footer-nav">
       <a href="/lessons/">Lessons</a>

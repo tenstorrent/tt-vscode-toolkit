@@ -1115,18 +1115,11 @@ python3 ~/code/tt-agents/05_storyboard_to_pixelart.py --single-model --ansi --sv
 
 **SVG mode** asks the LLM to draw a proper storyboard panel illustration per scene — 320×180 SVG with a gradient sky, silhouetted subjects, ground plane, and a mood accent. Each scene is saved as `scene_N_title.svg` and then all panels are assembled into a single `storyboard.html` with a 2-column grid layout, scene numbers, titles, moods, and descriptions under each panel.
 
-```
-storyboard.html
-  ┌──────────────┐  ┌──────────────┐
-  │  Scene 1     │  │  Scene 2     │
-  │  [SVG panel] │  │  [SVG panel] │
-  │  title       │  │  title       │
-  │  mood        │  │  mood        │
-  └──────────────┘  └──────────────┘
-  ┌──────────────┐  ┌──────────────┐
-  │  Scene 3     │  │  Scene 4     │
-  ...
-```
+Sample output panels from a "monolith awakening" theme run:
+
+![Scene 1: Monolith Awaken](/assets/img/scene_1_monolith_awaken.svg) ![Scene 2: Temple Floor](/assets/img/scene_2_temple_floor.svg) ![Scene 3: Wind Eroded](/assets/img/scene_3_wind_eroded.svg)
+
+![Scene 4: Celestial Shift](/assets/img/scene_4_celestial_shift.svg) ![Scene 5: Last Glyph](/assets/img/scene_5_last_glyph.svg) ![Scene 6: Buried Truth](/assets/img/scene_6_buried_truth.svg)
 
 If the LLM produces invalid SVG for a scene, the script falls back to a simple placeholder panel so the HTML assembles cleanly regardless.
 
@@ -1159,6 +1152,10 @@ python3 ~/code/tt-agents/06_landscape_svg.py --palette red --simulate
 **Palette choices:** `sunset` · `blue` · `purple` · `red` · `orange`
 
 Each palette defines a complete color system — sky gradient (3 stops), mountain depth layers, cloud color, atmospheric glow, sun/moon, ground — so all colors in the generated SVG are harmonically related without the LLM having to invent them.
+
+Sample output (default `sunset` palette):
+
+![Generative landscape SVG sample output](/assets/img/landscape.svg)
 
 **Why no framework?** The task doesn't need agents, tools, or multi-step reasoning. It's a single structured generation: prompt in, SVG out. Reaching for CrewAI or smolagents here would add complexity with no benefit. This demo exists to show the contrast — knowing when to use a framework is as important as knowing how.
 

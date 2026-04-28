@@ -68,6 +68,83 @@ const TERM_CMDS_PATH  = path.join(ROOT, 'src', 'commands', 'terminalCommands.ts'
 const MERMAID_SRC     = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'mermaid.min.js');
 
 /* ------------------------------------------------------------------ *
+ * First-mention auto-linking                                          *
+ *                                                                     *
+ * First appearance of each term in a page body (outside headings,    *
+ * links, and code blocks) is automatically hyperlinked. Longer terms  *
+ * are matched before shorter ones to prevent partial-match collisions. *
+ * ------------------------------------------------------------------ */
+
+const FIRST_MENTION_LINKS = {
+  // Tenstorrent stack — longest names first
+  'TT-Metalium':           'https://docs.tenstorrent.com/tt-metal/latest/tt-metalium/index.html',
+  'tt-inference-server':   'https://github.com/tenstorrent/tt-inference-server',
+  'tt-installer':          'https://github.com/tenstorrent/tt-installer',
+  'tt-metal':              'https://github.com/tenstorrent/tt-metal',
+  'tt-lang':               'https://github.com/tenstorrent/tt-lang',
+  'TT-Forge':              'https://github.com/tenstorrent/tt-forge-fe',
+  'tt-forge':              'https://github.com/tenstorrent/tt-forge-fe',
+  'tt-xla':                'https://github.com/tenstorrent/tt-xla',
+  'ttsim':                 'https://github.com/tenstorrent/ttsim',
+  'TTNN':                  'https://docs.tenstorrent.com/tt-metal/latest/ttnn/index.html',
+  'vLLM':                  'https://github.com/tenstorrent/vllm',
+  // Tools
+  'Claude Code':           'https://claude.ai/code',
+  'Pyodide':               'https://pyodide.org',
+  // GPU DSLs referenced for comparison
+  'Triton':                'https://github.com/openai/triton',
+};
+
+// Terms sorted longest-first (computed once).
+const FIRST_MENTION_TERMS = Object.entries(FIRST_MENTION_LINKS)
+  .sort((a, b) => b[0].length - a[0].length);
+
+/**
+ * Walk rendered HTML and wrap the first occurrence of each known term
+ * (outside headings, links, and code blocks) in an auto-generated anchor.
+ * Uses a simple tag-boundary split rather than a full DOM parse — safe for
+ * clean marked output, which never has `>` inside quoted attribute values.
+ */
+function autoLinkFirstMentions(html) {
+  const skipTags = new Set(['h1','h2','h3','h4','h5','h6','a','code','pre','script','style']);
+  const selfClose = new Set(['br','hr','img','input','meta','link','wbr']);
+  const linked = new Set();
+  let depth = 0; // nesting depth inside skip elements
+
+  return html.split(/(<[^>]+>)/).map(seg => {
+    if (seg.startsWith('<')) {
+      const m = seg.match(/^<\/?([a-zA-Z][a-zA-Z0-9]*)/);
+      if (m) {
+        const tag = m[1].toLowerCase();
+        if (skipTags.has(tag) && !selfClose.has(tag)) {
+          depth += seg.startsWith('</') ? -1 : 1;
+          if (depth < 0) depth = 0;
+        }
+      }
+      return seg;
+    }
+    if (depth > 0 || !seg) return seg;
+
+    let text = seg;
+    for (const [term, url] of FIRST_MENTION_TERMS) {
+      if (linked.has(term)) continue;
+      const idx = text.indexOf(term);
+      if (idx === -1) continue;
+      // Require surrounding characters to be non-alphanumeric (no partial matches)
+      const before = text[idx - 1];
+      if (before && /[a-zA-Z0-9_]/.test(before)) continue;
+      const after = text[idx + term.length];
+      if (after && /[a-zA-Z0-9_]/.test(after)) continue;
+      text = text.slice(0, idx)
+        + `<a href="${escapeAttr(url)}" target="_blank" rel="noreferrer">${term}</a>`
+        + text.slice(idx + term.length);
+      linked.add(term);
+    }
+    return text;
+  }).join('');
+}
+
+/* ------------------------------------------------------------------ *
  * Reference pages (content/pages/)                                    *
  * ------------------------------------------------------------------ */
 
@@ -320,6 +397,13 @@ function resolveGithubMediaToLocal(href) {
   if (!fs.existsSync(diskPath)) return null;
   return '/' + repoRelPath;  // e.g. "/assets/img/game_of_life.gif"
 }
+
+// Add id anchors to headings for deep-linking: /lessons/foo#section-name
+WEB_RENDERER.heading = function ({ tokens, depth }) {
+  const text = extractText(tokens);
+  const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  return `<h${depth} id="${escapeAttr(id)}">${escapeHtml(text)}</h${depth}>\n`;
+};
 
 WEB_RENDERER.link = function ({ href, title, tokens }) {
   const text = extractText(tokens);
@@ -719,10 +803,6 @@ function statusBadge(status) {
 function buildPlaygroundSection() {
   return `
 <section class="tt-playground-section">
-  <h2>Run in Browser</h2>
-  <p>Try this kernel in your browser using <strong>ttlang-sim-lite</strong> — no hardware required.
-     The simulator runs entirely client-side via <a href="https://pyodide.org" target="_blank" rel="noreferrer">Pyodide</a>
-     (Python in WebAssembly), using a numpy backend instead of torch.</p>
   <div class="tt-playground-mount"
        data-worker-url="${siteUrl('/assets/playground/pyodide-worker.js')}"
        data-sim-lite-base="${siteUrl('/assets/ttlang-sim-lite')}"></div>
@@ -840,7 +920,7 @@ function buildLessonPage(lesson) {
   const hasPlayground = frontMatter.playground === 'ttlang-sim';
   const hasCloudPlayground = frontMatter.playground === 'cloud';
 
-  const bodyHtml = renderLesson(markdownFile);
+  const bodyHtml = autoLinkFirstMentions(renderLesson(markdownFile));
 
   // Meta bar: hardware badges, time estimate, status
   const hwBadges = (lesson.supportedHardware || []).map(hwBadge).join(' ');
@@ -871,7 +951,24 @@ function buildLessonPage(lesson) {
     : hasCloudPlayground
       ? buildCloudPlaygroundSection()
       : '';
-  const fullContent = bodyHtml + playgroundHtml + '\n' + navHtml;
+
+  // Inject playground immediately after the opening <h1> so "the playground above"
+  // references in lesson text are accurate. Falls back to appending if no <h1> found.
+  let fullContent;
+  if (playgroundHtml) {
+    // Inject after the first <hr> so intro text appears before the playground.
+    // Falls back to after </h1> if no <hr> is present, then to appending.
+    const hrPos = bodyHtml.indexOf('<hr>');
+    const h1End = bodyHtml.indexOf('</h1>');
+    const injectAfter = hrPos !== -1 ? hrPos + 4 : h1End !== -1 ? h1End + 5 : -1;
+    if (injectAfter !== -1) {
+      fullContent = bodyHtml.slice(0, injectAfter) + '\n' + playgroundHtml + bodyHtml.slice(injectAfter) + '\n' + navHtml;
+    } else {
+      fullContent = bodyHtml + playgroundHtml + '\n' + navHtml;
+    }
+  } else {
+    fullContent = bodyHtml + '\n' + navHtml;
+  }
 
   const sidebar = buildSidebar(lessonId);
   const html = pageShell({
