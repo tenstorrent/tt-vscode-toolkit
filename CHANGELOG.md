@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.416] - 2026-04-28
+
+### Changed
+
+- **Install page gallery** — trimmed agent lesson row to landscape SVG only (pixel-art text-adventure scenes removed); updated section sub-text to mention agent-generated art running on QuietBox 2
+
+---
+
 ## [0.0.414] - 2026-04-28
 
 ### Fixed
