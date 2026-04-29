@@ -404,7 +404,15 @@ export class LessonWebviewManager {
 
       case 'openExternal':
         if (message.url) {
-          await vscode.env.openExternal(vscode.Uri.parse(message.url));
+          try {
+            const uri = vscode.Uri.parse(message.url);
+            const allowedSchemes = new Set(['http', 'https']);
+            if (allowedSchemes.has(uri.scheme.toLowerCase())) {
+              await vscode.env.openExternal(uri);
+            }
+          } catch {
+            // Ignore invalid or unsupported URLs from the webview
+          }
         }
         break;
 

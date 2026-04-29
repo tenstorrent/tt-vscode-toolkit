@@ -265,10 +265,15 @@ def _glitch_corrupt_colors(svg: str, rng: _random.Random) -> tuple[str, str]:
 
 def _glitch_sun_bleed(svg: str) -> tuple[str, str]:
     """Move the largest circle (sun/moon) to the final element — renders over mountains."""
-    pat = re.compile(r'<circle\b[^>]*r="(\d+)"[^>]*/>', re.DOTALL)
-    best_match, best_r = None, 0
+    # Match self-closing (<circle ... />) and paired (<circle ...></circle>) forms.
+    # Accept single or double quotes and integer or decimal radii.
+    pat = re.compile(
+        r'<circle\b[^>]*\br=["\'](\d+(?:\.\d+)?)["\'][^>]*(?:/>|>\s*</circle>)',
+        re.DOTALL,
+    )
+    best_match, best_r = None, 0.0
     for m in pat.finditer(svg):
-        r = int(m.group(1))
+        r = float(m.group(1))
         if r > best_r:
             best_r, best_match = r, m
     if best_match is None or best_r < 20:
@@ -276,7 +281,7 @@ def _glitch_sun_bleed(svg: str) -> tuple[str, str]:
     el = best_match.group(0)
     svg = svg[: best_match.start()] + svg[best_match.end():]
     svg = svg.replace("</svg>", f"  {el}\n</svg>")
-    return svg, f"sun-bleed: sun (r={best_r}) moved above all mountains"
+    return svg, f"sun-bleed: sun (r={best_r:.0f}) moved above all mountains"
 
 
 def _glitch_flip(svg: str) -> tuple[str, str]:

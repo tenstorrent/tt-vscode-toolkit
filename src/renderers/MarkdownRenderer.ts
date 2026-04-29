@@ -245,6 +245,23 @@ export class MarkdownRenderer {
         return `<pre class="mermaid">${mermaidPlaceholder}${mermaidBlocks.length - 1}</pre>`;
       });
 
+      // YouTube iframes fail in VSCode webviews with Error 153 — the vscode-webview://
+      // scheme is blocked by YouTube's embed server. Replace with a thumbnail linked to
+      // the watch URL *before* sanitization so the generated HTML is covered by the sanitizer.
+      // Clicking opens in the system browser via the openExternal handler.
+      html = html.replace(
+        /<div[^>]*>\s*<iframe[^>]+src="https:\/\/www\.youtube(?:-nocookie)?\.com\/embed\/([A-Za-z0-9_-]+)[^"]*"[^>]*><\/iframe>\s*<\/div>/gis,
+        (_, videoId) => {
+          const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          return (
+            `<a href="${watchUrl}" title="Watch on YouTube" style="display:block;margin:24px 0;">` +
+            `<img src="${thumbUrl}" alt="Watch on YouTube" style="width:100%;border-radius:6px;" loading="eager">` +
+            `</a>`
+          );
+        }
+      );
+
       // Sanitize everything else using sanitize-html (pure JS, no DOM/jsdom dependency)
       html = sanitizeHtml(html, {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat([
@@ -267,8 +284,8 @@ export class MarkdownRenderer {
           'button': ['class', 'data-command', 'data-args', 'title'],
           'pre': ['class'],
           'code': ['class'],
-          'a': ['href', 'title', 'target'],
-          'img': ['src', 'alt', 'title', 'loading'],
+          'a': ['href', 'title', 'target', 'style'],
+          'img': ['src', 'alt', 'title', 'loading', 'style'],
           'canvas': ['class', 'width', 'height'],
           'iframe': ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'title', 'style'],
         },
@@ -286,22 +303,6 @@ export class MarkdownRenderer {
         html = html.replace(`${mermaidPlaceholder}${index}`, content);
       });
     }
-
-    // YouTube iframes fail in VSCode webviews with Error 153 — the vscode-webview://
-    // scheme is blocked by YouTube's embed server. Replace with a thumbnail linked to
-    // the watch URL; clicking opens in the system browser via the openExternal handler.
-    html = html.replace(
-      /<div[^>]*>\s*<iframe[^>]+src="https:\/\/www\.youtube(?:-nocookie)?\.com\/embed\/([A-Za-z0-9_-]+)[^"]*"[^>]*><\/iframe>\s*<\/div>/gis,
-      (_, videoId) => {
-        const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
-        const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-        return (
-          `<a href="${watchUrl}" title="Watch on YouTube" style="display:block;margin:24px 0;">` +
-          `<img src="${thumbUrl}" alt="Watch on YouTube" style="width:100%;border-radius:6px;" loading="eager">` +
-          `</a>`
-        );
-      }
-    );
 
     // Extract command IDs from HTML
     const commands = this.extractCommands(html);
