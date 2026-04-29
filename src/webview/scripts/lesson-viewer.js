@@ -70,6 +70,7 @@
    */
   function setupExternalLinks() {
     document.addEventListener('click', function(event) {
+      if (!(event.target instanceof Element)) { return; }
       const anchor = event.target.closest('a[href]');
       if (!anchor) { return; }
       const href = anchor.getAttribute('href');
