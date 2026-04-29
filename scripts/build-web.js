@@ -405,6 +405,16 @@ WEB_RENDERER.heading = function ({ tokens, depth }) {
   return `<h${depth} id="${escapeAttr(id)}">${escapeHtml(text)}</h${depth}>\n`;
 };
 
+// Rewrite absolute image src paths through siteUrl() so they resolve correctly
+// on GitHub Pages (SITE_BASE_PATH=/tt-vscode-toolkit).  Without this, a src of
+// "/assets/img/foo.svg" in markdown renders as-is, which on the live site
+// resolves to the domain root rather than the sub-path the site lives under.
+WEB_RENDERER.image = function ({ href, title, text }) {
+  const src = href && href.startsWith('/') ? siteUrl(href) : (href || '');
+  const titleAttr = title ? ` title="${escapeAttr(title)}"` : '';
+  return `<img src="${escapeAttr(src)}" alt="${escapeHtml(text || '')}"${titleAttr}>`;
+};
+
 WEB_RENDERER.link = function ({ href, title, tokens }) {
   const text = extractText(tokens);
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.418] - 2026-04-29
+
+### Fixed
+
+- **`scripts/build-web.js` image path rewriting** — added `WEB_RENDERER.image` handler to rewrite absolute image `src` paths through `siteUrl()` so they resolve correctly on GitHub Pages when `SITE_BASE_PATH=/tt-vscode-toolkit` is set; previously, markdown images with `/assets/img/...` paths resolved to the domain root (`https://docs.tenstorrent.com/assets/img/...`) rather than the sub-path the site lives under (`https://docs.tenstorrent.com/tt-vscode-toolkit/assets/img/...`), causing all lesson images to 404 on the live site
+
+---
+
 ## [0.0.417] - 2026-04-28
 
 ### Fixed
