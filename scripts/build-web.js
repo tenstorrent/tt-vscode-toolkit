@@ -659,11 +659,12 @@ function renderLesson(markdownPath) {
 
   html = DOMPurify.sanitize(html, {
     ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
-               'figure', 'figcaption', 'video', 'source'],
+               'figure', 'figcaption', 'video', 'source', 'iframe'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
                'data-arch', 'data-script',
                'autoplay', 'loop', 'muted', 'playsinline', 'controls',
-               'loading'],
+               'loading',
+               'allowfullscreen', 'frameborder', 'allow'],
   });
 
   // Restore mermaid content
@@ -2135,11 +2136,12 @@ function renderMarkdownPage(filePath) {
   });
   html = DOMPurify.sanitize(html, {
     ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
-               'figure', 'figcaption', 'video', 'source'],
+               'figure', 'figcaption', 'video', 'source', 'iframe'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
                'data-arch', 'data-script',
                'autoplay', 'loop', 'muted', 'playsinline', 'controls',
-               'loading'],
+               'loading',
+               'allowfullscreen', 'frameborder', 'allow'],
   });
   mermaidBlocks.forEach((mc, i) => {
     html = html.replace(`${MERMAID_PH}${i}`, mc);
