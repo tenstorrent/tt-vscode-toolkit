@@ -288,22 +288,17 @@ export class MarkdownRenderer {
     }
 
     // YouTube iframes fail in VSCode webviews with Error 153 — the vscode-webview://
-    // scheme is blocked by YouTube's embed server. Replace any YouTube iframe (with its
-    // responsive wrapper div) with a clickable thumbnail that opens in the system browser.
+    // scheme is blocked by YouTube's embed server. Replace with a thumbnail linked to
+    // the watch URL; clicking opens in the system browser via the openExternal handler.
     html = html.replace(
       /<div[^>]*>\s*<iframe[^>]+src="https:\/\/www\.youtube(?:-nocookie)?\.com\/embed\/([A-Za-z0-9_-]+)[^"]*"[^>]*><\/iframe>\s*<\/div>/gis,
       (_, videoId) => {
-        const watchUrl  = `https://www.youtube.com/watch?v=${videoId}`;
-        const thumbUrl  = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
         return (
-          `<a href="${watchUrl}" title="Watch on YouTube" ` +
-          `style="display:block;position:relative;margin:24px 0;border-radius:6px;overflow:hidden;cursor:pointer;">` +
-          `<img src="${thumbUrl}" alt="Watch on YouTube" style="width:100%;display:block;" loading="eager">` +
-          `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);">` +
-          `<svg width="68" height="48" viewBox="0 0 68 48" xmlns="http://www.w3.org/2000/svg">` +
-          `<path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79 0 34 0 34 0S12.21 0 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C0 13.05 0 24 0 24s0 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 48 34 48 34 48s21.79 0 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C68 34.95 68 24 68 24s0-10.95-1.48-16.26z" fill="#FF0000"/>` +
-          `<path d="M27 34l18-10-18-10v20z" fill="#fff"/>` +
-          `</svg></div></a>`
+          `<a href="${watchUrl}" title="Watch on YouTube" style="display:block;margin:24px 0;">` +
+          `<img src="${thumbUrl}" alt="Watch on YouTube" style="width:100%;border-radius:6px;" loading="eager">` +
+          `</a>`
         );
       }
     );
