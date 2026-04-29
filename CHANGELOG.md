@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.420] - 2026-04-29
+
+### Fixed
+
+- **`src/views/LessonWebviewManager.ts` `openExternal` scheme validation** — restricted `openExternal` handler to only open `http`/`https` URIs; other schemes (file:, vscode:, command:, etc.) are now silently ignored to prevent webview messages from opening unintended URIs
+- **`src/renderers/MarkdownRenderer.ts` YouTube replacement ordering** — moved YouTube iframe→thumbnail replacement to *before* the `sanitizeHtml` call so the generated `<a>` and `<img>` markup is covered by the sanitizer; added `style` to `allowedAttributes` for `a` and `img` to preserve the thumbnail layout styles after sanitization
+- **`content/templates/agents/06_landscape_svg.py` `_glitch_sun_bleed` regex** — broadened circle-matching regex to accept paired close tags (`</circle>`), single-quoted radius values, and decimal/float radii so the sun-bleed glitch effect fires reliably on LLM-generated SVG
+- **`content/templates/agents/02_code_explorer.py` context-limit message** — removed stray `]` from the end of the context-limit help string that was leaking into user-visible output
+- **`src/webview/scripts/lesson-viewer.js` click handler** — guarded `event.target.closest()` with an `instanceof Element` check to prevent TypeError when the click target is a Text node or other non-Element
+
+---
+
+## [0.0.419] - 2026-04-29
+
+### Added
+
+- **`src/renderers/MarkdownRenderer.ts` YouTube thumbnail fallback** — replaced YouTube `<iframe>` embeds with a static thumbnail + external link to avoid VSCode Error 153 (CSP blocks iframes from external origins in webviews); clicking the thumbnail opens the video in the system browser
+- **`src/views/LessonWebviewManager.ts` `openExternal` message handler** — added handler so external links (`<a target="_blank">`) clicked inside the lesson webview open in the OS browser rather than inside the webview
+- **`src/webview/scripts/lesson-viewer.js` external link intercept** — added click listener that posts `openExternal` messages for links pointing outside the webview origin
+- **`content/lessons/qb2-local-agents.md` updates** — expanded QB2 agents lesson with YouTube embed section, glitch-art lesson section, and landscape SVG template sync
+- **`content/templates/agents/06_landscape_svg.py` glitch post-processing** — added additional scene generation and glitch effects to the landscape SVG template
+
+### Fixed
+
+- **`scripts/build-web.js` image path rewriting** — added `WEB_RENDERER.image` handler to rewrite absolute image `src` paths through `siteUrl()` so they resolve correctly on GitHub Pages when `SITE_BASE_PATH=/tt-vscode-toolkit` is set; previously, markdown images with `/assets/img/...` paths resolved to the domain root (`https://docs.tenstorrent.com/assets/img/...`) rather than the sub-path the site lives under (`https://docs.tenstorrent.com/tt-vscode-toolkit/assets/img/...`), causing all lesson images to 404 on the live site
+
+---
+
 ## [0.0.417] - 2026-04-28
 
 ### Fixed
