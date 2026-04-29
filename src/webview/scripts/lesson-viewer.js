@@ -17,6 +17,7 @@
    */
   function initialize() {
     setupCommandButtons();
+    setupExternalLinks();
     setupCodeBlocks();
     restoreScrollPosition();
   }
@@ -60,6 +61,22 @@
           }, 2000);
         }
       });
+    });
+  }
+
+  /**
+   * Intercept external http/https link clicks and open them in the system browser.
+   * VSCode webviews don't navigate external URLs on their own.
+   */
+  function setupExternalLinks() {
+    document.addEventListener('click', function(event) {
+      const anchor = event.target.closest('a[href]');
+      if (!anchor) { return; }
+      const href = anchor.getAttribute('href');
+      if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+        event.preventDefault();
+        vscode.postMessage({ type: 'openExternal', url: href });
+      }
     });
   }
 

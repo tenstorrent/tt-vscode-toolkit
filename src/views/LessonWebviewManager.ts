@@ -23,11 +23,12 @@ import { getNonce } from '../utils/webview';
  * Message types for webview communication
  */
 interface WebviewMessage {
-  type: 'executeCommand' | 'copyCode' | 'ready';
+  type: 'executeCommand' | 'copyCode' | 'ready' | 'openExternal';
   command?: string;
   code?: string;
   args?: any; // Command arguments (lessonId, hardware, etc.)
   lessonId?: string; // Deprecated - use args.lessonId instead
+  url?: string; // For openExternal messages
 }
 
 /**
@@ -398,6 +399,12 @@ export class LessonWebviewManager {
               this.currentLesson
             );
           }
+        }
+        break;
+
+      case 'openExternal':
+        if (message.url) {
+          await vscode.env.openExternal(vscode.Uri.parse(message.url));
         }
         break;
 
