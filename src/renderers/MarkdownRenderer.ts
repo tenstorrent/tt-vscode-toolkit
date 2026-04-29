@@ -251,6 +251,7 @@ export class MarkdownRenderer {
           'button', 'pre', 'div', 'span', 'details', 'summary',
           'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img',
           'canvas',  // tensix-viz grid
+          'iframe',  // YouTube embeds (hostname-restricted below)
         ]),
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
@@ -269,12 +270,15 @@ export class MarkdownRenderer {
           'a': ['href', 'title', 'target'],
           'img': ['src', 'alt', 'title', 'loading'],
           'canvas': ['class', 'width', 'height'],
+          'iframe': ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'title', 'style'],
         },
         // Allow vscode-webview / vscode-resource URI schemes used by webview.asWebviewUri()
         // in addition to the sanitize-html defaults (http, https, ftp, mailto, //)
         allowedSchemesByTag: {
           'img': ['http', 'https', 'data', 'vscode-webview', 'vscode-resource'],
         },
+        // Restrict iframe src to trusted video hosts only
+        allowedIframeHostnames: ['www.youtube.com', 'www.youtube-nocookie.com'],
       });
 
       // Restore mermaid blocks with original unsanitized content

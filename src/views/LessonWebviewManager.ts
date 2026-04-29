@@ -217,7 +217,7 @@ export class LessonWebviewManager {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' ${this.panel!.webview.cspSource} https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' ${this.panel!.webview.cspSource} https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:; frame-src https://www.youtube.com https://www.youtube-nocookie.com;">
   <title>${this.escapeHtml(lesson.title)}</title>
   <link rel="stylesheet" href="${cssUri}">
   ${tensixVizCssUri ? `<link rel="stylesheet" href="${tensixVizCssUri}">` : ''}
