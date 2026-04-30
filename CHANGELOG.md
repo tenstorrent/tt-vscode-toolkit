@@ -7,11 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.427] - 2026-04-30
+
+### Changed
+
+- **`src/commands/terminalCommands.ts`** — extracted three repeated Python programs into named constants (`FORGE_ACTIVATION_PY`, `FORGE_FULL_VERIFY_PY`, `JAX_DEVICE_CHECK_PY`) so the tt_torch preamble and version-probe logic only live in one place. Templates now reference the constants via template literals.
+
+### Fixed
+
+- **`release.yml` (publish-openvsx job)** — reverted job-level `if: secrets.OVSX_PAT != ''` back to step-level. GitHub Actions does not make the `secrets` context available in job `if:` expressions (only `github`, `needs`, `vars`, `env`, `strategy`, and `inputs` are allowed there); the job-level gate introduced in v0.0.425 caused a workflow parse error.
+
+---
+
 ## [0.0.426] - 2026-04-30
 
 ### Fixed
 
-- **`src/commands/terminalCommands.ts`** — added best-effort `import tt_torch` (try/except) before every `import jax` in Forge/XLA terminal command templates. The TT PJRT plugin requires `tt_torch` to be imported first to register TT devices with JAX; without it `jax.devices()` silently falls back to CPU. Affected commands: `BUILD_FORGE_FROM_SOURCE`, `INSTALL_FORGE`, `TEST_FORGE_INSTALL`, `TEST_FORGE_INSTALL_WHEEL`, `VERIFY_FORGE_STACK`, `RUN_JAX_QUICKSTART`, `RUN_JAX_PMAP_DEMO`, `CREATE_TT_XLA_TEST`.
+- **`src/commands/terminalCommands.ts`** — added best-effort `import tt_torch` (try/except) before `import jax` in commands where it was missing. The TT PJRT plugin requires `tt_torch` to be imported first to register TT devices with JAX; without it `jax.devices()` silently falls back to CPU. Commands updated: `BUILD_FORGE_FROM_SOURCE`, `INSTALL_FORGE`, `TEST_FORGE_INSTALL`, `TEST_FORGE_INSTALL_WHEEL`, `VERIFY_FORGE_STACK`, `RUN_JAX_QUICKSTART`, `RUN_JAX_PMAP_DEMO`, `CREATE_TT_XLA_TEST`. (Commands that already had the preload — `ACTIVATE_FORGE_ENV`, `INSTALL_TT_XLA`, `TEST_TT_XLA_INSTALL` — were unchanged.)
 
 ---
 
@@ -20,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`src/commands/terminalCommands.ts`** — replaced `python3 - <<'PYEOF'` heredoc syntax with `python3 -c "..."` in all Forge/XLA terminal commands. Heredoc (`<<`) is not supported in fish shell, causing commands to silently fail for users whose VSCode terminal is configured to use fish.
-- **`release.yml` (publish-openvsx job)** — moved `if: secrets.OVSX_PAT != ''` from the final publish step to the job level so the checkout, Node setup, build, and package steps are all skipped when the secret is absent.
+- **`release.yml` (publish-openvsx job)** — attempted to move `if: secrets.OVSX_PAT != ''` to job level to skip unnecessary build work when the secret is absent. Reverted in v0.0.427 due to GitHub Actions context restrictions.
 
 ---
 

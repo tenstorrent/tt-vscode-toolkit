@@ -38,6 +38,42 @@ export interface CommandTemplate {
   variables?: string[];
 }
 
+// ── Forge / XLA shared Python snippets ──────────────────────────────────────
+// Sent as `python3 -c "..."` — no heredoc, so they work in bash, zsh, and fish.
+// tt_torch must be imported before jax so the TT PJRT plugin registers TT
+// hardware with JAX; without it jax.devices() falls back silently to CPU.
+// All templates are composed as: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${SNIPPET}\n"`
+
+/** forge activation probe — used by BUILD_FORGE_FROM_SOURCE, INSTALL_FORGE */
+const FORGE_ACTIVATION_PY =
+  "try:\n    import tt_torch  # pre-loads TT PJRT plugin; jax.devices() sees TT hardware\n" +
+  "except ImportError:\n    pass\n" +
+  "try:\n    import forge; forge_info = 'forge ' + forge.__version__\n" +
+  "except ImportError:\n    import tt_torch; forge_info = 'tt-forge (tt_torch API)'\n" +
+  "import jax\n" +
+  "print('forge/tt-forge:', forge_info)\n" +
+  "print('jax           :', jax.__version__)\n" +
+  "print('devices       :', jax.devices())";
+
+/** forge + torch-xla full version probe — TEST_FORGE_INSTALL, TEST_FORGE_INSTALL_WHEEL, VERIFY_FORGE_STACK */
+const FORGE_FULL_VERIFY_PY =
+  "try:\n    import tt_torch  # pre-loads TT PJRT plugin; jax.devices() sees TT hardware\n" +
+  "except ImportError:\n    pass\n" +
+  "try:\n    import forge; forge_info = 'forge     : ' + forge.__version__\n" +
+  "except ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\n" +
+  "import jax, torch_xla\n" +
+  "print(forge_info)\n" +
+  "print('jax       :', jax.__version__)\n" +
+  "print('torch_xla :', torch_xla.__version__)\n" +
+  "print('tt devices:', jax.devices())";
+
+/** minimal JAX device listing — ACTIVATE_FORGE_ENV, INSTALL_TT_XLA */
+const JAX_DEVICE_CHECK_PY =
+  "try:\n    import tt_torch  # pre-loads TT PJRT plugin; jax.devices() sees TT hardware\n" +
+  "except ImportError:\n    pass\n" +
+  "import jax\n" +
+  "print('TT devices:', jax.devices())";
+
 /**
  * All terminal commands used in the walkthrough
  */
@@ -376,28 +412,28 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   BUILD_FORGE_FROM_SOURCE: {
     id: 'build-forge-from-source',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT PJRT plugin so jax.devices() sees TT hardware\nexcept ImportError:\n    pass\ntry:\n    import forge; forge_info = 'forge ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge (tt_torch API)'\nimport jax\nprint('forge/tt-forge:', forge_info)\nprint('jax           :', jax.__version__)\nprint('devices       :', jax.devices())\n\"",
+    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${FORGE_ACTIVATION_PY}\n"`,
     description: 'Activates the pre-installed venv-forge environment and verifies the forge stack',
   },
 
   INSTALL_FORGE: {
     id: 'install-forge',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT PJRT plugin so jax.devices() sees TT hardware\nexcept ImportError:\n    pass\ntry:\n    import forge; forge_info = 'forge ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge (tt_torch API)'\nimport jax\nprint('forge/tt-forge:', forge_info)\nprint('jax           :', jax.__version__)\nprint('devices       :', jax.devices())\n\"",
+    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${FORGE_ACTIVATION_PY}\n"`,
     description: 'Activates the pre-installed venv-forge environment (forge is pre-installed, no pip needed)',
   },
 
   TEST_FORGE_INSTALL: {
     id: 'test-forge-install',
     name: 'Verify Forge Stack',
-    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT PJRT plugin so jax.devices() sees TT hardware\nexcept ImportError:\n    pass\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\n\"",
+    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${FORGE_FULL_VERIFY_PY}\n"`,
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
   TEST_FORGE_INSTALL_WHEEL: {
     id: 'test-forge-install-wheel',
     name: 'Verify Forge Stack',
-    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT PJRT plugin so jax.devices() sees TT hardware\nexcept ImportError:\n    pass\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\n\"",
+    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${FORGE_FULL_VERIFY_PY}\n"`,
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
@@ -438,14 +474,14 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   ACTIVATE_FORGE_ENV: {
     id: 'activate-forge-env',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint('TT devices:', jax.devices())\n\"",
+    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${JAX_DEVICE_CHECK_PY}\n"`,
     description: 'Activates the pre-installed venv-forge environment and prints visible TT devices',
   },
 
   VERIFY_FORGE_STACK: {
     id: 'verify-forge-stack',
     name: 'Verify Forge Stack',
-    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT PJRT plugin so jax.devices() sees TT hardware\nexcept ImportError:\n    pass\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\n\"",
+    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${FORGE_FULL_VERIFY_PY}\n"`,
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
@@ -490,7 +526,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   INSTALL_TT_XLA: {
     id: 'install-tt-xla',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint('TT devices:', jax.devices())\n\"",
+    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${JAX_DEVICE_CHECK_PY}\n"`,
     description: 'venv-forge is pre-installed — activates the environment instead',
   },
 

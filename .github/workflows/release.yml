@@ -134,7 +134,9 @@ jobs:
     name: Publish to Open VSX Registry
     runs-on: ubuntu-latest
     needs: create-release
-    if: ${{ secrets.OVSX_PAT != '' }}
+    # Note: secrets context is unavailable in job-level `if:` expressions
+    # (GitHub Actions only allows github/needs/vars/env/strategy/inputs there).
+    # The secret gate lives on the publish step below where secrets ARE accessible.
 
     steps:
       - name: Checkout repository
@@ -155,6 +157,7 @@ jobs:
           npm run package
 
       - name: Publish to Open VSX Registry
+        if: ${{ secrets.OVSX_PAT != '' }}
         run: npx ovsx@0.10.11 publish *.vsix --pat $OVSX_PAT
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
