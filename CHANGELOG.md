@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.426] - 2026-04-30
+
+### Fixed
+
+- **`src/commands/terminalCommands.ts`** — added best-effort `import tt_torch` (try/except) before every `import jax` in Forge/XLA terminal command templates. The TT PJRT plugin requires `tt_torch` to be imported first to register TT devices with JAX; without it `jax.devices()` silently falls back to CPU. Affected commands: `BUILD_FORGE_FROM_SOURCE`, `INSTALL_FORGE`, `TEST_FORGE_INSTALL`, `TEST_FORGE_INSTALL_WHEEL`, `VERIFY_FORGE_STACK`, `RUN_JAX_QUICKSTART`, `RUN_JAX_PMAP_DEMO`, `CREATE_TT_XLA_TEST`.
+
+---
+
 ## [0.0.425] - 2026-04-30
 
 ### Fixed
