@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.423] - 2026-04-30
+
+### Changed
+
+- **Forge/XLA activation simplified** — all terminal commands and lesson docs now use `source ~/tt-forge-venv/bin/activate` directly instead of a dual-path conditional. Developer images create `~/tt-forge-venv` as a symlink to `/opt/venv-forge`.
+- **`content/lessons/forge-image-classification.md`** and **`content/lessons/tt-xla-jax.md`** — removed the multi-path `if/elif/fi` one-liner; activation is now a single `source ~/tt-forge-venv/bin/activate`. Added a callout explaining how to create the symlink manually on systems that only have `/opt/venv-forge` or only `~/tt-forge-venv`.
+- **`tt-developer-image` Dockerfile** — added `ln -s /opt/venv-forge ~/tt-forge-venv` after the profile.d scripts so the canonical `~/tt-forge-venv` path is always present in developer images.
+
+---
+
 ## [0.0.422] - 2026-04-30
 
 ### Fixed

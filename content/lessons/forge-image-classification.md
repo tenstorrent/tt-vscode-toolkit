@@ -44,20 +44,22 @@ then `forge.compile()` handles the rest.
 ## Activate the forge environment
 
 ```bash
-# QB2 / tt-installer images (pre-installed):
-source /etc/profile.d/tt-env-forge.sh
-
-# N150/N300 cloud or manual install (~/tt-forge-venv present):
 source ~/tt-forge-venv/bin/activate
 ```
 
-Or use the smart one-liner that checks both:
-
-```bash
-if [ -f /etc/profile.d/tt-env-forge.sh ]; then source /etc/profile.d/tt-env-forge.sh; elif [ -d ~/tt-forge-venv ]; then source ~/tt-forge-venv/bin/activate; fi
-```
-
 That's the entire setup. No LLVM build, no Python version juggling, no CMake.
+
+> **Can't find `~/tt-forge-venv`?** Developer images put the forge env at `/opt/venv-forge`
+> and symlink it to `~/tt-forge-venv` automatically. If you're on a system where only
+> one path exists, create the link yourself:
+>
+> ```bash
+> # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
+> ln -s /opt/venv-forge ~/tt-forge-venv
+>
+> # ~/tt-forge-venv exists but /opt/venv-forge doesn't (needs sudo):
+> sudo ln -s ~/tt-forge-venv /opt/venv-forge
+> ```
 
 > **N150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
 > which provides the `tt_torch` API (`torch.compile(model, backend='tt')`) rather than
@@ -112,7 +114,7 @@ starting point for understanding the forge workflow.
 #!/usr/bin/env python3
 """
 MobileNetV2 image classifier compiled for TT hardware via forge.compile().
-Activate first: source /etc/profile.d/tt-env-forge.sh  (or: source ~/tt-forge-venv/bin/activate)
+Activate first: source ~/tt-forge-venv/bin/activate
 """
 import urllib.request
 import forge
