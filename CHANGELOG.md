@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.422] - 2026-04-30
+
+### Fixed
+
+- **`content/lessons/explore-metalium.md`** — added `train_and_export_mlp.py` / `train_and_export_cnn.py` step before the inference scripts; without pre-trained weights both scripts use random weights and report ~20% accuracy
+- **`content/lessons/cookbook-image-filters.md`** — added commands to create `examples/sample.jpg` before running `filters.py` (the file wasn't present in the deployed project)
+- **`content/lessons/cookbook-audio-processor.md`** — added test WAV creation step and clarified that `processor.py` is a librosa-based starter template, not a full TTNN implementation
+
+---
+
+## [0.0.421] - 2026-04-30
+
+### Fixed
+
+- **Forge environment activation** — all forge/XLA terminal commands now check for `~/tt-forge-venv` as a fallback when `/etc/profile.d/tt-env-forge.sh` is absent (N150 cloud and manual installs); activation pattern is `if [ -f /etc/profile.d/tt-env-forge.sh ]; then source ...; elif [ -d ~/tt-forge-venv ]; then source ~/tt-forge-venv/bin/activate; fi`
+- **Forge verify commands** — replaced hardcoded `import forge` checks with try/except that falls back to `import tt_torch` for environments using `tt-forge 1.0.0` (which provides `tt_torch` API instead of `forge.compile()`)
+- **`content/lessons/forge-image-classification.md`** — activation section now shows both environment paths and adds a note about N150 cloud env differences (tt_torch API, PJRT version compatibility)
+- **`content/lessons/tt-xla-jax.md`** — activation commands updated throughout to show both `/etc/profile.d/tt-env-forge.sh` and `~/tt-forge-venv` options with note about PJRT CPU fallback when plugin has version mismatch
+
+---
+
 ## [0.0.420] - 2026-04-29
 
 ### Fixed

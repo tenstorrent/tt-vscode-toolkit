@@ -32,7 +32,7 @@ validationNotes: Rewritten for pre-installed venv-forge; zero install steps
 
 # JAX and PyTorch/XLA on Tenstorrent
 
-The `venv-forge` environment ships JAX, torch-xla, and the TT PJRT plugin
+The `venv-forge` / `tt-forge-venv` environment ships JAX, torch-xla, and the TT PJRT plugin
 pre-installed. There is no installation step — just activate and start computing.
 
 > **QB2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
@@ -43,8 +43,23 @@ pre-installed. There is no installation step — just activate and start computi
 ## Activate the environment
 
 ```bash
+# QB2 / tt-installer images:
 source /etc/profile.d/tt-env-forge.sh
+
+# N150/N300 cloud or manual install:
+source ~/tt-forge-venv/bin/activate
 ```
+
+Smart one-liner (checks both):
+
+```bash
+if [ -f /etc/profile.d/tt-env-forge.sh ]; then source /etc/profile.d/tt-env-forge.sh; elif [ -d ~/tt-forge-venv ]; then source ~/tt-forge-venv/bin/activate; fi
+```
+
+> **N150 cloud note:** `~/tt-forge-venv` provides `pjrt-plugin-tt 1.0.0`. The PJRT
+> plugin requires `tt_torch` to be imported first so the TT shared libraries are loaded
+> before JAX tries to open the plugin. The verify command handles this automatically.
+> If you call `import jax` without importing `tt_torch` first, JAX will fall back to CPU.
 
 [▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
 
@@ -240,7 +255,10 @@ Set `TT_METAL_ARCH_NAME` before activating the env if it isn't already set:
 ```bash
 export TT_METAL_ARCH_NAME=blackhole   # p300c / QB2 / P150
 export TT_METAL_ARCH_NAME=wormhole_b0 # N150 / N300 / T3K / Galaxy
-source /etc/profile.d/tt-env-forge.sh
+# then activate (whichever exists on your system):
+source /etc/profile.d/tt-env-forge.sh        # QB2 / tt-installer image
+# or:
+source ~/tt-forge-venv/bin/activate           # N150 cloud / manual install
 ```
 
 ---
@@ -254,7 +272,9 @@ using JAX/Flax and PyTorch/XLA:
 git clone https://github.com/tenstorrent/tt-forge.git ~/tt-forge
 cd ~/tt-forge/demos/tt-xla/nlp/jax
 
-source /etc/profile.d/tt-env-forge.sh
+# activate whichever exists on your system:
+source /etc/profile.d/tt-env-forge.sh        # QB2 / tt-installer image
+# or: source ~/tt-forge-venv/bin/activate    # N150 cloud / manual install
 pip install -r requirements.txt
 
 python gpt_demo.py

@@ -44,10 +44,27 @@ then `forge.compile()` handles the rest.
 ## Activate the forge environment
 
 ```bash
+# QB2 / tt-installer images (pre-installed):
 source /etc/profile.d/tt-env-forge.sh
+
+# N150/N300 cloud or manual install (~/tt-forge-venv present):
+source ~/tt-forge-venv/bin/activate
+```
+
+Or use the smart one-liner that checks both:
+
+```bash
+if [ -f /etc/profile.d/tt-env-forge.sh ]; then source /etc/profile.d/tt-env-forge.sh; elif [ -d ~/tt-forge-venv ]; then source ~/tt-forge-venv/bin/activate; fi
 ```
 
 That's the entire setup. No LLVM build, no Python version juggling, no CMake.
+
+> **N150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
+> which provides the `tt_torch` API (`torch.compile(model, backend='tt')`) rather than
+> `forge.compile()`. JAX and the PJRT plugin work correctly when `tt_torch` is imported
+> first (which pre-loads the TT shared libraries). The verify command handles this
+> automatically. The Python compilation script above uses `forge.compile()` — on
+> N150 cloud, you would use `torch.compile(model, backend='tt')` instead.
 
 [▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
 
@@ -95,7 +112,7 @@ starting point for understanding the forge workflow.
 #!/usr/bin/env python3
 """
 MobileNetV2 image classifier compiled for TT hardware via forge.compile().
-Activate first: source /etc/profile.d/tt-env-forge.sh
+Activate first: source /etc/profile.d/tt-env-forge.sh  (or: source ~/tt-forge-venv/bin/activate)
 """
 import urllib.request
 import forge

@@ -751,9 +751,22 @@ cd ~/tt-scratchpad/cookbook/audio_processor
 # Install dependencies
 pip install -r requirements.txt
 
+# Create a test audio file if you don't have one:
+mkdir -p examples
+python3 -c "
+import numpy as np; from scipy.io.wavfile import write
+sr = 22050; t = np.linspace(0, 2, sr*2)
+write('examples/sample.wav', sr, (0.5*np.sin(2*3.14159*440*t)*32767).astype('int16'))
+print('Created examples/sample.wav')
+"
+
 # Process an audio file
-python processor.py
+python processor.py examples/sample.wav
 ```
+
+> **Note:** `processor.py` is a starter template. The mel-spectrogram uses librosa
+> (CPU). The template opens the TT device and is ready for TTNN acceleration —
+> see the `compute_mel_spectrogram` method to add TTNN ops.
 
 **Try audio effects:**
 
