@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.421] - 2026-04-30
+
+### Security
+
+- **`uuid` dependency override** — pinned transitive `uuid` dependency to `>=14.0.0` (via npm `overrides`) to address missing buffer-bounds check in `uuid` v3/v5/v6 when a caller-provided output buffer is too small (Dependabot alert #43, CVSS pending)
+- **Open VSX CI publish job** — added `publish-openvsx` GitHub Actions job to release workflow, enabling automated publishing to Open VSX Registry on version tags using `OVSX_PAT` secret
+
+---
+
 ## [0.0.420] - 2026-04-29
 
 ### Fixed
