@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`content/lessons/forge-image-classification.md`** — activation section now shows both environment paths and adds a note about N150 cloud env differences (tt_torch API, PJRT version compatibility)
 - **`content/lessons/tt-xla-jax.md`** — activation commands updated throughout to show both `/etc/profile.d/tt-env-forge.sh` and `~/tt-forge-venv` options with note about PJRT CPU fallback when plugin has version mismatch
 
+### Security
+
+- **`uuid` dependency override** — pinned transitive `uuid` dependency to `>=14.0.0` (via npm `overrides`) to address missing buffer-bounds check in `uuid` v3/v5/v6 when a caller-provided output buffer is too small (Dependabot alert #43, CVSS pending)
+
+### Added
+
+- **Open VSX CI publish job** — added `publish-openvsx` GitHub Actions job to release workflow, enabling automated publishing to Open VSX Registry on version tags using `OVSX_PAT` secret
+
 ---
 
 ## [0.0.420] - 2026-04-29
