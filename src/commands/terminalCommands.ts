@@ -376,28 +376,28 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   BUILD_FORGE_FROM_SOURCE: {
     id: 'build-forge-from-source',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import forge; forge_info = 'forge ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge (tt_torch API)'\nimport jax\nprint('forge/tt-forge:', forge_info)\nprint('jax           :', jax.__version__)\nprint('devices       :', jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import forge; forge_info = 'forge ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge (tt_torch API)'\nimport jax\nprint('forge/tt-forge:', forge_info)\nprint('jax           :', jax.__version__)\nprint('devices       :', jax.devices())\n\"",
     description: 'Activates the pre-installed venv-forge environment and verifies the forge stack',
   },
 
   INSTALL_FORGE: {
     id: 'install-forge',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import forge; forge_info = 'forge ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge (tt_torch API)'\nimport jax\nprint('forge/tt-forge:', forge_info)\nprint('jax           :', jax.__version__)\nprint('devices       :', jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import forge; forge_info = 'forge ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge (tt_torch API)'\nimport jax\nprint('forge/tt-forge:', forge_info)\nprint('jax           :', jax.__version__)\nprint('devices       :', jax.devices())\n\"",
     description: 'Activates the pre-installed venv-forge environment (forge is pre-installed, no pip needed)',
   },
 
   TEST_FORGE_INSTALL: {
     id: 'test-forge-install',
     name: 'Verify Forge Stack',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\n\"",
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
   TEST_FORGE_INSTALL_WHEEL: {
     id: 'test-forge-install-wheel',
     name: 'Verify Forge Stack',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\n\"",
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
@@ -438,14 +438,14 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   ACTIVATE_FORGE_ENV: {
     id: 'activate-forge-env',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint('TT devices:', jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint('TT devices:', jax.devices())\n\"",
     description: 'Activates the pre-installed venv-forge environment and prints visible TT devices',
   },
 
   VERIFY_FORGE_STACK: {
     id: 'verify-forge-stack',
     name: 'Verify Forge Stack',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import forge; forge_info = 'forge     : ' + forge.__version__\nexcept ImportError:\n    import tt_torch; forge_info = 'tt-forge  : tt_torch API'\nimport jax, torch_xla\nprint(forge_info)\nprint('jax       :', jax.__version__)\nprint('torch_xla :', torch_xla.__version__)\nprint('tt devices:', jax.devices())\n\"",
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
@@ -453,21 +453,21 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_JAX_QUICKSTART: {
     id: 'run-jax-quickstart',
     name: 'Run JAX Quickstart',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\nimport jax\nimport jax.numpy as jnp\na = jnp.ones((1024, 1024))\nb = jnp.ones((1024, 1024))\nc = a @ b\nprint('shape  :', c.shape)\nprint('device :', c.devices())\nprint('c[0,0] :', c[0, 0])  # expect 1024.0\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\nimport jax\nimport jax.numpy as jnp\na = jnp.ones((1024, 1024))\nb = jnp.ones((1024, 1024))\nc = a @ b\nprint('shape  :', c.shape)\nprint('device :', c.devices())\nprint('c[0,0] :', c[0, 0])  # expect 1024.0\n\"",
     description: 'Runs a 1024x1024 JAX matmul on TT hardware via venv-forge; prints shape, device, value',
   },
 
   RUN_JAX_PMAP_DEMO: {
     id: 'run-jax-pmap-demo',
     name: 'Run JAX pmap Demo (multi-device)',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\nimport jax\nimport jax.numpy as jnp\ndevices = jax.devices()\nn = len(devices)\nprint(f'Running across {n} TT device(s)')\n@jax.pmap\ndef matmul_per_device(A):\n    return A @ A.T\nA = jnp.ones((n, 512, 512))\nresult = matmul_per_device(A)\nprint('result shape :', result.shape)\nprint('sharding     :', result.sharding)\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\nimport jax\nimport jax.numpy as jnp\ndevices = jax.devices()\nn = len(devices)\nprint(f'Running across {n} TT device(s)')\n@jax.pmap\ndef matmul_per_device(A):\n    return A @ A.T\nA = jnp.ones((n, 512, 512))\nresult = matmul_per_device(A)\nprint('result shape :', result.shape)\nprint('sharding     :', result.sharding)\n\"",
     description: 'Maps a matmul across all TT devices using jax.pmap (QB2 uses all 4 chips)',
   },
 
   RUN_PYTORCH_XLA_DEMO: {
     id: 'run-pytorch-xla-demo',
     name: 'Run PyTorch/XLA Demo',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\nimport torch\nimport torch_xla.core.xla_model as xm\ndevice = xm.xla_device()\nprint('TT device:', device)\nx = torch.randn(256, 256).to(device)\ny = torch.randn(256, 256).to(device)\nz = x @ y\nxm.mark_step()\nprint('z.shape :', z.shape)\nprint('z.device:', z.device)\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\nimport torch\nimport torch_xla.core.xla_model as xm\ndevice = xm.xla_device()\nprint('TT device:', device)\nx = torch.randn(256, 256).to(device)\ny = torch.randn(256, 256).to(device)\nz = x @ y\nxm.mark_step()\nprint('z.shape :', z.shape)\nprint('z.device:', z.device)\n\"",
     description: 'Runs a PyTorch matmul on TT hardware via torch-xla (both pre-installed in venv-forge)',
   },
 
@@ -490,21 +490,21 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   INSTALL_TT_XLA: {
     id: 'install-tt-xla',
     name: 'Activate Forge Environment',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint('TT devices:', jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint('TT devices:', jax.devices())\n\"",
     description: 'venv-forge is pre-installed — activates the environment instead',
   },
 
   CREATE_TT_XLA_TEST: {
     id: 'create-tt-xla-test',
     name: 'Run JAX Quickstart',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\nimport jax, jax.numpy as jnp\nc = jnp.ones((1024, 1024)) @ jnp.ones((1024, 1024))\nprint('shape:', c.shape, 'device:', c.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\nimport jax, jax.numpy as jnp\nc = jnp.ones((1024, 1024)) @ jnp.ones((1024, 1024))\nprint('shape:', c.shape, 'device:', c.devices())\n\"",
     description: 'Runs a quick JAX matmul to verify TT-XLA is working',
   },
 
   TEST_TT_XLA_INSTALL: {
     id: 'test-tt-xla-install',
     name: 'Verify Forge Stack',
-    template: "source ~/tt-forge-venv/bin/activate && python3 - <<'PYEOF'\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint(jax.devices())\nPYEOF",
+    template: "source ~/tt-forge-venv/bin/activate && python3 -c \"\ntry:\n    import tt_torch  # pre-loads TT libs so JAX PJRT plugin can find them\nexcept ImportError:\n    pass\nimport jax\nprint(jax.devices())\n\"",
     description: 'Verifies TT-XLA is accessible in venv-forge',
   },
 

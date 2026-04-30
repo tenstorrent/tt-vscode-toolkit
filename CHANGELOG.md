@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.425] - 2026-04-30
+
+### Fixed
+
+- **`src/commands/terminalCommands.ts`** — replaced `python3 - <<'PYEOF'` heredoc syntax with `python3 -c "..."` in all Forge/XLA terminal commands. Heredoc (`<<`) is not supported in fish shell, causing commands to silently fail for users whose VSCode terminal is configured to use fish.
+- **`release.yml` (publish-openvsx job)** — moved `if: secrets.OVSX_PAT != ''` from the final publish step to the job level so the checkout, Node setup, build, and package steps are all skipped when the secret is absent.
+
+---
+
 ## [0.0.424] - 2026-04-30
 
 ### Fixed

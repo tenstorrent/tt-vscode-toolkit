@@ -134,6 +134,7 @@ jobs:
     name: Publish to Open VSX Registry
     runs-on: ubuntu-latest
     needs: create-release
+    if: ${{ secrets.OVSX_PAT != '' }}
 
     steps:
       - name: Checkout repository
@@ -154,7 +155,6 @@ jobs:
           npm run package
 
       - name: Publish to Open VSX Registry
-        if: ${{ secrets.OVSX_PAT != '' }}
         run: npx ovsx@0.10.11 publish *.vsix --pat $OVSX_PAT
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
