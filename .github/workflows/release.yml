@@ -154,7 +154,7 @@ jobs:
           npm run package
 
       - name: Publish to Open VSX Registry
-        if: ${{ env.OVSX_PAT != '' }}
-        run: npx ovsx publish *.vsix --pat $OVSX_PAT
+        if: ${{ secrets.OVSX_PAT != '' }}
+        run: npx ovsx@0.10.11 publish *.vsix --pat $OVSX_PAT
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}

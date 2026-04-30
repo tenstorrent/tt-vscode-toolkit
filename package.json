@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.0.423",
+  "version": "0.0.424",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -768,6 +768,6 @@
     "minimatch@<4": "^3.1.4",
     "minimatch@9": "^9.0.7",
     "minimatch@10": "^10.2.4",
-    "uuid": ">=14.0.0"
+    "uuid": "^14.0.0"
   }
 }
