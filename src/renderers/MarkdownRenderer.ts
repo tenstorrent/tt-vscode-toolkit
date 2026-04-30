@@ -245,12 +245,30 @@ export class MarkdownRenderer {
         return `<pre class="mermaid">${mermaidPlaceholder}${mermaidBlocks.length - 1}</pre>`;
       });
 
+      // YouTube iframes fail in VSCode webviews with Error 153 — the vscode-webview://
+      // scheme is blocked by YouTube's embed server. Replace with a thumbnail linked to
+      // the watch URL *before* sanitization so the generated HTML is covered by the sanitizer.
+      // Clicking opens in the system browser via the openExternal handler.
+      html = html.replace(
+        /<div[^>]*>\s*<iframe[^>]+src="https:\/\/www\.youtube(?:-nocookie)?\.com\/embed\/([A-Za-z0-9_-]+)[^"]*"[^>]*><\/iframe>\s*<\/div>/gis,
+        (_, videoId) => {
+          const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          return (
+            `<a href="${watchUrl}" title="Watch on YouTube" style="display:block;margin:24px 0;">` +
+            `<img src="${thumbUrl}" alt="Watch on YouTube" style="width:100%;border-radius:6px;" loading="eager">` +
+            `</a>`
+          );
+        }
+      );
+
       // Sanitize everything else using sanitize-html (pure JS, no DOM/jsdom dependency)
       html = sanitizeHtml(html, {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat([
           'button', 'pre', 'div', 'span', 'details', 'summary',
           'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img',
           'canvas',  // tensix-viz grid
+          'iframe',  // YouTube embeds (hostname-restricted below)
         ]),
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
@@ -266,15 +284,18 @@ export class MarkdownRenderer {
           'button': ['class', 'data-command', 'data-args', 'title'],
           'pre': ['class'],
           'code': ['class'],
-          'a': ['href', 'title', 'target'],
-          'img': ['src', 'alt', 'title', 'loading'],
+          'a': ['href', 'title', 'target', 'style'],
+          'img': ['src', 'alt', 'title', 'loading', 'style'],
           'canvas': ['class', 'width', 'height'],
+          'iframe': ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'title', 'style'],
         },
         // Allow vscode-webview / vscode-resource URI schemes used by webview.asWebviewUri()
         // in addition to the sanitize-html defaults (http, https, ftp, mailto, //)
         allowedSchemesByTag: {
           'img': ['http', 'https', 'data', 'vscode-webview', 'vscode-resource'],
         },
+        // Restrict iframe src to trusted video hosts only
+        allowedIframeHostnames: ['www.youtube.com', 'www.youtube-nocookie.com'],
       });
 
       // Restore mermaid blocks with original unsanitized content

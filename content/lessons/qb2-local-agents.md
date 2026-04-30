@@ -32,6 +32,10 @@ The interesting part is that you now have the hardware to run **AI agents that a
 
 This lesson is the raw-Python antidote to the OpenClaw lesson. No frameworks to configure, no services to restart, no JSON files to edit. Seven scripts. `pip install`. `python3 run.py`. You see every tool call, every step, every decision the model makes.
 
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:6px;margin:24px 0;">
+  <iframe src="https://www.youtube-nocookie.com/embed/WcTe_TejcVs" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Local AI Agents on QuietBox 2"></iframe>
+</div>
+
 ---
 
 ## What You'll Build
@@ -1159,7 +1163,65 @@ Sample output (default `sunset` palette):
 
 **Why no framework?** The task doesn't need agents, tools, or multi-step reasoning. It's a single structured generation: prompt in, SVG out. Reaching for CrewAI or smolagents here would add complexity with no benefit. This demo exists to show the contrast — knowing when to use a framework is as important as knowing how.
 
-**The key prompt technique:** Instead of asking the model to "draw a landscape," the prompt specifies every layer explicitly — which gradient IDs to define in `<defs>`, which colors to use for each mountain ridge, that polygon points must span `0,450` to `800,450` to close at the bottom edge. The LLM's job is to fill in the actual shape coordinates, not to make architectural decisions.
+### Smarter Layering Rules
+
+The key prompt technique is specifying every layer explicitly — gradient IDs, color assignments, polygon closing rules — so the LLM fills in coordinates, not architecture. But **ordering matters as much as content**.
+
+SVG renders elements in document order: elements written later appear visually on top. If the sun circle appears after the mountain polygons, the sun floats over the mountains instead of peeking behind them. The prompt encodes this as a rule the LLM cannot miss:
+
+```
+LAYERS (back to front):
+  1. Sky gradient
+  2. Atmospheric glow
+  3. Sun or moon  ← rendered here, BEFORE mountains
+  4. Clouds
+  5. Far mountains
+  6. Mid mountains
+  7. Near mountains  ← peaks visually occlude the sun
+  8. Ground
+
+RULES:
+  - Sun/moon MUST be drawn before mountain polygons so peaks occlude it
+  - Mountain polygons must close at canvas bottom (y=450) — no floating ridges
+```
+
+A few other rules the prompt enforces that beginners skip and then wonder why the output looks wrong:
+
+- **Mountains anchor to y=450** — each polygon's points string starts `0,450` and ends `800,450`, closing along the bottom edge. Without this, you get floating ridge silhouettes with a gap below them.
+- **Palette-only colors** — no invented hex values. The LLM is creative but consistent only when its color choices are bounded.
+- **No `<text>` or `<image>`** — models sometimes hallucinate labels or external image refs that break the SVG.
+
+### Glitchify
+
+Once you have a valid SVG, you can post-process it in Python without touching the model again. The `--glitch` flag applies four effects to produce `landscape_glitch.svg` alongside the clean version:
+
+```bash
+# Generate clean + glitched in one run
+python3 ~/code/tt-agents/06_landscape_svg.py --glitch
+
+# Same glitch output every run (reproducible with seed)
+python3 ~/code/tt-agents/06_landscape_svg.py --glitch --glitch-seed 42
+```
+
+**What each effect does:**
+
+```
+corrupt    Replace ~half the hex colors with wrong saturated values
+           (#FF00FF, #00FFFF, #FFFF00...) — mountains turn magenta, sky turns cyan
+
+sun-bleed  Move the sun/moon circle to the last SVG element so it renders on top of
+           all mountain layers — the rule we enforced in the prompt, intentionally broken
+
+flip       Wrap all content in scale(1,-1) translate(0,-450) — sky becomes ground,
+           ground becomes sky, mountains hang upside-down from the top of the frame
+
+ghost      Inject 6-11 semi-transparent <text> elements with garbled box-drawing
+           characters scattered across the scene at random positions and colors
+```
+
+All four run in sequence on every `--glitch` call. The effects stack — corrupt colors then flip then ghost text gives a different result than any single effect alone.
+
+The teaching point: **SVG is XML text, not a black box.** You can slice it with regex, reorder elements, wrap content in transforms, and inject new elements entirely in Python — no second model call, no new dependencies. The LLM generates the structure; you control the mutations.
 
 ---
 

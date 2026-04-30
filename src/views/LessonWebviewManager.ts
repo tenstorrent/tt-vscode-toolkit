@@ -23,11 +23,12 @@ import { getNonce } from '../utils/webview';
  * Message types for webview communication
  */
 interface WebviewMessage {
-  type: 'executeCommand' | 'copyCode' | 'ready';
+  type: 'executeCommand' | 'copyCode' | 'ready' | 'openExternal';
   command?: string;
   code?: string;
   args?: any; // Command arguments (lessonId, hardware, etc.)
   lessonId?: string; // Deprecated - use args.lessonId instead
+  url?: string; // For openExternal messages
 }
 
 /**
@@ -217,7 +218,7 @@ export class LessonWebviewManager {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' ${this.panel!.webview.cspSource} https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel!.webview.cspSource} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'nonce-${nonce}' ${this.panel!.webview.cspSource} https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src ${this.panel!.webview.cspSource} https: data:; frame-src https://www.youtube.com https://www.youtube-nocookie.com;">
   <title>${this.escapeHtml(lesson.title)}</title>
   <link rel="stylesheet" href="${cssUri}">
   ${tensixVizCssUri ? `<link rel="stylesheet" href="${tensixVizCssUri}">` : ''}
@@ -397,6 +398,20 @@ export class LessonWebviewManager {
               message.command,
               this.currentLesson
             );
+          }
+        }
+        break;
+
+      case 'openExternal':
+        if (message.url) {
+          try {
+            const uri = vscode.Uri.parse(message.url);
+            const allowedSchemes = new Set(['http', 'https']);
+            if (allowedSchemes.has(uri.scheme.toLowerCase())) {
+              await vscode.env.openExternal(uri);
+            }
+          } catch {
+            // Ignore invalid or unsupported URLs from the webview
           }
         }
         break;

@@ -10,6 +10,7 @@ Demonstrates:
   - LLM writes proper SVG with <defs> gradients, layered <polygon> terrain,
     cloud ellipse groups, atmospheric effects — full SVG primitive generation
   - Parse + validate LLM SVG output before saving
+  - Post-process generated SVG without a second LLM call (--glitch)
 
 Usage:
   python3 06_landscape_svg.py                              (sunset palette, mountains)
@@ -17,6 +18,7 @@ Usage:
   python3 06_landscape_svg.py --palette purple --mountains --clouds --stars
   python3 06_landscape_svg.py --palette red --clouds
   python3 06_landscape_svg.py --simulate                   (print prompt, skip LLM)
+  python3 06_landscape_svg.py --glitch                     (generate + corrupt output)
 
 Palette choices: sunset  blue  purple  red  orange
 
@@ -26,6 +28,7 @@ Install deps:
 import argparse
 import json
 import os
+import random as _random
 import re
 import sys
 import urllib.request
@@ -133,7 +136,8 @@ def _build_prompt(palette: dict, has_mountains: bool, has_clouds: bool,
     horizon_y = int(h * 0.50)
     ground_y  = int(h * 0.76)
 
-    # Collect the ordered feature list (back to front)
+    # Ordered feature list: back to front. Earlier = rendered first = visually behind.
+    # Sun/moon comes BEFORE mountains so mountain peaks occlude it naturally.
     features: list[str] = [
         f"Sky: full-background <rect> using a 3-stop linearGradient id='sky' "
         f"({p['sky_top']} → {p['sky_mid']} → {p['sky_bottom']}, vertical)",
@@ -146,6 +150,12 @@ def _build_prompt(palette: dict, has_mountains: bool, has_clouds: bool,
     features.append(
         f"Atmospheric glow: one wide <ellipse> centered near y={horizon_y}, "
         f"fill={p['atmosphere']}, opacity 0.15-0.30, no stroke"
+    )
+    # Sun here — before mountains, so mountain silhouettes overlap it
+    features.append(
+        f"Sun or moon: <circle> r=28-44, center near x={int(w*0.25)}-{int(w*0.75)}, "
+        f"y={int(h*0.12)}-{int(h*0.42)}, fill={p['sun']} "
+        f"[MUST appear before mountain layers so peaks occlude it]"
     )
     if has_clouds:
         features.append(
@@ -161,12 +171,10 @@ def _build_prompt(palette: dict, has_mountains: bool, has_clouds: bool,
             f"Near mountains: <polygon> peaks at y={int(h*0.52)}-{int(h*0.68)}, "
             f"fill={p['mountain_near']} — must start 0,{h} and end {w},{h}",
         ]
-    features += [
-        f"Sun or moon: <circle> r=28-44, center near x={int(w*0.25)}-{int(w*0.75)}, "
-        f"y={int(h*0.38)}-{int(h*0.54)}, fill={p['sun']}",
+    features.append(
         f"Ground: <rect x='0' y='{ground_y}' width='{w}' height='{h - ground_y}' "
-        f"fill={p['ground']}>",
-    ]
+        f"fill={p['ground']}>"
+    )
 
     feature_block = "\n".join(f"  {i+1}. {f}" for i, f in enumerate(features))
 
@@ -198,8 +206,12 @@ def _build_prompt(palette: dict, has_mountains: bool, has_clouds: bool,
         + mountain_rule
         + f"\n{defs_hint}\n"
         f"RULES:\n"
-        f"  - Use ONLY colors from the PALETTE above\n"
+        f"  - Use ONLY colors from the PALETTE above — no invented colors\n"
         f"  - No <text>, no <image>, no <use>, no external hrefs\n"
+        f"  - Sun/moon MUST be drawn before mountain polygons in the SVG so it\n"
+        f"    appears behind the mountains — peaks occlude it, it does NOT float on top\n"
+        f"  - Mountain polygons must close at the canvas bottom (start/end at y={h})\n"
+        f"    so there are no floating ridges or gaps above the ground rect\n"
         f"  - SVG root: <svg xmlns=\"http://www.w3.org/2000/svg\" "
         f"width=\"{w}\" height=\"{h}\">\n\n"
         f"Output ONLY the complete SVG, starting with <svg and ending with </svg>. "
@@ -228,6 +240,96 @@ def _parse_svg(raw: str) -> str | None:
         if any(tag in svg for tag in ("<rect", "<path", "<polygon", "<circle", "<ellipse")):
             return svg
         return None
+
+
+# ── Glitch post-processor ────────────────────────────────────────────────────────
+# SVG is XML text — all effects are string/regex transforms, no second LLM call.
+
+_GLITCH_WRONG_COLORS = [
+    "#FF00FF", "#00FFFF", "#FFFF00", "#FF0044", "#00FF88", "#FF6600",
+]
+_GLITCH_TEXT_CHARS = "▓░█▒╫╬╪┼┴┬├│╣╠═╡╚╔╗╝▄▀■□▪▫◆◇"
+
+
+def _glitch_corrupt_colors(svg: str, rng: _random.Random) -> tuple[str, str]:
+    """Swap roughly half the unique hex colors with saturated wrong-palette values."""
+    hex_pat = re.compile(r"#[0-9A-Fa-f]{6}")
+    unique = list(dict.fromkeys(hex_pat.findall(svg)))
+    if len(unique) < 2:
+        return svg, "corrupt: too few colors to swap"
+    n = max(1, len(unique) // 2)
+    for color in rng.sample(unique, n):
+        svg = svg.replace(color, rng.choice(_GLITCH_WRONG_COLORS))
+    return svg, f"corrupt: replaced {n}/{len(unique)} colors with wrong palette"
+
+
+def _glitch_sun_bleed(svg: str) -> tuple[str, str]:
+    """Move the largest circle (sun/moon) to the final element — renders over mountains."""
+    # Match self-closing (<circle ... />) and paired (<circle ...></circle>) forms.
+    # Accept single or double quotes and integer or decimal radii.
+    pat = re.compile(
+        r'<circle\b[^>]*\br=["\'](\d+(?:\.\d+)?)["\'][^>]*(?:/>|>\s*</circle>)',
+        re.DOTALL,
+    )
+    best_match, best_r = None, 0.0
+    for m in pat.finditer(svg):
+        r = float(m.group(1))
+        if r > best_r:
+            best_r, best_match = r, m
+    if best_match is None or best_r < 20:
+        return svg, "sun-bleed: no sun/moon found"
+    el = best_match.group(0)
+    svg = svg[: best_match.start()] + svg[best_match.end():]
+    svg = svg.replace("</svg>", f"  {el}\n</svg>")
+    return svg, f"sun-bleed: sun (r={best_r:.0f}) moved above all mountains"
+
+
+def _glitch_flip(svg: str) -> tuple[str, str]:
+    """Vertically flip the entire scene — sky becomes ground, ground becomes sky."""
+    m = re.match(r"(<svg\b[^>]*>)(.*)(</svg>\s*$)", svg, re.DOTALL)
+    if not m:
+        return svg, "flip: parse failed"
+    opening, body, closing = m.groups()
+    # scale(1,-1) mirrors y-axis; translate(0,-H) shifts back into viewport
+    flipped = (
+        f"{opening}\n"
+        f'<g transform="scale(1,-1) translate(0,-{SVG_H})">{body}</g>\n'
+        f"{closing}"
+    )
+    return flipped, "flip: scene vertically inverted"
+
+
+def _glitch_ghost_text(svg: str, rng: _random.Random) -> tuple[str, str]:
+    """Scatter semi-transparent garbled text fragments across the scene."""
+    frags = []
+    for _ in range(rng.randint(6, 11)):
+        x    = rng.randint(10, SVG_W - 90)
+        y    = rng.randint(20, SVG_H - 20)
+        text = "".join(rng.choices(_GLITCH_TEXT_CHARS, k=rng.randint(4, 14)))
+        fill = rng.choice(_GLITCH_WRONG_COLORS)
+        op   = round(rng.uniform(0.25, 0.75), 2)
+        size = rng.choice([7, 9, 11, 13, 16])
+        frags.append(
+            f'  <text x="{x}" y="{y}" font-family="monospace" font-size="{size}" '
+            f'fill="{fill}" opacity="{op}">{text}</text>'
+        )
+    svg = svg.replace("</svg>", "\n".join(frags) + "\n</svg>")
+    return svg, f"ghost: injected {len(frags)} garbled text elements"
+
+
+def _apply_glitch(svg: str, seed: int | None = None) -> tuple[str, list[str]]:
+    """Apply all glitch effects; return (modified_svg, log_lines)."""
+    rng = _random.Random(seed)
+    log: list[str] = []
+    for fn in (
+        lambda s: _glitch_corrupt_colors(s, rng),
+        _glitch_sun_bleed,
+        _glitch_flip,
+        lambda s: _glitch_ghost_text(s, rng),
+    ):
+        svg, msg = fn(svg)
+        log.append(msg)
+    return svg, log
 
 
 # ── Server helpers ───────────────────────────────────────────────────────────────
@@ -273,6 +375,14 @@ def main() -> None:
     parser.add_argument(
         "--simulate", action="store_true",
         help="Print the prompt but skip the LLM call",
+    )
+    parser.add_argument(
+        "--glitch", action="store_true",
+        help="Post-process the output SVG with glitch effects (saves landscape_glitch.svg)",
+    )
+    parser.add_argument(
+        "--glitch-seed", type=int, default=None,
+        help="Seed for reproducible glitch output (default: random each run)",
     )
     args = parser.parse_args()
 
@@ -342,6 +452,17 @@ def main() -> None:
     out_path.write_text(svg)
     print(f"\n[SVG saved → {out_path.name}]")
     print(f"  open in browser: file://{out_path.resolve()}")
+
+    if args.glitch:
+        glitch_svg, glitch_log = _apply_glitch(svg, seed=args.glitch_seed)
+        glitch_path = out_path.with_stem(out_path.stem + "_glitch")
+        glitch_path.write_text(glitch_svg)
+        print(f"\n[Glitch effects applied:]")
+        for msg in glitch_log:
+            print(f"  {msg}")
+        print(f"\n[Glitch SVG saved → {glitch_path.name}]")
+        print(f"  open in browser: file://{glitch_path.resolve()}")
+
     print(f"\n[Done]")
 
 
