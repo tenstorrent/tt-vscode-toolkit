@@ -42,7 +42,8 @@ export interface CommandTemplate {
 // Sent as `python3 -c "..."` — no heredoc, so they work in bash, zsh, and fish.
 // tt_torch must be imported before jax so the TT PJRT plugin registers TT
 // hardware with JAX; without it jax.devices() falls back silently to CPU.
-// All templates are composed as: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${SNIPPET}\n"`
+// Templates that use these shared snippet constants should follow:
+// `source ~/tt-forge-venv/bin/activate && python3 -c "\n${SNIPPET}\n"`
 
 /** forge activation probe — used by BUILD_FORGE_FROM_SOURCE, INSTALL_FORGE */
 const FORGE_ACTIVATION_PY =
