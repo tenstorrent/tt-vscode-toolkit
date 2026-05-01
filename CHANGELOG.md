@@ -7,6 +7,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.427] - 2026-04-30
+
+### Changed
+
+- **`src/commands/terminalCommands.ts`** — extracted three repeated Python programs into named constants (`FORGE_ACTIVATION_PY`, `FORGE_FULL_VERIFY_PY`, `JAX_DEVICE_CHECK_PY`) so the tt_torch preamble and version-probe logic only live in one place. Templates now reference the constants via template literals.
+
+### Fixed
+
+- **`release.yml` (publish-openvsx job)** — reverted job-level `if: secrets.OVSX_PAT != ''` back to step-level. GitHub Actions does not make the `secrets` context available in job `if:` expressions (only `github`, `needs`, `vars`, `env`, `strategy`, and `inputs` are allowed there); the job-level gate introduced in v0.0.425 caused a workflow parse error.
+
+---
+
+## [0.0.426] - 2026-04-30
+
+### Fixed
+
+- **`src/commands/terminalCommands.ts`** — added best-effort `import tt_torch` (try/except) before `import jax` in commands where it was missing. The TT PJRT plugin requires `tt_torch` to be imported first to register TT devices with JAX; without it `jax.devices()` silently falls back to CPU. Commands updated: `BUILD_FORGE_FROM_SOURCE`, `INSTALL_FORGE`, `TEST_FORGE_INSTALL`, `TEST_FORGE_INSTALL_WHEEL`, `VERIFY_FORGE_STACK`, `RUN_JAX_QUICKSTART`, `RUN_JAX_PMAP_DEMO`, `CREATE_TT_XLA_TEST`. (Commands that already had the preload — `ACTIVATE_FORGE_ENV`, `INSTALL_TT_XLA`, `TEST_TT_XLA_INSTALL` — were unchanged.)
+
+---
+
+## [0.0.425] - 2026-04-30
+
+### Fixed
+
+- **`src/commands/terminalCommands.ts`** — replaced `python3 - <<'PYEOF'` heredoc syntax with `python3 -c "..."` in all Forge/XLA terminal commands. Heredoc (`<<`) is not supported in fish shell, causing commands to silently fail for users whose VSCode terminal is configured to use fish.
+- **`release.yml` (publish-openvsx job)** — attempted to move `if: secrets.OVSX_PAT != ''` to job level to skip unnecessary build work when the secret is absent. Reverted in v0.0.427 due to GitHub Actions context restrictions.
+
+---
+
+## [0.0.424] - 2026-04-30
+
+### Fixed
+
+- **`release.yml` (Open VSX job)** — corrected `if:` condition from `env.OVSX_PAT` to `secrets.OVSX_PAT`; the env var is not available at condition evaluation time, so the job was never gating correctly.
+- **`release.yml` (Open VSX job)** — pinned `npx ovsx@0.10.11` to prevent future major-version surprises.
+- **`package.json` uuid override** — tightened range from `>=14.0.0` to `^14.0.0` to avoid accidentally pulling future breaking majors.
+
+---
+
+## [0.0.423] - 2026-04-30
+
+### Changed
+
+- **Forge/XLA activation simplified** — all terminal commands and lesson docs now use `source ~/tt-forge-venv/bin/activate` directly instead of a dual-path conditional.
+- **`content/lessons/forge-image-classification.md`** and **`content/lessons/tt-xla-jax.md`** — removed the multi-path `if/elif/fi` one-liner; activation is now a single `source ~/tt-forge-venv/bin/activate`. Added a callout explaining how to create the symlink manually on systems that only have `/opt/venv-forge` or only `~/tt-forge-venv`.
+
+---
+
+## [0.0.422] - 2026-04-30
+
+### Fixed
+
+- **`content/lessons/explore-metalium.md`** — added `train_and_export_mlp.py` / `train_and_export_cnn.py` step before the inference scripts; without pre-trained weights both scripts use random weights and report ~20% accuracy
+- **`content/lessons/cookbook-image-filters.md`** — added commands to create `examples/sample.jpg` before running `filters.py` (the file wasn't present in the deployed project)
+- **`content/lessons/cookbook-audio-processor.md`** — added test WAV creation step and clarified that `processor.py` is a librosa-based starter template, not a full TTNN implementation
+
+---
+
+## [0.0.421] - 2026-04-30
+
+### Fixed
+
+- **Forge environment activation** — all forge/XLA terminal commands now check for `~/tt-forge-venv` as a fallback when `/etc/profile.d/tt-env-forge.sh` is absent (N150 cloud and manual installs); activation pattern is `if [ -f /etc/profile.d/tt-env-forge.sh ]; then source ...; elif [ -d ~/tt-forge-venv ]; then source ~/tt-forge-venv/bin/activate; fi`
+- **Forge verify commands** — replaced hardcoded `import forge` checks with try/except that falls back to `import tt_torch` for environments using `tt-forge 1.0.0` (which provides `tt_torch` API instead of `forge.compile()`)
+- **`content/lessons/forge-image-classification.md`** — activation section now shows both environment paths and adds a note about N150 cloud env differences (tt_torch API, PJRT version compatibility)
+- **`content/lessons/tt-xla-jax.md`** — activation commands updated throughout to show both `/etc/profile.d/tt-env-forge.sh` and `~/tt-forge-venv` options with note about PJRT CPU fallback when plugin has version mismatch
+
+### Security
+
+- **`uuid` dependency override** — pinned transitive `uuid` dependency to `>=14.0.0` (via npm `overrides`) to address missing buffer-bounds check in `uuid` v3/v5/v6 when a caller-provided output buffer is too small (Dependabot alert #43, CVSS pending)
+
+### Added
+
+- **Open VSX CI publish job** — added `publish-openvsx` GitHub Actions job to release workflow, enabling automated publishing to Open VSX Registry on version tags using `OVSX_PAT` secret
+
+---
+
 ## [0.0.420] - 2026-04-29
 
 ### Fixed

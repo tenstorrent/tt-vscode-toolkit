@@ -116,17 +116,25 @@ python3 ttnn/tutorials/basic_python/ttnn_basic_matrix_multiplication.py
 python3 ttnn/tutorials/basic_python/ttnn_basic_conv.py
 
 # Full inference pipeline: MLP on MNIST
+# ⚠️  Train weights first (CPU-only, ~1 min): saves mlp_mnist_weights.pt
+python3 ttnn/tutorials/basic_python/train_and_export_mlp.py
 python3 ttnn/tutorials/basic_python/ttnn_mlp_inference_mnist.py
 
 # Transformer building block: multi-head attention
 python3 ttnn/tutorials/basic_python/ttnn_multihead_attention.py
 
 # CNN inference end-to-end
+# ⚠️  Train weights first: saves simplecnn_mnist_weights.pt
+python3 ttnn/tutorials/basic_python/train_and_export_cnn.py
 python3 ttnn/tutorials/basic_python/ttnn_simplecnn_inference.py
 ```
 
+> **Training step required:** `ttnn_mlp_inference_mnist.py` and `ttnn_simplecnn_inference.py`
+> load weights from `.pt` files. Without them the scripts use random weights and report
+> ~20% accuracy. Run the corresponding `train_and_export_*.py` first — CPU-only, ~1 minute each.
+
 **Recommended order:** `ttnn_add_tensors` → `ttnn_basic_operations` →
-`ttnn_basic_matrix_multiplication` → `ttnn_mlp_inference_mnist`.
+`ttnn_basic_matrix_multiplication` → `train_and_export_mlp` → `ttnn_mlp_inference_mnist`.
 
 ### Jupyter Notebooks
 

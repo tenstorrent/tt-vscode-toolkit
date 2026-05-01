@@ -32,7 +32,7 @@ validationNotes: Rewritten for pre-installed venv-forge; zero install steps
 
 # JAX and PyTorch/XLA on Tenstorrent
 
-The `venv-forge` environment ships JAX, torch-xla, and the TT PJRT plugin
+The `venv-forge` / `tt-forge-venv` environment ships JAX, torch-xla, and the TT PJRT plugin
 pre-installed. There is no installation step — just activate and start computing.
 
 > **QB2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
@@ -43,8 +43,24 @@ pre-installed. There is no installation step — just activate and start computi
 ## Activate the environment
 
 ```bash
-source /etc/profile.d/tt-env-forge.sh
+source ~/tt-forge-venv/bin/activate
 ```
+
+> **Can't find `~/tt-forge-venv`?** Developer images put the forge env at `/opt/venv-forge`
+> and symlink it to `~/tt-forge-venv` automatically. If you're on a system where only
+> one path exists, create the link yourself:
+>
+> ```bash
+> # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
+> ln -s /opt/venv-forge ~/tt-forge-venv
+>
+> # ~/tt-forge-venv exists but /opt/venv-forge doesn't (needs sudo):
+> sudo ln -s ~/tt-forge-venv /opt/venv-forge
+> ```
+
+> **Note:** The PJRT plugin requires `tt_torch` to be imported before `jax` so the
+> TT shared libraries are loaded first. The verify command handles this automatically.
+> If you call `import jax` without importing `tt_torch` first, JAX will fall back to CPU.
 
 [▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
 
@@ -240,7 +256,7 @@ Set `TT_METAL_ARCH_NAME` before activating the env if it isn't already set:
 ```bash
 export TT_METAL_ARCH_NAME=blackhole   # p300c / QB2 / P150
 export TT_METAL_ARCH_NAME=wormhole_b0 # N150 / N300 / T3K / Galaxy
-source /etc/profile.d/tt-env-forge.sh
+source ~/tt-forge-venv/bin/activate
 ```
 
 ---
@@ -253,10 +269,8 @@ using JAX/Flax and PyTorch/XLA:
 ```bash
 git clone https://github.com/tenstorrent/tt-forge.git ~/tt-forge
 cd ~/tt-forge/demos/tt-xla/nlp/jax
-
-source /etc/profile.d/tt-env-forge.sh
+source ~/tt-forge-venv/bin/activate
 pip install -r requirements.txt
-
 python gpt_demo.py
 ```
 

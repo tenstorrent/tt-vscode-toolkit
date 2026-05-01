@@ -318,9 +318,18 @@ cd ~/tt-scratchpad/cookbook/image_filters
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the demo
-python filters.py
+# Run the demo — pass an image path, or create examples/sample.jpg first:
+mkdir -p examples
+python3 -c "
+from PIL import Image; import numpy as np
+Image.fromarray(np.random.randint(0,255,(256,256,3), dtype=np.uint8)).save('examples/sample.jpg')
+print('Created examples/sample.jpg')
+"
+python filters.py examples/sample.jpg
 ```
+
+> The script uses `examples/sample.jpg` by default. In a headless environment
+> the visualization is auto-saved to disk — no display needed.
 
 ---
 
