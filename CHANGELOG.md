@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.428] - 2026-04-30
+
+### Fixed
+
+- **`release.yml` (publish-openvsx step)** — changed `if: ${{ secrets.OVSX_PAT != '' }}` to `if: ${{ env.OVSX_PAT != '' }}` to match the `publish-marketplace` job pattern. The `secrets` context is not available in step-level `if:` expressions (GitHub Actions only allows `github`, `needs`, `vars`, `env`, `strategy`, and `inputs` there); checking `env.OVSX_PAT` — which is mapped from the secret in the same step's `env:` block — is the correct pattern.
+
+---
+
 ## [0.0.427] - 2026-04-30
 
 ### Changed
