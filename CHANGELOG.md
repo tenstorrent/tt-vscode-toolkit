@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.431] - 2026-05-07
+
+### Fixed
+
+- **Theme JSON path in packaged extension** — `package.json` `contributes.themes` paths were pointing to `./themes/tenstorrent-theme.json` and `./themes/tenstorrent-light-theme.json`. The `themes/` source directory is excluded by `.vscodeignore` (correctly, since the build copies it to `dist/themes/`), so the files were missing from the installed extension, causing code-server to log "Unable to load … tenstorrent-theme.json". Paths corrected to `./dist/themes/`.
+
+---
+
 ## [0.0.430] - 2026-05-07
 
 ### Fixed

@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.0.430",
+  "version": "0.0.431",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -60,12 +60,12 @@
       {
         "label": "Tenstorrent Dark",
         "uiTheme": "vs-dark",
-        "path": "./themes/tenstorrent-theme.json"
+        "path": "./dist/themes/tenstorrent-theme.json"
       },
       {
         "label": "Tenstorrent Light",
         "uiTheme": "vs",
-        "path": "./themes/tenstorrent-light-theme.json"
+        "path": "./dist/themes/tenstorrent-light-theme.json"
       }
     ],
     "configurationDefaults": {
