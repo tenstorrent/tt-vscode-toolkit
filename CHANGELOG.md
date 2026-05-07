@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.430] - 2026-05-07
+
+### Fixed
+
+- **Theme auto-apply on first install in code-server / Open VSX environments** — `configurationDefaults` in `package.json` only sets a fallback default and is silently ignored when the host has already written any `workbench.colorTheme` value into user settings (which code-server does on startup). Added a programmatic `getConfiguration().update()` call in the first-activation path that sets "Tenstorrent Dark" whenever the current theme is not already a Tenstorrent theme, ensuring consistent dark-theme behaviour on all hosts.
+
+---
+
 ## [0.0.429] - 2026-05-07
 
 ### Fixed
