@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.429] - 2026-05-07
+
+### Fixed
+
+- **Website light mode — syntax highlighting** — `scripts/build-web.js` now emits a `@media (prefers-color-scheme: light)` block for all `.hljs` token classes. Previously every token color was hardcoded for the dark Tenstorrent palette (`#E8F0F2` base, `#4FD1C5` teal keywords, `#81E6D9` light-teal variables, etc.) which were near-invisible or low-contrast on white backgrounds. Light-mode overrides now use the VS Code Light+ palette: dark navy keywords (`#0000ff`), burgundy strings (`#a31515`), green comments/numbers (`#008000` / `#098658`), brown function names (`#795e26`), teal-blue types (`#267f99`), and dark navy variables (`#001080`).
+
+---
+
 ## [0.0.428] - 2026-04-30
 
 ### Fixed

@@ -2019,6 +2019,97 @@ body.page-install .lesson-content {
   color: #4FD1C5;
   text-decoration: underline;
 }
+
+/* ===== Syntax highlighting — light mode overrides ===== */
+/*
+ * Replaces the dark palette with VS Code Light+ / docs.tenstorrent.com colours
+ * so code blocks are readable when the OS/browser is in light mode.
+ */
+@media (prefers-color-scheme: light) {
+  .hljs {
+    color: #1e1e1e;          /* near-black base */
+  }
+
+  .hljs-keyword,
+  .hljs-operator,
+  .hljs-selector-tag,
+  .hljs-built_in,
+  .hljs-builtin-name {
+    color: #0000ff;          /* blue — VS Code Light+ keyword */
+    font-weight: bold;
+  }
+
+  .hljs-string,
+  .hljs-template-variable,
+  .hljs-doctag,
+  .hljs-regexp {
+    color: #a31515;          /* burgundy — VS Code Light+ string */
+  }
+
+  .hljs-number,
+  .hljs-literal {
+    color: #098658;          /* green — numeric literals */
+  }
+
+  .hljs-title,
+  .hljs-title.function_,
+  .hljs-title.function_.invoke__ {
+    color: #795e26;          /* brown — function names */
+  }
+
+  .hljs-title.class_,
+  .hljs-type,
+  .hljs-symbol {
+    color: #267f99;          /* teal-blue — types */
+  }
+
+  .hljs-variable,
+  .hljs-variable.language_,
+  .hljs-params,
+  .hljs-attr {
+    color: #001080;          /* dark navy — variables */
+  }
+
+  .hljs-comment,
+  .hljs-quote {
+    color: #008000;          /* green — comments */
+    font-style: italic;
+  }
+
+  .hljs-tag,
+  .hljs-name {
+    color: #800000;          /* maroon — HTML/XML tags */
+  }
+
+  .hljs-attribute {
+    color: #e50000;          /* red — attribute names */
+  }
+
+  .hljs-meta,
+  .hljs-meta .hljs-keyword {
+    color: #0000ff;          /* blue — decorators, directives */
+  }
+
+  .hljs-section {
+    color: #795e26;
+    font-weight: bold;
+  }
+
+  .hljs-addition {
+    color: #1a8737;
+    background: rgba(26, 135, 55, 0.12);
+  }
+
+  .hljs-deletion {
+    color: #c41a16;
+    background: rgba(196, 26, 22, 0.12);
+  }
+
+  .hljs-link {
+    color: #0070c1;
+    text-decoration: underline;
+  }
+}
 `;
 
 
