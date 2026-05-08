@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.435] - 2026-05-08
+
+### Fixed
+
+- **Tensix Viz panel play/step buttons not wired up** — Controls were outside `.tensix-viz-container` in the webview HTML; `TensixViz.autoInit()` queries `.tv-play`, `.tv-step`, and `.tv-legend` inside each container, so buttons were never connected. Moved controls inside the container to match the structure used by `MarkdownRenderer.ts` and `build-web.js`.
+- **`data-script` attribute escaping** — Only double-quotes were escaped in `vizCommands.ts`; added full attribute escaping (`&`, `<`, `>`, `"`, `'`) via a dedicated `escapeAttr` helper to prevent DOM breakage and XSS.
+- **arch injection** — `arch` from command opts was passed directly into HTML without validation. Added allowlist check (`wormhole` / `blackhole`), defaulting to `wormhole` for unexpected values.
+- **tensix-viz.js play button toggle** — Duplicate condition `icon === "▶" || icon === "▶"` never matched "▶ Play" label text. Changed to `icon.startsWith("▶")` so buttons with label suffixes are handled correctly.
+- **CHANGELOG v0.0.432** — Corrected inaccurate claim that `autoInit` is exposed as a `window.*` global; it is called internally at load time only.
+- **FAQ footer extension version** — Updated stale "Extension version: 0.0.283" to current release.
+
+---
+
 ## [0.0.434] - 2026-05-08
 
 ### Changed
@@ -27,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **tensix-viz library updated to new esbuild bundle** — Replaced the hand-authored IIFE in `src/webview/tensix-viz/tensix-viz.js` and `tensix-viz.css` with the rebuilt library from the sibling `tensix-viz` repo. The new bundle (`_TensixVizBundle`) exposes `TensixViz`, `CardViz`, `ClusterViz`, `SystemViz`, and `autoInit` via `window.*` globals. Existing `TensixViz.autoInit()` behaviour (scanning `.tensix-viz-container` elements with `data-arch`/`data-script` attributes) is fully preserved. CSS additions cover the new `CardViz`, `SystemViz`, and `ClusterViz` components.
+- **tensix-viz library updated to new esbuild bundle** — Replaced the hand-authored IIFE in `src/webview/tensix-viz/tensix-viz.js` and `tensix-viz.css` with the rebuilt library from the sibling `tensix-viz` repo. The new bundle (`_TensixVizBundle`) exposes `TensixViz`, `CardViz`, `ClusterViz`, and `SystemViz` as `window.*` globals. (`autoInit` is called internally at load time but not exposed on `window`.) Existing `TensixViz.autoInit()` behaviour (scanning `.tensix-viz-container` elements with `data-arch`/`data-script` attributes) is fully preserved. CSS additions cover the new `CardViz`, `SystemViz`, and `ClusterViz` components.
 
 ### Fixed
 

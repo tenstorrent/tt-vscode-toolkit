@@ -780,7 +780,7 @@ var _TensixVizBundle = (() => {
       if (playBtn) {
         playBtn.addEventListener("click", function() {
           const icon = playBtn.textContent.trim();
-          if (icon === "\u25B6" || icon === "\u25B6") {
+          if (icon.startsWith("\u25B6")) {
             playBtn.textContent = "\u23F8";
             viz.reset();
             viz.play(script);

@@ -69,7 +69,9 @@ async function showTensixVizPanel(
     }
   }
 
-  const arch = opts?.arch || 'wormhole';
+  // Validate arch against allowlist to prevent injection of unexpected values.
+  const ALLOWED_ARCHS = new Set(['wormhole', 'blackhole']);
+  const arch = ALLOWED_ARCHS.has(opts?.arch ?? '') ? opts!.arch! : 'wormhole';
   const title = sceneName ? `Tensix Viz — ${sceneName}` : 'Tensix Grid Visualizer';
 
   const panel = vscode.window.createWebviewPanel(
@@ -179,19 +181,29 @@ function buildVizHtml(
   <div class="arch-label">${arch === 'blackhole' ? 'Blackhole (P100/P150/P300c)' : 'Wormhole (N150/N300/T3K)'} · ${sceneName}</div>
 
   <div class="viz-area">
-    <div class="tensix-viz-container" data-arch="${arch}" data-script="${scriptJson.replace(/"/g, '&quot;')}">
+    <div class="tensix-viz-container" data-arch="${arch}" data-script="${escapeAttr(scriptJson)}">
       <canvas class="tensix-viz-canvas" width="520" height="340"></canvas>
+      <div class="controls">
+        <button class="tv-play">▶ Play</button>
+        <button class="tv-step">⏭ Step</button>
+      </div>
+      <div class="tv-legend"></div>
     </div>
-    <div class="controls">
-      <button class="tv-play">▶ Play</button>
-      <button class="tv-step">⏭ Step</button>
-    </div>
-    <div class="tv-legend"></div>
   </div>
 
   <script nonce="${nonce}" src="${jsUri}"></script>
 </body>
 </html>`;
+}
+
+/** Escape a string for safe embedding in an HTML attribute value (double-quoted). */
+function escapeAttr(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function getNonce(): string {
