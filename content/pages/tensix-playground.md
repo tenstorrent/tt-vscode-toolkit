@@ -116,6 +116,16 @@ Add a `tensix_viz` code block to any lesson markdown:
 ```
 ````
 
+That block renders as the live visualizer below:
+
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "Start here", "ms": 600 },
+  { "step": "transfer", "from": [1,1], "to": [4,4], "ms": 1000 },
+  { "step": "pause", "ms": 500 }
+]
+```
+
 **Available step types:**
 
 | Step | Parameters | Description |

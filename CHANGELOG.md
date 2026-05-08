@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.433] - 2026-05-08
+
+### Changed
+
+- **Tensix playground — live example in How to Use section** — Added a rendered `tensix_viz` block below the syntax documentation so readers see an actual working visualizer alongside the code example, not just the raw markdown fence.
+
+---
+
 ## [0.0.432] - 2026-05-08
 
 ### Changed
