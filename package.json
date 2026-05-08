@@ -753,7 +753,6 @@
     "marked": "^17.0.1",
     "marked-highlight": "^2.2.3",
     "sanitize-html": "^2.17.2",
-    "tensix-viz": "file:../tensix-viz",
     "ws": "^8.20.0"
   },
   "overrides": {
