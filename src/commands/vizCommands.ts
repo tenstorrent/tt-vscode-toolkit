@@ -179,9 +179,8 @@ function buildVizHtml(
   <div class="arch-label">${arch === 'blackhole' ? 'Blackhole (P100/P150/P300c)' : 'Wormhole (N150/N300/T3K)'} · ${sceneName}</div>
 
   <div class="viz-area">
-    <div class="tensix-viz-container" data-arch="${arch}">
+    <div class="tensix-viz-container" data-arch="${arch}" data-script="${scriptJson.replace(/"/g, '&quot;')}">
       <canvas class="tensix-viz-canvas" width="520" height="340"></canvas>
-      <script class="tensix-viz-script" type="application/json">${scriptJson}</script>
     </div>
     <div class="controls">
       <button class="tv-play">▶ Play</button>

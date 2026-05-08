@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.432] - 2026-05-08
+
+### Changed
+
+- **tensix-viz library updated to new esbuild bundle** — Replaced the hand-authored IIFE in `src/webview/tensix-viz/tensix-viz.js` and `tensix-viz.css` with the rebuilt library from the sibling `tensix-viz` repo. The new bundle (`_TensixVizBundle`) exposes `TensixViz`, `CardViz`, `ClusterViz`, `SystemViz`, and `autoInit` via `window.*` globals. Existing `TensixViz.autoInit()` behaviour (scanning `.tensix-viz-container` elements with `data-arch`/`data-script` attributes) is fully preserved. CSS additions cover the new `CardViz`, `SystemViz`, and `ClusterViz` components.
+
+### Fixed
+
+- **Tensix Viz panel animations not playing** — `vizCommands.ts` was embedding animation scene JSON inside a `<script class="tensix-viz-script" type="application/json">` element. `TensixViz.autoInit()` reads animation data from the container's `data-script` attribute (not a child `<script>` element), so scenes were silently parsed as empty arrays and animations never ran. Fixed by moving the JSON into the `data-script` attribute on the `.tensix-viz-container` div, matching the pattern used by `MarkdownRenderer.ts` and `build-web.js`.
+
+---
+
 ## [0.0.431] - 2026-05-07
 
 ### Fixed
