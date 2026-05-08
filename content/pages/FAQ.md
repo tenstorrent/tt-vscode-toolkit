@@ -1335,6 +1335,6 @@ sudo rm -rf /dev/shm/tt_*
 ---
 
 **Last updated:** May 2026
-**Extension version:** 0.0.435
+**Extension version:** 0.0.437
 
 **Found an error in this FAQ?** Please report it on GitHub or Discord!

@@ -780,7 +780,7 @@ var _TensixVizBundle = (() => {
       if (playBtn) {
         playBtn.addEventListener("click", function() {
           const icon = playBtn.textContent.trim();
-          if (icon.startsWith("\u25B6")) {
+          if (icon === "\u25B6" || icon === "\u25B6") {
             playBtn.textContent = "\u23F8";
             viz.reset();
             viz.play(script);
@@ -1197,8 +1197,10 @@ var _TensixVizBundle = (() => {
       topo.topology ? topo.topology : topo.mesh_links ? "2D mesh" : ""
     ].filter(Boolean).join(" \xB7 ");
     container.appendChild(spec);
+    const cols = topo.grid ? topo.grid[1] : this._dotMode ? 16 : 8;
     const grid = document.createElement("div");
     grid.classList.add("tv-cluster-grid");
+    grid.style.gridTemplateColumns = "repeat(" + cols + ", 1fr)";
     container.appendChild(grid);
     this._grid = grid;
     for (let i = 0; i < this.chipCount; i++) {

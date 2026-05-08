@@ -178,7 +178,7 @@ function buildVizHtml(
 </head>
 <body>
   <h2>⬡ Tensix Grid Visualizer</h2>
-  <div class="arch-label">${arch === 'blackhole' ? 'Blackhole (P100/P150/P300c)' : 'Wormhole (N150/N300/T3K)'} · ${sceneName}</div>
+  <div class="arch-label">${arch === 'blackhole' ? 'Blackhole (P100/P150/P300c)' : 'Wormhole (N150/N300/T3K)'} · ${escapeHtml(sceneName)}</div>
 
   <div class="viz-area">
     <div class="tensix-viz-container" data-arch="${arch}" data-script="${escapeAttr(scriptJson)}">
@@ -194,6 +194,14 @@ function buildVizHtml(
   <script nonce="${nonce}" src="${jsUri}"></script>
 </body>
 </html>`;
+}
+
+/** Escape a string for safe embedding as HTML text content. */
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 /** Escape a string for safe embedding in an HTML attribute value (double-quoted). */

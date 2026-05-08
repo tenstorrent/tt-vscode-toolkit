@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.437] - 2026-05-08
+
+### Fixed
+
+- **`sceneName` XSS in viz webview** — Scene name was interpolated raw into HTML text content in `vizCommands.ts`; crafted values could inject markup. Added `escapeHtml()` helper (escapes `&`, `<`, `>`) and applied it to `sceneName` before embedding.
+- **Theme applied on first install overwrites explicit user choice** — The previous logic applied Tenstorrent Dark whenever the current theme name didn't include "tenstorrent", which silently overwrote any theme a user had deliberately set. Replaced with `inspect('workbench.colorTheme')` — Tenstorrent Dark is now only written when `globalValue` is `undefined` (i.e. the user has never explicitly set a theme).
+- **`ClusterViz` grid column mismatch** — CSS hardcoded `repeat(8, 1fr)` / `repeat(16, 1fr)` columns regardless of topology; topologies such as `bh-galaxy-sc` (grid `[4,32]`) would wrap incorrectly and break the animation's row/col heat math. Fixed by computing `cols` from `topo.grid[1]` in `_init()` and applying it as an inline `gridTemplateColumns` style. Backported to upstream `tensix-viz` repo (`e1fc798`).
+
+---
+
 ## [0.0.436] - 2026-05-08
 
 ### Fixed

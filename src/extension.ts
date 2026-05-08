@@ -5239,14 +5239,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Mark as seen first to avoid reopening if command fails
     context.globalState.update('hasSeenWelcome', true);
 
-    // Apply Tenstorrent Dark theme on first install.
-    // configurationDefaults in package.json only sets a default value and is
-    // ignored when the host (e.g. code-server / Open VSX) has already written
-    // any colorTheme entry into user settings. Programmatically writing the
-    // setting ensures it actually takes effect on first install regardless of
-    // the host environment.
-    const currentTheme = vscode.workspace.getConfiguration().get<string>('workbench.colorTheme', '');
-    if (!currentTheme.toLowerCase().includes('tenstorrent')) {
+    // Apply Tenstorrent Dark theme on first install — but ONLY if the user
+    // has not explicitly set a global theme. inspect() returns the layered
+    // configuration values; globalValue is undefined when no explicit user
+    // choice exists, which is the safe window for writing our default.
+    // This avoids overwriting a theme the user consciously selected.
+    const themeInspect = vscode.workspace.getConfiguration().inspect<string>('workbench.colorTheme');
+    const userHasExplicitTheme = themeInspect?.globalValue !== undefined;
+    if (!userHasExplicitTheme) {
       try {
         await vscode.workspace.getConfiguration().update(
           'workbench.colorTheme',
