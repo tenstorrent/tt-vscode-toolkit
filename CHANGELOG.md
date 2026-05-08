@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.436] - 2026-05-08
+
+### Fixed
+
+- **Theme update not awaited** — `vscode.workspace.getConfiguration().update()` for `workbench.colorTheme` was not awaited and had no error handling; in restricted environments such as code-server, the call can reject. Added `await` and a `try/catch` so failures are non-fatal.
+- **`.tv-breadcrumb` stale `cursor: pointer`** — The breadcrumb element has no click handler; the pointer cursor falsely implied interactivity. Removed the property. Backported to upstream `tensix-viz` repo.
+
+---
+
 ## [0.0.435] - 2026-05-08
 
 ### Fixed

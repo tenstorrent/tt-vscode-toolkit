@@ -5247,11 +5247,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // the host environment.
     const currentTheme = vscode.workspace.getConfiguration().get<string>('workbench.colorTheme', '');
     if (!currentTheme.toLowerCase().includes('tenstorrent')) {
-      vscode.workspace.getConfiguration().update(
-        'workbench.colorTheme',
-        'Tenstorrent Dark',
-        vscode.ConfigurationTarget.Global
-      );
+      try {
+        await vscode.workspace.getConfiguration().update(
+          'workbench.colorTheme',
+          'Tenstorrent Dark',
+          vscode.ConfigurationTarget.Global
+        );
+      } catch (_err) {
+        // Non-fatal: settings may be read-only in some restricted environments.
+      }
     }
 
     // Prompt to install recommended extensions (non-blocking)
