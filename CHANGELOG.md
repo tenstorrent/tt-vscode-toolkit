@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.438] - 2026-05-08
+
+### Fixed
+
+- **Theme guard misses workspace-scoped theme** — First-install theme logic only checked `globalValue`; a user who set a theme at workspace or workspace-folder scope would still have it overwritten. Now checks all three scopes (`globalValue`, `workspaceValue`, `workspaceFolderValue`) before deciding to apply Tenstorrent Dark.
+- **`tensix-viz` play button broken with labelled text** — `icon === "▶" || icon === "▶"` was a duplicate literal comparison that never matched "▶ Play" style labels. Fixed with `icon.startsWith("▶")` in `chip.js`. Backported upstream (`adbd583`).
+- **`ClusterViz._startAnimation` dot-mode cols desync** — Animation hardcoded `cols = 8` when no topology grid was present, but `_init()` used `16` for dot-mode. Stored `_cols`/`_rows` on the instance in `_init()` and read them in `_startAnimation()` so both are always consistent. Backported upstream (`adbd583`).
+
+---
+
 ## [0.0.437] - 2026-05-08
 
 ### Fixed

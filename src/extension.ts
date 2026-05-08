@@ -5245,7 +5245,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // choice exists, which is the safe window for writing our default.
     // This avoids overwriting a theme the user consciously selected.
     const themeInspect = vscode.workspace.getConfiguration().inspect<string>('workbench.colorTheme');
-    const userHasExplicitTheme = themeInspect?.globalValue !== undefined;
+    // Treat any explicit value at global, workspace, or workspace-folder scope as
+    // a deliberate user choice and leave it alone.
+    const userHasExplicitTheme =
+      themeInspect?.globalValue          !== undefined ||
+      themeInspect?.workspaceValue       !== undefined ||
+      themeInspect?.workspaceFolderValue !== undefined;
     if (!userHasExplicitTheme) {
       try {
         await vscode.workspace.getConfiguration().update(
