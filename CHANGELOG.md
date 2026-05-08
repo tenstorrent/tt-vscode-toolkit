@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.434] - 2026-05-08
+
+### Changed
+
+- **tensix-viz inlined into each page** — `build-web.js` now embeds `tensix-viz.js` and `tensix-viz.css` directly as `<script>` / `<style>` blocks at build time instead of serving them as separate assets under `assets/tensix-viz/`. Pages are now fully self-contained regardless of hosting path or `BASE_PATH` configuration. Removed the `assets/tensix-viz/` copy step from `buildAssets()`.
+
+---
+
 ## [0.0.433] - 2026-05-08
 
 ### Changed

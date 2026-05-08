@@ -58,6 +58,13 @@ const TTSIM_API_URL = (process.env.TTSIM_API_URL || '').trim();
 /** Prepend BASE_PATH to every absolute site URL. */
 function siteUrl(p) { return BASE_PATH + p; }
 
+// Tensix-viz source — inlined directly into each page at build time rather than
+// served as a separate asset, so pages are fully self-contained regardless of
+// the hosting path or BASE_PATH configuration.
+const _tensixVizSrc = path.join(ROOT, 'src', 'webview', 'tensix-viz');
+const TENSIX_VIZ_JS  = fs.readFileSync(path.join(_tensixVizSrc, 'tensix-viz.js'),  'utf8');
+const TENSIX_VIZ_CSS = fs.readFileSync(path.join(_tensixVizSrc, 'tensix-viz.css'), 'utf8');
+
 const REGISTRY_PATH   = path.join(ROOT, 'content', 'lesson-registry.json');
 const LESSONS_DIR     = path.join(ROOT, 'content', 'lessons');
 const PAGES_DIR       = path.join(ROOT, 'content', 'pages');
@@ -898,8 +905,8 @@ ${content}
 
 <script src="${siteUrl('/assets/vendor/mermaid.min.js')}"></script>
 <script src="${siteUrl('/assets/lesson-web.js')}"></script>
-<link rel="stylesheet" href="${siteUrl('/assets/tensix-viz/tensix-viz.css')}">
-<script src="${siteUrl('/assets/tensix-viz/tensix-viz.js')}"></script>
+<style>${TENSIX_VIZ_CSS}</style>
+<script>${TENSIX_VIZ_JS}</script>
 ${hasPlayground ? `<link rel="stylesheet" href="${siteUrl('/assets/playground/playground.css')}">
 <script src="${siteUrl('/assets/playground/playground.js')}" defer></script>` : ''}
 ${hasCloudPlayground ? `<link rel="stylesheet" href="${siteUrl('/assets/playground/playground.css')}">
@@ -1115,16 +1122,9 @@ function copyAssets() {
   }
 
   // Tensix Grid Visualizer JS + CSS
-  const tensixVizSrc = path.join(ROOT, 'src', 'webview', 'tensix-viz');
-  const tensixVizOut = path.join(assetsOut, 'tensix-viz');
-  fs.mkdirSync(tensixVizOut, { recursive: true });
-  ['tensix-viz.js', 'tensix-viz.css'].forEach(f => {
-    const src = path.join(tensixVizSrc, f);
-    if (fs.existsSync(src)) {
-      fs.copyFileSync(src, path.join(tensixVizOut, f));
-      console.log(`  [OK]   assets/tensix-viz/${f}`);
-    }
-  });
+  // tensix-viz.js and tensix-viz.css are inlined directly into each page
+  // at build time (see TENSIX_VIZ_JS / TENSIX_VIZ_CSS constants at top of file).
+  // No separate asset files are needed.
 
   // Playground (pyodide-worker.js, playground.js, playground.css)
   const playgroundSrc = path.join(ROOT, 'src', 'webview', 'playground');
