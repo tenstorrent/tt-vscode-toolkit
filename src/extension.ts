@@ -5239,6 +5239,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Mark as seen first to avoid reopening if command fails
     context.globalState.update('hasSeenWelcome', true);
 
+    // Apply Tenstorrent Dark theme on first install — but ONLY if the user
+    // has not explicitly set a global theme. inspect() returns the layered
+    // configuration values; globalValue is undefined when no explicit user
+    // choice exists, which is the safe window for writing our default.
+    // This avoids overwriting a theme the user consciously selected.
+    const themeInspect = vscode.workspace.getConfiguration().inspect<string>('workbench.colorTheme');
+    // Treat any explicit value at global, workspace, or workspace-folder scope as
+    // a deliberate user choice and leave it alone.
+    const userHasExplicitTheme =
+      themeInspect?.globalValue          !== undefined ||
+      themeInspect?.workspaceValue       !== undefined ||
+      themeInspect?.workspaceFolderValue !== undefined;
+    if (!userHasExplicitTheme) {
+      try {
+        await vscode.workspace.getConfiguration().update(
+          'workbench.colorTheme',
+          'Tenstorrent Dark',
+          vscode.ConfigurationTarget.Global
+        );
+      } catch (_err) {
+        // Non-fatal: settings may be read-only in some restricted environments.
+      }
+    }
+
     // Prompt to install recommended extensions (non-blocking)
     setTimeout(() => {
       promptRecommendedExtensions();

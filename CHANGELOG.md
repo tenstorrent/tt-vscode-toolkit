@@ -7,6 +7,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.438] - 2026-05-08
+
+### Fixed
+
+- **Theme guard misses workspace-scoped theme** — First-install theme logic only checked `globalValue`; a user who set a theme at workspace or workspace-folder scope would still have it overwritten. Now checks all three scopes (`globalValue`, `workspaceValue`, `workspaceFolderValue`) before deciding to apply Tenstorrent Dark.
+- **`tensix-viz` play button broken with labelled text** — `icon === "▶" || icon === "▶"` was a duplicate literal comparison that never matched "▶ Play" style labels. Fixed with `icon.startsWith("▶")` in `chip.js`. Backported upstream (`adbd583`).
+- **`ClusterViz._startAnimation` dot-mode cols desync** — Animation hardcoded `cols = 8` when no topology grid was present, but `_init()` used `16` for dot-mode. Stored `_cols`/`_rows` on the instance in `_init()` and read them in `_startAnimation()` so both are always consistent. Backported upstream (`adbd583`).
+
+---
+
+## [0.0.437] - 2026-05-08
+
+### Fixed
+
+- **`sceneName` XSS in viz webview** — Scene name was interpolated raw into HTML text content in `vizCommands.ts`; crafted values could inject markup. Added `escapeHtml()` helper (escapes `&`, `<`, `>`) and applied it to `sceneName` before embedding.
+- **Theme applied on first install overwrites explicit user choice** — The previous logic applied Tenstorrent Dark whenever the current theme name didn't include "tenstorrent", which silently overwrote any theme a user had deliberately set. Replaced with `inspect('workbench.colorTheme')` — Tenstorrent Dark is now only written when `globalValue` is `undefined` (i.e. the user has never explicitly set a theme).
+- **`ClusterViz` grid column mismatch** — CSS hardcoded `repeat(8, 1fr)` / `repeat(16, 1fr)` columns regardless of topology; topologies such as `bh-galaxy-sc` (grid `[4,32]`) would wrap incorrectly and break the animation's row/col heat math. Fixed by computing `cols` from `topo.grid[1]` in `_init()` and applying it as an inline `gridTemplateColumns` style. Backported to upstream `tensix-viz` repo (`e1fc798`).
+
+---
+
+## [0.0.436] - 2026-05-08
+
+### Fixed
+
+- **Theme update not awaited** — `vscode.workspace.getConfiguration().update()` for `workbench.colorTheme` was not awaited and had no error handling; in restricted environments such as code-server, the call can reject. Added `await` and a `try/catch` so failures are non-fatal.
+- **`.tv-breadcrumb` stale `cursor: pointer`** — The breadcrumb element has no click handler; the pointer cursor falsely implied interactivity. Removed the property. Backported to upstream `tensix-viz` repo.
+
+---
+
+## [0.0.435] - 2026-05-08
+
+### Fixed
+
+- **Tensix Viz panel play/step buttons not wired up** — Controls were outside `.tensix-viz-container` in the webview HTML; `TensixViz.autoInit()` queries `.tv-play`, `.tv-step`, and `.tv-legend` inside each container, so buttons were never connected. Moved controls inside the container to match the structure used by `MarkdownRenderer.ts` and `build-web.js`.
+- **`data-script` attribute escaping** — Only double-quotes were escaped in `vizCommands.ts`; added full attribute escaping (`&`, `<`, `>`, `"`, `'`) via a dedicated `escapeAttr` helper to prevent DOM breakage and XSS.
+- **arch injection** — `arch` from command opts was passed directly into HTML without validation. Added allowlist check (`wormhole` / `blackhole`), defaulting to `wormhole` for unexpected values.
+- **tensix-viz.js play button toggle** — Duplicate condition `icon === "▶" || icon === "▶"` never matched "▶ Play" label text. Changed to `icon.startsWith("▶")` so buttons with label suffixes are handled correctly.
+- **CHANGELOG v0.0.432** — Corrected inaccurate claim that `autoInit` is exposed as a `window.*` global; it is called internally at load time only.
+- **FAQ footer extension version** — Updated stale "Extension version: 0.0.283" to current release.
+
+---
+
+## [0.0.434] - 2026-05-08
+
+### Changed
+
+- **tensix-viz inlined into each page** — `build-web.js` now embeds `tensix-viz.js` and `tensix-viz.css` directly as `<script>` / `<style>` blocks at build time instead of serving them as separate assets under `assets/tensix-viz/`. Pages are now fully self-contained regardless of hosting path or `BASE_PATH` configuration. Removed the `assets/tensix-viz/` copy step from `buildAssets()`.
+
+---
+
+## [0.0.433] - 2026-05-08
+
+### Changed
+
+- **Tensix playground — live example in How to Use section** — Added a rendered `tensix_viz` block below the syntax documentation so readers see an actual working visualizer alongside the code example, not just the raw markdown fence.
+
+---
+
+## [0.0.432] - 2026-05-08
+
+### Changed
+
+- **tensix-viz library updated to new esbuild bundle** — Replaced the hand-authored IIFE in `src/webview/tensix-viz/tensix-viz.js` and `tensix-viz.css` with the rebuilt library from the sibling `tensix-viz` repo. The new bundle (`_TensixVizBundle`) exposes `TensixViz`, `CardViz`, `ClusterViz`, and `SystemViz` as `window.*` globals. (`autoInit` is called internally at load time but not exposed on `window`.) Existing `TensixViz.autoInit()` behaviour (scanning `.tensix-viz-container` elements with `data-arch`/`data-script` attributes) is fully preserved. CSS additions cover the new `CardViz`, `SystemViz`, and `ClusterViz` components.
+
+### Fixed
+
+- **Tensix Viz panel animations not playing** — `vizCommands.ts` was embedding animation scene JSON inside a `<script class="tensix-viz-script" type="application/json">` element. `TensixViz.autoInit()` reads animation data from the container's `data-script` attribute (not a child `<script>` element), so scenes were silently parsed as empty arrays and animations never ran. Fixed by moving the JSON into the `data-script` attribute on the `.tensix-viz-container` div, matching the pattern used by `MarkdownRenderer.ts` and `build-web.js`.
+
+---
+
+## [0.0.431] - 2026-05-07
+
+### Fixed
+
+- **Theme JSON path in packaged extension** — `package.json` `contributes.themes` paths were pointing to `./themes/tenstorrent-theme.json` and `./themes/tenstorrent-light-theme.json`. The `themes/` source directory is excluded by `.vscodeignore` (correctly, since the build copies it to `dist/themes/`), so the files were missing from the installed extension, causing code-server to log "Unable to load … tenstorrent-theme.json". Paths corrected to `./dist/themes/`.
+
+---
+
+## [0.0.430] - 2026-05-07
+
+### Fixed
+
+- **Theme auto-apply on first install in code-server / Open VSX environments** — `configurationDefaults` in `package.json` only sets a fallback default and is silently ignored when the host has already written any `workbench.colorTheme` value into user settings (which code-server does on startup). Added a programmatic `getConfiguration().update()` call in the first-activation path that sets "Tenstorrent Dark" whenever the current theme is not already a Tenstorrent theme, ensuring consistent dark-theme behaviour on all hosts.
+
+---
+
 ## [0.0.429] - 2026-05-07
 
 ### Fixed

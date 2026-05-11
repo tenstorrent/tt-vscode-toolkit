@@ -101,3 +101,161 @@
   border-radius: 2px;
   flex-shrink: 0;
 }
+
+/* tensix-viz.css — styles for CardViz, SystemViz, ClusterViz containers */
+
+/* ─── Card ─────────────────────────────────────────────────────────────── */
+
+.tv-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0d1f2d;
+  border-radius: 8px;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tv-chip-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.tv-chip-wrapper.tv-hidden   { opacity: 0; pointer-events: none; }
+.tv-chip-wrapper.tv-active   { transform: scale(1.1); }
+.tv-chip-wrapper.tv-highlighted { outline: 2px solid #4fd1c5; border-radius: 4px; }
+
+.tv-chip-label {
+  color: #607d8b;
+  font-size: 0.7rem;
+  font-family: monospace;
+  text-align: center;
+}
+
+.tv-card-link {
+  width: 24px;
+  height: 40px;
+  border-top: 2px dashed #5b3da0;
+  border-bottom: 2px dashed #5b3da0;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tv-card-link::after {
+  content: 'ETH';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #5b3da0;
+  font-size: 0.55rem;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+/* ─── System ────────────────────────────────────────────────────────────── */
+
+.tv-system {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #0a1820;
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+}
+
+.tv-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.tv-card-wrapper.tv-hidden   { opacity: 0; pointer-events: none; }
+.tv-card-wrapper.tv-active   { transform: scale(1.05); }
+.tv-card-wrapper.tv-highlighted { outline: 2px solid #4fd1c5; border-radius: 6px; }
+
+.tv-system-card-label {
+  color: #607d8b;
+  font-size: 0.75rem;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.tv-system-link {
+  color: #5b3da0;
+  font-size: 0.65rem;
+  font-family: monospace;
+  text-align: center;
+  padding: 2px 8px;
+  border-left: 2px dashed #5b3da0;
+  border-right: 2px dashed #5b3da0;
+  white-space: nowrap;
+}
+
+/* ─── Cluster ───────────────────────────────────────────────────────────── */
+
+.tv-cluster {
+  background: #080f18;
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+}
+
+.tv-cluster-spec {
+  color: #607d8b;
+  font-size: 0.7rem;
+  font-family: monospace;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.tv-cluster-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+}
+
+.tv-cluster-dot-mode .tv-cluster-grid {
+  grid-template-columns: repeat(16, 1fr);
+  gap: 2px;
+}
+
+.tv-cluster-tile {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: #1e4a58;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.tv-cluster-tile.tv-highlighted { outline: 2px solid #4fd1c5; }
+.tv-cluster-tile.tv-hidden      { opacity: 0.1; pointer-events: none; }
+.tv-cluster-tile.tv-active      { outline: 2px solid #4fd1c5; }
+
+/* ─── Breadcrumb ────────────────────────────────────────────────────────── */
+
+.tv-breadcrumb {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 0.7rem;
+  font-family: monospace;
+  color: #4fd1c5;
+  z-index: 10;
+  background: rgba(13,31,45,0.85);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ─── Zoom state ────────────────────────────────────────────────────────── */
+
+.tv-zoomed-in { overflow: visible; }

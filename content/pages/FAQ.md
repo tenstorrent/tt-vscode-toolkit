@@ -427,6 +427,33 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 **A:** When the system goes into suspend, all running jobs on Tenstorrent hardware are interrupted and effectively terminated, and hardware utilization drops to zero. On resume, the driver re-initializes the device (similar to a reset), so any workloads must be restarted. In normal cases you don't need a full reboot; if the device doesn't come back cleanly, run `tt-smi -r` (reset) or reboot the host.
 
+### Q: After a Linux kernel update, my Tenstorrent device is not detected or tt-inference-server reports a pre-release driver version.
+
+**A:** The kernel module driver (tt-kmd) must be compiled specifically for each kernel version. This normally happens automatically via DKMS when a new kernel is installed, but can silently fail if there are orphaned DKMS entries left behind from old driver versions.
+
+**Quick fix:**
+```bash
+sudo dkms install tenstorrent/$(dkms status tenstorrent | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | sort -V | tail -1) -k $(uname -r)
+sudo modprobe tenstorrent
+modinfo tenstorrent | grep version   # Confirm correct version loaded
+```
+
+**If `dkms install` fails with "Could not locate dkms.conf"**, you have orphaned entries from old driver versions that are blocking the auto-build. Clean them up:
+
+```bash
+# Identify broken entries (any version that prints an error instead of a status line)
+dkms status
+
+# Manually remove each broken version
+sudo rm -rf /var/lib/dkms/tenstorrent/<broken-version>
+
+# Then retry the install above
+```
+
+**Why this happens:** When old tt-kmd versions are superseded, their DKMS source directories are sometimes removed without de-registering them from the DKMS registry. These orphaned entries cause `dkms autoinstall` to abort with an error before it reaches the valid driver version, so the new kernel boots without the module.
+
+**After cleanup, kernel upgrades will rebuild the module automatically** — no manual intervention needed on future upgrades.
+
 ---
 
 ## Installation & Setup
@@ -1307,7 +1334,7 @@ sudo rm -rf /dev/shm/tt_*
 
 ---
 
-**Last updated:** January 2026
-**Extension version:** 0.0.283
+**Last updated:** May 2026
+**Extension version:** 0.0.438
 
 **Found an error in this FAQ?** Please report it on GitHub or Discord!
