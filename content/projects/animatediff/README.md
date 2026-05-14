@@ -4,6 +4,14 @@ Two-phase implementation: **Phase 1** generates real, temporally coherent video
 on CPU using the correct AnimateDiff architecture. **Phase 2** accelerates spatial
 denoising on Blackhole hardware using the TTNN UNet.
 
+| *"a campfire with crackling flames"* | *"ocean waves, cinematic"* |
+|---|---|
+| ![campfire](docs/assets/demo_campfire.gif) | ![ocean](docs/assets/demo_ocean.gif) |
+
+**Temporal coherence — with MotionAdapter (left) vs without (right):**
+
+![comparison](docs/assets/demo_comparison.gif)
+
 ---
 
 ## Background: Why the Previous Implementation Was Wrong

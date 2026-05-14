@@ -27,9 +27,27 @@ estimatedMinutes: 60
 
 # Native Video Animation with AnimateDiff
 
+> **Updated v0.2.0 (2026-05-14):** This lesson now uses the correct AnimateDiff architecture —
+> **SD 1.4 UNet** + **MotionAdapter**, not SD 3.5 DiT. The original SD 3.5 approach was
+> architecturally incompatible with AnimateDiff motion weights. See the project README for details.
+
 **Learn to integrate new model architectures as standalone packages - the path from demos to real applications!**
 
-This lesson teaches you how to bring up new models by creating **standalone packages** that integrate with TT-Metal without modifying the core repository. You'll learn the complete workflow from research to implementation by working through AnimateDiff - a temporal attention module that adds native animation to Stable Diffusion 3.5.
+This lesson teaches you how to bring up new models by creating **standalone packages** that integrate with TT-Metal without modifying the core repository. You'll learn the complete workflow from research to implementation by working through AnimateDiff — a temporal attention module that adds native animation to Stable Diffusion 1.4.
+
+## What AnimateDiff produces
+
+These animations were generated using the prompting approach taught in this lesson:
+
+| Prompt: *"a campfire with crackling flames"* | Prompt: *"ocean waves, cinematic"* |
+|---|---|
+| ![campfire demo](../projects/animatediff/docs/assets/demo_campfire.gif) | ![ocean demo](../projects/animatediff/docs/assets/demo_ocean.gif) |
+
+**With MotionAdapter vs without** (temporal coherence comparison):
+
+![temporal coherence comparison](../projects/animatediff/docs/assets/demo_comparison.gif)
+
+Each frame attends across all other frames during denoising — motion emerges from the architecture, not post-processing.
 
 **What you'll learn:**
 - How to research and understand new model architectures
@@ -81,19 +99,25 @@ Create standalone package → Import tt-metal as dependency → Build independen
 
 ## Architecture Overview
 
-AnimateDiff works by adding **temporal attention** after spatial attention in each transformer block:
+AnimateDiff works by injecting `TemporalTransformer` attention modules **inside each `BasicTransformerBlock`** of the SD 1.4 UNet — at the 320-dim feature level where the motion weights were trained:
 
 ```
-Standard SD 3.5 (Single Image):
-  Noise → Spatial Diffusion → VAE Decode → Image
+SD 1.4 UNet WITHOUT MotionAdapter:
+  Noise → [Down blocks] → [Mid block] → [Up blocks] → Denoised latent
+           each block has BasicTransformerBlock(spatial attention only)
 
-AnimateDiff SD 3.5 (Video):
-  Noise → Spatial Diffusion → Temporal Attention → VAE Decode → Frames
-                              ↑
-                      (Our standalone package adds this!)
+SD 1.4 UNet WITH MotionAdapter (Phase 1):
+  Noise → [Down blocks] → [Mid block] → [Up blocks] → Denoised latent
+           each BasicTransformerBlock now has:
+             spatial attention (unchanged, 320-dim)
+             + TemporalTransformer(cross-frame attention, 320-dim)
+                                              ↑
+                           mm_sd_v15_v2.ckpt weights operate here
 ```
 
-**How temporal attention works:**
+**Why SD 1.4, not SD 3.5?** The AnimateDiff motion weights (`mm_sd_v15_v2.ckpt`) were trained for SD 1.5's UNet with 320-dim transformer blocks. SD 3.5's DiT uses 2432-dim blocks — architecturally incompatible. The `diffusers` `MotionAdapter` class handles the injection automatically when paired with the correct base model.
+
+**How temporal attention works inside each block:**
 
 ```python
 # Input: (batch*frames, spatial_tokens, channels)
@@ -107,10 +131,10 @@ hidden_states = hidden_states.view(batch, frames, spatial, channels)
 hidden_states = hidden_states.permute(0, 2, 1, 3)  # (b, spatial, frames, c)
 hidden_states = hidden_states.reshape(batch*spatial, frames, channels)
 # Example: (4096, 16, 320)
-# Now standard attention will create motion coherence across the 16 frames!
+# Standard attention across the 16 frames → temporal coherence
 ```
 
-**Key insight:** By reshaping tensors to put frames in the "sequence" position, standard attention naturally creates temporal coherence. This is the elegant core of AnimateDiff.
+**Key insight:** By reshaping tensors to put frames in the "sequence" position, standard attention naturally creates temporal coherence — this happens at every denoising step, not as post-processing.
 
 ---
 
@@ -523,30 +547,51 @@ What you just learned is **the complete workflow** for integrating any new model
 
 ## Step 12: Generate Real Animated Videos (Advanced)
 
-Now let's integrate AnimateDiff with SD 3.5 to generate **actual animated videos**!
+Now let's run the Phase 1 diffusers pipeline to generate **actual animated videos** on CPU:
 
-### The Integration Challenge
+### Phase 1: diffusers AnimateDiffPipeline (CPU, recommended starting point)
 
-AnimateDiff needs to:
-1. **Generate latents** for multiple frames with SD 3.5
-2. **Apply temporal attention** to create motion coherence
-3. **Decode frames** with SD 3.5's VAE
-4. **Export to video** in MP4/GIF format
+The `diffusers` `AnimateDiffPipeline` handles the full integration: it loads SD 1.4, injects the MotionAdapter at each transformer block, and runs the denoising loop across all frames simultaneously.
 
-**The catch:** SD 3.5's pipeline doesn't expose latents directly - it goes straight from denoising to VAE decode to images.
+```bash
+# Setup (one time)
+pip install -r requirements.txt
+hf download CompVis/stable-diffusion-v1-4
+hf download guoyww/animatediff-motion-adapter-v1-5-2
 
-### Two Integration Approaches
+# Generate
+cd content/projects/animatediff
+python examples/generate_baseline.py --prompt "a campfire with crackling flames" --frames 16
+# Output: output/baseline.gif
+```
 
-We provide **two approaches** - pick based on your needs:
+The pipeline needs to integrate:
+1. **Text encoding** — CLIP tokenizer + text encoder produces conditioning
+2. **MotionAdapter injection** — injects temporal attention at every UNet transformer block
+3. **Denoising loop** — at each step, the UNet sees ALL frames and attends across them
+4. **VAE decode** — every frame decoded from latent space to pixel space
 
-#### Approach A: Standalone Wrapper (Recommended)
+### Phase 2: Blackhole TTNN UNet (hardware-accelerated)
+
+Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal`. Frames are denoised sequentially; temporal coherence from shared base noise. Documented tradeoff: no motion adapter in the TTNN path.
+
+```bash
+source ~/tt-metal/python_env/bin/activate
+python examples/generate_blackhole.py --prompt "a campfire" --frames 8
+```
+
+### Two Integration Approaches (historical reference)
+
+The original design explored two approaches — kept here as an architectural decision record:
+
+#### Approach A: Standalone Wrapper (the approach we took)
 
 **✅ Fully isolated** - no tt-metal modifications required!
 
-A complete wrapper script that:
-- Wraps SD 3.5's pipeline
-- Generates frame latents manually
-- Applies AnimateDiff temporal attention
+A complete wrapper that:
+- Uses diffusers AnimateDiffPipeline (SD 1.4 base)
+- MotionAdapter handles temporal attention injection automatically
+- Generates real temporally coherent frames
 - Decodes with VAE
 - Exports to video
 
