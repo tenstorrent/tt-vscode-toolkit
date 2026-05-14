@@ -122,39 +122,40 @@ def main():
     device = setup_blackhole()
     print()
 
-    print("Loading SD 1.4 models onto Blackhole...")
-    t0 = time.time()
-    ttnn_model, tt_vae, config, ttnn_scheduler, torch_time_proj = load_sd14_ttnn(device)
-    ttnn_scheduler.set_timesteps(args.steps)
-    print(f"  Models loaded in {time.time() - t0:.1f}s")
-    print()
+    try:
+        print("Loading SD 1.4 models onto Blackhole...")
+        t0 = time.time()
+        ttnn_model, tt_vae, config, ttnn_scheduler, torch_time_proj = load_sd14_ttnn(device)
+        ttnn_scheduler.set_timesteps(args.steps)
+        print(f"  Models loaded in {time.time() - t0:.1f}s")
+        print()
 
-    print("Encoding prompts with CLIP...")
-    text_embeddings = encode_prompt(args.prompt, args.negative_prompt)
-    print(f"  Embeddings shape: {text_embeddings.shape}")  # (2, 96, 768)
-    print()
+        print("Encoding prompts with CLIP...")
+        text_embeddings = encode_prompt(args.prompt, args.negative_prompt)
+        print(f"  Embeddings shape: {text_embeddings.shape}")  # (2, 96, 768)
+        print()
 
-    print(f"Generating {args.frames} frames on Blackhole...")
-    t1 = time.time()
-    frames = generate_frames(
-        device,
-        ttnn_model,
-        tt_vae,
-        config,
-        ttnn_scheduler,
-        torch_time_proj,
-        text_embeddings,
-        num_frames=args.frames,
-        seed=args.seed,
-    )
-    elapsed = time.time() - t1
-    print(f"  Generated in {elapsed:.1f}s ({elapsed / args.frames:.1f}s/frame)")
-    print()
-
-    import ttnn
-    ttnn.close_device(device)
-    print("Device closed.")
-    print()
+        print(f"Generating {args.frames} frames on Blackhole...")
+        t1 = time.time()
+        frames = generate_frames(
+            device,
+            ttnn_model,
+            tt_vae,
+            config,
+            ttnn_scheduler,
+            torch_time_proj,
+            text_embeddings,
+            num_frames=args.frames,
+            seed=args.seed,
+        )
+        elapsed = time.time() - t1
+        print(f"  Generated in {elapsed:.1f}s ({elapsed / args.frames:.1f}s/frame)")
+        print()
+    finally:
+        import ttnn
+        ttnn.close_device(device)
+        print("Device closed.")
+        print()
 
     export_gif(frames, args.output)
     print(f"Saved {len(frames)} frames -> {args.output}")
