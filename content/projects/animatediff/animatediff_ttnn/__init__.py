@@ -1,34 +1,18 @@
-"""
-AnimateDiff for TT-Metal
+"""AnimateDiff for Tenstorrent hardware.
 
-Native animated video generation on Tenstorrent hardware using AnimateDiff
-temporal attention with Stable Diffusion 3.5.
+Phase 1 (CPU baseline):
+    from animatediff_ttnn.pipeline import create_animatediff_pipeline, generate, export_gif
 
-Example:
-    >>> from animatediff_ttnn import create_animatediff_pipeline
-    >>>
-    >>> pipeline = create_animatediff_pipeline()
-    >>>
-    >>> # Use with your SD 3.5 workflow
-    >>> frames = pipeline.apply_temporal_coherence(latents, num_frames=16)
-    >>> pipeline.export_video(frames, "output.mp4", fps=8)
+Phase 2 (Blackhole hardware):
+    from animatediff_ttnn.ttnn_pipeline import setup_blackhole, build_tlist, generate_frames
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
-from .pipeline import AnimateDiffPipeline, create_animatediff_pipeline
-from .temporal_module import (
-    load_animatediff_weights,
-    temporal_attention_torch,
-    temporal_attention_ttnn,
-    TemporalAttentionWeights,
-)
+from .pipeline import create_animatediff_pipeline, generate, export_gif
 
 __all__ = [
-    "AnimateDiffPipeline",
     "create_animatediff_pipeline",
-    "load_animatediff_weights",
-    "temporal_attention_torch",
-    "temporal_attention_ttnn",
-    "TemporalAttentionWeights",
+    "generate",
+    "export_gif",
 ]
