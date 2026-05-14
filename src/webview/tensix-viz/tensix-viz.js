@@ -33,16 +33,19 @@ var _TensixVizBundle = (() => {
       label: "Wormhole (N150/N300)",
       cols: 10,
       rows: 12,
-      // Tensix compute grid sits at rows 1-8, cols 1-8 (0-indexed)
-      // Row 0, Row 9-11 are special; col 0, col 9 are DRAM/ETH
+      // Actual Wormhole NOC grid: 10 cols (x=0..9) × 12 rows (y=0..11).
+      // ETH:    full rows 0 and 6 (10 ETH cores each row, 20 total)
+      // DRAM:   cols 0 and 5 at all non-ETH rows (y=1-5, 7-11 → 20 DRAM cells)
+      // Tensix: cols 1-4 and 6-9 at all non-ETH rows (8 × 10 = 80 compute cores)
       coreType(col, row) {
-        if (row === 0 || row === 9) return "dram";
-        if (col === 0) return "eth";
-        if (col === 9) return row >= 1 && row <= 4 ? "eth" : "dram";
-        if (row >= 1 && row <= 8 && col >= 1 && col <= 8) return "tensix";
-        return "empty";
+        if (row === 0 || row === 6) return "eth";
+        if (col === 0 || col === 5) return "dram";
+        return "tensix";
       },
-      computeGrid: { colStart: 1, colEnd: 8, rowStart: 1, rowEnd: 8 }
+      // Bounding rectangle covering all Tensix/DRAM/ETH within the active grid.
+      // Note: col 5 (DRAM) and row 6 (ETH) fall inside this rectangle — they
+      // render with their correct core-type styling via coreType().
+      computeGrid: { colStart: 1, colEnd: 9, rowStart: 1, rowEnd: 11 }
       // inclusive
     },
     blackhole: {
@@ -59,20 +62,20 @@ var _TensixVizBundle = (() => {
       computeGrid: { colStart: 1, colEnd: 15, rowStart: 1, rowEnd: 10 }
     }
   };
-  var THEME = {
-    bg: "#0F2A35",
+  var THEME_DARK = {
+    bg: "#0B1E28",
     grid: "#1A3C47",
-    tensix: "#1E4A58",
-    tensixBorder: "#2D6675",
+    tensix: "#163848",
+    tensixBorder: "#3A7A8C",
     tensixActive: "#4FD1C5",
     tensixPulse: "#81E6D9",
-    dram: "#1A2540",
-    dramBorder: "#2D3F6A",
-    eth: "#2A1A40",
+    dram: "#152035",
+    dramBorder: "#2D4A6A",
+    eth: "#221638",
     ethBorder: "#5B3DA0",
     pcie: "#2A2010",
     pcieBorder: "#8B6914",
-    empty: "#0D2030",
+    empty: "#0A1820",
     text: "#E8F0F2",
     textMuted: "#607D8B",
     teal: "#4FD1C5",
@@ -82,9 +85,85 @@ var _TensixVizBundle = (() => {
     green: "#27AE60",
     red: "#FF6B6B",
     particle: "#4FD1C5",
-    heatLow: "#1E4A58",
+    heatLow: "#163848",
     heatMid: "#F4C471",
-    heatHigh: "#FF6B6B"
+    heatHigh: "#FF6B6B",
+    heatLowRgb: [22, 56, 72],
+    heatMidRgb: [244, 196, 113],
+    heatHighRgb: [255, 107, 107],
+    nocLine: "rgba(45,102,117,0.25)",
+    floatLabelBg: "rgba(13,31,45,0.88)",
+    floatLabelFg: "#81E6D9"
+  };
+  var THEME_LIGHT = {
+    bg: "#EEF4F8",
+    grid: "#B8D4E0",
+    tensix: "#CCDDE8",
+    tensixBorder: "#6AACBE",
+    tensixActive: "#0D9488",
+    tensixPulse: "#0A7A70",
+    dram: "#C5D8E8",
+    dramBorder: "#5A9AB8",
+    eth: "#C5C5E0",
+    ethBorder: "#7070B8",
+    pcie: "#E0D8C8",
+    pcieBorder: "#A0906A",
+    empty: "#E4EDF4",
+    text: "#1A2C38",
+    textMuted: "#4A6878",
+    teal: "#0D9488",
+    tealLight: "#0A7A70",
+    pink: "#B01060",
+    gold: "#B45309",
+    green: "#15803D",
+    red: "#DC2626",
+    particle: "#0D9488",
+    heatLow: "#CCDDE8",
+    heatMid: "#D97706",
+    heatHigh: "#DC2626",
+    heatLowRgb: [204, 221, 232],
+    heatMidRgb: [217, 119, 6],
+    heatHighRgb: [220, 38, 38],
+    nocLine: "rgba(70,140,160,0.35)",
+    floatLabelBg: "rgba(238,244,248,0.92)",
+    floatLabelFg: "#0A4A58"
+  };
+  var MEM_COLORS = {
+    dark: {
+      dram: [0, 210, 190],
+      // bright teal — DRAM row glow
+      l1: [255, 180, 50],
+      // warm amber  — L1 fill bar
+      load: [0, 210, 190],
+      // teal        — DRAM→L1 read particles
+      burst: [255, 200, 80],
+      // gold        — prefetch / burst load
+      write: [220, 80, 160]
+      // vivid pink  — L1→DRAM writeback particles
+    },
+    light: {
+      dram: [0, 140, 130],
+      // deeper teal
+      l1: [160, 80, 10],
+      // darker amber
+      load: [0, 140, 130],
+      burst: [190, 130, 0],
+      // darker gold
+      write: [180, 40, 120]
+      // deeper rose
+    }
+  };
+  var MEM_PRESETS = {
+    idle: { dram_bw: 0.05, l1_fill: 0.02, burst: false, burstHz: 0, writeback: 0, loadColor: "load" },
+    inference: { dram_bw: 0.55, l1_fill: 0.45, burst: false, burstHz: 0, writeback: 0, loadColor: "load" },
+    prefill: { dram_bw: 0.9, l1_fill: 0.85, burst: true, burstHz: 0.5, writeback: 0.2, loadColor: "burst" },
+    thinking: { dram_bw: 0.12, l1_fill: 0.92, burst: false, burstHz: 0, writeback: 0, loadColor: "load" },
+    agents: { dram_bw: 0.45, l1_fill: 0.4, burst: true, burstHz: 0.8, writeback: 0, loadColor: "load" },
+    diffusion: { dram_bw: 0.65, l1_fill: 0.6, burst: true, burstHz: 1.2, writeback: 0, loadColor: "load" },
+    video: { dram_bw: 0.7, l1_fill: 0.65, burst: true, burstHz: 1.6, writeback: 0, loadColor: "load" },
+    batch: { dram_bw: 0.8, l1_fill: 0.6, burst: false, burstHz: 0, writeback: 0, loadColor: "load" },
+    explore: { dram_bw: 0.3, l1_fill: 0.35, burst: false, burstHz: 0, writeback: 0, loadColor: "load" },
+    kernel_dispatch: { dram_bw: 0.15, l1_fill: 0.55, burst: true, burstHz: "kd", writeback: 0.5, loadColor: "burst" }
   };
   function TensixViz(canvas, opts) {
     opts = opts || {};
@@ -106,10 +185,15 @@ var _TensixVizBundle = (() => {
     this._floatLabelData = null;
     this._loop = false;
     this._loopScript = null;
+    this._showMemory = !!opts.showMemory;
+    this._memOverride = null;
+    this._currentMode = null;
     this._cellW = 0;
     this._cellH = 0;
     this._padX = 0;
     this._padY = 0;
+    this._dram = [];
+    this._compute = [];
     this._logicalW = canvas.width;
     this._logicalH = canvas.height;
     var dpr = typeof window !== "undefined" && window.devicePixelRatio || 1;
@@ -123,6 +207,17 @@ var _TensixVizBundle = (() => {
     this._computeLayout();
     this.render();
   }
+  TensixViz.prototype._resolveTheme = function() {
+    var node = this.canvas.parentElement;
+    while (node) {
+      if (node.classList && node.classList.contains("tv-light")) return THEME_LIGHT;
+      if (node.classList && node.classList.contains("tv-auto")) {
+        return typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? THEME_LIGHT : THEME_DARK;
+      }
+      node = node.parentElement;
+    }
+    return THEME_DARK;
+  };
   TensixViz.prototype._computeLayout = function() {
     const chip = this.chip;
     const pad = 8;
@@ -132,14 +227,24 @@ var _TensixVizBundle = (() => {
     this._padY = pad;
     this._cellW = Math.floor((w - pad * 2) / chip.cols);
     this._cellH = Math.floor((h - pad * 2) / chip.rows);
+    this._dram = [];
+    this._compute = [];
+    for (var row = 0; row < chip.rows; row++) {
+      for (var col = 0; col < chip.cols; col++) {
+        var t = chip.coreType(col, row);
+        if (t === "dram") this._dram.push({ col, row });
+        if (t === "tensix") this._compute.push({ col, row });
+      }
+    }
   };
   TensixViz.prototype.render = function() {
+    this._theme = this._resolveTheme();
     const ctx = this.ctx;
     const chip = this.chip;
     const lw = this._logicalW;
     const lh = this._logicalH;
     ctx.clearRect(0, 0, lw, lh);
-    ctx.fillStyle = THEME.bg;
+    ctx.fillStyle = this._theme.bg;
     ctx.fillRect(0, 0, lw, lh);
     for (let row = 0; row < chip.rows; row++) {
       for (let col = 0; col < chip.cols; col++) {
@@ -158,6 +263,7 @@ var _TensixVizBundle = (() => {
       this._drawCellLabel(col, row, text);
     });
     this._particles.forEach((p) => this._drawParticle(p));
+    this._drawMemoryLayer();
     this._drawNocLines();
   };
   TensixViz.prototype._cellRect = function(col, row) {
@@ -177,8 +283,9 @@ var _TensixVizBundle = (() => {
     const ctx = this.ctx;
     const type = this.chip.coreType(col, row);
     const r = this._cellRect(col, row);
-    let fill = THEME[type] || THEME.empty;
-    let border = THEME[type + "Border"] || fill;
+    const T = this._theme;
+    let fill = T[type] || T.empty;
+    let border = T[type + "Border"] || fill;
     ctx.fillStyle = fill;
     this._roundRect(ctx, r.x, r.y, r.w, r.h, 3);
     ctx.fill();
@@ -187,7 +294,7 @@ var _TensixVizBundle = (() => {
     this._roundRect(ctx, r.x, r.y, r.w, r.h, 3);
     ctx.stroke();
     if (type !== "tensix" && type !== "empty" && r.w > 14) {
-      ctx.fillStyle = THEME.textMuted;
+      ctx.fillStyle = T.textMuted;
       ctx.font = `bold ${Math.max(7, r.w * 0.3)}px monospace`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -199,7 +306,7 @@ var _TensixVizBundle = (() => {
     const ctx = this.ctx;
     const chip = this.chip;
     const cg = chip.computeGrid;
-    ctx.strokeStyle = "rgba(45,102,117,0.25)";
+    ctx.strokeStyle = this._theme.nocLine;
     ctx.lineWidth = 0.5;
     ctx.setLineDash([2, 4]);
     for (let row = cg.rowStart; row <= cg.rowEnd; row++) {
@@ -222,14 +329,125 @@ var _TensixVizBundle = (() => {
     }
     ctx.setLineDash([]);
   };
+  TensixViz.prototype._drawMemoryLayer = function() {
+    if (!this._showMemory || !this._memPhase) return;
+    const ctx = this.ctx;
+    const chip = this.chip;
+    const cg = chip.computeGrid;
+    const T = this._theme;
+    const isDark = T === THEME_DARK;
+    const mc = isDark ? MEM_COLORS.dark : MEM_COLORS.light;
+    const mode = this._currentMode || "idle";
+    const preset = MEM_PRESETS[mode] || MEM_PRESETS.idle;
+    const mem = this._memPhase;
+    let env;
+    if (preset.burstHz === "kd") {
+      env = mem.kdGlow;
+    } else if (preset.burst) {
+      env = 0.5 + 0.5 * Math.cos(mem.burstPhase * Math.PI * 2);
+    } else {
+      env = 0.85 + 0.15 * Math.sin(mem.phase * Math.PI * 2);
+    }
+    const dramBw = this._memOverride && this._memOverride.dram_bw !== void 0 ? this._memOverride.dram_bw : preset.dram_bw;
+    const l1Fill = this._memOverride && this._memOverride.l1_fill !== void 0 ? this._memOverride.l1_fill : preset.l1_fill;
+    const dramAlpha = dramBw * env * 0.55;
+    if (dramAlpha > 5e-3) {
+      const dramColor = mc.dram;
+      ctx.save();
+      ctx.globalAlpha = dramAlpha;
+      ctx.fillStyle = "rgb(" + dramColor[0] + "," + dramColor[1] + "," + dramColor[2] + ")";
+      for (let di = 0; di < this._dram.length; di++) {
+        const dc = this._dram[di];
+        const r = this._cellRect(dc.col, dc.row);
+        this._roundRect(ctx, r.x, r.y, r.w, r.h, 3);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    const spawnRate = dramBw * env;
+    if (spawnRate > 0 && this._compute.length > 0 && this._dram.length > 0) {
+      if (Math.random() < spawnRate * 0.3) {
+        const fromCell = this._dram[Math.floor(Math.random() * this._dram.length)];
+        const toCell = this._compute[Math.floor(Math.random() * this._compute.length)];
+        const fromRect = this._cellRect(fromCell.col, fromCell.row);
+        const toRect = this._cellRect(toCell.col, toCell.row);
+        const loadColorArr = mc[preset.loadColor] || mc.load;
+        this._particles.push({
+          x: fromRect.x + fromRect.w / 2,
+          y: fromRect.y + fromRect.h / 2,
+          startX: fromRect.x + fromRect.w / 2,
+          startY: fromRect.y + fromRect.h / 2,
+          toX: toRect.x + toRect.w / 2,
+          toY: toRect.y + toRect.h / 2,
+          progress: 0,
+          speed: 8e-3 + Math.random() * 0.012,
+          color: "rgb(" + loadColorArr[0] + "," + loadColorArr[1] + "," + loadColorArr[2] + ")",
+          radius: 1.5,
+          alpha: 0.8,
+          _isMem: true
+        });
+      }
+      if (preset.writeback > 0 && Math.random() < preset.writeback * spawnRate * 0.15) {
+        const wbFrom = this._compute[Math.floor(Math.random() * this._compute.length)];
+        const wbTo = this._dram[Math.floor(Math.random() * this._dram.length)];
+        const wbFromRect = this._cellRect(wbFrom.col, wbFrom.row);
+        const wbToRect = this._cellRect(wbTo.col, wbTo.row);
+        const writeColorArr = mc.write;
+        this._particles.push({
+          x: wbFromRect.x + wbFromRect.w / 2,
+          y: wbFromRect.y + wbFromRect.h / 2,
+          startX: wbFromRect.x + wbFromRect.w / 2,
+          startY: wbFromRect.y + wbFromRect.h / 2,
+          toX: wbToRect.x + wbToRect.w / 2,
+          toY: wbToRect.y + wbToRect.h / 2,
+          progress: 0,
+          speed: 8e-3 + Math.random() * 0.012,
+          color: "rgb(" + writeColorArr[0] + "," + writeColorArr[1] + "," + writeColorArr[2] + ")",
+          radius: 1.5,
+          alpha: 0.8,
+          _isMem: true
+        });
+      }
+    }
+    for (let i = this._particles.length - 1; i >= 0; i--) {
+      const p = this._particles[i];
+      if (!p._isMem) continue;
+      p.progress = Math.min(1, p.progress + p.speed);
+      p.x = p.startX + (p.toX - p.startX) * p.progress;
+      p.y = p.startY + (p.toY - p.startY) * p.progress;
+      if (p.progress >= 1) {
+        this._particles.splice(i, 1);
+      }
+    }
+    if (l1Fill > 0.01) {
+      const lc = mc.l1;
+      ctx.save();
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = "rgb(" + lc[0] + "," + lc[1] + "," + lc[2] + ")";
+      for (let lrow = cg.rowStart; lrow <= cg.rowEnd; lrow++) {
+        for (let lcol = cg.colStart; lcol <= cg.colEnd; lcol++) {
+          if (chip.coreType(lcol, lrow) !== "tensix") continue;
+          const cr = this._cellRect(lcol, lrow);
+          const noise = 1 + 0.15 * Math.sin(lcol * 3.7 + lrow * 2.9 + mem.phase * Math.PI);
+          const fillH = Math.min(cr.h * 0.9, cr.h * l1Fill * noise);
+          const barW = cr.w * 0.7;
+          const barX = cr.x + (cr.w - barW) / 2;
+          const barY = cr.y + cr.h - fillH;
+          ctx.fillRect(barX, barY, barW, fillH);
+        }
+      }
+      ctx.restore();
+    }
+  };
   TensixViz.prototype._drawHighlight = function(col, row, hl) {
     const ctx = this.ctx;
     const r = this._cellRect(col, row);
     const alpha = hl.alpha !== void 0 ? hl.alpha : 1;
+    const T = this._theme;
     ctx.save();
     ctx.globalAlpha = alpha;
-    const color = THEME[hl.color] || hl.color || THEME.tensixActive;
-    const bright = hl.color === "pink" ? THEME.pink : THEME.tensixPulse;
+    const color = T[hl.color] || hl.color || T.tensixActive;
+    const bright = hl.color === "pink" ? T.pink : T.tensixPulse;
     ctx.fillStyle = color;
     this._roundRect(ctx, r.x, r.y, r.w, r.h, 3);
     ctx.fill();
@@ -245,7 +463,7 @@ var _TensixVizBundle = (() => {
     const r = this._cellRect(col, row);
     ctx.save();
     ctx.font = `bold ${Math.max(7, r.w * 0.28)}px sans-serif`;
-    ctx.fillStyle = THEME.text;
+    ctx.fillStyle = this._theme.text;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.shadowColor = "rgba(0,0,0,0.8)";
@@ -255,7 +473,7 @@ var _TensixVizBundle = (() => {
   };
   TensixViz.prototype._drawParticle = function(p) {
     const ctx = this.ctx;
-    const color = p.color || THEME.particle;
+    const color = p.color || this._theme.particle;
     const r = p.radius || 4;
     ctx.save();
     ctx.fillStyle = color;
@@ -286,7 +504,7 @@ var _TensixVizBundle = (() => {
       for (let col = cg.colStart; col <= cg.colEnd; col++) {
         const v = ((this._heatmap[row] || [])[col] || 0) / maxVal;
         const r = this._cellRect(col, row);
-        const color = this._heatColor(v);
+        const color = this._heatColor(v, this._theme);
         ctx.save();
         ctx.globalAlpha = 0.6;
         ctx.fillStyle = color;
@@ -296,16 +514,16 @@ var _TensixVizBundle = (() => {
       }
     }
   };
-  TensixViz.prototype._heatColor = function(t) {
+  TensixViz.prototype._heatColor = function(t, T) {
     function lerp(a, b, t2) {
       return Math.round(a + (b - a) * t2);
     }
     function hex(r, g, b) {
-      return `rgb(${r},${g},${b})`;
+      return "rgb(" + r + "," + g + "," + b + ")";
     }
-    const low = [30, 74, 88];
-    const mid = [244, 196, 113];
-    const high = [255, 107, 107];
+    const low = T.heatLowRgb;
+    const mid = T.heatMidRgb;
+    const high = T.heatHighRgb;
     if (t < 0.5) {
       const s = t * 2;
       return hex(lerp(low[0], mid[0], s), lerp(low[1], mid[1], s), lerp(low[2], mid[2], s));
@@ -328,19 +546,25 @@ var _TensixVizBundle = (() => {
     ctx.closePath();
   };
   TensixViz.prototype.renderLegend = function(legendEl) {
+    const T = this._resolveTheme();
     const items = [
-      { color: THEME.tensixActive, label: "Active compute core" },
-      { color: THEME.tensix, label: "Idle Tensix core" },
-      { color: THEME.dramBorder, label: "DRAM controller" },
-      { color: THEME.ethBorder, label: "Ethernet link" },
-      { color: THEME.particle, label: "Data tile (NOC transfer)" }
+      { color: T.tensixActive, label: "Active compute core" },
+      { color: T.tensix, label: "Idle Tensix core" },
+      { color: T.dramBorder, label: "DRAM controller" },
+      { color: T.ethBorder, label: "Ethernet link" },
+      { color: T.particle, label: "Data tile (NOC transfer)" }
     ];
-    legendEl.innerHTML = items.map(
-      (i) => `<span class="tv-legend-item">
-        <span class="tv-legend-dot" style="background:${i.color}"></span>
-        ${i.label}
-      </span>`
-    ).join("");
+    legendEl.replaceChildren ? legendEl.replaceChildren() : legendEl.innerHTML = "";
+    items.forEach(function(item) {
+      var span = document.createElement("span");
+      span.className = "tv-legend-item";
+      var dot = document.createElement("span");
+      dot.className = "tv-legend-dot";
+      dot.style.background = item.color;
+      span.appendChild(dot);
+      span.appendChild(document.createTextNode(" " + item.label));
+      legendEl.appendChild(span);
+    });
   };
   TensixViz.prototype.play = function(script) {
     this._loopScript = script;
@@ -376,9 +600,17 @@ var _TensixVizBundle = (() => {
     this._heatmap = null;
     this._labels = {};
     this._floatLabelData = null;
+    this._memOverride = null;
+    this._currentMode = null;
     this._scriptQueue = [];
     this._resolveStep = null;
     this.render();
+  };
+  TensixViz.prototype.setMemoryStats = function(stats) {
+    if (!stats || typeof stats !== "object") return;
+    this._memOverride = {};
+    if (typeof stats.dram_bw === "number") this._memOverride.dram_bw = Math.max(0, Math.min(1, stats.dram_bw));
+    if (typeof stats.l1_fill === "number") this._memOverride.l1_fill = Math.max(0, Math.min(1, stats.l1_fill));
   };
   TensixViz.prototype._runLoop = function() {
     const self = this;
@@ -530,7 +762,8 @@ var _TensixVizBundle = (() => {
     const self = this;
     const from = step.from;
     const to = step.to;
-    const color = THEME[step.color] || THEME.particle;
+    const T = this._resolveTheme();
+    const color = T[step.color] || T.particle;
     const ms = (step.ms || 800) / self.speed;
     const start = performance.now();
     const p0 = self._cellCenter(from[0], from[1]);
@@ -599,6 +832,7 @@ var _TensixVizBundle = (() => {
   };
   TensixViz.prototype.activate = function(mode, opts) {
     this.reset();
+    this._currentMode = mode;
     opts = opts || {};
     var chip = this.chip;
     var cg = chip.computeGrid;
@@ -612,6 +846,29 @@ var _TensixVizBundle = (() => {
       prev[r] = [];
       for (var c = 0; c < W; c++) prev[r][c] = 0;
     }
+    var _kd = {
+      list: [{
+        c: Math.floor((W - 4) / 2),
+        // center a 4×3 seed kernel
+        r: Math.floor((H - 3) / 2),
+        w: 4,
+        h: 3,
+        age: 12,
+        // already propagated, mid-life bright
+        maxAge: 40,
+        seed: 37
+      }],
+      nextDispatch: 1
+      // dispatch another kernel on the first frame
+    };
+    var _mem = {
+      phase: 0,
+      // continuously incrementing phase counter
+      burstPhase: 0,
+      // fractional phase within a burst cycle (0–1)
+      kdGlow: 0
+      // current DRAM glow for kernel_dispatch (decays per frame)
+    };
     var MODES = {
       idle: function(c2, r2) {
         return Math.min(1, prev[r2][c2] * 0.9 + (Math.random() < 0.03 ? Math.random() * 0.35 : 0));
@@ -654,14 +911,81 @@ var _TensixVizBundle = (() => {
         var w2 = Math.max(0, 1 - Math.abs(c2 - (t * speed + 0.33) % 1 * W) / 2) * 0.85;
         var w3 = Math.max(0, 1 - Math.abs(c2 - (t * speed + 0.66) % 1 * W) / 2) * 0.85;
         return Math.max(w1, w2, w3);
+      },
+      kernel_dispatch: function(c2, r2) {
+        if (c2 === 0 && r2 === 0) {
+          for (var i = _kd.list.length - 1; i >= 0; i--) {
+            _kd.list[i].age++;
+            if (_kd.list[i].age >= _kd.list[i].maxAge) _kd.list.splice(i, 1);
+          }
+          if (--_kd.nextDispatch <= 0) {
+            var kw = 1 + Math.floor(Math.random() * Math.min(8, W - 1));
+            var kh = 1 + Math.floor(Math.random() * Math.min(6, H - 1));
+            var kc = Math.floor(Math.random() * (W - kw));
+            var kr = Math.floor(Math.random() * (H - kh));
+            _kd.list.push({
+              c: kc,
+              r: kr,
+              w: kw,
+              h: kh,
+              age: 0,
+              maxAge: 38 + Math.floor(Math.random() * 50),
+              seed: Math.random() * 100
+            });
+            if (Math.random() < 0.4) {
+              kw = 1 + Math.floor(Math.random() * Math.min(6, W - 1));
+              kh = 1 + Math.floor(Math.random() * Math.min(4, H - 1));
+              kc = Math.floor(Math.random() * (W - kw));
+              kr = Math.floor(Math.random() * (H - kh));
+              _kd.list.push({
+                c: kc,
+                r: kr,
+                w: kw,
+                h: kh,
+                age: 0,
+                maxAge: 38 + Math.floor(Math.random() * 50),
+                seed: Math.random() * 100
+              });
+            }
+            _kd.nextDispatch = 18 + Math.floor(Math.random() * 28);
+          }
+        }
+        var val = 0;
+        for (var i = 0; i < _kd.list.length; i++) {
+          var k = _kd.list[i];
+          if (c2 < k.c || c2 >= k.c + k.w || r2 < k.r || r2 >= k.r + k.h) continue;
+          var dist = c2 - k.c + (r2 - k.r);
+          var effectiveAge = k.age - dist * 1.5;
+          if (effectiveAge < 0) continue;
+          var fadeIn = Math.min(1, effectiveAge / 4);
+          var fadeOut = Math.min(1, (k.maxAge - k.age) / 10);
+          var noise = 0.72 + 0.28 * Math.sin(c2 * 7.3 + r2 * 4.1 + k.seed + t * 6);
+          val = Math.max(val, fadeIn * fadeOut * noise * 0.88);
+        }
+        return val;
       }
     };
     var fn = MODES[mode];
     if (!fn) throw new Error('Unknown animation mode: "' + mode + '"');
     self._running = true;
+    if (self._showMemory) {
+      self._memPhase = _mem;
+    }
     function tick() {
       if (self._animGen !== gen) return;
       t += 0.012;
+      if (self._showMemory) {
+        _mem.phase += 0.012;
+        var preset = MEM_PRESETS[mode] || MEM_PRESETS.idle;
+        if (preset.burst && preset.burstHz !== "kd") {
+          _mem.burstPhase = (_mem.burstPhase + preset.burstHz * 0.012) % 1;
+        }
+        if (preset.burstHz === "kd") {
+          var kdActive = _kd.list.length > 0 ? 1 : 0;
+          _mem.kdGlow = _mem.kdGlow * 0.92 + kdActive * 0.08;
+        }
+        self._memPhase = _mem;
+      }
       var next = [];
       var hmap = [];
       for (var r2 = 0; r2 < H; r2++) {
@@ -708,13 +1032,14 @@ var _TensixVizBundle = (() => {
       ctx.font = "bold 11px sans-serif";
       const w = ctx.measureText(text).width + pad * 2;
       const h = 18;
-      ctx.fillStyle = "rgba(15,42,53,0.88)";
-      ctx.strokeStyle = THEME.teal;
+      const T = this._theme;
+      ctx.fillStyle = T.floatLabelBg;
+      ctx.strokeStyle = T.teal;
       ctx.lineWidth = 1;
       this._roundRect(ctx, cx - w / 2, cy - h / 2, w, h, 4);
       ctx.fill();
       ctx.stroke();
-      ctx.fillStyle = THEME.tealLight;
+      ctx.fillStyle = T.floatLabelFg;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(text, cx, cy);
@@ -1062,7 +1387,9 @@ var _TensixVizBundle = (() => {
       wrapper.appendChild(label);
       container.appendChild(wrapper);
       self._cardEls.push(wrapper);
-      const card = new CardViz(wrapper, cardName);
+      const cardContainer = document.createElement("div");
+      wrapper.appendChild(cardContainer);
+      const card = new CardViz(cardContainer, cardName);
       self._cards.push(card);
       if (i < topo.cards.length - 1 && topo.inter_links && topo.inter_links.length) {
         const link = document.createElement("div");
