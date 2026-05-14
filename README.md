@@ -48,29 +48,7 @@ Access at: http://localhost:8080 (password: `demo`)
 
 ### Deploy to Cloud with Real Hardware
 
-Get access to Tenstorrent N300 hardware in 60 seconds:
-
-```bash
-# Install Koyeb CLI
-curl -fsSL https://cli.koyeb.com/install.sh | sh
-
-# Login
-koyeb login
-
-# Deploy
-koyeb services create vscode \
-  --app tt-vscode-toolkit \
-  --docker ghcr.io/tenstorrent/tt-vscode-toolkit:latest \
-  --ports 8080:http \
-  --routes /:8080 \
-  --env PASSWORD=yourpass \
-  --env MESH_DEVICE=N300 \
-  --regions na \
-  --instance-type gpu-tenstorrent-n300s \
-  --privileged
-```
-
-See [Deploy to Koyeb](./content/lessons/deploy-vscode-to-koyeb.md) lesson for details.
+→ See the [Deploy to Koyeb lesson](./content/lessons/deploy-vscode-to-koyeb.md) for step-by-step instructions deploying to Tenstorrent N300 hardware on Koyeb.
 
 ---
 
@@ -107,6 +85,10 @@ code --install-extension Tenstorrent.tt-vscode-toolkit
 Or search **"TT Developer Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`) (`tt-vscode-toolkit`).
 
 → [Open in VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
+
+**Other install options:**
+- **[Open VSX Registry](https://open-vsx.org/extension/Tenstorrent/tt-vscode-toolkit)** — for VSCodium, Gitpod, and code-server
+- **[Browse lessons without installing](https://docs.tenstorrent.com/tt-vscode-toolkit/)** — microsite with all lesson content
 
 #### Option 2: Install from VSIX Package
 
