@@ -1126,6 +1126,47 @@ hey -n 100 -c 10 -m POST \
 
 ---
 
+### Q: How can I visualize my hardware usage?
+
+**A:** Four layers of observability, from quick to deep:
+
+**1. tt-smi — live telemetry**
+```bash
+tt-smi          # interactive TUI with chip temp, DRAM usage, firmware version
+tt-smi -s       # structured JSON snapshot (scriptable)
+watch -n 1 tt-smi -s | python3 -c "import sys,json; d=json.load(sys.stdin); print(d)"
+```
+
+**2. [tt-toplike](https://docs.tenstorrent.com/tt-toplike/) — htop-style real-time view**
+
+An htop-inspired Rust TUI that shows per-chip utilization, process list, temperature, and power draw in real time. Install via `pip install tt-toplike` or the system package.
+
+```bash
+tt-toplike
+```
+
+**3. [ttnn-visualizer](https://github.com/tenstorrent/ttnn-visualizer) — model execution analysis**
+
+A web-based tool that loads a tt-metal performance trace and renders interactive graphs: operation timelines, memory usage over time, tensor shapes, buffer allocation maps, and the full operation flow graph. Run after a profiled inference pass to understand exactly where time is spent.
+
+**4. tensix-viz — chip topology education**
+
+An interactive JavaScript canvas visualizer showing the actual Tensix grid layout — which cores are compute vs DRAM vs ETH — and animating what different workload types look like. Useful for building the mental model before you profile.
+
+```tensix_viz arch=blackhole
+[
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[9,1],[10,1],[11,1],[12,1],[13,1],[14,1],[15,1],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2],[15,2],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[9,3],[10,3],[11,3],[12,3],[13,3],[14,3],[15,3],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[9,5],[10,5],[11,5],[12,5],[13,5],[14,5],[15,5],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[15,6],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[9,7],[10,7],[11,7],[12,7],[13,7],[14,7],[15,7],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[1,9],[2,9],[3,9],[4,9],[5,9],[6,9],[7,9],[9,9],[10,9],[11,9],[12,9],[13,9],[14,9],[15,9],[1,10],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10],[9,10],[10,10],[11,10],[12,10],[13,10],[14,10],[15,10]], "color": "tensixActive", "label": "Inference: all 140 cores active", "ms": 900 },
+  { "step": "pause", "ms": 600 },
+  { "step": "clear" },
+  { "step": "pause", "ms": 300 },
+  { "step": "highlight", "cores": [[1,1],[3,1],[5,1],[7,1],[9,1],[11,1],[13,1],[15,1],[2,3],[4,3],[6,3],[8,3],[10,3],[12,3],[14,3],[1,5],[3,5],[5,5],[7,5],[9,5],[11,5],[13,5],[15,5],[2,7],[4,7],[6,7],[8,7],[10,7],[12,7],[14,7],[1,9],[3,9],[5,9],[7,9],[9,9],[11,9],[13,9],[15,9]], "color": "pink", "label": "Thinking: sparse activation, high L1 reuse", "ms": 900 },
+  { "step": "pause", "ms": 600 },
+  { "step": "clear" }
+]
+```
+
+---
+
 ## Community & Support
 
 ### Q: Where can I get help?
