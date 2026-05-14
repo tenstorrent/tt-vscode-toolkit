@@ -470,6 +470,16 @@ export TT_METAL_ARCH_NAME=blackhole
 - Llama-3.1-8B: ~16GB (tight on N150, comfortable on P100/N300+)
 - Llama-3.1-70B: ~140GB (requires T3K or P150 x4+)
 
+The two chips have different grid shapes — Wormhole (left) has 80 Tensix compute cores, Blackhole (right) has 140:
+
+```tensix_viz arch=wormhole
+[]
+```
+
+```tensix_viz arch=blackhole
+[]
+```
+
 ### Q: What if I get "ImportError: cannot import name 'ttnn'"?
 **A:** You're not in the tt-metal Python environment.
 
@@ -595,6 +605,16 @@ tt-smi -s  # Verify hardware detected
 # "No space left on device"
 df -h ~  # Check disk space, delete old models
 ```
+
+---
+
+## 🌐 Ecosystem Resources
+
+Beyond the lessons, the Tenstorrent ecosystem has tools worth knowing about:
+
+- **[tt-awesome](https://docs.tenstorrent.com/tt-awesome)** — curated directory of community and official tools, models, research, and guides. Good starting point for exploring what's been built.
+- **[tt-toplike](https://docs.tenstorrent.com/tt-toplike/)** — htop-style real-time hardware monitor written in Rust. Shows per-chip utilization, temperature, and process info.
+- **[ttnn-visualizer](https://github.com/tenstorrent/ttnn-visualizer)** — interactive graphs of model execution on hardware: memory plots, tensor details, operation flow graphs.
 
 ---
 
