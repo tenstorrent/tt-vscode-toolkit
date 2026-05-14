@@ -1,3 +1,5 @@
+> **Note:** This document was written before the v0.2.0 rewrite. `generate_with_sd35.py` has been removed. See README.md for the current implementation.
+
 # Option A: Minimal tt-metal Modification (Optional Performance Enhancement)
 
 This document describes an optional modification to `tt-metal` that provides a cleaner integration with AnimateDiff. **This modification is NOT required** - the standalone wrapper in `examples/generate_with_sd35.py` works without it.
