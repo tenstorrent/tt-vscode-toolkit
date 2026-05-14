@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.439] - 2026-05-14
+
+### Added
+
+- **WH/BH chip viz in step-zero.md** — Added Wormhole and Blackhole idle chip visualizations to the Step Zero lesson for an at-a-glance hardware overview.
+- **Ecosystem Resources section in step-zero.md** — New section linking to tt-awesome, tt-toplike, and ttnn-visualizer community resources.
+- **Scripted L1↔DRAM memory movement viz in cs-fundamentals-02-memory.md** — Animated memory-movement visualization added to the memory fundamentals lesson.
+- **Idle BH chip viz in tt-lang-intro.md** — Blackhole idle chip visualization embedded in the TT-Lang intro lesson.
+- **tt-zork-and-more and tt-awesome ecosystem links in tt-lang-intro.md** — Additional community/ecosystem resource links added to the TT-Lang intro.
+- **"How can I visualize my hardware usage?" FAQ entry** — New FAQ entry with a live tensix-viz demo showing real-time hardware utilization.
+- **Open VSX Registry and microsite install links in README.md** — README now includes install buttons/links for the Open VSX Registry and the Tenstorrent microsite.
+
+### Changed
+
+- **tensix-viz updated to latest from tsingletaryTT/tensix-viz main** — Incorporates corrected Wormhole topology, light/dark theme system, and memory visualization improvements.
+- **Koyeb CLI block in README.md collapsed** — Replaced verbose Koyeb CLI installation block with a single reference link for a cleaner README.
+
+---
+
 ## [0.0.438] - 2026-05-08
 
 ### Fixed
