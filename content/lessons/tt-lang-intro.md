@@ -66,6 +66,12 @@ to DRAM. You decide how compute and data movement overlap. That control — used
 well — is where the performance comes from. And giving you clean Python
 abstractions over that control is exactly what tt-lang does.
 
+```tensix_viz arch=blackhole
+[]
+```
+
+*Blackhole chip: 140 Tensix compute cores (teal), DRAM banks (blue edges), ETH links (purple). Wormhole is the same architecture at 80 cores (8×10 grid).*
+
 ---
 
 ## Where tt-lang Fits
@@ -616,3 +622,10 @@ simulator behaves unexpectedly.
 - **[tt-mlir](https://github.com/tenstorrent/tt-mlir)** — the MLIR-based
   compiler stack that tt-lang targets; useful when debugging compiler output
   or writing custom compiler passes
+- **[tt-zork-and-more](https://tsingletaryTT.github.io/tt-zork-and-more)** —
+  Zork I (and more) running on a Tenstorrent Blackhole accelerator, with an LLM
+  remix layer and AI auto-play mode. A proof of what the hardware can do when
+  it's fast enough to run a game and a language model simultaneously.
+- **[tt-awesome](https://docs.tenstorrent.com/tt-awesome/)** — curated directory
+  of Tenstorrent projects, tools, models, and research contributed by the
+  community and the team.
