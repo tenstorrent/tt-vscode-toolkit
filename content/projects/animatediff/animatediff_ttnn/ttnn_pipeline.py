@@ -27,13 +27,13 @@ TT_METAL_PATH = Path.home() / "tt-metal"
 
 def _ensure_tt_metal_path() -> None:
     """Add ~/tt-metal to sys.path so SD demo module imports work."""
+    if not TT_METAL_PATH.exists():
+        raise RuntimeError(
+            f"~/tt-metal not found. Activate the tt-metal environment first:\n"
+            f"  cd ~/tt-metal && source python_env/bin/activate"
+        )
     tt_metal_str = str(TT_METAL_PATH)
     if tt_metal_str not in sys.path:
-        if not TT_METAL_PATH.exists():
-            raise RuntimeError(
-                f"~/tt-metal not found. Activate the tt-metal environment first:\n"
-                f"  cd ~/tt-metal && source python_env/bin/activate"
-            )
         sys.path.insert(0, tt_metal_str)
 
 
@@ -178,7 +178,7 @@ def generate_frames(
         )
 
         # Post-process: TTNN output is (1, 3, H, W) in [-1, 1]
-        img = ttnn.to_torch(output.cpu(blocking=True)).squeeze(0)  # (3, H, W)
+        img = ttnn.to_torch(output).squeeze(0)  # (3, H, W)
         img = (img / 2 + 0.5).clamp(0, 1)
         img = (img.float().permute(1, 2, 0).numpy() * 255).round().astype("uint8")
         frames.append(Image.fromarray(img))
