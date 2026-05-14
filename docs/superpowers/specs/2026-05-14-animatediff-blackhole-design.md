@@ -115,39 +115,61 @@ def generate(pipe, prompt: str, num_frames: int = 16,
 import os
 import torch
 import ttnn
-import sys
-
-SD_L1_SMALL_SIZE = 0x4000  # from Blackhole SD demo
+from models.demos.wormhole.stable_diffusion.common import SD_L1_SMALL_SIZE
+# SD_L1_SMALL_SIZE = 21056 on Blackhole, 20928 on Wormhole (auto-detected)
+from models.demos.wormhole.stable_diffusion.sd_helper_funcs import run, constant_prop_time_embeddings
+from models.demos.wormhole.stable_diffusion.tt.unet_2d_condition_model import UNet2DConditionModel
 
 def setup_blackhole():
     os.environ.setdefault("TT_METAL_ARCH_NAME", "blackhole")
     device = ttnn.open_device(device_id=0, l1_small_size=SD_L1_SMALL_SIZE)
     return device
 
-def generate_frames(device, ttnn_unet, ttnn_vae, config, scheduler,
-                    text_embeddings, num_frames=8, num_inference_steps=25,
+def build_tlist(ttnn_scheduler, device, ttnn_unet, latent_shape):
+    """Build pre-computed time embeddings for each denoising timestep.
+    
+    sd_helper_funcs.run() expects _tlist[i] = constant_prop_time_embeddings(t_i, ...)
+    pre-converted to TTNN bfloat16 tensors, shape permuted for UNet time_proj.
+    """
+    dummy_latents = ttnn.from_torch(
+        torch.zeros(2, *latent_shape[1:]),  # batch=2 for CFG
+        dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device
+    )
+    _tlist = []
+    for t in ttnn_scheduler.timesteps:
+        _t = constant_prop_time_embeddings(t, dummy_latents, ttnn_unet.time_proj)
+        _t = _t.unsqueeze(0).unsqueeze(0)
+        _t = _t.permute(2, 0, 1, 3)  # pre-permute for UNet
+        _t = ttnn.from_torch(_t, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+        _tlist.append(_t)
+    return _tlist
+
+def generate_frames(device, ttnn_unet, ttnn_vae, config, ttnn_scheduler,
+                    ttnn_text_embeddings, num_frames=8, num_inference_steps=25,
                     guidance_scale=7.5, seed=42, height=512, width=512):
-    # Shared base noise for temporal coherence
+    # ttnn_scheduler: TTNN-wrapped LMS/DDIM scheduler (not raw diffusers scheduler)
+    # ttnn_text_embeddings: shape [2, 96, 768] on device (unconditional + conditional, padded to 96 tokens)
+    ttnn_scheduler.set_timesteps(num_inference_steps)
+    _tlist = build_tlist(ttnn_scheduler, device, ttnn_unet, (1, 4, height // 8, width // 8))
+
     generator = torch.Generator().manual_seed(seed)
     base_noise = torch.randn(1, 4, height // 8, width // 8, generator=generator)
 
     frames = []
     for frame_idx in range(num_frames):
-        # Per-frame noise perturbation
         frame_noise = base_noise + 0.05 * torch.randn_like(base_noise)
-        scheduler.set_timesteps(num_inference_steps)
-        latents = frame_noise * scheduler.init_noise_sigma
-
-        # TTNN denoising loop (sd_helper_funcs.run handles CFG batch=2 internally)
-        from models.demos.wormhole.stable_diffusion import sd_helper_funcs
-        output = sd_helper_funcs.run(
+        latents = ttnn.from_torch(
+            frame_noise * ttnn_scheduler.init_noise_sigma,
+            dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device
+        )
+        output = run(
             ttnn_unet, config, ttnn_vae,
             input_latents=latents,
-            input_encoder_hidden_states=text_embeddings,
-            _tlist=_build_tlist(scheduler),
-            time_step=scheduler.timesteps,
+            input_encoder_hidden_states=ttnn_text_embeddings,
+            _tlist=_tlist,
+            time_step=ttnn_scheduler.timesteps.tolist(),
             guidance_scale=guidance_scale,
-            ttnn_scheduler=scheduler,
+            ttnn_scheduler=ttnn_scheduler,
         )
         frames.append(output)
     return frames
