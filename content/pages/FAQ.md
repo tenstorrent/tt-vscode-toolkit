@@ -492,7 +492,7 @@ python3 --version
   - Used by most lessons
 
 - **HuggingFace cache:** `~/.cache/huggingface/hub/`
-  - Automatic when using `huggingface-cli`
+  - Automatic when using `hf download`
   - Takes more disk space (keeps multiple versions)
 
 **Both formats needed for some lessons:**
@@ -527,7 +527,7 @@ python3 --version
 
 **Download command:**
 ```bash
-huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
+hf download meta-llama/Llama-3.1-8B-Instruct \
   --local-dir ~/models/Llama-3.1-8B-Instruct
 ```
 
@@ -538,12 +538,12 @@ huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
 **Option 1: Environment variable (recommended for scripts)**
 ```bash
 export HF_TOKEN=your_token_from_huggingface
-huggingface-cli download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
+hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
 ```
 
 **Option 2: Interactive login (recommended for manual use)**
 ```bash
-huggingface-cli login
+hf auth login
 # Paste your token when prompted
 ```
 
@@ -1022,7 +1022,7 @@ export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
 
 **Slow downloads:**
 - HuggingFace throttles anonymous requests
-- Solution: Login with `huggingface-cli login`
+- Solution: Login with `hf auth login`
 - Consider downloading overnight for large models
 
 **Failing downloads:**
@@ -1031,7 +1031,7 @@ export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
 3. **Check disk space:** `df -h ~`
 4. **Try resuming:**
    ```bash
-   huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
+   hf download meta-llama/Llama-3.1-8B-Instruct \
      --local-dir ~/models/Llama-3.1-8B-Instruct \
      --resume-download
    ```
@@ -1270,7 +1270,7 @@ du -sh ~/models/*                       # Check model sizes
 
 # Environment
 python3 -c "import ttnn; print('✓')"   # Test tt-metal
-which huggingface-cli                   # Check HF CLI
+hf --version                            # Check HF CLI
 
 # vLLM
 source ~/tt-vllm-venv/bin/activate      # Activate venv

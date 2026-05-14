@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.440] - 2026-05-14
+
+### Fixed
+
+- **`hf` CLI migration in step-zero.md and FAQ.md** — Replaced all remaining `huggingface-cli` references with the current `hf` CLI commands (`hf auth login`, `hf download`, `hf --version`) per WH/BH compatibility guidelines.
+
+---
+
 ## [0.0.439] - 2026-05-14
 
 ### Added

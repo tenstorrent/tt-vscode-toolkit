@@ -429,7 +429,7 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
   1. Create HuggingFace account
   2. Request access on model page
   3. Get approved (instant for most)
-  4. Login: `huggingface-cli login`
+  4. Login: `hf auth login`
 
 **Qwen3-0.6B is NOT gated** - start there!
 
