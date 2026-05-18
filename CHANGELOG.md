@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.445] - 2026-05-18
+
+### Fixed
+
+- **tensix-viz `_drawHeatmap` paints non-tensix cells** — Added `coreType` check in both the `maxVal` scan and the fill loop; DRAM and ETH cells within the `computeGrid` range are now skipped so heatmap overlay stays on Tensix compute cores only. Backported to upstream tensix-viz.
+- **tensix-viz `reset()` leaves stale `_memPhase`** — Added `this._memPhase = null` to `reset()` so memory-layer state is fully cleared between modes. Backported to upstream tensix-viz.
+- **FAQ.md Blackhole "Thinking" highlight includes PCIe column** — Removed `[8,3]` and `[8,7]` from the sparse-activation highlight; col 8 is the PCIe column on Blackhole, not a Tensix compute core.
+- **AnimateDiff Phase 1 command uses `python` instead of `python3`** — Fixed `RUN_ANIMATEDIFF_2FRAME` template to use `python3` for compatibility on systems where `python` is absent or points to Python 2.
+- **Stale `generate_with_sd35.py` AnimateDiff command** — Removed `GENERATE_ANIMATEDIFF_VIDEO_SD35` terminal command, `generateAnimateDiffVideoSD35` function, and its `registerCommand` call; the script was deleted earlier and the command was broken.
+- **Stale `openai/clip-vit-large-patch14` download in AnimateDiff docs** — Removed from `generate_blackhole.py` docstring and `README.md` requirements; CLIP loads from the `CompVis/stable-diffusion-v1-4` subfolders and no separate download is needed.
+- **CHANGELOG 0.0.443 referenced stale GIF filenames** — Updated to reflect that the campfire/ocean filenames were superseded by World of Tomorrow / Phosphor Horizon in v0.0.444.
+
+---
+
 ## [0.0.444] - 2026-05-18
 
 ### Changed
@@ -20,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **AnimateDiff validated on Blackhole P300C** — Phase 2 generates 8 frames × 25 denoising steps in ~121 seconds (~15 s/frame) on P300C hardware. Lesson front matter updated with `validatedOn: [p300c]`.
-- **Real Blackhole-generated demo GIFs** — Campfire and ocean animations generated on P300C replace synthetic placeholder GIFs in the lesson and project README. Both added to the install page website gallery under `assets/img/animatediff_campfire.gif` and `assets/img/animatediff_ocean.gif`.
+- **Real Blackhole-generated demo GIFs** — Animations generated on P300C replace synthetic placeholder GIFs in the lesson and project README. Added to the install page website gallery (filenames later updated to `animatediff_world_of_tomorrow.gif` and `animatediff_phosphor_horizon.gif` in v0.0.444).
 - **AnimateDiff lesson rewritten for tt-scratchpad pattern** — `setupAnimateDiffProject` command copies the project to `~/tt-scratchpad/tt-animatediff/`. All lesson commands and paths now reference the scratchpad location. Phase 1 (CPU) and Phase 2 (Blackhole) each have dedicated VSCode command buttons.
 
 ### Changed

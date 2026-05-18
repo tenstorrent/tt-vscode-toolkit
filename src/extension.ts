@@ -3881,18 +3881,6 @@ async function setupAnimateDiffProject(): Promise<void> {
 }
 
 /**
- * Command: tenstorrent.generateAnimateDiffVideoSD35
- * Generates animated video using SD 3.5 + AnimateDiff (gnu cinemagraph)
- */
-async function generateAnimateDiffVideoSD35(): Promise<void> {
-  const terminal = getOrCreateSimpleTerminal();
-  runInTerminal(terminal, TERMINAL_COMMANDS.GENERATE_ANIMATEDIFF_VIDEO_SD35.template);
-  vscode.window.showInformationMessage(
-    '🎬 Generating animated video with SD 3.5 + AnimateDiff! This will take 5-7 minutes on N150...'
-  );
-}
-
-/**
  * Command: tenstorrent.viewAnimateDiffTutorial
  * Opens the comprehensive model bring-up tutorial
  */
@@ -5123,7 +5111,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runAnimateDiff2Frame', runAnimateDiff2Frame),
     vscode.commands.registerCommand('tenstorrent.runAnimateDiff16Frame', runAnimateDiff16Frame),
     vscode.commands.registerCommand('tenstorrent.viewAnimateDiffOutput', viewAnimateDiffOutput),
-    vscode.commands.registerCommand('tenstorrent.generateAnimateDiffVideoSD35', generateAnimateDiffVideoSD35),
     vscode.commands.registerCommand('tenstorrent.viewAnimateDiffTutorial', viewAnimateDiffTutorial),
     vscode.commands.registerCommand('tenstorrent.exploreAnimateDiffPackage', exploreAnimateDiffPackage),
 

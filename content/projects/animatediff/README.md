@@ -63,8 +63,7 @@ frames, not full AnimateDiff temporal attention. Full integration would require 
 
 - Blackhole hardware (P100 or P300c)
 - `~/tt-metal` present, environment activated: `source ~/tt-metal/python_env/bin/activate`
-- `hf download CompVis/stable-diffusion-v1-4` (also used by Phase 1)
-- `hf download openai/clip-vit-large-patch14`
+- `hf download CompVis/stable-diffusion-v1-4` (also used by Phase 1; CLIP loads from this model's subfolders)
 
 ### Run
 

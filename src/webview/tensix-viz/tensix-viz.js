@@ -495,6 +495,7 @@ var _TensixVizBundle = (() => {
     let maxVal = 0;
     for (let row = cg.rowStart; row <= cg.rowEnd; row++) {
       for (let col = cg.colStart; col <= cg.colEnd; col++) {
+        if (chip.coreType(col, row) !== "tensix") continue;
         const v = (this._heatmap[row] || [])[col] || 0;
         if (v > maxVal) maxVal = v;
       }
@@ -502,6 +503,7 @@ var _TensixVizBundle = (() => {
     if (maxVal === 0) return;
     for (let row = cg.rowStart; row <= cg.rowEnd; row++) {
       for (let col = cg.colStart; col <= cg.colEnd; col++) {
+        if (chip.coreType(col, row) !== "tensix") continue;
         const v = ((this._heatmap[row] || [])[col] || 0) / maxVal;
         const r = this._cellRect(col, row);
         const color = this._heatColor(v, this._theme);
@@ -601,6 +603,7 @@ var _TensixVizBundle = (() => {
     this._labels = {};
     this._floatLabelData = null;
     this._memOverride = null;
+    this._memPhase = null;
     this._currentMode = null;
     this._scriptQueue = [];
     this._resolveStep = null;

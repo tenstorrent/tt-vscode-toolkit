@@ -9,7 +9,7 @@ Requirements:
     - ~/tt-metal present: cd ~/tt-metal && source python_env/bin/activate
     - Blackhole hardware (P100 or P300c)
     - SD 1.4 model cached: hf download CompVis/stable-diffusion-v1-4
-    - CLIP tokenizer: hf download openai/clip-vit-large-patch14
+      (CLIP tokenizer and text encoder load from the SD 1.4 subfolders — no separate download needed)
 
 Usage:
     python examples/generate_blackhole.py

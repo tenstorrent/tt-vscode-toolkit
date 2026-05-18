@@ -637,7 +637,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_ANIMATEDIFF_2FRAME: {
     id: 'run-animatediff-phase1',
     name: 'Run Phase 1 — CPU AnimateDiffPipeline',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python examples/generate_baseline.py --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
+    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_baseline.py --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate animated frames on CPU using diffusers AnimateDiffPipeline with MotionAdapter',
   },
 
@@ -661,13 +661,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'mkdir -p ~/tt-scratchpad/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-scratchpad/tt-animatediff/ && cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-scratchpad/tt-animatediff/\')"',
     description: 'Copies AnimateDiff project from extension to ~/tt-scratchpad/tt-animatediff and installs it',
     variables: ['projectPath'],
-  },
-
-  GENERATE_ANIMATEDIFF_VIDEO_SD35: {
-    id: 'generate-animatediff-video-sd35',
-    name: 'Generate Animated Video with SD 3.5',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_with_sd35.py 2>&1 | grep -v "DEBUG\\|Config{"',
-    description: 'Generate animated video using SD 3.5 + AnimateDiff temporal attention (GNU cinemagraph)',
   },
 
   // ========================================
