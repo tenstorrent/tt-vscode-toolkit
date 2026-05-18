@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.441] - 2026-05-18
+
+### Changed
+
+- **tt-lang lesson: pip install path** — Replaced the Docker/build-from-source installation path with `pip install tt-lang tt-lang-setup` as the primary recommended setup. Added a "Install the Claude Code slash commands" subsection documenting the one-time `claude-slash-commands/install.sh` installer. Demoted the ttsim path to a secondary option for users who already have tt-metal built. Updated all mentions of "TT Developer Toolkit ships the slash commands" to reflect that they ship with the `tt-lang` pip package directly.
+
+---
+
 ## [0.0.440] - 2026-05-14
 
 ### Fixed
