@@ -88,67 +88,59 @@ Frames attend across each other at every denoising step — motion is baked in, 
 
 ---
 
-## Architecture of the standalone package
+## Step 1: Deploy the project to your scratchpad
 
-The AnimateDiff integration lives in `content/projects/animatediff/` — a standalone Python package that imports TT-Metal without modifying it:
+The AnimateDiff package is bundled with the extension. This copies it to `~/tt-scratchpad/tt-animatediff/` and installs it as an editable Python package:
+
+[📦 Setup AnimateDiff Project](command:tenstorrent.setupAnimateDiffProject)
+
+**What this does:**
+- Copies `animatediff_ttnn/`, `examples/`, `setup.py` to `~/tt-scratchpad/tt-animatediff/`
+- Runs `pip install -e .` — your editable copy, ready to modify
+
+**Project structure you'll have:**
 
 ```
-content/projects/animatediff/
+~/tt-scratchpad/tt-animatediff/
 ├── animatediff_ttnn/
-│   ├── __init__.py
 │   ├── pipeline.py           # Phase 1: CPU AnimateDiffPipeline wrapper
 │   └── ttnn_pipeline.py      # Phase 2: Blackhole TTNN UNet + PNDM scheduler
 ├── examples/
 │   ├── generate_baseline.py  # Phase 1 (CPU, any hardware)
 │   └── generate_blackhole.py # Phase 2 (Blackhole hardware)
-├── docs/assets/              # Demo GIFs
-├── setup.py
-└── requirements.txt
+├── output/                   # Generated GIFs land here
+└── setup.py
 ```
-
-This is how professional AI applications are built: **your code lives outside tt-metal, uses it as a dependency, and can be versioned and deployed independently.**
 
 ---
 
-## Setup
-
-### Requirements
-
-- `CompVis/stable-diffusion-v1-4` cached locally
-- For Phase 1 only: `guoyww/animatediff-motion-adapter-v1-5-2` cached locally
-- For Phase 2: Blackhole hardware (P100/P150/P300C/QB2) + `~/tt-metal` built
-
-### Download models
+## Step 2: Download the models
 
 ```bash
-# SD 1.4 (required for both phases)
+# SD 1.4 — required for both phases
 hf download CompVis/stable-diffusion-v1-4
 
-# AnimateDiff motion adapter (Phase 1 only)
+# AnimateDiff motion adapter — Phase 1 only
 hf download guoyww/animatediff-motion-adapter-v1-5-2
 ```
 
-### Install the package
-
-```bash
-cd content/projects/animatediff
-pip install -e .
-```
-
 ---
 
-## Phase 1: CPU AnimateDiffPipeline
+## Step 3: Phase 1 — CPU AnimateDiffPipeline
 
-The `diffusers` `AnimateDiffPipeline` loads SD 1.4, injects the MotionAdapter at every transformer block, and denoise ALL frames simultaneously with temporal attention. This gives true frame-to-frame coherence from the latent-space denoising.
+The `diffusers` `AnimateDiffPipeline` loads SD 1.4, injects the MotionAdapter at every transformer block, and denoises ALL frames simultaneously with temporal attention. This gives true frame-to-frame coherence from the latent-space denoising.
 
-```bash
-cd content/projects/animatediff
-python examples/generate_baseline.py \
-    --prompt "a campfire with crackling flames, cinematic" \
-    --frames 8 \
-    --steps 25 \
-    --output output/phase1.gif
+[🎬 Run Phase 1 (CPU)](command:tenstorrent.runAnimateDiff2Frame)
+
+**Expected output** (`output/phase1.gif`):
+
 ```
+Loading pipeline...
+Generating frames: 100%|██████████| 25/25
+Saved 8 frames → output/phase1.gif
+```
+
+**Performance:** ~2 min/frame on CPU, ~12–21 s/frame on N150/N300.
 
 **What happens inside:**
 
@@ -159,143 +151,102 @@ adapter = MotionAdapter.from_pretrained("guoyww/animatediff-motion-adapter-v1-5-
 pipe = AnimateDiffPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", motion_adapter=adapter)
 
 # All 8 frames denoised together — temporal attention at every step
-result = pipe(
-    prompt=prompt,
-    num_frames=8,
-    num_inference_steps=25,
-    generator=torch.Generator().manual_seed(42),
-)
+result = pipe(prompt=prompt, num_frames=8, num_inference_steps=25)
 frames = result.frames[0]  # List of PIL Images
 ```
 
-**Performance:**
-- N150/N300: ~12–21 s/frame (first frame includes model compilation)
-- CPU: ~2 min/frame
+Or run it directly from your scratchpad with custom prompts:
+
+```bash
+cd ~/tt-scratchpad/tt-animatediff
+python examples/generate_baseline.py \
+    --prompt "ocean waves crashing on shore, cinematic" \
+    --frames 8 --steps 25 --output output/ocean_cpu.gif
+```
 
 ---
 
-## Phase 2: Blackhole TTNN UNet
+## Step 4: Phase 2 — Blackhole TTNN UNet
 
-Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/`. The denoising loop runs on Blackhole; latents are decoded with the CPU PyTorch VAE (the TTNN VAE OOMs on Blackhole's final `conv_out` due to a L1 grid mismatch in the Wormhole-targeted kernel).
+Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/`. The denoising loop runs on Blackhole; latents are decoded with the CPU PyTorch VAE (the TTNN VAE OOMs on Blackhole's final `conv_out` due to a L1 grid mismatch in the Wormhole-targeted kernel — see Known Limitations below).
 
-### Prerequisites
+**Requires:** Blackhole hardware (P100/P150/P300C/QB2) and `~/tt-metal` built.
 
-```bash
-# Build tt-metal if not already done (or activate existing build)
-cd ~/tt-metal && source python_env/bin/activate
+[⚡ Run Phase 2 (Blackhole)](command:tenstorrent.runAnimateDiff16Frame)
 
-# Required env vars
-export TT_METAL_HOME=~/tt-metal
-export TT_METAL_ARCH_NAME=blackhole   # Required for P-series hardware
-```
-
-### Run
-
-```bash
-cd content/projects/animatediff
-python examples/generate_blackhole.py \
-    --prompt "a campfire with crackling flames, cinematic, 4K" \
-    --frames 8 \
-    --steps 25 \
-    --output output/blackhole.gif
-```
-
-**Expected output:**
+**Expected output** (`output/blackhole.gif`):
 
 ```
 AnimateDiff Phase 2 — Blackhole TTNN UNet
-  TT_METAL_ARCH_NAME=blackhole
   Prompt    : a campfire with crackling flames, cinematic, 4K
-  Frames    : 8  Steps: 25  Seed: 42
+  Frames    : 8  Steps: 25
 
 Opening Blackhole device...
-
 Loading SD 1.4 models onto Blackhole...
-  Loading PyTorch VAE (used for CPU decode)...
-  Loading PyTorch UNet (for config and time_proj)...
-  Building TTNN UNet (compiles kernels, ~2-3 min first run)...
   Models loaded in 7.3s
-
 Encoding prompts with CLIP...
-  Embeddings shape: torch.Size([2, 96, 768])
-
 Generating 8 frames on Blackhole...
   Frame 1/8 done
-  Frame 2/8 done
   ...
   Frame 8/8 done
   Generated in 121.0s (15.1s/frame)
-
-Device closed.
-
 Saved 8 frames -> output/blackhole.gif
 ```
 
-**Performance on P300C:**
-- Kernel compilation: ~2–3 min (first run only; cached after)
-- Subsequent runs: 7s model load + ~15s/frame
-- 8 frames × 25 steps: ~121 seconds
+**Performance on P300C:** 7s model load + ~15s/frame. Kernel compilation ~2–3 min on first run (cached after).
 
-### How Phase 2 works
+Or run directly with custom prompts:
 
-The key files:
+```bash
+cd ~/tt-metal && source python_env/bin/activate
+export TT_METAL_HOME=~/tt-metal TT_METAL_ARCH_NAME=blackhole
+cd ~/tt-scratchpad/tt-animatediff
+python examples/generate_blackhole.py \
+    --prompt "your prompt here" --frames 8 --steps 25
+```
 
-**`animatediff_ttnn/ttnn_pipeline.py`** — core pipeline:
+---
+
+## Step 5: View your output
+
+[📁 View Output Files](command:tenstorrent.viewAnimateDiffOutput)
+
+GIFs are in `~/tt-scratchpad/tt-animatediff/output/`. Open them in any image viewer or browser.
+
+---
+
+## How Phase 2 works
+
+**`animatediff_ttnn/ttnn_pipeline.py`** — the Blackhole pipeline:
 
 ```python
 def generate_frames(device, ttnn_model, torch_vae, config, ttnn_scheduler, ...):
-    # Reset PNDM scheduler state before each frame
-    ttnn_scheduler.set_timesteps(num_steps)
-    _tlist = build_tlist(ttnn_scheduler, torch_time_proj, device)
-
-    # Shared base noise — source of inter-frame coherence
-    base_noise = torch.randn(1, 4, 64, 64, generator=generator)
-
     for frame_idx in range(num_frames):
-        # Per-frame perturbation: related but distinct
+        # Reset PNDM scheduler state (counter, ets buffer) before each frame
+        ttnn_scheduler.set_timesteps(num_steps)
+
+        # Shared base noise + small per-frame perturbation = inter-frame coherence
         frame_noise = base_noise + 0.05 * torch.randn_like(base_noise)
         ttnn_latents = ttnn.from_torch(frame_noise, ...)
 
-        # Full PNDM denoising loop — runs on Blackhole
+        # Full PNDM denoising loop — runs on Blackhole TTNN
         for index in range(len(time_step)):
             latent_input = ttnn.concat([ttnn_latents, ttnn_latents], dim=0)  # CFG
             noise_pred = ttnn_model(latent_input, timestep=_tlist[index], ...)
             noise_pred = tt_guide(noise_pred, guidance_scale)
             ttnn_latents = ttnn_scheduler.step(noise_pred, t, ttnn_latents).prev_sample
 
-        # Decode with PyTorch VAE (TTNN VAE OOMs on Blackhole conv_out)
+        # Decode with PyTorch VAE on CPU (TTNN VAE OOMs on Blackhole conv_out)
         latents_cpu = ttnn.to_torch(ttnn_latents).float() / 0.18215
         decoded = torch_vae.decode(latents_cpu).sample
 ```
 
-**`examples/generate_blackhole.py`** — entry point:
+**CLIP encoding** uses the text encoder bundled inside SD 1.4 — no separate model download:
 
 ```python
-def load_sd14_ttnn(device):
-    # PyTorch VAE for CPU decode
-    torch_vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae")
-
-    # PyTorch UNet for config/time_proj only — actual inference uses TTNN UNet
-    torch_unet = UNet2DConditionModel.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="unet")
-
-    # TTNN UNet: preprocesses weights, compiles kernels to Blackhole (~2–3 min first run)
-    parameters = preprocess_model_parameters(initialize_model=lambda: torch_unet, ...)
-    ttnn_model = UNet2D(device, parameters, 2, 64, 64)
-
-    return ttnn_model, torch_vae, torch_unet.config, ttnn_scheduler, torch_unet.time_proj
-```
-
-### CLIP encoding
-
-Text embeddings come from the CLIP encoder bundled inside SD 1.4 — no separate download:
-
-```python
-# Both tokenizer and text_encoder live in the SD 1.4 HF cache
 tokenizer = CLIPTokenizer.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="tokenizer")
 text_encoder = CLIPTextModel.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="text_encoder")
-
 # Pad 77 → 96 tokens: TTNN UNet expects 96-token sequences
-embeds = text_encoder(tokens.input_ids)[0]
 embeds = torch.nn.functional.pad(embeds, (0, 0, 0, 19))  # (1, 96, 768)
 ```
 
@@ -307,12 +258,12 @@ SD 1.4 responds well to photography-style prompts:
 
 | Goal | Prompt |
 |------|--------|
-| Photorealistic scene | `"a campfire with crackling flames, cinematic, 4K"` |
+| Photorealistic fire | `"a campfire with crackling flames, cinematic, 4K"` |
 | Ocean | `"ocean waves crashing on shore, aerial view, cinematic"` |
 | Night sky | `"starry night sky over mountains, long exposure, 4K"` |
 | Abstract | `"colorful aurora borealis, northern lights, long exposure"` |
 
-**Frame coherence tuning:** The `0.05` noise perturbation in `generate_frames()` controls how much frames vary. Increase it (e.g., `0.15`) for more motion, decrease (e.g., `0.01`) for nearly identical frames.
+**Tuning coherence:** The `0.05` noise perturbation in `ttnn_pipeline.py` controls frame variation. Edit `~/tt-scratchpad/tt-animatediff/animatediff_ttnn/ttnn_pipeline.py` to adjust — higher values give more frame-to-frame motion.
 
 ---
 
@@ -327,29 +278,29 @@ What this project demonstrates is **the complete workflow for integrating any ne
 4. Document key patterns: reshaping logic, injection points, weight keys
 
 ### Phase 2: Design (30–60 min)
-1. Choose standalone vs integrated approach — standalone wins for maintainability
-2. Create project structure outside `~/tt-metal/`
-3. Define the API surface (what does a user need to call?)
-4. Identify the integration boundary with TT-Metal
+1. Choose standalone vs integrated approach — **standalone wins for maintainability**
+2. Create project structure outside `~/tt-metal/` (your code, your ownership)
+3. Define the API surface
+4. Identify the TT-Metal integration boundary
 
 ### Phase 3: Implementation (2–4 hours)
 1. Start with PyTorch — easier to debug, matches reference
-2. Implement the core module first (`temporal_module.py`)
-3. Build the high-level wrapper second (`pipeline.py`)
-4. Add the TTNN path last, when PyTorch is validated
+2. Implement the core module first
+3. Build the high-level wrapper second
+4. Add the TTNN path last, after PyTorch is validated
 
 ### Phase 4: Packaging (1 hour)
-1. `setup.py` + `requirements.txt` makes it `pip install -e .`-able
-2. Example scripts show users exactly how to run it
-3. README documents what works and what doesn't (honesty about tradeoffs)
+- `setup.py` + `requirements.txt` makes it `pip install -e .`-able
+- Example scripts show exactly how to run it
+- README documents what works and what doesn't
 
 ### Phase 5: Validate on hardware (1–2 hours)
-1. First run: expect kernel compilation to take 2–3 minutes — that's normal
-2. Check UNet output shapes match expected latent dimensions
-3. Verify VAE decode produces recognizable images
+1. First run: expect kernel compilation ~2–3 min — that's normal
+2. Verify output shapes match expected latent dimensions
+3. Check VAE decode produces recognizable images
 4. Benchmark: frames/second, memory usage
 
-**Total for a complete new model: 6–10 hours.** This is the foundation of real-world AI development on Tenstorrent hardware.
+**Total for a complete new model: 6–10 hours.** This is the path from demos to real applications.
 
 ---
 
@@ -366,19 +317,15 @@ What this project demonstrates is **the complete workflow for integrating any ne
 
 ## What's next
 
-### Integrate with tt-local-generator
-
-The `artgen` framework at `~/code/tt-local-generator/app/artgen/` can wrap Phase 2 into a GUI-accessible generator. The entry point would be `generators/animated.py` following the `ArtGenerator` protocol.
-
 ### Add temporal attention to the TTNN UNet
 
-Full Phase 2 would inject `TemporalTransformer` blocks into the TTNN UNet's `BasicTransformerBlock` instances — the same injection pattern as Phase 1's MotionAdapter, but implemented in TTNN ops. This would eliminate the shared-noise coherence workaround.
+Full Phase 2 would inject `TemporalTransformer` blocks into the TTNN UNet's `BasicTransformerBlock` instances — the same injection pattern as Phase 1's MotionAdapter, but in TTNN ops. This would bring true AnimateDiff temporal coherence to Blackhole-accelerated generation.
 
-### Apply this to other models
+### Apply this pattern to other models
 
-This standalone package pattern works for any model:
+The standalone package pattern works for any model:
 - **ControlNet** — conditioning inputs for SD 1.4
-- **LoRA** — weight delta injection into SD UNet
+- **LoRA** — weight delta injection into the SD UNet
 - **IP-Adapter** — image-conditioned generation
 - **Any PyTorch model** — wrap it, validate on CPU, port to TTNN
 

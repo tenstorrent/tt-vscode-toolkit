@@ -635,24 +635,24 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   RUN_ANIMATEDIFF_2FRAME: {
-    id: 'run-animatediff-2frame',
-    name: 'Run 2-Frame Demo',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_2frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
-    description: 'Test temporal attention with minimal 2-frame sequence',
+    id: 'run-animatediff-phase1',
+    name: 'Run Phase 1 — CPU AnimateDiffPipeline',
+    template: 'cd ~/tt-scratchpad/tt-animatediff && python examples/generate_baseline.py --prompt "a campfire with crackling flames, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
+    description: 'Generate animated frames on CPU using diffusers AnimateDiffPipeline with MotionAdapter',
   },
 
   RUN_ANIMATEDIFF_16FRAME: {
-    id: 'run-animatediff-16frame',
-    name: 'Run 16-Frame Demo',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_16frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
-    description: 'Generate full 16-frame animated sequence with temporal coherence',
+    id: 'run-animatediff-phase2',
+    name: 'Run Phase 2 — Blackhole TTNN UNet',
+    template: 'cd ~/tt-metal && source python_env/bin/activate && export TT_METAL_HOME=~/tt-metal TT_METAL_ARCH_NAME=blackhole && cd ~/tt-scratchpad/tt-animatediff && python examples/generate_blackhole.py --prompt "a campfire with crackling flames, cinematic, 4K" --frames 8 --steps 25 --output output/blackhole.gif 2>&1 | grep -v "DEBUG\\|Config{" | grep -v "^2026\\|UMD\\|warning"',
+    description: 'Generate frames using TTNN UNet on Blackhole hardware (P100/P300C/QB2)',
   },
 
   VIEW_ANIMATEDIFF_OUTPUT: {
     id: 'view-animatediff-output',
-    name: 'View Generated Animation',
-    template: 'ls -lh ~/tt-scratchpad/tt-animatediff/output/test_16frame.gif && echo "\n✓ Animation generated: ~/tt-scratchpad/tt-animatediff/output/test_16frame.gif"',
-    description: 'View the generated 16-frame animation file',
+    name: 'View Generated Frames',
+    template: 'ls -lh ~/tt-scratchpad/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2 first"',
+    description: 'List generated GIF files in the output directory',
   },
 
   SETUP_ANIMATEDIFF_PROJECT: {
