@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.448] - 2026-05-18
+
+### Fixed
+
+- **AnimateDiff lesson demo GIFs broken on docs subdirectory** — Changed image paths from relative `../projects/animatediff/docs/assets/demo_*.gif` to absolute `/assets/img/animatediff_*.gif` so they resolve correctly at the `/animatediff-video-generation/` URL depth.
+
+---
+
 ## [0.0.447] - 2026-05-18
 
 ### Fixed
