@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.444] - 2026-05-18
+
+### Changed
+
+- **AnimateDiff demo GIFs replaced with tt-local-generator-inspired prompts** — Campfire and ocean placeholder prompts replaced with "World of Tomorrow" (1939 World's Fair imagined from 2099, art deco spires at golden dusk) and "Phosphor Horizon" (purple phosphor glow across mountains at 2am, retro CRT haze). All collateral updated: lesson table, project README, install page gallery, terminal commands, and `generate_blackhole.py` default prompt.
+
+---
+
 ## [0.0.443] - 2026-05-18
 
 ### Added

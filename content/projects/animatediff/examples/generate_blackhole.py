@@ -108,7 +108,7 @@ def encode_prompt(prompt: str, negative_prompt: str = "") -> torch.Tensor:
 
 def main():
     parser = argparse.ArgumentParser(description="AnimateDiff Phase 2 — Blackhole TTNN")
-    parser.add_argument("--prompt", default="a campfire with crackling flames, cinematic, 4K")
+    parser.add_argument("--prompt", default="1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K")
     parser.add_argument("--negative-prompt", default="blurry, low quality", dest="negative_prompt")
     parser.add_argument("--frames", type=int, default=8, help="Number of frames (8 recommended)")
     parser.add_argument("--steps", type=int, default=25, help="Denoising steps (min 4 for PNDM)")

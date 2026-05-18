@@ -4,9 +4,9 @@ Two-phase implementation: **Phase 1** generates real, temporally coherent video
 on CPU using the correct AnimateDiff architecture. **Phase 2** accelerates spatial
 denoising on Blackhole hardware using the TTNN UNet.
 
-| *"a campfire with crackling flames"* | *"ocean waves, cinematic"* |
+| *"World of Tomorrow"* | *"Phosphor Horizon"* |
 |---|---|
-| ![campfire](docs/assets/demo_campfire.gif) | ![ocean](docs/assets/demo_ocean.gif) |
+| ![world of tomorrow](docs/assets/demo_world_of_tomorrow.gif) | ![phosphor horizon](docs/assets/demo_phosphor_horizon.gif) |
 
 Both GIFs generated on **Blackhole (P300C)** — 8 frames × 25 denoising steps, ~15 s/frame.
 
@@ -42,7 +42,7 @@ hf download guoyww/animatediff-motion-adapter-v1-5-2
 
 ```bash
 python examples/generate_baseline.py
-python examples/generate_baseline.py --prompt "a sunset over the ocean" --frames 8
+python examples/generate_baseline.py --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cinematic" --frames 8
 ```
 
 Expected output: `output/baseline.gif` — 16 frames of temporally coherent animation.
@@ -71,7 +71,7 @@ frames, not full AnimateDiff temporal attention. Full integration would require 
 ```bash
 source ~/tt-metal/python_env/bin/activate
 python examples/generate_blackhole.py
-python examples/generate_blackhole.py --prompt "a campfire" --frames 8
+python examples/generate_blackhole.py --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, cinematic 4K" --frames 8
 ```
 
 Expected: `output/blackhole.gif` — 8 frames generated on Blackhole hardware.
