@@ -8,9 +8,9 @@ echo "AnimateDiff Weight Download"
 echo "================================================"
 echo
 
-# Check if huggingface-cli is installed
-if ! command -v huggingface-cli &> /dev/null; then
-    echo "❌ huggingface-cli not found"
+# Check if hf CLI is installed
+if ! command -v hf &> /dev/null; then
+    echo "❌ hf CLI not found"
     echo
     echo "Install it with:"
     echo "  pip install huggingface_hub"
@@ -30,7 +30,7 @@ echo "Downloading mm_sd_v15_v2.ckpt (1.7GB)..."
 echo "This may take a few minutes..."
 echo
 
-huggingface-cli download \
+hf download \
     guoyww/animatediff \
     mm_sd_v15_v2.ckpt \
     --local-dir "$WEIGHTS_DIR"

@@ -3826,31 +3826,31 @@ async function installAnimateDiff(): Promise<void> {
 
 /**
  * Command: tenstorrent.runAnimateDiff2Frame
- * Tests temporal attention with minimal 2-frame sequence
+ * Phase 1: CPU AnimateDiffPipeline with MotionAdapter (any hardware)
  */
 async function runAnimateDiff2Frame(): Promise<void> {
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_2FRAME.template);
   vscode.window.showInformationMessage(
-    '🎬 Running 2-frame temporal attention test...'
+    '🎬 Running Phase 1 — CPU AnimateDiffPipeline. ~2 min/frame on CPU. Output: output/phase1.gif'
   );
 }
 
 /**
  * Command: tenstorrent.runAnimateDiff16Frame
- * Generates full 16-frame animated sequence
+ * Phase 2: Blackhole TTNN UNet (~15s/frame on P300C)
  */
 async function runAnimateDiff16Frame(): Promise<void> {
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_ANIMATEDIFF_16FRAME.template);
   vscode.window.showInformationMessage(
-    '🎥 Generating 16-frame animated sequence... This will take a moment.'
+    '⚡ Running Phase 2 — Blackhole TTNN UNet. ~15s/frame on P300C. Output: output/blackhole.gif'
   );
 }
 
 /**
  * Command: tenstorrent.viewAnimateDiffOutput
- * Views the generated animation file
+ * Lists generated GIF files in the output directory
  */
 async function viewAnimateDiffOutput(): Promise<void> {
   const terminal = getOrCreateSimpleTerminal();
@@ -3877,18 +3877,6 @@ async function setupAnimateDiffProject(): Promise<void> {
   runInTerminal(terminal, command);
   vscode.window.showInformationMessage(
     '📦 Setting up AnimateDiff project at ~/tt-scratchpad/tt-animatediff/...'
-  );
-}
-
-/**
- * Command: tenstorrent.generateAnimateDiffVideoSD35
- * Generates animated video using SD 3.5 + AnimateDiff (gnu cinemagraph)
- */
-async function generateAnimateDiffVideoSD35(): Promise<void> {
-  const terminal = getOrCreateSimpleTerminal();
-  runInTerminal(terminal, TERMINAL_COMMANDS.GENERATE_ANIMATEDIFF_VIDEO_SD35.template);
-  vscode.window.showInformationMessage(
-    '🎬 Generating animated video with SD 3.5 + AnimateDiff! This will take 5-7 minutes on N150...'
   );
 }
 
@@ -5123,7 +5111,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runAnimateDiff2Frame', runAnimateDiff2Frame),
     vscode.commands.registerCommand('tenstorrent.runAnimateDiff16Frame', runAnimateDiff16Frame),
     vscode.commands.registerCommand('tenstorrent.viewAnimateDiffOutput', viewAnimateDiffOutput),
-    vscode.commands.registerCommand('tenstorrent.generateAnimateDiffVideoSD35', generateAnimateDiffVideoSD35),
     vscode.commands.registerCommand('tenstorrent.viewAnimateDiffTutorial', viewAnimateDiffTutorial),
     vscode.commands.registerCommand('tenstorrent.exploreAnimateDiffPackage', exploreAnimateDiffPackage),
 

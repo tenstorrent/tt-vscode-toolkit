@@ -635,24 +635,24 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   RUN_ANIMATEDIFF_2FRAME: {
-    id: 'run-animatediff-2frame',
-    name: 'Run 2-Frame Demo',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_2frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
-    description: 'Test temporal attention with minimal 2-frame sequence',
+    id: 'run-animatediff-phase1',
+    name: 'Run Phase 1 — CPU AnimateDiffPipeline',
+    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_baseline.py --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
+    description: 'Generate animated frames on CPU using diffusers AnimateDiffPipeline with MotionAdapter',
   },
 
   RUN_ANIMATEDIFF_16FRAME: {
-    id: 'run-animatediff-16frame',
-    name: 'Run 16-Frame Demo',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_16frame_video.py 2>&1 | grep -v "DEBUG\\|Config{"',
-    description: 'Generate full 16-frame animated sequence with temporal coherence',
+    id: 'run-animatediff-phase2',
+    name: 'Run Phase 2 — Blackhole TTNN UNet',
+    template: `cd ~/tt-metal && source python_env/bin/activate && export TT_METAL_HOME=~/tt-metal TT_METAL_ARCH_NAME=blackhole && cd ~/tt-scratchpad/tt-animatediff && python examples/generate_blackhole.py --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" --frames 8 --steps 25 --output output/blackhole.gif 2>&1 | grep -v "DEBUG\\|Config{" | grep -v "^2026\\|UMD"`,
+    description: 'Generate frames using TTNN UNet on Blackhole hardware (P100/P300C/QB2)',
   },
 
   VIEW_ANIMATEDIFF_OUTPUT: {
     id: 'view-animatediff-output',
-    name: 'View Generated Animation',
-    template: 'ls -lh ~/tt-scratchpad/tt-animatediff/output/test_16frame.gif && echo "\n✓ Animation generated: ~/tt-scratchpad/tt-animatediff/output/test_16frame.gif"',
-    description: 'View the generated 16-frame animation file',
+    name: 'View Generated Frames',
+    template: 'ls -lh ~/tt-scratchpad/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2 first"',
+    description: 'List generated GIF files in the output directory',
   },
 
   SETUP_ANIMATEDIFF_PROJECT: {
@@ -661,13 +661,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'mkdir -p ~/tt-scratchpad/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-scratchpad/tt-animatediff/ && cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-scratchpad/tt-animatediff/\')"',
     description: 'Copies AnimateDiff project from extension to ~/tt-scratchpad/tt-animatediff and installs it',
     variables: ['projectPath'],
-  },
-
-  GENERATE_ANIMATEDIFF_VIDEO_SD35: {
-    id: 'generate-animatediff-video-sd35',
-    name: 'Generate Animated Video with SD 3.5',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_with_sd35.py 2>&1 | grep -v "DEBUG\\|Config{"',
-    description: 'Generate animated video using SD 3.5 + AnimateDiff temporal attention (GNU cinemagraph)',
   },
 
   // ========================================

@@ -66,6 +66,12 @@ to DRAM. You decide how compute and data movement overlap. That control — used
 well — is where the performance comes from. And giving you clean Python
 abstractions over that control is exactly what tt-lang does.
 
+```tensix_viz arch=blackhole
+[]
+```
+
+*Blackhole chip: 140 Tensix compute cores (teal), DRAM banks (blue edges), ETH links (purple). Wormhole is the same architecture at 80 cores (8×10 grid).*
+
 ---
 
 ## Where tt-lang Fits
@@ -140,12 +146,12 @@ tt-lang narrows that gap dramatically: the concepts map cleanly from Triton or
 CUDA, the functional simulator catches mistakes instantly, and the tooling is
 designed to support an iterative agent-driven workflow.
 
-The TT Developer Toolkit ships `/ttl-*` Claude Code slash commands that embody
-this workflow: `/ttl-import` translates an existing kernel from CUDA, Triton,
-or PyTorch; `/ttl-simulate` validates it in the simulator; `/ttl-profile` shows
-where cycles are going; `/ttl-optimize` applies targeted improvements. You can
-go from a PyTorch attention function to a validated, profiled Tensix kernel in
-a single Claude Code session — hardware not required.
+tt-lang ships `/ttl-*` Claude Code slash commands that embody this workflow:
+`/ttl-import` translates an existing kernel from CUDA, Triton, or PyTorch;
+`/ttl-simulate` validates it in the simulator; `/ttl-profile` shows where
+cycles are going; `/ttl-optimize` applies targeted improvements. You can go
+from a PyTorch attention function to a validated, profiled Tensix kernel in a
+single Claude Code session — hardware not required.
 
 More on those commands later. First, the performance story that explains why
 any of this effort is worthwhile.
@@ -451,23 +457,46 @@ partitioning.
 
 ### Browser (you're already here)
 
-The playground at the top of this page runs kernels in your browser using
-ttlang-sim-lite — a lightweight Python interpreter built on Pyodide. No
-install, no hardware. Use it to prototype ideas and explore the language before
-setting up a local environment.
+The playground above is the browser path. No install, no hardware. Use it to
+prototype and explore before setting up a local environment.
 
-### Local — ttsim (no hardware required)
+### Install via pip
 
-ttsim is a full-system simulator for Wormhole and Blackhole. It runs any
-tt-metal/tt-lang workload on Linux/x86_64 — including Windows via WSL2 —
-without a Tenstorrent card. Results are bit-exact with silicon for all
-documented code paths.
-
-**Prerequisites:** tt-metal built and `TT_METAL_HOME` set.
-See the [Build tt-metal lesson](command:tenstorrent.showLesson?["build-tt-metal"]) if you haven't done this yet.
+tt-lang is on PyPI. Create an isolated environment and install:
 
 ```bash
-# Download the simulator binary — choose Wormhole or Blackhole
+python3 -m venv --prompt ttlang ttlang-venv
+source ttlang-venv/bin/activate
+pip install tt-lang tt-lang-setup
+```
+
+`tt-lang-setup` installs the matching sfpi runtime and copies bundled tutorials
+to `./tutorials/`. Run one to verify the install:
+
+```bash
+ttlang-sim tutorials/elementwise/step_4_multinode_grid_auto.py   # simulator, no hardware needed
+python tutorials/elementwise/step_4_multinode_grid_auto.py       # compiles and runs on hardware
+```
+
+#### Install the Claude Code slash commands
+
+The `/ttl-*` slash commands ship with the tt-lang package. Register them with
+Claude Code once:
+
+```bash
+git clone --depth=1 https://github.com/tenstorrent/tt-lang.git /tmp/tt-lang-skills
+/tmp/tt-lang-skills/claude-slash-commands/install.sh
+```
+
+If you install Claude Code on a new machine later, re-run the installer.
+
+### ttsim — if you already have tt-metal built
+
+If `TT_METAL_HOME` is already set from an existing tt-metal build, you can use
+the hardware simulator directly without the pip install. Choose the binary that
+matches your hardware:
+
+```bash
 mkdir -p ~/sim && cd ~/sim
 
 # Wormhole (N150, N300, T3K, Galaxy)
@@ -489,47 +518,21 @@ cd $TT_METAL_HOME
 
 Check [ttsim releases](https://github.com/tenstorrent/ttsim/releases/latest) for newer versions.
 
-### Local — build tt-lang
-
-tt-lang ships two Docker images. The **dist** image has everything pre-built
-and is the fastest path to running kernels:
-
-```bash
-docker run -d --name $USER-dist \
-  ghcr.io/tenstorrent/tt-lang/tt-lang-dist-ubuntu-22-04:latest \
-  sleep infinity
-docker exec -it $USER-dist /bin/bash
-# Environment activates automatically on login
-python /opt/ttlang-toolchain/examples/elementwise-tutorial/step_4_multinode_grid_auto.py
-```
-
-To build from source (needed for modifying tt-lang itself), clone and build
-against the **ird** (Internal Reference Dev) image:
-
-```bash
-git clone https://github.com/tenstorrent/tt-lang.git
-cd tt-lang
-cmake -G Ninja -B build -DTTLANG_SIM_ONLY=ON   # simulator only, no hardware needed
-source build/env/activate                        # required every new shell session
-python examples/eltwise_add.py
-```
-
-The [tt-lang docs](https://github.com/tenstorrent/tt-lang/blob/main/docs/sphinx/build.md)
-cover all CMake options, including full hardware builds.
-
 ### Real hardware
 
-If you have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
-`TT_METAL_SLOW_DISPATCH_MODE` variables. Everything else is identical. The
-same kernel source runs bit-exact on simulation and silicon.
+If you installed via pip and have a Tenstorrent card, skip the
+`TT_METAL_SIMULATOR` and `TT_METAL_SLOW_DISPATCH_MODE` variables — everything
+else is identical. The same kernel source runs bit-exact on simulation and
+silicon.
 
 ---
 
 ## Claude Code Slash Commands
 
-The TT Developer Toolkit installs `/ttl-*` slash commands for Claude Code that
-take you from an idea — or an existing kernel in another language — to a
-validated, profiled tt-lang kernel in one session.
+The `/ttl-*` slash commands ship with `pip install tt-lang` and are registered
+with Claude Code via the one-time install step above. They take you from an
+idea — or an existing kernel in another language — to a validated, profiled
+tt-lang kernel in one session.
 
 **Example workflow:** you have a PyTorch multi-head attention function and want
 a fused Tensix kernel.
@@ -616,3 +619,10 @@ simulator behaves unexpectedly.
 - **[tt-mlir](https://github.com/tenstorrent/tt-mlir)** — the MLIR-based
   compiler stack that tt-lang targets; useful when debugging compiler output
   or writing custom compiler passes
+- **[tt-zork-and-more](https://tsingletaryTT.github.io/tt-zork-and-more)** —
+  Zork I (and more) running on a Tenstorrent Blackhole accelerator, with an LLM
+  remix layer and AI auto-play mode. A proof of what the hardware can do when
+  it's fast enough to run a game and a language model simultaneously.
+- **[tt-awesome](https://docs.tenstorrent.com/tt-awesome/)** — curated directory
+  of Tenstorrent projects, tools, models, and research contributed by the
+  community and the team.

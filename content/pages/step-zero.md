@@ -429,7 +429,7 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
   1. Create HuggingFace account
   2. Request access on model page
   3. Get approved (instant for most)
-  4. Login: `huggingface-cli login`
+  4. Login: `hf auth login`
 
 **Qwen3-0.6B is NOT gated** - start there!
 
@@ -469,6 +469,16 @@ export TT_METAL_ARCH_NAME=blackhole
 - Qwen3-0.6B: ~1.5GB (fits easily on N150 or P100)
 - Llama-3.1-8B: ~16GB (tight on N150, comfortable on P100/N300+)
 - Llama-3.1-70B: ~140GB (requires T3K or P150 x4+)
+
+The two chips have different grid shapes — Wormhole (above) has 80 Tensix compute cores, Blackhole (below) has 140:
+
+```tensix_viz arch=wormhole
+[]
+```
+
+```tensix_viz arch=blackhole
+[]
+```
 
 ### Q: What if I get "ImportError: cannot import name 'ttnn'"?
 **A:** You're not in the tt-metal Python environment.
@@ -595,6 +605,16 @@ tt-smi -s  # Verify hardware detected
 # "No space left on device"
 df -h ~  # Check disk space, delete old models
 ```
+
+---
+
+## 🌐 Ecosystem Resources
+
+Beyond the lessons, the Tenstorrent ecosystem has tools worth knowing about:
+
+- **[tt-awesome](https://docs.tenstorrent.com/tt-awesome/)** — curated directory of community and official tools, models, research, and guides. Good starting point for exploring what's been built.
+- **[tt-toplike](https://docs.tenstorrent.com/tt-toplike/)** — htop-style real-time hardware monitor written in Rust. Shows per-chip utilization, temperature, and process info.
+- **[ttnn-visualizer](https://github.com/tenstorrent/ttnn-visualizer)** — interactive graphs of model execution on hardware: memory plots, tensor details, operation flow graphs.
 
 ---
 

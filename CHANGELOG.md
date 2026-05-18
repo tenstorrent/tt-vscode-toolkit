@@ -7,6 +7,102 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.447] - 2026-05-18
+
+### Fixed
+
+- **AnimateDiff Phase 2 terminal template had escaped apostrophe** — Changed `RUN_ANIMATEDIFF_16FRAME` template from a single-quoted string to a template literal so `World's Fair` needs no backslash escape and the apostrophe reaches the shell cleanly.
+
+---
+
+## [0.0.446] - 2026-05-18
+
+### Fixed
+
+- **AnimateDiff `ttnn_pipeline.py` seed doesn't fully control noise** — Per-frame perturbation `torch.randn_like(base_noise)` was unseeded; changed to `torch.randn(base_noise.shape, generator=generator)` so the full noise sequence is deterministic for a given seed.
+- **AnimateDiff `ttnn_pipeline.py` rebuilds time embeddings every frame** — `build_tlist()` was called inside the per-frame loop despite timesteps being identical each frame; moved outside the loop with a one-time `set_timesteps()` call, retaining the per-frame reset of counter/ets state only.
+- **AnimateDiff Phase 2 terminal command over-broad `warning` filter** — `grep -v "...|warning"` would swallow any line containing "warning" including tracebacks; narrowed to `grep -v "^2026\\|UMD"` which covers only the known-noisy timestamp and UMD mutex lines.
+- **AnimateDiff `pipeline.py` defaults to `float16` on CPU** — Changed `create_animatediff_pipeline()` default `torch_dtype` from `torch.float16` to `torch.float32`; float16 conv/attention ops are unsupported on CPU and would fail on the "no hardware needed" Phase 1 path.
+- **`option_a_diff.md` references deleted `generate_with_sd35.py`** — Updated body text to reference the current `generate_baseline.py` / `generate_blackhole.py` scripts.
+
+---
+
+## [0.0.445] - 2026-05-18
+
+### Fixed
+
+- **tensix-viz `_drawHeatmap` paints non-tensix cells** — Added `coreType` check in both the `maxVal` scan and the fill loop; DRAM and ETH cells within the `computeGrid` range are now skipped so heatmap overlay stays on Tensix compute cores only. Backported to upstream tensix-viz.
+- **tensix-viz `reset()` leaves stale `_memPhase`** — Added `this._memPhase = null` to `reset()` so memory-layer state is fully cleared between modes. Backported to upstream tensix-viz.
+- **FAQ.md Blackhole "Thinking" highlight includes PCIe column** — Removed `[8,3]` and `[8,7]` from the sparse-activation highlight; col 8 is the PCIe column on Blackhole, not a Tensix compute core.
+- **AnimateDiff Phase 1 command uses `python` instead of `python3`** — Fixed `RUN_ANIMATEDIFF_2FRAME` template to use `python3` for compatibility on systems where `python` is absent or points to Python 2.
+- **Stale `generate_with_sd35.py` AnimateDiff command** — Removed `GENERATE_ANIMATEDIFF_VIDEO_SD35` terminal command, `generateAnimateDiffVideoSD35` function, and its `registerCommand` call; the script was deleted earlier and the command was broken.
+- **Stale `openai/clip-vit-large-patch14` download in AnimateDiff docs** — Removed from `generate_blackhole.py` docstring and `README.md` requirements; CLIP loads from the `CompVis/stable-diffusion-v1-4` subfolders and no separate download is needed.
+- **CHANGELOG 0.0.443 referenced stale GIF filenames** — Updated to reflect that the campfire/ocean filenames were superseded by World of Tomorrow / Phosphor Horizon in v0.0.444.
+
+---
+
+## [0.0.444] - 2026-05-18
+
+### Changed
+
+- **AnimateDiff demo GIFs replaced with tt-local-generator-inspired prompts** — Campfire and ocean placeholder prompts replaced with "World of Tomorrow" (1939 World's Fair imagined from 2099, art deco spires at golden dusk) and "Phosphor Horizon" (purple phosphor glow across mountains at 2am, retro CRT haze). All collateral updated: lesson table, project README, install page gallery, terminal commands, and `generate_blackhole.py` default prompt.
+
+---
+
+## [0.0.443] - 2026-05-18
+
+### Added
+
+- **AnimateDiff validated on Blackhole P300C** — Phase 2 generates 8 frames × 25 denoising steps in ~121 seconds (~15 s/frame) on P300C hardware. Lesson front matter updated with `validatedOn: [p300c]`.
+- **Real Blackhole-generated demo GIFs** — Animations generated on P300C replace synthetic placeholder GIFs in the lesson and project README. Added to the install page website gallery (filenames later updated to `animatediff_world_of_tomorrow.gif` and `animatediff_phosphor_horizon.gif` in v0.0.444).
+- **AnimateDiff lesson rewritten for tt-scratchpad pattern** — `setupAnimateDiffProject` command copies the project to `~/tt-scratchpad/tt-animatediff/`. All lesson commands and paths now reference the scratchpad location. Phase 1 (CPU) and Phase 2 (Blackhole) each have dedicated VSCode command buttons.
+
+### Changed
+
+- **AnimateDiff terminal commands updated** — `runAnimateDiff2Frame` now runs Phase 1 CPU baseline via `generate_baseline.py`; `runAnimateDiff16Frame` runs Phase 2 Blackhole with correct `TT_METAL_HOME` and `TT_METAL_ARCH_NAME=blackhole` environment setup.
+
+### Fixed
+
+- **AnimateDiff Phase 2 TTNN VAE OOM on Blackhole** — The TTNN VAE decoder's `conv_out` crashes with an L1 grid mismatch on Blackhole (Wormhole-targeted kernel). Bypassed by running the full PNDM denoising loop on the Blackhole TTNN UNet, then decoding latents with CPU PyTorch `AutoencoderKL`. UNet denoising remains fully Blackhole-accelerated.
+- **AnimateDiff Phase 2 PNDM scheduler state contamination across frames** — `TtPNDMScheduler` accumulates `counter`, `ets`, and `cur_sample` state across `step()` calls. Added `set_timesteps()` call before each frame's denoising loop to reset scheduler state, preventing corrupted outputs on frames 2+.
+
+---
+
+## [0.0.441] - 2026-05-18
+
+### Changed
+
+- **tt-lang lesson: pip install path** — Replaced the Docker/build-from-source installation path with `pip install tt-lang tt-lang-setup` as the primary recommended setup. Added a "Install the Claude Code slash commands" subsection documenting the one-time `claude-slash-commands/install.sh` installer. Demoted the ttsim path to a secondary option for users who already have tt-metal built. Updated all mentions of "TT Developer Toolkit ships the slash commands" to reflect that they ship with the `tt-lang` pip package directly.
+
+---
+
+## [0.0.440] - 2026-05-14
+
+### Fixed
+
+- **`hf` CLI migration in step-zero.md and FAQ.md** — Replaced all remaining `huggingface-cli` references with the current `hf` CLI commands (`hf auth login`, `hf download`, `hf --version`) per WH/BH compatibility guidelines.
+
+---
+
+## [0.0.439] - 2026-05-14
+
+### Added
+
+- **WH/BH chip viz in step-zero.md** — Added Wormhole and Blackhole idle chip visualizations to the Step Zero lesson for an at-a-glance hardware overview.
+- **Ecosystem Resources section in step-zero.md** — New section linking to tt-awesome, tt-toplike, and ttnn-visualizer community resources.
+- **Scripted L1↔DRAM memory movement viz in cs-fundamentals-02-memory.md** — Animated memory-movement visualization added to the memory fundamentals lesson.
+- **Idle BH chip viz in tt-lang-intro.md** — Blackhole idle chip visualization embedded in the TT-Lang intro lesson.
+- **tt-zork-and-more and tt-awesome ecosystem links in tt-lang-intro.md** — Additional community/ecosystem resource links added to the TT-Lang intro.
+- **"How can I visualize my hardware usage?" FAQ entry** — New FAQ entry with a live tensix-viz demo showing real-time hardware utilization.
+- **Open VSX Registry and microsite install links in README.md** — README now includes install buttons/links for the Open VSX Registry and the Tenstorrent microsite.
+
+### Changed
+
+- **tensix-viz updated to latest from tsingletaryTT/tensix-viz main** — Incorporates corrected Wormhole topology, light/dark theme system, and memory visualization improvements.
+- **Koyeb CLI block in README.md collapsed** — Replaced verbose Koyeb CLI installation block with a single reference link for a cleaner README.
+
+---
+
 ## [0.0.438] - 2026-05-08
 
 ### Fixed

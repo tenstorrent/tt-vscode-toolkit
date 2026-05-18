@@ -88,7 +88,7 @@ cd AnimateDiff
 
 **First attempt (FAILED):**
 ```bash
-huggingface-cli download \
+hf download \
     guoyww/animatediff-motion-adapter-v1-5-2 \
     mm_sd_v15_v2.ckpt \
     --local-dir ~/models/animatediff
@@ -101,7 +101,7 @@ huggingface-cli download \
 **Second attempt (SUCCESS):**
 ```bash
 # Found correct path in AnimateDiff/README.md
-huggingface-cli download \
+hf download \
     guoyww/animatediff \
     mm_sd_v15_v2.ckpt \
     --local-dir ~/models/animatediff
@@ -977,9 +977,9 @@ set -e
 echo "AnimateDiff Weight Download"
 echo "================================================"
 
-# Check if huggingface-cli is installed
-if ! command -v huggingface-cli &> /dev/null; then
-    echo "❌ huggingface-cli not found"
+# Check if hf is installed
+if ! command -v hf &> /dev/null; then
+    echo "❌ hf not found"
     echo "Install with: pip install huggingface_hub"
     exit 1
 fi
@@ -990,7 +990,7 @@ mkdir -p "$WEIGHTS_DIR"
 
 # Download motion module
 echo "Downloading mm_sd_v15_v2.ckpt (1.7GB)..."
-huggingface-cli download \
+hf download \
     guoyww/animatediff \
     mm_sd_v15_v2.ckpt \
     --local-dir "$WEIGHTS_DIR"

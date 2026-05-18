@@ -48,29 +48,7 @@ Access at: http://localhost:8080 (password: `demo`)
 
 ### Deploy to Cloud with Real Hardware
 
-Get access to Tenstorrent N300 hardware in 60 seconds:
-
-```bash
-# Install Koyeb CLI
-curl -fsSL https://cli.koyeb.com/install.sh | sh
-
-# Login
-koyeb login
-
-# Deploy
-koyeb services create vscode \
-  --app tt-vscode-toolkit \
-  --docker ghcr.io/tenstorrent/tt-vscode-toolkit:latest \
-  --ports 8080:http \
-  --routes /:8080 \
-  --env PASSWORD=yourpass \
-  --env MESH_DEVICE=N300 \
-  --regions na \
-  --instance-type gpu-tenstorrent-n300s \
-  --privileged
-```
-
-See [Deploy to Koyeb](./content/lessons/deploy-vscode-to-koyeb.md) lesson for details.
+→ See the [Deploy to Koyeb lesson](./content/lessons/deploy-vscode-to-koyeb.md) for step-by-step instructions deploying to Tenstorrent N300 hardware on Koyeb.
 
 ---
 
@@ -107,6 +85,10 @@ code --install-extension Tenstorrent.tt-vscode-toolkit
 Or search **"TT Developer Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`) (`tt-vscode-toolkit`).
 
 → [Open in VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
+
+**Other install options:**
+- **[Open VSX Registry](https://open-vsx.org/extension/Tenstorrent/tt-vscode-toolkit)** — for VSCodium, Gitpod, and code-server
+- **[Browse lessons without installing](https://docs.tenstorrent.com/tt-vscode-toolkit/)** — microsite with all lesson content
 
 #### Option 2: Install from VSIX Package
 
@@ -204,8 +186,8 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 - **Modern Setup with tt-installer 2.0** — `N150` `P300C`
 - **Hardware Detection** — `N150` `P300C`
-- **Download Model and Run Inference** — `N150` `P300C`
 - **Verify Your Setup** — `N150` `P300C`
+- **Download Model and Run Inference** — `N150` `P300C`
 - **Interactive Chat with Direct API** — `N150`
 - **HTTP API Server with Direct API** — `N150`
 - **Build tt-metal from Source** — `N150` `P300C`
@@ -219,18 +201,20 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Video Generation via Frame-by-Frame Diffusion** — *draft*
 
 ### 🔧 Compilers & Tools
-*2 lessons, 0 validated*
+*3 lessons, 0 validated*
 
 - **Image Classification with TT-Forge** — `P300C`
 - **JAX and PyTorch/XLA on Tenstorrent** — `P300C`
+- **Introduction to tt-lang** — *draft*
 
 ### 🎯 Applications
-*4 lessons, 3 validated*
+*5 lessons, 4 validated*
 
 - **Coding Assistant with Aider** — *draft*
-- **Native Video Animation with AnimateDiff** — `N150`
+- **Native Video Animation with AnimateDiff** — `P300C`
 - **OpenClaw AI Assistant on QuietBox 2** — `P300X2`
 - **Generating Video on QuietBox 2** — `P300X2`
+- **Local AI Agents on QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
 *2 lessons, 1 validated*

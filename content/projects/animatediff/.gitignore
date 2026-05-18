@@ -1,0 +1,4 @@
+output/*.gif
+output/*.mp4
+output/*.png
+*.egg-info/
