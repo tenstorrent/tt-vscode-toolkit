@@ -32,9 +32,13 @@ from animatediff_ttnn.pipeline import export_gif
 
 
 def load_sd14_ttnn(device):
-    """Load SD 1.4 TTNN UNet, VAE, and PNDM scheduler onto device.
+    """Load SD 1.4 TTNN UNet and PNDM scheduler onto device; PyTorch VAE for CPU decode.
 
-    Returns (ttnn_model, tt_vae, config, ttnn_scheduler, torch_unet_time_proj).
+    The TTNN VAE decoder OOMs on Blackhole's final conv_out (L1 grid mismatch
+    in the Wormhole-targeted kernel). UNet denoising is Blackhole-accelerated;
+    VAE decode uses the CPU PyTorch model which is not the compute bottleneck.
+
+    Returns (ttnn_model, torch_vae, config, ttnn_scheduler, torch_unet_time_proj).
     """
     from diffusers import AutoencoderKL, UNet2DConditionModel
     from ttnn.model_preprocessing import preprocess_model_parameters
@@ -43,11 +47,10 @@ def load_sd14_ttnn(device):
     from models.demos.wormhole.stable_diffusion.tt.ttnn_functional_unet_2d_condition_model_new_conv import (
         UNet2DConditionModel as UNet2D,
     )
-    from models.demos.wormhole.stable_diffusion.tt.vae.ttnn_vae import Vae
 
-    print("  Loading PyTorch VAE...")
-    vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae")
-    tt_vae = Vae(torch_vae=vae, device=device)
+    print("  Loading PyTorch VAE (used for CPU decode)...")
+    torch_vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae")
+    torch_vae.eval()
 
     print("  Loading PyTorch UNet (for config and time_proj)...")
     torch_unet = UNet2DConditionModel.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="unet")
@@ -70,18 +73,19 @@ def load_sd14_ttnn(device):
         device=device,
     )
 
-    return ttnn_model, tt_vae, torch_unet.config, ttnn_scheduler, torch_unet.time_proj
+    return ttnn_model, torch_vae, torch_unet.config, ttnn_scheduler, torch_unet.time_proj
 
 
 def encode_prompt(prompt: str, negative_prompt: str = "") -> torch.Tensor:
     """Encode text + negative prompt to (2, 96, 768) tensor using CLIP.
 
     Returns [uncond_embeds, cond_embeds] concatenated, padded 77->96 tokens.
+    Loads CLIP from the SD 1.4 subfolder — no separate download needed.
     """
     from transformers import CLIPTokenizer, CLIPTextModel
 
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-large-patch14")
-    text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-large-patch14")
+    tokenizer = CLIPTokenizer.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="tokenizer")
+    text_encoder = CLIPTextModel.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="text_encoder")
     text_encoder.eval()
 
     def encode(text):
@@ -125,7 +129,7 @@ def main():
     try:
         print("Loading SD 1.4 models onto Blackhole...")
         t0 = time.time()
-        ttnn_model, tt_vae, config, ttnn_scheduler, torch_time_proj = load_sd14_ttnn(device)
+        ttnn_model, torch_vae, config, ttnn_scheduler, torch_time_proj = load_sd14_ttnn(device)
         ttnn_scheduler.set_timesteps(args.steps)
         print(f"  Models loaded in {time.time() - t0:.1f}s")
         print()
@@ -140,7 +144,7 @@ def main():
         frames = generate_frames(
             device,
             ttnn_model,
-            tt_vae,
+            torch_vae,
             config,
             ttnn_scheduler,
             torch_time_proj,
@@ -160,8 +164,8 @@ def main():
     export_gif(frames, args.output)
     print(f"Saved {len(frames)} frames -> {args.output}")
     print()
+    print("Note: UNet denoising on Blackhole (TTNN). VAE decode on CPU (Blackhole conv_out OOM).")
     print("Note: Temporal coherence from shared base noise (not AnimateDiff motion adapter).")
-    print("For full AnimateDiff temporal attention, see examples/generate_baseline.py (CPU).")
 
 
 if __name__ == "__main__":

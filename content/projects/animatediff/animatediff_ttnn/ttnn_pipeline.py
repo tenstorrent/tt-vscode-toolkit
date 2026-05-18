@@ -101,7 +101,7 @@ def build_tlist(ttnn_scheduler, torch_time_proj, device, latent_h: int = 64, lat
 def generate_frames(
     device,
     ttnn_model,
-    tt_vae,
+    torch_vae,
     config,
     ttnn_scheduler,
     torch_time_proj,
@@ -114,12 +114,16 @@ def generate_frames(
 ) -> List[Image.Image]:
     """Generate video frames using TTNN UNet on Blackhole.
 
+    UNet denoising runs on Blackhole via TTNN. VAE decode runs on CPU with the
+    PyTorch AutoencoderKL — the TTNN VAE OOMs on Blackhole's final conv_out due
+    to a grid/L1 size mismatch in the Wormhole-targeted VAE kernel.
+
     Args:
         device: TTNN Blackhole device from setup_blackhole()
         ttnn_model: UNet2D TTNN model loaded with preprocess_model_parameters
-        tt_vae: Vae TTNN object
+        torch_vae: PyTorch AutoencoderKL for CPU latent decode
         config: unet.config from PyTorch UNet2DConditionModel
-        ttnn_scheduler: TtPNDMScheduler with set_timesteps() already called
+        ttnn_scheduler: TtPNDMScheduler (set_timesteps already called once)
         torch_time_proj: unet.time_proj from PyTorch UNet (used to build _tlist)
         text_embeddings: Shape (2, 96, 768) torch tensor — [uncond, cond] concatenated,
                          padded from 77 to 96 tokens with torch.nn.functional.pad(..., (0,0,0,19))
@@ -138,13 +142,12 @@ def generate_frames(
         see Phase 1 (generate_baseline.py) for that.
     """
     import ttnn
-    from models.demos.wormhole.stable_diffusion.sd_helper_funcs import run
+    from models.demos.wormhole.stable_diffusion.sd_helper_funcs import tt_guide
 
+    num_steps = ttnn_scheduler.num_inference_steps
     lh, lw = height // 8, width // 8
-    _tlist = build_tlist(ttnn_scheduler, torch_time_proj, device, lh, lw)
-    time_step = ttnn_scheduler.timesteps.tolist()
 
-    # Convert text embeddings to TTNN device tensor
+    # Convert text embeddings to TTNN device tensor once; reused every frame
     ttnn_text_embeddings = ttnn.from_torch(
         text_embeddings,
         dtype=ttnn.bfloat16,
@@ -158,29 +161,44 @@ def generate_frames(
 
     frames = []
     for frame_idx in range(num_frames):
+        # Reset PNDM scheduler state (counter, ets buffer) before each frame
+        ttnn_scheduler.set_timesteps(num_steps)
+        time_step = ttnn_scheduler.timesteps.tolist()
+        _tlist = build_tlist(ttnn_scheduler, torch_time_proj, device, lh, lw)
+
         # Small per-frame perturbation keeps frames related but distinct
         frame_noise = base_noise + 0.05 * torch.randn_like(base_noise)
-        latents = ttnn.from_torch(
+        ttnn_latents = ttnn.from_torch(
             frame_noise * ttnn_scheduler.init_noise_sigma,
             dtype=ttnn.bfloat16,
             layout=ttnn.TILE_LAYOUT,
             device=device,
         )
 
-        output = run(
-            ttnn_model, config, tt_vae,
-            input_latents=latents,
-            input_encoder_hidden_states=ttnn_text_embeddings,
-            _tlist=_tlist,
-            time_step=time_step,
-            guidance_scale=guidance_scale,
-            ttnn_scheduler=ttnn_scheduler,
-        )
+        # TTNN UNet denoising loop on Blackhole
+        for index in range(len(time_step)):
+            ttnn_latent_model_input = ttnn.concat([ttnn_latents, ttnn_latents], dim=0)
+            _t = _tlist[index]
+            t = time_step[index]
+            ttnn_output = ttnn_model(
+                ttnn_latent_model_input,
+                timestep=_t,
+                encoder_hidden_states=ttnn_text_embeddings,
+                class_labels=None,
+                attention_mask=None,
+                cross_attention_kwargs=None,
+                return_dict=True,
+                config=config,
+            )
+            noise_pred = tt_guide(ttnn_output, guidance_scale)
+            ttnn_latents = ttnn_scheduler.step(noise_pred, t, ttnn_latents).prev_sample
 
-        # Post-process: TTNN output is (1, 3, H, W) in [-1, 1]
-        img = ttnn.to_torch(output).squeeze(0)  # (3, H, W)
-        img = (img / 2 + 0.5).clamp(0, 1)
-        img = (img.float().permute(1, 2, 0).numpy() * 255).round().astype("uint8")
+        # Decode with CPU PyTorch VAE — TTNN VAE conv_out OOMs on Blackhole
+        latents_cpu = ttnn.to_torch(ttnn_latents).to(torch.float32) / 0.18215
+        with torch.no_grad():
+            decoded = torch_vae.decode(latents_cpu).sample  # (1, 3, H, W) in [-1, 1]
+        img = (decoded / 2 + 0.5).clamp(0, 1)
+        img = (img.squeeze(0).permute(1, 2, 0).cpu().numpy() * 255).round().astype("uint8")
         frames.append(Image.fromarray(img))
 
         print(f"  Frame {frame_idx + 1}/{num_frames} done")
