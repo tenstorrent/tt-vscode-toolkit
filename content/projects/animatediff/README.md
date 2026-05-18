@@ -8,9 +8,7 @@ denoising on Blackhole hardware using the TTNN UNet.
 |---|---|
 | ![campfire](docs/assets/demo_campfire.gif) | ![ocean](docs/assets/demo_ocean.gif) |
 
-**Temporal coherence — with MotionAdapter (left) vs without (right):**
-
-![comparison](docs/assets/demo_comparison.gif)
+Both GIFs generated on **Blackhole (P300C)** — 8 frames × 25 denoising steps, ~15 s/frame.
 
 ---
 
