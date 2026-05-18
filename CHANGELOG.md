@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.447] - 2026-05-18
+
+### Fixed
+
+- **AnimateDiff Phase 2 terminal template had escaped apostrophe** — Changed `RUN_ANIMATEDIFF_16FRAME` template from a single-quoted string to a template literal so `World's Fair` needs no backslash escape and the apostrophe reaches the shell cleanly.
+
+---
+
 ## [0.0.446] - 2026-05-18
 
 ### Fixed
