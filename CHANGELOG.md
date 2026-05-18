@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.443] - 2026-05-18
+
+### Added
+
+- **AnimateDiff validated on Blackhole P300C** — Phase 2 generates 8 frames × 25 denoising steps in ~121 seconds (~15 s/frame) on P300C hardware. Lesson front matter updated with `validatedOn: [p300c]`.
+- **Real Blackhole-generated demo GIFs** — Campfire and ocean animations generated on P300C replace synthetic placeholder GIFs in the lesson and project README. Both added to the install page website gallery under `assets/img/animatediff_campfire.gif` and `assets/img/animatediff_ocean.gif`.
+- **AnimateDiff lesson rewritten for tt-scratchpad pattern** — `setupAnimateDiffProject` command copies the project to `~/tt-scratchpad/tt-animatediff/`. All lesson commands and paths now reference the scratchpad location. Phase 1 (CPU) and Phase 2 (Blackhole) each have dedicated VSCode command buttons.
+
+### Changed
+
+- **AnimateDiff terminal commands updated** — `runAnimateDiff2Frame` now runs Phase 1 CPU baseline via `generate_baseline.py`; `runAnimateDiff16Frame` runs Phase 2 Blackhole with correct `TT_METAL_HOME` and `TT_METAL_ARCH_NAME=blackhole` environment setup.
+
+### Fixed
+
+- **AnimateDiff Phase 2 TTNN VAE OOM on Blackhole** — The TTNN VAE decoder's `conv_out` crashes with an L1 grid mismatch on Blackhole (Wormhole-targeted kernel). Bypassed by running the full PNDM denoising loop on the Blackhole TTNN UNet, then decoding latents with CPU PyTorch `AutoencoderKL`. UNet denoising remains fully Blackhole-accelerated.
+- **AnimateDiff Phase 2 PNDM scheduler state contamination across frames** — `TtPNDMScheduler` accumulates `counter`, `ets`, and `cur_sample` state across `step()` calls. Added `set_timesteps()` call before each frame's denoising loop to reset scheduler state, preventing corrupted outputs on frames 2+.
+
+---
+
 ## [0.0.441] - 2026-05-18
 
 ### Changed
