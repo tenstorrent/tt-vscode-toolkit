@@ -159,15 +159,18 @@ def generate_frames(
     generator = torch.Generator().manual_seed(seed)
     base_noise = torch.randn(1, 4, lh, lw, generator=generator)
 
+    # Build time embeddings once — timesteps are the same for every frame
+    ttnn_scheduler.set_timesteps(num_steps)
+    time_step = ttnn_scheduler.timesteps.tolist()
+    _tlist = build_tlist(ttnn_scheduler, torch_time_proj, device, lh, lw)
+
     frames = []
     for frame_idx in range(num_frames):
         # Reset PNDM scheduler state (counter, ets buffer) before each frame
         ttnn_scheduler.set_timesteps(num_steps)
-        time_step = ttnn_scheduler.timesteps.tolist()
-        _tlist = build_tlist(ttnn_scheduler, torch_time_proj, device, lh, lw)
 
-        # Small per-frame perturbation keeps frames related but distinct
-        frame_noise = base_noise + 0.05 * torch.randn_like(base_noise)
+        # Per-frame perturbation uses the seeded generator so runs are reproducible
+        frame_noise = base_noise + 0.05 * torch.randn(base_noise.shape, generator=generator)
         ttnn_latents = ttnn.from_torch(
             frame_noise * ttnn_scheduler.init_noise_sigma,
             dtype=ttnn.bfloat16,

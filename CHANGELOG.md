@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.446] - 2026-05-18
+
+### Fixed
+
+- **AnimateDiff `ttnn_pipeline.py` seed doesn't fully control noise** — Per-frame perturbation `torch.randn_like(base_noise)` was unseeded; changed to `torch.randn(base_noise.shape, generator=generator)` so the full noise sequence is deterministic for a given seed.
+- **AnimateDiff `ttnn_pipeline.py` rebuilds time embeddings every frame** — `build_tlist()` was called inside the per-frame loop despite timesteps being identical each frame; moved outside the loop with a one-time `set_timesteps()` call, retaining the per-frame reset of counter/ets state only.
+- **AnimateDiff Phase 2 terminal command over-broad `warning` filter** — `grep -v "...|warning"` would swallow any line containing "warning" including tracebacks; narrowed to `grep -v "^2026\\|UMD"` which covers only the known-noisy timestamp and UMD mutex lines.
+- **AnimateDiff `pipeline.py` defaults to `float16` on CPU** — Changed `create_animatediff_pipeline()` default `torch_dtype` from `torch.float16` to `torch.float32`; float16 conv/attention ops are unsupported on CPU and would fail on the "no hardware needed" Phase 1 path.
+- **`option_a_diff.md` references deleted `generate_with_sd35.py`** — Updated body text to reference the current `generate_baseline.py` / `generate_blackhole.py` scripts.
+
+---
+
 ## [0.0.445] - 2026-05-18
 
 ### Fixed

@@ -2,7 +2,7 @@
 
 # Option A: Minimal tt-metal Modification (Optional Performance Enhancement)
 
-This document describes an optional modification to `tt-metal` that provides a cleaner integration with AnimateDiff. **This modification is NOT required** - the standalone wrapper in `examples/generate_with_sd35.py` works without it.
+This document describes an optional modification to `tt-metal` that provides a cleaner integration with AnimateDiff. **This modification is NOT required** - the current Phase 1/Phase 2 scripts (`examples/generate_baseline.py` / `examples/generate_blackhole.py`) work without it.
 
 ## Why This Might Be Useful
 
@@ -114,7 +114,7 @@ for frame_idx in range(num_frames):
 
 ## Alternative: Keep It Standalone
 
-**Recommended approach:** Use the standalone wrapper (Option C) unless you're actively contributing to tt-metal development.
+**Recommended approach:** Use the current Phase 1/Phase 2 scripts unless you're actively contributing to tt-metal development.
 
 **Reasons:**
 1. No coupling to tt-metal versions
@@ -122,7 +122,7 @@ for frame_idx in range(num_frames):
 3. Easier to maintain independently
 4. Clear separation of concerns
 
-The standalone wrapper in `examples/generate_with_sd35.py` implements the full denoising loop manually, giving complete control without requiring tt-metal modifications.
+`examples/generate_blackhole.py` implements the full denoising loop manually, giving complete control without requiring tt-metal modifications.
 
 ## Submitting to tt-metal (Optional)
 

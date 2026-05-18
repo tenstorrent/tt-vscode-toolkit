@@ -17,7 +17,7 @@ from diffusers import AnimateDiffPipeline, DDIMScheduler, MotionAdapter
 def create_animatediff_pipeline(
     model_id: str = "CompVis/stable-diffusion-v1-4",
     adapter_id: str = "guoyww/animatediff-motion-adapter-v1-5-2",
-    torch_dtype: torch.dtype = torch.float16,
+    torch_dtype: torch.dtype = torch.float32,
 ) -> AnimateDiffPipeline:
     """Create a diffusers AnimateDiffPipeline with MotionAdapter.
 
