@@ -141,7 +141,7 @@ You don't need 8B parameters for production AI. Qwen3-0.6B is a **game-changer**
 - ✅ **Ultra-Lightweight** - 0.6B params (13x smaller than 8B models)
 - ✅ **Blazing Fast** - Sub-millisecond inference, 10,000+ QPS capable
 - ✅ **Multilingual** - Strong performance across many languages
-- ✅ **N150-Perfect** - Guaranteed to work on DRAM-constrained systems
+- ✅ **n150-Perfect** - Guaranteed to work on DRAM-constrained systems
 - ✅ **32K Context** - Long conversations, document analysis
 - ✅ **Cost-Effective** - Minimal compute requirements
 
@@ -164,9 +164,9 @@ hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 - ✅ **Code-Specialized Training** - Trained specifically on code datasets (Python, JavaScript, C++, etc.)
 - ✅ **Excellent Code Completion** - Better code suggestions than general-purpose models
 - ✅ **Strong Code Understanding** - Understands code structure, APIs, and patterns
-- ✅ **1.5B params** - Small enough for N150, large enough for quality results
+- ✅ **1.5B params** - Small enough for n150, large enough for quality results
 - ✅ **Fast Iteration** - Quick responses for coding workflows
-- ✅ **N150-Perfect** - Fits comfortably on single-chip hardware
+- ✅ **n150-Perfect** - Fits comfortably on single-chip hardware
 - ✅ **No Token Required** - Open weights, freely available
 
 **Download Qwen2.5-Coder-1.5B-Instruct:**
@@ -182,7 +182,7 @@ hf download Qwen/Qwen2.5-Coder-1.5B-Instruct --local-dir ~/models/Qwen2.5-Coder-
 - Bug fixing and refactoring
 - Learning programming with AI
 
-**Need even more code power?** Try **Qwen2.5-Coder-7B-Instruct** (requires N300+):
+**Need even more code power?** Try **Qwen2.5-Coder-7B-Instruct** (requires n300+):
 
 ```bash
 hf download Qwen/Qwen2.5-Coder-7B-Instruct --local-dir ~/models/Qwen2.5-Coder-7B-Instruct
@@ -201,11 +201,11 @@ hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 - **1B params** (8x smaller than 8B)
 - **140+ languages** supported
 - **32K context** window
-- Good for N150, works on N300
+- Good for n150, works on n300
 
 ---
 
-**📥 Llama-3.1-8B-Instruct** - For N300/T3K/P100 only
+**📥 Llama-3.1-8B-Instruct** - For n300/T3K/P100 only
 
 ```bash
 hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
@@ -213,7 +213,7 @@ hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-I
 
 **Requirements:**
 - HuggingFace token (gated model)
-- N300/T3K/P100 hardware (NOT recommended for N150)
+- n300/T3K/P100 hardware (NOT recommended for n150)
 - Higher DRAM usage
 
 ---
@@ -397,7 +397,7 @@ python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 # Hardware Detection:
 #   → Runs tt-smi -s to detect hardware type
 #   → Sets MESH_DEVICE (N150/N300/T3K/P100/P150/GALAXY)
-#   → Sets TT_METAL_ARCH_NAME=blackhole (for P100/P150)
+#   → Sets TT_METAL_ARCH_NAME=blackhole (for p100/p150)
 #   → Sets TT_METAL_HOME=~/tt-metal (if not already set)
 #
 # Model Configuration:
@@ -422,7 +422,7 @@ python ~/tt-scratchpad/start-vllm-server.py \
 
 **What the script does automatically:**
 
-1. **Detects hardware** - Runs tt-smi to identify N150/N300/T3K/P100/P150
+1. **Detects hardware** - Runs tt-smi to identify n150/n300/T3K/P100/p150
 2. **Sets environment variables** - MESH_DEVICE, TT_METAL_ARCH_NAME, TT_METAL_HOME
 3. **Registers TT-optimized models** - TTLlamaForCausalLM for hardware acceleration
 4. **Sets HF_MODEL** - Auto-detects org prefix (Qwen/, google/, meta-llama/)
@@ -471,9 +471,9 @@ source ~/activate-vllm-env.sh && \
 ```
 
 **That's literally it!** The activation script sets up the environment and the starter script auto-detects and configures:
-- ✅ **Hardware type** (N150/N300/T3K/P100/P150) via tt-smi
+- ✅ **Hardware type** (n150/n300/T3K/P100/p150) via tt-smi
 - ✅ **MESH_DEVICE** environment variable
-- ✅ **TT_METAL_ARCH_NAME** (blackhole for P100/P150)
+- ✅ **TT_METAL_ARCH_NAME** (blackhole for P100/p150)
 - ✅ **TT_METAL_HOME** (defaults to ~/tt-metal)
 - ✅ **Served model name** (`Qwen/Qwen3-0.6B`)
 - ✅ **Sensible defaults** (2048 context, 16 seqs, 64 block size)
@@ -488,13 +488,13 @@ Model served as `Qwen/Qwen3-0.6B` with sensible defaults. Works on any hardware!
 
 Now start vLLM with your chosen model and hardware configuration. These commands show all parameters explicitly for learning purposes, but remember - you can use the minimal command above and override only what you need!
 
-**✅ Start here:** Qwen3-0.6B is the **recommended** model for N150 - tiny, fast, and smart!
+**✅ Start here:** Qwen3-0.6B is the **recommended** model for n150 - tiny, fast, and smart!
 
 **Choose your hardware:**
 
 ---
 
-### N150 (Wormhole - Single Chip) - Most common for development
+### n150 (Wormhole - Single Chip) - Most common for development
 
 **✅ Recommended: Qwen3-0.6B** - Tiny, fast, reasoning-capable!
 
@@ -516,7 +516,7 @@ source ~/activate-vllm-env.sh && \
 - **~16 concurrent users** with 2K context each
 - **Sub-second inference** - perfect for development
 - **Reasoning capabilities** - dual thinking modes
-- **Zero DRAM issues** - guaranteed to work on N150
+- **Zero DRAM issues** - guaranteed to work on n150
 - **Clean model name**: `Qwen/Qwen3-0.6B` (not `/home/user/models/...`)
 
 **Note:** HF_MODEL is auto-detected! The script automatically sets `HF_MODEL=Qwen/Qwen3-0.6B` from your --model path.
@@ -539,11 +539,11 @@ source ~/activate-vllm-env.sh && \
 
 ---
 
-**⚠️ Not recommended for N150: Llama-3.1-8B**
+**⚠️ Not recommended for n150: Llama-3.1-8B**
 
-Llama-3.1-8B typically exhausts DRAM on N150. Use Qwen3-0.6B or Gemma 3-1B-IT instead for reliable operation.
+Llama-3.1-8B typically exhausts DRAM on n150. Use Qwen3-0.6B or Gemma 3-1B-IT instead for reliable operation.
 
-If you must try Llama on N150:
+If you must try Llama on n150:
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -557,13 +557,13 @@ source ~/activate-vllm-env.sh && \
     --block-size 64
 ```
 
-[🚀 Start vLLM with Llama (N150 - Not Recommended)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N150"}])
+[🚀 Start vLLM with Llama (n150 - Not Recommended)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N150"}])
 
 **Warning:** Expect DRAM exhaustion errors. Qwen3-0.6B is 13x smaller and works reliably.
 
 ---
 
-### N300 (Wormhole - Dual Chip)
+### n300 (Wormhole - Dual Chip)
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -578,7 +578,7 @@ source ~/activate-vllm-env.sh && \
     --tensor-parallel-size 2
 ```
 
-[🚀 Start vLLM Server (N300)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
+[🚀 Start vLLM Server (n300)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
 
 ---
 
@@ -603,9 +603,9 @@ source ~/activate-vllm-env.sh && \
 
 ---
 
-### P100 / P300c (Blackhole - Single Chip)
+### P100 / p300c (Blackhole - Single Chip)
 
-> **QB2 / QuietBox users:** P300c is architecturally identical to P100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A QuietBox 2 with 4× P300c = 4 independent single-chip devices; for most lessons use device 0 only.
+> **QuietBox 2 / QuietBox users:** p300c is architecturally identical to P100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A QuietBox 2 with 4× p300c = 4 independent single-chip devices; for most lessons use device 0 only.
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -621,7 +621,7 @@ source ~/activate-vllm-env.sh && \
 
 [🚀 Start vLLM Server (P100)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
 
-**⚠️ Remember:** P100/P300c requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
+**⚠️ Remember:** P100/p300c requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
 
 **💡 Memory Tip:** These settings use 8K context to avoid OOM errors. For longer context (16K), use `--max-model-len 16384 --max-num-seqs 1`.
 
@@ -682,8 +682,8 @@ ModelRegistry.register_model(
 
 **Environment variables (all hardware types need these):**
 - `TT_METAL_HOME=~/tt-metal` - Points to tt-metal installation (required by setup-metal.sh)
-- `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (N150, N300, T3K, P100)
-- `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (P100)**: Set to `blackhole`. Wormhole chips (N150/N300/T3K) auto-detect but P100 needs explicit specification.
+- `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (n150, n300, T3K, P100)
+- `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (P100)**: Set to `blackhole`. Wormhole chips (n150/n300/T3K) auto-detect but P100 needs explicit specification.
 - `PYTHONPATH=$TT_METAL_HOME` - Required so Python can import TT model classes from tt-metal
 
 **vLLM flags (vary by hardware):**
@@ -713,7 +713,7 @@ INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 
 **Want to try a different model?** It's easy! Just change the `--model` path in the command.
 
-**Example: Switch from Llama to Qwen on N150:**
+**Example: Switch from Llama to Qwen on n150:**
 
 ```bash
 # Stop the current server (Ctrl+C in the server terminal)
@@ -1189,16 +1189,16 @@ These usually mean the environment wasn't set up correctly. Best solution: recre
 bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
-**Out of Memory / DRAM Exhausted (N150 Users):**
-If larger models (8B params) exhaust your DRAM on N150, use smaller models:
+**Out of Memory / DRAM Exhausted (n150 Users):**
+If larger models (8B params) exhaust your DRAM on n150, use smaller models:
 
 **Recommended small models:**
-- **Qwen3-0.6B** - 0.6B params (13x smaller than 8B) ✅ **Best for N150**
+- **Qwen3-0.6B** - 0.6B params (13x smaller than 8B) ✅ **Best for n150**
   ```bash
   # Download and run Qwen3-0.6B
   hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 
-  # Start server (use N150 command from Step 4 above)
+  # Start server (use n150 command from Step 4 above)
   python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B ...
 ```
 
@@ -1207,12 +1207,12 @@ If larger models (8B params) exhaust your DRAM on N150, use smaller models:
   # Download and run Gemma 3-1B-IT
   hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 
-  # Start server (use N150 command from Step 4 above)
+  # Start server (use n150 command from Step 4 above)
   python ~/tt-scratchpad/start-vllm-server.py --model ~/models/gemma-3-1b-it ...
 ```
 
-**Why small models work better on N150:**
-- **Minimal DRAM usage** - Fits comfortably in N150's memory
+**Why small models work better on n150:**
+- **Minimal DRAM usage** - Fits comfortably in n150's memory
 - **Faster inference** - Smaller model = faster generation
 - **Same API** - Works with all the same commands
 - **Perfect for development** - Ideal for testing and iteration

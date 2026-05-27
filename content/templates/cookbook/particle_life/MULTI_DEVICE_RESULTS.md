@@ -1,9 +1,9 @@
 # Particle Life Multi-Device Performance Results
 
-## QuietBox Blackhole Tower (4x P300c) Benchmark
+## QuietBox Blackhole Tower (4x p300c) Benchmark
 
 **Test Configuration:**
-- Hardware: 4x P300c (Blackhole) chips
+- Hardware: 4x p300c (Blackhole) chips
 - Particles: 2,048 across 3 species
 - Simulation steps: 100 steps
 - Total force calculations: 419,430,400 (2,048² × 100)

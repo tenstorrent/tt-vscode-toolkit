@@ -261,7 +261,7 @@ C = ttnn.matmul(A, B)  # Matrix multiply on Tenstorrent
 **Advantages:**
 - Easy to write (familiar PyTorch-like API)
 - Optimized for common patterns (matmul, conv2d)
-- Portable (works on N150, N300, T3K, P100)
+- Portable (works on n150, n300, T3K, P100)
 
 **Disadvantages:**
 - Less control (can't hand-tune every instruction)

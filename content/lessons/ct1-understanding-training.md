@@ -122,7 +122,7 @@ Tenstorrent's training ecosystem is designed around clarity and modularity. Here
 graph TD
     A[Your Training Script] --> B[tt-train API<br/>High-level Training Interface]
     B --> C[tt-metal SDK<br/>Hardware Operations]
-    C --> D[Tenstorrent Hardware<br/>N150/N300/T3K/P100/Galaxy]
+    C --> D[Tenstorrent Hardware<br/>n150/n300/T3K/P100/Galaxy]
 
     E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
 
@@ -257,16 +257,16 @@ Once training is complete, use your fine-tuned model for inference. Integrate wi
 
 ## Hardware Considerations
 
-### N150 (Single Wormhole Chip)
+### n150 (Single Wormhole Chip)
 - **Perfect for:** Fine-tuning small models (1-3B params)
 - **Batch size:** 4-8 (conservative for DRAM)
 - **Training time:** 1-3 hours typical
 - **What you'll learn:** Core concepts, single-device patterns
 
-### N300 (Dual Wormhole Chips)
+### n300 (Dual Wormhole Chips)
 - **Perfect for:** Larger models, faster training
 - **Batch size:** 16-32 (distributed across chips)
-- **Training time:** 30-60 minutes (2x faster than N150)
+- **Training time:** 30-60 minutes (2x faster than n150)
 - **What you'll learn:** DDP patterns, multi-device coordination
 
 ### T3K / Blackhole / Galaxy (Advanced)
@@ -275,7 +275,7 @@ Once training is complete, use your fine-tuned model for inference. Integrate wi
 - **Training time:** Minutes for small jobs
 - **What you'll learn:** Scaling strategies, tensor parallelism
 
-**For this series:** We'll focus on N150 (everyone can follow) with N300 examples for scaling.
+**For this series:** We'll focus on n150 (everyone can follow) with n300 examples for scaling.
 
 ---
 
@@ -297,7 +297,7 @@ This series uses concrete examples to teach transferable principles:
 - Clear learning progression (simple → complex)
 - Visual results (you can see the model learning)
 - Transferable to any domain
-- Work on all hardware (N150 through Galaxy)
+- Work on all hardware (n150 through Galaxy)
 
 **The goal:** Learn principles you can apply to **your** custom models and domains.
 
@@ -414,22 +414,22 @@ You're about to learn how to train custom models - but what will you build with 
 - Specialized tokenizers (music notation, chemical formulas)
 - Domain-specific embeddings (protein sequences, geographic data)
 
-### Working Within Constraints (N150 Can Do This!)
+### Working Within Constraints (n150 Can Do This!)
 
 **You don't need massive infrastructure to build something meaningful:**
 
-- **Fine-tune 1-3B models in hours** - TinyLlama, Qwen3-0.6B, Gemma-3-1B all work on N150
+- **Fine-tune 1-3B models in hours** - TinyLlama, Qwen3-0.6B, Gemma-3-1B all work on n150
 - **Deploy with vLLM for production inference** - Sub-millisecond latency, thousands of requests/second
 - **Iterate quickly with small datasets** - 100-1000 high-quality examples beat 100,000 mediocre ones
 - **Combine multiple specialized models** - Build an ensemble of experts, each fine-tuned for specific tasks
-- **Scale when needed** - Start on N150, move to N300 for 2x speedup, T3K for 8x, Galaxy for research scale
+- **Scale when needed** - Start on n150, move to n300 for 2x speedup, T3K for 8x, Galaxy for research scale
 
 **The magic is in the data and the task definition, not the hardware scale.**
 
 ### Imagine: Your Custom Model Journey
 
 **Month 1 (Starting Today):**
-- Learn training fundamentals on N150
+- Learn training fundamentals on n150
 - Build your first domain-specific model
 - Deploy with vLLM for internal use
 - **Outcome:** Working custom model serving real users
@@ -437,7 +437,7 @@ You're about to learn how to train custom models - but what will you build with 
 **Month 2-3:**
 - Experiment with different base models (Qwen, Gemma, Llama)
 - Try multi-task fine-tuning (one model, multiple skills)
-- Scale to N300 for faster iteration
+- Scale to n300 for faster iteration
 - **Outcome:** Production-ready specialized models
 
 **Month 6+:**
@@ -475,7 +475,7 @@ You're about to learn how to train custom models - but what will you build with 
 
 ✅ **tt-blacksmith shows the patterns** for organizing training code
 
-✅ **Start with N150**, scale to N300+ when needed
+✅ **Start with n150**, scale to n300+ when needed
 
 ✅ **Focus on data quality** over quantity
 

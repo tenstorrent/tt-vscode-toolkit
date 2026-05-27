@@ -2,7 +2,7 @@
 
 **Date:** January 3, 2026
 **Status:** Phases 1-3 Complete | Phase 4 (Pipeline Integration) Ready to Begin
-**Hardware:** N150 (Wormhole - Single Chip)
+**Hardware:** n150 (Wormhole - Single Chip)
 
 ---
 
@@ -285,14 +285,14 @@ export_to_video(frames, "butterfly_animation.mp4", fps=8)
 ### Minimum Success ✅ (Achievable)
 - ✅ Generate 2-frame sequence with temporal coherence
 - ✅ AnimateDiff weights loaded correctly
-- ✅ No crashes, runs on N150
+- ✅ No crashes, runs on n150
 - ✅ Visual difference between frames shows motion
 
 ### Full Success 🎯 (Goal)
 - ✅ Generate 16-frame animated sequences
 - ✅ Smooth motion (butterfly actually lands, wings move)
 - ✅ 512x512 or 768x768 resolution
-- ✅ ~2-3 minutes per 16-frame sequence on N150
+- ✅ ~2-3 minutes per 16-frame sequence on n150
 - ✅ Export to MP4 video
 
 ---
@@ -334,7 +334,7 @@ export_to_video(frames, "butterfly_animation.mp4", fps=8)
 **Fallback:** Use as proof-of-concept, fine-tune motion module for SD 3.5
 
 ### Challenge 3: Memory Constraints ⚠️
-**Problem:** 16 frames @ 512x512 may exceed N150 DRAM
+**Problem:** 16 frames @ 512x512 may exceed n150 DRAM
 **Solution:** Batch processing (4 frames at a time), monitor with tt-smi
 **Status:** Will test in Phase 5
 
@@ -390,7 +390,7 @@ The temporal attention module is fully implemented in TTNN, injected into SD 3.5
 The remaining work (Phases 4-6) is more straightforward:
 - Plumbing num_frames through the pipeline
 - Testing with 2 and 16 frames
-- Optimizing for N150 memory constraints
+- Optimizing for n150 memory constraints
 
 **AnimateDiff-style video generation on TT hardware is now within reach!**
 

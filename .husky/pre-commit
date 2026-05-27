@@ -1,2 +1,6 @@
 #!/usr/bin/env sh
+# Copy-safe checks only — no build, no dist/, no TypeScript compile.
+# Validates lesson registry sync, command URIs in markdown, and internal links.
+npm run validate:lessons
+npm run validate:command-uris
 npm run test:links

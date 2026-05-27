@@ -35,7 +35,7 @@ validationNotes: Rewritten for pre-installed venv-forge; zero install steps
 The `venv-forge` / `tt-forge-venv` environment ships JAX, torch-xla, and the TT PJRT plugin
 pre-installed. There is no installation step — just activate and start computing.
 
-> **QB2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
+> **QuietBox 2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
 > four entries). `pmap` distributes work across them automatically.
 
 ---
@@ -69,7 +69,7 @@ Expected output:
 ```
 TT devices: [TtDevice(id=0)]          # N150 / p300c
 # or
-TT devices: [TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # QB2
+TT devices: [TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # QuietBox 2
 ```
 
 [▶ Check TT Devices](command:tenstorrent.runHardwareDetection)
@@ -155,10 +155,10 @@ print(out.devices())      # {TtDevice(id=0)}
 
 ---
 
-## Multi-device with pmap (QB2 / N300 / T3K)
+## Multi-device with pmap (QuietBox 2 / n300 / T3K)
 
 `jax.pmap` maps a function over a leading batch dimension, one slice per device.
-On QB2 with four p300c chips this uses all four in parallel:
+On QuietBox 2 with four p300c chips this uses all four in parallel:
 
 ```python
 import jax
@@ -177,7 +177,7 @@ def matmul_per_device(A):
 A = jnp.ones((n, 512, 512))
 result = matmul_per_device(A)
 
-print(result.shape)       # (4, 512, 512) on QB2
+print(result.shape)       # (4, 512, 512) on QuietBox 2
 print(result.sharding)    # shows per-device placement
 ```
 
@@ -244,17 +244,17 @@ Wormhole and Blackhole chips are configured identically at the JAX API level.
 
 | Hardware | `jax.devices()` | Notes |
 |----------|-----------------|-------|
-| N150 | `[TtDevice(id=0)]` | Single Wormhole chip |
-| N300 | `[TtDevice(id=0), TtDevice(id=1)]` | Two Wormhole chips |
+| n150 | `[TtDevice(id=0)]` | Single Wormhole chip |
+| n300 | `[TtDevice(id=0), TtDevice(id=1)]` | Two Wormhole chips |
 | T3K | `[TtDevice(id=0..7)]` | Eight Wormhole chips |
 | p300c | `[TtDevice(id=0)]` | Single Blackhole chip |
-| QB2 | `[TtDevice(id=0..3)]` | Four independent p300c chips |
+| QuietBox 2 | `[TtDevice(id=0..3)]` | Four independent p300c chips |
 | Galaxy | `[TtDevice(id=0..31)]` | 32 Wormhole chips |
 
 Set `TT_METAL_ARCH_NAME` before activating the env if it isn't already set:
 
 ```bash
-export TT_METAL_ARCH_NAME=blackhole   # p300c / QB2 / P150
+export TT_METAL_ARCH_NAME=blackhole   # p300c / QuietBox 2 / p150
 export TT_METAL_ARCH_NAME=wormhole_b0 # N150 / N300 / T3K / Galaxy
 source ~/tt-forge-venv/bin/activate
 ```

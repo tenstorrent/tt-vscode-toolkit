@@ -148,7 +148,7 @@ python test_multi_device.py
 python particle_life_multi_device.py --multi-device
 ```
 
-### Performance Results (4x P300c QuietBox)
+### Performance Results (4x p300c QuietBox)
 
 | Mode | Runtime (100 steps) | Performance | Speedup |
 |------|---------------------|-------------|---------|
@@ -183,8 +183,8 @@ See `MULTI_DEVICE_RESULTS.md` for detailed performance analysis.
 - 8,192 particles = 67M calculations/frame
 
 **Hardware Recommendations**:
-- N150: Up to 4,096 particles
-- N300: Up to 8,192 particles
+- n150: Up to 4,096 particles
+- n300: Up to 8,192 particles
 - T3K: Up to 16,384 particles
 - **QuietBox (multi-device)**: Up to 16,384+ particles with 2-4x speedup
 

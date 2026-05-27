@@ -77,7 +77,7 @@ directly.
 
 Before diving in, here's what makes Tenstorrent hardware worth exploring:
 
-**Wormhole N150 (single chip, 8 TOPS):**
+**Wormhole n150 (single chip, 8 TOPS):**
 - Runs Llama 3.1 8B at ~20 tok/s
 - Generates 512×512 images in ~30s with Stable Diffusion
 - Runs BERT-Large inference at ~400 sentences/sec
@@ -87,7 +87,7 @@ Before diving in, here's what makes Tenstorrent hardware worth exploring:
 - Stable Diffusion 3.5 Large in 5.6 seconds per image
 - Llama 3 70B at hundreds of tok/s
 
-**The same TTNN Python code runs on all of these.** You write for N150, scale to Galaxy
+**The same TTNN Python code runs on all of these.** You write for n150, scale to Galaxy
 by changing a device count. That's the architecture advantage this lesson explores.
 
 ---
@@ -170,14 +170,14 @@ hardware-optimized AI models available. Here's what you can run right now:
 ### Production-Ready (models/demos/)
 
 **Language Models:**
-- **Llama 3.1 8B** — Chat, code, reasoning (N150/N300)
+- **Llama 3.1 8B** — Chat, code, reasoning (n150/n300)
 - **Llama 3 70B** — Large-scale inference (Galaxy, 32 chips)
 - **DeepSeek-V3** — State-of-the-art reasoning (Galaxy)
-- **Gemma 3 27B** — Multimodal text+image, 128K context (N300/T3K)
+- **Gemma 3 27B** — Multimodal text+image, 128K context (n300/T3K)
 - **Qwen 2.5 VL** — Vision-language understanding
 
 **Vision Models:**
-- **Stable Diffusion 1.4** — Text-to-image (N150/N300/P100)
+- **Stable Diffusion 1.4** — Text-to-image (n150/n300/P100)
 - **YOLO v10/v11/v12** — Real-time object detection
 - **SegFormer** — Semantic segmentation
 - **SigLIP** — Image-text matching
@@ -201,16 +201,16 @@ hardware-optimized AI models available. Here's what you can run right now:
 Models are organized by target hardware for easy discovery:
 
 ```
-models/demos/wormhole/   — N150/N300 optimized
+models/demos/wormhole/   — n150/n300 optimized
 models/demos/t3000/      — T3K (8-chip) configurations
-models/demos/blackhole/  — P100/P300c (Blackhole)
+models/demos/blackhole/  — p100/p300c (Blackhole)
 models/demos/tg/         — Galaxy (32-chip)
 ```
 
 **🎯 What's possible:**
 1. **Run a 685B parameter model** — DeepSeek-V3 on Galaxy
 2. **128K context windows** — Read entire books as context
-3. **Real-time object detection** — YOLO v12 on N150
+3. **Real-time object detection** — YOLO v12 on n150
 4. **Train models on device** — nanoGPT is buildable from scratch
 5. **Native video generation** — Mochi and Wan 2.2 (experimental)
 
@@ -459,7 +459,7 @@ cd ~/tt-metal && python3 /tmp/tile_experiment.py
 
 ## Key Takeaways
 
-- ✅ **TTNN runs on every Tenstorrent chip** — write once, scale from N150 to Galaxy
+- ✅ **TTNN runs on every Tenstorrent chip** — write once, scale from n150 to Galaxy
 - ✅ **Tile-based computing** (32×32) is the native format — align your shapes!
 - ✅ **Three-kernel model** (Reader→Compute→Writer) enables pipelined execution
 - ✅ **Explicit memory** (L1 SRAM) instead of caches — predictable performance

@@ -498,7 +498,7 @@ Training cost ∝ (num_params) × (num_tokens) × (context_length)
 
 ### Example: Nano-Trickster (CT-8)
 
-**Goal:** Build a 10-20M parameter model for N150.
+**Goal:** Build a 10-20M parameter model for n150.
 
 **Design:**
 ```yaml
@@ -526,12 +526,12 @@ graph LR
     B --> B1[vocab: 256<br/>char-level]
     B --> B2[hidden: 256<br/>small]
     B --> B3[layers: 6<br/>shallow]
-    B --> B4[Training: 30-60 min<br/>N150 ✓]
+    B --> B4[Training: 30-60 min<br/>n150 ✓]
 
     C --> C1[vocab: 32,000<br/>BPE]
     C --> C2[hidden: 2048<br/>large]
     C --> C3[layers: 22<br/>deep]
-    C --> C4[Training: Many hours<br/>N300+ recommended]
+    C --> C4[Training: Many hours<br/>n300+ recommended]
 
     style B fill:#7B68EE,stroke:#333,stroke-width:2px
     style C fill:#4A90E2,stroke:#333,stroke-width:2px
@@ -540,7 +540,7 @@ graph LR
 ```
 
 **Why this works:**
-- Fits easily on N150 (low memory)
+- Fits easily on n150 (low memory)
 - Trains in 30-60 minutes (fast iteration)
 - Large enough to learn patterns (not a toy)
 - Small enough to understand (debuggable)
@@ -580,8 +580,8 @@ graph LR
     A --> D[Optimizer State<br/>8.8GB<br/>AdamW momentum]
     A --> E[Activations<br/>4GB<br/>batch × layers]
 
-    F[Total: ~17GB] --> G[N150: Tight<br/>DRAM limits]
-    F --> H[N300: Comfortable<br/>Distributed memory]
+    F[Total: ~17GB] --> G[n150: Tight<br/>DRAM limits]
+    F --> H[n300: Comfortable<br/>Distributed memory]
     F --> I[Nano-model 10-20M: Easy<br/>~200MB total]
 
     style A fill:#4A90E2,stroke:#333,stroke-width:2px
@@ -592,9 +592,9 @@ graph LR
 ```
 
 **This is why:**
-- N150 is tight for 1.1B models (DRAM limits)
-- N300 gives more headroom (distributed memory)
-- Smaller models (10-20M) train comfortably on N150
+- n150 is tight for 1.1B models (DRAM limits)
+- n300 gives more headroom (distributed memory)
+- Smaller models (10-20M) train comfortably on n150
 
 ### Compute Bottlenecks
 
@@ -708,7 +708,7 @@ graph TD
 
     B --> B1[Start: Pre-trained Model<br/>TinyLlama 1.1B<br/>Already knows language]
     B1 --> B2[Architecture: Fixed<br/>22 layers, 2048 hidden<br/>Can't change structure]
-    B2 --> B3[Training: Fast<br/>500-1000 steps<br/>1-3 hours on N150]
+    B2 --> B3[Training: Fast<br/>500-1000 steps<br/>1-3 hours on n150]
     B3 --> B4[Result: Specialized<br/>Keeps general knowledge<br/>Adds new behavior]
 
     C --> C1[Start: Random Weights<br/>Blank slate<br/>Knows nothing]
@@ -729,7 +729,7 @@ graph TD
 ### ❌ Don't: Make Everything Big
 
 ```yaml
-# This will OOM on N150 and train forever
+# This will OOM on n150 and train forever
 bad-design:
   hidden_dim: 4096    # Too big!
   num_layers: 24      # Too many!
@@ -740,7 +740,7 @@ bad-design:
 ### ✅ Do: Start Small, Scale Up
 
 ```yaml
-# This will work on N150
+# This will work on n150
 good-design:
   hidden_dim: 256     # Reasonable
   num_layers: 6       # Manageable
@@ -780,7 +780,7 @@ good-design:
 | `mlp_dim` | 2-4× hidden | 768 (3×) | 5632 (2.75×) |
 | `max_seq_len` | 128-4096 | 512 | 2048 |
 | **Total params** | - | ~11M | ~1.1B |
-| **Training time (N150)** | - | 30-60 min | Many hours |
+| **Training time (n150)** | - | 30-60 min | Many hours |
 
 ---
 

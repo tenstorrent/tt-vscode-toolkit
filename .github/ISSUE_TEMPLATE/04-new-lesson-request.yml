@@ -90,11 +90,11 @@ body:
       description: What hardware would be needed for this lesson?
       multiple: true
       options:
-        - "N150"
-        - "N300"
+        - "n150"
+        - "n300"
         - "T3K"
         - "P100"
-        - "P150"
+        - "p150"
         - "Galaxy"
         - "Any hardware"
         - "No hardware needed (simulator or conceptual)"

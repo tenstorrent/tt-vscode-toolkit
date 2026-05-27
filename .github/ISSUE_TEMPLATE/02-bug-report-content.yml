@@ -69,7 +69,7 @@ body:
     attributes:
       label: Hardware Configuration (if relevant)
       description: Is this issue specific to certain hardware?
-      placeholder: "N150, N300, T3K, P100, etc."
+      placeholder: "n150, n300, T3K, P100, etc."
     validations:
       required: false
 

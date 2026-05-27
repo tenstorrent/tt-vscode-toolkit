@@ -50,7 +50,7 @@ Look for the "Board Type" field in the output (e.g., n150, n300, t3k, p100).
 **Choose your hardware configuration below:**
 
 <details open style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 N150 (Wormhole - Single Chip)</b> - Most common for development</summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n150 (Wormhole - Single Chip)</b> - Most common for development</summary>
 
 **Specifications:**
 - Chips: 1
@@ -73,12 +73,12 @@ cd ~/tt-vllm && \
   [... rest of command ...]
 ```
 
-[🚀 Run Command for N150](command:tenstorrent.lessonCommandN150)
+[🚀 Run Command for n150](command:tenstorrent.lessonCommandN150)
 
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 N300 (Wormhole - Dual Chip)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n300 (Wormhole - Dual Chip)</b></summary>
 
 **Specifications:**
 - Chips: 2
@@ -101,7 +101,7 @@ cd ~/tt-vllm && \
   [... rest of command ...]
 ```
 
-[🚀 Run Command for N300](command:tenstorrent.lessonCommandN300)
+[🚀 Run Command for n300](command:tenstorrent.lessonCommandN300)
 
 </details>
 
@@ -165,20 +165,20 @@ cd ~/tt-vllm && \
 
 ---
 
-**💡 Tip:** If you're unsure, start with N150 configuration - it works on most hardware, just with potentially different performance characteristics.
+**💡 Tip:** If you're unsure, start with n150 configuration - it works on most hardware, just with potentially different performance characteristics.
 
 ```
 
 ## Design Principles
 
-1. **First section open by default** (`<details open>`) - N150 is most common
+1. **First section open by default** (`<details open>`) - n150 is most common
 2. **Consistent emoji** - 🔧 for all hardware configs
 3. **Clear hierarchy** - Summary → Specs → Env Vars → Command → Button
 4. **Hardware detection at top** - Always provide a way to check
 5. **Separate commands per hardware** - Each gets its own registered command
 6. **Compassionate language** - "Not sure?" "Most common" "Best for"
-7. **Progressive disclosure** - Collapsed by default except N150
-8. **Tip at bottom** - Reassure beginners they can start with N150
+7. **Progressive disclosure** - Collapsed by default except n150
+8. **Tip at bottom** - Reassure beginners they can start with n150
 
 ## Implementation Notes
 

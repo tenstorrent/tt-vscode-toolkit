@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-03
 **Status:** Phase 1 & 2 Complete - Ready for Implementation
-**Goal:** Enable native animated video generation on N150 (16-frame sequences at 512x512)
+**Goal:** Enable native animated video generation on n150 (16-frame sequences at 512x512)
 
 ---
 
@@ -307,12 +307,12 @@ def load_temporal_weights(checkpoint_path, device):
 ### Minimum Success
 - ✅ 2-frame sequence with temporal coherence
 - ✅ Visual motion between frames
-- ✅ Runs on N150 without crashes
+- ✅ Runs on n150 without crashes
 
 ### Full Success
 - ✅ 16-frame animated sequences at 512x512
 - ✅ Smooth motion (butterfly actually lands, wings move)
-- ✅ ~2-3 minutes per 16-frame sequence on N150
+- ✅ ~2-3 minutes per 16-frame sequence on n150
 - ✅ Export to MP4 video
 
 ---
@@ -328,7 +328,7 @@ def load_temporal_weights(checkpoint_path, device):
 **Solution:** Start with CPU fallback for temporal layers, gradually port to TTNN
 
 ### Challenge 3: Memory Constraints
-**Problem:** 16 frames @ 512x512 may exceed N150 DRAM
+**Problem:** 16 frames @ 512x512 may exceed n150 DRAM
 **Solution:** Batch processing (4 frames at a time), lower resolution if needed
 
 ### Challenge 4: Weight Compatibility

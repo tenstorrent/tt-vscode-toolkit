@@ -2,25 +2,25 @@
 
 **Date:** 2026-01-09
 **Author:** Claude Code
-**Hardware:** QuietBox Blackhole Tower (4x P300c)
+**Hardware:** QuietBox Blackhole Tower (4x p300c)
 **Task:** Extend Particle Life cookbook recipe with multi-chip parallelization
 
 ---
 
 ## Executive Summary
 
-Successfully extended the Particle Life emergent complexity simulator to leverage all 4 P300c chips on QuietBox systems, achieving **2x real-world speedup** with 50% parallel efficiency. Created production-ready multi-device implementation with comprehensive benchmarking, documentation, and a beautiful 27MB animation demonstrating emergent patterns.
+Successfully extended the Particle Life emergent complexity simulator to leverage all 4 p300c chips on QuietBox systems, achieving **2x real-world speedup** with 50% parallel efficiency. Created production-ready multi-device implementation with comprehensive benchmarking, documentation, and a beautiful 27MB animation demonstrating emergent patterns.
 
 ---
 
 ## Mission
 
 **User Request:**
-> "I've updated the cookbook lesson to include particle life. Claude made it for a N300. Can you follow the lesson and get it up and running, then bonus points add a new part to the lesson to extend support to using the QB2's full power in the exercise?"
+> "I've updated the cookbook lesson to include particle life. Claude made it for a n300. Can you follow the lesson and get it up and running, then bonus points add a new part to the lesson to extend support to using the QuietBox 2's full power in the exercise?"
 
 **Objectives:**
 1. Get single-device Particle Life running on QuietBox
-2. Extend implementation to use all 4 P300c chips in parallel
+2. Extend implementation to use all 4 p300c chips in parallel
 3. Benchmark single vs multi-device performance
 4. Document results and update lesson content
 5. Add QuietBox-specific optimization guidance
@@ -83,7 +83,7 @@ history = sim.simulate(num_steps=500)
 
 ![Particle Life on QuietBox](../assets/img/samples/particle_life_multi_device.gif)
 
-*500 frames of emergent patterns running on QuietBox (4x P300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules, demonstrating beautiful emergent complexity from simple physics.*
+*500 frames of emergent patterns running on QuietBox (4x p300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules, demonstrating beautiful emergent complexity from simple physics.*
 
 ---
 
@@ -91,7 +91,7 @@ history = sim.simulate(num_steps=500)
 
 ### Benchmark Configuration
 
-- **Hardware:** QuietBox Blackhole Tower (4x P300c)
+- **Hardware:** QuietBox Blackhole Tower (4x p300c)
 - **Test:** 100 simulation steps
 - **Particles:** 2,048 across 3 species
 - **Total Force Calculations:** 419,430,400 (2,048² × 100)
@@ -211,7 +211,7 @@ This is actually quite good for a first multi-device implementation! Efficiency 
 
 **Content (~120 lines):**
 - Multi-device implementation explanation
-- Real benchmark results table (4x P300c)
+- Real benchmark results table (4x p300c)
 - Code examples showing device list usage
 - Commands to run multi-device mode
 - Efficiency analysis (50% explained)
@@ -318,7 +318,7 @@ particle_life_multi_device.gif  (27 MB)   - Animation for lesson
    - Backward compatible with single-device
 
 2. **Production-Ready Code**
-   - Thoroughly tested on 4x P300c
+   - Thoroughly tested on 4x p300c
    - Error handling and graceful degradation
    - Clean command-line interface
 
@@ -446,7 +446,7 @@ def _calculate_forces_multi_device(self, positions: torch.Tensor) -> torch.Tenso
 
 Successfully extended Particle Life to leverage QuietBox's multi-chip architecture:
 
-1. ✅ **Single-device baseline validated** - Working perfectly on P300c
+1. ✅ **Single-device baseline validated** - Working perfectly on p300c
 2. ✅ **Multi-device implementation complete** - 4-chip parallelization working
 3. ✅ **2x speedup achieved** - Real-world performance gain measured
 4. ✅ **Comprehensive documentation** - Lesson updated, templates added
@@ -476,7 +476,7 @@ This work demonstrates that QuietBox users can immediately leverage multi-chip c
 ---
 
 *Report completed: 2026-01-09 17:45 UTC*
-*Hardware: 4x P300c (Blackhole) QuietBox Tower*
+*Hardware: 4x p300c (Blackhole) QuietBox Tower*
 *Achievement: 2x speedup, 50% parallel efficiency, production-ready multi-device acceleration*
 *Animation: 27MB GIF showcasing emergent complexity on TT hardware*
 

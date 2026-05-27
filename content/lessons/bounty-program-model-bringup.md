@@ -63,7 +63,7 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 ## Case Study: Phi-3-mini-128k-instruct (Issue #19416)
 
 - **Model**: microsoft/Phi-3-mini-128k-instruct (3.8B parameters)
-- **Hardware**: N150 / N300 / LoudBox
+- **Hardware**: n150 / n300 / LoudBox
 - **Theoretical Max**: 48 tokens/second/user
 - **Result**: ✅ **Successfully merged to main** - Now part of tt-metal
 
@@ -214,11 +214,11 @@ cat ~/models/Phi-3/config.json
 2. **Model dimensions**: hidden_size, num_attention_heads, num_layers
    - Check if tile-aligned (divisible by 32 for TT hardware)
 3. **Special features**: RoPE scaling, sliding window attention, custom tokens?
-4. **Hardware fit**: Will it fit on target device? (N150 = 12GB, N300 = 24GB)
+4. **Hardware fit**: Will it fit on target device? (n150 = 12GB, n300 = 24GB)
 
 **For Phi-3:**
 - Architecture: `Phi3ForCausalLM` ✅ (supported in tt_transformers)
-- Size: 3.8B parameters ✅ (fits on N150)
+- Size: 3.8B parameters ✅ (fits on n150)
 - Context: 128K tokens (requires chunked prefill)
 - Special: SUlongRoPE (long-context scaling) - requires modification
 
@@ -448,7 +448,7 @@ pytest models/tt_transformers/demo/simple_text_demo.py \
 - **Throughput**: Tokens per second per user (t/s/u)
 - **Latency**: Average time per token
 
-**For Phi-3 on N150:**
+**For Phi-3 on n150:**
 - Theoretical max: ~48 t/s/u
 - Easy tier: ≥12 t/s/u (25%)
 - Medium tier: ≥24 t/s/u (50%)
@@ -559,8 +559,8 @@ def test_model_demo(model_name):
 
 ## Overview
 - Model: microsoft/Phi-3-mini-128k-instruct (3.8B parameters)
-- Hardware: N150 / N300 / LoudBox
-- Performance: 28 tokens/second/user on N150 (58% of theoretical max)
+- Hardware: n150 / n300 / LoudBox
+- Performance: 28 tokens/second/user on n150 (58% of theoretical max)
 
 ## Installation
 \`\`\`bash
@@ -580,9 +580,9 @@ pytest models/tt_transformers/demo/simple_text_demo.py -k "batch-32"
 ## Performance
 | Hardware | Batch Size | Throughput (t/s/u) | TTFT (ms) |
 |----------|------------|-------------------|-----------|
-| N150     | 1          | 15.2              | 120       |
-| N150     | 32         | 28.4              | 180       |
-| N300     | 32         | 42.1              | 95        |
+| n150     | 1          | 15.2              | 120       |
+| n150     | 32         | 28.4              | 180       |
+| n300     | 32         | 42.1              | 95        |
 
 ## Accuracy
 - Top-1: 84.3%
@@ -626,7 +626,7 @@ PR #3: Phi-3 demo test
 **PR description template:**
 ```markdown
 ## Summary
-Adds support for microsoft/Phi-3-mini-128k-instruct on N150/N300 hardware.
+Adds support for microsoft/Phi-3-mini-128k-instruct on n150/n300 hardware.
 
 Closes #19416 (bounty issue)
 
@@ -638,13 +638,13 @@ Closes #19416 (bounty issue)
 ## Testing
 - [x] Unit tests pass (test_phi3_*.py)
 - [x] Accuracy test passes (84.3% top-1, 96.7% top-5)
-- [x] Performance test passes (28 t/s/u on N150 = 58% theoretical)
+- [x] Performance test passes (28 t/s/u on n150 = 58% theoretical)
 - [x] Demo generates coherent text
 
 ## Performance
 | Device | Throughput | Tier Achieved |
 |--------|-----------|---------------|
-| N150   | 28 t/s/u  | Medium (58% of theoretical) |
+| n150   | 28 t/s/u  | Medium (58% of theoretical) |
 
 ## Accuracy
 - Top-1: 84.3% ✅ (>80% required)

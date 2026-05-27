@@ -1060,5 +1060,5 @@ export MESH_DEVICE=N150                 # Hardware target
 
 **Document Version:** 1.0
 **Last Updated:** 2025-12-16
-**Target Hardware:** Wormhole (N150/N300), Blackhole
+**Target Hardware:** Wormhole (n150/n300), Blackhole
 **tt-metal Version:** Latest main branch

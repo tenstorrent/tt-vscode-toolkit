@@ -267,13 +267,13 @@ These are real projects built with tt-lang — each started as a "what if" and
 ended with custom Tensix kernels running in production or close to it.
 
 **[SkyReels-1.3B](https://github.com/zoecarver/tt-lang-models)** — The full
-WAN transformer block fused into a single kernel on QB2 (4-chip Blackhole).
+WAN transformer block fused into a single kernel on QuietBox 2 (4-chip Blackhole).
 Five ops collapsed into one: input tiles stream in once, compute flows through
 L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op
 TTNN dispatch at production model dimensions.
 
 **[WAN Animate 14B](https://github.com/tenstorrent/tt-lang)** — A 40-layer,
-5120-hidden diffusion transformer brought up on a 4-chip QB2 (2×2 mesh).
+5120-hidden diffusion transformer brought up on a 4-chip QuietBox 2 (2×2 mesh).
 TT-Lang kernels cover 3D RoPE, AdaLN modulation, and attention softcap.
 The bring-up involved debugging seven integration bugs across the pipeline in
 a single session — possible because the functional simulator catches DFB
@@ -349,11 +349,11 @@ See the [Build tt-metal lesson](command:tenstorrent.showLesson?["build-tt-metal"
 # Download the simulator binary — choose Wormhole or Blackhole
 mkdir -p ~/sim && cd ~/sim
 
-# Wormhole (N150, N300, T3K, Galaxy)
+# Wormhole (n150, n300, T3K, Galaxy)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 
-# OR: Blackhole (P100, P150, P300c, QB2)
+# OR: Blackhole (P100, p150, p300c, QuietBox 2)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 ```

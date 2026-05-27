@@ -421,7 +421,7 @@ Create `experiments.md`:
 
 ## Experiment 1: Baseline (2026-02-01)
 - **Config:** training_n150.yaml
-- **Hardware:** N150
+- **Hardware:** n150
 - **Duration:** 2.3 hours
 - **Final Loss:** 1.84 (train), 2.12 (val)
 - **Result:** Good baseline, will try higher LR next
@@ -429,7 +429,7 @@ Create `experiments.md`:
 
 ## Experiment 2: Higher LR (2026-02-01)
 - **Config:** training_n150_lr2e4.yaml
-- **Hardware:** N150
+- **Hardware:** n150
 - **Duration:** 2.1 hours
 - **Final Loss:** 1.92 (train), 2.28 (val)
 - **Result:** Slightly worse, LR=1e-4 is better

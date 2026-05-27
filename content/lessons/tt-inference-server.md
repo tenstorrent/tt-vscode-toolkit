@@ -2,8 +2,8 @@
 id: tt-inference-server
 title: Production Inference with tt-inference-server
 description: >-
-  Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — N150, N300, T3K,
-  P100, p300c, or QB2. tt-inference-server automates Docker image selection,
+  Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3K,
+  P100, p300c, or QuietBox 2. tt-inference-server automates Docker image selection,
   model download, and server startup with a single command. OpenAI-compatible
   API ready immediately.
 category: serving
@@ -31,7 +31,7 @@ recommended_metal_version: v0.65.1
 validationDate: 2026-04-15
 validationNotes: >-
   Rewritten for v0.12.0 Docker images; --tt-device auto-detection; Llama-3.1-8B
-  validated Complete on WH (N150/N300/T3K) and Experimental on BH (P100/p300c).
+  validated Complete on WH (n150/n300/T3K) and Experimental on BH (P100/p300c).
 ---
 
 # Production Inference with tt-inference-server
@@ -42,8 +42,8 @@ hardware type and it handles everything: pulls the right Docker image (pre-built
 tt-metal + vLLM), downloads model weights, and starts an OpenAI-compatible
 inference server.
 
-> **QB2 / p300c users:** Llama-3.1-8B is supported on P100/P150 hardware
-> (🛠️ Experimental status). Use `--tt-device p100` for p300c or QB2.
+> **QuietBox 2 / p300c users:** Llama-3.1-8B is supported on P100/p150 hardware
+> (🛠️ Experimental status). Use `--tt-device p100` for p300c or QuietBox 2.
 
 ---
 
@@ -51,10 +51,10 @@ inference server.
 
 ### Install tt-inference-server
 
-**QB2 / pre-configured images:** tt-inference-server is pre-installed at
+**QuietBox 2 / pre-configured images:** tt-inference-server is pre-installed at
 `~/.local/lib/tt-inference-server`. Skip to the next section.
 
-**All other hardware (N150/N300/T3K/P100/P150):** Clone it:
+**All other hardware (n150/n300/T3K/P100/p150):** Clone it:
 
 ```bash
 git clone https://github.com/tenstorrent/tt-inference-server.git \
@@ -93,11 +93,11 @@ every current Tenstorrent board:
 
 | Hardware | Device flag | Status | Max context |
 |----------|-------------|--------|-------------|
-| N150 | `--tt-device n150` | 🟢 Complete | 64 K |
-| N300 | `--tt-device n300` | 🟢 Complete | 128 K |
+| n150 | `--tt-device n150` | 🟢 Complete | 64 K |
+| n300 | `--tt-device n300` | 🟢 Complete | 128 K |
 | T3K (WH QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
-| P100 / p300c / QB2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
-| P150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
+| P100 / p300c / QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| p150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
 | Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
 
 Two weight variants are available via MODEL_SPECS:
@@ -132,7 +132,7 @@ Add `--tt-device <device>` if auto-detection doesn't match your hardware.
 
 ### Hardware-specific commands
 
-#### N150 (Wormhole — single chip, 64 K context)
+#### n150 (Wormhole — single chip, 64 K context)
 
 ```bash
 python3 run.py \
@@ -143,11 +143,11 @@ python3 run.py \
   --no-auth
 ```
 
-[▶ Start Server (N150)](command:tenstorrent.startTtInferenceServerN150)
+[▶ Start Server (n150)](command:tenstorrent.startTtInferenceServerN150)
 
 ---
 
-#### N300 (Wormhole — dual chip, 128 K context)
+#### n300 (Wormhole — dual chip, 128 K context)
 
 ```bash
 python3 run.py \
@@ -158,7 +158,7 @@ python3 run.py \
   --no-auth
 ```
 
-[▶ Start Server (N300)](command:tenstorrent.startTtInferenceServerN300)
+[▶ Start Server (n300)](command:tenstorrent.startTtInferenceServerN300)
 
 ---
 
@@ -175,7 +175,7 @@ python3 run.py \
 
 ---
 
-#### P100 / p300c / QB2 (Blackhole — 64 K context, Experimental)
+#### P100 / p300c / QuietBox 2 (Blackhole — 64 K context, Experimental)
 
 ```bash
 python3 run.py \
@@ -186,7 +186,7 @@ python3 run.py \
   --no-auth
 ```
 
-> QB2 exposes each p300c chip as an independent `p100` device. Run one server
+> QuietBox 2 exposes each p300c chip as an independent `p100` device. Run one server
 > per chip, each on a different `--service-port`, or use the T3K-class
 > configurations when available on future firmware.
 
@@ -198,7 +198,7 @@ For full transparency, or when you want to run without `run.py`, use the
 container directly. Pass `--model` and `--tt-device` as container args; the
 container resolves the config from its bundled model spec catalog.
 
-**Wormhole (N150 / N300 / T3K):**
+**Wormhole (n150 / n300 / T3K):**
 
 ```bash
 docker run \
@@ -215,7 +215,7 @@ docker run \
 
 Change `--tt-device` to `n300` or `t3k` for those boards — same image.
 
-**Blackhole (P100 / p300c / QB2):**
+**Blackhole (P100 / p300c / QuietBox 2):**
 
 ```bash
 docker run \
@@ -437,7 +437,7 @@ print(response.choices[0].message.tool_calls)
 ### Reducing Context Length
 
 By default the server uses the full context window supported by the hardware
-(64 K on N150/P100, 128 K on N300/T3K). Reducing it lowers DRAM usage and
+(64 K on n150/P100, 128 K on n300/T3K). Reducing it lowers DRAM usage and
 can speed up model load:
 
 ```bash
@@ -469,12 +469,12 @@ peak memory or raise them when throughput matters more than latency:
 # Reduce to 8 concurrent users (lower memory, lower throughput)
 --vllm-override-args '{"max-num-seqs": 8}'
 
-# Increase for high-throughput batch workloads (N300/T3K only — needs headroom)
+# Increase for high-throughput batch workloads (n300/T3K only — needs headroom)
 --vllm-override-args '{"max-num-seqs": 64, "max-num-batched-tokens": 65536}'
 ```
 
 Defaults for Llama-3.1-8B: `max-num-seqs=32`, `max-num-batched-tokens=65536`
-(N150) / `131072` (N300/T3K).
+(n150) / `131072` (n300/T3K).
 
 ---
 
@@ -625,7 +625,7 @@ For video and image models (WAN 2.2, Mochi, FLUX) the container compiles tensor
 weights at startup and stores them in `TT_DIT_CACHE_DIR`. The default is
 `/tmp/TT_DIT_CACHE`, which is lost when the container stops.
 
-**First run without cache:** ~525 seconds (WAN 2.2 on QB2)
+**First run without cache:** ~525 seconds (WAN 2.2 on QuietBox 2)
 **Subsequent runs with cache:** ~5 minutes
 
 Move the cache under `cache_root` so it lives in the persistent Docker volume:

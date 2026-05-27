@@ -89,10 +89,10 @@ Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN accelera
 
 | Hardware | Status | Performance | Notes |
 |----------|--------|-------------|-------|
-| **N150** (Wormhole) | ✅ Supported | ~12-15 sec/image | Optimized single-chip config |
-| **N300** (Wormhole) | ✅ Supported | ~8-10 sec/image | Faster with 2 chips |
-| **P100** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Same Blackhole arch as P300c |
-| **P300c** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Single Blackhole chip; use `MESH_DEVICE=P100` |
+| **n150** (Wormhole) | ✅ Supported | ~12-15 sec/image | Optimized single-chip config |
+| **n300** (Wormhole) | ✅ Supported | ~8-10 sec/image | Faster with 2 chips |
+| **P100** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Same Blackhole arch as p300c |
+| **p300c** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Single Blackhole chip; use `MESH_DEVICE=P100` |
 | **T3K** (Wormhole) | ✅ Supported | ~5-8 sec/image | Production scale (8 chips) |
 
 **All hardware benefits from native TT-NN acceleration!** The model runs directly on Tensix cores using hardware-specific operators.
@@ -124,7 +124,7 @@ We'll use **Stable Diffusion XL Base 1.0** which runs natively on Tenstorrent ha
 - **HuggingFace Model:** `stabilityai/stable-diffusion-xl-base-1.0`
 - **Size:** ~10 GB
 - **Resolution:** 1024x1024 images (high quality!)
-- **Speed:** ~12-15 seconds per image on N150 (varies by hardware)
+- **Speed:** ~12-15 seconds per image on n150 (varies by hardware)
 - **Architecture:** UNet with dual text encoders (CLIP-L + OpenCLIP-G)
 - **Inference Steps:** 28-50 (configurable)
 - **Hardware:** Runs on TT-NN operators (native acceleration)
@@ -135,7 +135,7 @@ We'll use **Stable Diffusion XL Base 1.0** which runs natively on Tenstorrent ha
 - **Combined base+refiner** - New two-stage pipeline for best quality
 - These improvements make SDXL even faster and better on your hardware!
 
-**💡 Lighter Alternative:** For faster iteration or testing, Stable Diffusion v1.4 is also available (`models/demos/wormhole/stable_diffusion/`) and generates 512×512 images in ~8-10 seconds on N150. Great for development!
+**💡 Lighter Alternative:** For faster iteration or testing, Stable Diffusion v1.4 is also available (`models/demos/wormhole/stable_diffusion/`) and generates 512×512 images in ~8-10 seconds on n150. Great for development!
 
 ## Step 1: Authenticate with Hugging Face
 
@@ -154,7 +154,7 @@ hf auth login --token "$HF_TOKEN"
 Set the appropriate mesh device environment variable for your hardware:
 
 <details open style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 N150 (Wormhole - Single Chip)</b> - Most common</summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n150 (Wormhole - Single Chip)</b> - Most common</summary>
 
 ```bash
 export MESH_DEVICE=N150
@@ -165,7 +165,7 @@ export MESH_DEVICE=N150
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 N300 (Wormhole - Dual Chip)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n300 (Wormhole - Dual Chip)</b></summary>
 
 ```bash
 export MESH_DEVICE=N300
@@ -194,26 +194,26 @@ export MESH_DEVICE=P100
 export TT_METAL_ARCH_NAME=blackhole  # Required for Blackhole
 ```
 
-**Performance:** ~12-15 seconds per 1024x1024 image (similar to N150)
+**Performance:** ~12-15 seconds per 1024x1024 image (similar to n150)
 
 **⚠️ Note:** Blackhole SDXL support is experimental. Please report any issues!
 
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 P300c (Blackhole - Single Chip / QB2)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 p300c (Blackhole - Single Chip / QuietBox 2)</b></summary>
 
 ```bash
-export MESH_DEVICE=P100          # P300c runs in single-chip P100 mode
+export MESH_DEVICE=P100          # p300c runs in single-chip P100 mode
 export TT_METAL_ARCH_NAME=blackhole
 ```
 
 **Performance:** ~12-15 seconds per 1024x1024 image
 
-P300c is a single Blackhole chip — identical instruction set to P100.
+p300c is a single Blackhole chip — identical instruction set to P100.
 Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
 
-**QB2 note:** QB2 ships without `~/tt-metal`. You must clone and build
+**QuietBox 2 note:** QuietBox 2 ships without `~/tt-metal`. You must clone and build
 tt-metal from source before running SDXL. See
 [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
 
@@ -236,7 +236,7 @@ Run the Stable Diffusion XL demo with a sample prompt (using the MESH_DEVICE you
 mkdir -p ~/tt-scratchpad
 cd ~/tt-scratchpad
 export PYTHONPATH=~/tt-metal:$PYTHONPATH
-# Use the MESH_DEVICE you set in Step 2 (N150, N300, T3K, or P100)
+# Use the MESH_DEVICE you set in Step 2 (n150, n300, T3K, or P100)
 
 # Run with default prompt
 pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py
@@ -348,7 +348,7 @@ Here's what you can create with Stable Diffusion XL on Tenstorrent hardware:
 **Generation details:**
 - Resolution: 1024x1024
 - Steps: 28
-- Hardware: N150 (single Wormhole chip)
+- Hardware: n150 (single Wormhole chip)
 - Time: ~2-3 minutes (first run includes model load)
 
 ---
@@ -407,7 +407,7 @@ pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo_base_an
 3. Result: Noticeably better quality than base alone!
 
 **Performance:**
-- Takes about 2x longer than base-only (~25-30 sec on N150)
+- Takes about 2x longer than base-only (~25-30 sec on n150)
 - Worth it for final/production images
 - Use base-only for quick iteration, refiner for finals
 
@@ -544,7 +544,7 @@ warm lighting, film photograph, detailed, high quality"
 
 ## Performance Optimization
 
-**For faster generation on N150:**
+**For faster generation on n150:**
 
 1. **Reduce steps:**
    ```bash
@@ -557,15 +557,15 @@ warm lighting, film photograph, detailed, high quality"
 ```
 
 3. **Use attention slicing:**
-   The script automatically enables this for N150 to reduce memory usage
+   The script automatically enables this for n150 to reduce memory usage
 
 ## Comparing Generation Speed
 
 | Hardware | Steps | Time | Notes |
 |----------|-------|------|-------|
 | CPU Only | 50 | ~5-10 min | Very slow |
-| **N150** | 50 | ~15-30 sec | Accelerated |
-| N300 | 50 | ~10-20 sec | Faster (2 chips) |
+| **n150** | 50 | ~15-30 sec | Accelerated |
+| n300 | 50 | ~10-20 sec | Faster (2 chips) |
 | High-end GPU | 50 | ~5-10 sec | Comparison |
 
 ## Troubleshooting

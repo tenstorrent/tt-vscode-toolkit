@@ -121,12 +121,12 @@ Look for the `board_type` field to identify your hardware:
 
 **Blackhole Family (Latest Generation):**
 - **p100** - Single chip (cloud/standalone deployments)
-  - Best for: Similar to N150 but with newer architecture
+  - Best for: Similar to n150 but with newer architecture
   - Context limit: 64K tokens
   - Status: Some models validated, others experimental
 
 - **p150** - Dual chip (higher performance)
-  - Best for: Similar to N300 but with improvements
+  - Best for: Similar to n300 but with improvements
   - Context limit: 128K tokens
   - Status: Check official documentation for validated configurations
 
@@ -134,13 +134,13 @@ Look for the `board_type` field to identify your hardware:
   - Architecture: Blackhole (identical to P100)
   - Common in: Multi-device QuietBox Tower systems
   - MESH_DEVICE: Use P100 for single-chip lessons
-  - Example: 4x P300c = 4 separate single-chip devices
+  - Example: 4x p300c = 4 separate single-chip devices
 
 **Blackhole Architecture Equivalence:**
-All Blackhole cards (P100, P150, P300/P300c) share the same instruction set and capabilities. Lessons supporting P100 will work on P300/P300c without modification.
+All Blackhole cards (P100, p150, p300/p300c) share the same instruction set and capabilities. Lessons supporting P100 will work on p300/p300c without modification.
 
 **QuietBox Multi-Device Detection:**
-If you have a QuietBox Tower (4x P300c), `tt-smi` will show 4 devices:
+If you have a QuietBox Tower (4x p300c), `tt-smi` will show 4 devices:
 ```
 Device 0: 0000:01:00.0 | P300c | FW 19.4.0.0
 Device 1: 0000:02:00.0 | P300c | FW 19.4.0.0
@@ -168,7 +168,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 When you run `tt-smi`, you should see:
 
-**For Wormhole hardware (N150, N300, T3K):**
+**For Wormhole hardware (n150, n300, T3K):**
 ```bash
 Device 0: Wormhole
 Board Type: n150
@@ -178,7 +178,7 @@ Temperature: 45°C
 Power: 20W
 ```
 
-**For Blackhole hardware (P100, P150):**
+**For Blackhole hardware (P100, p150):**
 ```text
 Device 0: Blackhole
 Board Type: p100
@@ -294,12 +294,12 @@ dmesg | grep -i tenstorrent
 ## QuietBox Multi-Device Systems
 
 **What is QuietBox?**
-QuietBox is a Tenstorrent multi-chip development system. The QuietBox Blackhole Tower contains **4x P300c cards** (4 separate single-chip Blackhole devices).
+QuietBox is a Tenstorrent multi-chip development system. The QuietBox Blackhole Tower contains **4x p300c cards** (4 separate single-chip Blackhole devices).
 
 **Key Concepts:**
 
-**4x P300c ≠ 4-chip System**
-- **4x P300c** = 4 separate cards, each with 1 Blackhole chip
+**4x p300c ≠ 4-chip System**
+- **4x p300c** = 4 separate cards, each with 1 Blackhole chip
 - Total: 4 devices, each independently addressable
 - Each device runs in P100 mode (single Blackhole chip)
 
@@ -324,10 +324,10 @@ tt-smi -s  # Shows all 4 devices
 **Multi-Device Lessons** (Advanced):
 - Use all devices: `TT_METAL_NUM_DEVICES=4`
 - See Lesson 15 (Metalium Cookbook - Particle Life) for multi-device example
-- Achieves 2x speedup on 4x P300c through workload parallelization
+- Achieves 2x speedup on 4x p300c through workload parallelization
 
 **Troubleshooting:**
-- If script says "Unknown board type 'P300C'": Treat as P100 (single Blackhole)
+- If script says "Unknown board type 'p300c'": Treat as P100 (single Blackhole)
 - Multi-chip mesh initialization: All 4 devices will initialize fabric
 - Device reset: Use `tt-smi -r` carefully (close all processes first)
 
@@ -336,7 +336,7 @@ tt-smi -s  # Shows all 4 devices
 ## What You Learned
 
 - ✅ How to detect Tenstorrent hardware with `tt-smi`
-- ✅ Understanding different hardware types (N150, N300, T3K, P100, P150, P300/P300c)
+- ✅ Understanding different hardware types (n150, n300, T3K, P100, p150, p300/p300c)
 - ✅ Using `tt-smi -s` for structured JSON output
 - ✅ Identifying your specific hardware for later lessons
 - ✅ QuietBox multi-device system configuration

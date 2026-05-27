@@ -13,14 +13,14 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
-## Hardware Compatibility Goal: Wormhole + Blackhole (QB2 Readiness, Apr 2026)
+## Hardware Compatibility Goal: Wormhole + Blackhole (QuietBox 2 Readiness, Apr 2026)
 
-All lessons and templates must work on both **Wormhole** (N150/N300/T3K/Galaxy) and
-**Blackhole** (P100/P150/P300c/QB2) hardware. Key constraints:
+All lessons and templates must work on both **Wormhole** (n150/n300/T3K/Galaxy) and
+**Blackhole** (P100/p150/p300c/QuietBox 2) hardware. Key constraints:
 
-- **P300c = P100 mode**: P300c is a single Blackhole chip; QB2 = 4× P300c operating
-  as 4 independent single-chip devices (not a mesh). Treat P300c exactly like P100.
-- **QB2 ships without `~/tt-metal`**: Pre-configured QB2 images have TTNN and vLLM
+- **p300c = P100 mode**: p300c is a single Blackhole chip; QuietBox 2 = 4× p300c operating
+  as 4 independent single-chip devices (not a mesh). Treat p300c exactly like P100.
+- **QuietBox 2 ships without `~/tt-metal`**: Pre-configured QuietBox 2 images have TTNN and vLLM
   pre-installed but do not include the tt-metal source tree. Lessons must not assume
   `~/tt-metal` exists — link to `build-tt-metal` lesson for users who need it.
 - **`hf` CLI, not `huggingface-cli`**: All lessons and templates must use the new
@@ -31,8 +31,8 @@ All lessons and templates must work on both **Wormhole** (N150/N300/T3K/Galaxy) 
   the correct axis (COL on Blackhole, ROW on Wormhole).
 - **`TT_METAL_ARCH_NAME`**: Must be `blackhole` for P-series, `wormhole_b0` for N-series.
   Use `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` pattern to honour user-supplied values.
-- **Qwen3-0.6B first**: N150 and P300c reliably run Qwen3-0.6B. Llama-3.1-8B-Instruct
-  exhausts N150 DRAM and requires N300+ or P-series hardware. Lead with Qwen.
+- **Qwen3-0.6B first**: n150 and p300c reliably run Qwen3-0.6B. Llama-3.1-8B-Instruct
+  exhausts n150 DRAM and requires n300+ or P-series hardware. Lead with Qwen.
 
 ### WH/BH Compatibility Checklist
 
@@ -42,10 +42,10 @@ When authoring or reviewing a lesson or template, verify:
 - [ ] `DispatchCoreAxis.ROW` not present in any template
 - [ ] `~/tt-metal` existence not assumed without fallback / link to build-tt-metal
 - [ ] `p300c` added to `supportedHardware` and `validatedOn` in front matter where applicable
-- [ ] QB2 callout or note added for lessons that behave differently on QB2
+- [ ] QuietBox 2 callout or note added for lessons that behave differently on QuietBox 2
 - [ ] `HF_MODEL` exported before any inference command that requires it
 - [ ] `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install
-  (fixes `pkg_resources` missing on fresh QB2 environments)
+  (fixes `pkg_resources` missing on fresh QuietBox 2 environments)
 
 ## 🔧 Recent Multi-Device API Update (Jan 2026)
 
@@ -83,7 +83,7 @@ See `MULTI_DEVICE_FIX.md` for full details.
 **v0.0.98+ (Current)**: Lesson 7 uses clean markdown headers for better walkthrough rendering:
 
 ```markdown
-### N150 (Wormhole - Single Chip) - Most common for development
+### n150 (Wormhole - Single Chip) - Most common for development
 
 **✅ Recommended: Qwen3-0.6B** - Tiny, fast, reasoning-capable!
 
@@ -432,20 +432,20 @@ The JSON file includes a warning header:
 ```
 
 **vLLM commands (Lesson 7):**
-- Hardware-specific Llama: `startVllmServerN150/N300/T3K/P100()`
+- Hardware-specific Llama: `startVllmServerN150/n300/T3K/P100()`
 - Hardware-specific Qwen: `startVllmServerN150Qwen/N300Qwen/T3KQwen/P100Qwen()` (v0.0.89+)
 - Helper: `startVllmServerForHardware(hardware, config)` - accepts optional `modelPath` parameter
 - All use `'server'` terminal type
 
 **Model Support (updated v0.0.97):**
-- **Qwen3-0.6B** - Ultra-lightweight (0.6B params), dual thinking modes, reasoning excellence ✅ **PRIMARY RECOMMENDATION for N150**
+- **Qwen3-0.6B** - Ultra-lightweight (0.6B params), dual thinking modes, reasoning excellence ✅ **PRIMARY RECOMMENDATION for n150**
   - MMLU-Redux: 55.6, MATH-500: 77.6 (impressive for 0.6B!)
   - Sub-millisecond inference, 10,000+ QPS capable
   - Multilingual, 32K context
   - **Perfect for development and many production use cases**
-- **Gemma 3-1B-IT** - Small (1B params), multilingual (140+ langs), 32K context ✅ **Good for N150**
-- **Llama-3.1-8B-Instruct** - General-purpose chat (8B params, gated) ⚠️ **Requires N300/T3K/P100**
-- **Qwen3-8B** - Multilingual coding/math (8B params) ⚠️ **Requires N300+ for reliable operation**
+- **Gemma 3-1B-IT** - Small (1B params), multilingual (140+ langs), 32K context ✅ **Good for n150**
+- **Llama-3.1-8B-Instruct** - General-purpose chat (8B params, gated) ⚠️ **Requires n300/T3K/P100**
+- **Qwen3-8B** - Multilingual coding/math (8B params) ⚠️ **Requires n300+ for reliable operation**
 
 **🔑 HF_MODEL Auto-Detection (v0.0.97):**
 - `start-vllm-server.py` now auto-detects and sets `HF_MODEL` from `--model` path
@@ -454,8 +454,8 @@ The JSON file includes a warning header:
 - Llama models: No HF_MODEL needed (auto-detects correctly)
 - **Users no longer need to manually export HF_MODEL** - script handles it automatically!
 
-**⚠️ N150 DRAM Reality:**
-- Llama-3.1-8B-Instruct consistently exhausts DRAM on N150
+**⚠️ n150 DRAM Reality:**
+- Llama-3.1-8B-Instruct consistently exhausts DRAM on n150
 - **Solution**: Start with Qwen3-0.6B (13x smaller, reasoning-capable, production-ready)
 - Lesson 7 completely rewritten around Qwen3-0.6B as the hero model (v0.0.97)
 
@@ -500,12 +500,12 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 | Lesson | Focus | Hardware Variants |
 |--------|-------|-------------------|
 | 1-5 | Setup, Direct API | Generic |
-| 6-7 | Production (tt-inference-server, vLLM) | ✅ N150/N300/T3K/P100 |
+| 6-7 | Production (tt-inference-server, vLLM) | ✅ n150/n300/T3K/P100 |
 | 8 | VSCode Chat | Generic |
-| 9 | Image Generation (SD 3.5) | ✅ N150/N300/T3K/P100 |
+| 9 | Image Generation (SD 3.5) | ✅ n150/n300/T3K/P100 |
 | 10 | Coding Assistant | Generic |
-| 11 | TT-Forge (experimental) | N150 only |
-| 12 | TT-XLA JAX | ✅ N150/N300/T3K/Galaxy |
+| 11 | TT-Forge (experimental) | n150 only |
+| 12 | TT-XLA JAX | ✅ n150/n300/T3K/Galaxy |
 
 ## Troubleshooting
 
@@ -600,7 +600,7 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 **Good examples:**
 - ✅ "Fixed terminal accumulation in API test commands by adding reusable terminal helper"
-- ✅ "Removed broken FAQ link from OpenClaw QB2 assistant walkthrough"
+- ✅ "Removed broken FAQ link from OpenClaw QuietBox 2 assistant walkthrough"
 - ✅ "Updated default terminal name to match environment registry for proper detection"
 
 **Bad examples:**

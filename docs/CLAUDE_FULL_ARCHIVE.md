@@ -18,7 +18,7 @@ All hardware-specific instructions use CSS-styled `<details>` sections for clean
 
 ```html
 <details open style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 N150 (Wormhole - Single Chip)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n150 (Wormhole - Single Chip)</b></summary>
 
 **Specifications:** ...
 **Environment Variables:** ...
@@ -29,7 +29,7 @@ All hardware-specific instructions use CSS-styled `<details>` sections for clean
 
 **Key points:**
 - Uses VSCode CSS variables (auto-adapts to light/dark themes)
-- N150 open by default (most common hardware)
+- n150 open by default (most common hardware)
 - Consistent across Lessons 6, 7, 9, 12
 - See `HARDWARE_CONFIG_TEMPLATE.md` for full pattern
 - See `STYLING_GUIDE.md` for visual preview and CSS details
@@ -680,8 +680,8 @@ case 'openWalkthrough':
 The extension includes a non-obtrusive statusbar item that monitors Tenstorrent device status in real-time using tt-smi. This provides quick access to device information and actions without cluttering the UI.
 
 **Statusbar Display States:**
-- `$(check) TT: N150` - Device healthy (green checkmark)
-- `$(warning) TT: N150` - Device has issues (yellow warning)
+- `$(check) TT: n150` - Device healthy (green checkmark)
+- `$(warning) TT: n150` - Device has issues (yellow warning)
 - `$(sync~spin) TT: Checking...` - Currently checking status
 - `$(x) TT: No device` - No device detected (red X)
 - `$(question) TT: Unknown` - Status unknown
@@ -696,7 +696,7 @@ The extension includes a non-obtrusive statusbar item that monitors Tenstorrent 
    - Can be enabled/disabled by user
 
 2. **Parsing tt-smi Output:**
-   - Extracts device type (N150, N300, T3K, etc.) from "Board Type:" line
+   - Extracts device type (n150, n300, T3K, etc.) from "Board Type:" line
    - Extracts firmware version from "FW Version:" or "Firmware Version:" line
    - Detects errors by searching for keywords: "error", "failed", "timeout"
    - Status determination:
@@ -1111,7 +1111,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 - ✅ **Native TT Acceleration** - Runs on tt-metal using TT-NN operators (NOT CPU!)
 - ✅ **Stable Diffusion 3.5 Large** - State-of-the-art MMDiT architecture
 - ✅ **High Resolution** - Generates 1024x1024 images (vs 512x512)
-- ✅ **Fast** - ~12-15 seconds per image on N150 with hardware acceleration
+- ✅ **Fast** - ~12-15 seconds per image on n150 with hardware acceleration
 - ✅ **Interactive Mode** - Built-in prompt input for multiple generations
 
 **Architecture:**
@@ -1128,12 +1128,12 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
    - Native TT-NN implementation in tt-metal
 
 2. **Hardware Support:**
-   - ✅ N150 (1x1 mesh) - Single chip
-   - ✅ N300 (1x2 mesh) - Dual chip
+   - ✅ n150 (1x1 mesh) - Single chip
+   - ✅ n300 (1x2 mesh) - Dual chip
    - ✅ T3K (1x8 mesh) - 8-chip system
    - ✅ TG (8x4 mesh) - Galaxy 32-chip
 
-3. **Performance on N150:**
+3. **Performance on n150:**
    - First run: Downloads model (~10 GB), loads (2-5 min)
    - Generation: ~12-15 seconds per 1024x1024 image
    - **Native hardware acceleration** - runs on TT cores!
@@ -1172,7 +1172,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 The lesson teaches:
 - How MMDiT transformers work
 - Using experimental models in tt-metal
-- Mesh device configuration for N150
+- Mesh device configuration for n150
 - Native hardware-accelerated image generation
 - Interactive prompt-based workflows
 
@@ -1184,12 +1184,12 @@ The lesson teaches:
 - Performance matters - 2-5 min per query is unacceptable for iteration
 - Need clear progression: learn → prototype → production
 
-## N150 Hardware Golden Path (Lesson 6-7)
+## n150 Hardware Golden Path (Lesson 6-7)
 
-**Status:** Configured for N150 single-chip cloud deployment
+**Status:** Configured for n150 single-chip cloud deployment
 
 **Hardware Target:**
-- N150 (Wormhole) single chip
+- n150 (Wormhole) single chip
 - Cloud environment
 - tt-metal: **latest main branch** (must be rebuilt after updates)
 - vLLM branch: **dev (HEAD)**
@@ -1202,9 +1202,9 @@ The lesson teaches:
 
 **Model Configuration:**
 - Model: Llama-3.1-8B-Instruct
-- Size: 8B parameters (perfect for N150)
+- Size: 8B parameters (perfect for n150)
 - Tensor Parallelism: Not needed (single chip)
-- Context Length: 64K tokens (N150 limit)
+- Context Length: 64K tokens (n150 limit)
 
 **Required Environment Variables:**
 ```bash
@@ -1226,16 +1226,16 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH   # Critical: Find TTLlamaForCausal
 - The tt-metal directory contains the model implementation in `models/tt_transformers/tt/generator_vllm.py`
 
 **Why This Configuration:**
-1. Llama-3.1-8B officially supported on N150 (per vLLM tt_metal/README.md)
+1. Llama-3.1-8B officially supported on n150 (per vLLM tt_metal/README.md)
 2. Single chip = simpler deployment (no multi-chip tensor parallelism)
 3. Already downloaded in Lesson 3 (no additional downloads)
 4. Compatible with tt-metal v0.62.0 family
 5. Best balance of model capability vs hardware constraints
 
-**Alternative Models (NOT recommended for N150):**
-- Qwen 2.5 7B: Requires N300 (2 chips, TP=2)
+**Alternative Models (NOT recommended for n150):**
+- Qwen 2.5 7B: Requires n300 (2 chips, TP=2)
 - Llama 3.3 70B: Requires QuietBox (8 chips, TP=8)
-- Larger models exceed N150 memory capacity
+- Larger models exceed n150 memory capacity
 
 **Commands Updated:**
 - `tenstorrent.runVllmOffline`: Includes MESH_DEVICE=N150 and --max_model_len 65536 (underscores)
@@ -1252,15 +1252,15 @@ pip install fairscale termcolor loguru blobfile fire pytz llama-models==0.0.48
 ```
 
 **Documentation Updated:**
-- Lesson 6: Added "Hardware Configuration: N150 Golden Path" section
-- Lesson 6: Updated all vLLM commands with N150 configuration
+- Lesson 6: Added "Hardware Configuration: n150 Golden Path" section
+- Lesson 6: Updated all vLLM commands with n150 configuration
 - Lesson 6: Added ttnn, pytest, and pytz to dependency list
 - All commands now explicitly set MESH_DEVICE=N150 and context limit
 - Troubleshooting section updated with ttnn upgrade instructions
 
-### ✅ WORKING: N150 vLLM Golden Path (2025-11-05)
+### ✅ WORKING: n150 vLLM Golden Path (2025-11-05)
 
-**Status:** Successfully tested and working on N150 hardware in cloud environment.
+**Status:** Successfully tested and working on n150 hardware in cloud environment.
 
 **Complete Working Command:**
 ```bash
@@ -1283,7 +1283,7 @@ cd ~/tt-vllm && \
 1. ✅ Custom starter script with `if __name__ == '__main__':` guard (prevents multiprocessing errors)
 2. ✅ Local model path (avoids HuggingFace gated repo authentication)
 3. ✅ TT model registration via `register_tt_models()`
-4. ✅ N150-specific configuration (64K context, appropriate batch size)
+4. ✅ n150-specific configuration (64K context, appropriate batch size)
 5. ✅ All environment variables set correctly (TT_METAL_HOME, MESH_DEVICE, PYTHONPATH)
 
 **Version:** Extension v0.0.20 includes all fixes and tested configuration.
@@ -1429,9 +1429,9 @@ The old approach required custom state management, HTML generation, and webview 
 ### Evolution of Lesson 9
 
 **Iteration 1: Qwen 2.5 Coder 7B (Abandoned)**
-- Attempted to use Qwen 2.5 Coder 7B for N150
-- **Blocker:** Qwen requires N300 minimum (TP=2, dual-chip)
-- No Qwen model supports N150 single-chip
+- Attempted to use Qwen 2.5 Coder 7B for n150
+- **Blocker:** Qwen requires n300 minimum (TP=2, dual-chip)
+- No Qwen model supports n150 single-chip
 
 **Iteration 2: Llama 3.2 6B AlgoCode (Abandoned)**
 - Attempted community fine-tune "prithivMLmods/Llama-3.2-6B-AlgoCode"
@@ -1540,7 +1540,7 @@ When answering:
 **When Model Support Expands:**
 The lesson includes a forward-looking "Future Model Options" section listing:
 - Llama 3.2 6B AlgoCode - Needs weight conversion for tile alignment
-- Qwen 2.5 Coder 7B - Needs N300 or single-chip optimization
+- Qwen 2.5 Coder 7B - Needs n300 or single-chip optimization
 - CodeLlama - Needs architecture compatibility work
 - StarCoder2 - Needs custom tt-metal implementation
 
@@ -1567,7 +1567,7 @@ This lesson teaches a critical skill that applies to GPT, Claude, Gemini, and al
 **Repository Location:** `~/tt-jukebox/`
 
 TT-Jukebox is an intelligent environment manager for Tenstorrent hardware that:
-- Auto-detects your hardware (N150, N300, T3K, P100, etc.)
+- Auto-detects your hardware (n150, n300, T3K, P100, etc.)
 - Fetches official model specifications from GitHub
 - Matches models to your hardware with intelligent filtering
 - Executes automated setup (checkouts, builds, downloads)
@@ -1828,7 +1828,7 @@ output = compiled_model(input_tensor)
 
 ### Overview
 
-TT-XLA is Tenstorrent's production-ready XLA-based compiler that provides JAX and PyTorch/XLA support with multi-chip capabilities. Unlike TT-Forge (experimental, single-chip), TT-XLA is mature and supports N300/T3K/Galaxy systems.
+TT-XLA is Tenstorrent's production-ready XLA-based compiler that provides JAX and PyTorch/XLA support with multi-chip capabilities. Unlike TT-Forge (experimental, single-chip), TT-XLA is mature and supports n300/T3K/Galaxy systems.
 
 **Key advantages:**
 - ✅ **Simple installation:** Wheel-based via pip (no building)
@@ -1871,7 +1871,7 @@ TT-MLIR Compiler (bundled in wheel)
     ↓
 TT-Metal (existing ~/tt-metal)
     ↓
-Hardware (N150/N300/T3K/Galaxy)
+Hardware (n150/n300/T3K/Galaxy)
 ```
 
 **Why this works without rebuilding tt-metal:**
@@ -1931,7 +1931,7 @@ The `pjrt-plugin-tt` wheel includes:
 - Runs inference on TT hardware
 
 **Step 4: Multi-Chip Configuration**
-- N300 (2 chips): `jax.config.update('jax_tt_mesh', '1x2')`
+- n300 (2 chips): `jax.config.update('jax_tt_mesh', '1x2')`
 - T3K (8 chips): `jax.config.update('jax_tt_mesh', '1x8')`
 - Galaxy (32 chips): `jax.config.update('jax_tt_mesh', '8x4')`
 

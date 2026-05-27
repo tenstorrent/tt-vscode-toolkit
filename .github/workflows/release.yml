@@ -80,7 +80,7 @@ jobs:
 
             ### Prerequisites
 
-            - Tenstorrent hardware (N150, N300, T3K, P100, P150, or Galaxy)
+            - Tenstorrent hardware (n150, n300, T3K, P100, p150, or Galaxy)
             - Linux (Ubuntu 20.04+, RHEL 8+)
             - Python 3.10+
             - VSCode 1.93+

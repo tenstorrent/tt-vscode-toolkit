@@ -21,7 +21,7 @@ validatedOn:
   - p300c
 estimatedMinutes: 30
 validationDate: 2026-04-16
-validationNotes: Validated on P300C (QB2 QuietBox) — particle force calculations via ttnn.matmul confirmed working on Blackhole; multi-device path also available for 4x P300C systems
+validationNotes: Validated on p300c (QuietBox 2 QuietBox) — particle force calculations via ttnn.matmul confirmed working on Blackhole; multi-device path also available for 4x p300c systems
 ---
 
 ## Overview
@@ -57,7 +57,7 @@ This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 
 [![Particle Life Simulation](/assets/img/samples/particle_life_multi_device_preview.png)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/samples/particle_life_multi_device.gif)
 
-*500 frames of emergent patterns running on QuietBox (4x P300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules. Order emerges from chaos, then dissolves back into chaos. No two runs are ever the same.*
+*500 frames of emergent patterns running on QuietBox (4x p300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules. Order emerges from chaos, then dissolves back into chaos. No two runs are ever the same.*
 
 [View full animation →](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/samples/particle_life_multi_device.gif)
 
@@ -198,7 +198,7 @@ positions_3d = np.random.rand(num_particles, 3)
 
 **Unlock the full power of QuietBox with multi-device parallelization!**
 
-If you're running on a QuietBox system with multiple chips (4x P300c, 8x P150, etc.), you can accelerate the simulation by distributing the N² force calculations across all available devices.
+If you're running on a QuietBox system with multiple chips (4x p300c, 8x p150, etc.), you can accelerate the simulation by distributing the N² force calculations across all available devices.
 
 ### The Multi-Device Implementation
 
@@ -228,7 +228,7 @@ sim = ParticleLifeMultiDevice(
 history = sim.simulate(num_steps=500)
 ```
 
-### Benchmark Results (4x P300c QuietBox)
+### Benchmark Results (4x p300c QuietBox)
 
 Real-world performance on QuietBox Blackhole Tower:
 

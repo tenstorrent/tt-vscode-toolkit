@@ -8,7 +8,7 @@ denoising on Blackhole hardware using the TTNN UNet.
 |---|---|
 | ![world of tomorrow](docs/assets/demo_world_of_tomorrow.gif) | ![phosphor horizon](docs/assets/demo_phosphor_horizon.gif) |
 
-Both GIFs generated on **Blackhole (P300C)** — 8 frames × 25 denoising steps, ~15 s/frame.
+Both GIFs generated on **Blackhole (p300c)** — 8 frames × 25 denoising steps, ~15 s/frame.
 
 ---
 
@@ -61,7 +61,7 @@ frames, not full AnimateDiff temporal attention. Full integration would require 
 
 ### Requirements
 
-- Blackhole hardware (P100 or P300c)
+- Blackhole hardware (P100 or p300c)
 - `~/tt-metal` present, environment activated: `source ~/tt-metal/python_env/bin/activate`
 - `hf download CompVis/stable-diffusion-v1-4` (also used by Phase 1; CLIP loads from this model's subfolders)
 

@@ -43,7 +43,7 @@ Choose your path:
 
 ### Path A: "I just want to run HuggingFace models on Tenstorrent hardware"
 → **Start with Lessons 1-5** (Direct tt-metal API)
-- ✅ Works great on N150 (single chip)
+- ✅ Works great on n150 (single chip)
 - ✅ Easiest path, fewest dependencies
 - ✅ 30 minutes to first inference
 - **You'll learn:** How to run Llama, Qwen, Gemma models from HuggingFace
@@ -51,38 +51,38 @@ Choose your path:
 
 ### Path B: "I want production inference with vLLM"
 → **Use tt-inference-server Docker image** (recommended) or **Lesson 7** (advanced)
-- ⚠️ Native installation on N150 has version compatibility challenges
+- ⚠️ Native installation on n150 has version compatibility challenges
 - ✅ Docker image is validated and production-ready
 - ✅ OpenAI-compatible API
 - **You'll learn:** Production deployment, batching, scaling
-- **Hardware:** N150/N300/T3K/P100 with appropriate model sizes
+- **Hardware:** n150/n300/T3K/P100 with appropriate model sizes
 
 ### Path C: "I want to bring my own model to Tenstorrent hardware"
 → **Start with Lessons 1-5, then Lesson 13** (Bounty Program)
 - 🎓 Educational path, learn the architecture
 - 💰 Earn $500-$3000 for successful contributions
 - **You'll learn:** Model architecture, optimization, testing
-- **Hardware:** Start with N150, scale to multi-chip later
+- **Hardware:** Start with n150, scale to multi-chip later
 
 ### Path D: "I want to explore different compilers (XLA, Forge)"
 → **Lesson 12 (TT-XLA)** for production JAX, **Lesson 11 (TT-Forge)** for experimental MLIR
 - ⚙️ Advanced users comfortable with build systems
 - **TT-XLA:** Production-ready, wheel install, multi-chip support
 - **TT-Forge:** Experimental, 56-minute build, cutting-edge
-- **Hardware:** N150+ for XLA, N150 only for Forge
+- **Hardware:** n150+ for XLA, n150 only for Forge
 
 ### Path E: "I want to generate images, not just text"
 → **Lesson 9** (Stable Diffusion 3.5)
 - 🎨 1024x1024 image generation
-- ✅ Works perfectly on N150
+- ✅ Works perfectly on n150
 - 2-3 minutes per image (first run)
-- **Hardware:** N150/N300/T3K/P100
+- **Hardware:** n150/n300/T3K/P100
 
 ### Path F: "I want to learn low-level programming on Tensix cores"
 → **Lesson 15** (TT-Metalium Cookbook) then **Lesson 14** (RISC-V)
 - 🧠 Deep understanding of hardware
 - Parallel computing, N² algorithms, physics simulation
-- **Hardware:** N150 is perfect for learning
+- **Hardware:** n150 is perfect for learning
 
 ---
 
@@ -110,10 +110,10 @@ graph TB
     end
 
     subgraph Hardware["Hardware"]
-        N150[N150]
-        N300[N300]
+        n150[n150]
+        n300[n300]
         T3K[T3K]
-        P100[P100/P150]
+        P100[P100/p150]
     end
 
     JAX --> PJRT
@@ -125,8 +125,8 @@ graph TB
     TTNN --> TTMetal
 
     TTMLIR --> TTMetal
-    TTMetal --> N150
-    TTMetal --> N300
+    TTMetal --> n150
+    TTMetal --> n300
     TTMetal --> T3K
     TTMetal --> P100
 
@@ -138,8 +138,8 @@ graph TB
     style TTNN fill:#3293b2,color:#fff
     style TTMLIR fill:#499c8d,color:#fff
     style TTMetal fill:#499c8d,color:#fff
-    style N150 fill:#ffb71b,color:#000
-    style N300 fill:#ffb71b,color:#000
+    style n150 fill:#ffb71b,color:#000
+    style n300 fill:#ffb71b,color:#000
     style T3K fill:#ffb71b,color:#000
     style P100 fill:#ffb71b,color:#000
 ```
@@ -200,8 +200,8 @@ ttnn.close_device(device)
 
 #### 4. **OpenMPI** (Multi-chip Communication)
 **What it is:** Message Passing Interface library for distributed computing
-- Required even for single-chip (N150) operation
-- Enables multi-chip scaling (N300, T3K, Galaxy)
+- Required even for single-chip (n150) operation
+- Enables multi-chip scaling (n300, T3K, Galaxy)
 
 **Where it lives:** `/opt/openmpi-v5.0.7-ulfm/`
 
@@ -250,7 +250,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 #### `MESH_DEVICE`
 **What:** Tells software which hardware configuration you have
-**Possible values:** `N150`, `N300`, `T3K`, `P100`, `P150`, `GALAXY`
+**Possible values:** `n150`, `n300`, `T3K`, `P100`, `p150`, `GALAXY`
 **Why needed:** Model optimizations differ per hardware
 **Set it:**
 ```bash
@@ -273,12 +273,12 @@ export VLLM_TARGET_DEVICE=tt
 ```
 
 #### `TT_METAL_ARCH_NAME` (Blackhole chips only)
-**What:** Architecture name for Blackhole chips (P100/P150)
-**Value:** `blackhole` (if you have P100/P150)
+**What:** Architecture name for Blackhole chips (P100/p150)
+**Value:** `blackhole` (if you have P100/p150)
 **Why needed:** Blackhole uses different instruction set than Wormhole
 **Set it:**
 ```bash
-export TT_METAL_ARCH_NAME=blackhole  # Only for P100/P150
+export TT_METAL_ARCH_NAME=blackhole  # Only for p100/p150
 ```
 
 ### TT-Forge Variables (Lesson 11)
@@ -409,13 +409,13 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ### Q: What models can I run?
 **A:** Any HuggingFace model with Llama-compatible architecture:
 - ✅ Llama (all versions)
-- ✅ Qwen (all versions) ⭐ **Start with Qwen3-0.6B on N150**
+- ✅ Qwen (all versions) ⭐ **Start with Qwen3-0.6B on n150**
 - ✅ Gemma 3 (1B, 4B variants)
 - ✅ Mistral family
 - ✅ CodeLlama, DeepSeek-Coder
 - ⚠️ Other architectures need custom implementations
 
-**Recommendation for N150:** Start with **Qwen3-0.6B**
+**Recommendation for n150:** Start with **Qwen3-0.6B**
 - Only 1.5GB (downloads in seconds)
 - No HuggingFace token needed
 - 0.6B parameters = fast on single chip
@@ -439,36 +439,36 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 tt-smi -s | grep -i dram
 ```
 
-**Wormhole Architecture (N150/N300/T3K/QuietBox):**
-- N150: 12GB DRAM per chip (single chip)
-- N300: 24GB total (2 chips)
+**Wormhole Architecture (n150/n300/T3K/QuietBox):**
+- n150: 12GB DRAM per chip (single chip)
+- n300: 24GB total (2 chips)
 - T3K: 96GB total (8 chips)
 - **QuietBox:** Wormhole-based system (production-validated for vLLM)
 - **Tensix cores:** 8x10 grid (80 cores per chip)
 - **Ethernet:** 16 cores with 256KB L1
 
-**Blackhole Architecture (P100/P150):**
+**Blackhole Architecture (P100/p150):**
 - P100: ~32GB DRAM (single chip)
-- P150: ~32GB per chip (configurable as 1, 2, 4, or 8 chips)
-  - P150 x1: ~32GB (single chip)
-  - P150 x2: ~64GB (2 chips)
-  - P150 x4: ~128GB (4 chips)
-  - P150 x8: ~256GB (8 chips)
+- p150: ~32GB per chip (configurable as 1, 2, 4, or 8 chips)
+  - p150 x1: ~32GB (single chip)
+  - p150 x2: ~64GB (2 chips)
+  - p150 x4: ~128GB (4 chips)
+  - p150 x8: ~256GB (8 chips)
 - **Tensix cores:** 14x10 grid (140 cores per chip, 13x10 available for compute)
 - **Enhanced NoC:** 64B reads (vs 32B on Wormhole), rectangular/strided/L-shaped multicast
 - **L1 data cache:** 1464 KB with 4x16B cachelines (write-through)
 - **Ethernet:** 14 cores with 512KB L1, 2x RISC-V per core
 - **DRAM:** 8 banks with programmable 1x RISC-V, 128KB L1 per bank
 
-**🔧 Important:** Blackhole chips (P100/P150) require:
+**🔧 Important:** Blackhole chips (P100/p150) require:
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 ```
 
 **Model sizing:**
-- Qwen3-0.6B: ~1.5GB (fits easily on N150 or P100)
-- Llama-3.1-8B: ~16GB (tight on N150, comfortable on P100/N300+)
-- Llama-3.1-70B: ~140GB (requires T3K or P150 x4+)
+- Qwen3-0.6B: ~1.5GB (fits easily on n150 or P100)
+- Llama-3.1-8B: ~16GB (tight on n150, comfortable on P100/n300+)
+- Llama-3.1-70B: ~140GB (requires T3K or p150 x4+)
 
 The two chips have different grid shapes — Wormhole (above) has 80 Tensix compute cores, Blackhole (below) has 140:
 
@@ -500,7 +500,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **A:**
 - **Lessons 1-6, 8-15:** No Docker needed ✅
 - **Lesson 7 (vLLM production):** Docker recommended but not required
-  - Native install on N150 has version challenges
+  - Native install on n150 has version challenges
   - Docker image is validated and works reliably
 
 ### Q: Can I use this in Jupyter notebooks?
@@ -626,7 +626,7 @@ Beyond the lessons, the Tenstorrent ecosystem has tools worth knowing about:
 2. **Run Lesson 2** to verify tt-metal installation
 3. **Pick your path** based on your goals
 
-**Remember:** Start with Qwen3-0.6B on N150. It's small, fast, and works perfectly. Llama-3.1-8B comes later when you understand memory management.
+**Remember:** Start with Qwen3-0.6B on n150. It's small, fast, and works perfectly. Llama-3.1-8B comes later when you understand memory management.
 
 **Good luck, and welcome to Tenstorrent! 🚀**
 

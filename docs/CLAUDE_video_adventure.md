@@ -2,14 +2,14 @@
 
 **Mission:** Create 10-second video ad for 64-65 World's Fair using TT hardware
 **Date:** 2026-01-02
-**Hardware:** N150 (Wormhole - Single Chip)
-**Goal:** Demonstrate hardware scaling story - code that works on N150 and scales exponentially to Galaxy
+**Hardware:** n150 (Wormhole - Single Chip)
+**Goal:** Demonstrate hardware scaling story - code that works on n150 and scales exponentially to Galaxy
 
 ---
 
 ## Hardware Detection
 
-**Detected hardware:** N150 (Wormhole) - Single chip
+**Detected hardware:** n150 (Wormhole) - Single chip
 - **Board Type:** n150 L
 - **DRAM:** 12G speed, status OK
 - **PCIe:** Gen 4 x16
@@ -17,7 +17,7 @@
 - **Power:** 12W current draw
 - **AICLK:** 500 MHz
 
-**Key insight:** Perfect for demonstrating "write for smallest hardware" philosophy. Any code that works here should scale exponentially on larger hardware (N300/T3K/Galaxy).
+**Key insight:** Perfect for demonstrating "write for smallest hardware" philosophy. Any code that works here should scale exponentially on larger hardware (n300/T3K/Galaxy).
 
 ---
 
@@ -90,7 +90,7 @@
 **Given constraints:**
 - No JAX video models available
 - Goal: Working demo that exercises TT hardware
-- Hardware: N150 (smallest tier)
+- Hardware: n150 (smallest tier)
 - Time: Reasonable effort
 
 **Selected approach: Frame-by-frame video with HuggingFace SD JAX/Flax**
@@ -100,7 +100,7 @@
 - ✅ Will run inference on TT hardware via TT-XLA (PJRT plugin)
 - ✅ Can verify device placement (TtDevice vs CpuDevice)
 - ✅ Generates video by stitching frames
-- ✅ Demonstrates hardware scaling (same code on N150/N300/T3K/Galaxy)
+- ✅ Demonstrates hardware scaling (same code on n150/n300/T3K/Galaxy)
 - ✅ Lower complexity than porting video model
 
 **Trade-off:**
@@ -130,8 +130,8 @@
 3. Add retro effects (film grain, color grading)
 
 ### Step 4: Benchmark and document scaling
-1. Time per frame on N150
-2. Document expected scaling on N300/T3K/Galaxy
+1. Time per frame on n150
+2. Document expected scaling on n300/T3K/Galaxy
 3. Create lesson with hardware pyramid story
 
 **Starting implementation...**
@@ -208,7 +208,7 @@ This reveals the current state of TT-XLA as of January 2026:
 **New approach:**
 - Use Stable Diffusion 3.5 Large from Lesson 9 (tt-metal direct API)
 - Generate World's Fair frames with proven working code
-- Still demonstrates hardware scaling (N150 → N300 → T3K → Galaxy)
+- Still demonstrates hardware scaling (n150 → n300 → T3K → Galaxy)
 - **Advantage:** Actually exercises TT hardware for inference (verified in Lesson 9)
 
 **Why this is better:**
@@ -258,7 +258,7 @@ This reveals the current state of TT-XLA as of January 2026:
 **Why this is the right choice:**
 - ✅ **PROVEN:** Already validated in Lesson 9
 - ✅ **EXERCISES TT HARDWARE:** Runs directly on tt-metal (not CPU fallback)
-- ✅ **DEMONSTRATES SCALING:** N150 → N300 → T3K → Galaxy pyramid
+- ✅ **DEMONSTRATES SCALING:** n150 → n300 → T3K → Galaxy pyramid
 - ✅ **HIGH QUALITY:** 1024x1024 images, state-of-the-art SD 3.5
 - ✅ **EDUCATIONAL VALUE:** Honest about current TT-XLA limitations
 - ✅ **DELIVERS RESULTS:** Users get working video generation
@@ -311,7 +311,7 @@ ffmpeg -framerate 2 -pattern_type glob -i '*.png' \
 ## Summary of Adventure
 
 ### What We Accomplished:
-1. ✅ **Detected hardware:** N150 (Wormhole) single chip
+1. ✅ **Detected hardware:** n150 (Wormhole) single chip
 2. ✅ **Verified TT-XLA:** Works for basic JAX operations
 3. ✅ **Discovered limitations:** Complex pipelines (SD Flax) not yet supported
 4. ✅ **Tested alternatives:** SD Flax, DALL-E mini
@@ -334,8 +334,8 @@ ffmpeg -framerate 2 -pattern_type glob -i '*.png' \
 
 ### Hardware Scaling Story:
 Same code on different hardware tiers (example: 10 frames at ~30s each):
-- **N150 (1 chip):** ~5 minutes (baseline)
-- **N300 (2 chips):** ~2.5 minutes (~2x faster)
+- **n150 (1 chip):** ~5 minutes (baseline)
+- **n300 (2 chips):** ~2.5 minutes (~2x faster)
 - **T3K (8 chips):** ~1 minute (~5-6x faster)
 - **Galaxy (32 chips):** ~15-20 seconds (~20x faster)
 
@@ -507,7 +507,7 @@ The video generation lesson has been successfully integrated into the extension:
 - **Category:** advanced
 - **Order:** 9
 - **Status:** draft (ready for testing)
-- **Hardware:** N150, N300, T3K, P100
+- **Hardware:** n150, n300, T3K, P100
 - **Estimated time:** 30 minutes
 
 **Next steps for users:**
@@ -518,7 +518,7 @@ The video generation lesson has been successfully integrated into the extension:
 5. Generate your World's Fair video!
 
 **The lesson teaches:**
-- Hardware scaling philosophy (N150 → Galaxy)
+- Hardware scaling philosophy (n150 → Galaxy)
 - Frame-by-frame video creation with SD 3.5
 - Hardware verification (ensuring TT inference)
 - ffmpeg video stitching

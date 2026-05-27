@@ -1,18 +1,20 @@
-# Hardware model numbers must be uppercase in prose.
-# N150, N300, T3K, P100, P150, P300c, Galaxy — never lowercase in sentences.
+# Hardware model IDs in prose use lowercase (matches lesson metadata: n150, n300, …).
+# Uppercase variants in sentences are normalized to lowercase for consistency.
 extends: substitution
-message: "Hardware model numbers should be uppercase in prose: use '%s' instead of '%s'."
+message: "Hardware model IDs should be lowercase in prose: use '%s' instead of '%s'."
 level: error
 ignorecase: false
 action:
   name: replace
 swap:
-  '\bn150\b': N150
-  '\bn300\b': N300
-  '\bt3k\b': T3K
-  '\bp100\b': P100
-  '\bp150\b': P150
-  '\bp300c\b': P300c
-  '\bgalaxy\b': Galaxy
+  '\bN150\b': n150
+  '\bN300\b': n300
+  '\bT3K\b': t3k
+  '\bP100\b': p100
+  '\bP150\b': p150
+  '\bP300\b': p300
+  '\bP300c\b': p300c
+  '\bP300C\b': p300c
+  '\bGalaxy\b': galaxy
   # Company name
   '\btenstorrent\b': Tenstorrent

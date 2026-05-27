@@ -55,7 +55,7 @@ sequenceDiagram
 ### Architecture Diagram
 ```mermaid
 graph LR
-    subgraph N150 Chip
+    subgraph n150 Chip
         A[DRAM] --> B[NoC]
         B --> C[Tensix Core 1]
         B --> D[Tensix Core 2]

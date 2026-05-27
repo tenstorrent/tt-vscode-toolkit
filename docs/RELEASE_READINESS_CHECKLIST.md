@@ -201,7 +201,7 @@ If you have **2-3 additional hours before release:**
 - [ ] First-time user: Can complete Lessons 1-3
 - [ ] Experienced user: Can jump to Lesson 6
 - [ ] Error scenario: Follow troubleshooting, issues resolved
-- [ ] Hardware scenarios: Tested on N150, N300, or equivalent
+- [ ] Hardware scenarios: Tested on n150, n300, or equivalent
 
 ---
 

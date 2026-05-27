@@ -195,7 +195,7 @@ Open a terminal and verify:
 ## Future Enhancements
 
 Potential improvements:
-- Add hardware-specific MOTD variants (N150, N300, T3K, etc.)
+- Add hardware-specific MOTD variants (n150, n300, T3K, etc.)
 - Include recent lesson completions in MOTD
 - Show available models in `~/models`
 - Display resource usage (disk space, etc.)

@@ -32,7 +32,7 @@ estimatedMinutes: 15
 your terminal. It reads your codebase, edits files, and auto-commits changes — and it
 speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM server.
 
-**Works on all hardware** — N150/N300/T3K/P100/P300c/Galaxy. No `~/tt-metal` required.
+**Works on all hardware** — n150/n300/T3K/P100/p300c/Galaxy. No `~/tt-metal` required.
 
 > **Prerequisites:**
 > Your vLLM server must be running before launching Aider.
@@ -230,8 +230,8 @@ stays private, and you can swap models in seconds.
 - Use `--dry-run` to preview changes without applying them
 - All edits are git commits — `git log` and `git diff HEAD~1` let you review everything
 
-**N150 / QB2 model recommendation:**
-- Use `Qwen3-0.6B` — it's fast, reasoning-capable, and fits comfortably in N150 DRAM
+**n150 / QuietBox 2 model recommendation:**
+- Use `Qwen3-0.6B` — it's fast, reasoning-capable, and fits comfortably in n150 DRAM
 - The prompting techniques here work identically regardless of model size
 
 ---
@@ -247,4 +247,4 @@ stays private, and you can swap models in seconds.
 
 ✅ **Persistent config** — `.aider.conf.yml` in your repo makes it permanent
 
-✅ **All hardware supported** — Qwen3-0.6B via vLLM works on N150, N300, P300c, and above
+✅ **All hardware supported** — Qwen3-0.6B via vLLM works on n150, n300, p300c, and above

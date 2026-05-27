@@ -41,7 +41,7 @@ Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal/models/demos/wormh
 
 **Documented scope boundary:** Full AnimateDiff motion module integration on TT hardware would require injecting `TemporalTransformer` blocks into the TTNN UNet transformer blocks, modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`. That is out of scope for this lesson. Phase 2 is "TT-accelerated video frame generation" — the lesson calls this out explicitly.
 
-**Hardware:** Blackhole (P100/P300c), `TT_METAL_ARCH_NAME=blackhole`, `l1_small_size=SD_L1_SMALL_SIZE`.
+**Hardware:** Blackhole (P100/p300c), `TT_METAL_ARCH_NAME=blackhole`, `l1_small_size=SD_L1_SMALL_SIZE`.
 
 **Key implementation detail for `sd_helper_funcs.run()`:**
 - Takes `input_latents` as 4-channel 64×64 tensor
@@ -193,7 +193,7 @@ Both are open-weight (no gated access). SD 1.4 is ~4GB; motion adapter is ~700MB
 | Phase | Hardware | Setup |
 |-------|----------|-------|
 | Phase 1 | Any CPU (no TT hardware) | `pip install -r requirements.txt` |
-| Phase 2 | Blackhole (P100 or P300c) | `TT_METAL_ARCH_NAME=blackhole` + tt-metal activated |
+| Phase 2 | Blackhole (P100 or p300c) | `TT_METAL_ARCH_NAME=blackhole` + tt-metal activated |
 
 Phase 2 requires `~/tt-metal` present and the metal environment activated.
 
@@ -214,7 +214,7 @@ The rewritten `README.md` will:
 
 - Injecting `TemporalTransformer` blocks into the TTNN UNet (would require modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`)
 - Multi-chip (T3K, Galaxy) distribution of the animation pipeline
-- SD 3.5 / DiT-based video generation (separate model family — see WAN2.2 for production video on QB2)
+- SD 3.5 / DiT-based video generation (separate model family — see WAN2.2 for production video on QuietBox 2)
 - ControlNet or IP-Adapter combination
 
 ---

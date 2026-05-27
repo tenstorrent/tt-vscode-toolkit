@@ -29,7 +29,7 @@ estimatedMinutes: 90
 minTTMetalVersion: v0.67.0
 validationDate: 2026-02-04
 validationNotes: >-
-  Training from scratch validated on N150. Requires Python ttml module which was introduced in v0.66.0+. Does not work with v0.65.1 (only has C++ tt-train). Developers on v0.65.1 must upgrade to v0.67.0+ to use training lessons.
+  Training from scratch validated on n150. Requires Python ttml module which was introduced in v0.66.0+. Does not work with v0.65.1 (only has C++ tt-train). Developers on v0.65.1 must upgrade to v0.67.0+ to use training lessons.
 ---
 
 # Training from Scratch
@@ -142,7 +142,7 @@ graph TD
 
 | Aspect | Nano-Trickster (11M) | TinyLlama (1.1B) |
 |--------|----------------------|------------------|
-| **Training time (N150)** | 30-60 minutes | Many hours |
+| **Training time (n150)** | 30-60 minutes | Many hours |
 | **Memory** | ~200MB | ~17GB |
 | **Iterations/sec** | ~100 | ~10 |
 | **Learns** | Basic patterns | Complex language |
@@ -151,7 +151,7 @@ graph TD
 **Perfect for:**
 - Understanding transformer training
 - Fast experimentation (quick feedback loop)
-- Hardware constraints (N150 is plenty)
+- Hardware constraints (n150 is plenty)
 - Teaching and learning
 
 **Not for:**
@@ -411,7 +411,7 @@ model_config:
 
 training_config:
   batch_size: 16
-  max_steps: 10000        # ~30-60 minutes on N150
+  max_steps: 10000        # ~30-60 minutes on n150
   learning_rate: 0.0003   # 3e-4 (standard for small models)
   warmup_steps: 1000      # Gradual LR increase
   grad_clip: 1.0          # Prevent exploding gradients
@@ -441,19 +441,19 @@ graph TD
 
 ### Hardware Variants
 
-**N150 (single chip):**
+**n150 (single chip):**
 - Batch size: 16
 - Gradient accumulation: 2 (effective batch = 32)
 - Training time: 30-60 minutes
 - Memory: ~200MB (very light!)
 
-**N300 (dual chips with DDP):**
-- Batch size: 32 (2× N150)
+**n300 (dual chips with DDP):**
+- Batch size: 32 (2× n150)
 - Gradient accumulation: 1
 - Training time: 15-30 minutes
 - Memory: Distributed across 2 chips
 
-**To use N300:** Update config:
+**To use n300:** Update config:
 ```yaml
 device_config:
   enable_ddp: True
@@ -811,19 +811,19 @@ graph TD
 **Want a more capable model? Scale up the config:**
 
 ```yaml
-# Nano-Trickster: 11M params, 30-60 min (N150)
+# Nano-Trickster: 11M params, 30-60 min (n150)
 nano:
   hidden_dim: 256
   num_layers: 6
   mlp_dim: 768
 
-# Mini-Trickster: 50M params, 2-3 hours (N150)
+# Mini-Trickster: 50M params, 2-3 hours (n150)
 mini:
   hidden_dim: 512    # 2× larger
   num_layers: 8      # 33% deeper
   mlp_dim: 1536      # 3× hidden_dim
 
-# Midi-Trickster: 200M params, 8-10 hours (N300)
+# Midi-Trickster: 200M params, 8-10 hours (n300)
 midi:
   hidden_dim: 768    # 3× nano
   num_layers: 12     # 2× nano
@@ -842,9 +842,9 @@ graph LR
     B --> C[Midi<br/>200M<br/>8-10 hours]
     C --> D[Mega<br/>1.1B<br/>days]
 
-    A --> E[Learn fundamentals<br/>N150 sufficient]
-    B --> F[Simple tasks<br/>N150 OK, N300 better]
-    C --> G[Production quality<br/>N300/T3K recommended]
+    A --> E[Learn fundamentals<br/>n150 sufficient]
+    B --> F[Simple tasks<br/>n150 OK, n300 better]
+    C --> G[Production quality<br/>n300/T3K recommended]
     D --> H[SOTA performance<br/>T3K/Galaxy required]
 
     style A fill:#4A90E2,stroke:#333,stroke-width:2px
@@ -864,9 +864,9 @@ Training cost ∝ num_params × num_tokens × context_length
 
 | Model Size | Params | Hardware | Training Time | Use Case |
 |------------|--------|----------|---------------|----------|
-| **Nano** | 11M | N150 | 30-60 min | Learning, prototyping |
-| **Mini** | 50M | N150/N300 | 2-3 hours | Simple tasks |
-| **Midi** | 200M | N300/T3K | 8-10 hours | Production (niche) |
+| **Nano** | 11M | n150 | 30-60 min | Learning, prototyping |
+| **Mini** | 50M | n150/n300 | 2-3 hours | Simple tasks |
+| **Midi** | 200M | n300/T3K | 8-10 hours | Production (niche) |
 | **Mega** | 1.1B | T3K/Galaxy | Days | Production (general) |
 
 **Key insight:** Start small! Iterate quickly. Scale up once you understand the patterns.
@@ -887,7 +887,7 @@ Training cost ∝ num_params × num_tokens × context_length
 1. **Extend training** - Run to 20K steps, see if loss improves
 2. **Tune hyperparameters** - Learning rate, batch size, warmup
 3. **Add regularization** - Increase dropout, try weight decay
-4. **Multi-device** - If you have N300, enable DDP
+4. **Multi-device** - If you have n300, enable DDP
 
 **Advanced (3-5 hours):**
 1. **Scale up architecture** - Try 50M or 200M params
@@ -988,7 +988,7 @@ python nano_trickster.py
 3. Fewer layers: `num_layers: 6` → `4`
 4. Smaller hidden: `hidden_dim: 256` → `128`
 
-**For N150:** Nano-Trickster (11M) should work easily. If not, check:
+**For n150:** Nano-Trickster (11M) should work easily. If not, check:
 - Other processes using DRAM
 - tt-smi device status
 - Memory leaks (restart kernel)
@@ -1015,7 +1015,7 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 🔬 **"Chemical Formula Parser" (Pharma research lab)**
 - **Started:** Nano model (10M params, SMILES notation, 4 layers)
 - **Discovered:** 10M too small, scaled to 40M (8 layers)
-- **Trained on:** 500K molecular structures, 2 weeks on N300
+- **Trained on:** 500K molecular structures, 2 weeks on n300
 - **Result:** Predicts molecular properties 30% faster than DFT simulation
 - **Cost savings:** $500k/year in compute (vs traditional methods)
 - **Research win:** Published architecture in Nature Chemistry
@@ -1043,28 +1043,28 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 
 **How developers scale from prototype to production:**
 
-📈 **Stage 1: Nano (11M params, 30-60 min on N150)**
+📈 **Stage 1: Nano (11M params, 30-60 min on n150)**
 **Purpose:** Validate the idea
 - Prove the task is learnable
 - Test data quality
 - Iterate on architecture quickly
-- **Investment:** 1 week, N150 hardware
+- **Investment:** 1 week, n150 hardware
 - **Outcome:** "This works! Let's scale it up."
 
-📈 **Stage 2: Mini (50M params, 2-3 hours on N150/N300)**
+📈 **Stage 2: Mini (50M params, 2-3 hours on n150/n300)**
 **Purpose:** Production prototype
 - Better capacity, still fast training
 - Add custom tokenization
 - Optimize architecture based on nano learnings
-- **Investment:** 2-3 weeks, N150 or N300
+- **Investment:** 2-3 weeks, n150 or n300
 - **Outcome:** "This is good enough for beta users."
 
-📈 **Stage 3: Midi (200M params, 8-10 hours on N300/T3K)**
+📈 **Stage 3: Midi (200M params, 8-10 hours on n300/T3K)**
 **Purpose:** Production quality
 - Significantly better performance
 - Custom architecture optimizations
 - Ready for real users
-- **Investment:** 1-2 months, N300 or T3K
+- **Investment:** 1-2 months, n300 or T3K
 - **Outcome:** "This competes with commercial solutions."
 
 📈 **Stage 4: Mega (1B+ params, days on T3K/Galaxy)**
@@ -1078,23 +1078,23 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 ### Real Scaling Stories
 
 🎯 **"Medical Coding Assistant"**
-- **Nano (12M, N150):** Proved concept in 2 days
-- **Mini (45M, N300):** Beta with 5 hospitals in 2 weeks
+- **Nano (12M, n150):** Proved concept in 2 days
+- **Mini (45M, n300):** Beta with 5 hospitals in 2 weeks
 - **Midi (180M, T3K):** Production with 50 hospitals in 2 months
 - **Mega (1.2B, Galaxy):** Industry standard in 6 months
 - **Revenue:** $0 → $5M ARR over 8 months
 - **Key:** Each stage validated before scaling
 
 💡 **"Code Documentation Generator"**
-- **Nano (15M, N150):** "Can it learn docstring format?" (Yes, in 1 hour)
-- **Mini (55M, N300):** "Good enough for internal use" (Deployed to 20 devs)
+- **Nano (15M, n150):** "Can it learn docstring format?" (Yes, in 1 hour)
+- **Mini (55M, n300):** "Good enough for internal use" (Deployed to 20 devs)
 - **Midi (220M, T3K):** "Better than GitHub Copilot for our codebase"
 - **Impact:** Never scaled to Mega (Midi was sufficient!)
 - **Lesson:** Don't over-scale - find the sweet spot
 
 🚀 **"Financial Report Parser"**
-- **Nano (10M, N150):** Failed (too small for complex patterns)
-- **Mini (60M, N300):** Worked but accuracy 75% (not good enough)
+- **Nano (10M, n150):** Failed (too small for complex patterns)
+- **Mini (60M, n300):** Worked but accuracy 75% (not good enough)
 - **Midi (250M, T3K):** 92% accuracy (production-ready)
 - **Skipped Mega:** Midi met requirements
 - **Learning:** Some tasks need minimum model size, but not always max
@@ -1151,8 +1151,8 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 **Why it's more accessible than you think:**
 
 💰 **Hardware Investment (Scaling Path)**
-- **Nano on N150:** $5k-15k hardware, trains in 1 hour
-- **Mini on N300:** $10k-25k hardware, trains in 3 hours
+- **Nano on n150:** $5k-15k hardware, trains in 1 hour
+- **Mini on n300:** $10k-25k hardware, trains in 3 hours
 - **Midi on T3K:** $50k-100k hardware, trains in 10 hours
 - **Mega on Galaxy:** $200k+ hardware, trains in days
 
@@ -1162,13 +1162,13 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 - **Your specialized model:** One-time training cost, unlimited inference
 
 **ROI Example (Legal Contract Generator):**
-- Training cost: $500 (N300 time + electricity)
+- Training cost: $500 (n300 time + electricity)
 - Inference: Free (deploy on your hardware)
 - Comparable API cost: $50k/year (100 contracts/day × 365 days)
 - **Breakeven:** 1 week of production use
 
 💡 **"Code Review Bot" Economics**
-- Trained: 60M params on N300 in 4 hours
+- Trained: 60M params on n300 in 4 hours
 - Training cost: $20 electricity + developer time
 - OpenAI equivalent: $0.02/review × 1000 reviews/month = $240/month
 - **Savings:** $2,880/year vs API, plus data privacy
@@ -1332,7 +1332,7 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 
 ✅ **Compare to random to prove learning** - baseline is critical
 
-✅ **Hardware scales linearly** - N150 → N300 → T3K = 2-4× faster each step
+✅ **Hardware scales linearly** - n150 → n300 → T3K = 2-4× faster each step
 
 ✅ **Tiny models teach fundamentals** - understanding > performance for learning
 

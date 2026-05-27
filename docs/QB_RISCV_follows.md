@@ -1,7 +1,7 @@
 # QuietBox CS Fundamentals Validation Report
 
 **Date:** 2026-01-09
-**Hardware:** 4x P300c (Blackhole)
+**Hardware:** 4x p300c (Blackhole)
 **Validator:** Claude Code
 **Purpose:** Validate CS Fundamentals lesson series by following them step-by-step on real hardware
 
@@ -9,10 +9,10 @@
 
 ## Executive Summary
 
-This report documents hands-on validation of the newly created **CS Fundamentals series** (7 modules) on QuietBox hardware. The goal is to verify that all lesson instructions are accurate, executable, and produce expected results on Blackhole P300c cards.
+This report documents hands-on validation of the newly created **CS Fundamentals series** (7 modules) on QuietBox hardware. The goal is to verify that all lesson instructions are accurate, executable, and produce expected results on Blackhole p300c cards.
 
 **Hardware Configuration:**
-- **System:** QuietBox with 4x P300c cards
+- **System:** QuietBox with 4x p300c cards
 - **Architecture:** Blackhole (each card acts as single chip)
 - **Firmware:** 19.4.0.0
 - **Clocks:** 1350 MHz AICLK
@@ -41,7 +41,7 @@ export TT_METAL_DEVICE_ID=0
 **✅ Status:** Environment configured successfully
 
 **Notes:**
-- P300c uses `MESH_DEVICE=P100` (single-chip Blackhole equivalent)
+- p300c uses `MESH_DEVICE=P100` (single-chip Blackhole equivalent)
 - `TT_METAL_ARCH_NAME=blackhole` required for Blackhole family
 - Environment variables are critical for proper hardware detection
 
@@ -106,7 +106,7 @@ Success: Result is 21
 - ✅ RISC-V core (BRISC) executed on Tensix core (0,0)
 - ✅ Computation correct: 14 + 7 = 21
 - ✅ DPRINT output visible (debug prints from kernel)
-- ✅ All 4 P300c devices initialized (but only device 0 used)
+- ✅ All 4 p300c devices initialized (but only device 0 used)
 
 **Performance:**
 - Execution time: ~5 seconds (including device initialization)
@@ -160,7 +160,7 @@ Success: Result is 21
 
 **What Worked:**
 - ✅ Build system worked correctly
-- ✅ Hardware detection successful (4x P300c)
+- ✅ Hardware detection successful (4x p300c)
 - ✅ RISC-V kernel executed correctly
 - ✅ Output matches expected results
 - ✅ DPRINT debugging output visible
@@ -205,7 +205,7 @@ Success: Result is 21
 
 ## Technical Notes
 
-### P300c Blackhole Configuration
+### p300c Blackhole Configuration
 
 **Hardware Detection:**
 ```bash
@@ -221,7 +221,7 @@ $ tt-smi -s
 ```
 
 **Key Configuration:**
-- `MESH_DEVICE=P100` treats each P300c as single Blackhole chip
+- `MESH_DEVICE=P100` treats each p300c as single Blackhole chip
 - All 4 cards available as separate devices (0, 1, 2, 3)
 - For single-device examples: Use device 0
 - For multi-device examples: Can leverage all 4 devices
@@ -319,7 +319,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 **CS Fundamentals Series Status: ✅ VALIDATED**
 
 ### Executable Code Validation
-- ✅ **Module 1:** RISC-V addition example runs correctly on QuietBox P300c
+- ✅ **Module 1:** RISC-V addition example runs correctly on QuietBox p300c
 - ✅ **Modules 2-7:** Conceptual teaching (no executable code by design)
 
 ### Content Accuracy Assessment
@@ -358,7 +358,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 
 ## Hardware-Specific Observations
 
-### QuietBox P300c Configuration
+### QuietBox p300c Configuration
 
 **What Worked Well:**
 - ✅ Single-device example (Module 1) ran perfectly
@@ -402,7 +402,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
    - Module 7: Simple roofline analysis script
 
 2. **Multi-device tutorials:**
-   - Leverage QuietBox's 4 P300c cards
+   - Leverage QuietBox's 4 p300c cards
    - Show multi-chip data-parallel execution
    - Demonstrate inter-chip NoC communication
 
@@ -413,7 +413,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 
 ### For Documentation
 1. **Add hardware compatibility matrix:**
-   - Which examples work on N150 vs P300c vs T3K
+   - Which examples work on n150 vs p300c vs T3K
    - Memory requirements per example
    - Expected performance ranges
 

@@ -570,7 +570,7 @@ TemporalTransformer blocks into the TTNN UNet transformer blocks.
 
 Requirements:
     ~/tt-metal present and activated: source ~/tt-metal/python_env/bin/activate
-    Blackhole device (P100 or P300c)
+    Blackhole device (p100 or p300c)
 """
 
 import os
@@ -827,7 +827,7 @@ comes from shared base noise initialization (not AnimateDiff motion adapter).
 
 Requirements:
     - ~/tt-metal present: cd ~/tt-metal && source python_env/bin/activate
-    - Blackhole hardware (P100 or P300c)
+    - Blackhole hardware (p100 or p300c)
     - SD 1.4 model cached: hf download CompVis/stable-diffusion-v1-4
     - CLIP tokenizer: hf download openai/clip-vit-large-patch14
 
@@ -1074,7 +1074,7 @@ frames, not full AnimateDiff temporal attention. Full integration would require 
 
 ### Requirements
 
-- Blackhole hardware (P100 or P300c)
+- Blackhole hardware (p100 or p300c)
 - `~/tt-metal` present, environment activated: `source ~/tt-metal/python_env/bin/activate`
 - `hf download CompVis/stable-diffusion-v1-4` (also used by Phase 1)
 - `hf download openai/clip-vit-large-patch14`

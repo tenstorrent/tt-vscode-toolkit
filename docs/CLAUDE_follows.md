@@ -1,7 +1,7 @@
 # Claude Follows Own Tutorial - Execution Log
 
 **Date:** 2025-12-31
-**Hardware:** Single N150 (Wormhole)
+**Hardware:** Single n150 (Wormhole)
 **Environment:** Cloud Ubuntu instance, barebones setup
 **Starting State:** Outdated ~/tt-metal exists
 
@@ -13,7 +13,7 @@ Follow the VSCode extension walkthrough lessons in sequence, executing all comma
 - Use SRAM-constrained settings for models
 - Can use sudo freely
 - Don't restart machine
-- N150 hardware (single chip)
+- n150 hardware (single chip)
 
 ---
 
@@ -40,9 +40,9 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **Solution:** **Rewrite Lesson 7 to prioritize Docker.** Native installation blocked by fundamental API incompatibilities. Docker image is validated and works. Stop fighting this.
 
 ### 3. **What Works is REALLY Good** ✅
-- **Lessons 1-5:** Zero issues, clear instructions, 27.88 t/s on N150
+- **Lessons 1-5:** Zero issues, clear instructions, 27.88 t/s on n150
 - **Lesson 9:** SD 3.5 just worked, 1024x1024 in 2.5 min
-- **Lesson 12:** TT-XLA wheel install, GPT-2 XL (1.5B!) on N150
+- **Lesson 12:** TT-XLA wheel install, GPT-2 XL (1.5B!) on n150
 - **Templates:** Auto-detection features excellent
 
 ## 🚀 Must-Do Improvements (High Priority)
@@ -52,7 +52,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 - Auto-detect hardware via tt-smi
 - Set TT_METAL_HOME, MESH_DEVICE, PYTHONPATH, LD_LIBRARY_PATH
 - Activate tt-metal Python environment
-- Show status: "✓ Detected hardware: N150"
+- Show status: "✓ Detected hardware: n150"
 
 **`~/tt-scratchpad/setup-tt-xla.sh`** (TT-XLA isolated):
 - Unset TT_METAL_HOME and LD_LIBRARY_PATH
@@ -99,7 +99,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 ✅ **Hardware detection** (tt-smi -s) - reliable in cloud environments
 ✅ **Lessons 1-5** - zero issues after install_dependencies.sh
-✅ **Lesson 9** (SD 3.5) - just works on N150
+✅ **Lesson 9** (SD 3.5) - just works on n150
 ✅ **Lesson 12** (TT-XLA) - wheel install, clean isolation
 ✅ **Lesson 15** (Cookbook) - 3 of 4 recipes work perfectly
 ✅ **Templates** - auto-detection and smart defaults excellent
@@ -163,7 +163,7 @@ Every minute debugging `PYTHONPATH` or `LD_LIBRARY_PATH` is a minute not learnin
 
 **Full detailed analysis:** See `/home/user/.claude/plans/quiet-wandering-garden.md`
 
-**Validation results:** 11 of 16 lessons validated on N150, 5 cookbook recipes (4 working)
+**Validation results:** 11 of 16 lessons validated on n150, 5 cookbook recipes (4 working)
 
 ---
 
@@ -172,7 +172,7 @@ Every minute debugging `PYTHONPATH` or `LD_LIBRARY_PATH` is a minute not learnin
 ### Environment Assessment
 
 **Hardware Detected:**
-- Device: N150 L (Wormhole, single chip)
+- Device: n150 L (Wormhole, single chip)
 - Board ID: 1000186119060e6
 - DRAM: 12G speed, status ✓
 - PCIe: Gen4 x16
@@ -194,7 +194,7 @@ Every minute debugging `PYTHONPATH` or `LD_LIBRARY_PATH` is a minute not learnin
 - Status: OUTDATED (as mentioned by user)
 - Python environment exists at ~/tt-metal/python_env
 
-**Conclusion:** We have a working N150 with outdated tt-metal. Will need to update/rebuild tt-metal as part of Lesson 1.
+**Conclusion:** We have a working n150 with outdated tt-metal. Will need to update/rebuild tt-metal as part of Lesson 1.
 
 ---
 
@@ -287,7 +287,7 @@ tensor([[1.1641],
 ```
 
 **Key info found:**
-- **Harvesting mask 0x1**: Normal for N150 L boards - indicates 1 Tensix core is disabled (quality control during manufacturing)
+- **Harvesting mask 0x1**: Normal for n150 L boards - indicates 1 Tensix core is disabled (quality control during manufacturing)
 - **IOMMU: disabled**: Expected configuration for direct hardware access
 - **HugePages working**: Critical for performance - 1GB (0x40000000 bytes) successfully pinned
 
@@ -317,11 +317,11 @@ tensor([[1.1641],
 
 **Problem:** This lesson recommends downloading Llama-3.1-8B-Instruct (16GB, 8B parameters) but:
 
-1. **N150 SRAM constraints:** User specified using "SRAM-constrained settings for models"
-2. **Model size:** Llama-3.1-8B is 16GB - likely too large for N150 with SRAM constraints
-3. **Extension recommendations:** According to CLAUDE.md (v0.0.97+), Qwen3-0.6B is the primary recommendation for N150:
+1. **n150 SRAM constraints:** User specified using "SRAM-constrained settings for models"
+2. **Model size:** Llama-3.1-8B is 16GB - likely too large for n150 with SRAM constraints
+3. **Extension recommendations:** According to CLAUDE.md (v0.0.97+), Qwen3-0.6B is the primary recommendation for n150:
    - Qwen3-0.6B: 0.6B params, sub-millisecond inference, reasoning-capable
-   - Llama-3.1-8B: Requires N300/T3K/P100 for reliable operation
+   - Llama-3.1-8B: Requires n300/T3K/P100 for reliable operation
 4. **Demo availability:** No Llama demos found in `~/tt-metal/models/demos/wormhole/` directory
 5. **Outdated tt-metal:** Current installation is from Oct 28, 2024
 
@@ -330,9 +330,9 @@ tensor([[1.1641],
 **SKIP this lesson for now** and document the discrepancy.
 
 **Reasons:**
-- Downloading 16GB for a model that won't run well on N150 is wasteful
-- Lesson needs updating to reflect N150 limitations
-- Should focus on validated N150 lessons (vLLM production with Qwen3-0.6B)
+- Downloading 16GB for a model that won't run well on n150 is wasteful
+- Lesson needs updating to reflect n150 limitations
+- Should focus on validated n150 lessons (vLLM production with Qwen3-0.6B)
 - Can revisit with smaller models (Qwen3-0.6B, Gemma-3-1B-IT) later
 
 ### Findings & Recommendations
@@ -340,17 +340,17 @@ tensor([[1.1641],
 **For the lesson content:**
 
 1. **Add hardware-specific guidance:**
-   - N150: Recommend Qwen3-0.6B or Gemma-3-1B-IT (not Llama-3.1-8B)
-   - N300/T3K/P100: Llama-3.1-8B works well
+   - n150: Recommend Qwen3-0.6B or Gemma-3-1B-IT (not Llama-3.1-8B)
+   - n300/T3K/P100: Llama-3.1-8B works well
 
 2. **Add SRAM constraint note:**
-   > **N150 Users:** Llama-3.1-8B (8B parameters, 16GB) may exhaust DRAM on N150 hardware. We recommend starting with Qwen3-0.6B (0.6B parameters) or Gemma-3-1B-IT (1B parameters) for reliable single-chip operation.
+   > **n150 Users:** Llama-3.1-8B (8B parameters, 16GB) may exhaust DRAM on n150 hardware. We recommend starting with Qwen3-0.6B (0.6B parameters) or Gemma-3-1B-IT (1B parameters) for reliable single-chip operation.
 
 3. **Check demo compatibility:**
    - Verify that `simple_text_demo.py` still works with current tt-metal
    - Document which demos are available for which hardware
 
-**Status:** ⚠️ SKIPPED - Needs hardware-specific guidance for N150
+**Status:** ⚠️ SKIPPED - Needs hardware-specific guidance for n150
 
 ---
 
@@ -366,13 +366,13 @@ tensor([[1.1641],
 
 ---
 
-## Jumping to Validated N150 Lessons
+## Jumping to Validated n150 Lessons
 
-Moving to lessons that are validated on N150 and don't require large model downloads:
-- Lesson 7: vLLM Production (validated on N150, uses smaller models)
-- Lesson 8: Image Generation (validated on N150)
-- Lesson 14: Exploring TT-Metalium (validated on N150)
-- Lesson 15: TT-Metalium Cookbook (validated on N150)
+Moving to lessons that are validated on n150 and don't require large model downloads:
+- Lesson 7: vLLM Production (validated on n150, uses smaller models)
+- Lesson 8: Image Generation (validated on n150)
+- Lesson 14: Exploring TT-Metalium (validated on n150)
+- Lesson 15: TT-Metalium Cookbook (validated on n150)
 
 ---
 
@@ -382,12 +382,12 @@ Moving to lessons that are validated on N150 and don't require large model downl
 
 User already ran: `hf auth login`
 
-### Downloading Qwen3-0.6B (N150-optimized model)
+### Downloading Qwen3-0.6B (n150-optimized model)
 
-Instead of Llama-3.1-8B (too large for N150), downloading Qwen3-0.6B:
+Instead of Llama-3.1-8B (too large for n150), downloading Qwen3-0.6B:
 - 0.6B parameters (13x smaller than 8B)
 - No HF token required (but we have one now)
-- Perfect for N150 SRAM constraints
+- Perfect for n150 SRAM constraints
 - Reasoning-capable with dual thinking modes
 
 **Command:** `huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B`
@@ -404,13 +404,13 @@ Total: 1.5GB
 - config.json, generation_config.json, tokenizer_config.json
 ```
 
-**Status:** ✓ COMPLETED - N150-appropriate model ready!
+**Status:** ✓ COMPLETED - n150-appropriate model ready!
 
 ---
 
 ## Revisiting Lesson 3: Download Llama-3.1-8B and Run Inference
 
-**User clarification:** Llama-3.1-8B DOES work on N150 with direct tt-metal API. Conservative settings needed for vLLM later, but direct API handles memory well.
+**User clarification:** Llama-3.1-8B DOES work on n150 with direct tt-metal API. Conservative settings needed for vLLM later, but direct API handles memory well.
 
 **Plan:**
 1. Download Llama-3.1-8B (have HF token)
@@ -480,7 +480,7 @@ Both formats present - ready for direct API (Lessons 3-5) and vLLM (Lesson 7)!
 
 **Result:** ✓ SUCCESS! **TEST PASSED** 🎉
 
-**Performance on N150:**
+**Performance on n150:**
 - **Throughput:** 27.88 tokens/s/user (batch size 1)
 - **Time to First Token (TTFT):** 104.72ms
 - **Average decode time:** 35.86ms per token
@@ -501,13 +501,13 @@ Both formats present - ready for direct API (Lessons 3-5) and vLLM (Lesson 7)!
 > If you'd like, I can help you explore the world of condiments, and we can discuss the various options available"
 
 **Key findings:**
-- ✓ **User was correct!** Llama-3.1-8B works perfectly on N150 with direct tt-metal API
+- ✓ **User was correct!** Llama-3.1-8B works perfectly on n150 with direct tt-metal API
 - ✓ Coherent, contextual responses
 - ✓ Stable inference throughout 128 tokens
 - ✓ Consistent speed (~28 tok/s)
 - ✓ No memory issues or crashes
 
-**Status:** ✓ COMPLETED - Llama-3.1-8B inference validated on N150!
+**Status:** ✓ COMPLETED - Llama-3.1-8B inference validated on n150!
 
 **Note:** Will use 15-minute timeouts (900000ms) for hardware operations going forward.
 
@@ -633,7 +633,7 @@ curl -X POST http://127.0.0.1:8080/chat \
 
 **Key Finding:** First request has warmup overhead, but subsequent requests are ~100x faster! Model stays in memory and inference is fast.
 
-**Status:** ✓ COMPLETED - API Server validated on N150!
+**Status:** ✓ COMPLETED - API Server validated on n150!
 
 ---
 
@@ -641,7 +641,7 @@ curl -X POST http://127.0.0.1:8080/chat \
 
 **Started:** 16:42 UTC
 
-Preparing vLLM with conservative settings for N150...
+Preparing vLLM with conservative settings for n150...
 
 ### Step 1: Clone TT vLLM Fork
 
@@ -702,9 +702,9 @@ This script includes:
 
 ### Step 4: Start vLLM Server with Conservative Settings
 
-**User guidance:** Use conservative settings like Qwen (small max-model-len, small max-num-seqs) for Llama on N150.
+**User guidance:** Use conservative settings like Qwen (small max-model-len, small max-num-seqs) for Llama on n150.
 
-**Command:** Starting vLLM with conservative N150 settings...
+**Command:** Starting vLLM with conservative n150 settings...
 
 ```bash
 python ~/tt-scratchpad/start-vllm-server.py \
@@ -763,20 +763,20 @@ Progress:
 ###  Lessons Completed Successfully:
 
 **✓ Lesson 1 (Hardware Detection):**
-- N150 L detected successfully
+- n150 L detected successfully
 - Issue found: tt-smi TUI crashes in cloud environments
 - Recommendation: Document `tt-smi -s` workaround
 
 **✓ Lesson 2 (Verify Installation):**
 - tt-metal verification passed
 - TTNN working correctly
-- Harvesting mask 0x1 normal for N150 L
+- Harvesting mask 0x1 normal for n150 L
 
 **✓ Lesson 3 (Download Model & Run Inference):**
 - Llama-3.1-8B downloaded (both HF and Meta formats)
-- Inference demo PASSED on N150!
+- Inference demo PASSED on n150!
 - Performance: 27.88 t/s throughput
-- Key finding: User was correct - Llama-3.1-8B works well on N150 with direct API
+- Key finding: User was correct - Llama-3.1-8B works well on n150 with direct API
 
 **✓ Lesson 4 (Interactive Chat):**
 - Dependencies installed (pi, llama-models)
@@ -803,10 +803,10 @@ Progress:
 
 ### Key Findings & Recommendations:
 
-1. **Llama-3.1-8B on N150:**
+1. **Llama-3.1-8B on n150:**
    - Works perfectly with direct tt-metal API
    - 27.88 t/s throughput (batch size 1)
-   - Should update lesson 3 to be more confident about N150 support
+   - Should update lesson 3 to be more confident about n150 support
 
 2. **tt-smi TUI compatibility:**
    - Add troubleshooting note about `tt-smi -s` for cloud/CI environments
@@ -826,8 +826,8 @@ Progress:
 
 ### Still to validate:
 - vLLM with conservative settings (once tt-metal rebuilds)
-- Lesson 8 (Image Generation) - validated on N150 per metadata
-- Lesson 14-15 (Explore Metalium, Cookbook) - validated on N150 per metadata
+- Lesson 8 (Image Generation) - validated on n150 per metadata
+- Lesson 14-15 (Explore Metalium, Cookbook) - validated on n150 per metadata
 
 **Estimated completion time:** Another ~30-45 minutes for vLLM testing
 
@@ -941,7 +941,7 @@ User suggested checking https://github.com/tenstorrent/tt-inference-server/blob/
 
 **File downloaded:** `/tmp/model_specs_output.json` (15,879 lines)
 
-### Known-Good Configuration for Llama-3.1-8B-Instruct on N150
+### Known-Good Configuration for Llama-3.1-8B-Instruct on n150
 
 Found validated combination:
 ```json
@@ -954,7 +954,7 @@ Found validated combination:
 }
 ```
 
-**Recommended vLLM args for N150:**
+**Recommended vLLM args for n150:**
 ```json
 {
   "model": "meta-llama/Llama-3.1-8B-Instruct",
@@ -981,13 +981,13 @@ Found validated combination:
 
 **Previous state:**
 - tt-metal: 3ee39729e9 (Dec 31, 2024) - **too new**
-- vLLM: f49265a2e (dev HEAD) - **only tested with GALAXY, not N150**
+- vLLM: f49265a2e (dev HEAD) - **only tested with GALAXY, not n150**
 
-**Problem discovered:** vLLM f49265a has NO N150 configurations in model_specs_output.json - only GALAXY models use this commit!
+**Problem discovered:** vLLM f49265a has NO n150 configurations in model_specs_output.json - only GALAXY models use this commit!
 
 **Actions taken:**
 1. Rolled back tt-metal to 25305db (Dec 8, 2024)
-2. Rolled back vLLM to 6e67d2d (validated with N150)
+2. Rolled back vLLM to 6e67d2d (validated with n150)
 3. Rebuilding tt-metal at known-good commit (background task bb65275)
 4. Reinstalling vLLM at known-good commit (background task b3c8000)
 
@@ -1143,10 +1143,10 @@ The validated configuration (`25305db` + `6e67d2d` + PyTorch 2.6.0) has tightly 
 
 ## Moving Forward
 
-**Next steps:** Explore other validated N150 lessons:
-- Lesson 9: Image Generation (SD 3.5) - validated on N150
-- Lesson 14: Exploring TT-Metalium - validated on N150
-- Lesson 15: TT-Metalium Cookbook - validated on N150
+**Next steps:** Explore other validated n150 lessons:
+- Lesson 9: Image Generation (SD 3.5) - validated on n150
+- Lesson 14: Exploring TT-Metalium - validated on n150
+- Lesson 15: TT-Metalium Cookbook - validated on n150
 
 **Time invested in vLLM:** ~2 hours
 **Key learnings:** Version compatibility critical, Docker images validated for production
@@ -1192,7 +1192,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 ## Final Summary
 
 **Session Duration:** ~2.5 hours  
-**Hardware:** N150 (Wormhole) single chip  
+**Hardware:** n150 (Wormhole) single chip  
 
 ### What Worked ✅
 
@@ -1205,7 +1205,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 - ✅ HTTP API server: **0.48s** per request (warm), 12.4 t/s
 
 **Key learnings:**
-- Llama-3.1-8B works excellently on N150 with direct tt-metal API
+- Llama-3.1-8B works excellently on n150 with direct tt-metal API
 - Model-in-memory pattern provides 100x speedup after warmup
 - tt-metal commit `3ee39729e9` (latest) is stable and functional
 
@@ -1231,7 +1231,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 **For the extension/lessons:**
 1. **Document vLLM Docker requirement** in Lesson 7
 2. **Add warning** about rolling back tt-metal versions
-3. **Validate Cookbook** (Lesson 15) on fresh N150 environment
+3. **Validate Cookbook** (Lesson 15) on fresh n150 environment
 4. **Consider adding** "environment reset" instructions
 
 ### Environment Status
@@ -1270,7 +1270,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 **TTNN verification:** ✅ SUCCESS
 - Device opened correctly
 - Tensor operations working
-- Harvesting mask 0x1 (normal for N150 L)
+- Harvesting mask 0x1 (normal for n150 L)
 - HugePages pinned successfully
 
 **Lesson 15 - Game of Life:** ✅ SUCCESS
@@ -1398,7 +1398,7 @@ Template uses simplified API: ttnn.conv2d(channel, kernel_tt, padding='same')
 
 ### Running SD 3.5 Large Demo
 
-**Hardware:** N150 (Wormhole, single chip)
+**Hardware:** n150 (Wormhole, single chip)
 **Model:** Stable Diffusion 3.5 Large (1024x1024)
 
 **Command:**
@@ -1422,7 +1422,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py::test_sd3 -v
 - **Total runtime:** 137.29 seconds (~2 minutes 17 seconds)
 - **Image size:** 1024x1024 pixels (1.8MB PNG)
 
-**Comparison to lesson expectations:** Lesson predicted ~12-15 seconds per image for N150. Actual time was ~137 seconds for full pipeline (first run). This includes:
+**Comparison to lesson expectations:** Lesson predicted ~12-15 seconds per image for n150. Actual time was ~137 seconds for full pipeline (first run). This includes:
 - Model loading from Hugging Face (~14 seconds)
 - TT-NN transformer initialization (~82 seconds first run)
 - 28 inference steps (~128 seconds)
@@ -1433,14 +1433,14 @@ pytest models/experimental/stable_diffusion_35_large/demo.py::test_sd3 -v
 **Prompt used (default):**
 > "An epic, high-definition cinematic shot of a rustic snowy cabin glowing warmly at dusk, nestled in a serene winter landscape. Surrounded by gentle snow-covered pines and delicate falling snowflakes - captured in a rich, atmospheric, wide-angle scene with deep cinematic depth and warmth."
 
-![Snowy Cabin - SD 3.5 Large on N150](./assets/img/sd35_snowy_cabin.png)
+![Snowy Cabin - SD 3.5 Large on n150](./assets/img/sd35_snowy_cabin.png)
 
-*1024x1024 image generated natively on Tenstorrent N150 hardware using Stable Diffusion 3.5 Large with MMDiT architecture. All inference steps ran on Tensix cores with TT-NN operators.*
+*1024x1024 image generated natively on Tenstorrent n150 hardware using Stable Diffusion 3.5 Large with MMDiT architecture. All inference steps ran on Tensix cores with TT-NN operators.*
 
 ### Key Findings
 
 **What works:**
-- ✅ Stable Diffusion 3.5 Large runs natively on N150
+- ✅ Stable Diffusion 3.5 Large runs natively on n150
 - ✅ Full 1024x1024 resolution supported
 - ✅ TT-NN acceleration working (not CPU fallback)
 - ✅ Model auto-downloads from Hugging Face
@@ -1450,9 +1450,9 @@ pytest models/experimental/stable_diffusion_35_large/demo.py::test_sd3 -v
 - First run includes model download and compilation overhead
 - Subsequent runs would be faster (compiled kernels cached)
 - Lesson's "12-15 seconds" estimate appears to be for warm runs only
-- Cold run (first generation) takes ~2-3 minutes on N150
+- Cold run (first generation) takes ~2-3 minutes on n150
 
-**Status:** ✅ LESSON VALIDATED - Image generation working perfectly on N150!
+**Status:** ✅ LESSON VALIDATED - Image generation working perfectly on n150!
 
 **Next:** Try Lesson 14 (Explore TT-Metalium)
 
@@ -1472,7 +1472,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py::test_sd3 -v
 
 **✅ Lesson 9:** Image Generation with Stable Diffusion 3.5 Large
 - 1024x1024 high-resolution image generation
-- Native TT-NN acceleration on N150
+- Native TT-NN acceleration on n150
 - Full MMDiT pipeline working
 
 ### Generated Artifacts
@@ -1494,7 +1494,7 @@ All images inlined in this report with markdown references.
 - Solution: Clean rebuild at known-good commit (5143b856eb)
 - Added FAQ entry for cloud environment troubleshooting
 
-**Performance Benchmarks (N150):**
+**Performance Benchmarks (n150):**
 - Game of Life: 256x256 grid, 200 generations in 42 seconds
 - Mandelbrot: 1024x1024 @ 256 iterations in 10 seconds (0.10 Mpixels/sec)
 - SD 3.5: 1024x1024 @ 28 steps in 137 seconds (~4.57 sec/step)
@@ -1513,7 +1513,7 @@ All images inlined in this report with markdown references.
 ### Recommendations for Extension
 
 **Lesson Content Updates:**
-1. Lesson 3: Add hardware-specific model recommendations (Qwen3-0.6B for N150)
+1. Lesson 3: Add hardware-specific model recommendations (Qwen3-0.6B for n150)
 2. Lesson 7: Document Docker requirement for vLLM native installation
 3. Lesson 9: Clarify that "12-15 seconds" is for warm runs (cold ~2-3 minutes)
 4. Lesson 15: Fix Image Filters template to use correct TTNN conv2d API
@@ -1526,7 +1526,7 @@ All images inlined in this report with markdown references.
 
 ### Hardware Validated
 
-**N150 (Wormhole):**
+**n150 (Wormhole):**
 - ✅ Lessons 1-5, 9, 15 (3 of 4 recipes)
 - ✅ Direct tt-metal API inference (27.88 t/s)
 - ✅ HTTP API server (0.48s per request warm)
@@ -1549,12 +1549,12 @@ All images inlined in this report with markdown references.
 
 ### Conclusion
 
-Successfully validated N150 hardware with tt-metal commit 5143b856eb. Lessons 1-5, 9, and 15 (3 of 4 recipes) all working correctly. Environment is stable and suitable for continued lesson validation.
+Successfully validated n150 hardware with tt-metal commit 5143b856eb. Lessons 1-5, 9, and 15 (3 of 4 recipes) all working correctly. Environment is stable and suitable for continued lesson validation.
 
 **Next session priorities:**
 1. Fix Image Filters cookbook template (TTNN conv2d API)
 2. Validate Lesson 14 (RISC-V Programming) - currently draft status
-3. Explore Lesson 12 (TT-XLA/JAX) - validated on N150 per metadata
+3. Explore Lesson 12 (TT-XLA/JAX) - validated on n150 per metadata
 4. Consider fresh environment for vLLM lesson validation
 
 ---
@@ -1562,14 +1562,14 @@ Successfully validated N150 hardware with tt-metal commit 5143b856eb. Lessons 1-
 ## Lesson 12: JAX Inference with TT-XLA - IN PROGRESS
 
 **Started:** 19:50 UTC
-**Hardware:** N150 (Wormhole)
+**Hardware:** n150 (Wormhole)
 **Goal:** Validate TT-XLA production compiler with JAX integration
 
 ### Overview
 
 TT-XLA is Tenstorrent's production-ready XLA-based compiler for JAX and PyTorch/XLA models:
 - Production maturity (most stable compiler)
-- Multi-chip support (TP/DP on N300/T3K/Galaxy)
+- Multi-chip support (TP/DP on n300/T3K/Galaxy)
 - Wheel-based installation (no source building)
 - Works with Python 3.10+ (lesson recommends 3.11)
 - Separate from tt-metal environment (uses bundled runtime)
@@ -1619,7 +1619,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 4. **GPT-2 XL (1.5B params)**
    - Next token: '�' (probability: 0.1117)
    - Runtime: ~3 minutes
-   - Largest model successfully ran on N150!
+   - Largest model successfully ran on n150!
 
 **Total Demo Time:** ~9 minutes for all 4 models
 
@@ -1628,7 +1628,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 **What works:**
 - ✅ TT-XLA production compiler working perfectly
 - ✅ JAX integration via PJRT plugin seamless
-- ✅ All 4 GPT-2 variants run successfully on N150
+- ✅ All 4 GPT-2 variants run successfully on n150
 - ✅ Automatic model conversion from HuggingFace
 - ✅ Hardware detection and device management working
 - ✅ Models compile and execute on TT accelerator
@@ -1662,7 +1662,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 | Multi-chip | ✅ Yes | ❌ No | ✅ Yes |
 | This lesson | ✅ Validated | Not tested | Lessons 1-10 ✅ |
 
-**Status:** ✅ LESSON 12 VALIDATED - TT-XLA working perfectly on N150!
+**Status:** ✅ LESSON 12 VALIDATED - TT-XLA working perfectly on n150!
 
 **Time invested:** ~25 minutes (install + test + demo)
 
@@ -1675,7 +1675,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 **✅ Lessons 1-5:** Hardware detection, tt-metal verification, model downloads, direct API inference, HTTP API server (validated earlier in session)
 
 **✅ Lesson 9:** Image Generation with Stable Diffusion 3.5 Large
-- 1024x1024 native generation on N150
+- 1024x1024 native generation on n150
 - Full MMDiT pipeline working
 - ~2.5 minutes per image (cold run)
 
@@ -1733,16 +1733,16 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 - Game of Life: 42s (256x256, 200 generations)
 - Mandelbrot: 10s (1024x1024 @ 256 iterations)
 - SD 3.5: 137s (1024x1024 @ 28 steps, first run)
-- GPT-2 XL: 3 min (1.5B params on N150!)
+- GPT-2 XL: 3 min (1.5B params on n150!)
 
 **Compiler Validation:**
 - TT-Metal Direct API: ✅ Working (Lessons 1-5)
 - TT-XLA: ✅ Production-ready (Lesson 12)
 - TT-Forge: Not tested (experimental)
 
-### Hardware Utilization (N150 Wormhole)
+### Hardware Utilization (n150 Wormhole)
 
-**Validated workloads on single N150 chip:**
+**Validated workloads on single n150 chip:**
 - ✅ Direct inference: Llama-3.1-8B @ 27.88 t/s
 - ✅ Image generation: SD 3.5 @ 1024x1024
 - ✅ JAX models: GPT-2 XL (1.5B params)
@@ -1752,7 +1752,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 ### Recommendations for Extension
 
 **Lesson Updates Needed:**
-1. Lesson 3: Add N150-specific model recommendations
+1. Lesson 3: Add n150-specific model recommendations
 2. Lesson 7: Document Docker requirement clearly
 3. Lesson 9: Clarify cold vs warm run timing
 4. Lesson 12: Update status from "draft" to "validated" ✅
@@ -1760,7 +1760,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 
 **Metadata Updates:**
 - Lesson 12: Change status "draft" → "validated"
-- Add N150 to lesson 12 validatedOn array
+- Add n150 to lesson 12 validatedOn array
 
 ### Total Time Investment
 
@@ -1804,7 +1804,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 ## Lesson 11: TT-Forge Image Classification - IN PROGRESS
 
 **Started:** 21:07 UTC
-**Hardware:** N150 (Wormhole)
+**Hardware:** n150 (Wormhole)
 **Goal:** Validate TT-Forge experimental MLIR compiler with PyTorch model
 
 ### Overview
@@ -1977,7 +1977,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 - ❌ Integration with tt-metal runtime incomplete
 - ⚠️ Experimental status confirmed
 
-**Conclusion:** ✅ BUILD VALIDATED - TT-Forge builds successfully on N150 with documented fixes
+**Conclusion:** ✅ BUILD VALIDATED - TT-Forge builds successfully on n150 with documented fixes
 
 **Recommendation for lesson:**
 1. Add compiler symlink instructions
@@ -1991,7 +1991,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 ## Final Session Summary - December 31, 2025 (Continuation)
 
 **Session Duration:** 21:07 UTC - 22:10 UTC (~63 minutes active work time)
-**Hardware:** N150 (Wormhole) single chip
+**Hardware:** n150 (Wormhole) single chip
 **Starting Environment:** Stable tt-metal at commit 5143b856eb
 
 ### Lessons Validated in This Session
@@ -2280,7 +2280,7 @@ Species:   0      1      2      3      4      5
 **Scalability:**
 - Current: 2048 particles (CPU baseline)
 - With TTNN: Could handle 4096-8192+ particles
-- Hardware limit: 100K+ particles possible on N150
+- Hardware limit: 100K+ particles possible on n150
 - Bottleneck: Visualization, not computation!
 
 ### Scientific Insights
@@ -2387,7 +2387,7 @@ This demonstrates the **true power of Tenstorrent hardware**: enabling complexit
 ## Final Session Summary - December 31, 2025 (Complete)
 
 **Total Session Duration:** 21:07 UTC - 22:18 UTC (71 minutes)
-**Hardware:** N150 (Wormhole) single chip
+**Hardware:** n150 (Wormhole) single chip
 **Environment:** Stable throughout (tt-metal commit 5143b856eb)
 
 ### Lessons Completed This Session
@@ -2571,7 +2571,7 @@ python test_particle_life.py
 **Technical achievement:**
 - 2,097,152,000 total force calculations
 - ~10.9 million calculations/second (NumPy baseline)
-- Scalable to 100K+ particles on N150
+- Scalable to 100K+ particles on n150
 - Headless rendering for cloud environments
 
 **Scientific insight:**
@@ -2609,13 +2609,13 @@ And now, the cookbook is richer. ✨
 # Lesson 9 (Video): Video Generation with Stable Diffusion 3.5
 
 **Date:** January 2, 2026, 19:00 UTC
-**Hardware:** N150 (Wormhole - Single Chip)
+**Hardware:** n150 (Wormhole - Single Chip)
 **Lesson:** `content/lessons/video-generation-ttmetal.md`
 **Goal:** Validate new video generation lesson accuracy
 
 ## Pre-Flight Check
 
-**Hardware Detected: N150 L** ✅
+**Hardware Detected: n150 L** ✅
 - Board ID: 1000186119060e6
 - AICLK: 1000 MHz
 - Temperature: 45.4°C
@@ -2634,7 +2634,7 @@ And now, the cookbook is richer. ✨
 - ✅ `~/tt-scratchpad/worldsfair_prompts.txt` - EXISTS (from previous adventure)
 
 **Prerequisites Check:**
-- ✅ Hardware: N150 operational
+- ✅ Hardware: n150 operational
 - ✅ tt-metal: Installed
 - ✅ Python: 3.10.12
 - ❌ **ffmpeg: NOT INSTALLED** (ISSUE #1)
@@ -2731,7 +2731,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py -v -s
 ```
 
 **Status:** ✅ Generation started successfully
-- Device opened: N150 (device 0)
+- Device opened: n150 (device 0)
 - TTNN initialized
 - Model loading from HuggingFace
 - TT-NN transformer creating
@@ -2743,7 +2743,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py -v -s
 - First step: 46 seconds (includes compilation)
 - Subsequent steps: 4-5 seconds each (much faster after compilation)
 - Estimated completion: ~2-3 more minutes
-- Performance on N150: Excellent after warmup
+- Performance on n150: Excellent after warmup
 
 **Observation:** First frame generation includes kernel compilation which takes ~45 seconds. Subsequent denoising steps are 4-5 seconds each, which aligns with lesson expectations.
 
@@ -2763,10 +2763,10 @@ PASSED models/experimental/stable_diffusion_35_large/demo.py::test_sd3[...]
 - ⏱️ Generation time: 229.99 seconds
 - ⏱️ Setup time: 3.62 seconds
 
-**Performance Analysis (N150):**
+**Performance Analysis (n150):**
 - First denoising step: ~46 seconds (includes kernel compilation)
 - Remaining 27 steps: ~180 seconds (~6.7 seconds per step average)
-- **This aligns with lesson expectations** ("~30-45 seconds on N150" is for SUBSEQUENT frames after compilation)
+- **This aligns with lesson expectations** ("~30-45 seconds on n150" is for SUBSEQUENT frames after compilation)
 - **For FIRST frame (with compilation):** ~4 minutes is realistic
 
 **Key Finding:** Lesson timing expectations need clarification:
@@ -2838,7 +2838,7 @@ From generation logs:
 ```
 
 **Hardware verification:**
-- ✅ Model loaded on TT hardware (N150 device 0)
+- ✅ Model loaded on TT hardware (n150 device 0)
 - ✅ TTNN initialized with WORKER dispatch core type
 - ✅ Mesh device created successfully
 - ✅ TT-NN transformer running on hardware
@@ -2876,15 +2876,15 @@ ffmpeg -framerate 2 -pattern_type glob -i 'frame_*.png' \
 
 ### Step 7: Understanding the Scaling
 
-**Observed timings on N150:**
+**Observed timings on n150:**
 - First frame: ~3 minutes 55 seconds (includes model download + compilation)
 - Second frame: ~3 minutes 50 seconds (compilation cached, consistent)
 
-**Lesson expectations:** "~30-45 seconds per frame on N150"
+**Lesson expectations:** "~30-45 seconds per frame on n150"
 
-**Reality:** ~4 minutes per frame on N150 (actual measurement)
+**Reality:** ~4 minutes per frame on n150 (actual measurement)
 
-**Analysis:** Lesson timing expectations appear optimistic. Real-world N150 performance:
+**Analysis:** Lesson timing expectations appear optimistic. Real-world n150 performance:
 - Denoising alone: ~126 seconds (~4.5s per 28 steps)
 - Image decoding: ~10 seconds
 - Prompt encoding: ~0.7 seconds
@@ -2939,8 +2939,8 @@ pytest models/experimental/stable_diffusion_35_large/demo.py
 
 ### Issue #5: Timing Expectations Incorrect 📊 MINOR
 **Status:** DOCUMENTATION ERROR
-**Lesson says:** "~30-45 seconds per frame on N150"
-**Reality:** ~4 minutes per frame on N150 (measured)
+**Lesson says:** "~30-45 seconds per frame on n150"
+**Reality:** ~4 minutes per frame on n150 (measured)
 **Breakdown:**
 - Inference only: 2m 17s
 - With pytest overhead: ~4m total
@@ -2965,7 +2965,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py
    - Make video_prompts.txt actually useful
 
 3. **Update timing expectations** (Issue #5)
-   - Change "30-45 seconds" to "3-4 minutes" for N150
+   - Change "30-45 seconds" to "3-4 minutes" for n150
    - Clarify first frame vs subsequent frame timing
    - Add note about compilation overhead
 
@@ -2987,7 +2987,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py
 
 7. **Improve hardware scaling section**
    - Add actual benchmark data
-   - Show real-world N150/N300/T3K/Galaxy comparisons
+   - Show real-world n150/n300/T3K/Galaxy comparisons
 
 ---
 
@@ -3042,8 +3042,8 @@ All critical issues identified during validation have been resolved:
 
 **4. Issue #5 (timing expectations incorrect) - FIXED ✅**
 - Updated all hardware timing expectations throughout lesson:
-  - N150: ~30-45s → **~4 minutes** (first frame ~5 min with compilation)
-  - N300: ~15-20s → **~2 minutes**
+  - n150: ~30-45s → **~4 minutes** (first frame ~5 min with compilation)
+  - n300: ~15-20s → **~2 minutes**
   - T3K: ~5-8s → **~40 seconds**
   - P100: ~30-45s → **~4 minutes**
 - Updated Step 7 scaling calculations to reflect reality
@@ -3087,7 +3087,7 @@ All critical issues identified during validation have been resolved:
 
 **Blocking Issues:** NONE (all resolved)
 
-**Tested Hardware:** N150 (Wormhole)
+**Tested Hardware:** n150 (Wormhole)
 
 **Total Validation Time:** ~2.5 hours
 - Execution: ~1.5 hours
@@ -3129,7 +3129,7 @@ All critical issues identified during validation have been resolved:
 
 After applying all fixes, ran complete 10-frame video generation:
 
-**Hardware:** N150 (Wormhole) single chip
+**Hardware:** n150 (Wormhole) single chip
 
 **Script Used:** `/home/user/tt-scratchpad/generate_video_frames.py` (corrected API)
 
@@ -3138,7 +3138,7 @@ After applying all fixes, ran complete 10-frame video generation:
 - ✅ Video stitched with ffmpeg (5 seconds @ 2 fps)
 - ✅ Output: `tenstorrent_worldsfair_1964.mp4` (1.7 MB)
 
-### Performance Metrics (N150)
+### Performance Metrics (n150)
 
 **Frames 1-4 (initial run):**
 - Frame 1: 2:17 (includes model download + compilation)
@@ -3204,7 +3204,7 @@ Frame 9 - World's Fair closing ceremony with sunset lighting:
 
 **Issue discovered:** Killing a stuck SD 3.5 process requires device reset before restarting.
 
-**Solution:** `tt-smi -r` successfully resets N150 hardware for clean restart.
+**Solution:** `tt-smi -r` successfully resets n150 hardware for clean restart.
 
 **Recommendation:** Add troubleshooting note to lesson about device reset if generation stalls.
 
@@ -3241,8 +3241,8 @@ mesh_device = (4, 8)  # 4x8 = 32 chips = Galaxy
 ```
 
 **Hardware support:**
-- N150 (1 chip): ❌ NOT supported
-- N300 (2 chips): ❌ NOT supported
+- n150 (1 chip): ❌ NOT supported
+- n300 (2 chips): ❌ NOT supported
 - T3K (8 chips): ❌ NOT supported
 - **Galaxy (32 chips): ✅ REQUIRED**
 
@@ -3257,7 +3257,7 @@ mesh_device = (4, 8)  # 4x8 = 32 chips = Galaxy
 
 **YES**, native video generation exists (Mochi creates "reality temporarily created"), **BUT** it requires Galaxy hardware (32 chips).
 
-**For N150 (single chip):**
+**For n150 (single chip):**
 - Frame-by-frame approach (validated in this lesson) is the best option
 - Creates compelling storytelling through image sequences
 - No animation/motion, but strong narrative flow
@@ -3274,7 +3274,7 @@ mesh_device = (4, 8)  # 4x8 = 32 chips = Galaxy
 Full investigation documented in:
 - `/home/user/tt-vscode-toolkit/docs/NATIVE_VIDEO_GENERATION.md`
 
-**Summary:** Frame-by-frame video generation is production-ready for N150. Native animated video requires Galaxy hardware and is documented for future advanced lessons.
+**Summary:** Frame-by-frame video generation is production-ready for n150. Native animated video requires Galaxy hardware and is documented for future advanced lessons.
 
 ---
 

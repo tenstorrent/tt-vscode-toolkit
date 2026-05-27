@@ -3,14 +3,14 @@
 **Date:** 2026-02-10
 **Validator:** Claude (AI validation agent)
 **tt-metal Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
-**Hardware:** N150 L (Wormhole - Single Chip)
+**Hardware:** n150 L (Wormhole - Single Chip)
 **Approach:** Pattern-based content quality audit + selective technical testing
 
 ---
 
 ## Executive Summary
 
-✅ **tt-metal v0.65.1 Status:** VALIDATED - Working correctly on N150 hardware
+✅ **tt-metal v0.65.1 Status:** VALIDATED - Working correctly on n150 hardware
 ✅ **Environment Setup:** Complete (15 min) - All dependencies installed, tensor operations passing
 ✅ **Content Quality Audit:** Complete (40 min) - 3 lessons reviewed in detail, systemic issues identified
 ✅ **UX Fixes Applied:** verify-installation lesson improved with 4 button additions
@@ -43,7 +43,7 @@
 - Action Needed: Setup required when validating tt-forge lessons
 
 **Hardware Detected:**
-- Board Type: N150 L (Wormhole)
+- Board Type: n150 L (Wormhole)
 - Single chip, 72 Tensix cores
 - Firmware: 18.7.0
 - ETH FW: 7.0.0
@@ -439,7 +439,7 @@
    - Location: `models/demos/wormhole/stable_diffusion/`
    - Status: ✅ **Stable** (as of Sept 2025, commit d3f1bd16ce)
    - Architecture: UNet-based, 512×512 default
-   - Hardware: N150 (⚠️ N300 has known issue [#7560](https://github.com/tenstorrent/tt-metal/issues/7560))
+   - Hardware: n150 (⚠️ n300 has known issue [#7560](https://github.com/tenstorrent/tt-metal/issues/7560))
    - Use Case: Lightweight, fast generation, good for testing/development
 
 2. **SDXL (Stable Diffusion XL)**
@@ -489,14 +489,14 @@
 - ✅ Verify which model the lesson actually uses
 - ✅ If SD v1.4: Update to recommend SDXL for production
 - ✅ If SDXL: Ensure examples reference correct path and model
-- ✅ Add note about SD v1.4 as lighter alternative for N150 testing
+- ✅ Add note about SD v1.4 as lighter alternative for n150 testing
 - ✅ Mention combined base+refiner pipeline (new in v0.65.x)
 - ✅ Update performance expectations (VAE and encoder improvements)
 
 **Content Updates**:
 - Path verification: `models/experimental/stable_diffusion_xl_base/demo/demo.py`
 - Model: `stabilityai/stable-diffusion-xl-base-1.0`
-- Note: "For lighter/faster generation on N150, SD v1.4 is also available"
+- Note: "For lighter/faster generation on n150, SD v1.4 is also available"
 - Advanced: Combined pipeline for best quality
 
 #### 2. video-generation-ttmetal Lesson (PRIORITY: MEDIUM)
@@ -558,7 +558,7 @@
 5. ✅ Python environment compatibility
 
 **What Works:**
-- Device opens successfully (N150 L detected, 1x1 mesh)
+- Device opens successfully (n150 L detected, 1x1 mesh)
 - Diffusers 0.36.0 installed and working
 - SDXL model accessible via HuggingFace Hub
 - All prerequisites met for image generation
@@ -567,7 +567,7 @@
 - Fixed incorrect SD 3.5 reference in troubleshooting (line 531)
 - Added v0.65.1 improvements section (VAE perf, encoder optimizations)
 - Added combined base+refiner pipeline documentation (NEW in v0.65.1!)
-- Added note about SD v1.4 as lighter alternative for N150
+- Added note about SD v1.4 as lighter alternative for n150
 - Added validation metadata
 
 **Performance Notes:**
@@ -613,7 +613,7 @@ Prerequisites validated - lesson commands are correct and will work.
 
 **What Works:**
 - All 5 cookbook projects pre-deployed in ~/tt-scratchpad/cookbook/
-- Device opens successfully (N150 L, 1x1 mesh)
+- Device opens successfully (n150 L, 1x1 mesh)
 - TTNN tensor operations validated
 - Layout conversions work (torch → TTNN TILE_LAYOUT)
 - Convolution operations ready (neighbor counting for cellular automata)
@@ -715,7 +715,7 @@ All share same validated TTNN foundation. Templates deployed and ready.
 - Previous validations confirmed functionality with tt-installer 2.0
 
 **✅ vllm-production** - Already validated
-- Marked as validated on N150 in metadata
+- Marked as validated on n150 in metadata
 - Comprehensive lesson content
 - OpenAI-compatible API documentation
 - **Note:** vLLM not currently installed in environment but lesson content verified
@@ -733,39 +733,39 @@ All 8 lessons marked as **validated** in metadata:
 
 **✅ ct1-understanding-training** (15 min, conceptual)
 - Training fundamentals and workflow overview
-- Validated on N150
+- Validated on n150
 
 **✅ ct2-dataset-fundamentals** (15 min, conceptual)
 - JSONL format, data quality, preprocessing
-- Validated on N150
+- Validated on n150
 
 **✅ ct3-configuration-patterns** (15 min, conceptual)
 - YAML-driven configuration, hyperparameters
-- Validated on N150
+- Validated on n150
 
 **✅ ct4-finetuning-basics** (25 min, hands-on)
 - NanoGPT on Shakespeare dataset
 - **Requires v0.67.0+** (has inference fixes)
-- Validated on N150 with v0.67.0-dev20260203
+- Validated on n150 with v0.67.0-dev20260203
 - 4 progressive training stages documented
 - **Note:** Cannot re-validate with v0.65.1 (wrong version)
 
 **✅ ct5-multi-device-training** (15 min, conceptual)
 - Multi-chip training concepts
-- Validated on N150 (conceptual lesson)
+- Validated on n150 (conceptual lesson)
 
 **✅ ct6-experiment-tracking** (15 min, hands-on)
 - WandB integration, metrics tracking
-- Validated on N150
+- Validated on n150
 
 **✅ ct7-architecture-basics** (20 min, conceptual)
 - Transformer architecture deep dive
-- Validated on N150
+- Validated on n150
 
 **✅ ct8-training-from-scratch** (90 min, hands-on)
 - Build nano-trickster (11M params)
 - Train from random initialization
-- Validated on N150
+- Validated on n150
 - **Note:** Likely requires v0.67.0+ (uses tt-train framework)
 
 **Summary:**

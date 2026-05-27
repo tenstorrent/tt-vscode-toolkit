@@ -2,7 +2,7 @@
 id: deploy-to-koyeb
 title: "Deploy Your Work to Koyeb"
 description: >-
-  Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.
+  Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.
 category: deployment
 tags:
   - deployment
@@ -23,11 +23,11 @@ estimatedMinutes: 10
 
 # Deploy Your Work to Koyeb
 
-Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. We'll use vLLM as the primary example, then show how to adapt for any application.
+Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. We'll use vLLM as the primary example, then show how to adapt for any application.
 
 ## What You'll Learn
 
-- Deploy vLLM to production with N300 hardware
+- Deploy vLLM to production with n300 hardware
 - Containerize Python applications for Tenstorrent
 - Configure hardware access and permissions
 - Production deployment best practices
@@ -55,7 +55,7 @@ python -m vllm.entrypoints.openai.api_server \
   --port 8000
 ```
 
-Now we'll deploy this to Koyeb with N300 hardware.
+Now we'll deploy this to Koyeb with n300 hardware.
 
 ---
 
@@ -522,7 +522,7 @@ koyeb services create vllm-prod \
 ## Summary
 
 **What you learned:**
-- ✅ Deploy vLLM to production with N300 hardware
+- ✅ Deploy vLLM to production with n300 hardware
 - ✅ Containerize any Python app for Tenstorrent by extending our base image
 - ✅ Simplify Dockerfiles from 80 lines to 15 lines
 - ✅ Set up monitoring and health checks

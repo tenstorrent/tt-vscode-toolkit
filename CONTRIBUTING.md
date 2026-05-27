@@ -164,6 +164,13 @@ You should see 134+ tests passing. Fix any failures before proceeding.
 3. Test your changes in the new VSCode window
 4. Check console for errors: Help → Toggle Developer Tools
 
+**Preview lessons and pages in a browser (GitHub Pages site):**
+```bash
+npm install          # required once — installs marked, mermaid, etc.
+npm run dev:web
+```
+Then open http://127.0.0.1:8000/ (install page) or http://127.0.0.1:8000/lessons/`<lesson-id>`/ (e.g. `animatediff-video-generation`). Saves under `content/lessons/` and `content/pages/` trigger an automatic rebuild; refresh the browser to see updates. Custom port: `npm run dev:web -- --port=3000`. If the script says packages are missing, run `npm install` from the repo root.
+
 **Test packaging (optional):**
 ```bash
 npm run package
@@ -420,7 +427,7 @@ git add content/lessons/17-my-new-lesson.md content/lesson-registry.json
 git commit -m "docs(lessons): add lesson on advanced topic
 
 New lesson covers X, Y, and Z with hands-on examples.
-Validated on N150 and N300 hardware.
+Validated on n150 and n300 hardware.
 
 Closes #456"
 git push origin username/456-new-lesson
@@ -438,11 +445,11 @@ Use the PR template and include:
 **Hardware-specific content:**
 Use markdown sections for variants:
 ```markdown
-### N150 Configuration
-Instructions specific to N150...
+### n150 Configuration
+Instructions specific to n150...
 
-### N300 Configuration
-Instructions specific to N300...
+### n300 Configuration
+Instructions specific to n300...
 ```
 
 **Python templates:**

@@ -84,7 +84,7 @@ All images are based on **Ubuntu 24.04 (noble) server variant** with code-server
 - **Size:** ~2-2.5GB
 - **Base:** Ubuntu 24.04 (server/minimal, better tt-installer compatibility)
 - **Contents:** code-server + extension + tt-installer tools (tt-smi, tt-flash, etc.)
-- **Use case:** Koyeb cloud platform with N300 hardware
+- **Use case:** Koyeb cloud platform with n300 hardware
 - **Build:** `docker build -f Dockerfile.koyeb -t tt-vscode-toolkit:koyeb .`
 - **Note:** Uses tt-installer with `--mode-container` to install Tenstorrent tools
 
@@ -97,7 +97,7 @@ All images are based on **Ubuntu 24.04 (noble) server variant** with code-server
 | `PASSWORD` | `tenstorrent` | Password for accessing code-server |
 | `SUDO_PASSWORD` | Same as PASSWORD | Sudo password inside container |
 | `TT_METAL_HOME` | `/home/coder/tt-metal` | Path to tt-metal (full image only) |
-| `MESH_DEVICE` | - | Hardware type (N300, T3K, etc.) |
+| `MESH_DEVICE` | - | Hardware type (n300, T3K, etc.) |
 
 **⚠️ IMPORTANT:** Always set a custom password for production deployments!
 
@@ -147,7 +147,7 @@ See [KOYEB.md](./KOYEB.md) for complete Koyeb deployment guide.
 Quick deploy buttons available for:
 - Git-based deployment (builds from source)
 - Docker image deployment (uses pre-built image)
-- Hardware-accelerated instances (N300 support)
+- Hardware-accelerated instances (n300 support)
 
 ### Railway
 

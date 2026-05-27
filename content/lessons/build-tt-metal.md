@@ -3,7 +3,7 @@ id: build-tt-metal
 title: Build tt-metal from Source
 description: >-
   Clone and build tt-metal from source. Required for Direct API (Generator API)
-  lessons and for running tt-metal examples directly. QB2 and pre-configured
+  lessons and for running tt-metal examples directly. QuietBox 2 and pre-configured
   images do not ship with ~/tt-metal — start here if Check 3 in Verify Your
   Setup failed.
 category: first-inference
@@ -61,11 +61,11 @@ run through this lesson.
 
 ---
 
-## QB2 / Pre-configured image note
+## QuietBox 2 / Pre-configured image note
 
-> **QB2 does not ship with `~/tt-metal`.**
+> **QuietBox 2 does not ship with `~/tt-metal`.**
 
-QB2 (Quantum Bridge 2) and similar pre-configured Tenstorrent demo images
+QuietBox 2 (Quantum Bridge 2) and similar pre-configured Tenstorrent demo images
 include tt-smi, Metal drivers, and a Python environment, but they do **not**
 include a built tt-metal source tree. You must clone and build it yourself
 before any command here will work.
@@ -78,7 +78,7 @@ times are 30–60 minutes, so it is not bundled into images.
 ## Docker vs Podman note
 
 tt-metal's `install_dependencies.sh` script defaults to **Podman** on some
-systems. QB2 images typically ship with Docker and do not have Podman installed.
+systems. QuietBox 2 images typically ship with Docker and do not have Podman installed.
 
 If `sudo ./install_dependencies.sh` exits with an error referencing `podman`
 (e.g. `command not found: podman` or permission errors), install Docker first:
@@ -259,17 +259,17 @@ and re-run the checks — Check 3 should now be green.
 
 ---
 
-## Blackhole architecture note (P100 / P150 / P300c / QB2)
+## Blackhole architecture note (P100 / p150 / p300c / QuietBox 2)
 
 > **This section is critical if you are writing or adapting scripts for
-> Blackhole hardware (P100, P150, P300c, QB2).**
+> Blackhole hardware (P100, p150, p300c, QuietBox 2).**
 
 When opening a mesh device with `ttnn.open_mesh_device()`, do **not** hardcode
 `DispatchCoreAxis.ROW`. Blackhole uses column dispatch (`COL`), and passing
 `ROW` explicitly causes a crash:
 
 ```python
-# ❌ Crashes on Blackhole (P100/P150/P300c/QB2):
+# ❌ Crashes on Blackhole (p100/p150/p300c/QuietBox 2):
 dispatch_core_config = ttnn.DispatchCoreConfig(
     ttnn.DispatchCoreType.WORKER,
     ttnn.DispatchCoreAxis.ROW  # <-- hardcoded axis, breaks on Blackhole

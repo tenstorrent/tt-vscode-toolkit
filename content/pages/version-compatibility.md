@@ -9,23 +9,23 @@ This guide documents validated combinations of hardware, software versions, and 
 ## 🎯 Quick Recommendations by Use Case
 
 ### Just Starting Out (Lessons 1-5)
-**Hardware:** N150 (Wormhole single-chip)
+**Hardware:** n150 (Wormhole single-chip)
 **tt-metal:** Latest from main branch
 **Python:** 3.10 (system default on Ubuntu 22.04)
 **Model:** Qwen3-0.6B (1.5GB, no HuggingFace token needed)
 
 ### Production Inference (vLLM)
-**Hardware:** N150/N300/T3K/P100/P150
+**Hardware:** n150/n300/T3K/P100/p150
 **Deployment:** tt-inference-server Docker image (recommended)
 **Alternative:** Native installation requires careful version matching
 
 ### Multi-Chip Development (TT-XLA)
-**Hardware:** N150/N300/T3K/Galaxy
+**Hardware:** n150/n300/T3K/Galaxy
 **Python:** 3.11
 **Installation:** Wheel-based (no source build required)
 
 ### Experimental Compiler (TT-Forge)
-**Hardware:** N150 only (single-chip)
+**Hardware:** n150 only (single-chip)
 **Python:** 3.11
 **Build time:** 45-60 minutes
 **Requirements:** clang-17
@@ -36,7 +36,7 @@ This guide documents validated combinations of hardware, software versions, and 
 
 ### Wormhole Architecture
 
-#### N150 (Single Chip)
+#### n150 (Single Chip)
 - **DRAM:** 12GB
 - **Tensix Cores:** 80
 - **Best for:** Development, small models (<2B parameters)
@@ -46,7 +46,7 @@ This guide documents validated combinations of hardware, software versions, and 
   - Llama-3.1-8B-Instruct (8B params, 16GB) ⚠️ **Tight fit, may exhaust DRAM**
 - **Multi-chip support:** No
 
-#### N300 (Dual Chip)
+#### n300 (Dual Chip)
 - **DRAM:** 24GB (2x 12GB)
 - **Tensix Cores:** 160
 - **Best for:** Medium models (8B parameters)
@@ -89,20 +89,20 @@ This guide documents validated combinations of hardware, software versions, and 
 - **Requirements:** `export TT_METAL_ARCH_NAME=blackhole`
 - **Multi-chip support:** Single chip only
 
-#### P150 (Configurable: 1, 2, 4, or 8 chips)
+#### p150 (Configurable: 1, 2, 4, or 8 chips)
 - **DRAM per chip:** ~32GB
 - **Total DRAM:**
-  - P150 x1: ~32GB (single chip)
-  - P150 x2: ~64GB (2 chips)
-  - P150 x4: ~128GB (4 chips)
-  - P150 x8: ~256GB (8 chips)
+  - p150 x1: ~32GB (single chip)
+  - p150 x2: ~64GB (2 chips)
+  - p150 x4: ~128GB (4 chips)
+  - p150 x8: ~256GB (8 chips)
 - **Tensix Cores per chip:** 140 (14x10 grid, 13x10 available for compute)
 - **Best for:** Scalable multi-chip deployments (70B+ models)
 - **Recommended models:**
-  - P150 x1: Llama-3.1-8B ✅
-  - P150 x2: Llama-3.1-8B (fast), medium models ✅
-  - P150 x4: Llama-3.1-70B ✅
-  - P150 x8: 70B+ models, large-scale inference ✅
+  - p150 x1: Llama-3.1-8B ✅
+  - p150 x2: Llama-3.1-8B (fast), medium models ✅
+  - p150 x4: Llama-3.1-70B ✅
+  - p150 x8: 70B+ models, large-scale inference ✅
 - **Enhanced features:** Same as P100
 - **Requirements:** `export TT_METAL_ARCH_NAME=blackhole`
 - **Multi-chip support:** Yes (2, 4, or 8 chips via mesh topology)
@@ -138,8 +138,8 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 | Deployment Method | Hardware | Status | Notes |
 |------------------|----------|--------|-------|
-| **tt-inference-server (Docker)** | N150/N300/T3K/P100/P150 | ✅ **Recommended** | Pre-validated configurations |
-| **Native installation** | N150/N300/T3K | ⚠️ **Advanced** | Version compatibility challenges |
+| **tt-inference-server (Docker)** | n150/n300/T3K/P100/p150 | ✅ **Recommended** | Pre-validated configurations |
+| **Native installation** | n150/n300/T3K | ⚠️ **Advanced** | Version compatibility challenges |
 
 **Docker method (validated):**
 ```bash
@@ -152,9 +152,9 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 | Hardware | tt-metal | vLLM | Status | Notes |
 |----------|----------|------|--------|-------|
-| N150 | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
-| N150 | Specific commits | Native build | ⚠️ Complex | Requires model_specs_output.json matching |
-| N300+ | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
+| n150 | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
+| n150 | Specific commits | Native build | ⚠️ Complex | Requires model_specs_output.json matching |
+| n300+ | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
 
 **Known issues with native installation:**
 - PyTorch type hint incompatibilities
@@ -167,7 +167,7 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 export VLLM_TARGET_DEVICE=tt
 export VLLM_CONFIGURE_LOGGING=1
 export VLLM_RPC_TIMEOUT=900000
-# For Blackhole (P100/P150):
+# For Blackhole (p100/p150):
 export TT_METAL_ARCH_NAME=blackhole
 ```
 
@@ -175,7 +175,7 @@ export TT_METAL_ARCH_NAME=blackhole
 
 | Component | Version | Python | Installation Method | Hardware Support |
 |-----------|---------|--------|-------------------|------------------|
-| **TT-XLA** | Latest wheel | 3.11 | pip (wheel) | N150/N300/T3K/Galaxy |
+| **TT-XLA** | Latest wheel | 3.11 | pip (wheel) | n150/n300/T3K/Galaxy |
 | **JAX** | 0.7.1+ | 3.11 | pip | Required dependency |
 | **tt-forge** | Cloned for demos | 3.11 | git clone | Demo code only |
 
@@ -206,7 +206,7 @@ source ~/tt-scratchpad/setup-tt-xla.sh
 
 | Component | Version | Python | Installation Method | Hardware Support |
 |-----------|---------|--------|-------------------|------------------|
-| **TT-Forge** | Source build | 3.11 | cmake (45-60 min) | N150 only |
+| **TT-Forge** | Source build | 3.11 | cmake (45-60 min) | n150 only |
 | **clang** | 17 | N/A | apt | Required compiler |
 | **LLVM** | Built from submodule | N/A | cmake | 6719 targets (~40 min) |
 | **JAX** | 0.7.1 | 3.11 | pip | Build dependency |
@@ -255,8 +255,8 @@ source ~/tt-scratchpad/setup-tt-forge.sh
 
 | Component | Hardware | Status | Notes |
 |-----------|----------|--------|-------|
-| **SD 3.5 Large** | N150/N300/T3K/P100 | ✅ Validated | 1024x1024 generation |
-| **Generation time** | N150 | ~2-3 minutes | First run, includes model load |
+| **SD 3.5 Large** | n150/n300/T3K/P100 | ✅ Validated | 1024x1024 generation |
+| **Generation time** | n150 | ~2-3 minutes | First run, includes model load |
 | **Environment** | Standard tt-metal | ✅ Works | No special setup needed |
 
 **No special version requirements** - uses standard tt-metal environment.
@@ -283,7 +283,7 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 ### Hardware-Specific
 
-**For Blackhole chips (P100/P150):**
+**For Blackhole chips (P100/p150):**
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 ```
@@ -421,7 +421,7 @@ source ~/tt-xla-venv/bin/activate
 
 ### Recommended Model-Hardware Combinations
 
-| Model | Parameters | Disk Size | N150 (12GB) | N300 (24GB) | T3K (96GB) |
+| Model | Parameters | Disk Size | n150 (12GB) | n300 (24GB) | T3K (96GB) |
 |-------|-----------|-----------|-------------|-------------|------------|
 | **Qwen3-0.6B** | 0.6B | 1.5GB | ✅ **Perfect** | ✅ Excellent | ✅ Excellent |
 | **Gemma 3-1B-IT** | 1B | 2GB | ✅ **Good** | ✅ Excellent | ✅ Excellent |
@@ -435,7 +435,7 @@ source ~/tt-xla-venv/bin/activate
 - ⚠️ **Tight**: May work but can exhaust DRAM under load
 - ❌ **Too large**: Model won't fit
 
-**N150 recommendation:** Start with **Qwen3-0.6B** (0.6B parameters, 1.5GB)
+**n150 recommendation:** Start with **Qwen3-0.6B** (0.6B parameters, 1.5GB)
 - Ultra-lightweight (13x smaller than Llama-3.1-8B)
 - No HuggingFace token needed (ungated)
 - Dual thinking modes (reasoning-capable)
@@ -446,28 +446,28 @@ source ~/tt-xla-venv/bin/activate
 ## 🎓 Learning Path Recommendations
 
 ### Path 1: Beginner (First Time with Tenstorrent)
-1. Hardware: N150
+1. Hardware: n150
 2. Start with: Lessons 1-5 (Direct tt-metal API)
 3. Model: Qwen3-0.6B
 4. Time to first inference: ~30 minutes
 5. Environment: Standard tt-metal (Python 3.10)
 
 ### Path 2: Production Deployment
-1. Hardware: N150/N300/T3K depending on model size
+1. Hardware: n150/n300/T3K depending on model size
 2. Start with: Lessons 1-5 (understand the stack)
 3. Then: Lesson 6 (tt-inference-server Docker)
 4. Model: Match to hardware capacity
 5. Environment: Docker (validated configurations)
 
 ### Path 3: Model Developer
-1. Hardware: N150 (development), scale up for testing
+1. Hardware: n150 (development), scale up for testing
 2. Start with: Lessons 1-5 (foundation)
 3. Then: Lesson 13 (Bounty Program contribution workflow)
 4. Model: Bring your own architecture
 5. Environment: Standard tt-metal + git workflow
 
 ### Path 4: Compiler Explorer
-1. Hardware: N150 (single-chip)
+1. Hardware: n150 (single-chip)
 2. Start with: Lessons 1-5 (baseline understanding)
 3. Then: Lesson 12 (TT-XLA, production-ready)
 4. Optional: Lesson 11 (TT-Forge, experimental)
@@ -479,16 +479,16 @@ source ~/tt-xla-venv/bin/activate
 
 | Lesson | Hardware Tested | Status | Notes |
 |--------|----------------|--------|-------|
-| 1-5 | N150 | ✅ Validated | Zero issues after install_dependencies.sh |
-| 6 | N150 | ✅ Validated | tt-inference-server Docker |
-| 7 | N150 | ⚠️ Docker recommended | Native install has version challenges |
-| 8 | N150 | ✅ Validated | VSCode chat integration |
-| 9 | N150 | ✅ Validated | Stable Diffusion 3.5, ~2.5 min generation |
-| 10 | N150 | ✅ Validated | Coding assistant |
-| 11 | N150 | ⚠️ Experimental | TT-Forge 45-60 min build, limited model support |
-| 12 | N150 | ✅ Validated | TT-XLA wheel install, GPT-2 XL working |
-| 13-14 | N150 | 📋 Documentation | Bounty program, RISC-V programming |
-| 15 | N150 | ✅ Validated | TT-Metalium cookbook projects |
+| 1-5 | n150 | ✅ Validated | Zero issues after install_dependencies.sh |
+| 6 | n150 | ✅ Validated | tt-inference-server Docker |
+| 7 | n150 | ⚠️ Docker recommended | Native install has version challenges |
+| 8 | n150 | ✅ Validated | VSCode chat integration |
+| 9 | n150 | ✅ Validated | Stable Diffusion 3.5, ~2.5 min generation |
+| 10 | n150 | ✅ Validated | Coding assistant |
+| 11 | n150 | ⚠️ Experimental | TT-Forge 45-60 min build, limited model support |
+| 12 | n150 | ✅ Validated | TT-XLA wheel install, GPT-2 XL working |
+| 13-14 | n150 | 📋 Documentation | Bounty program, RISC-V programming |
+| 15 | n150 | ✅ Validated | TT-Metalium cookbook projects |
 
 ---
 

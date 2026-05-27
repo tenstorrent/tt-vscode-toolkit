@@ -366,11 +366,11 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 ```
 
 **Output tells you:**
-- **N150** - Single Wormhole chip (development, 64K context)
-- **N300** - Dual Wormhole chips (128K context, TP=2)
+- **n150** - Single Wormhole chip (development, 64K context)
+- **n300** - Dual Wormhole chips (128K context, TP=2)
 - **T3K** - Eight Wormhole chips (large models, TP=8)
 - **P100** - Single Blackhole chip (newer architecture)
-- **P150** - Dual Blackhole chips (TP=2)
+- **p150** - Dual Blackhole chips (TP=2)
 
 ### Q: tt-smi says "No devices found" - what do I do?
 
@@ -406,10 +406,10 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 ### Q: What's the difference between Wormhole and Blackhole?
 
 **A:**
-- **Wormhole (N150, N300, T3K)** - 2nd generation, well-validated, most models tested
-- **Blackhole (P100, P150)** - Latest generation, newer architecture, some experimental models
+- **Wormhole (n150, n300, T3K)** - 2nd generation, well-validated, most models tested
+- **Blackhole (P100, p150)** - Latest generation, newer architecture, some experimental models
 
-**For production:** Stick with Wormhole (N150/N300/T3K) - more models validated.
+**For production:** Stick with Wormhole (n150/n300/T3K) - more models validated.
 
 **For experimentation:** Blackhole offers newer features but check model compatibility.
 
@@ -419,8 +419,8 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 | Hardware | Max Model Size | Max Context | Multi-chip | Best For |
 |----------|---------------|-------------|------------|----------|
-| N150, P100 | 8B | 64K | No (TP=1) | Development, prototyping |
-| N300, P150 | 13B | 128K | Yes (TP=2) | Medium models, multi-user |
+| n150, P100 | 8B | 64K | No (TP=1) | Development, prototyping |
+| n300, p150 | 13B | 128K | Yes (TP=2) | Medium models, multi-user |
 | T3K | 70B+ | 128K | Yes (TP=8) | Large models, production |
 
 ### Q: What happens to running jobs and hardware utilization when a system suspends?
@@ -520,7 +520,7 @@ python3 --version
 **A:** **Llama-3.1-8B-Instruct** - covered in [Download Model](command:tenstorrent.showLesson?["download-model"]).
 
 **Why this model:**
-- ✅ Works on N150 (most common hardware)
+- ✅ Works on n150 (most common hardware)
 - ✅ Good performance for 8B size
 - ✅ Supports all lessons (4-9)
 - ✅ Well-tested and documented
@@ -615,7 +615,7 @@ login(token="your_token_from_huggingface")
 **Workarounds:**
 - Use model switching (stop one, start another)
 - Use multiple hardware devices
-- Use different hardware for different models (N150 for model A, N300 for model B)
+- Use different hardware for different models (n150 for model A, n300 for model B)
 
 ### Q: What does "context length" mean and why does it matter?
 
@@ -624,8 +624,8 @@ login(token="your_token_from_huggingface")
 - Includes both input (prompt) + output (response)
 
 **Hardware limits:**
-- N150/P100: 64K tokens (~48K words)
-- N300/T3K: 128K tokens (~96K words)
+- n150/P100: 64K tokens (~48K words)
+- n300/T3K: 128K tokens (~96K words)
 
 **Exceeding context?**
 ```
@@ -678,7 +678,7 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 **A:** Yes! The extension now includes 8 complete Custom Training lessons (CT1-CT8) that are fully validated on hardware.
 
 **What's working:**
-- ✅ **From-scratch training:** NanoGPT (11M params) - 136 steps in 76 seconds on N150
+- ✅ **From-scratch training:** NanoGPT (11M params) - 136 steps in 76 seconds on n150
 - ✅ **Fine-tuning:** Train custom models on your own datasets
 - ✅ **Complete toolkit:** Setup scripts, validation, and tested templates
 - ✅ **Production-ready:** Both training workflows validated end-to-end
@@ -689,17 +689,17 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 
 **A:** Training requirements depend on model size:
 
-**N150 (Wormhole single-chip):**
+**n150 (Wormhole single-chip):**
 - ✅ Perfect for NanoGPT (11M params, 6 layers, 384 dim)
 - ✅ From-scratch training on Shakespeare, custom datasets
 - ❌ TinyLlama-1.1B OOM (needs 2GB DRAM, only 1GB available)
 
-**N300+ (Wormhole dual-chip or higher):**
-- ✅ Everything N150 can do
+**n300+ (Wormhole dual-chip or higher):**
+- ✅ Everything n150 can do
 - ✅ TinyLlama-1.1B fine-tuning (2GB+ DRAM available)
 - ✅ Larger models and batch sizes
 
-**Recommendation:** Start with N150 and NanoGPT to learn the workflow!
+**Recommendation:** Start with n150 and NanoGPT to learn the workflow!
 
 ### Q: What's the difference between fine-tuning and training from scratch?
 
@@ -719,7 +719,7 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 - Slower (hours to days)
 - Good for: Understanding training deeply, custom architectures
 
-**Which should I start with?** CT8 (from-scratch) - it's faster on N150 with NanoGPT and teaches fundamentals!
+**Which should I start with?** CT8 (from-scratch) - it's faster on n150 with NanoGPT and teaches fundamentals!
 
 ### Q: What tt-metal version do I need for training?
 
@@ -797,7 +797,7 @@ cd $TT_METAL_HOME && git describe --tags
 **For vLLM:**
 - Llama family well-supported (2, 3, 3.1, 3.2)
 - Mistral supported
-- Qwen supported (needs N300+ for larger models)
+- Qwen supported (needs n300+ for larger models)
 - Check documentation for your specific model
 
 **For TT-XLA:**
@@ -976,7 +976,7 @@ Rolling back or updating tt-metal versions (for example, to match specific vLLM 
 - OpenMPI library path is required: `/opt/openmpi-v5.0.7-ulfm/lib`
 
 **Known-Good Commit (as of Dec 2024):**
-- `5143b856eb` (Oct 28, 2024) - Stable TTNN, validated on N150
+- `5143b856eb` (Oct 28, 2024) - Stable TTNN, validated on n150
 
 ### Q: Getting OpenMPI errors - how do I fix them?
 
@@ -1056,20 +1056,20 @@ export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
 **For lower latency:**
 - Reduce `max_tokens` parameter (shorter responses = faster)
 - Use smaller model (8B → 3B)
-- Consider hardware upgrade (N150 → N300)
+- Consider hardware upgrade (n150 → n300)
 
 ### Q: What are good vLLM server parameters?
 
 **A:** Recommended by hardware:
 
-**N150 (single chip):**
+**n150 (single chip):**
 ```bash
 --max-model-len 65536   # Full 64K context
 --max-num-seqs 16       # Moderate batching
 --block-size 64         # Standard
 ```
 
-**N300 (dual chip):**
+**n300 (dual chip):**
 ```bash
 --max-model-len 131072  # Full 128K context
 --max-num-seqs 32       # Higher batching
@@ -1182,7 +1182,7 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 - **Documentation:** https://docs.tenstorrent.com
 
 **When asking for help, include:**
-1. Hardware type (N150/N300/T3K/P100)
+1. Hardware type (n150/n300/T3K/P100)
 2. Error message (full text)
 3. Command you ran
 4. Output of `tt-smi`
@@ -1200,7 +1200,7 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 
 **When reporting, include:**
 ```
-Hardware: N150
+Hardware: n150
 OS: Ubuntu 22.04
 tt-metal version: [git rev-parse HEAD output]
 vLLM version: [pip show vllm]

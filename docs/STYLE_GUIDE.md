@@ -49,9 +49,9 @@ This style guide ensures consistency across all lessons, documentation, and code
 
 ### Hardware Product Names
 
-**Always use uppercase for model numbers in prose:**
-- ✅ `N150`, `N300`, `T3K`, `P100`, `P150`, `Galaxy`
-- ❌ `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy` (only use lowercase in code)
+**Use lowercase hardware IDs in prose** (matches lesson metadata and the hardware filter):
+- ✅ `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`
+- ❌ `n150`, `n300`, `T3K` in running text (keep uppercase only in shell env vars and command IDs — see below)
 
 **Hardware architecture names:**
 - ✅ `Grayskull` (capital G)
@@ -68,7 +68,7 @@ mesh_device: n300
 
 **In prose:**
 ```markdown
-The N150 uses the Wormhole architecture with 8 Tensix cores.
+The n150 uses the Wormhole architecture with 8 Tensix cores.
 ```
 
 ### Commands and Tools
@@ -267,7 +267,7 @@ Check [GitHub][repo] for updates.
 **Bold for important terms and UI elements:**
 ```markdown
 Click the **Run** button in VSCode.
-The **N150** hardware uses Wormhole architecture.
+The **n150** hardware uses Wormhole architecture.
 ```
 
 **Italic for emphasis or introducing new terms:**
@@ -343,11 +343,11 @@ estimatedMinutes: 30
 ### Hardware Values
 
 **Use lowercase in code:**
-- `n150` - N150 (Wormhole single chip)
-- `n300` - N300 (Wormhole 2-chip)
+- `n150` — Wormhole single chip
+- `n300` — Wormhole 2-chip
 - `t3k` - T3000 (Wormhole 8-chip)
 - `p100` - P100 (Blackhole single chip)
-- `p150` - P150 (Blackhole 2-chip)
+- `p150` - p150 (Blackhole 2-chip)
 - `galaxy` - Galaxy (Wormhole large-scale)
 - `simulator` - Software simulator (no hardware)
 
@@ -435,7 +435,7 @@ Button Text in Title Case
 - ❌ "vLLM Server Starting"
 
 **Be specific:**
-- ✅ "Detect N150 Hardware"
+- ✅ "Detect n150 Hardware"
 - ✅ "Install tt-metal v0.51.0"
 - ❌ "Detect Hardware"
 - ❌ "Install Software"
@@ -559,7 +559,7 @@ $ ./build_metal.sh
 **Show expected output:**
 ```bash
 $ tt-smi
-Board 0: N150 (Wormhole) - OK
+Board 0: n150 (Wormhole) - OK
   Status: Ready
   Temperature: 45°C
 ```
@@ -592,8 +592,8 @@ Board 0: N150 (Wormhole) - OK
 ```mermaid
 graph TD
     A[Start] --> B{Check Hardware}
-    B -->|N150| C[Single Device]
-    B -->|N300| D[Multi-Device]
+    B -->|n150| C[Single Device]
+    B -->|n300| D[Multi-Device]
     C --> E[Run Model]
     D --> E
 ```

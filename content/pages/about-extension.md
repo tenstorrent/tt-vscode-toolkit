@@ -1,6 +1,6 @@
 # TT Developer Toolkit — Extension Guide
 
-**TT Developer Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole (N150, N300, T3K) and Blackhole (P100, P150, P300, P300C, QB2) hardware.
+**TT Developer Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole (n150, n300, T3K) and Blackhole (P100, p150, p300, p300c, QuietBox 2) hardware.
 
 ---
 
@@ -85,13 +85,13 @@ Get from zero to a running inference server.
 
 | Lesson | Hardware |
 |---|---|
-| Modern Setup with tt-installer 2.0 | N150 · P300C |
-| Hardware Detection | N150 · P300C |
-| Download Model and Run Inference | N150 · P300C |
-| Verify Your Setup | N150 · P300C |
-| Interactive Chat with Direct API | N150 |
-| HTTP API Server with Direct API | N150 |
-| Build tt-metal from Source | N150 · P300C |
+| Modern Setup with tt-installer 2.0 | n150 · p300c |
+| Hardware Detection | n150 · p300c |
+| Download Model and Run Inference | n150 · p300c |
+| Verify Your Setup | n150 · p300c |
+| Interactive Chat with Direct API | n150 |
+| HTTP API Server with Direct API | n150 |
+| Build tt-metal from Source | n150 · p300c |
 
 ### 🏭 Serving Models *(4 lessons)*
 
@@ -99,9 +99,9 @@ Production-grade inference serving.
 
 | Lesson | Hardware |
 |---|---|
-| Production Inference with tt-inference-server | N150 · P100 |
-| Production Inference with vLLM | N150 · P300C |
-| Image Generation with Stable Diffusion XL | N150 |
+| Production Inference with tt-inference-server | n150 · P100 |
+| Production Inference with vLLM | n150 · p300c |
+| Image Generation with Stable Diffusion XL | n150 |
 | Video Generation via Frame-by-Frame Diffusion | *(draft)* |
 
 ### 🎬 Applications *(4 lessons)*
@@ -110,10 +110,10 @@ Real demos you can run end-to-end.
 
 | Lesson | Hardware |
 |---|---|
-| Coding Assistant with Aider | N150 · N300 |
-| Native Video Animation with AnimateDiff | N150 |
-| OpenClaw AI Assistant on QuietBox 2 | QB2 |
-| Generating Video on QuietBox 2 | QB2 |
+| Coding Assistant with Aider | n150 · n300 |
+| Native Video Animation with AnimateDiff | n150 |
+| OpenClaw AI Assistant on QuietBox 2 | QuietBox 2 |
+| Generating Video on QuietBox 2 | QuietBox 2 |
 
 ### 🍳 Cookbook *(6 lessons, all validated)*
 
@@ -157,7 +157,7 @@ A structured computer-science curriculum designed for the Tenstorrent architectu
 
 ## Hardware Filtering
 
-The **Lessons panel** includes a hardware filter. Select your card (N150, N300, T3K, P100, QB2, etc.) and the list narrows to only the lessons validated on your hardware. The filter state is remembered across sessions.
+The **Lessons panel** includes a hardware filter. Select your card (n150, n300, T3K, P100, QuietBox 2, etc.) and the list narrows to only the lessons validated on your hardware. The filter state is remembered across sessions.
 
 ---
 
@@ -170,7 +170,7 @@ Beyond lessons, the extension registers 70+ commands accessible via the Command 
 | **Setup** | Run tt-installer Quick Install, Download tt-installer Script |
 | **Hardware** | Run Hardware Detection (tt-smi), Reset Device, Clear Device State |
 | **Models** | Set Hugging Face Token, Login to HuggingFace, Download Model |
-| **Inference** | Start tt-inference-server (N150/N300), Start vLLM Server (T3K/P100) |
+| **Inference** | Start tt-inference-server (n150/n300), Start vLLM Server (T3K/P100) |
 | **Compilers** | Activate TT-Forge Environment, Install TT-XLA PJRT Plugin, Test TT-Forge Installation |
 | **Metalium** | Build Programming Examples, Run RISC-V Addition Example |
 | **Video gen** | Clone tt-local-generator, Start Wan2.2 Video Server, Launch tt-gen GUI |

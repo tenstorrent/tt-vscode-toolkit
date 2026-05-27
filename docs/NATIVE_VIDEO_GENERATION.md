@@ -75,8 +75,8 @@ def test_tt_mochi_pipeline(mesh_device: ttnn.MeshDevice, ...):
 - Sequence parallelism across 8 chips
 
 **Hardware comparison:**
-- N150: 1 chip ❌ (NOT supported)
-- N300: 2 chips ❌ (NOT supported)
+- n150: 1 chip ❌ (NOT supported)
+- n300: 2 chips ❌ (NOT supported)
 - T3K: 8 chips ❌ (NOT supported)
 - Galaxy: 32 chips ✅ (REQUIRED)
 
@@ -138,12 +138,12 @@ export_to_video(frames, "output.mp4", fps=8)
 
 **YES**, native video generation exists (Mochi), **BUT** it requires Galaxy hardware (32 chips).
 
-**NOT viable** for N150 (single chip) or even T3K (8 chips).
+**NOT viable** for n150 (single chip) or even T3K (8 chips).
 
-### Current Reality for N150
+### Current Reality for n150
 
 **Frame-by-frame approach (current Lesson 9 Video):**
-- ✅ Works on N150 single chip
+- ✅ Works on n150 single chip
 - ✅ High-quality 1024x1024 frames
 - ✅ Uses proven SD 3.5 Large
 - ⚠️ No temporal coherence (slideshow, not video)
@@ -154,9 +154,9 @@ export_to_video(frames, "output.mp4", fps=8)
 - ✅ True temporal coherence
 - ✅ Smooth motion and animation
 - ✅ "Reality temporarily created"
-- ❌ NOT available for N150/N300/T3K
+- ❌ NOT available for n150/n300/T3K
 
-### What Would Work on N150
+### What Would Work on n150
 
 **Option 1: Stick with current approach**
 - Frame-by-frame SD 3.5 (validated, working)
@@ -187,17 +187,17 @@ export_to_video(frames, "output.mp4", fps=8)
 
 **Models Found:**
 1. ✅ **Mochi** - Native video, requires Galaxy (32 chips)
-2. ⚠️ **AnimateDiff** - Not yet investigated (might work on N150?)
+2. ⚠️ **AnimateDiff** - Not yet investigated (might work on n150?)
 3. ❌ **Other video models** - None found in tt-metal experimental/
 
 **Recommendation:**
-- **For lesson content:** Stick with current frame-by-frame approach (validated, works on N150)
+- **For lesson content:** Stick with current frame-by-frame approach (validated, works on n150)
 - **For advanced users with Galaxy:** Document Mochi as "advanced native video generation"
 - **Future exploration:** Investigate AnimateDiff or other motion models
 
 **Hardware Scaling Story Still Valid:**
-- N150: Frame-by-frame works (~4 min/frame)
-- N300: 2x faster
+- n150: Frame-by-frame works (~4 min/frame)
+- n300: 2x faster
 - T3K: 6x faster
 - Galaxy: 20x faster PLUS native video generation with Mochi
 
@@ -210,9 +210,9 @@ export_to_video(frames, "output.mp4", fps=8)
 
 ## Next Steps
 
-1. ✅ Current lesson validated for N150 (frame-by-frame)
+1. ✅ Current lesson validated for n150 (frame-by-frame)
 2. ⏸️ Mochi requires Galaxy - document as advanced feature
-3. ❓ Investigate AnimateDiff for N150 compatibility
+3. ❓ Investigate AnimateDiff for n150 compatibility
 4. ❓ Check TT-XLA for any video models (user mentioned tt-xla)
 
-**Status:** Frame-by-frame approach is production-ready for N150. Native video generation requires Galaxy hardware.
+**Status:** Frame-by-frame approach is production-ready for n150. Native video generation requires Galaxy hardware.

@@ -48,7 +48,7 @@ Access at: http://localhost:8080 (password: `demo`)
 
 ### Deploy to Cloud with Real Hardware
 
-→ See the [Deploy to Koyeb lesson](./content/lessons/deploy-vscode-to-koyeb.md) for step-by-step instructions deploying to Tenstorrent N300 hardware on Koyeb.
+→ See the [Deploy to Koyeb lesson](./content/lessons/deploy-vscode-to-koyeb.md) for step-by-step instructions deploying to Tenstorrent n300 hardware on Koyeb.
 
 ---
 
@@ -57,7 +57,7 @@ Access at: http://localhost:8080 (password: `demo`)
 ### Prerequisites
 
 **Hardware:**
-- Tenstorrent accelerator (N150, N300, T3K, P100, P150, or Galaxy)
+- Tenstorrent accelerator (n150, n300, T3K, P100, p150, or Galaxy)
 - 32GB+ RAM recommended (16GB minimum)
 - 100GB+ free disk space for models
 
@@ -184,34 +184,34 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🚀 Your First Inference
 *7 lessons, 7 validated*
 
-- **Modern Setup with tt-installer 2.0** — `N150` `P300C`
-- **Hardware Detection** — `N150` `P300C`
-- **Verify Your Setup** — `N150` `P300C`
-- **Download Model and Run Inference** — `N150` `P300C`
-- **Interactive Chat with Direct API** — `N150`
-- **HTTP API Server with Direct API** — `N150`
-- **Build tt-metal from Source** — `N150` `P300C`
+- **Modern Setup with tt-installer 2.0** — `n150` `p300c`
+- **Hardware Detection** — `n150` `p300c`
+- **Verify Your Setup** — `n150` `p300c`
+- **Download Model and Run Inference** — `n150` `p300c`
+- **Interactive Chat with Direct API** — `n150`
+- **HTTP API Server with Direct API** — `n150`
+- **Build tt-metal from Source** — `n150` `p300c`
 
 ### 🏭 Serving Models
 *4 lessons, 3 validated*
 
-- **Production Inference with tt-inference-server** — `N150` `P100`
-- **Production Inference with vLLM** — `N150` `P300C`
-- **Image Generation with Stable Diffusion XL** — `N150`
+- **Production Inference with tt-inference-server** — `n150` `P100`
+- **Production Inference with vLLM** — `n150` `p300c`
+- **Image Generation with Stable Diffusion XL** — `n150`
 - **Video Generation via Frame-by-Frame Diffusion** — *draft*
 
 ### 🔧 Compilers & Tools
 *3 lessons, 0 validated*
 
-- **Image Classification with TT-Forge** — `P300C`
-- **JAX and PyTorch/XLA on Tenstorrent** — `P300C`
+- **Image Classification with TT-Forge** — `p300c`
+- **JAX and PyTorch/XLA on Tenstorrent** — `p300c`
 - **Introduction to tt-lang** — *draft*
 
 ### 🎯 Applications
 *5 lessons, 4 validated*
 
 - **Coding Assistant with Aider** — *draft*
-- **Native Video Animation with AnimateDiff** — `P300C`
+- **Native Video Animation with AnimateDiff** — `p300c`
 - **OpenClaw AI Assistant on QuietBox 2** — `P300X2`
 - **Generating Video on QuietBox 2** — `P300X2`
 - **Local AI Agents on QuietBox 2** — `P300X2`
@@ -220,35 +220,35 @@ code --install-extension tt-vscode-toolkit-*.vsix
 *2 lessons, 1 validated*
 
 - **Bounty Program: Model Bring-Up** — *draft*
-- **Exploring TT-Metalium** — `N150` `P300C`
+- **Exploring TT-Metalium** — `n150` `p300c`
 
 ### 🎓 Custom Training
 *8 lessons, 0 validated*
 
-- **Understanding Custom Training** — `N150`
-- **Dataset Fundamentals** — `N150`
-- **Configuration Patterns** — `N150`
-- **Fine-tuning Basics** — `N150`
-- **Multi-Device Training** — `N150`
-- **Experiment Tracking** — `N150`
-- **Model Architecture Basics** — `N150`
-- **Training from Scratch** — `N150`
+- **Understanding Custom Training** — `n150`
+- **Dataset Fundamentals** — `n150`
+- **Configuration Patterns** — `n150`
+- **Fine-tuning Basics** — `n150`
+- **Multi-Device Training** — `n150`
+- **Experiment Tracking** — `n150`
+- **Model Architecture Basics** — `n150`
+- **Training from Scratch** — `n150`
 
 ### ☁️ Deployment
 *2 lessons, 2 validated*
 
-- **Deploy tt-vscode-toolkit to Koyeb** — `N150`
-- **Deploy Your Work to Koyeb** — `N150`
+- **Deploy tt-vscode-toolkit to Koyeb** — `n150`
+- **Deploy Your Work to Koyeb** — `n150`
 
 ### 👨‍🍳 Tenstorrent Cookbook
 *6 lessons, 6 validated*
 
-- **Tenstorrent Cookbook Overview** — `N150` `P300C`
-- **Recipe 1: Conway's Game of Life** — `N150` `P300C`
-- **Recipe 2: Audio Signal Processing** — `N150` `P300C`
-- **Recipe 3: Mandelbrot Fractal Explorer** — `N150` `P300C`
-- **Recipe 4: Custom Image Filters** — `N150` `P300C`
-- **Recipe 5: Particle Life Simulator** — `N150` `P300C`
+- **Tenstorrent Cookbook Overview** — `n150` `p300c`
+- **Recipe 1: Conway's Game of Life** — `n150` `p300c`
+- **Recipe 2: Audio Signal Processing** — `n150` `p300c`
+- **Recipe 3: Mandelbrot Fractal Explorer** — `n150` `p300c`
+- **Recipe 4: Custom Image Filters** — `n150` `p300c`
+- **Recipe 5: Particle Life Simulator** — `n150` `p300c`
 
 ### 🧠 CS Fundamentals
 *7 lessons, 0 validated*
@@ -268,7 +268,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ## Key Features
 
 ### Intelligent Hardware Detection
-- Auto-detects device type (N150, N300, T3K, P100, P150, Galaxy)
+- Auto-detects device type (n150, n300, T3K, P100, p150, Galaxy)
 - Provides hardware-specific commands and configurations
 - Real-time telemetry monitoring (temperature, power, clock speed)
 - Multi-device support with aggregate health status

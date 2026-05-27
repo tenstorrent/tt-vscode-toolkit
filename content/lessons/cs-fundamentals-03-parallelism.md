@@ -547,7 +547,7 @@ for particle_i in particles:
 **Complexity:** O(N²) = 2048² = 4.2 million force calculations per frame
 **Time:** 7.2 seconds per frame (single core)
 
-### Multi-Core Version (4x P300c)
+### Multi-Core Version (4x p300c)
 
 ```python
 # Distribute particles across 4 devices

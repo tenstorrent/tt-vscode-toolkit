@@ -36,7 +36,7 @@ This tutorial documents the complete process of bringing AnimateDiff (temporal a
 **Goal:** Enable video generation on TT hardware by adding AnimateDiff temporal attention to Stable Diffusion 3.5
 
 **Constraints:**
-- Must work on N150 single chip (memory limited)
+- Must work on n150 single chip (memory limited)
 - Must not modify tt-metal repository (maintainability)
 - Must integrate cleanly with existing SD 3.5 pipeline
 - Must be performant enough for practical use
@@ -1196,7 +1196,7 @@ animatediff.export_video(frames, "butterfly.mp4", fps=8)
 **Next steps:**
 - Integrate with SD 3.5 pipeline
 - Test TTNN implementation on hardware
-- Optimize for N150 memory constraints
+- Optimize for n150 memory constraints
 
 ---
 
