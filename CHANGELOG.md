@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.449] - 2026-05-27
+
+### Security
+
+- **Patched all 9 npm vulnerabilities** — `npm audit fix` resolved critical/high/moderate/low issues in `sanitize-html`, `fast-uri`, `tmp`, `mermaid`, `brace-expansion`, `qs`, `ws`, and `diff`; added `diff: ^9.0.0` override to force mocha off the vulnerable `diff@^7` range. Zero vulnerabilities remaining.
+
+---
+
+## [0.0.448] - 2026-05-27
+
+### Fixed
+
+- **AnimateDiff lesson had broken images on docs site** — Replaced relative `../projects/animatediff/docs/assets/demo_*.gif` paths with `/assets/img/animatediff_*.gif` which the web build actually copies into the site output.
+
+### Added
+
+- **Web-image test in link-validator** — New test `should have all lesson images reachable on the web site` checks that every image in every lesson uses `/assets/img/...` paths (the only path the build copies), catching relative paths and non-assets paths before they reach the docs site.
+
+---
+
 ## [0.0.447] - 2026-05-18
 
 ### Fixed

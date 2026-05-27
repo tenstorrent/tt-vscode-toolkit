@@ -238,6 +238,59 @@ describe('Internal Link Validation', () => {
         }
     });
 
+    it('should have all lesson images reachable on the web site (no ../projects/ or non-assets paths)', () => {
+        // The web build only copies assets/img/ → site/assets/img/.
+        // Images in lessons must use /assets/img/... or external URLs — never
+        // relative paths like ../projects/... that won't exist after the build.
+        const webImageErrors: string[] = [];
+
+        const lessonFiles = fs.readdirSync(path.join(contentRoot, 'lessons'))
+            .filter(f => f.endsWith('.md'))
+            .map(f => path.join(contentRoot, 'lessons', f));
+
+        for (const filePath of lessonFiles) {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const lines = content.split('\n');
+            const relFile = path.relative(projectRoot, filePath);
+            let inCodeBlock = false;
+
+            lines.forEach((line, idx) => {
+                if (line.trim().startsWith('```')) { inCodeBlock = !inCodeBlock; return; }
+                if (inCodeBlock) return;
+
+                const imageRegex = /!\[[^\]]*\]\(([^)]+)\)/g;
+                let m;
+                while ((m = imageRegex.exec(line)) !== null) {
+                    const href = m[1].split(' ')[0]; // strip optional title
+                    if (href.startsWith('http') || href.startsWith('data:')) continue;
+
+                    if (href.startsWith('/assets/img/')) {
+                        // Must exist on disk under assets/img/
+                        const diskPath = path.join(projectRoot, href.substring(1));
+                        if (!fs.existsSync(diskPath)) {
+                            webImageErrors.push(`${relFile}:${idx + 1} — /assets/img path not on disk: ${href}`);
+                        }
+                    } else if (!href.startsWith('/')) {
+                        // Relative path — won't survive the web build
+                        webImageErrors.push(
+                            `${relFile}:${idx + 1} — relative image path won't be served on the web site: ${href}` +
+                            ` (use /assets/img/<filename> instead)`
+                        );
+                    } else {
+                        // Absolute non-assets path (e.g. /content/... or /src/...)
+                        webImageErrors.push(
+                            `${relFile}:${idx + 1} — image path not under /assets/img/ won't be served: ${href}`
+                        );
+                    }
+                }
+            });
+        }
+
+        if (webImageErrors.length > 0) {
+            assert.fail(`Found ${webImageErrors.length} lesson images that will be broken on the web site:\n  ${webImageErrors.join('\n  ')}`);
+        }
+    });
+
     it('should have all lessons in registry referenced somewhere in documentation', () => {
         // This is a warning test - lessons not referenced anywhere might be orphaned
         const allContent: string[] = [];
