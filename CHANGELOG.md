@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.449] - 2026-05-27
+
+### Security
+
+- **Patched all 9 npm vulnerabilities** — `npm audit fix` resolved critical/high/moderate/low issues in `sanitize-html`, `fast-uri`, `tmp`, `mermaid`, `brace-expansion`, `qs`, `ws`, and `diff`; added `diff: ^9.0.0` override to force mocha off the vulnerable `diff@^7` range. Zero vulnerabilities remaining.
+
+---
+
 ## [0.0.448] - 2026-05-27
 
 ### Fixed
