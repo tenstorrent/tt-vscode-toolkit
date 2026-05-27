@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.448] - 2026-05-27
+
+### Fixed
+
+- **AnimateDiff lesson had broken images on docs site** — Replaced relative `../projects/animatediff/docs/assets/demo_*.gif` paths with `/assets/img/animatediff_*.gif` which the web build actually copies into the site output.
+
+### Added
+
+- **Web-image test in link-validator** — New test `should have all lesson images reachable on the web site` checks that every image in every lesson uses `/assets/img/...` paths (the only path the build copies), catching relative paths and non-assets paths before they reach the docs site.
+
+---
+
 ## [0.0.447] - 2026-05-18
 
 ### Fixed
