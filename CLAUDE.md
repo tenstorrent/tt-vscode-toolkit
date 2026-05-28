@@ -15,7 +15,7 @@ VSCode extension for Tenstorrent hardware development:
 
 ## Hardware Compatibility Goal: Wormhole + Blackhole (QuietBox 2 Readiness, Apr 2026)
 
-All lessons and templates must work on both **Wormhole** (n150/n300/T3K/Galaxy) and
+All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy) and
 **Blackhole** (P100/p150/p300c/QuietBox 2) hardware. Key constraints:
 
 - **p300c = P100 mode**: p300c is a single Blackhole chip; QuietBox 2 = 4× p300c operating
@@ -432,7 +432,7 @@ The JSON file includes a warning header:
 ```
 
 **vLLM commands (Lesson 7):**
-- Hardware-specific Llama: `startVllmServerN150/n300/T3K/P100()`
+- Hardware-specific Llama: `startVllmServerN150/n300/T3000/P100()`
 - Hardware-specific Qwen: `startVllmServerN150Qwen/N300Qwen/T3KQwen/P100Qwen()` (v0.0.89+)
 - Helper: `startVllmServerForHardware(hardware, config)` - accepts optional `modelPath` parameter
 - All use `'server'` terminal type
@@ -444,7 +444,7 @@ The JSON file includes a warning header:
   - Multilingual, 32K context
   - **Perfect for development and many production use cases**
 - **Gemma 3-1B-IT** - Small (1B params), multilingual (140+ langs), 32K context ✅ **Good for n150**
-- **Llama-3.1-8B-Instruct** - General-purpose chat (8B params, gated) ⚠️ **Requires n300/T3K/P100**
+- **Llama-3.1-8B-Instruct** - General-purpose chat (8B params, gated) ⚠️ **Requires n300/T3000/P100**
 - **Qwen3-8B** - Multilingual coding/math (8B params) ⚠️ **Requires n300+ for reliable operation**
 
 **🔑 HF_MODEL Auto-Detection (v0.0.97):**
@@ -500,12 +500,12 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 | Lesson | Focus | Hardware Variants |
 |--------|-------|-------------------|
 | 1-5 | Setup, Direct API | Generic |
-| 6-7 | Production (tt-inference-server, vLLM) | ✅ n150/n300/T3K/P100 |
+| 6-7 | Production (tt-inference-server, vLLM) | ✅ n150/n300/T3000/P100 |
 | 8 | VSCode Chat | Generic |
-| 9 | Image Generation (SD 3.5) | ✅ n150/n300/T3K/P100 |
+| 9 | Image Generation (SD 3.5) | ✅ n150/n300/T3000/P100 |
 | 10 | Coding Assistant | Generic |
 | 11 | TT-Forge (experimental) | n150 only |
-| 12 | TT-XLA JAX | ✅ n150/n300/T3K/Galaxy |
+| 12 | TT-XLA JAX | ✅ n150/n300/T3000/Galaxy |
 
 ## Troubleshooting
 

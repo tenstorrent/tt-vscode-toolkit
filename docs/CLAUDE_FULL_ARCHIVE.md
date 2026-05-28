@@ -696,7 +696,7 @@ The extension includes a non-obtrusive statusbar item that monitors Tenstorrent 
    - Can be enabled/disabled by user
 
 2. **Parsing tt-smi Output:**
-   - Extracts device type (n150, n300, T3K, etc.) from "Board Type:" line
+   - Extracts device type (n150, n300, T3000, etc.) from "Board Type:" line
    - Extracts firmware version from "FW Version:" or "Firmware Version:" line
    - Detects errors by searching for keywords: "error", "failed", "timeout"
    - Status determination:
@@ -1130,7 +1130,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 2. **Hardware Support:**
    - ✅ n150 (1x1 mesh) - Single chip
    - ✅ n300 (1x2 mesh) - Dual chip
-   - ✅ T3K (1x8 mesh) - 8-chip system
+   - ✅ T3000 (1x8 mesh) - 8-chip system
    - ✅ TG (8x4 mesh) - Galaxy 32-chip
 
 3. **Performance on n150:**
@@ -1567,7 +1567,7 @@ This lesson teaches a critical skill that applies to GPT, Claude, Gemini, and al
 **Repository Location:** `~/tt-jukebox/`
 
 TT-Jukebox is an intelligent environment manager for Tenstorrent hardware that:
-- Auto-detects your hardware (n150, n300, T3K, P100, etc.)
+- Auto-detects your hardware (n150, n300, T3000, P100, etc.)
 - Fetches official model specifications from GitHub
 - Matches models to your hardware with intelligent filtering
 - Executes automated setup (checkouts, builds, downloads)
@@ -1828,7 +1828,7 @@ output = compiled_model(input_tensor)
 
 ### Overview
 
-TT-XLA is Tenstorrent's production-ready XLA-based compiler that provides JAX and PyTorch/XLA support with multi-chip capabilities. Unlike TT-Forge (experimental, single-chip), TT-XLA is mature and supports n300/T3K/Galaxy systems.
+TT-XLA is Tenstorrent's production-ready XLA-based compiler that provides JAX and PyTorch/XLA support with multi-chip capabilities. Unlike TT-Forge (experimental, single-chip), TT-XLA is mature and supports n300/T3000/Galaxy systems.
 
 **Key advantages:**
 - ✅ **Simple installation:** Wheel-based via pip (no building)
@@ -1871,7 +1871,7 @@ TT-MLIR Compiler (bundled in wheel)
     ↓
 TT-Metal (existing ~/tt-metal)
     ↓
-Hardware (n150/n300/T3K/Galaxy)
+Hardware (n150/n300/T3000/Galaxy)
 ```
 
 **Why this works without rebuilding tt-metal:**
@@ -1932,7 +1932,7 @@ The `pjrt-plugin-tt` wheel includes:
 
 **Step 4: Multi-Chip Configuration**
 - n300 (2 chips): `jax.config.update('jax_tt_mesh', '1x2')`
-- T3K (8 chips): `jax.config.update('jax_tt_mesh', '1x8')`
+- T3000 (8 chips): `jax.config.update('jax_tt_mesh', '1x8')`
 - Galaxy (32 chips): `jax.config.update('jax_tt_mesh', '8x4')`
 
 **Step 5: Next Steps**

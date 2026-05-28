@@ -3,7 +3,7 @@ id: video-generation-ttmetal
 title: Video Generation via Frame-by-Frame Diffusion
 description: >-
   Create videos by generating frames with Stable Diffusion on Tenstorrent hardware.
-  Demonstrates hardware scaling from n150 to T3K - same code, faster performance!
+  Demonstrates hardware scaling from n150 to T3000 - same code, faster performance!
 category: serving
 tags:
   - hardware
@@ -31,13 +31,13 @@ estimatedMinutes: 60
 
 Rather than a native video generation model, this lesson uses the proven
 **Stable Diffusion 1.4** model that runs on every Tenstorrent chip — from
-a single n150 to a T3K (8 chips). Each frame is a text-to-image generation
+a single n150 to a T3000 (8 chips). Each frame is a text-to-image generation
 pass. A handful of carefully worded prompts becomes a short film.
 
 **Hardware this works on:**
 - **n150 / n300** (Wormhole): `models/demos/wormhole/stable_diffusion/`
 - **P100 / p300c** (Blackhole): same demo, set `TT_METAL_ARCH_NAME=blackhole`
-- **T3K (8 chips)**: same code, passes more context in parallel
+- **T3000 (8 chips)**: same code, passes more context in parallel
 
 **Requires `~/tt-metal` built from source.** If you don't have that yet, see
 [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
@@ -57,7 +57,7 @@ A short video showcasing "Tenstorrent at the 1964–1965 World's Fair" using:
 
 - ✅ `~/tt-metal` built from source (see Build tt-metal lesson)
 - ✅ tt-metal Python venv activated (`source ~/tt-metal/python_env/bin/activate`)
-- ✅ Hardware: n150, n300, T3K, P100, or p300c
+- ✅ Hardware: n150, n300, T3000, P100, or p300c
 - ✅ HuggingFace account with `hf auth login` completed (for model download)
 - ✅ ffmpeg installed
 
@@ -155,7 +155,7 @@ pytest --disable-warnings \
 **Expected generation time per frame (after compilation):**
 - **n150:** ~30–45 seconds per 512×512 frame
 - **n300:** ~15–25 seconds per frame (2 chips)
-- **T3K:** ~5–10 seconds per frame (8 chips)
+- **T3000:** ~5–10 seconds per frame (8 chips)
 - **P100 / p300c:** ~30–45 seconds per frame (similar to n150)
 
 > **First frame is always slower** — kernel compilation adds 3–5 minutes on initial run.
@@ -234,15 +234,15 @@ The same demo code runs across hardware tiers — the difference is parallelism:
 |----------|-------|---------------|----------|
 | n150 | 1 | 1× (baseline) | Development, testing |
 | n300 | 2 | ~2× faster | Faster iteration |
-| T3K | 8 | ~6× faster | Production video |
+| T3000 | 8 | ~6× faster | Production video |
 | P100 / p300c | 1 BH | ~1× | Blackhole validation |
 
 **Benchmark example (10 frames at 512×512):**
 - n150: ~350 seconds total (~35s/frame after warmup)
 - n300: ~200 seconds total
-- T3K: ~70 seconds total
+- T3000: ~70 seconds total
 
-This is the TT hardware advantage: **write for n150, scale to T3K with zero code changes.**
+This is the TT hardware advantage: **write for n150, scale to T3000 with zero code changes.**
 
 ---
 

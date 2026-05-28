@@ -368,7 +368,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 **Output tells you:**
 - **n150** - Single Wormhole chip (development, 64K context)
 - **n300** - Dual Wormhole chips (128K context, TP=2)
-- **T3K** - Eight Wormhole chips (large models, TP=8)
+- **T3000** - Eight Wormhole chips (large models, TP=8)
 - **P100** - Single Blackhole chip (newer architecture)
 - **p150** - Dual Blackhole chips (TP=2)
 
@@ -406,10 +406,10 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 ### Q: What's the difference between Wormhole and Blackhole?
 
 **A:**
-- **Wormhole (n150, n300, T3K)** - 2nd generation, well-validated, most models tested
+- **Wormhole (n150, n300, T3000)** - 2nd generation, well-validated, most models tested
 - **Blackhole (P100, p150)** - Latest generation, newer architecture, some experimental models
 
-**For production:** Stick with Wormhole (n150/n300/T3K) - more models validated.
+**For production:** Stick with Wormhole (n150/n300/T3000) - more models validated.
 
 **For experimentation:** Blackhole offers newer features but check model compatibility.
 
@@ -421,7 +421,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 |----------|---------------|-------------|------------|----------|
 | n150, P100 | 8B | 64K | No (TP=1) | Development, prototyping |
 | n300, p150 | 13B | 128K | Yes (TP=2) | Medium models, multi-user |
-| T3K | 70B+ | 128K | Yes (TP=8) | Large models, production |
+| T3000 | 70B+ | 128K | Yes (TP=8) | Large models, production |
 
 ### Q: What happens to running jobs and hardware utilization when a system suspends?
 
@@ -625,7 +625,7 @@ login(token="your_token_from_huggingface")
 
 **Hardware limits:**
 - n150/P100: 64K tokens (~48K words)
-- n300/T3K: 128K tokens (~96K words)
+- n300/T3000: 128K tokens (~96K words)
 
 **Exceeding context?**
 ```
@@ -1077,7 +1077,7 @@ export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
 --tensor-parallel-size 2  # Use both chips
 ```
 
-**T3K (8 chips):**
+**T3000 (8 chips):**
 ```bash
 --max-model-len 131072
 --max-num-seqs 64       # High batching
@@ -1182,7 +1182,7 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 - **Documentation:** https://docs.tenstorrent.com
 
 **When asking for help, include:**
-1. Hardware type (n150/n300/T3K/P100)
+1. Hardware type (n150/n300/T3000/P100)
 2. Error message (full text)
 3. Command you ran
 4. Output of `tt-smi`

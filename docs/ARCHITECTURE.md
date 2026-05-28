@@ -220,7 +220,7 @@ TT-Metal repository (cloned by lessons):
 
 **Implementation:**
 - `tt-smi -s` JSON output parsed for hardware type
-- Commands adapt to n150, n300, T3K, P100, p150, Galaxy
+- Commands adapt to n150, n300, T3000, P100, p150, Galaxy
 - Lessons show hardware compatibility in metadata
 - Filter tree view by detected hardware (optional)
 
@@ -472,7 +472,7 @@ export class LessonRegistry {
 2. Execute 'tt-smi -s' command
 3. Parse JSON output
 4. Extract: board_type, coords, arch, telemetry_device
-5. Map to user-friendly names (n150, n300, T3K, etc.)
+5. Map to user-friendly names (n150, n300, T3000, etc.)
 6. Update statusbar item
 7. Update device context for filtering
 ```

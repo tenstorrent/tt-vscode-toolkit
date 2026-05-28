@@ -829,7 +829,7 @@ midi:
   num_layers: 12     # 2× nano
   mlp_dim: 2304      # 3× hidden_dim
 
-# Mega-Trickster: 1.1B params, days (T3K/Galaxy)
+# Mega-Trickster: 1.1B params, days (T3000/Galaxy)
 mega:
   hidden_dim: 2048   # Same as TinyLlama
   num_layers: 22     # Same as TinyLlama
@@ -844,8 +844,8 @@ graph LR
 
     A --> E[Learn fundamentals<br/>n150 sufficient]
     B --> F[Simple tasks<br/>n150 OK, n300 better]
-    C --> G[Production quality<br/>n300/T3K recommended]
-    D --> H[SOTA performance<br/>T3K/Galaxy required]
+    C --> G[Production quality<br/>n300/T3000 recommended]
+    D --> H[SOTA performance<br/>T3000/Galaxy required]
 
     style A fill:#4A90E2,stroke:#333,stroke-width:2px
     style B fill:#7B68EE,stroke:#333,stroke-width:2px
@@ -866,8 +866,8 @@ Training cost ∝ num_params × num_tokens × context_length
 |------------|--------|----------|---------------|----------|
 | **Nano** | 11M | n150 | 30-60 min | Learning, prototyping |
 | **Mini** | 50M | n150/n300 | 2-3 hours | Simple tasks |
-| **Midi** | 200M | n300/T3K | 8-10 hours | Production (niche) |
-| **Mega** | 1.1B | T3K/Galaxy | Days | Production (general) |
+| **Midi** | 200M | n300/T3000 | 8-10 hours | Production (niche) |
+| **Mega** | 1.1B | T3000/Galaxy | Days | Production (general) |
 
 **Key insight:** Start small! Iterate quickly. Scale up once you understand the patterns.
 
@@ -1059,20 +1059,20 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 - **Investment:** 2-3 weeks, n150 or n300
 - **Outcome:** "This is good enough for beta users."
 
-📈 **Stage 3: Midi (200M params, 8-10 hours on n300/T3K)**
+📈 **Stage 3: Midi (200M params, 8-10 hours on n300/T3000)**
 **Purpose:** Production quality
 - Significantly better performance
 - Custom architecture optimizations
 - Ready for real users
-- **Investment:** 1-2 months, n300 or T3K
+- **Investment:** 1-2 months, n300 or T3000
 - **Outcome:** "This competes with commercial solutions."
 
-📈 **Stage 4: Mega (1B+ params, days on T3K/Galaxy)**
+📈 **Stage 4: Mega (1B+ params, days on T3000/Galaxy)**
 **Purpose:** State-of-the-art in niche
 - Best-in-class for specialized domain
 - Large-scale deployment
 - Research-grade quality
-- **Investment:** 3-6 months, T3K or Galaxy
+- **Investment:** 3-6 months, T3000 or Galaxy
 - **Outcome:** "This is the best model for this task, period."
 
 ### Real Scaling Stories
@@ -1080,7 +1080,7 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 🎯 **"Medical Coding Assistant"**
 - **Nano (12M, n150):** Proved concept in 2 days
 - **Mini (45M, n300):** Beta with 5 hospitals in 2 weeks
-- **Midi (180M, T3K):** Production with 50 hospitals in 2 months
+- **Midi (180M, T3000):** Production with 50 hospitals in 2 months
 - **Mega (1.2B, Galaxy):** Industry standard in 6 months
 - **Revenue:** $0 → $5M ARR over 8 months
 - **Key:** Each stage validated before scaling
@@ -1088,14 +1088,14 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 💡 **"Code Documentation Generator"**
 - **Nano (15M, n150):** "Can it learn docstring format?" (Yes, in 1 hour)
 - **Mini (55M, n300):** "Good enough for internal use" (Deployed to 20 devs)
-- **Midi (220M, T3K):** "Better than GitHub Copilot for our codebase"
+- **Midi (220M, T3000):** "Better than GitHub Copilot for our codebase"
 - **Impact:** Never scaled to Mega (Midi was sufficient!)
 - **Lesson:** Don't over-scale - find the sweet spot
 
 🚀 **"Financial Report Parser"**
 - **Nano (10M, n150):** Failed (too small for complex patterns)
 - **Mini (60M, n300):** Worked but accuracy 75% (not good enough)
-- **Midi (250M, T3K):** 92% accuracy (production-ready)
+- **Midi (250M, T3000):** 92% accuracy (production-ready)
 - **Skipped Mega:** Midi met requirements
 - **Learning:** Some tasks need minimum model size, but not always max
 
@@ -1153,7 +1153,7 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 💰 **Hardware Investment (Scaling Path)**
 - **Nano on n150:** $5k-15k hardware, trains in 1 hour
 - **Mini on n300:** $10k-25k hardware, trains in 3 hours
-- **Midi on T3K:** $50k-100k hardware, trains in 10 hours
+- **Midi on T3000:** $50k-100k hardware, trains in 10 hours
 - **Mega on Galaxy:** $200k+ hardware, trains in days
 
 **But consider the alternative:**
@@ -1332,7 +1332,7 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 
 ✅ **Compare to random to prove learning** - baseline is critical
 
-✅ **Hardware scales linearly** - n150 → n300 → T3K = 2-4× faster each step
+✅ **Hardware scales linearly** - n150 → n300 → T3000 = 2-4× faster each step
 
 ✅ **Tiny models teach fundamentals** - understanding > performance for learning
 

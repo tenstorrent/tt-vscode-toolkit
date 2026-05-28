@@ -217,7 +217,7 @@ The download typically completes in under a minute on a fast connection.
 > for reliable operation. It consistently exhausts DRAM on n150 and p300c.
 > Qwen3-0.6B is the recommended choice for those devices.
 
-If you've accepted Meta's license terms and are running on n300/T3K/P100/Galaxy,
+If you've accepted Meta's license terms and are running on n300/T3000/P100/Galaxy,
 you can download Llama-3.1-8B-Instruct:
 
 ```bash

@@ -17,7 +17,7 @@
 - **Power:** 12W current draw
 - **AICLK:** 500 MHz
 
-**Key insight:** Perfect for demonstrating "write for smallest hardware" philosophy. Any code that works here should scale exponentially on larger hardware (n300/T3K/Galaxy).
+**Key insight:** Perfect for demonstrating "write for smallest hardware" philosophy. Any code that works here should scale exponentially on larger hardware (n300/T3000/Galaxy).
 
 ---
 
@@ -100,7 +100,7 @@
 - ✅ Will run inference on TT hardware via TT-XLA (PJRT plugin)
 - ✅ Can verify device placement (TtDevice vs CpuDevice)
 - ✅ Generates video by stitching frames
-- ✅ Demonstrates hardware scaling (same code on n150/n300/T3K/Galaxy)
+- ✅ Demonstrates hardware scaling (same code on n150/n300/T3000/Galaxy)
 - ✅ Lower complexity than porting video model
 
 **Trade-off:**
@@ -131,7 +131,7 @@
 
 ### Step 4: Benchmark and document scaling
 1. Time per frame on n150
-2. Document expected scaling on n300/T3K/Galaxy
+2. Document expected scaling on n300/T3000/Galaxy
 3. Create lesson with hardware pyramid story
 
 **Starting implementation...**
@@ -208,7 +208,7 @@ This reveals the current state of TT-XLA as of January 2026:
 **New approach:**
 - Use Stable Diffusion 3.5 Large from Lesson 9 (tt-metal direct API)
 - Generate World's Fair frames with proven working code
-- Still demonstrates hardware scaling (n150 → n300 → T3K → Galaxy)
+- Still demonstrates hardware scaling (n150 → n300 → T3000 → Galaxy)
 - **Advantage:** Actually exercises TT hardware for inference (verified in Lesson 9)
 
 **Why this is better:**
@@ -258,7 +258,7 @@ This reveals the current state of TT-XLA as of January 2026:
 **Why this is the right choice:**
 - ✅ **PROVEN:** Already validated in Lesson 9
 - ✅ **EXERCISES TT HARDWARE:** Runs directly on tt-metal (not CPU fallback)
-- ✅ **DEMONSTRATES SCALING:** n150 → n300 → T3K → Galaxy pyramid
+- ✅ **DEMONSTRATES SCALING:** n150 → n300 → T3000 → Galaxy pyramid
 - ✅ **HIGH QUALITY:** 1024x1024 images, state-of-the-art SD 3.5
 - ✅ **EDUCATIONAL VALUE:** Honest about current TT-XLA limitations
 - ✅ **DELIVERS RESULTS:** Users get working video generation
@@ -336,7 +336,7 @@ ffmpeg -framerate 2 -pattern_type glob -i '*.png' \
 Same code on different hardware tiers (example: 10 frames at ~30s each):
 - **n150 (1 chip):** ~5 minutes (baseline)
 - **n300 (2 chips):** ~2.5 minutes (~2x faster)
-- **T3K (8 chips):** ~1 minute (~5-6x faster)
+- **T3000 (8 chips):** ~1 minute (~5-6x faster)
 - **Galaxy (32 chips):** ~15-20 seconds (~20x faster)
 
 **This is the TT hardware advantage!**
@@ -507,7 +507,7 @@ The video generation lesson has been successfully integrated into the extension:
 - **Category:** advanced
 - **Order:** 9
 - **Status:** draft (ready for testing)
-- **Hardware:** n150, n300, T3K, P100
+- **Hardware:** n150, n300, T3000, P100
 - **Estimated time:** 30 minutes
 
 **Next steps for users:**

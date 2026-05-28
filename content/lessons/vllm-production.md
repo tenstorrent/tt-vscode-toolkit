@@ -205,7 +205,7 @@ hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 
 ---
 
-**📥 Llama-3.1-8B-Instruct** - For n300/T3K/P100 only
+**📥 Llama-3.1-8B-Instruct** - For n300/T3000/P100 only
 
 ```bash
 hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
@@ -213,7 +213,7 @@ hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-I
 
 **Requirements:**
 - HuggingFace token (gated model)
-- n300/T3K/P100 hardware (NOT recommended for n150)
+- n300/T3000/P100 hardware (NOT recommended for n150)
 - Higher DRAM usage
 
 ---
@@ -422,7 +422,7 @@ python ~/tt-scratchpad/start-vllm-server.py \
 
 **What the script does automatically:**
 
-1. **Detects hardware** - Runs tt-smi to identify n150/n300/T3K/P100/p150
+1. **Detects hardware** - Runs tt-smi to identify n150/n300/T3000/P100/p150
 2. **Sets environment variables** - MESH_DEVICE, TT_METAL_ARCH_NAME, TT_METAL_HOME
 3. **Registers TT-optimized models** - TTLlamaForCausalLM for hardware acceleration
 4. **Sets HF_MODEL** - Auto-detects org prefix (Qwen/, google/, meta-llama/)
@@ -471,7 +471,7 @@ source ~/activate-vllm-env.sh && \
 ```
 
 **That's literally it!** The activation script sets up the environment and the starter script auto-detects and configures:
-- ✅ **Hardware type** (n150/n300/T3K/P100/p150) via tt-smi
+- ✅ **Hardware type** (n150/n300/T3000/P100/p150) via tt-smi
 - ✅ **MESH_DEVICE** environment variable
 - ✅ **TT_METAL_ARCH_NAME** (blackhole for P100/p150)
 - ✅ **TT_METAL_HOME** (defaults to ~/tt-metal)
@@ -582,7 +582,7 @@ source ~/activate-vllm-env.sh && \
 
 ---
 
-### T3K (Wormhole - 8 Chips)
+### T3000 (Wormhole - 8 Chips)
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -597,7 +597,7 @@ source ~/activate-vllm-env.sh && \
     --tensor-parallel-size 8
 ```
 
-[🚀 Start vLLM Server (T3K)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
+[🚀 Start vLLM Server (T3000)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
 
 **Note:** This uses the 70B model. Make sure you've downloaded it first.
 
@@ -682,8 +682,8 @@ ModelRegistry.register_model(
 
 **Environment variables (all hardware types need these):**
 - `TT_METAL_HOME=~/tt-metal` - Points to tt-metal installation (required by setup-metal.sh)
-- `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (n150, n300, T3K, P100)
-- `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (P100)**: Set to `blackhole`. Wormhole chips (n150/n300/T3K) auto-detect but P100 needs explicit specification.
+- `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (n150, n300, T3000, P100)
+- `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (P100)**: Set to `blackhole`. Wormhole chips (n150/n300/T3000) auto-detect but P100 needs explicit specification.
 - `PYTHONPATH=$TT_METAL_HOME` - Required so Python can import TT model classes from tt-metal
 
 **vLLM flags (vary by hardware):**

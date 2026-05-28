@@ -97,7 +97,7 @@ All images are based on **Ubuntu 24.04 (noble) server variant** with code-server
 | `PASSWORD` | `tenstorrent` | Password for accessing code-server |
 | `SUDO_PASSWORD` | Same as PASSWORD | Sudo password inside container |
 | `TT_METAL_HOME` | `/home/coder/tt-metal` | Path to tt-metal (full image only) |
-| `MESH_DEVICE` | - | Hardware type (n300, T3K, etc.) |
+| `MESH_DEVICE` | - | Hardware type (n300, T3000, etc.) |
 
 **⚠️ IMPORTANT:** Always set a custom password for production deployments!
 

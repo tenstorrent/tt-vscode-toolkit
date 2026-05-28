@@ -43,7 +43,7 @@ border-bottom: 1px solid var(--vscode-panel-border);
 
 [🔍 Detect Hardware](command:tenstorrent.runHardwareDetection)
 
-Look for the "Board Type" field in the output (e.g., n150, n300, t3k, p100).
+Look for the "Board Type" field in the output (e.g., n150, n300, T3000, p100).
 
 ---
 
@@ -106,7 +106,7 @@ cd ~/tt-vllm && \
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 T3K (Wormhole - 8 Chips)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 T3000 (Wormhole - 8 Chips)</b></summary>
 
 **Specifications:**
 - Chips: 8
@@ -129,7 +129,7 @@ cd ~/tt-vllm && \
   [... rest of command ...]
 ```
 
-[🚀 Run Command for T3K](command:tenstorrent.lessonCommandT3K)
+[🚀 Run Command for T3000](command:tenstorrent.lessonCommandT3K)
 
 </details>
 

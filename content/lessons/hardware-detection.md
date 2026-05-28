@@ -114,7 +114,7 @@ Look for the `board_type` field to identify your hardware:
   - Context limit: 128K tokens
   - Tensor parallelism: TP=2 (uses both chips)
 
-- **t3k** - Eight chips (8 chips), 576 Tensix cores
+- **T3000** - Eight chips (8 chips), 576 Tensix cores
   - Best for: Large models (70B+), production serving
   - Context limit: 128K tokens
   - Tensor parallelism: TP=8 (uses all chips)
@@ -168,7 +168,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 When you run `tt-smi`, you should see:
 
-**For Wormhole hardware (n150, n300, T3K):**
+**For Wormhole hardware (n150, n300, T3000):**
 ```bash
 Device 0: Wormhole
 Board Type: n150
@@ -336,7 +336,7 @@ tt-smi -s  # Shows all 4 devices
 ## What You Learned
 
 - ✅ How to detect Tenstorrent hardware with `tt-smi`
-- ✅ Understanding different hardware types (n150, n300, T3K, P100, p150, p300/p300c)
+- ✅ Understanding different hardware types (n150, n300, T3000, P100, p150, p300/p300c)
 - ✅ Using `tt-smi -s` for structured JSON output
 - ✅ Identifying your specific hardware for later lessons
 - ✅ QuietBox multi-device system configuration

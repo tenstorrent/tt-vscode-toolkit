@@ -158,7 +158,7 @@ If writing your own scripts, do NOT hardcode DispatchCoreAxis.ROW on Blackhole:
 
 When writing or reviewing any lesson, template, or extension command, verify:
 
-- [ ] Works on both Wormhole (n150/n300/T3K/Galaxy) and Blackhole (p100/p150/p300c) — or divergence is clearly documented
+- [ ] Works on both Wormhole (n150/n300/T3000/Galaxy) and Blackhole (p100/p150/p300c) — or divergence is clearly documented
 - [ ] `DispatchCoreAxis` is NOT hardcoded (`ROW` crashes Blackhole) — use `DispatchCoreConfig(WORKER)` with no axis
 - [ ] `huggingface-cli` commands updated to `hf auth login` / `hf download`
 - [ ] Lesson `supportedHardware` metadata accurately reflects tested hardware

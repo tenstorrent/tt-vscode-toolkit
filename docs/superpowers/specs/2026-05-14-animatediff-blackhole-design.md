@@ -213,7 +213,7 @@ The rewritten `README.md` will:
 ## Out of Scope
 
 - Injecting `TemporalTransformer` blocks into the TTNN UNet (would require modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`)
-- Multi-chip (T3K, Galaxy) distribution of the animation pipeline
+- Multi-chip (T3000, Galaxy) distribution of the animation pipeline
 - SD 3.5 / DiT-based video generation (separate model family — see WAN2.2 for production video on QuietBox 2)
 - ControlNet or IP-Adapter combination
 

@@ -38,7 +38,7 @@ tt-installer 2.0 is a comprehensive installation script that:
 - ✅ **Uses modern containers** - tt-metalium runs in Podman containers (no complex builds)
 - ✅ **Configures your system** - Kernel drivers, HugePages, firmware automatically set up
 - ✅ **Provides production tools** - tt-smi, tt-flash, tt-inference-server included
-- ✅ **Supports multiple hardware** - Works with n150, n300, T3K, Galaxy, P100, p150, p300c, and QuietBox 2
+- ✅ **Supports multiple hardware** - Works with n150, n300, T3000, Galaxy, P100, p150, p300c, and QuietBox 2
 - ✅ **Offers flexibility** - Interactive or non-interactive modes, customizable options
 
 > **⚠️ IMPORTANT: Cloud and Container Environments**
@@ -180,7 +180,7 @@ tt-smi
 ```
 
 You should see your Tenstorrent device(s) listed with:
-- Board Type (n150, n300, T3K, etc.)
+- Board Type (n150, n300, T3000, etc.)
 - PCI Bus ID
 - Firmware version
 - Temperature

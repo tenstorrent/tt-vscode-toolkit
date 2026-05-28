@@ -185,7 +185,7 @@ See `MULTI_DEVICE_RESULTS.md` for detailed performance analysis.
 **Hardware Recommendations**:
 - n150: Up to 4,096 particles
 - n300: Up to 8,192 particles
-- T3K: Up to 16,384 particles
+- T3000: Up to 16,384 particles
 - **QuietBox (multi-device)**: Up to 16,384+ particles with 2-4x speedup
 
 ## What You Learned

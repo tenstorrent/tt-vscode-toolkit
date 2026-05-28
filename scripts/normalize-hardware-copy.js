@@ -15,16 +15,21 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 
+/** Prose replacements (uppercase ID → display form). Others default to lowercase. */
+const PROSE_FORM = {
+  T3K: 'T3000',
+};
+
 const hwArg = process.argv[2];
-if (!hwArg || !/^(N\d{3}|P\d{3}c?)$/i.test(hwArg)) {
-  console.error('Usage: node scripts/normalize-hardware-copy.js <N150|N300|P150|P300|P300c|…>');
+if (!hwArg || !/^(N\d{3}|P\d{3}c?|T3K)$/i.test(hwArg)) {
+  console.error('Usage: node scripts/normalize-hardware-copy.js <N150|N300|T3K|P150|P300|P300c|…>');
   process.exit(1);
 }
 
 // P300c: match P300c and P300C in copy
 const IS_P300C = /^P300c$/i.test(hwArg);
 const UPPER = IS_P300C ? 'P300C' : hwArg.toUpperCase();
-const LOWER = IS_P300C ? 'p300c' : hwArg.toLowerCase();
+const LOWER = IS_P300C ? 'p300c' : (PROSE_FORM[UPPER] || hwArg.toLowerCase());
 const MATCH_RE = IS_P300C ? /\bP300[cC]\b/g : new RegExp(`\\b${UPPER}\\b`, 'g');
 
 const COPY_ROOTS = [

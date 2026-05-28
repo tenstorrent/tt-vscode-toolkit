@@ -321,7 +321,7 @@ tensor([[1.1641],
 2. **Model size:** Llama-3.1-8B is 16GB - likely too large for n150 with SRAM constraints
 3. **Extension recommendations:** According to CLAUDE.md (v0.0.97+), Qwen3-0.6B is the primary recommendation for n150:
    - Qwen3-0.6B: 0.6B params, sub-millisecond inference, reasoning-capable
-   - Llama-3.1-8B: Requires n300/T3K/P100 for reliable operation
+   - Llama-3.1-8B: Requires n300/T3000/P100 for reliable operation
 4. **Demo availability:** No Llama demos found in `~/tt-metal/models/demos/wormhole/` directory
 5. **Outdated tt-metal:** Current installation is from Oct 28, 2024
 
@@ -341,7 +341,7 @@ tensor([[1.1641],
 
 1. **Add hardware-specific guidance:**
    - n150: Recommend Qwen3-0.6B or Gemma-3-1B-IT (not Llama-3.1-8B)
-   - n300/T3K/P100: Llama-3.1-8B works well
+   - n300/T3000/P100: Llama-3.1-8B works well
 
 2. **Add SRAM constraint note:**
    > **n150 Users:** Llama-3.1-8B (8B parameters, 16GB) may exhaust DRAM on n150 hardware. We recommend starting with Qwen3-0.6B (0.6B parameters) or Gemma-3-1B-IT (1B parameters) for reliable single-chip operation.
@@ -1569,7 +1569,7 @@ Successfully validated n150 hardware with tt-metal commit 5143b856eb. Lessons 1-
 
 TT-XLA is Tenstorrent's production-ready XLA-based compiler for JAX and PyTorch/XLA models:
 - Production maturity (most stable compiler)
-- Multi-chip support (TP/DP on n300/T3K/Galaxy)
+- Multi-chip support (TP/DP on n300/T3000/Galaxy)
 - Wheel-based installation (no source building)
 - Works with Python 3.10+ (lesson recommends 3.11)
 - Separate from tt-metal environment (uses bundled runtime)
@@ -2987,7 +2987,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py
 
 7. **Improve hardware scaling section**
    - Add actual benchmark data
-   - Show real-world n150/n300/T3K/Galaxy comparisons
+   - Show real-world n150/n300/T3000/Galaxy comparisons
 
 ---
 
@@ -3044,7 +3044,7 @@ All critical issues identified during validation have been resolved:
 - Updated all hardware timing expectations throughout lesson:
   - n150: ~30-45s → **~4 minutes** (first frame ~5 min with compilation)
   - n300: ~15-20s → **~2 minutes**
-  - T3K: ~5-8s → **~40 seconds**
+  - T3000: ~5-8s → **~40 seconds**
   - P100: ~30-45s → **~4 minutes**
 - Updated Step 7 scaling calculations to reflect reality
 - Updated troubleshooting threshold from ">5 minutes" to ">10 minutes"
@@ -3243,7 +3243,7 @@ mesh_device = (4, 8)  # 4x8 = 32 chips = Galaxy
 **Hardware support:**
 - n150 (1 chip): ❌ NOT supported
 - n300 (2 chips): ❌ NOT supported
-- T3K (8 chips): ❌ NOT supported
+- T3000 (8 chips): ❌ NOT supported
 - **Galaxy (32 chips): ✅ REQUIRED**
 
 **Why 32 chips?**

@@ -197,7 +197,7 @@ koyeb service create tt-vscode \
 |----------|----------|---------|-------------|
 | `PASSWORD` | Yes | `changeme` | Password for accessing IDE |
 | `SUDO_PASSWORD` | No | Same as PASSWORD | Sudo password inside container |
-| `MESH_DEVICE` | No | - | Hardware type (n300, T3K, etc.) |
+| `MESH_DEVICE` | No | - | Hardware type (n300, T3000, etc.) |
 | `TT_METAL_HOME` | No | `/home/coder/tt-metal` | Path to tt-metal |
 
 **⚠️ IMPORTANT:** Always set a custom password for production!

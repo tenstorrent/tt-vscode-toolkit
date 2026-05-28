@@ -499,7 +499,7 @@ matches your hardware:
 ```bash
 mkdir -p ~/sim && cd ~/sim
 
-# Wormhole (N150, N300, T3K, Galaxy)
+# Wormhole (n150, n300, T3000, Galaxy)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 

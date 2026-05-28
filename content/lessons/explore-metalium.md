@@ -173,7 +173,7 @@ hardware-optimized AI models available. Here's what you can run right now:
 - **Llama 3.1 8B** — Chat, code, reasoning (n150/n300)
 - **Llama 3 70B** — Large-scale inference (Galaxy, 32 chips)
 - **DeepSeek-V3** — State-of-the-art reasoning (Galaxy)
-- **Gemma 3 27B** — Multimodal text+image, 128K context (n300/T3K)
+- **Gemma 3 27B** — Multimodal text+image, 128K context (n300/T3000)
 - **Qwen 2.5 VL** — Vision-language understanding
 
 **Vision Models:**
@@ -202,7 +202,7 @@ Models are organized by target hardware for easy discovery:
 
 ```
 models/demos/wormhole/   — n150/n300 optimized
-models/demos/t3000/      — T3K (8-chip) configurations
+models/demos/t3000/      — T3000 (8-chip) configurations
 models/demos/blackhole/  — p100/p300c (Blackhole)
 models/demos/tg/         — Galaxy (32-chip)
 ```

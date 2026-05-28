@@ -879,7 +879,7 @@ You've learned the mechanics of creating datasets - but what makes a dataset tru
 1. **Week 1 (n150):** Create 50-100 examples, fine-tune in 1-2 hours
 2. **Week 2 (n150):** Test with real users, gather feedback, refine dataset
 3. **Week 3 (n150 or n300):** Expand to 200-500 examples based on feedback
-4. **Month 2 (n300/T3K):** Scale to 1000+ examples, multi-task fine-tuning
+4. **Month 2 (n300/T3000):** Scale to 1000+ examples, multi-task fine-tuning
 5. **Production:** Deploy with vLLM (**Lesson 7**), serve thousands of requests/day
 
 **Real example from the wild:**

@@ -50,8 +50,8 @@ This style guide ensures consistency across all lessons, documentation, and code
 ### Hardware Product Names
 
 **Use lowercase hardware IDs in prose** (matches lesson metadata and the hardware filter):
-- ✅ `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`
-- ❌ `n150`, `n300`, `T3K` in running text (keep uppercase only in shell env vars and command IDs — see below)
+- ✅ `n150`, `n300`, `T3000`, `p100`, `p150`, `galaxy`
+- ❌ `N150`, `N300`, `T3K` in running text (keep those only in shell env vars and command IDs — see below)
 
 **Hardware architecture names:**
 - ✅ `Grayskull` (capital G)
@@ -345,7 +345,7 @@ estimatedMinutes: 30
 **Use lowercase in code:**
 - `n150` — Wormhole single chip
 - `n300` — Wormhole 2-chip
-- `t3k` - T3000 (Wormhole 8-chip)
+- `t3k` — Wormhole 8-chip (prose: **T3000**)
 - `p100` - P100 (Blackhole single chip)
 - `p150` - p150 (Blackhole 2-chip)
 - `galaxy` - Galaxy (Wormhole large-scale)

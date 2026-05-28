@@ -349,7 +349,7 @@ See the [Build tt-metal lesson](command:tenstorrent.showLesson?["build-tt-metal"
 # Download the simulator binary — choose Wormhole or Blackhole
 mkdir -p ~/sim && cd ~/sim
 
-# Wormhole (n150, n300, T3K, Galaxy)
+# Wormhole (n150, n300, T3000, Galaxy)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 

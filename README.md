@@ -57,7 +57,7 @@ Access at: http://localhost:8080 (password: `demo`)
 ### Prerequisites
 
 **Hardware:**
-- Tenstorrent accelerator (n150, n300, T3K, P100, p150, or Galaxy)
+- Tenstorrent accelerator (n150, n300, T3000, P100, p150, or Galaxy)
 - 32GB+ RAM recommended (16GB minimum)
 - 100GB+ free disk space for models
 
@@ -268,7 +268,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ## Key Features
 
 ### Intelligent Hardware Detection
-- Auto-detects device type (n150, n300, T3K, P100, p150, Galaxy)
+- Auto-detects device type (n150, n300, T3000, P100, p150, Galaxy)
 - Provides hardware-specific commands and configurations
 - Real-time telemetry monitoring (temperature, power, clock speed)
 - Multi-device support with aggregate health status

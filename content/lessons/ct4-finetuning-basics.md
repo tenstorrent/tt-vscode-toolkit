@@ -153,7 +153,7 @@ It is the east, and Juliet is the sun.
 ### System Requirements
 
 - **tt-metal:** v0.67.0 or later (including latest RC) - required for proper inference
-- **Hardware:** n150, n300, T3K, P100, p150, p300c, or Galaxy
+- **Hardware:** n150, n300, T3000, P100, p150, p300c, or Galaxy
 - **Disk space:** 5GB free (for tt-metal build and checkpoints)
 - **Python:** 3.10+
 
@@ -1192,7 +1192,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Multi-device training experiments
 - Scaling to production workloads
 
-### T3K (Wormhole - 8 Chips)
+### T3000 (Wormhole - 8 Chips)
 
 **Specifications:**
 - 8 Wormhole chips in 2x4 mesh
@@ -1286,7 +1286,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 |----------|----------------------|---------------------|
 | **n150** | 20-30 min | Learning, experimentation, small models |
 | **n300** | 10-20 min | Faster iteration, larger batches |
-| **T3K** | 5-10 min (multi-device) | Production training, scaling |
+| **T3000** | 5-10 min (multi-device) | Production training, scaling |
 | **P100** | 15-25 min | Next-gen testing, production |
 | **p150** | 8-15 min | Next-gen multi-device |
 | **p300c** | Scales with chips | Cloud production |
@@ -1480,7 +1480,7 @@ You've seen how NanoGPT learns Shakespeare in stages. But this isn't just about 
 - Faster iteration on new datasets
 - **Same technique, 2x throughput**
 
-**What T3K enables (8x faster):**
+**What T3000 enables (8x faster):**
 - Train production models in minutes, not hours
 - Experiment with larger transformer architectures
 - Multi-task models (multiple domains simultaneously)
@@ -1549,7 +1549,7 @@ You've seen how NanoGPT learns Shakespeare in stages. But this isn't just about 
 
 **Lesson CT-5: Multi-Device Training** (Coming Soon)
 - Data Parallel training (DDP)
-- Scaling to n300, T3K, Galaxy
+- Scaling to n300, T3000, Galaxy
 - Performance optimization
 
 **Lesson CT-6: Experiment Tracking** (Coming Soon)

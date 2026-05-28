@@ -9,7 +9,7 @@ action:
 swap:
   '\bN150\b': n150
   '\bN300\b': n300
-  '\bT3K\b': t3k
+  '\bT3K\b': T3000
   '\bP100\b': p100
   '\bP150\b': p150
   '\bP300\b': p300

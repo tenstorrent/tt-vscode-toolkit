@@ -93,7 +93,7 @@ Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN accelera
 | **n300** (Wormhole) | ✅ Supported | ~8-10 sec/image | Faster with 2 chips |
 | **P100** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Same Blackhole arch as p300c |
 | **p300c** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Single Blackhole chip; use `MESH_DEVICE=P100` |
-| **T3K** (Wormhole) | ✅ Supported | ~5-8 sec/image | Production scale (8 chips) |
+| **T3000** (Wormhole) | ✅ Supported | ~5-8 sec/image | Production scale (8 chips) |
 
 **All hardware benefits from native TT-NN acceleration!** The model runs directly on Tensix cores using hardware-specific operators.
 
@@ -103,7 +103,7 @@ Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN accelera
 
 [🔍 Detect Hardware](command:tenstorrent.runHardwareDetection)
 
-Look for the "Board Type" field in the output (e.g., n150, n300, t3k, p100).
+Look for the "Board Type" field in the output (e.g., n150, n300, T3000, p100).
 
 ---
 
@@ -176,7 +176,7 @@ export MESH_DEVICE=N300
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 T3K (Wormhole - 8 Chips)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 T3000 (Wormhole - 8 Chips)</b></summary>
 
 ```bash
 export MESH_DEVICE=T3K
@@ -236,7 +236,7 @@ Run the Stable Diffusion XL demo with a sample prompt (using the MESH_DEVICE you
 mkdir -p ~/tt-scratchpad
 cd ~/tt-scratchpad
 export PYTHONPATH=~/tt-metal:$PYTHONPATH
-# Use the MESH_DEVICE you set in Step 2 (n150, n300, T3K, or P100)
+# Use the MESH_DEVICE you set in Step 2 (n150, n300, T3000, or P100)
 
 # Run with default prompt
 pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py

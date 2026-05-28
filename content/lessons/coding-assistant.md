@@ -32,7 +32,7 @@ estimatedMinutes: 15
 your terminal. It reads your codebase, edits files, and auto-commits changes — and it
 speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM server.
 
-**Works on all hardware** — n150/n300/T3K/P100/p300c/Galaxy. No `~/tt-metal` required.
+**Works on all hardware** — n150/n300/T3000/P100/p300c/Galaxy. No `~/tt-metal` required.
 
 > **Prerequisites:**
 > Your vLLM server must be running before launching Aider.

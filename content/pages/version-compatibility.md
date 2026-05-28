@@ -15,12 +15,12 @@ This guide documents validated combinations of hardware, software versions, and 
 **Model:** Qwen3-0.6B (1.5GB, no HuggingFace token needed)
 
 ### Production Inference (vLLM)
-**Hardware:** n150/n300/T3K/P100/p150
+**Hardware:** n150/n300/T3000/P100/p150
 **Deployment:** tt-inference-server Docker image (recommended)
 **Alternative:** Native installation requires careful version matching
 
 ### Multi-Chip Development (TT-XLA)
-**Hardware:** n150/n300/T3K/Galaxy
+**Hardware:** n150/n300/T3000/Galaxy
 **Python:** 3.11
 **Installation:** Wheel-based (no source build required)
 
@@ -55,7 +55,7 @@ This guide documents validated combinations of hardware, software versions, and 
   - Qwen3-8B (8B params)
 - **Multi-chip support:** Yes (2 chips)
 
-#### T3K (8 Chips)
+#### T3000 (8 Chips)
 - **DRAM:** 96GB (8x 12GB)
 - **Tensix Cores:** 640
 - **Best for:** Large models (70B+ parameters)
@@ -108,7 +108,7 @@ This guide documents validated combinations of hardware, software versions, and 
 - **Multi-chip support:** Yes (2, 4, or 8 chips via mesh topology)
 
 ### Galaxy (Multi-Node)
-- **Configuration:** Multiple T3K nodes
+- **Configuration:** Multiple T3000 nodes
 - **Best for:** Massive-scale distributed training/inference
 - **Multi-chip support:** Yes (distributed)
 
@@ -138,8 +138,8 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 | Deployment Method | Hardware | Status | Notes |
 |------------------|----------|--------|-------|
-| **tt-inference-server (Docker)** | n150/n300/T3K/P100/p150 | ✅ **Recommended** | Pre-validated configurations |
-| **Native installation** | n150/n300/T3K | ⚠️ **Advanced** | Version compatibility challenges |
+| **tt-inference-server (Docker)** | n150/n300/T3000/P100/p150 | ✅ **Recommended** | Pre-validated configurations |
+| **Native installation** | n150/n300/T3000 | ⚠️ **Advanced** | Version compatibility challenges |
 
 **Docker method (validated):**
 ```bash
@@ -175,7 +175,7 @@ export TT_METAL_ARCH_NAME=blackhole
 
 | Component | Version | Python | Installation Method | Hardware Support |
 |-----------|---------|--------|-------------------|------------------|
-| **TT-XLA** | Latest wheel | 3.11 | pip (wheel) | n150/n300/T3K/Galaxy |
+| **TT-XLA** | Latest wheel | 3.11 | pip (wheel) | n150/n300/T3000/Galaxy |
 | **JAX** | 0.7.1+ | 3.11 | pip | Required dependency |
 | **tt-forge** | Cloned for demos | 3.11 | git clone | Demo code only |
 
@@ -255,7 +255,7 @@ source ~/tt-scratchpad/setup-tt-forge.sh
 
 | Component | Hardware | Status | Notes |
 |-----------|----------|--------|-------|
-| **SD 3.5 Large** | n150/n300/T3K/P100 | ✅ Validated | 1024x1024 generation |
+| **SD 3.5 Large** | n150/n300/T3000/P100 | ✅ Validated | 1024x1024 generation |
 | **Generation time** | n150 | ~2-3 minutes | First run, includes model load |
 | **Environment** | Standard tt-metal | ✅ Works | No special setup needed |
 
@@ -421,7 +421,7 @@ source ~/tt-xla-venv/bin/activate
 
 ### Recommended Model-Hardware Combinations
 
-| Model | Parameters | Disk Size | n150 (12GB) | n300 (24GB) | T3K (96GB) |
+| Model | Parameters | Disk Size | n150 (12GB) | n300 (24GB) | T3000 (96GB) |
 |-------|-----------|-----------|-------------|-------------|------------|
 | **Qwen3-0.6B** | 0.6B | 1.5GB | ✅ **Perfect** | ✅ Excellent | ✅ Excellent |
 | **Gemma 3-1B-IT** | 1B | 2GB | ✅ **Good** | ✅ Excellent | ✅ Excellent |
@@ -453,7 +453,7 @@ source ~/tt-xla-venv/bin/activate
 5. Environment: Standard tt-metal (Python 3.10)
 
 ### Path 2: Production Deployment
-1. Hardware: n150/n300/T3K depending on model size
+1. Hardware: n150/n300/T3000 depending on model size
 2. Start with: Lessons 1-5 (understand the stack)
 3. Then: Lesson 6 (tt-inference-server Docker)
 4. Model: Match to hardware capacity

@@ -413,7 +413,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 
 ### For Documentation
 1. **Add hardware compatibility matrix:**
-   - Which examples work on n150 vs p300c vs T3K
+   - Which examples work on n150 vs p300c vs T3000
    - Memory requirements per example
    - Expected performance ranges
 

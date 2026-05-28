@@ -77,7 +77,7 @@ def test_tt_mochi_pipeline(mesh_device: ttnn.MeshDevice, ...):
 **Hardware comparison:**
 - n150: 1 chip ❌ (NOT supported)
 - n300: 2 chips ❌ (NOT supported)
-- T3K: 8 chips ❌ (NOT supported)
+- T3000: 8 chips ❌ (NOT supported)
 - Galaxy: 32 chips ✅ (REQUIRED)
 
 ### Why This Architecture Needs 32 Chips
@@ -138,7 +138,7 @@ export_to_video(frames, "output.mp4", fps=8)
 
 **YES**, native video generation exists (Mochi), **BUT** it requires Galaxy hardware (32 chips).
 
-**NOT viable** for n150 (single chip) or even T3K (8 chips).
+**NOT viable** for n150 (single chip) or even T3000 (8 chips).
 
 ### Current Reality for n150
 
@@ -154,7 +154,7 @@ export_to_video(frames, "output.mp4", fps=8)
 - ✅ True temporal coherence
 - ✅ Smooth motion and animation
 - ✅ "Reality temporarily created"
-- ❌ NOT available for n150/n300/T3K
+- ❌ NOT available for n150/n300/T3000
 
 ### What Would Work on n150
 
@@ -198,7 +198,7 @@ export_to_video(frames, "output.mp4", fps=8)
 **Hardware Scaling Story Still Valid:**
 - n150: Frame-by-frame works (~4 min/frame)
 - n300: 2x faster
-- T3K: 6x faster
+- T3000: 6x faster
 - Galaxy: 20x faster PLUS native video generation with Mochi
 
 **The "Reality Created" Experience:**

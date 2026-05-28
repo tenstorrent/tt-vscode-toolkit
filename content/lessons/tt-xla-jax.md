@@ -155,7 +155,7 @@ print(out.devices())      # {TtDevice(id=0)}
 
 ---
 
-## Multi-device with pmap (QuietBox 2 / n300 / T3K)
+## Multi-device with pmap (QuietBox 2 / n300 / T3000)
 
 `jax.pmap` maps a function over a leading batch dimension, one slice per device.
 On QuietBox 2 with four p300c chips this uses all four in parallel:
@@ -246,7 +246,7 @@ Wormhole and Blackhole chips are configured identically at the JAX API level.
 |----------|-----------------|-------|
 | n150 | `[TtDevice(id=0)]` | Single Wormhole chip |
 | n300 | `[TtDevice(id=0), TtDevice(id=1)]` | Two Wormhole chips |
-| T3K | `[TtDevice(id=0..7)]` | Eight Wormhole chips |
+| T3000 | `[TtDevice(id=0..7)]` | Eight Wormhole chips |
 | p300c | `[TtDevice(id=0)]` | Single Blackhole chip |
 | QuietBox 2 | `[TtDevice(id=0..3)]` | Four independent p300c chips |
 | Galaxy | `[TtDevice(id=0..31)]` | 32 Wormhole chips |
@@ -255,7 +255,7 @@ Set `TT_METAL_ARCH_NAME` before activating the env if it isn't already set:
 
 ```bash
 export TT_METAL_ARCH_NAME=blackhole   # p300c / QuietBox 2 / p150
-export TT_METAL_ARCH_NAME=wormhole_b0 # N150 / N300 / T3K / Galaxy
+export TT_METAL_ARCH_NAME=wormhole_b0 # n150 / n300 / T3000 / Galaxy
 source ~/tt-forge-venv/bin/activate
 ```
 

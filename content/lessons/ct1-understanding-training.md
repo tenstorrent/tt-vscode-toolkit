@@ -122,7 +122,7 @@ Tenstorrent's training ecosystem is designed around clarity and modularity. Here
 graph TD
     A[Your Training Script] --> B[tt-train API<br/>High-level Training Interface]
     B --> C[tt-metal SDK<br/>Hardware Operations]
-    C --> D[Tenstorrent Hardware<br/>n150/n300/T3K/P100/Galaxy]
+    C --> D[Tenstorrent Hardware<br/>n150/n300/T3000/P100/Galaxy]
 
     E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
 
@@ -269,7 +269,7 @@ Once training is complete, use your fine-tuned model for inference. Integrate wi
 - **Training time:** 30-60 minutes (2x faster than n150)
 - **What you'll learn:** DDP patterns, multi-device coordination
 
-### T3K / Blackhole / Galaxy (Advanced)
+### T3000 / Blackhole / Galaxy (Advanced)
 - **Perfect for:** Large-scale training, experimentation
 - **Batch size:** 32+ (highly parallel)
 - **Training time:** Minutes for small jobs
@@ -422,7 +422,7 @@ You're about to learn how to train custom models - but what will you build with 
 - **Deploy with vLLM for production inference** - Sub-millisecond latency, thousands of requests/second
 - **Iterate quickly with small datasets** - 100-1000 high-quality examples beat 100,000 mediocre ones
 - **Combine multiple specialized models** - Build an ensemble of experts, each fine-tuned for specific tasks
-- **Scale when needed** - Start on n150, move to n300 for 2x speedup, T3K for 8x, Galaxy for research scale
+- **Scale when needed** - Start on n150, move to n300 for 2x speedup, T3000 for 8x, Galaxy for research scale
 
 **The magic is in the data and the task definition, not the hardware scale.**
 

@@ -55,7 +55,7 @@ Choose your path:
 - ✅ Docker image is validated and production-ready
 - ✅ OpenAI-compatible API
 - **You'll learn:** Production deployment, batching, scaling
-- **Hardware:** n150/n300/T3K/P100 with appropriate model sizes
+- **Hardware:** n150/n300/T3000/P100 with appropriate model sizes
 
 ### Path C: "I want to bring my own model to Tenstorrent hardware"
 → **Start with Lessons 1-5, then Lesson 13** (Bounty Program)
@@ -76,7 +76,7 @@ Choose your path:
 - 🎨 1024x1024 image generation
 - ✅ Works perfectly on n150
 - 2-3 minutes per image (first run)
-- **Hardware:** n150/n300/T3K/P100
+- **Hardware:** n150/n300/T3000/P100
 
 ### Path F: "I want to learn low-level programming on Tensix cores"
 → **Lesson 15** (TT-Metalium Cookbook) then **Lesson 14** (RISC-V)
@@ -112,7 +112,7 @@ graph TB
     subgraph Hardware["Hardware"]
         n150[n150]
         n300[n300]
-        T3K[T3K]
+        T3000[T3000]
         P100[P100/p150]
     end
 
@@ -127,7 +127,7 @@ graph TB
     TTMLIR --> TTMetal
     TTMetal --> n150
     TTMetal --> n300
-    TTMetal --> T3K
+    TTMetal --> T3000
     TTMetal --> P100
 
     style JAX fill:#5347a4,color:#fff
@@ -140,7 +140,7 @@ graph TB
     style TTMetal fill:#499c8d,color:#fff
     style n150 fill:#ffb71b,color:#000
     style n300 fill:#ffb71b,color:#000
-    style T3K fill:#ffb71b,color:#000
+    style T3000 fill:#ffb71b,color:#000
     style P100 fill:#ffb71b,color:#000
 ```
 
@@ -201,7 +201,7 @@ ttnn.close_device(device)
 #### 4. **OpenMPI** (Multi-chip Communication)
 **What it is:** Message Passing Interface library for distributed computing
 - Required even for single-chip (n150) operation
-- Enables multi-chip scaling (n300, T3K, Galaxy)
+- Enables multi-chip scaling (n300, T3000, Galaxy)
 
 **Where it lives:** `/opt/openmpi-v5.0.7-ulfm/`
 
@@ -250,7 +250,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 #### `MESH_DEVICE`
 **What:** Tells software which hardware configuration you have
-**Possible values:** `n150`, `n300`, `T3K`, `P100`, `p150`, `GALAXY`
+**Possible values:** `n150`, `n300`, `T3000`, `P100`, `p150`, `GALAXY`
 **Why needed:** Model optimizations differ per hardware
 **Set it:**
 ```bash
@@ -439,10 +439,10 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 tt-smi -s | grep -i dram
 ```
 
-**Wormhole Architecture (n150/n300/T3K/QuietBox):**
+**Wormhole Architecture (n150/n300/T3000/QuietBox):**
 - n150: 12GB DRAM per chip (single chip)
 - n300: 24GB total (2 chips)
-- T3K: 96GB total (8 chips)
+- T3000: 96GB total (8 chips)
 - **QuietBox:** Wormhole-based system (production-validated for vLLM)
 - **Tensix cores:** 8x10 grid (80 cores per chip)
 - **Ethernet:** 16 cores with 256KB L1
@@ -468,7 +468,7 @@ export TT_METAL_ARCH_NAME=blackhole
 **Model sizing:**
 - Qwen3-0.6B: ~1.5GB (fits easily on n150 or P100)
 - Llama-3.1-8B: ~16GB (tight on n150, comfortable on P100/n300+)
-- Llama-3.1-70B: ~140GB (requires T3K or p150 x4+)
+- Llama-3.1-70B: ~140GB (requires T3000 or p150 x4+)
 
 The two chips have different grid shapes — Wormhole (above) has 80 Tensix compute cores, Blackhole (below) has 140:
 

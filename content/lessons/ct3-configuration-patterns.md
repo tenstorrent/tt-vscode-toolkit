@@ -231,7 +231,7 @@ You get the training stability of a 32-example batch while only needing memory f
 
 **The benefits are clear:** Training becomes more stable (larger effective batch smooths out noise), and you don't run out of memory. The trade-off? Slightly slower training because you're doing 4 forward passes before each backward pass. But on memory-constrained hardware like n150, this trade-off is absolutely worth it.
 
-**On n150, use gradient accumulation always.** Set `gradient_accumulation_steps = 4` as your default. On n300 or T3K with more memory available, you might not need it - you can just use larger actual batches. But even on big hardware, gradient accumulation remains useful when you want to push batch sizes beyond what physically fits in memory.
+**On n150, use gradient accumulation always.** Set `gradient_accumulation_steps = 4` as your default. On n300 or T3000 with more memory available, you might not need it - you can just use larger actual batches. But even on big hardware, gradient accumulation remains useful when you want to push batch sizes beyond what physically fits in memory.
 
 ### Epochs vs Steps
 
@@ -295,7 +295,7 @@ device_config:
 - Larger models or larger batches
 - Faster iteration for experimentation
 
-### Advanced (T3K, Galaxy)
+### Advanced (T3000, Galaxy)
 
 ```yaml
 device_config:
@@ -304,7 +304,7 @@ device_config:
 ```
 
 **When to use:**
-- T3K (8 chips in mesh)
+- T3000 (8 chips in mesh)
 - Galaxy (32+ chips)
 - Large-scale training or research
 
@@ -516,7 +516,7 @@ device_config:
 - Better GPU utilization
 - Minimal code changes
 
-### T3K: High Performance
+### T3000: High Performance
 
 ```yaml
 training_config:
@@ -839,7 +839,7 @@ device_config:
 **Configuration decisions:**
 ```yaml
 training_config:
-  batch_size: 32                   # T3K can handle it
+  batch_size: 32                   # T3000 can handle it
   learning_rate: 1e-4
   max_steps: 500
   checkpoint_frequency: 250        # Only keep key checkpoints
@@ -849,13 +849,13 @@ training_config:
   gradient_accumulation_steps: 1   # No accumulation needed
 
 device_config:
-  enable_ddp: True                 # T3K mesh
+  enable_ddp: True                 # T3000 mesh
   mesh_shape: [2, 4]               # 8 devices, 8x speedup
 ```
 
 **Result:** Train multiple models per day. A/B test in production. Iterate based on user feedback.
 
-**Scale:** From prototype (n150) → production (T3K) seamlessly. Same config pattern, different values.
+**Scale:** From prototype (n150) → production (T3000) seamlessly. Same config pattern, different values.
 
 ---
 
@@ -883,7 +883,7 @@ device_config:
 - Track experiments systematically
 - **Goal:** Find what works for your data
 
-**Month 2+ (n300/T3K, Scaling):**
+**Month 2+ (n300/T3000, Scaling):**
 - Scale successful configs to faster hardware
 - Run multiple experiments in parallel
 - Build a library of proven configs

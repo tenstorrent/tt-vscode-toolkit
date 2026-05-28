@@ -463,7 +463,7 @@ huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 ```
 ⚠️  Warning: Unknown board type 'P300C'
 ```
-- Script only recognized: n150, n300, T3K, P100, p150, GALAXY
+- Script only recognized: n150, n300, T3000, P100, p150, GALAXY
 - p300/p300c not in supported hardware list
 
 **⚠️ CRITICAL ISSUE 2: Module Import Error**
@@ -838,7 +838,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 
 **Status:** Starting validation (00:57 UTC)
 
-**Hardware Note:** Lesson lists n150/n300/T3K/Galaxy as supported hardware. P100/p300c (Blackhole) not listed but should work as TT-XLA supports multi-chip.
+**Hardware Note:** Lesson lists n150/n300/T3000/Galaxy as supported hardware. P100/p300c (Blackhole) not listed but should work as TT-XLA supports multi-chip.
 
 ### Step 1: Check Prerequisites
 
@@ -849,7 +849,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 
 **Goal:** Install TT-XLA PJRT plugin and test JAX inference with multi-chip support
 
-**Hardware Note:** Lesson lists n150/n300/T3K/Galaxy - p300c (Blackhole) NOT listed but should work
+**Hardware Note:** Lesson lists n150/n300/T3000/Galaxy - p300c (Blackhole) NOT listed but should work
 
 ### Step 1: Installation - ✅ SUCCESS (with fixes)
 
@@ -1618,7 +1618,7 @@ tt-smi -s  # Shows all 4 devices
 **Purpose:** Comprehensive reference for all hardware types, architecture families, and lesson compatibility.
 
 **Contents:**
-- Wormhole family (n150, n300, T3K, Galaxy)
+- Wormhole family (n150, n300, T3000, Galaxy)
 - Blackhole family (P100, p150, p300/p300c)
 - Architecture equivalence principles
 - Multi-device vs multi-chip disambiguation
@@ -1637,7 +1637,7 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 ### Wormhole Family
 - N150: Single chip...
 - n300: Dual chip...
-- T3K: 8-chip mesh...
+- T3000: 8-chip mesh...
 - Galaxy: Multi-rack...
 
 ### Blackhole Family

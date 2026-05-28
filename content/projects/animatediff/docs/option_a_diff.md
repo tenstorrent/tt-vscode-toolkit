@@ -128,7 +128,7 @@ for frame_idx in range(num_frames):
 
 If you'd like to contribute this enhancement to the tt-metal community:
 
-1. Test thoroughly on all hardware (n150, n300, T3K, P100)
+1. Test thoroughly on all hardware (n150, n300, T3000, P100)
 2. Add unit tests for the new parameter
 3. Update documentation
 4. Submit PR with use case explanation (AnimateDiff integration)

@@ -101,7 +101,7 @@ assets/img/samples/
 1. **Consider lesson reorganization** (Option A recommended)
 2. **Add device reset troubleshooting** section
 3. **Update lesson-registry.json** if reorganized
-4. **Test on other hardware** (n300/T3K/P100) to validate scaling claims
+4. **Test on other hardware** (n300/T3000/P100) to validate scaling claims
 
 ---
 

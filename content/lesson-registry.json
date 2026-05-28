@@ -267,7 +267,7 @@
     {
       "id": "tt-inference-server",
       "title": "Production Inference with tt-inference-server",
-      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3K, P100, p300c, or QuietBox 2. tt-inference-server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, P100, p300c, or QuietBox 2. tt-inference-server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
@@ -370,7 +370,7 @@
     {
       "id": "video-generation-ttmetal",
       "title": "Video Generation via Frame-by-Frame Diffusion",
-      "description": "Create videos by generating frames with Stable Diffusion on Tenstorrent hardware. Demonstrates hardware scaling from n150 to T3K - same code, faster performance!",
+      "description": "Create videos by generating frames with Stable Diffusion on Tenstorrent hardware. Demonstrates hardware scaling from n150 to T3000 - same code, faster performance!",
       "category": "serving",
       "tags": [
         "hardware",
@@ -558,7 +558,7 @@
     {
       "id": "ct5-multi-device-training",
       "title": "Multi-Device Training",
-      "description": "Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on n300, T3K, and Galaxy systems.",
+      "description": "Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on n300, T3000, and Galaxy systems.",
       "category": "custom-training",
       "tags": [
         "multi-device",

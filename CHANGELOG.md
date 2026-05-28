@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.459] - 2026-05-27
+
+### Changed
+
+- **Hardware naming in user-facing copy** — normalized prose label `T3K` to `T3000` across lessons, pages, README, and docs (unchanged: `MESH_DEVICE=T3K`, command IDs like `startVllmServerT3K`, and `supportedHardware: t3k` metadata).
+
+---
+
 ## [0.0.458] - 2026-05-27
 
 ### Fixed
@@ -755,7 +763,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   context section, expanded model zoo with current demos, corrected tutorial path
   (removed stale `2025_dx_rework/` subdirectory). Promoted to `status: validated`.
 - **video-generation-ttmetal lesson**: replaced SD 3.5 (Galaxy/QuietBox only) with
-  SD 1.4 (`CompVis/stable-diffusion-v1-4`), which works on n150, n300, T3K, P100,
+  SD 1.4 (`CompVis/stable-diffusion-v1-4`), which works on n150, n300, T3000, P100,
   and p300c. Fixed demo command path, output filename pattern
   (`input_data_N_512x512_ttnn.png`), added HuggingFace auth step, added interactive
   mode section. Removed incorrect SD 3.5 performance claims.
@@ -797,7 +805,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **cs-fundamentals-01–07 lessons**: corrected `p300` → `p300c` in `supportedHardware` (all seven conceptual lessons).
 
 ### Changed
-- **tt-inference-server lesson**: added installation step — n150/n300/T3K/P100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (QuietBox 2/pre-configured images have it pre-installed).
+- **tt-inference-server lesson**: added installation step — n150/n300/T3000/P100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (QuietBox 2/pre-configured images have it pre-installed).
 - **video-generation-ttmetal lesson**: added `p300c` to `supportedHardware`; added p300c/QuietBox 2 note to hardware selection section.
 
 ---
@@ -1580,7 +1588,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - CT8: Training progression diagrams (already present, verified)
   - **Inspirational Content**: Added "What's Possible" / "Beyond This Lesson" sections to all 8 lessons
     - Real-world application examples and success stories
-    - Scaling possibilities from n150 → n300 → T3K → Galaxy
+    - Scaling possibilities from n150 → n300 → T3000 → Galaxy
     - "Imagine..." prompts for creative thinking
     - Economic viability and ROI examples
     - Domain-specific adaptation guidance
@@ -1878,7 +1886,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed duplicate "External Resources" and closing sections
   - File reduced from 768 lines to 511 lines (33% reduction)
 - **Terminology Standardization** - Fixed inconsistent hardware naming in prose:
-  - `content/lessons/video-generation-ttmetal.md:83` - Changed "(n150, n300, t3k, p100)" to "(n150, n300, T3K, P100)"
+  - `content/lessons/video-generation-ttmetal.md:83` - Changed "(n150, n300, t3k, p100)" to "(n150, n300, T3000, P100)"
   - `content/lessons/tt-inference-server.md:548-549` - Capitalized hardware names in model compatibility list
   - `content/pages/FAQ.md:365-369` - Changed hardware names from lowercase to uppercase in prose descriptions
   - Note: Lowercase hardware names in YAML metadata, code, and command output remain correct
@@ -2313,7 +2321,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command parameterization for hardware-specific operations
 
 ### Removed
-- `startVllmServerN150/n300/T3K/P100` (4 commands - now parameterized)
+- `startVllmServerN150/n300/T3000/P100` (4 commands - now parameterized)
 - `startTtInferenceServerN150/n300` (2 commands - now parameterized)
 
 ## [0.0.102] - 2025-12-20

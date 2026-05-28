@@ -18,7 +18,7 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 |----------|--------------|-------|--------------|---------------|----------|----------------|
 | **n150** | Wormhole | 1 | 72 | 64K | Development, single-user | `n150` |
 | **n300** | Wormhole | 2 | 144 | 128K | Multi-user, higher throughput | `n300` |
-| **T3K** | Wormhole | 8 | 576 | 128K | Large models (70B+) | `t3k` |
+| **T3000** | Wormhole | 8 | 576 | 128K | Large models (70B+) | `t3k` |
 | **P100** | Blackhole | 1 | TBD | 64K | Cloud/standalone | `p100` |
 | **p150** | Blackhole | 2 | TBD | 128K | Higher performance | `p150` |
 | **p300/p300c** | Blackhole | 1 | TBD | 64K | QuietBox systems | `p300` |
@@ -84,7 +84,7 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 - Llama-3.1-8B-Instruct
 - Qwen3-8B
 
-#### T3K - Eight Chip Cluster
+#### T3000 - Eight Chip Cluster
 
 **Hardware Specifications:**
 - **Chips:** 8 Wormhole chips
@@ -257,15 +257,15 @@ All Blackhole cards share the same core architecture:
 
 ### Wormhole Family Consistency
 
-All Wormhole variants (n150, n300, T3K, Galaxy) share:
+All Wormhole variants (n150, n300, T3000, Galaxy) share:
 - Same Wormhole architecture
 - Same core capabilities
 - Different scale (chip count)
 
 **Scaling Rules:**
-- Models validated on n150 generally work on n300/T3K
+- Models validated on n150 generally work on n300/T3000
 - May need configuration changes (MESH_DEVICE, TP settings)
-- Larger models require more chips (n300+ for 8B+, T3K for 70B+)
+- Larger models require more chips (n300+ for 8B+, T3000 for 70B+)
 
 ---
 
@@ -282,7 +282,7 @@ All Wormhole variants (n150, n300, T3K, Galaxy) share:
 ### Multi-Device System
 - **Multiple devices**, each with 1 or more chips
 - Example: QuietBox Tower (4x p300c = 4 devices, 4 chips total)
-- Example: T3K could be (8 devices × 1 chip) or (4 devices × 2 chips)
+- Example: T3000 could be (8 devices × 1 chip) or (4 devices × 2 chips)
 - Configuration: `TT_METAL_NUM_DEVICES=4`, each device configured independently
 
 **QuietBox Example:**
@@ -300,7 +300,7 @@ All Wormhole variants (n150, n300, T3K, Galaxy) share:
 |----------|-------------------|-------------------|---------------------|
 | **n150** | (no MESH_DEVICE) | N/A | N/A |
 | **n300** | `MESH_DEVICE=N300` | `MESH_DEVICE=N300` | N/A |
-| **T3K** | `MESH_DEVICE=T3K` | `MESH_DEVICE=T3K` | Varies |
+| **T3000** | `MESH_DEVICE=T3K` | `MESH_DEVICE=T3K` | Varies |
 | **P100** | `MESH_DEVICE=P100` | N/A | N/A |
 | **p150** | `MESH_DEVICE=P150` | `MESH_DEVICE=P150` | N/A |
 | **p300c (1 card)** | `MESH_DEVICE=P100` | N/A | N/A |
@@ -312,7 +312,7 @@ All Wormhole variants (n150, n300, T3K, Galaxy) share:
 
 ### Hardware Support by Lesson
 
-| Lesson | n150 | n300 | T3K | P100 | p150 | p300 | Galaxy | Notes |
+| Lesson | n150 | n300 | T3000 | P100 | p150 | p300 | Galaxy | Notes |
 |--------|------|------|-----|------|------|------|--------|-------|
 | 01 Hardware Detection | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 02 Verify Installation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
@@ -463,11 +463,11 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 - **Why:** Proven, validated models, production-ready
 
 **Production Multi-User Serving:**
-- **Recommended:** n300 or T3K
+- **Recommended:** n300 or T3000
 - **Why:** Higher throughput, longer context, tensor parallelism
 
 **Large Models (70B+):**
-- **Recommended:** T3K or Galaxy
+- **Recommended:** T3000 or Galaxy
 - **Why:** 8+ chips required for memory and compute
 
 **QuietBox Multi-Device Research:**
