@@ -211,17 +211,86 @@
     var sidebar = document.getElementById('tt-sidebar');
     if (!toggle || !sidebar) return;
 
+    // Create overlay once; reuse it on repeated opens
+    var overlay = document.createElement('div');
+    overlay.id = 'sidebar-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(overlay);
+
+    function openSidebar() {
+      sidebar.classList.add('sidebar-open');
+      overlay.classList.add('sidebar-overlay-visible');
+      toggle.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('sidebar-body-lock');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('sidebar-open');
+      overlay.classList.remove('sidebar-overlay-visible');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('sidebar-body-lock');
+    }
+
     toggle.addEventListener('click', function () {
-      var open = sidebar.classList.toggle('sidebar-open');
-      toggle.setAttribute('aria-expanded', String(open));
+      if (sidebar.classList.contains('sidebar-open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('sidebar-open')) {
+        closeSidebar();
+        toggle.focus();
+      }
     });
 
     // Close sidebar when a lesson link is clicked (mobile UX)
     sidebar.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function () {
-        sidebar.classList.remove('sidebar-open');
-        toggle.setAttribute('aria-expanded', 'false');
+      a.addEventListener('click', closeSidebar);
+    });
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Heading permalink anchors                                            *
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Inject a permalink ¶ anchor into every heading that has an id.
+   * The link copies the URL-with-hash to the clipboard and visually
+   * confirms by flashing the icon to "✓" for 1.5 s.
+   * CSS (heading-anchor / heading-anchor-copied) handles visibility.
+   */
+  function initHeadingAnchors() {
+    document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').forEach(function (heading) {
+      var id = heading.getAttribute('id');
+      var a = document.createElement('a');
+      a.className = 'heading-anchor';
+      a.href = '#' + id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.setAttribute('title', 'Copy link to this section');
+      a.textContent = '#';
+
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var url = location.href.split('#')[0] + '#' + id;
+        history.replaceState(null, '', '#' + id);
+        copyToClipboard(url).then(function () {
+          a.textContent = '✓';
+          a.classList.add('heading-anchor-copied');
+          setTimeout(function () {
+            a.textContent = '#';
+            a.classList.remove('heading-anchor-copied');
+          }, 1500);
+        }).catch(function () {
+          // clipboard denied — just update the URL
+        });
       });
+
+      heading.appendChild(a);
     });
   }
 
@@ -289,6 +358,7 @@
     initSidebarToggle();
     initSidebarActiveScroll();
     initAnchorScroll();
+    initHeadingAnchors();
     initMermaid();
   }
 

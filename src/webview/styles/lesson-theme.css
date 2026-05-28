@@ -138,6 +138,40 @@ h4 {
   font-size: 1.1em;
 }
 
+/* Heading permalink anchors — injected by lesson-web.js */
+.heading-anchor {
+  display: inline-block;
+  margin-left: 0.4em;
+  font-size: 0.75em;
+  font-weight: 400;
+  color: var(--tt-primary);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  vertical-align: middle;
+  user-select: none;
+}
+
+h1:hover .heading-anchor,
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+h4:hover .heading-anchor,
+h5:hover .heading-anchor,
+h6:hover .heading-anchor,
+.heading-anchor:focus {
+  opacity: 1;
+}
+
+.heading-anchor:hover {
+  color: var(--tt-primary-light);
+  text-decoration: none;
+}
+
+.heading-anchor-copied {
+  color: var(--tt-success) !important;
+  opacity: 1 !important;
+}
+
 /* Paragraphs */
 p {
   margin: 16px 0;
@@ -495,6 +529,19 @@ tr:hover {
   .lesson-nav {
     flex-direction: column;
     gap: 12px;
+  }
+
+  /* Prevent long words / identifiers from blowing out mobile layout */
+  p, li, blockquote, td {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Horizontal scroll for tables that are too wide */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.451] - 2026-05-28
+
+### Added
+
+- **FAQ: Environment Reference section** — New section with Q&A covering every assumption lessons make: `~/tt-scratchpad` origin, the three-venv map (tt-metal / vLLM / Forge-XLA), `TT_METAL_HOME` scope and QB2 caveat, `~/models/` convention, Ubuntu version matrix, and a numbered-lesson-to-ID translation table for old "Lesson N" references. Direct entry point for developers who land on a lesson out of order.
+- **llms.txt: Environment Layout section** — Same information structured for LLM consumption: venv table, `TT_METAL_HOME` env block, model storage convention, Ubuntu version note.
+
+### Fixed
+
+- **FAQ stale content** — Corrected lesson count (was "48", removed the number to avoid future drift), updated starter model recommendation from Llama-3.1-8B to Qwen3-0.6B, corrected category lesson counts to match the current registry.
+- **FAQ table of contents** — Added Environment Reference entry.
+
+---
+
+## [0.0.450] - 2026-05-28
+
+### Added
+
+- **Heading permalink anchors on the docs site** — Hovering any heading reveals a `#` link that copies the section URL to the clipboard and confirms with a `✓` flash. No markdown changes required; injected by `lesson-web.js` at page load.
+- **Mobile sidebar overlay backdrop** — Opening the sidebar on mobile now dims the content area with a blurred overlay. Tapping the overlay or pressing Escape closes the sidebar and returns focus to the toggle button. Background scroll is locked while the sidebar is open.
+
+### Fixed
+
+- **Mobile table overflow** — Tables wider than the viewport now scroll horizontally instead of breaking the page layout.
+- **Mobile long-word overflow** — Long identifiers and inline code in paragraphs, list items, and table cells now wrap correctly on narrow screens (`overflow-wrap: break-word`).
+
+---
+
 ## [0.0.449] - 2026-05-27
 
 ### Security
