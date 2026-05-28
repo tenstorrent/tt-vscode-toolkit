@@ -48,11 +48,24 @@ def _constant_prop_time_embeddings(timesteps, sample, time_proj):
     return time_proj(timesteps)
 
 
-def setup_blackhole():
-    """Open a Blackhole TTNN device with SD-appropriate L1 config.
+def setup_blackhole(device_ids: list[int] | None = None):
+    """Open all available Blackhole chips as a 1×N MeshDevice.
 
-    Sets TT_METAL_ARCH_NAME=blackhole if not already set (os.environ.setdefault,
-    so an existing value is never overwritten). Returns the open TTNN device.
+    Uses open_mesh_device with explicit physical_device_ids so every chip is
+    claimed upfront. This prevents the ARC on un-claimed chips from entering a
+    degraded state mid-run and avoids the implicit device_id=0 assumption that
+    breaks on multi-card systems where PCIe enumeration order is not guaranteed.
+
+    Also checks hwmon sentinel values (temp > 1,000,000 mC = 65536°C) before
+    opening — a dead ARC will cause get_num_devices() to block for up to 5
+    minutes. Chips with sentinel values are excluded and a RuntimeWarning is
+    raised so the caller knows it's running on a degraded set.
+
+    Args:
+        device_ids: Physical device IDs to open. Defaults to all healthy chips.
+
+    Returns a MeshDevice compatible with preprocess_model_parameters, UNet2D,
+    and to_device() / from_device() below.
     """
     os.environ.setdefault("TT_METAL_ARCH_NAME", "blackhole")
     _ensure_tt_metal_path()
@@ -60,7 +73,64 @@ def setup_blackhole():
     import ttnn
     from models.demos.wormhole.stable_diffusion.common import SD_L1_SMALL_SIZE
 
-    return ttnn.open_device(device_id=0, l1_small_size=SD_L1_SMALL_SIZE)
+    if device_ids is None:
+        import glob as _glob
+        live_ids, dead_ids = [], []
+        for hwmon in sorted(_glob.glob("/sys/class/hwmon/hwmon*")):
+            try:
+                if open(f"{hwmon}/name").read().strip() != "blackhole":
+                    continue
+                temp_mc = int(open(f"{hwmon}/temp1_input").read().strip())
+                idx = len(live_ids) + len(dead_ids)
+                if temp_mc > 1_000_000:  # UINT32_MAX overflow — ARC dead
+                    dead_ids.append(idx)
+                else:
+                    live_ids.append(idx)
+            except (OSError, ValueError):
+                pass
+        if dead_ids:
+            import warnings
+            warnings.warn(
+                f"Chip(s) {dead_ids} show ARC-dead sentinel values (temp > 1000°C). "
+                f"Excluding from mesh. AC power cycle required to recover. "
+                f"Using chips: {live_ids}",
+                RuntimeWarning, stacklevel=2,
+            )
+            device_ids = live_ids
+        else:
+            device_ids = list(range(ttnn.get_num_devices()))
+
+    n = len(device_ids)
+    return ttnn.open_mesh_device(
+        mesh_shape=ttnn.MeshShape(1, n),
+        physical_device_ids=device_ids,
+        l1_small_size=SD_L1_SMALL_SIZE,
+    )
+
+
+def to_device(tensor, device, dtype=None, layout=None):
+    """Send a torch tensor to device (single Device or MeshDevice).
+
+    For a MeshDevice every chip gets an identical copy — correct for
+    data-parallel SD inference where all chips run the same model.
+    """
+    import ttnn
+    kwargs = {}
+    if dtype is not None:
+        kwargs["dtype"] = dtype
+    if layout is not None:
+        kwargs["layout"] = layout
+    if isinstance(device, ttnn.MeshDevice):
+        kwargs["mesh_mapper"] = ttnn.ReplicateTensorToMesh(device)
+    return ttnn.from_torch(tensor, device=device, **kwargs)
+
+
+def from_device(tensor, device):
+    """Retrieve a tensor from device (single Device or MeshDevice) to CPU torch."""
+    import ttnn
+    if isinstance(device, ttnn.MeshDevice):
+        return ttnn.to_torch(tensor, mesh_composer=ttnn.ConcatMeshToTensor(device, dim=0))[0:1]
+    return ttnn.to_torch(tensor)
 
 
 def build_tlist(ttnn_scheduler, torch_time_proj, device, latent_h: int = 64, latent_w: int = 64) -> list:
@@ -81,11 +151,9 @@ def build_tlist(ttnn_scheduler, torch_time_proj, device, latent_h: int = 64, lat
     """
     import ttnn
 
-    dummy = ttnn.from_torch(
-        torch.zeros(2, 4, latent_h, latent_w),  # batch=2 matches CFG concat in run()
-        dtype=ttnn.bfloat16,
-        layout=ttnn.TILE_LAYOUT,
-        device=device,
+    dummy = to_device(
+        torch.zeros(2, 4, latent_h, latent_w),
+        device, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT,
     )
 
     _tlist = []
@@ -93,7 +161,7 @@ def build_tlist(ttnn_scheduler, torch_time_proj, device, latent_h: int = 64, lat
         _t = _constant_prop_time_embeddings(t, dummy, torch_time_proj)
         _t = _t.unsqueeze(0).unsqueeze(0)
         _t = _t.permute(2, 0, 1, 3)  # pre-permute: expected shape by TTNN UNet
-        _t = ttnn.from_torch(_t, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+        _t = to_device(_t, device, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT)
         _tlist.append(_t)
     return _tlist
 
@@ -148,11 +216,8 @@ def generate_frames(
     lh, lw = height // 8, width // 8
 
     # Convert text embeddings to TTNN device tensor once; reused every frame
-    ttnn_text_embeddings = ttnn.from_torch(
-        text_embeddings,
-        dtype=ttnn.bfloat16,
-        layout=ttnn.TILE_LAYOUT,
-        device=device,
+    ttnn_text_embeddings = to_device(
+        text_embeddings, device, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT,
     )
 
     # Shared base noise for inter-frame temporal coherence
@@ -171,11 +236,9 @@ def generate_frames(
 
         # Per-frame perturbation uses the seeded generator so runs are reproducible
         frame_noise = base_noise + 0.05 * torch.randn(base_noise.shape, generator=generator)
-        ttnn_latents = ttnn.from_torch(
+        ttnn_latents = to_device(
             frame_noise * ttnn_scheduler.init_noise_sigma,
-            dtype=ttnn.bfloat16,
-            layout=ttnn.TILE_LAYOUT,
-            device=device,
+            device, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT,
         )
 
         # TTNN UNet denoising loop on Blackhole
@@ -197,7 +260,7 @@ def generate_frames(
             ttnn_latents = ttnn_scheduler.step(noise_pred, t, ttnn_latents).prev_sample
 
         # Decode with CPU PyTorch VAE — TTNN VAE conv_out OOMs on Blackhole
-        latents_cpu = ttnn.to_torch(ttnn_latents).to(torch.float32) / 0.18215
+        latents_cpu = from_device(ttnn_latents, device).to(torch.float32) / 0.18215
         with torch.no_grad():
             decoded = torch_vae.decode(latents_cpu).sample  # (1, 3, H, W) in [-1, 1]
         img = (decoded / 2 + 0.5).clamp(0, 1)
