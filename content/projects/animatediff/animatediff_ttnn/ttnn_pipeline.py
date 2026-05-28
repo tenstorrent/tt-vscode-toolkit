@@ -56,16 +56,11 @@ def setup_blackhole(device_ids: list[int] | None = None):
     degraded state mid-run and avoids the implicit device_id=0 assumption that
     breaks on multi-card systems where PCIe enumeration order is not guaranteed.
 
-    Also checks hwmon sentinel values (temp > 1,000,000 mC = 65536°C) before
-    opening — a dead ARC will cause get_num_devices() to block for up to 5
-    minutes. Chips with sentinel values are excluded and a RuntimeWarning is
-    raised so the caller knows it's running on a degraded set.
-
     Args:
-        device_ids: Physical device IDs to open. Defaults to all healthy chips.
+        device_ids: Physical device IDs to open (default: all available chips).
 
-    Returns a MeshDevice compatible with preprocess_model_parameters, UNet2D,
-    and to_device() / from_device() below.
+    Returns the open MeshDevice — compatible with preprocess_model_parameters,
+    UNet2D, and ttnn.from_torch(..., device=mesh_device).
     """
     os.environ.setdefault("TT_METAL_ARCH_NAME", "blackhole")
     _ensure_tt_metal_path()
@@ -74,26 +69,31 @@ def setup_blackhole(device_ids: list[int] | None = None):
     from models.demos.wormhole.stable_diffusion.common import SD_L1_SMALL_SIZE
 
     if device_ids is None:
+        # Check hwmon sentinel values before asking TTNN to enumerate — a dead ARC
+        # (temp=65536°C / power=4294W) will cause get_num_devices() to block for up
+        # to 5 minutes waiting for the ARC startup timeout. Fail fast instead.
         import glob as _glob
-        live_ids, dead_ids = [], []
+        live_ids = []
+        dead_ids = []
         for hwmon in sorted(_glob.glob("/sys/class/hwmon/hwmon*")):
+            name_f = f"{hwmon}/name"
             try:
-                if open(f"{hwmon}/name").read().strip() != "blackhole":
+                if open(name_f).read().strip() != "blackhole":
                     continue
                 temp_mc = int(open(f"{hwmon}/temp1_input").read().strip())
-                idx = len(live_ids) + len(dead_ids)
-                if temp_mc > 1_000_000:  # UINT32_MAX overflow — ARC dead
-                    dead_ids.append(idx)
+                chip_idx = len(live_ids) + len(dead_ids)
+                if temp_mc > 1_000_000:  # sentinel: ARC dead
+                    dead_ids.append(chip_idx)
                 else:
-                    live_ids.append(idx)
+                    live_ids.append(chip_idx)
             except (OSError, ValueError):
                 pass
         if dead_ids:
             import warnings
             warnings.warn(
-                f"Chip(s) {dead_ids} show ARC-dead sentinel values (temp > 1000°C). "
-                f"Excluding from mesh. AC power cycle required to recover. "
-                f"Using chips: {live_ids}",
+                f"Chip(s) {dead_ids} show ARC-dead sentinel values in hwmon "
+                f"(temp > 1000°C). Excluding from mesh. AC power cycle required "
+                f"to restore. Using chips: {live_ids}",
                 RuntimeWarning, stacklevel=2,
             )
             device_ids = live_ids
@@ -109,10 +109,10 @@ def setup_blackhole(device_ids: list[int] | None = None):
 
 
 def to_device(tensor, device, dtype=None, layout=None):
-    """Send a torch tensor to device (single Device or MeshDevice).
+    """Send a torch tensor to device (single or mesh) with automatic replication.
 
-    For a MeshDevice every chip gets an identical copy — correct for
-    data-parallel SD inference where all chips run the same model.
+    For a MeshDevice every chip gets an identical copy of the tensor — correct
+    for data-parallel SD inference where all chips run the same model.
     """
     import ttnn
     kwargs = {}
@@ -126,7 +126,7 @@ def to_device(tensor, device, dtype=None, layout=None):
 
 
 def from_device(tensor, device):
-    """Retrieve a tensor from device (single Device or MeshDevice) to CPU torch."""
+    """Retrieve a tensor from device (single or mesh) back to CPU torch."""
     import ttnn
     if isinstance(device, ttnn.MeshDevice):
         return ttnn.to_torch(tensor, mesh_composer=ttnn.ConcatMeshToTensor(device, dim=0))[0:1]
@@ -160,7 +160,7 @@ def build_tlist(ttnn_scheduler, torch_time_proj, device, latent_h: int = 64, lat
     for t in ttnn_scheduler.timesteps:
         _t = _constant_prop_time_embeddings(t, dummy, torch_time_proj)
         _t = _t.unsqueeze(0).unsqueeze(0)
-        _t = _t.permute(2, 0, 1, 3)  # pre-permute: expected shape by TTNN UNet
+        _t = _t.permute(2, 0, 1, 3)
         _t = to_device(_t, device, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT)
         _tlist.append(_t)
     return _tlist
