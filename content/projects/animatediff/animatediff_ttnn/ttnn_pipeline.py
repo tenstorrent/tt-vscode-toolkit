@@ -69,36 +69,31 @@ def setup_blackhole(device_ids: list[int] | None = None):
     from models.demos.wormhole.stable_diffusion.common import SD_L1_SMALL_SIZE
 
     if device_ids is None:
-        # Check hwmon sentinel values before asking TTNN to enumerate — a dead ARC
-        # (temp=65536°C / power=4294W) will cause get_num_devices() to block for up
-        # to 5 minutes waiting for the ARC startup timeout. Fail fast instead.
+        # Warn if any hwmon entry shows the ARC-dead sentinel (temp > 1000°C /
+        # power = 4294W). We can't reliably map hwmon enumeration order to TTNN
+        # physical device IDs, so we do not filter the id list — that could
+        # exclude a healthy chip. Instead we warn early so the user knows to
+        # AC power-cycle before TTNN's own enumeration times out.
         import glob as _glob
-        live_ids = []
-        dead_ids = []
+        import warnings
+        dead_hwmon = []
         for hwmon in sorted(_glob.glob("/sys/class/hwmon/hwmon*")):
-            name_f = f"{hwmon}/name"
             try:
-                if open(name_f).read().strip() != "blackhole":
+                if open(f"{hwmon}/name").read().strip() != "blackhole":
                     continue
                 temp_mc = int(open(f"{hwmon}/temp1_input").read().strip())
-                chip_idx = len(live_ids) + len(dead_ids)
                 if temp_mc > 1_000_000:  # sentinel: ARC dead
-                    dead_ids.append(chip_idx)
-                else:
-                    live_ids.append(chip_idx)
+                    dead_hwmon.append(hwmon)
             except (OSError, ValueError):
                 pass
-        if dead_ids:
-            import warnings
+        if dead_hwmon:
             warnings.warn(
-                f"Chip(s) {dead_ids} show ARC-dead sentinel values in hwmon "
-                f"(temp > 1000°C). Excluding from mesh. AC power cycle required "
-                f"to restore. Using chips: {live_ids}",
+                f"hwmon entries {dead_hwmon} show ARC-dead sentinel temperatures "
+                f"(> 1000°C). One or more chips may be unresponsive. If TTNN "
+                f"enumeration hangs, AC power-cycle the system and retry.",
                 RuntimeWarning, stacklevel=2,
             )
-            device_ids = live_ids
-        else:
-            device_ids = list(range(ttnn.get_num_devices()))
+        device_ids = list(range(ttnn.GetNumAvailableDevices()))
 
     n = len(device_ids)
     return ttnn.open_mesh_device(

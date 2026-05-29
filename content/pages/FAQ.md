@@ -173,9 +173,8 @@ source ~/tt-forge-venv/bin/activate
 ~/models/
   Qwen3-0.6B/            # HuggingFace format (for vLLM, tt-inference-server)
   Qwen3-8B/
-  Llama-3.1-8B-Instruct/ # HuggingFace format
-  Llama-3.1-8B-Instruct/
-    original/            # Meta format (for Direct API / Generator API lessons)
+  Llama-3.1-8B-Instruct/ # HuggingFace format (for vLLM, tt-inference-server)
+    original/            # Meta format subdirectory (for Direct API / Generator API lessons)
 ```
 
 If your models are somewhere else, substitute your path in any `--model` or `--local-dir` flag. There is nothing special about `~/models/` — it is just a convention.
