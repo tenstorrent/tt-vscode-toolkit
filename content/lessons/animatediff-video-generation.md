@@ -272,6 +272,8 @@ SD 1.4 responds well to photography-style prompts:
 
 **Phase 2.5 — cross-frame temporal attention:** `generate_blackhole_v2.py` adds a CPU cross-frame self-attention pass at each denoising step, applied to the stacked noise predictions across all frames before the scheduler commits to the next latent. This gives genuine temporal coherence (frames agree on structure) without requiring TemporalTransformer blocks inside the TTNN UNet. See `animatediff_ttnn/temporal_attention.py`.
 
+> **⚠️ Phase 2.5 is experimental and effectively single-chip for throughput.** The frame loop runs serially in Python — one TTNN UNet call per frame. On a multi-chip `MeshDevice` each `to_device` replicates tensors to all chips, but only one chip's output is used per frame, so extra chips add replication overhead without increasing frames per second. For actual multi-chip throughput scaling, use a single-chip `MeshDevice(1,1)` on QB2 until Phase 3 ships the `ShardTensorToMesh` batched dispatch.
+
 ---
 
 ## The model bring-up methodology
