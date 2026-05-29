@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.453] - 2026-05-29
+
+### Fixed
+
+- **AnimateDiff generate_blackhole.py — close_mesh_device** — `ttnn.close_device(device)` → `ttnn.close_mesh_device(device)`: the device returned by `setup_blackhole()` is always a `MeshDevice`; the wrong close call would crash on cleanup.
+- **AnimateDiff temporal_module.py — lazy ttnn import** — moved `import ttnn` inside `temporal_attention_ttnn()` so the module can be imported on CPU-only machines (CI, non-Blackhole envs). Was breaking on module load.
+- **AnimateDiff temporal_attention.py docstring** — corrected "denoised in parallel" to "denoised sequentially"; the frame loop is serialized in Python.
+- **AnimateDiff temporal_module.py — Phase 3 stub comment** — `temporal_attention_ttnn()` bounces tensors to CPU; documented this clearly so it is not mistaken for an accelerated path.
+- **AnimateDiff setup.py stale metadata** — description was "SD 3.5" (removed), URL was placeholder, diffusers floor was inconsistent with requirements.txt, entry_point referenced a deleted file.
+
+### Added
+
+- **AnimateDiff tests/test_temporal_attention.py** — 7 tests for `cross_frame_attention()` (pure PyTorch, runs in CI without hardware): shape/dtype preservation, alpha=0 identity, N=1 passthrough, reproducibility, finite output.
+- **AnimateDiff CI: run full test suite** — CI now runs `tests/` (all files) instead of only `test_pipeline.py`.
+
+---
+
+## [0.0.452] - 2026-05-29
+
+### Fixed
+
+- **AnimateDiff temporal_attention.py — seeded RNG for per-frame perturbation** — `torch.randn_like(base_noise)` replaced with `torch.randn(..., generator=generator)` so Phase 2.5 runs with the same seed now produce identical output, matching the docstring and the equivalent code path in `ttnn_pipeline.py`.
+- **AnimateDiff generate_blackhole_v2.py — restrict to single chip** — `setup_blackhole()` reverted to `setup_blackhole(device_ids=[0])` in Phase 2.5 because the SD 1.4 TTNN UNet crashes on multi-chip MeshDevice tensors (wormhole-targeted `to_torch()` has no mesh composer).
+- **AnimateDiff lesson code snippet** — Updated the `generate_frames` illustration to show the seeded generator; added note that per-frame perturbation is reproducible.
+- **AnimateDiff temporal_attention.py — multi-chip comment** — Added comment at the frame denoising loop documenting that Phase 2.5 is serialized per chip; extra chips on a MeshDevice pay replication cost without throughput gain. Phase 3 target: `ShardTensorToMesh`.
+
+---
+
+## [0.0.451] - 2026-05-28
+
+### Added
+
+- **FAQ: Environment Reference section** — New section with Q&A covering every assumption lessons make: `~/tt-scratchpad` origin, the three-venv map (tt-metal / vLLM / Forge-XLA), `TT_METAL_HOME` scope and QB2 caveat, `~/models/` convention, Ubuntu version matrix, and a numbered-lesson-to-ID translation table for old "Lesson N" references. Direct entry point for developers who land on a lesson out of order.
+- **llms.txt: Environment Layout section** — Same information structured for LLM consumption: venv table, `TT_METAL_HOME` env block, model storage convention, Ubuntu version note.
+
+### Fixed
+
+- **FAQ stale content** — Corrected lesson count (was "48", removed the number to avoid future drift), updated starter model recommendation from Llama-3.1-8B to Qwen3-0.6B, corrected category lesson counts to match the current registry.
+- **FAQ table of contents** — Added Environment Reference entry.
+
+---
+
+## [0.0.450] - 2026-05-28
+
+### Added
+
+- **Heading permalink anchors on the docs site** — Hovering any heading reveals a `#` link that copies the section URL to the clipboard and confirms with a `✓` flash. No markdown changes required; injected by `lesson-web.js` at page load.
+- **Mobile sidebar overlay backdrop** — Opening the sidebar on mobile now dims the content area with a blurred overlay. Tapping the overlay or pressing Escape closes the sidebar and returns focus to the toggle button. Background scroll is locked while the sidebar is open.
+
+### Fixed
+
+- **Mobile table overflow** — Tables wider than the viewport now scroll horizontally instead of breaking the page layout.
+- **Mobile long-word overflow** — Long identifiers and inline code in paragraphs, list items, and table cells now wrap correctly on narrow screens (`overflow-wrap: break-word`).
+
+---
+
 ## [0.0.449] - 2026-05-27
 
 ### Security

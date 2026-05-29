@@ -1622,6 +1622,27 @@ body.page-install .lesson-content {
   }
 }
 
+/* ===== Mobile sidebar overlay backdrop ===== */
+
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 49; /* below sidebar (z-index 50) */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+#sidebar-overlay.sidebar-overlay-visible {
+  display: block;
+}
+
+/* Prevent background scroll while sidebar is open on mobile */
+body.sidebar-body-lock {
+  overflow: hidden;
+}
+
 /* ===== VS Code badge (on command blocks) ===== */
 
 /* The actions row houses the copy button + VS Code badge side by side. */
@@ -2336,6 +2357,13 @@ function build() {
   // Emit a .nojekyll file so GitHub Pages serves _ prefixed files correctly
   fs.writeFileSync(path.join(SITE, '.nojekyll'), '', 'utf8');
   console.log('  [OK]   .nojekyll');
+
+  // Copy llms.txt from repo root into site root
+  const llmsSrc = path.join(ROOT, 'llms.txt');
+  if (fs.existsSync(llmsSrc)) {
+    fs.copyFileSync(llmsSrc, path.join(SITE, 'llms.txt'));
+    console.log('  [OK]   llms.txt');
+  }
 
   console.log(`\nDone. ${lessons.length} lessons + ${PAGES.length} reference pages built.\n`);
 }
