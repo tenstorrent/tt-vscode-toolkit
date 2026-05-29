@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.452] - 2026-05-29
+
+### Fixed
+
+- **AnimateDiff temporal_attention.py — seeded RNG for per-frame perturbation** — `torch.randn_like(base_noise)` replaced with `torch.randn(..., generator=generator)` so Phase 2.5 runs with the same seed now produce identical output, matching the docstring and the equivalent code path in `ttnn_pipeline.py`.
+- **AnimateDiff generate_blackhole_v2.py — restrict to single chip** — `setup_blackhole()` reverted to `setup_blackhole(device_ids=[0])` in Phase 2.5 because the SD 1.4 TTNN UNet crashes on multi-chip MeshDevice tensors (wormhole-targeted `to_torch()` has no mesh composer).
+- **AnimateDiff lesson code snippet** — Updated the `generate_frames` illustration to show the seeded generator; added note that per-frame perturbation is reproducible.
+- **AnimateDiff temporal_attention.py — multi-chip comment** — Added comment at the frame denoising loop documenting that Phase 2.5 is serialized per chip; extra chips on a MeshDevice pay replication cost without throughput gain. Phase 3 target: `ShardTensorToMesh`.
+
+---
+
 ## [0.0.451] - 2026-05-28
 
 ### Added

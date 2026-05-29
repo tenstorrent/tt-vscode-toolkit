@@ -135,7 +135,7 @@ def generate_frames_temporal(
 
     frame_latents = []
     for _ in range(num_frames):
-        perturbed = base_noise + 0.05 * torch.randn_like(base_noise)
+        perturbed = base_noise + 0.05 * torch.randn(base_noise.shape, generator=generator)
         frame_latents.append(perturbed * init_noise_sigma)
 
     # Build TTNN time embeddings — needs a TtPNDMScheduler for timestep tensors

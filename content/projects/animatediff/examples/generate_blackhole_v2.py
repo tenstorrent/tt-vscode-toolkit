@@ -130,7 +130,10 @@ def main():
     print()
 
     print("Opening Blackhole device...")
-    device = setup_blackhole()
+    # SD 1.4 TTNN UNet (wormhole-targeted) uses ttnn.to_torch() without a
+    # mesh_composer, which crashes if the tensor is sharded across >1 chip.
+    # Restrict to device 0 until the UNet2D model is updated for multi-device.
+    device = setup_blackhole(device_ids=[0])
     print()
 
     try:

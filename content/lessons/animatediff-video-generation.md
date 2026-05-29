@@ -227,7 +227,8 @@ def generate_frames(device, ttnn_model, torch_vae, config, ttnn_scheduler, ...):
         ttnn_scheduler.set_timesteps(num_steps)
 
         # Shared base noise + small per-frame perturbation = inter-frame coherence
-        frame_noise = base_noise + 0.05 * torch.randn_like(base_noise)
+        # Uses seeded generator so runs with the same seed are reproducible.
+        frame_noise = base_noise + 0.05 * torch.randn(base_noise.shape, generator=generator)
         ttnn_latents = to_device(frame_noise * ttnn_scheduler.init_noise_sigma,
                                  device, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT)
 
