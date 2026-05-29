@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: © 2026 Tenstorrent AI ULC
+
 """Phase 2: Blackhole-accelerated video frame generation using TTNN UNet.
 
 Uses the SD 1.4 TTNN UNet from ~/tt-metal (same code runs on Blackhole via

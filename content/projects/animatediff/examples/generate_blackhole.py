@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: © 2026 Tenstorrent AI ULC
+
 """Phase 2: Blackhole-accelerated video frame generation using TTNN UNet.
 
 Loads SD 1.4 TTNN UNet and VAE onto a Blackhole device, encodes a text
@@ -157,7 +160,7 @@ def main():
         print()
     finally:
         import ttnn
-        ttnn.close_device(device)
+        ttnn.close_mesh_device(device)
         print("Device closed.")
         print()
 

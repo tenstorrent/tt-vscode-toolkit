@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.453] - 2026-05-29
+
+### Fixed
+
+- **AnimateDiff generate_blackhole.py — close_mesh_device** — `ttnn.close_device(device)` → `ttnn.close_mesh_device(device)`: the device returned by `setup_blackhole()` is always a `MeshDevice`; the wrong close call would crash on cleanup.
+- **AnimateDiff temporal_module.py — lazy ttnn import** — moved `import ttnn` inside `temporal_attention_ttnn()` so the module can be imported on CPU-only machines (CI, non-Blackhole envs). Was breaking on module load.
+- **AnimateDiff temporal_attention.py docstring** — corrected "denoised in parallel" to "denoised sequentially"; the frame loop is serialized in Python.
+- **AnimateDiff temporal_module.py — Phase 3 stub comment** — `temporal_attention_ttnn()` bounces tensors to CPU; documented this clearly so it is not mistaken for an accelerated path.
+- **AnimateDiff setup.py stale metadata** — description was "SD 3.5" (removed), URL was placeholder, diffusers floor was inconsistent with requirements.txt, entry_point referenced a deleted file.
+
+### Added
+
+- **AnimateDiff tests/test_temporal_attention.py** — 7 tests for `cross_frame_attention()` (pure PyTorch, runs in CI without hardware): shape/dtype preservation, alpha=0 identity, N=1 passthrough, reproducibility, finite output.
+- **AnimateDiff CI: run full test suite** — CI now runs `tests/` (all files) instead of only `test_pipeline.py`.
+
+---
+
 ## [0.0.452] - 2026-05-29
 
 ### Fixed
