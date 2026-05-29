@@ -211,11 +211,14 @@
     var sidebar = document.getElementById('tt-sidebar');
     if (!toggle || !sidebar) return;
 
-    // Create overlay once; reuse it on repeated opens
-    var overlay = document.createElement('div');
-    overlay.id = 'sidebar-overlay';
-    overlay.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(overlay);
+    // Reuse existing overlay if present (guards against repeated init calls)
+    var overlay = document.getElementById('sidebar-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'sidebar-overlay';
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(overlay);
+    }
 
     function openSidebar() {
       sidebar.classList.add('sidebar-open');

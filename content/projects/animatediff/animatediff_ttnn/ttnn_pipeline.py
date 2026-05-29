@@ -120,11 +120,17 @@ def to_device(tensor, device, dtype=None, layout=None):
     return ttnn.from_torch(tensor, device=device, **kwargs)
 
 
-def from_device(tensor, device):
-    """Retrieve a tensor from device (single or mesh) back to CPU torch."""
+def from_device(tensor, device, batch: int = 1):
+    """Retrieve a tensor from device (single or mesh) back to CPU torch.
+
+    For a MeshDevice, ConcatMeshToTensor(dim=0) stacks all N chip replicas into
+    a single tensor whose first dimension is batch*N. We take [:batch] to recover
+    one replica. Pass the actual batch size if it differs from 1 — the default
+    covers all current call sites (guided noise_pred and latents are both batch=1).
+    """
     import ttnn
     if isinstance(device, ttnn.MeshDevice):
-        return ttnn.to_torch(tensor, mesh_composer=ttnn.ConcatMeshToTensor(device, dim=0))[0:1]
+        return ttnn.to_torch(tensor, mesh_composer=ttnn.ConcatMeshToTensor(device, dim=0))[:batch]
     return ttnn.to_torch(tensor)
 
 

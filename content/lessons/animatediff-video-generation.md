@@ -243,7 +243,7 @@ def generate_frames(device, ttnn_model, torch_vae, config, ttnn_scheduler, ...):
         decoded = torch_vae.decode(latents_cpu).sample
 ```
 
-**Multi-chip setup:** `setup_blackhole()` opens all available chips as a `MeshDevice` via `open_mesh_device(MeshShape(1, N), physical_device_ids=[0,1,...])`. It first reads hwmon to exclude any chip with a dead ARC (sentinel temp > 65536°C), so initialization never hangs. `to_device()` and `from_device()` in `ttnn_pipeline.py` auto-inject `ReplicateTensorToMesh` / `ConcatMeshToTensor` when the device is a mesh — callers don't need to know the chip count.
+**Multi-chip setup:** `setup_blackhole()` opens all available chips as a `MeshDevice` via `open_mesh_device(MeshShape(1, N), physical_device_ids=[0,1,...])`. It reads hwmon first and emits a `RuntimeWarning` if any chip shows an ARC-dead sentinel temperature (> 1000°C / `temp1_input` > 1,000,000 millidegrees) — but does not exclude chips from the list, since hwmon enumeration order doesn't reliably map to TTNN device IDs. `to_device()` and `from_device()` in `ttnn_pipeline.py` auto-inject `ReplicateTensorToMesh` / `ConcatMeshToTensor` when the device is a mesh — callers don't need to know the chip count.
 
 **CLIP encoding** uses the text encoder bundled inside SD 1.4 — no separate model download:
 
@@ -267,7 +267,7 @@ SD 1.4 responds well to photography-style prompts:
 | Night sky | `"starry night sky over mountains, long exposure, 4K"` |
 | Abstract | `"colorful aurora borealis, northern lights, long exposure"` |
 
-**Tuning coherence:** The `0.05` noise perturbation in `ttnn_pipeline.py` controls frame variation. Edit `~/code/tt-animatediff/animatediff_ttnn/ttnn_pipeline.py` to adjust — higher values give more frame-to-frame motion.
+**Tuning coherence:** The `0.05` noise perturbation in `ttnn_pipeline.py` controls frame variation. Edit `~/tt-scratchpad/tt-animatediff/animatediff_ttnn/ttnn_pipeline.py` to adjust — higher values give more frame-to-frame motion.
 
 **Phase 2.5 — cross-frame temporal attention:** `generate_blackhole_v2.py` adds a CPU cross-frame self-attention pass at each denoising step, applied to the stacked noise predictions across all frames before the scheduler commits to the next latent. This gives genuine temporal coherence (frames agree on structure) without requiring TemporalTransformer blocks inside the TTNN UNet. See `animatediff_ttnn/temporal_attention.py`.
 
