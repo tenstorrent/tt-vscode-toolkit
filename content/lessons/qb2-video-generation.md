@@ -148,7 +148,7 @@ cd ~/code/tt-local-generator && ./bin/setup_vendor.sh
 
 [Set Up Vendored Server](command:tenstorrent.setupVideoGenVendor)
 
-This clones a shallow copy of `tt-inference-server` at a pinned, tested commit into `vendor/tt-inference-server/`. It never touches `~/code/tt-inference-server` if you have one — the vendor copy is isolated.
+This clones a shallow copy of the TT-Inference-Server repository at a pinned, tested commit into `vendor/tt-inference-server/`. It never touches `~/code/tt-inference-server` if you have one — the vendor copy is isolated.
 
 ```
 vendor/

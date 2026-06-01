@@ -21,9 +21,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 25
@@ -152,9 +152,9 @@ It is the east, and Juliet is the sun.
 
 ### System Requirements
 
-- **tt-metal:** v0.67.0 or later (including latest RC) - required for proper inference
+- **TT-Metalium:** v0.67.0 or later (including latest RC) - required for proper inference
 - **Hardware:** n150, n300, T3000, P100, p150, p300c, or Galaxy
-- **Disk space:** 5GB free (for tt-metal build and checkpoints)
+- **Disk space:** 5GB free (for TT-Metalium build and checkpoints)
 - **Python:** 3.10+
 
 ### Critical Setup Steps
@@ -174,11 +174,11 @@ The Python `ttml` training module with inference fixes is required for these les
 cd $TT_METAL_HOME && git describe --tags
 ```
 
-#### 1. Update tt-metal Submodules (CRITICAL!)
+#### 1. Update TT-Metalium Submodules (CRITICAL!)
 
 **Why:** Mismatched submodule versions cause compilation errors.
 
-**If you cloned tt-metal previously:**
+**If you cloned TT-Metalium previously:**
 
 ```bash
 cd $TT_METAL_HOME
@@ -194,7 +194,7 @@ error: unknown type name 'ChipId'
 
 #### 2. Remove Conflicting pip Packages
 
-**Why:** pip-installed `ttnn` conflicts with the locally-built tt-metal version.
+**Why:** pip-installed `ttnn` conflicts with the locally-built TT-Metalium version.
 
 **Check and remove:**
 
@@ -338,12 +338,12 @@ It seems she hangs upon the cheek of night
 
 ## Step 1: Install tt-train
 
-tt-train is TT-Metal's Python training framework. Install it first.
+tt-train is TT-Metalium's Python training framework. Install it first.
 
 [📦 Install tt-train](command:tenstorrent.installTtTrain)
 
 **What this does:**
-1. Verifies tt-metal is installed
+1. Verifies TT-Metalium is installed
 2. Navigates to `$TT_METAL_HOME/tt-train`
 3. Installs Python package: `pip install -e .`
 
@@ -1590,14 +1590,14 @@ You've seen how NanoGPT learns Shakespeare in stages. But this isn't just about 
 ### Documentation
 
 - [tt-train API](https://github.com/tenstorrent/tt-metal/tree/main/tt-train) - Training framework docs
-- [tt-metal GitHub](https://github.com/tenstorrent/tt-metal) - Main repository
+- [TT-Metalium GitHub](https://github.com/tenstorrent/tt-metal) - Main repository
 - [NanoGPT (Karpathy)](https://github.com/karpathy/nanoGPT) - Original inspiration
 - [Attention is All You Need](https://arxiv.org/abs/1706.03762) - Transformer paper
 
 ### Community
 
 - Share your trained models in Discord!
-- Ask questions in #tt-metal-training
+- Ask questions in #TT-Metalium-training
 - Show off creative datasets and results
 - Contribute improvements to tt-train
 
@@ -1616,7 +1616,7 @@ You've seen firsthand how models learn hierarchically, and you understand the co
 **Tested Environment:**
 - **Hardware:** Wormhole n150 (single-chip)
 - **Python:** 3.10
-- **tt-metal:** v0.67.0-dev20260203
+- **TT-Metalium:** v0.67.0-dev20260203
 - **PYTHONPATH:** $TT_METAL_HOME/build_Release
 
 ---

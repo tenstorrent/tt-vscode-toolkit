@@ -465,7 +465,7 @@ code --command tenstorrent.showVisualization ~/tt-scratchpad/test.png
 **Solutions:**
 1. Check sidebar: View → Open View → "Output Preview"
 2. Restart extension: Cmd+Shift+P → "Developer: Restart Extension Host"
-3. Reinstall extension: `code --install-extension tt-vscode-toolkit.vsix`
+3. Reinstall extension: `code --install-extension TT-VSCode-Toolkit.vsix`
 
 ### Animation not updating
 
@@ -561,11 +561,11 @@ Contributions welcome! Areas for improvement:
 ### Tenstorrent
 - [Extension README](../README.md)
 - [Cookbook Lessons](../content/lessons/cookbook-overview.md)
-- [TT-Metal Documentation](https://docs.tenstorrent.com/)
+- [TT-Metalium Documentation](https://docs.tenstorrent.com/)
 
 ---
 
 **Document Version:** 1.0.0
 **Date:** 2026-02-11
-**tt-metal Version:** v0.65.1
+**TT-Metalium Version:** v0.65.1
 **Extension Version:** 0.0.310+

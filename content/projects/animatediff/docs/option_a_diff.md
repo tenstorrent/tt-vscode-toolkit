@@ -1,6 +1,6 @@
 > **Note:** This document was written before the v0.2.0 rewrite. `generate_with_sd35.py` has been removed. See README.md for the current implementation.
 
-# Option A: Minimal tt-metal Modification (Optional Performance Enhancement)
+# Option A: Minimal TT-Metalium Modification (Optional Performance Enhancement)
 
 This document describes an optional modification to `tt-metal` that provides a cleaner integration with AnimateDiff. **This modification is NOT required** - the current Phase 1/Phase 2 scripts (`examples/generate_baseline.py` / `examples/generate_blackhole.py`) work without it.
 
@@ -11,11 +11,11 @@ The standalone wrapper (Option C) works by running the full pipeline and extract
 **Benefits:**
 - Cleaner code (no need to duplicate denoising logic)
 - Better performance (avoids unnecessary computation)
-- Useful for the community (could be submitted as a PR to tt-metal)
+- Useful for the community (could be submitted as a PR to TT-Metalium)
 
 **Tradeoff:**
 - Requires modifying `tt-metal` codebase
-- Couples AnimateDiff implementation to tt-metal version
+- Couples AnimateDiff implementation to TT-Metalium version
 
 ## The Modification
 
@@ -114,19 +114,19 @@ for frame_idx in range(num_frames):
 
 ## Alternative: Keep It Standalone
 
-**Recommended approach:** Use the current Phase 1/Phase 2 scripts unless you're actively contributing to tt-metal development.
+**Recommended approach:** Use the current Phase 1/Phase 2 scripts unless you're actively contributing to TT-Metalium development.
 
 **Reasons:**
-1. No coupling to tt-metal versions
+1. No coupling to TT-Metalium versions
 2. Works immediately without modifications
 3. Easier to maintain independently
 4. Clear separation of concerns
 
-`examples/generate_blackhole.py` implements the full denoising loop manually, giving complete control without requiring tt-metal modifications.
+`examples/generate_blackhole.py` implements the full denoising loop manually, giving complete control without requiring TT-Metalium modifications.
 
-## Submitting to tt-metal (Optional)
+## Submitting to TT-Metalium (Optional)
 
-If you'd like to contribute this enhancement to the tt-metal community:
+If you'd like to contribute this enhancement to the TT-Metalium community:
 
 1. Test thoroughly on all hardware (n150, n300, T3000, P100)
 2. Add unit tests for the new parameter

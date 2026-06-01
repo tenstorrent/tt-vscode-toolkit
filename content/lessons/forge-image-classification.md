@@ -27,7 +27,7 @@ estimatedMinutes: 10
 minTTMetalVersion: v0.65.1
 recommended_metal_version: v0.65.1
 validationDate: 2026-04-15
-validationNotes: Rewritten for pre-installed venv-forge; forge.compile() via tt-forge-onnx
+validationNotes: Rewritten for pre-installed venv-forge; forge.compile() via TT-Forge-onnx
 ---
 
 # Image Classification with TT-Forge
@@ -54,11 +54,11 @@ That's the entire setup. No LLVM build, no Python version juggling, no CMake.
 > one path exists, create the link yourself:
 >
 > ```bash
-> # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
-> ln -s /opt/venv-forge ~/tt-forge-venv
+> # /opt/venv-forge exists but ~/TT-Forge-venv doesn't:
+> ln -s /opt/venv-forge ~/TT-Forge-venv
 >
-> # ~/tt-forge-venv exists but /opt/venv-forge doesn't (needs sudo):
-> sudo ln -s ~/tt-forge-venv /opt/venv-forge
+> # ~/TT-Forge-venv exists but /opt/venv-forge doesn't (needs sudo):
+> sudo ln -s ~/TT-Forge-venv /opt/venv-forge
 > ```
 
 > **n150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
@@ -96,7 +96,7 @@ tt devices: [TtDevice(id=0)]
 | `torch-xla` 2.9.0 | PyTorch/XLA backend with TT plugin |
 | `tt-forge-onnx` | `forge.compile()` — PyTorch/ONNX → TT compiler |
 
-Switch back to the tt-metal or vLLM envs at any time:
+Switch back to the TT-Metalium or vLLM envs at any time:
 
 ```bash
 deactivate && source /etc/profile.d/tt-env-metal.sh   # tt-metal / TTNN
@@ -197,7 +197,7 @@ forge.compile()      ← graph capture, operator validation
       │
 MLIR optimizer       ← fusion, layout transforms, op lowering
       │
-TTNN operations      ← TT-Metal layer
+TTNN operations      ← TT-Metalium layer
       │
 p300c / n150 / …     ← hardware execution
 ```

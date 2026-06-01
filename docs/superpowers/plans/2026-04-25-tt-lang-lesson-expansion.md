@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rewrite `content/lessons/tt-lang-intro.md` into a comprehensive lesson that hooks with the browser playground, motivates tt-lang with real project numbers, covers ttsim setup, documents the Claude Code `/ttl-*` slash commands, and showcases real projects (SkyReels, WAN Animate, Freeciv, zoecarver's work).
+**Goal:** Rewrite `content/lessons/tt-lang-intro.md` into a comprehensive lesson that hooks with the browser playground, motivates TT-Lang with real project numbers, covers ttsim setup, documents the Claude Code `/ttl-*` slash commands, and showcases real projects (SkyReels, WAN Animate, Freeciv, zoecarver's work).
 
 **Architecture:** Single file replacement — `content/lessons/tt-lang-intro.md` is fully rewritten. Front matter is unchanged (same id, title, hardware support, `playground: ttlang-sim`). No registry changes, no new commands, no package.json changes.
 
@@ -71,7 +71,7 @@ playground: ttlang-sim
 - Use `https://github.com/tenstorrent/ttsim/releases/latest` as the releases page link so it stays current.
 
 **Key external URLs:**
-- tt-lang: `https://github.com/tenstorrent/tt-lang`
+- TT-Lang: `https://github.com/tenstorrent/tt-lang`
 - ttsim releases: `https://github.com/tenstorrent/ttsim/releases/latest`
 - tt-mlir: `https://github.com/tenstorrent/tt-mlir`
 - zoecarver/tt-lang-models: `https://github.com/zoecarver/tt-lang-models`
@@ -318,7 +318,7 @@ git commit -m "docs(tt-lang): add real project showcase section"
 
 ---
 
-## Task 5: Write the Getting tt-lang section
+## Task 5: Write the Getting TT-Lang section
 
 **Files:**
 - Modify: `content/lessons/tt-lang-intro.md`
@@ -374,9 +374,9 @@ Check [ttsim releases](https://github.com/tenstorrent/ttsim/releases/latest) for
 
 ```bash
 git clone https://github.com/tenstorrent/tt-lang.git
-cd tt-lang
+cd TT-Lang
 # Follow docs/sphinx/build.md for CMake options and build modes
-source build/env/activate   # required before running any tt-lang command
+source build/env/activate   # required before running any TT-Lang command
 python examples/eltwise_add.py
 ```
 
@@ -391,7 +391,7 @@ If you have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
 
 - [ ] **Step 2: Verify the command link in the lesson is valid**
 
-The `command:tt-vscode-toolkit.openLesson?%22build-tt-metal%22` link references the build-tt-metal lesson. Confirm it exists:
+The `command:TT-VSCode-Toolkit.openLesson?%22build-tt-metal%22` link references the build-TT-Metalium lesson. Confirm it exists:
 
 ```bash
 grep -r "build-tt-metal" /home/ttuser/code/tt-vscode-toolkit/content/lesson-registry.json | head -3
@@ -696,7 +696,7 @@ Replace the stub with:
 ```markdown
 ## Claude Code Slash Commands
 
-The TT Developer Toolkit installs a set of `/ttl-*` slash commands for Claude
+The TT-VSCode-Toolkit installs a set of `/ttl-*` slash commands for Claude
 Code that take you from an idea — or an existing kernel in another language —
 to a validated, profiled tt-lang kernel in one session.
 

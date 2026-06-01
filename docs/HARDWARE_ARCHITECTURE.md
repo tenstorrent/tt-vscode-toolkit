@@ -141,7 +141,7 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 All Blackhole variants (P100, p150, p300/p300c) share:
 - Same instruction set
 - Same core architecture
-- Same TT-Metal API
+- Same TT-Metalium API
 - Same model compatibility
 
 **Differences:**
@@ -319,7 +319,7 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 | 03 Download Model | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 04 Interactive Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 05 API Server | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
-| 06 tt-inference-server | ✅ | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | Blackhole experimental |
+| 06 TT-Inference-Server | ✅ | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | Blackhole experimental |
 | 07 vLLM Production | ✅ | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | **p300c validated** |
 | 08 VSCode Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 09 Image Generation | ✅ | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | p300c arch supported, SDXL bug blocks |
@@ -446,7 +446,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 **"Firmware 19.4.0 newer than max supported 19.1.0":**
 - **Impact:** May hit unsupported features
 - **Status:** Basic operations work, documented limitation
-- **Solution:** Update tt-metal to support newer firmware
+- **Solution:** Update TT-Metalium to support newer firmware
 
 ---
 

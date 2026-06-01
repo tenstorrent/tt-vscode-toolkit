@@ -34,7 +34,7 @@ This lesson shows two paths to generating animated videos:
 - **Phase 1 (any hardware)** — `diffusers` `AnimateDiffPipeline` on CPU, full temporal attention via MotionAdapter, ~2 min/frame
 - **Phase 2 (Blackhole)** — TTNN UNet on Blackhole, sequential denoising, ~15 seconds/frame
 
-Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metal without modifying the core repository.
+Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metalium without modifying the core repository.
 
 ## What you'll build
 
@@ -281,7 +281,7 @@ What this project demonstrates is **the complete workflow for integrating any ne
 1. Choose standalone vs integrated approach — **standalone wins for maintainability**
 2. Create project structure outside `~/tt-metal/` (your code, your ownership)
 3. Define the API surface
-4. Identify the TT-Metal integration boundary
+4. Identify the TT-Metalium integration boundary
 
 ### Phase 3: Implementation (2–4 hours)
 1. Start with PyTorch — easier to debug, matches reference

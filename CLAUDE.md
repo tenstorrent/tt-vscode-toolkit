@@ -40,7 +40,7 @@ When authoring or reviewing a lesson or template, verify:
 
 - [ ] `hf` CLI used throughout (not `huggingface-cli`)
 - [ ] `DispatchCoreAxis.ROW` not present in any template
-- [ ] `~/tt-metal` existence not assumed without fallback / link to build-tt-metal
+- [ ] `~/tt-metal` existence not assumed without fallback / link to build-TT-Metalium
 - [ ] `p300c` added to `supportedHardware` and `validatedOn` in front matter where applicable
 - [ ] QuietBox 2 callout or note added for lessons that behave differently on QuietBox 2
 - [ ] `HF_MODEL` exported before any inference command that requires it
@@ -120,8 +120,8 @@ npm run package       # Create .vsix (auto-adds -dev suffix for non-main branche
 ```
 
 **Packaging Behavior:**
-- **main/master branch:** `tt-vscode-toolkit-X.Y.Z.vsix` (production)
-- **Other branches:** `tt-vscode-toolkit-X.Y.Z-dev.vsix` (development)
+- **main/master branch:** `TT-VSCode-Toolkit-X.Y.Z.vsix` (production)
+- **Other branches:** `TT-VSCode-Toolkit-X.Y.Z-dev.vsix` (development)
 - Implemented in `scripts/package-extension.js` for easy identification of dev builds
 
 ## Bundling (webpack)
@@ -183,12 +183,12 @@ package.json      # Extension manifest + walkthrough definitions
 **Generated:** `~/tt-scratchpad/` - Extension-created scripts
 
 **⚠️ Important:** The `vendor/` directory contains reference repositories for lesson authoring:
-- **tt-metal** - Primary reference: demos, APIs, examples, model implementations
+- **TT-Metalium** - Primary reference: demos, APIs, examples, model implementations
 - **vllm** - Production inference patterns, server examples
-- **tt-xla** - JAX/TT-XLA examples, demos, compiler documentation
+- **TT-XLA** - JAX/TT-XLA examples, demos, compiler documentation
 - **tt-forge-fe** - TT-Forge examples, experimental compiler reference
-- **tt-inference-server** - Production deployment automation, MODEL_SPECS
-- **tt-installer** - Installation workflows, setup patterns
+- **TT-Inference-Server** - Production deployment automation, MODEL_SPECS
+- **TT-Installer** - Installation workflows, setup patterns
 - **ttsim** - Simulator reference for testing without hardware
 
 These repos are **NOT deployed** with the extension - they're local references only for development and lesson authoring. Always verify commands, paths, and API examples against these repos before publishing lessons.
@@ -424,7 +424,7 @@ The JSON file includes a warning header:
 
 ## Critical Patterns
 
-**tt-metal builds:**
+**TT-Metalium builds:**
 ```bash
 ./install_dependencies.sh  # ALWAYS run first
 ./build_metal.sh --clean   # Troubleshooting
@@ -500,7 +500,7 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 | Lesson | Focus | Hardware Variants |
 |--------|-------|-------------------|
 | 1-5 | Setup, Direct API | Generic |
-| 6-7 | Production (tt-inference-server, vLLM) | ✅ n150/n300/T3000/P100 |
+| 6-7 | Production (TT-Inference-Server, vLLM) | ✅ n150/n300/T3000/P100 |
 | 8 | VSCode Chat | Generic |
 | 9 | Image Generation (SD 3.5) | ✅ n150/n300/T3000/P100 |
 | 10 | Coding Assistant | Generic |
@@ -532,10 +532,10 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 | Lesson Type | Primary Reference | Secondary References |
 |-------------|-------------------|---------------------|
-| Setup/Installation | `tt-installer/` | `tt-metal/` |
-| Direct API (tt-metal) | `tt-metal/models/` | `tt-metal/demos/` |
-| vLLM Production | `vllm/tt_metal/` | `tt-inference-server/` |
-| tt-inference-server | `tt-inference-server/` | `vllm/` |
+| Setup/Installation | `TT-Installer/` | `tt-metal/` |
+| Direct API (TT-Metalium) | `tt-metal/models/` | `tt-metal/demos/` |
+| vLLM Production | `vllm/tt_metal/` | `TT-Inference-Server/` |
+| TT-Inference-Server | `TT-Inference-Server/` | `vllm/` |
 | Image Generation | `tt-metal/models/experimental/` | - |
 | TT-Forge | `tt-forge-fe/` | `tt-metal/` |
 | TT-XLA/JAX | `tt-xla/demos/` | `tt-xla/` |

@@ -1,6 +1,6 @@
 # Testing Guide
 
-This document provides comprehensive testing information for contributors to the Tenstorrent VSCode Toolkit.
+This document provides comprehensive testing information for contributors to the TT-VSCode-Toolkit.
 
 ## Table of Contents
 

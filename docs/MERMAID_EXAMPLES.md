@@ -18,12 +18,12 @@ graph TD
 
 ## Example Diagrams
 
-### Flowchart - TT-Metal Stack
+### Flowchart - TT-Metalium Stack
 ```mermaid
 graph TB
     App[Your Application]
     TTNN[TTNN API Layer]
-    TTMetal[TT-Metal Runtime]
+    TTMetal[TT-Metalium Runtime]
     Hardware[Tenstorrent Hardware]
 
     App --> TTNN

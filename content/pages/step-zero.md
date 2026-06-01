@@ -42,7 +42,7 @@ graph TD
 Choose your path:
 
 ### Path A: "I just want to run HuggingFace models on Tenstorrent hardware"
-→ **Start with Lessons 1-5** (Direct tt-metal API)
+→ **Start with Lessons 1-5** (Direct TT-Metalium API)
 - ✅ Works great on n150 (single chip)
 - ✅ Easiest path, fewest dependencies
 - ✅ 30 minutes to first inference
@@ -50,7 +50,7 @@ Choose your path:
 - **Hardware:** Works on any Tenstorrent hardware
 
 ### Path B: "I want production inference with vLLM"
-→ **Use tt-inference-server Docker image** (recommended) or **Lesson 7** (advanced)
+→ **Use TT-Inference-Server Docker image** (recommended) or **Lesson 7** (advanced)
 - ⚠️ Native installation on n150 has version compatibility challenges
 - ✅ Docker image is validated and production-ready
 - ✅ OpenAI-compatible API
@@ -106,7 +106,7 @@ graph TB
 
     subgraph Compiler["Compilers & Runtime"]
         TTMLIR[TT-MLIR]
-        TTMetal[TT-Metal Runtime]
+        TTMetal[TT-Metalium Runtime]
     end
 
     subgraph Hardware["Hardware"]
@@ -146,7 +146,7 @@ graph TB
 
 ### Core Components
 
-#### 1. **tt-metal** (The Foundation)
+#### 1. **TT-Metalium** (The Foundation)
 **What it is:** Low-level API for programming Tenstorrent accelerators
 - C++ core with Python bindings
 - Direct access to Tensix cores, NoC (Network on Chip), DRAM
@@ -171,7 +171,7 @@ source python_env/bin/activate  # Activates Python environment
 **What they are:** Isolated Python installations with specific package versions
 
 **Why they matter:** Different compilers need different package versions
-- **tt-metal:** Python 3.10, uses `~/tt-metal/python_env/`
+- **TT-Metalium:** Python 3.10, uses `~/tt-metal/python_env/`
 - **TT-XLA:** Python 3.11, uses `~/tt-xla-venv/`
 - **TT-Forge:** Python 3.11, uses `~/tt-forge-fe/env/`
 
@@ -179,7 +179,7 @@ source python_env/bin/activate  # Activates Python environment
 
 **Key command:**
 ```bash
-source ~/tt-metal/python_env/bin/activate  # Use tt-metal environment
+source ~/tt-metal/python_env/bin/activate  # Use TT-Metalium environment
 ```
 
 #### 3. **TTNN** (TT Neural Network Library)
@@ -210,7 +210,7 @@ ttnn.close_device(device)
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ```
 
-**You DON'T need to understand MPI programming** - tt-metal handles it internally.
+**You DON'T need to understand MPI programming** - TT-Metalium handles it internally.
 
 ---
 
@@ -221,7 +221,7 @@ Environment variables tell programs where to find things. Here are the ones that
 ### Core Variables (Lessons 1-10)
 
 #### `TT_METAL_HOME`
-**What:** Path to tt-metal installation
+**What:** Path to TT-Metalium installation
 **Typical value:** `~/tt-metal` or `/home/user/tt-metal`
 **Why needed:** Python imports, model loading, kernel compilation
 **Set it:**
@@ -231,7 +231,7 @@ export TT_METAL_HOME=~/tt-metal
 
 #### `PYTHONPATH`
 **What:** Where Python looks for importable modules
-**Typical value:** `$TT_METAL_HOME:$PYTHONPATH` (adds tt-metal to search path)
+**Typical value:** `$TT_METAL_HOME:$PYTHONPATH` (adds TT-Metalium to search path)
 **Why needed:** Allows `from models.tt_transformers import ...` to work
 **Set it:**
 ```bash
@@ -283,7 +283,7 @@ export TT_METAL_ARCH_NAME=blackhole  # Only for p100/p150
 
 ### TT-Forge Variables (Lesson 11)
 
-**IMPORTANT:** TT-Forge **unsets** tt-metal variables to avoid conflicts!
+**IMPORTANT:** TT-Forge **unsets** TT-Metalium variables to avoid conflicts!
 
 ```bash
 unset TT_METAL_HOME
@@ -296,7 +296,7 @@ export CXX=/usr/bin/clang++-17
 
 ### TT-XLA Variables (Lesson 12)
 
-**IMPORTANT:** TT-XLA also unsets tt-metal variables!
+**IMPORTANT:** TT-XLA also unsets TT-Metalium variables!
 
 ```bash
 unset TT_METAL_HOME
@@ -317,20 +317,20 @@ export PYTHONPATH=~/tt-forge:$PYTHONPATH  # For imports
 - Installed to `/opt/openmpi-v5.0.7-ulfm/`
 
 #### **Rust** (Programming language)
-- Used for some tt-metal build tools
+- Used for some TT-Metalium build tools
 - Installed via rustup
 
 #### **Build tools** (gcc, g++, make, cmake)
 - C++ compilation infrastructure
-- You don't write C++, but tt-metal builds need it
+- You don't write C++, but TT-Metalium builds need it
 
 #### **Python 3.10** (System Python)
 - Ubuntu 22.04 comes with Python 3.10.12
-- Used by tt-metal
+- Used by TT-Metalium
 
 ### Python Packages (Installed automatically)
 
-**tt-metal environment** (`~/tt-metal/python_env/`):
+**TT-Metalium environment** (`~/tt-metal/python_env/`):
 - `torch` (PyTorch) - ML framework
 - `transformers` (HuggingFace) - Model loading
 - `ttnn` - Tenstorrent neural network ops
@@ -359,7 +359,7 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ### Where Everything Lives
 
 ```
-~/tt-metal/                    # Core tt-metal installation
+~/tt-metal/                    # Core TT-Metalium installation
 ├── build/                     # Compiled C++ libraries
 ├── python_env/                # Python virtual environment
 ├── models/                    # Pre-optimized model implementations
@@ -392,9 +392,9 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 
 ## 🎓 Common Beginner Questions
 
-### Q: What's the difference between tt-metal, TTNN, and tt_lib?
+### Q: What's the difference between TT-Metalium, TTNN, and tt_lib?
 **A:**
-- **tt-metal** = The whole platform (like "CUDA Toolkit")
+- **TT-Metalium** = The whole platform (like "CUDA Toolkit")
 - **TTNN** = High-level neural network ops (like "cuDNN")
 - **tt_lib** = Lower-level tensor ops (like "CUDA runtime")
 
@@ -402,7 +402,7 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 
 ### Q: Do I need to learn C++?
 **A:** No! Python API covers everything. C++ is only for:
-- Contributing to tt-metal core (advanced)
+- Contributing to TT-Metalium core (advanced)
 - Custom kernel development (advanced)
 - RISC-V programming (Lesson 14, advanced)
 
@@ -481,7 +481,7 @@ The two chips have different grid shapes — Wormhole (above) has 80 Tensix comp
 ```
 
 ### Q: What if I get "ImportError: cannot import name 'ttnn'"?
-**A:** You're not in the tt-metal Python environment.
+**A:** You're not in the TT-Metalium Python environment.
 
 **Fix:**
 ```bash
@@ -504,7 +504,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
   - Docker image is validated and works reliably
 
 ### Q: Can I use this in Jupyter notebooks?
-**A:** Yes! The extension configures Jupyter to use tt-metal environment automatically.
+**A:** Yes! The extension configures Jupyter to use TT-Metalium environment automatically.
 
 ---
 
@@ -517,7 +517,7 @@ Before starting Lesson 1, verify:
 tt-smi -s  # Should show your hardware (N150/N300/etc.)
 ```
 
-### tt-metal Check
+### TT-Metalium Check
 ```bash
 cd ~/tt-metal
 ls build/  # Should exist (if not, run ./build_metal.sh)
@@ -560,7 +560,7 @@ df -h ~  # Need at least 30GB free for models
 
 ### Production Deployment
 1. Lessons 1-5 (understand the stack)
-2. **Lesson 6:** tt-inference-server (automated deployment)
+2. **Lesson 6:** TT-Inference-Server (automated deployment)
 3. **Lesson 7:** vLLM (OpenAI-compatible API)
 4. **Lesson 8:** VSCode Chat (integrated experience)
 
@@ -588,7 +588,7 @@ df -h ~  # Need at least 30GB free for models
 ### Common Fixes
 ```bash
 # "Command not found: tt-smi"
-# → tt-metal not installed correctly, reinstall
+# → TT-Metalium not installed correctly, reinstall
 
 # "ImportError: cannot import ttnn"
 source ~/tt-metal/python_env/bin/activate
@@ -623,7 +623,7 @@ Beyond the lessons, the Tenstorrent ecosystem has tools worth knowing about:
 **You're ready!** Choose your path from the top of this guide, then:
 
 1. **Run Lesson 1** to detect your hardware
-2. **Run Lesson 2** to verify tt-metal installation
+2. **Run Lesson 2** to verify TT-Metalium installation
 3. **Pick your path** based on your goals
 
 **Remember:** Start with Qwen3-0.6B on n150. It's small, fast, and works perfectly. Llama-3.1-8B comes later when you understand memory management.

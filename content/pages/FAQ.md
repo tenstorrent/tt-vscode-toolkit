@@ -30,7 +30,7 @@
 1. Hardware Detection → Verify Installation → Download Model → Interactive Chat → API Server
 
 **🏭 Serving Models (4 lessons)**
-Production servers (tt-inference-server, vLLM) and generation (Image, Video)
+Production servers (TT-Inference-Server, vLLM) and generation (Image, Video)
 
 **🎓 Custom Training (8 lessons)** ⭐ NEW!
 Fine-tune models or train from scratch - validated on hardware with both workflows working!
@@ -48,7 +48,7 @@ TT-Forge, TT-XLA
 Computer Architecture, Memory, Parallelism, Networks, Synchronization, Abstraction, Complexity
 
 **🎓 Advanced Topics (5 lessons)**
-tt-installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
+TT-Installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 
 **Can I skip lessons?** Yes! Categories are independent - jump to what interests you.
 
@@ -70,7 +70,7 @@ tt-installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 
 | Tool | Purpose | When to Use | Maturity |
 |------|---------|-------------|----------|
-| **tt-metal** | Low-level framework | Custom kernels, maximum control | Stable |
+| **TT-Metalium** | Low-level framework | Custom kernels, maximum control | Stable |
 | **vLLM** | LLM serving | Production LLM deployment | Production |
 | **TT-Forge** | MLIR compiler | PyTorch models (experimental) | Beta |
 | **TT-XLA** | XLA compiler | JAX/PyTorch (production) | Production |
@@ -79,7 +79,7 @@ tt-installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 - Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])**
 - Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.showLesson?["forge-image-classification"])**
 - Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])**
-- Building custom kernels? → **tt-metal** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
+- Building custom kernels? → **TT-Metalium** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
 
 ---
 
@@ -232,7 +232,7 @@ curl http://localhost:8002/...  # User 2
 5. Start developing!
 
 **Cloud benefits:**
-- ✅ Pre-installed tt-metal and drivers
+- ✅ Pre-installed TT-Metalium and drivers
 - ✅ Pre-configured environment
 - ✅ No hardware setup needed
 - ✅ Access from anywhere
@@ -332,7 +332,7 @@ cd $TT_METAL_HOME
 ```
 
 **What you CAN do with ttsim:**
-- ✅ Learn TT-Metal programming model
+- ✅ Learn TT-Metalium programming model
 - ✅ Run programming examples and tests
 - ✅ Develop and debug kernels
 - ✅ Test TTNN operations
@@ -427,7 +427,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 **A:** When the system goes into suspend, all running jobs on Tenstorrent hardware are interrupted and effectively terminated, and hardware utilization drops to zero. On resume, the driver re-initializes the device (similar to a reset), so any workloads must be restarted. In normal cases you don't need a full reboot; if the device doesn't come back cleanly, run `tt-smi -r` (reset) or reboot the host.
 
-### Q: After a Linux kernel update, my Tenstorrent device is not detected or tt-inference-server reports a pre-release driver version.
+### Q: After a Linux kernel update, my Tenstorrent device is not detected or TT-Inference-Server reports a pre-release driver version.
 
 **A:** The kernel module driver (tt-kmd) must be compiled specifically for each kernel version. This normally happens automatically via DKMS when a new kernel is installed, but can silently fail if there are orphaned DKMS entries left behind from old driver versions.
 
@@ -458,17 +458,17 @@ sudo rm -rf /var/lib/dkms/tenstorrent/<broken-version>
 
 ## Installation & Setup
 
-### Q: How do I verify tt-metal is working?
+### Q: How do I verify TT-Metalium is working?
 
 **A:** Run this quick test:
 
 ```bash
-python3 -c "import ttnn; print('✓ tt-metal ready')"
+python3 -c "import ttnn; print('✓ TT-Metalium ready')"
 ```
 
 **If it fails:**
-- Check `PYTHONPATH` includes tt-metal directory
-- Verify tt-metal is built: `ls ~/tt-metal/build/lib`
+- Check `PYTHONPATH` includes TT-Metalium directory
+- Verify TT-Metalium is built: `ls ~/tt-metal/build/lib`
 - Rebuild if needed: `cd ~/tt-metal && ./build_metal.sh`
 
 ### Q: Which Python version do I need?
@@ -502,7 +502,7 @@ python3 --version
 ### Q: How much disk space do I need?
 
 **A:** Plan for:
-- **tt-metal:** ~5GB (source + build artifacts)
+- **TT-Metalium:** ~5GB (source + build artifacts)
 - **vLLM:** ~20GB (including dependencies)
 - **Per model:**
   - Small models (1-3B): 10-15GB
@@ -600,7 +600,7 @@ login(token="your_token_from_huggingface")
 
 **A:** Model initialization involves:
 1. Loading weights from disk (~16GB for Llama-8B)
-2. Converting to TT-Metal format
+2. Converting to TT-Metalium format
 3. Distributing to hardware cores
 4. JIT compilation of kernels
 
@@ -667,7 +667,7 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 # Should print: PyTorch version: 2.5.0+cpu
 ```
 
-**Why the specific version?** TT-Metal hardware drivers are built against PyTorch 2.5.0+cpu APIs. Other versions have incompatible dataclass implementations.
+**Why the specific version?** TT-Metalium hardware drivers are built against PyTorch 2.5.0+cpu APIs. Other versions have incompatible dataclass implementations.
 
 ---
 
@@ -683,7 +683,7 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 - ✅ **Complete toolkit:** Setup scripts, validation, and tested templates
 - ✅ **Production-ready:** Both training workflows validated end-to-end
 
-**Recommended version:** tt-metal v0.66.0-rc7 (fully tested)
+**Recommended version:** TT-Metalium v0.66.0-rc7 (fully tested)
 
 ### Q: What hardware do I need for training?
 
@@ -721,7 +721,7 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 
 **Which should I start with?** CT8 (from-scratch) - it's faster on n150 with NanoGPT and teaches fundamentals!
 
-### Q: What tt-metal version do I need for training?
+### Q: What TT-Metalium version do I need for training?
 
 **A:** Training requires **v0.66.0-rc5 or later**
 
@@ -823,7 +823,7 @@ unset TT_METAL_VERSION
 **Make permanent:**
 Add to `~/.bashrc`:
 ```bash
-# Prevent TT-Metal environment pollution
+# Prevent TT-Metalium environment pollution
 unset TT_METAL_HOME
 unset TT_METAL_VERSION
 ```
@@ -902,7 +902,7 @@ tt-smi -r
 
 **A:**
 
-**tt-metal build issues:**
+**TT-Metalium build issues:**
 ```bash
 cd ~/tt-metal
 ./build_metal.sh 2>&1 | tee build.log
@@ -922,7 +922,7 @@ cd ~/tt-metal
 
 ### Q: TTNN import errors or symbol undefined errors in cloud environments - how do I fix them?
 
-**A:** After rolling back or updating tt-metal versions, TTNN bindings may become incompatible.
+**A:** After rolling back or updating TT-Metalium versions, TTNN bindings may become incompatible.
 
 **Symptoms:**
 - `ImportError: undefined symbol: _ZN2tt9tt_fabric15SetFabricConfigENS0...`
@@ -930,7 +930,7 @@ cd ~/tt-metal
 - TTNN examples that previously worked now fail
 
 **Common Cause:**
-Rolling back or updating tt-metal versions (for example, to match specific vLLM compatibility) can break TTNN bindings.
+Rolling back or updating TT-Metalium versions (for example, to match specific vLLM compatibility) can break TTNN bindings.
 
 **Solution - Clean Rebuild to Known-Good Version:**
 
@@ -970,7 +970,7 @@ Rolling back or updating tt-metal versions (for example, to match specific vLLM 
    ```
 
 **Important Notes:**
-- The original/untouched tt-metal version is often the most stable
+- The original/untouched TT-Metalium version is often the most stable
 - Rolling back to older commits can create incompatible bindings
 - Always do a **complete clean rebuild** after changing commits
 - OpenMPI library path is required: `/opt/openmpi-v5.0.7-ulfm/lib`
@@ -1147,7 +1147,7 @@ tt-toplike
 
 **3. [ttnn-visualizer](https://github.com/tenstorrent/ttnn-visualizer) — model execution analysis**
 
-A web-based tool that loads a tt-metal performance trace and renders interactive graphs: operation timelines, memory usage over time, tensor shapes, buffer allocation maps, and the full operation flow graph. Run after a profiled inference pass to understand exactly where time is spent.
+A web-based tool that loads a TT-Metalium performance trace and renders interactive graphs: operation timelines, memory usage over time, tensor shapes, buffer allocation maps, and the full operation flow graph. Run after a profiled inference pass to understand exactly where time is spent.
 
 **4. tensix-viz — chip topology education**
 
@@ -1176,7 +1176,7 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 **Official channels:**
 - **Discord:** https://discord.gg/tenstorrent (most active)
 - **GitHub Issues:**
-  - tt-metal: https://github.com/tenstorrent/tt-metal/issues
+  - TT-Metalium: https://github.com/tenstorrent/tt-metal/issues
   - vLLM: https://github.com/tenstorrent/vllm/issues
   - TT-Forge: https://github.com/tenstorrent/tt-forge/issues
 - **Documentation:** https://docs.tenstorrent.com
@@ -1196,13 +1196,13 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 1. Search existing issues on GitHub
 2. Verify hardware works (`tt-smi`)
 3. Try reset (`tt-smi -r`)
-4. Check you're on latest tt-metal/vLLM
+4. Check you're on latest TT-Metalium/vLLM
 
 **When reporting, include:**
 ```
 Hardware: n150
 OS: Ubuntu 22.04
-tt-metal version: [git rev-parse HEAD output]
+TT-Metalium version: [git rev-parse HEAD output]
 vLLM version: [pip show vllm]
 Error: [paste full error]
 Steps to reproduce: [numbered list]
@@ -1239,7 +1239,7 @@ Steps to reproduce: [numbered list]
 **A:** Depends on component:
 
 **Production-ready (✅):**
-- **tt-metal** - Stable, tested
+- **TT-Metalium** - Stable, tested
 - **vLLM** - Production-grade serving
 - **TT-XLA** - Production compiler
 
@@ -1269,7 +1269,7 @@ ls ~/models/                            # List installed models
 du -sh ~/models/*                       # Check model sizes
 
 # Environment
-python3 -c "import ttnn; print('✓')"   # Test tt-metal
+python3 -c "import ttnn; print('✓')"   # Test TT-Metalium
 hf --version                            # Check HF CLI
 
 # vLLM
@@ -1294,7 +1294,7 @@ echo ""
 echo "Hardware:"
 tt-smi -s 2>&1 | grep -o '"board_type": "[^"]*"' || echo "❌ No hardware detected"
 echo ""
-echo "tt-metal:"
+echo "TT-Metalium:"
 python3 -c "import ttnn; print('✓ Working')" 2>&1 || echo "❌ Not working"
 echo ""
 echo "Models:"
@@ -1326,7 +1326,7 @@ With 176 Tensix cores on Wormhole, that's **880 RISC-V cores** you can program d
 - ✅ Von Neumann architecture & fetch-decode-execute cycle
 - ✅ RISC-V ISA fundamentals
 - ✅ Hands-on example: Add two integers in RISC-V assembly
-- ✅ Build and run tt-metal programming examples
+- ✅ Build and run TT-Metalium programming examples
 - ✅ Explore kernel source code
 - ✅ Comprehensive exploration guide (60+ pages)
 

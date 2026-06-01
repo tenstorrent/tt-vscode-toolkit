@@ -10,13 +10,13 @@ This guide documents validated combinations of hardware, software versions, and 
 
 ### Just Starting Out (Lessons 1-5)
 **Hardware:** n150 (Wormhole single-chip)
-**tt-metal:** Latest from main branch
+**TT-Metalium:** Latest from main branch
 **Python:** 3.10 (system default on Ubuntu 22.04)
 **Model:** Qwen3-0.6B (1.5GB, no HuggingFace token needed)
 
 ### Production Inference (vLLM)
 **Hardware:** n150/n300/T3000/P100/p150
-**Deployment:** tt-inference-server Docker image (recommended)
+**Deployment:** TT-Inference-Server Docker image (recommended)
 **Alternative:** Native installation requires careful version matching
 
 ### Multi-Chip Development (TT-XLA)
@@ -120,8 +120,8 @@ This guide documents validated combinations of hardware, software versions, and 
 
 | Component | Version | Python | Installation Method | Notes |
 |-----------|---------|--------|-------------------|-------|
-| **tt-metal** | Latest (main branch) | 3.10 | Source build | Core low-level API |
-| **TTNN** | Bundled with tt-metal | 3.10 | Included | High-level neural network ops |
+| **TT-Metalium** | Latest (main branch) | 3.10 | Source build | Core low-level API |
+| **TTNN** | Bundled with TT-Metalium | 3.10 | Included | High-level neural network ops |
 | **OpenMPI ULFM** | 5.0.7 | N/A | System package | Required for all hardware |
 | **PyTorch** | 2.x | 3.10 | pip (in venv) | ML framework |
 | **Transformers** | Latest | 3.10 | pip (in venv) | HuggingFace models |
@@ -138,19 +138,19 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 | Deployment Method | Hardware | Status | Notes |
 |------------------|----------|--------|-------|
-| **tt-inference-server (Docker)** | n150/n300/T3000/P100/p150 | ✅ **Recommended** | Pre-validated configurations |
+| **TT-Inference-Server (Docker)** | n150/n300/T3000/P100/p150 | ✅ **Recommended** | Pre-validated configurations |
 | **Native installation** | n150/n300/T3000 | ⚠️ **Advanced** | Version compatibility challenges |
 
 **Docker method (validated):**
 ```bash
 # Uses pre-built image with matched versions
-# See Lesson 6 for tt-inference-server
+# See Lesson 6 for TT-Inference-Server
 # See Lesson 7 for manual vLLM setup
 ```
 
 **Native installation compatibility matrix:**
 
-| Hardware | tt-metal | vLLM | Status | Notes |
+| Hardware | TT-Metalium | vLLM | Status | Notes |
 |----------|----------|------|--------|-------|
 | n150 | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
 | n150 | Specific commits | Native build | ⚠️ Complex | Requires model_specs_output.json matching |
@@ -158,7 +158,7 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 **Known issues with native installation:**
 - PyTorch type hint incompatibilities
-- vLLM version mismatches with tt-metal changes
+- vLLM version mismatches with TT-Metalium changes
 - Complex dependency chains
 - **Recommendation:** Use Docker unless you have specific requirements for native installation
 
@@ -177,7 +177,7 @@ export TT_METAL_ARCH_NAME=blackhole
 |-----------|---------|--------|-------------------|------------------|
 | **TT-XLA** | Latest wheel | 3.11 | pip (wheel) | n150/n300/T3000/Galaxy |
 | **JAX** | 0.7.1+ | 3.11 | pip | Required dependency |
-| **tt-forge** | Cloned for demos | 3.11 | git clone | Demo code only |
+| **TT-Forge** | Cloned for demos | 3.11 | git clone | Demo code only |
 
 **Status:** ✅ **Production-ready for multi-chip**
 
@@ -191,7 +191,7 @@ pip install pjrt-plugin-tt --pre --upgrade --extra-index-url https://pypi.eng.aw
 
 **Environment isolation (CRITICAL):**
 ```bash
-# MUST unset tt-metal variables
+# MUST unset TT-Metalium variables
 unset TT_METAL_HOME
 unset LD_LIBRARY_PATH
 export PYTHONPATH=~/tt-forge:$PYTHONPATH  # For demo imports only
@@ -229,7 +229,7 @@ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 
 
 **Environment setup (CRITICAL):**
 ```bash
-# MUST unset tt-metal variables
+# MUST unset TT-Metalium variables
 unset TT_METAL_HOME
 unset TT_METAL_VERSION
 
@@ -257,9 +257,9 @@ source ~/tt-scratchpad/setup-tt-forge.sh
 |-----------|----------|--------|-------|
 | **SD 3.5 Large** | n150/n300/T3000/P100 | ✅ Validated | 1024x1024 generation |
 | **Generation time** | n150 | ~2-3 minutes | First run, includes model load |
-| **Environment** | Standard tt-metal | ✅ Works | No special setup needed |
+| **Environment** | Standard TT-Metalium | ✅ Works | No special setup needed |
 
-**No special version requirements** - uses standard tt-metal environment.
+**No special version requirements** - uses standard TT-Metalium environment.
 
 ---
 
@@ -268,10 +268,10 @@ source ~/tt-scratchpad/setup-tt-forge.sh
 ### Always Required (Lessons 1-10)
 
 ```bash
-# Point to tt-metal installation
+# Point to TT-Metalium installation
 export TT_METAL_HOME=~/tt-metal
 
-# Add tt-metal to Python import path
+# Add TT-Metalium to Python import path
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 
 # Add OpenMPI libraries (CRITICAL - #1 most common error)
@@ -356,11 +356,11 @@ TypeError: block_size has unsupported type list[int]
 
 **Fix:** Use Docker image (validated configuration)
 ```bash
-# See Lesson 6 for tt-inference-server Docker setup
+# See Lesson 6 for TT-Inference-Server Docker setup
 # See Lesson 7 for manual Docker approach
 ```
 
-**Alternative:** Match specific tt-metal and vLLM commits via model_specs_output.json (advanced)
+**Alternative:** Match specific TT-Metalium and vLLM commits via model_specs_output.json (advanced)
 
 ### Issue 3: TT-Forge Import Failure
 
@@ -447,15 +447,15 @@ source ~/tt-xla-venv/bin/activate
 
 ### Path 1: Beginner (First Time with Tenstorrent)
 1. Hardware: n150
-2. Start with: Lessons 1-5 (Direct tt-metal API)
+2. Start with: Lessons 1-5 (Direct TT-Metalium API)
 3. Model: Qwen3-0.6B
 4. Time to first inference: ~30 minutes
-5. Environment: Standard tt-metal (Python 3.10)
+5. Environment: Standard TT-Metalium (Python 3.10)
 
 ### Path 2: Production Deployment
 1. Hardware: n150/n300/T3000 depending on model size
 2. Start with: Lessons 1-5 (understand the stack)
-3. Then: Lesson 6 (tt-inference-server Docker)
+3. Then: Lesson 6 (TT-Inference-Server Docker)
 4. Model: Match to hardware capacity
 5. Environment: Docker (validated configurations)
 
@@ -464,7 +464,7 @@ source ~/tt-xla-venv/bin/activate
 2. Start with: Lessons 1-5 (foundation)
 3. Then: Lesson 13 (Bounty Program contribution workflow)
 4. Model: Bring your own architecture
-5. Environment: Standard tt-metal + git workflow
+5. Environment: Standard TT-Metalium + git workflow
 
 ### Path 4: Compiler Explorer
 1. Hardware: n150 (single-chip)
@@ -480,7 +480,7 @@ source ~/tt-xla-venv/bin/activate
 | Lesson | Hardware Tested | Status | Notes |
 |--------|----------------|--------|-------|
 | 1-5 | n150 | ✅ Validated | Zero issues after install_dependencies.sh |
-| 6 | n150 | ✅ Validated | tt-inference-server Docker |
+| 6 | n150 | ✅ Validated | TT-Inference-Server Docker |
 | 7 | n150 | ⚠️ Docker recommended | Native install has version challenges |
 | 8 | n150 | ✅ Validated | VSCode chat integration |
 | 9 | n150 | ✅ Validated | Stable Diffusion 3.5, ~2.5 min generation |
@@ -495,8 +495,8 @@ source ~/tt-xla-venv/bin/activate
 ## 📚 Additional Resources
 
 **Official Documentation:**
-- tt-metal: https://github.com/tenstorrent/tt-metal
-- tt-inference-server: https://github.com/tenstorrent/tt-inference-server
+- TT-Metalium: https://github.com/tenstorrent/tt-metal
+- TT-Inference-Server: https://github.com/tenstorrent/tt-inference-server
 - TT-XLA: https://github.com/tenstorrent/tt-xla
 - TT-Forge: https://github.com/tenstorrent/tt-forge-fe
 

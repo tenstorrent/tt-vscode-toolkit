@@ -72,7 +72,7 @@ graph TB
     subgraph vLLM["vLLM Server"]
         API[OpenAI-Compatible API]
         Batch[Continuous Batch Engine]
-        Backend[TT-Metal Backend]
+        Backend[TT-Metalium Backend]
 
         API --> Batch
         Batch --> Backend
@@ -92,7 +92,7 @@ graph TB
 
 ## Prerequisites
 
-- tt-metal installed and working (latest main branch - see Step 0 below if you need to update)
+- TT-Metalium installed and working (latest main branch - see Step 0 below if you need to update)
 - Model downloaded (Llama-3.1-8B-Instruct)
 - Python 3.10+ recommended
 - ~20GB disk space for vLLM installation
@@ -106,8 +106,8 @@ If you're jumping directly to this lesson, verify your setup first:
 # Hardware detected?
 tt-smi
 
-# tt-metal working?
-python3 -c "import ttnn; print('✓ tt-metal ready')"
+# TT-Metalium working?
+python3 -c "import ttnn; print('✓ TT-Metalium ready')"
 
 # Model downloaded?
 ls ~/models/Llama-3.1-8B-Instruct/config.json
@@ -119,7 +119,7 @@ python3 --version  # Need 3.10+
 **If any checks fail:**
 
 - **No hardware?** → See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])
-- **No tt-metal?** → See [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
+- **No TT-Metalium?** → See [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
 - **No model?** → See [Download Model](command:tenstorrent.showLesson?["download-model"]) or download now:
 
   ```bash
@@ -218,9 +218,9 @@ hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-I
 
 ---
 
-## Step 0: Update and Build TT-Metal (If Needed)
+## Step 0: Update and Build TT-Metalium (If Needed)
 
-**⚠️ Important:** vLLM dev branch requires the latest tt-metal. If you get an `InputRegistry` error or "sfpi not found" error, update and rebuild tt-metal:
+**⚠️ Important:** vLLM dev branch requires the latest TT-Metalium. If you get an `InputRegistry` error or "sfpi not found" error, update and rebuild TT-Metalium:
 
 ```bash
 cd ~/tt-metal && \
@@ -231,25 +231,25 @@ cd ~/tt-metal && \
   ./build_metal.sh
 ```
 
-[🔧 Update and Build TT-Metal](command:tenstorrent.updateTTMetal)
+[🔧 Update and Build TT-Metalium](command:tenstorrent.updateTTMetal)
 
 **What this does:**
-- Updates tt-metal to latest main branch
+- Updates TT-Metalium to latest main branch
 - Updates all submodules (including SFPI libraries)
 - **Installs/updates system dependencies** (libraries, drivers, build tools)
-- Rebuilds tt-metal with latest changes
+- Rebuilds TT-Metalium with latest changes
 - Takes ~5-15 minutes depending on hardware and system state
 
 **When to do this:**
 - First time setting up vLLM
-- After updating tt-metal with `git pull`
+- After updating TT-Metalium with `git pull`
 - If you see "sfpi not found" errors
 - If you see "InputRegistry" or other API compatibility errors
 - After system updates or fresh installations
 
-**Why install_dependencies.sh?** tt-metal requires specific system libraries, kernel modules, and build tools. This script ensures all dependencies are installed before building. Skipping this step can cause build failures or runtime errors.
+**Why install_dependencies.sh?** TT-Metalium requires specific system libraries, kernel modules, and build tools. This script ensures all dependencies are installed before building. Skipping this step can cause build failures or runtime errors.
 
-**Why rebuild?** tt-metal includes compiled components (like SFPI) that must be built after code updates. The `build_metal.sh` script handles all necessary compilation steps.
+**Why rebuild?** TT-Metalium includes compiled components (like SFPI) that must be built after code updates. The `build_metal.sh` script handles all necessary compilation steps.
 
 ---
 
@@ -307,7 +307,7 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
 **What this script does:**
-1. ✅ Validates prerequisites (tt-metal installed, paths correct)
+1. ✅ Validates prerequisites (TT-Metalium installed, paths correct)
 2. ✅ Creates Python venv at the CORRECT location (`${TT_METAL_HOME}/build/python_env_vllm`)
 3. ✅ Installs PyTorch 2.5.0+cpu (exact version required for TT hardware)
 4. ✅ Builds vLLM from source with TT hardware support
@@ -328,7 +328,7 @@ source ~/activate-vllm-env.sh
 
 **Common issue:** vLLM on TT hardware requires:
 - **PyTorch 2.5.0+cpu** (not 2.7.1, not 2.4.x)
-- Environment integrated with tt-metal (not standalone venv)
+- Environment integrated with TT-Metalium (not standalone venv)
 - Exact versions from `requirements/tt.txt`
 
 **Without the correct environment, you'll see:**
@@ -681,7 +681,7 @@ ModelRegistry.register_model(
 ### Understanding the Configuration
 
 **Environment variables (all hardware types need these):**
-- `TT_METAL_HOME=~/tt-metal` - Points to tt-metal installation (required by setup-metal.sh)
+- `TT_METAL_HOME=~/tt-metal` - Points to TT-Metalium installation (required by setup-metal.sh)
 - `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (n150, n300, T3000, P100)
 - `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (P100)**: Set to `blackhole`. Wormhole chips (n150/n300/T3000) auto-detect but P100 needs explicit specification.
 - `PYTHONPATH=$TT_METAL_HOME` - Required so Python can import TT model classes from tt-metal
@@ -697,7 +697,7 @@ ModelRegistry.register_model(
 
 ```yaml
 INFO: Loading model meta-llama/Llama-3.1-8B-Instruct
-INFO: Initializing TT-Metal backend...
+INFO: Initializing TT-Metalium backend...
 INFO: Model loaded successfully
 INFO: Started server process
 INFO: Waiting for application startup.
@@ -1219,7 +1219,7 @@ If larger models (8B params) exhaust your DRAM on n150, use smaller models:
 
 **AttributeError: 'InputRegistry' object has no attribute 'register_input_processor':**
 **Error: sfpi not found at /home/user/tt-metal/runtime/sfpi:**
-These errors indicate tt-metal needs to be updated and rebuilt. Solution:
+These errors indicate TT-Metalium needs to be updated and rebuilt. Solution:
 ```bash
 # Update and rebuild tt-metal (Step 0)
 cd ~/tt-metal
@@ -1228,7 +1228,7 @@ git checkout main
 git pull origin main
 git submodule update --init --recursive
 sudo ./install_dependencies.sh      # Install/update system dependencies
-./build_metal.sh               # Build tt-metal
+./build_metal.sh               # Build TT-Metalium
 
 # Then recreate vLLM environment with updated ttnn
 bash ~/tt-scratchpad/setup-vllm-env.sh
@@ -1238,7 +1238,7 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 
 **Why install_dependencies.sh?** Ensures all system libraries, kernel modules, and build tools are installed before building. Prevents build failures and runtime errors.
 
-**Why rebuild?** tt-metal includes compiled components (SFPI libraries, kernels) that must be built after code updates. The vLLM dev branch expects the latest tt-metal APIs.
+**Why rebuild?** TT-Metalium includes compiled components (SFPI libraries, kernels) that must be built after code updates. The vLLM dev branch expects the latest TT-Metalium APIs.
 
 **RuntimeError: Failed to infer device type (Blackhole P100):**
 The `start-vllm-server.py` script now auto-detects P100 and sets `TT_METAL_ARCH_NAME=blackhole` automatically!
@@ -1279,7 +1279,7 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 
 This ensures:
 - ✅ Correct PyTorch version (2.5.0+cpu)
-- ✅ Correct environment location (integrated with tt-metal)
+- ✅ Correct environment location (integrated with TT-Metalium)
 - ✅ All dependencies installed properly
 - ✅ Environment validated before completion
 
@@ -1794,12 +1794,12 @@ python --version
 - **TT vLLM Fork:** [github.com/tenstorrent/vllm](https://github.com/tenstorrent/vllm/tree/dev)
 - **vLLM Docs:** [docs.vllm.ai](https://docs.vllm.ai/en/latest/)
 - **OpenAI API Reference:** [platform.openai.com/docs](https://platform.openai.com/docs/api-reference)
-- **TT-Metal Docs:** [docs.tenstorrent.com](https://docs.tenstorrent.com/)
+- **TT-Metalium Docs:** [docs.tenstorrent.com](https://docs.tenstorrent.com/)
 
 ## Community & Support
 
 - **GitHub Issues:** Report bugs and request features
 - **Discord:** Join the Tenstorrent community
-- **Documentation:** Check the tt-metal README
+- **Documentation:** Check the TT-Metalium README
 
 **Thank you for completing this walkthrough!** You now have the knowledge to build, deploy, and scale AI applications on Tenstorrent hardware. 🚀

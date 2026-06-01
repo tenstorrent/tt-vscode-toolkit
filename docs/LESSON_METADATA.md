@@ -230,7 +230,7 @@ node scripts/check-lessons.js --filter
 | 03 Download Model | validated | all | n150, n300 |
 | 04 Interactive Chat | validated | all | n150 |
 | 05 API Server | validated | all | n150 |
-| 06 tt-inference-server | validated | n150, n300, t3k, p100 | n150 |
+| 06 TT-Inference-Server | validated | n150, n300, t3k, p100 | n150 |
 | 07 vLLM Production | validated | n150, n300, t3k, p100 | n150 |
 | 08 VSCode Chat | validated | all | n150 |
 | 09 Image Generation | validated | n150, n300, t3k, p100 | n150 |

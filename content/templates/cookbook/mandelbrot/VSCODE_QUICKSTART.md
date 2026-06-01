@@ -32,7 +32,7 @@ code mandelbrot_explorer.ipynb
 
 **Note:** The first cell will automatically:
 - ✅ Check for and install numpy/matplotlib if missing
-- ✅ Check for ttnn (from TT-Metal)
+- ✅ Check for ttnn (from TT-Metalium)
 - ✅ Attempt to auto-install ttnn from ~/tt-metal if available
 - ⚠️ If ttnn missing, provides clear installation instructions
 
@@ -133,7 +133,7 @@ pip install numpy matplotlib
 
 **Solution:** The first cell will detect this and try to auto-install from ~/tt-metal.
 
-If auto-install fails or tt-metal not found, install manually:
+If auto-install fails or TT-Metalium not found, install manually:
 ```bash
 # If tt-metal already exists
 cd ~/tt-metal

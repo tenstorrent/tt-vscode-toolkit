@@ -2,7 +2,7 @@
 id: verify-installation
 title: Verify Your Setup
 description: >-
-  Check that your Tenstorrent hardware, TTNN, and optional tt-metal source are
+  Check that your Tenstorrent hardware, TTNN, and optional TT-Metalium source are
   ready before running your first model. A diagnostic checkpoint — returns you
   here after any setup work.
 category: first-inference
@@ -35,7 +35,7 @@ check — then come back here to confirm you're green before moving on.
 
 > **QuietBox 2 / Pre-configured image users:** QuietBox 2 ships with a pre-installed environment but
 > does **not** include `~/tt-metal`. Check 1 and Check 2 should pass out of the box.
-> Check 3 will fail unless you clone and build tt-metal yourself — that's expected and
+> Check 3 will fail unless you clone and build TT-Metalium yourself — that's expected and
 > fine for most lessons.
 
 ---
@@ -68,9 +68,9 @@ tt-smi -s
 
 - JSON output shows your device(s) → **✅ Hardware OK**, continue to Check 2
 - `command not found` → drivers or tt-smi not installed →
-  go to [tt-installer](command:tenstorrent.showLesson?["tt-installer"]) and return here when done
+  go to [TT-Installer](command:tenstorrent.showLesson?["tt-installer"]) and return here when done
 - Device shown but with error flags → firmware or driver issue; consult
-  [tt-installer](command:tenstorrent.showLesson?["tt-installer"]) troubleshooting
+  [TT-Installer](command:tenstorrent.showLesson?["tt-installer"]) troubleshooting
 
 ---
 
@@ -85,7 +85,7 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 - Prints `✓ TTNN <version>` → **✅ TTNN ready**, continue to Check 3
 - `ModuleNotFoundError: No module named 'ttnn'` → TTNN is not importable in your current
   Python environment. You need one of:
-  - **QuietBox 2 / tt-installer users:** activate the pre-installed container or venv
+  - **QuietBox 2 / TT-Installer users:** activate the pre-installed container or venv
     (check your setup guide for the activate command)
   - **Build-from-source users:** activate your tt-metal venv and set `TT_METAL_HOME`:
     ```bash
@@ -93,8 +93,8 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
     export TT_METAL_HOME=~/tt-metal
     export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
     ```
-  - **Don't have tt-metal yet:** go to
-    [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
+  - **Don't have TT-Metalium yet:** go to
+    [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
     return here when done
 - `ImportError: undefined symbol: MPIX_Comm_revoke` → OpenMPI libraries missing from
   `LD_LIBRARY_PATH`:
@@ -117,13 +117,13 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 **Interpreting results:**
 
 - `✓ tt-metal source present` → **✅ Source ready.** Generator API lessons will work.
-  If tt-metal is present but not yet built, run `bash /tmp/build_tt_metal.sh` inside the
+  If TT-Metalium is present but not yet built, run `bash /tmp/build_tt_metal.sh` inside the
   developer container, or go to
-  [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+  [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
 - `✗ ~/tt-metal not found` → Source not present. That's expected on QuietBox 2 pre-installed images
   and fine for all vLLM production lessons. Only needed for the Generator API (Interactive Chat).
   If you need it, go to
-  [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
+  [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
   return here when done.
 
 ---
@@ -137,4 +137,4 @@ Choose your next step based on your goal:
 - **Interactive chat** (requires tt-metal source + Llama model) →
   [Interactive Chat →](command:tenstorrent.showLesson?["interactive-chat"])
 - **Still something failing?** →
-  [Build tt-metal from Source →](command:tenstorrent.showLesson?["build-tt-metal"])
+  [Build TT-Metalium from Source →](command:tenstorrent.showLesson?["build-tt-metal"])

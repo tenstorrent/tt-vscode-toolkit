@@ -32,7 +32,7 @@ Generate images on your Tenstorrent hardware using Stable Diffusion XL Base - tu
 **Stable Diffusion XL Base** is a powerful text-to-image diffusion model that generates high-quality 1024x1024 images from text descriptions. SDXL uses a two-stage architecture with dual text encoders (CLIP-L and OpenCLIP-G) for improved prompt understanding.
 
 **Why Image Generation on Tenstorrent?**
-- 🎨 **Native TT Acceleration** - Runs directly on Tenstorrent hardware using tt-metal
+- 🎨 **Native TT Acceleration** - Runs directly on Tenstorrent hardware using TT-Metalium
 - 🔒 **Privacy** - Your prompts and images stay private
 - ⚡ **High Resolution** - Generate 1024x1024 images (vs 512x512 in older models)
 - 🎓 **Production Ready** - Real hardware acceleration, not CPU fallback
@@ -109,7 +109,7 @@ Look for the "Board Type" field in the output (e.g., n150, n300, T3000, p100).
 
 ## Prerequisites
 
-- tt-metal installed and working (completed Lesson 2)
+- TT-Metalium installed and working (completed Lesson 2)
 - Hugging Face account (for automatic model download)
 - Tenstorrent hardware (see compatibility table above)
 - ~10-15 GB disk space for model weights
@@ -118,7 +118,7 @@ Look for the "Board Type" field in the output (e.g., n150, n300, T3000, p100).
 
 ## Model: Stable Diffusion XL Base
 
-We'll use **Stable Diffusion XL Base 1.0** which runs natively on Tenstorrent hardware using tt-metal.
+We'll use **Stable Diffusion XL Base 1.0** which runs natively on Tenstorrent hardware using TT-Metalium.
 
 **Model Details:**
 - **HuggingFace Model:** `stabilityai/stable-diffusion-xl-base-1.0`
@@ -215,7 +215,7 @@ Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
 
 **QuietBox 2 note:** QuietBox 2 ships without `~/tt-metal`. You must clone and build
 tt-metal from source before running SDXL. See
-[Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
 
 **⚠️ Note:** Blackhole SDXL support is experimental. Please report any issues!
 
@@ -224,7 +224,7 @@ tt-metal from source before running SDXL. See
 ---
 
 **What this does:**
-- Tells tt-metal to configure for your specific hardware
+- Tells TT-Metalium to configure for your specific hardware
 - Optimizes model parallelization for your chip count
 - Enables appropriate memory management
 
@@ -640,6 +640,6 @@ tt-smi -r
 - **Stable Diffusion:** [stability.ai](https://stability.ai/)
 - **Hugging Face Diffusers:** [huggingface.co/docs/diffusers](https://huggingface.co/docs/diffusers)
 - **Prompt Engineering Guide:** [prompthero.com](https://prompthero.com/)
-- **TT-Metal Docs:** [docs.tenstorrent.com](https://docs.tenstorrent.com/)
+- **TT-Metalium Docs:** [docs.tenstorrent.com](https://docs.tenstorrent.com/)
 
 **Happy generating! 🎨**

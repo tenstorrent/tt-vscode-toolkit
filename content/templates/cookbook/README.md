@@ -106,7 +106,7 @@ done
 - Combine projects (audio-reactive fractals!)
 - Extend with custom features
 - Optimize performance
-- Contribute back to tt-metal
+- Contribute back to TT-Metalium
 
 ## Key Concepts Taught
 

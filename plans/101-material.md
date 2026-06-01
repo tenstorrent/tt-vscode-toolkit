@@ -8,7 +8,7 @@ Source: `experience_notes.md` — coworker's QuietBox 2 (4× p300c Blackhole) wa
 
 ### Goal
 Restructure the early lessons so users reach the **same steady state** regardless of how they arrived:
-- Fresh machine with tt-installer (`~/.tenstorrent-venv` + Podman/Docker container with TTNN)
+- Fresh machine with TT-Installer (`~/.tenstorrent-venv` + Podman/Docker container with TTNN)
 - Pre-configured box (QuietBox 2, cloud image)
 - Source build fan (wants to clone `~/tt-metal`)
 
@@ -21,7 +21,7 @@ Replace Llama-3.1-8B (Meta license gate, DRAM-heavy on n150/p300c) with **Qwen3-
 
 **Problems with current chain:**
 - `verify-installation` runs `python3 -m ttnn.examples.usage.run_op_on_device`, which assumes `~/tt-metal` is cloned. Breaks immediately for QuietBox 2/tt-installer users who don't have it.
-- It's placed BEFORE `download-model`, so people without tt-metal are blocked before they can even get a model.
+- It's placed BEFORE `download-model`, so people without TT-Metalium are blocked before they can even get a model.
 - `download-model` leads with Llama (Meta license gate, data farming objections)
 - `interactive-chat` uses the Generator API (`models/tt_transformers`) which is Llama-specific and requires tt-metal source
 - No branching: "do you have tt-metal source or not?"
@@ -44,7 +44,7 @@ This becomes a **diagnostic hub and return-to article**:
 - "Let's check what you have right now"
 - Runs 3 checks: `tt-smi -s`, `python3 -c "import ttnn"`, optional `run_op_on_device`
 - If all pass → proceed to interactive-chat / vLLM
-- If tt-smi fails → link to [tt-installer lesson](tt-installer)
+- If tt-smi fails → link to [TT-Installer lesson](TT-Installer)
 - If TTNN import fails → link to [Build tt-metal from Source](build-tt-metal)
 - If `run_op_on_device` fails → link to [Build tt-metal from Source](build-tt-metal) with debug tips
 - People return to this article after doing setup work to confirm they're green
@@ -111,7 +111,7 @@ If writing your own scripts, do NOT hardcode DispatchCoreAxis.ROW on Blackhole:
 
 | Action | File | Changes |
 |--------|------|---------|
-| **REWRITE** | `content/lessons/verify-installation.md` | "Verify Your Setup" diagnostic hub; 3-check flow; links to tt-installer + build-tt-metal; move BEFORE interactive-chat but AFTER download-model |
+| **REWRITE** | `content/lessons/verify-installation.md` | "Verify Your Setup" diagnostic hub; 3-check flow; links to TT-Installer + build-TT-Metalium; move BEFORE interactive-chat but AFTER download-model |
 | **CREATE** | `content/lessons/build-tt-metal.md` | New reference lesson: clone, Docker/Podman, setuptools, build, verify |
 | **REVISE** | `content/lessons/download-model.md` | Qwen3-0.6B primary; `hf auth login` / `hf download`; Llama → optional gated section; chain order: after hardware-detection, before verify-installation |
 | **REVISE** | `content/lessons/hardware-detection.md` | Add p300c to validatedOn; P100 equivalence callout more prominent |
@@ -186,16 +186,16 @@ The Generator API in `models/tt_transformers` (`interactive-chat`, `api-server` 
 - **What happened:** Clicking the "Next Step" button from Hardware Detection triggered a `Lesson not found: <id>` error. User had to navigate back to the welcome page to proceed.
 - **Root cause:** The `tenstorrent.showLesson` command shows the error at `extension.ts:4390`. Likely the `nextLesson` ID in `lesson-registry.json` doesn't match an actual lesson ID, or the walkthrough step wires up the wrong lesson ID.
 
-### Theme 3: tt-metal Not Preinstalled on QuietBox 2
-- **What happened:** QuietBox 2 ships with a preinstalled image but tt-metal is NOT in the home directory. The extension assumes it exists. User had to clone it manually 4 times across multiple rounds.
+### Theme 3: TT-Metalium Not Preinstalled on QuietBox 2
+- **What happened:** QuietBox 2 ships with a preinstalled image but TT-Metalium is NOT in the home directory. The extension assumes it exists. User had to clone it manually 4 times across multiple rounds.
 - **Missing guidance:** No QuietBox 2-specific note in `verify-installation` lesson about this. The "Install System Dependencies" button blindly runs `cd ~/tt-metal && sudo ./install_dependencies.sh` and fails with "directory not found."
 
 ### Theme 4: Python Environment / mmcv Build Failure
 - **What happened:** `pip install -r tt_metal/python_env/requirements-dev.txt` fails on QuietBox 2 due to:
   1. `ModuleNotFoundError: No module named 'pkg_resources'` (needs `pip install setuptools wheel` first)
   2. `mmcv==2.2.0` build error (only needed for vision models; not relevant for Llama inference)
-- **Related:** User was using system Python + tenstorrent-venv (created by tt-installer), not a fresh env.
-- **Fix via Docker:** Round 4 succeeded only after switching to Docker (not Podman) for tt-installer.
+- **Related:** User was using system Python + tenstorrent-venv (created by TT-Installer), not a fresh env.
+- **Fix via Docker:** Round 4 succeeded only after switching to Docker (not Podman) for TT-Installer.
 
 ### Theme 5: `huggingface-cli` Deprecated
 - **What happened:** `huggingface-cli login` and `huggingface-cli whoami` are deprecated. The new CLI is `hf auth login` / `hf auth whoami`.
@@ -216,7 +216,7 @@ The Generator API in `models/tt_transformers` (`interactive-chat`, `api-server` 
 - **File:** `verify-installation.md`
 
 ### Theme 9: Copy Environment Setup Button Appeared to Not Work
-- **What happened:** The QuietBox 2 already has `(tenstorrent-venv)` active from tt-installer, creating a conflicting environment when the extension tries to set env vars.
+- **What happened:** The QuietBox 2 already has `(tenstorrent-venv)` active from TT-Installer, creating a conflicting environment when the extension tries to set env vars.
 
 ### Theme 10: "Cp Template" Command No Longer Needed (Stale UI)
 - **What happened:** The "Create the Direct API Chat Script" step shows a `cp template` button, but the script already exists in the repo.
@@ -231,7 +231,7 @@ The Generator API in `models/tt_transformers` (`interactive-chat`, `api-server` 
 
 1. **DispatchCoreAxis.ROW (Theme 7)** — Hard crash on all Blackhole. Fix: `DispatchCoreConfig(WORKER)` no axis.
 2. **HF_MODEL not set (Theme 6)** — Blocks pytest inference command.
-3. **tt-metal not on QuietBox 2 (Theme 3)** — First blocker for fresh QuietBox 2 users.
+3. **TT-Metalium not on QuietBox 2 (Theme 3)** — First blocker for fresh QuietBox 2 users.
 4. **huggingface-cli deprecated (Theme 5)** — Quick multi-file text update.
 5. **Python env / mmcv (Theme 4)** — Real UX friction, needs guidance.
 6. **Hardware Detection p300c (Theme 1)** — Low effort, high confidence signal.

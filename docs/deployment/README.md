@@ -1,6 +1,6 @@
 # Deployment Documentation
 
-Simple deployment guides for the Tenstorrent VSCode Toolkit.
+Simple deployment guides for the TT-VSCode-Toolkit.
 
 ## 📚 Documentation Files
 

@@ -1,6 +1,6 @@
-# TT Developer Toolkit — Extension Guide
+# TT-VSCode-Toolkit — Extension Guide
 
-**TT Developer Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole (n150, n300, T3000) and Blackhole (P100, p150, p300, p300c, QuietBox 2) hardware.
+**TT-VSCode-Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole (n150, n300, T3000) and Blackhole (P100, p150, p300, p300c, QuietBox 2) hardware.
 
 ---
 
@@ -9,7 +9,7 @@
 The easiest way to install is directly from the VS Code Marketplace:
 
 1. Open the Extensions panel (`Ctrl+Shift+X` / `⌘+Shift+X`)
-2. Search for **TT Developer Toolkit**
+2. Search for **TT-VSCode-Toolkit**
 3. Click **Install**
 
 Or use the CLI:
@@ -28,7 +28,7 @@ Releases are published at:
 
 **[github.com/tenstorrent/tt-vscode-toolkit/releases](https://github.com/tenstorrent/tt-vscode-toolkit/releases)**
 
-1. Open the **latest release** and download the `.vsix` file (e.g. `tt-vscode-toolkit-<version>.vsix`).
+1. Open the **latest release** and download the `.vsix` file (e.g. `TT-VSCode-Toolkit-<version>.vsix`).
 
 2. Install it in your editor — pick the method that matches your setup:
 
@@ -85,13 +85,13 @@ Get from zero to a running inference server.
 
 | Lesson | Hardware |
 |---|---|
-| Modern Setup with tt-installer 2.0 | n150 · p300c |
+| Modern Setup with TT-Installer 2.0 | n150 · p300c |
 | Hardware Detection | n150 · p300c |
 | Download Model and Run Inference | n150 · p300c |
 | Verify Your Setup | n150 · p300c |
 | Interactive Chat with Direct API | n150 |
 | HTTP API Server with Direct API | n150 |
-| Build tt-metal from Source | n150 · p300c |
+| Build TT-Metalium from Source | n150 · p300c |
 
 ### 🏭 Serving Models *(4 lessons)*
 
@@ -99,7 +99,7 @@ Production-grade inference serving.
 
 | Lesson | Hardware |
 |---|---|
-| Production Inference with tt-inference-server | n150 · P100 |
+| Production Inference with TT-Inference-Server | n150 · P100 |
 | Production Inference with vLLM | n150 · p300c |
 | Image Generation with Stable Diffusion XL | n150 |
 | Video Generation via Frame-by-Frame Diffusion | *(draft)* |
@@ -150,7 +150,7 @@ A structured computer-science curriculum designed for the Tenstorrent architectu
 
 | Lesson | Focus |
 |---|---|
-| Deploy tt-vscode-toolkit to Koyeb | Hosting the extension as a code-server instance |
+| Deploy TT-VSCode-Toolkit to Koyeb | Hosting the extension as a code-server instance |
 | Deploy Your Work to Koyeb | Deploying your own TT-accelerated applications |
 
 ---
@@ -167,10 +167,10 @@ Beyond lessons, the extension registers 70+ commands accessible via the Command 
 
 | Category | Examples |
 |---|---|
-| **Setup** | Run tt-installer Quick Install, Download tt-installer Script |
+| **Setup** | Run TT-Installer Quick Install, Download TT-Installer Script |
 | **Hardware** | Run Hardware Detection (tt-smi), Reset Device, Clear Device State |
 | **Models** | Set Hugging Face Token, Login to HuggingFace, Download Model |
-| **Inference** | Start tt-inference-server (n150/n300), Start vLLM Server (T3000/P100) |
+| **Inference** | Start TT-Inference-Server (n150/n300), Start vLLM Server (T3000/P100) |
 | **Compilers** | Activate TT-Forge Environment, Install TT-XLA PJRT Plugin, Test TT-Forge Installation |
 | **Metalium** | Build Programming Examples, Run RISC-V Addition Example |
 | **Video gen** | Clone tt-local-generator, Start Wan2.2 Video Server, Launch tt-gen GUI |

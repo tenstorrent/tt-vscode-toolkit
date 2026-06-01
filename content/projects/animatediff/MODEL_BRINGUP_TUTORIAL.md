@@ -1,15 +1,15 @@
-# Model Bring-Up Tutorial: AnimateDiff on TT-Metal
+# Model Bring-Up Tutorial: AnimateDiff on TT-Metalium
 
-**A comprehensive guide to integrating new model architectures with TT-Metal**
+**A comprehensive guide to integrating new model architectures with TT-Metalium**
 
-This tutorial documents the complete process of bringing AnimateDiff (temporal attention for video generation) to Tenstorrent hardware. Follow this same methodology to integrate other model architectures with TT-Metal.
+This tutorial documents the complete process of bringing AnimateDiff (temporal attention for video generation) to Tenstorrent hardware. Follow this same methodology to integrate other model architectures with TT-Metalium.
 
 **What you'll learn:**
 - How to research and understand a new model architecture
-- How to analyze existing TT-Metal implementations
+- How to analyze existing TT-Metalium implementations
 - How to find integration points in complex codebases
 - How to port PyTorch code to TTNN operations
-- How to create standalone packages that don't modify tt-metal
+- How to create standalone packages that don't modify TT-Metalium
 - How to test and validate your implementation
 
 **Time to complete:** 8-12 hours (spread across multiple sessions)
@@ -37,7 +37,7 @@ This tutorial documents the complete process of bringing AnimateDiff (temporal a
 
 **Constraints:**
 - Must work on n150 single chip (memory limited)
-- Must not modify tt-metal repository (maintainability)
+- Must not modify TT-Metalium repository (maintainability)
 - Must integrate cleanly with existing SD 3.5 pipeline
 - Must be performant enough for practical use
 
@@ -611,9 +611,9 @@ def sd_transformer_block(
 - ✅ Positional encoding for frame order
 - ✅ Multi-head attention with proper reshaping
 
-**Problem:** This requires modifying tt-metal files directly!
+**Problem:** This requires modifying TT-Metalium files directly!
 
-**User feedback:** "Is there any way of doing this without directly modifying tt-metal?"
+**User feedback:** "Is there any way of doing this without directly modifying TT-Metalium?"
 
 **Next:** Refactor into standalone package
 
@@ -622,11 +622,11 @@ def sd_transformer_block(
 ## Phase 4: Standalone Package Creation
 
 **Duration:** 2-3 hours
-**Goal:** Create isolated package that doesn't modify tt-metal
+**Goal:** Create isolated package that doesn't modify TT-Metalium
 
 ### Step 4.1: Design Decision - Architecture Patterns
 
-**User requirement:** "Can we have this in a project on its own isolated with just an inclusion of the tt-metal env?"
+**User requirement:** "Can we have this in a project on its own isolated with just an inclusion of the TT-Metalium env?"
 
 **Two options considered:**
 
@@ -634,7 +634,7 @@ def sd_transformer_block(
 ```
 SD 3.5 generates latents → Apply temporal attention → VAE decode
 ```
-- ✅ Zero modifications to tt-metal
+- ✅ Zero modifications to TT-Metalium
 - ✅ Clean separation of concerns
 - ✅ Easy to maintain
 - ⚠️ Two-pass approach (spatial then temporal)
@@ -744,7 +744,7 @@ def temporal_attention_torch(
 
 ```python
 class AnimateDiffPipeline:
-    """AnimateDiff wrapper for TT-Metal SD 3.5.
+    """AnimateDiff wrapper for TT-Metalium SD 3.5.
 
     This wrapper adds temporal attention to create animated videos.
     It works by applying temporal coherence after spatial diffusion.
@@ -941,7 +941,7 @@ setup(
     name="animatediff-ttnn",
     version="0.1.0",
     author="Tenstorrent Community",
-    description="AnimateDiff temporal attention for TT-Metal Stable Diffusion 3.5",
+    description="AnimateDiff temporal attention for TT-Metalium Stable Diffusion 3.5",
     packages=find_packages(),
     python_requires=">=3.10",
     install_requires=[
@@ -1003,7 +1003,7 @@ echo "Weights saved to: $WEIGHTS_DIR/mm_sd_v15_v2.ckpt"
 
 **What we built:**
 - ✅ Standalone Python package (`animatediff_ttnn`)
-- ✅ Zero modifications to tt-metal
+- ✅ Zero modifications to TT-Metalium
 - ✅ PyTorch implementation for easy testing
 - ✅ TTNN implementation ready for hardware acceleration
 - ✅ High-level pipeline wrapper
@@ -1236,9 +1236,9 @@ animatediff.export_video(frames, "butterfly.mp4", fps=8)
 
 ### 5. User Requirements Drive Architecture
 
-**Lesson:** Listen to constraints. "Don't modify tt-metal" completely changed our approach.
+**Lesson:** Listen to constraints. "Don't modify TT-Metalium" completely changed our approach.
 
-**Example:** Initial implementation modified tt-metal files. User constraint forced us to create a cleaner standalone package. The standalone version is actually better!
+**Example:** Initial implementation modified TT-Metalium files. User constraint forced us to create a cleaner standalone package. The standalone version is actually better!
 
 **Takeaway:** Constraints breed creativity.
 
@@ -1286,7 +1286,7 @@ print(ckpt.keys())
 5. Document findings
 
 ### Phase 2: Analysis
-1. Study TT-Metal implementation you're integrating with
+1. Study TT-Metalium implementation you're integrating with
 2. Find injection points
 3. Verify compatibility
 4. Document architecture mapping
@@ -1294,7 +1294,7 @@ print(ckpt.keys())
 ### Phase 3: Implementation
 1. Create new module file
 2. Implement core functionality
-3. Follow TT-Metal coding patterns (dataclasses, TTNN ops)
+3. Follow TT-Metalium coding patterns (dataclasses, TTNN ops)
 4. Test with PyTorch first
 
 ### Phase 4: Standalone Package
@@ -1318,8 +1318,8 @@ print(ckpt.keys())
 - Test positional encoding separately
 - Start with single-head, then multi-head
 
-**For TT-Metal Integration:**
-- Study existing TT-Metal code in same domain
+**For TT-Metalium Integration:**
+- Study existing TT-Metalium code in same domain
 - Follow their dataclass parameter pattern
 - Use same naming conventions
 - Respect their coding style
@@ -1403,7 +1403,7 @@ cd ~/tt-metal/models/experimental/stable_diffusion_35_large/tt/
 
 ✅ **Refactoring Phase**
 - Created standalone Python package
-- Zero modifications to tt-metal
+- Zero modifications to TT-Metalium
 - High-level API wrapper
 - Example scripts (2-frame, 16-frame)
 - Automated weight download
@@ -1418,7 +1418,7 @@ cd ~/tt-metal/models/experimental/stable_diffusion_35_large/tt/
 
 **Key deliverable:** Standalone AnimateDiff package ready for integration with SD 3.5 pipeline.
 
-**Impact:** This same methodology can be applied to bring ANY model architecture to TT-Metal:
+**Impact:** This same methodology can be applied to bring ANY model architecture to TT-Metalium:
 - LoRA adapters
 - ControlNet conditioning
 - IP-Adapter

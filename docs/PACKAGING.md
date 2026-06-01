@@ -1,6 +1,6 @@
 # Packaging Guide
 
-This document provides comprehensive packaging and distribution information for the Tenstorrent VSCode Toolkit.
+This document provides comprehensive packaging and distribution information for the TT-VSCode-Toolkit.
 
 ## Table of Contents
 
@@ -215,7 +215,7 @@ Every lesson has metadata tracking validation status and hardware compatibility.
 
 **`blockReason` (optional):**
 - Human-readable explanation if status is `blocked`
-- Example: "Requires tt-metal v0.52.0+ (not yet released)"
+- Example: "Requires TT-Metalium v0.52.0+ (not yet released)"
 
 ### Hardware Types
 

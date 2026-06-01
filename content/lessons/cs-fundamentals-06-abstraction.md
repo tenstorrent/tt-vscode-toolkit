@@ -287,7 +287,7 @@ result = model_tt(input_data)
 1. JAX traces your Python function
 2. Builds HLO (High-Level Operations) graph
 3. XLA compiler optimizes graph (fusion, layout)
-4. TT-XLA backend generates tt-metal code
+4. TT-XLA backend generates TT-Metalium code
 5. Executes on hardware
 
 **Advantages:**

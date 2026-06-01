@@ -36,7 +36,7 @@ hidden_states = rearrange(hidden_states, "(b f) d c -> (b d) f c", f=video_lengt
 ### Phase 2: Architecture Understanding ✅
 
 **Completed:**
-- Explored SD 3.5 pipeline architecture in tt-metal
+- Explored SD 3.5 pipeline architecture in TT-Metalium
 - Identified SD 3.5 uses DiT (Diffusion Transformer), not UNet
 - Found transformer block structure in `fun_transformer_block.py`
 - Located perfect injection point: **Line 336** (after spatial attention, before feed-forward)

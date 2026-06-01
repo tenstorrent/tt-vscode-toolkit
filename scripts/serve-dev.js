@@ -70,19 +70,32 @@ function resolveFile(urlPath) {
   return null;
 }
 
-function sendFile(res, filePath) {
+function sendFile(res, filePath, extraHeaders = {}) {
   const ext = path.extname(filePath).toLowerCase();
   const type = MIME[ext] || 'application/octet-stream';
-  res.writeHead(200, { 'Content-Type': type });
+  res.writeHead(200, { 'Content-Type': type, ...extraHeaders });
   fs.createReadStream(filePath).pipe(res);
 }
 
-const server = http.createServer((req, res) => {
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+/** Only Pyodide sim lessons need cross-origin isolation (SharedArrayBuffer). */
+function needsCrossOriginIsolation(urlPath) {
+  const p = (urlPath || '').split('?')[0];
+  return (
+    /^\/lessons\/tt-lang-intro(\/|$)/.test(p) ||
+    p.startsWith('/assets/playground/')
+  );
+}
 
+const server = http.createServer((req, res) => {
   const urlPath = req.url === '/' ? '/index.html' : req.url;
+  const isolated = needsCrossOriginIsolation(urlPath);
+  const extraHeaders = isolated
+    ? {
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Embedder-Policy': 'require-corp',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      }
+    : {};
   const filePath = resolveFile(urlPath);
 
   if (!filePath) {
@@ -97,7 +110,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  sendFile(res, filePath);
+  sendFile(res, filePath, extraHeaders);
 });
 
 if (!fs.existsSync(SITE_DIR)) {
@@ -119,6 +132,6 @@ server.on('error', (err) => {
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`[serve:web] ${SITE_DIR}`);
   console.log(`  http://127.0.0.1:${PORT}/`);
-  console.log('  COOP/COEP enabled (SharedArrayBuffer for sim lessons)');
+  console.log('  COOP/COEP on /lessons/tt-lang-intro/ only (YouTube embeds work on /install/)');
   console.log('  Ctrl-C to stop.');
 });

@@ -2,8 +2,8 @@
 
 **Date:** 2026-01-08
 **Hardware:** 4x p300c (Blackhole) - QuietBox Tower
-**Environment:** Production QuietBox with fresh tt-installer setup
-**Starting State:** tt-metal installed, no models downloaded
+**Environment:** Production QuietBox with fresh TT-Installer setup
+**Starting State:** TT-Metalium installed, no models downloaded
 
 ---
 
@@ -30,23 +30,23 @@ Follow the VSCode extension walkthrough lessons on a QuietBox Blackhole Tower, e
 - Ubuntu 22.04.5 LTS
 - Kernel 5.4.0-216-generic
 - Python 3.10.12
-- tt-metal: Outdated (Oct 2024)
+- TT-Metalium: Outdated (Oct 2024)
 
 **QuietBox:**
 - **Ubuntu 24.04.3 LTS** (newer LTS)
 - **Kernel 6.14.0-37-generic** (very new)
 - **Python 3.12.3** (bleeding edge)
-- **tt-metal: 44ef32f** (Dec 18, 2025 - fresh!)
+- **TT-Metalium: 44ef32f** (Dec 18, 2025 - fresh!)
 - **tt-smi: 3.0.39** (vs 3.0.27 on cloud)
 
 ### Installation Method
-**Original:** Manual install, outdated tt-metal
+**Original:** Manual install, outdated TT-Metalium
 
-**QuietBox:** **Fresh tt-installer deployment**
+**QuietBox:** **Fresh TT-Installer deployment**
 - OpenMPI: `/opt/openmpi-v5.0.7-ulfm/`
 - Tenstorrent tools: `/opt/tenstorrent/`
 - Managed Python: `~/.tenstorrent-venv` (Python 3.12.3)
-- tt-metal Python: `~/tt-metal/python_env/` (Python 3.12.3)
+- TT-Metalium Python: `~/tt-metal/python_env/` (Python 3.12.3)
 
 ---
 
@@ -80,7 +80,7 @@ Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
 
 ### Software Baseline ✅
 
-**tt-metal:**
+**TT-Metalium:**
 - Location: `~/tt-metal/`
 - Commit: `44ef32f` (Dec 18, 2025)
 - Build: Present (`build_Release/`)
@@ -101,15 +101,15 @@ python3 -c "import ttnn; print('✓ ttnn imported')"
 **Key Differences:**
 1. **Dual Python environments:**
    - `.tenstorrent-venv`: System-managed (Python 3.12.3) - used for tools
-   - `~/tt-metal/python_env/`: tt-metal Python bindings
+   - `~/tt-metal/python_env/`: TT-Metalium Python bindings
 
 2. **OpenMPI pre-installed:**
    - Path: `/opt/openmpi-v5.0.7-ulfm/lib`
    - Already in system configuration
    - No manual LD_LIBRARY_PATH exports needed (unlike cloud)
 
-3. **Fresh tt-metal:**
-   - No "outdated tt-metal" issues
+3. **Fresh TT-Metalium:**
+   - No "outdated TT-Metalium" issues
    - Latest Blackhole optimizations
    - No rebuild needed for lessons
 
@@ -212,7 +212,7 @@ tensor([[2.1406],
    ```
    - **Impact:** May hit unsupported features, but basic operations work
    - **QB Note:** QuietBox ships with cutting-edge firmware
-   - **Recommendation:** Update tt-metal to support firmware 19.4.0+
+   - **Recommendation:** Update TT-Metalium to support firmware 19.4.0+
 
 2. **MMIO SUBSET WARNING:** ⚠️
    ```
@@ -242,7 +242,7 @@ tensor([[2.1406],
 **Time:** 8 minutes (including documentation)
 
 **QB-Specific Notes:**
-- OpenMPI path `/opt/openmpi-v5.0.7-ulfm/lib` pre-configured by tt-installer ✅
+- OpenMPI path `/opt/openmpi-v5.0.7-ulfm/lib` pre-configured by TT-Installer ✅
 - Multi-chip auto-discovery works out of the box
 - Firmware/software version skew expected on fresh QB deployments
 - Performance warnings indicate room for optimization docs
@@ -291,7 +291,7 @@ Running Game of Life simulation...
 
 **QB-Specific Notes:**
 - Cookbook examples work perfectly on QB with Python 3.12
-- Dependencies (matplotlib, numpy) already installed in tt-metal python_env
+- Dependencies (matplotlib, numpy) already installed in TT-Metalium python_env
 - Example completed in ~18 seconds (including 4-chip initialization overhead)
 
 **Time:** 5 minutes
@@ -367,7 +367,7 @@ python3 filters.py /home/ttuser/tt-vscode-toolkit/assets/img/sd35_snowy_cabin.pn
 
 **Pre-Flight Check:**
 - ✅ Hardware: 4x p300c detected (Blackhole architecture)
-- ✅ tt-metal: ~/tt-metal exists, commit 44ef32f (Dec 18, 2025)
+- ✅ TT-Metalium: ~/tt-metal exists, commit 44ef32f (Dec 18, 2025)
 - ❌ vLLM repo: Not installed
 - ❓ Model: Need to check if Qwen3-0.6B available
 
@@ -552,7 +552,7 @@ curl http://localhost:8000/v1/chat/completions \
 
 **Pre-Flight Check:**
 - ✅ Hardware: 4x p300c (Blackhole) running as P100 (single-chip mode)
-- ✅ tt-metal: ~/tt-metal exists, commit 44ef32f
+- ✅ TT-Metalium: ~/tt-metal exists, commit 44ef32f
 - ✅ Lesson documentation: P100 (Blackhole) explicitly supported (experimental)
 - ❓ Model access: Need to check Hugging Face access for SD 3.5 Large
 
@@ -567,15 +567,15 @@ Lesson documentation says:
 - Path: `~/tt-metal/models/experimental/stable_diffusion_35_large/demo.py`
 - Description: "MMDiT (Multimodal Diffusion Transformer)"
 
-Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
+Actual TT-Metalium repository (commit 44ef32f, Dec 18 2025):
 - Model: "Stable Diffusion XL Base"
 - Path: `~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py`
 - Directory doesn't contain SD 3.5 Large
 
 **Root Cause Analysis:**
 - Lesson content was updated to reference SD 3.5 Large (newer model)
-- tt-metal repository on QB still contains SDXL Base (older model)
-- This is a version skew between lesson content and tt-metal implementation
+- TT-Metalium repository on QB still contains SDXL Base (older model)
+- This is a version skew between lesson content and TT-Metalium implementation
 
 **Decision:** Proceed with **SDXL Base** (what's actually available) and document the differences
 
@@ -585,7 +585,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 
 1. **Lesson Content vs Reality Mismatch:**
    - Lesson 9 references: "Stable Diffusion 3.5 Large"
-   - Actual model in tt-metal: "Stable Diffusion XL Base" (SDXL 1.0)
+   - Actual model in TT-Metalium: "Stable Diffusion XL Base" (SDXL 1.0)
    - Path mismatch: Lesson says `stable_diffusion_35_large/` but repo has `stable_diffusion_xl_base/`
 
 2. **4-Device Configuration Issue:**
@@ -643,12 +643,12 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 **Time invested:** 320+ minutes total across all lessons
 
 **Recommendation:** Lesson 9 needs:
-- Update content from SD 3.5 Large to SDXL Base (match actual tt-metal implementation)
+- Update content from SD 3.5 Large to SDXL Base (match actual TT-Metalium implementation)
 - Add p300c/4-device hardware support to conftest.py
 - **CRITICAL**: Document that SDXL is currently broken on p300c (grid size bug)
 - **CRITICAL**: Warn that `tt-smi -r` can leave p300c in bad state requiring reboot
 - Note TLB allocation conflicts when multiple workloads run simultaneously
-- Add troubleshooting section: "SDXL requires firmware + tt-metal fixes for p300c"
+- Add troubleshooting section: "SDXL requires firmware + TT-Metalium fixes for p300c"
 - **POSITIVE**: Document that ethernet timeout resolved after reboot
 - Add note: "If you see ethernet timeout, try rebooting system"
 
@@ -676,7 +676,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 2. **Multi-chip auto-discovery**: Topology mapping works out of the box
 3. **Python 3.12 compatibility**: No issues (newer than original 3.10 validation)
 4. **Ubuntu 24.04 + Kernel 6.14**: Cutting-edge kernel works perfectly
-5. **tt-installer setup**: OpenMPI, drivers, all pre-configured correctly
+5. **TT-Installer setup**: OpenMPI, drivers, all pre-configured correctly
 6. **Cookbook examples**: Run without modification
 
 #### ⚠️ QB-Specific Issues Found
@@ -687,10 +687,10 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - **Fix:** Add p300/p300c to Blackhole hardware section with specs
 
 **2. Firmware Version Skew** (Lesson 2)
-- QB ships with firmware 19.4.0, tt-metal supports up to 19.1.0
+- QB ships with firmware 19.4.0, TT-Metalium supports up to 19.1.0
 - Warning: "New features may not be supported"
 - **Impact:** Low - basic operations work, may hit edge cases
-- **Fix:** Update tt-metal to support firmware 19.4.0+, or document known limitations
+- **Fix:** Update TT-Metalium to support firmware 19.4.0+, or document known limitations
 
 **3. No Hugepages** (Lesson 2)
 - Sysmem allocated without hugepages (4x messages)
@@ -752,7 +752,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - Grid size calculation incompatible with Blackhole p300c core layout
 - **Impact:** SDXL completely non-functional on p300c hardware
 - **This is NOT a hardware issue** - mesh fabric works, problem is SDXL software
-- **Workaround:** None - requires tt-metal SDXL code fixes
+- **Workaround:** None - requires TT-Metalium SDXL code fixes
 - **Fix:** Fix grid size logic in SDXL for Blackhole architecture
 
 **13. tt-smi Reset Breaks Device State** (System-wide) ❌ **CRITICAL**
@@ -764,7 +764,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - **Fix:** Fix tt-smi reset implementation for p300c, or document reboot requirement
 
 #### 🎯 QuietBox Advantages
-1. **Fresh install**: No "outdated tt-metal" issues like cloud validation
+1. **Fresh install**: No "outdated TT-Metalium" issues like cloud validation
 2. **Multi-chip ready**: 4x p300c provides scaling validation immediately
 3. **Production hardware**: Stable, validated configuration vs dev cloud
 4. **Cutting-edge stack**: Ubuntu 24.04, Python 3.12, Kernel 6.14 all work

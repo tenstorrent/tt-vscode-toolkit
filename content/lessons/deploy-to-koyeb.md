@@ -35,7 +35,7 @@ Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. We
 
 ## Prerequisites
 
-- Completed [Deploy tt-vscode-toolkit to Koyeb](command:tenstorrent.showLesson?["deploy-vscode-to-koyeb"]) (recommended)
+- Completed [Deploy TT-VSCode-Toolkit to Koyeb](command:tenstorrent.showLesson?["deploy-vscode-to-koyeb"]) (recommended)
 - Koyeb CLI installed and authenticated
 - Docker or Podman installed locally
 - Completed [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) lesson (for Part 1)
@@ -104,7 +104,7 @@ CMD ["/bin/bash", "-c", "source vllm/vllm-env/bin/activate && python -m vllm.ent
 - ✅ 50% fewer lines (was ~60, now ~30)
 - ✅ No need to set up base system (Ubuntu, apt repos, users, permissions)
 - ✅ HuggingFace CLI (`hf`) pre-installed
-- ✅ Tenstorrent tools pre-installed (via tt-installer: `tt-smi`, `tt-flash`, etc.)
+- ✅ Tenstorrent tools pre-installed (via TT-Installer: `tt-smi`, `tt-flash`, etc.)
 - ✅ All hardware permissions configured
 - ✅ Just add your app!
 

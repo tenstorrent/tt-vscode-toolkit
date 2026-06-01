@@ -193,7 +193,7 @@ Both are open-weight (no gated access). SD 1.4 is ~4GB; motion adapter is ~700MB
 | Phase | Hardware | Setup |
 |-------|----------|-------|
 | Phase 1 | Any CPU (no TT hardware) | `pip install -r requirements.txt` |
-| Phase 2 | Blackhole (P100 or p300c) | `TT_METAL_ARCH_NAME=blackhole` + tt-metal activated |
+| Phase 2 | Blackhole (P100 or p300c) | `TT_METAL_ARCH_NAME=blackhole` + TT-Metalium activated |
 
 Phase 2 requires `~/tt-metal` present and the metal environment activated.
 

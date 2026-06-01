@@ -40,7 +40,7 @@ pass. A handful of carefully worded prompts becomes a short film.
 - **T3000 (8 chips)**: same code, passes more context in parallel
 
 **Requires `~/tt-metal` built from source.** If you don't have that yet, see
-[Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 ---
 
@@ -55,7 +55,7 @@ A short video showcasing "Tenstorrent at the 1964–1965 World's Fair" using:
 
 ## Prerequisites
 
-- ✅ `~/tt-metal` built from source (see Build tt-metal lesson)
+- ✅ `~/tt-metal` built from source (see Build TT-Metalium lesson)
 - ✅ tt-metal Python venv activated (`source ~/tt-metal/python_env/bin/activate`)
 - ✅ Hardware: n150, n300, T3000, P100, or p300c
 - ✅ HuggingFace account with `hf auth login` completed (for model download)

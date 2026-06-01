@@ -1,6 +1,6 @@
 # Koyeb Deployment Guide
 
-Deploy the Tenstorrent VSCode Toolkit to Koyeb cloud platform with optional n300 hardware acceleration.
+Deploy the TT-VSCode-Toolkit to Koyeb cloud platform with optional n300 hardware acceleration.
 
 ## 🚀 Quick Deploy Buttons
 
@@ -335,7 +335,7 @@ When your container starts, you'll see:
 
   ✅ VSCode in your browser (code-server)
   ✅ Tenstorrent extension pre-installed
-  ✅ Tenstorrent tools (tt-smi, tt-flash, via tt-installer)
+  ✅ Tenstorrent tools (tt-smi, tt-flash, via TT-Installer)
   ✅ 16 interactive hardware lessons
   ✅ Production deployment guides
   ✅ Template scripts and examples

@@ -4,7 +4,7 @@
 
 **Goal:** Rewrite `content/projects/animatediff/` to produce a working two-phase AnimateDiff implementation — Phase 1 as a correct diffusers AnimateDiffPipeline baseline (CPU, no hardware needed), Phase 2 as TTNN UNet frame generation on Blackhole hardware.
 
-**Architecture:** Phase 1 uses `diffusers.AnimateDiffPipeline` with `MotionAdapter("guoyww/animatediff-motion-adapter-v1-5-2")` on `CompVis/stable-diffusion-v1-4` — the correct architecture (MotionAdapter injects temporal attention at each UNet transformer block at 320-dim features, exactly where `mm_sd_v15_v2.ckpt` weights were trained). Phase 2 uses the tt-metal SD 1.4 TTNN UNet (`UNet2D` from `models/demos/wormhole/stable_diffusion/tt/`) running on Blackhole via `TT_METAL_ARCH_NAME=blackhole`, with shared base noise for inter-frame coherence.
+**Architecture:** Phase 1 uses `diffusers.AnimateDiffPipeline` with `MotionAdapter("guoyww/animatediff-motion-adapter-v1-5-2")` on `CompVis/stable-diffusion-v1-4` — the correct architecture (MotionAdapter injects temporal attention at each UNet transformer block at 320-dim features, exactly where `mm_sd_v15_v2.ckpt` weights were trained). Phase 2 uses the TT-Metalium SD 1.4 TTNN UNet (`UNet2D` from `models/demos/wormhole/stable_diffusion/tt/`) running on Blackhole via `TT_METAL_ARCH_NAME=blackhole`, with shared base noise for inter-frame coherence.
 
 **Tech Stack:** Python 3.10+, diffusers>=0.32.1, torch, Pillow, ttnn (from ~/tt-metal), TtPNDMScheduler, CLIPTokenizer/CLIPTextModel (openai/clip-vit-large-patch14), AutoencoderKL+Vae, pytest
 

@@ -28,11 +28,11 @@ exceptions:
   - via
   - with
   # Tenstorrent project names that start lowercase
-  - tt-lang
-  - tt-metal
-  - tt-forge
-  - tt-xla
-  - tt-installer
-  - tt-inference-server
+  - TT-Lang
+  - TT-Metalium
+  - TT-Forge
+  - TT-XLA
+  - TT-Installer
+  - TT-Inference-Server
   - ttsim
   - vLLM

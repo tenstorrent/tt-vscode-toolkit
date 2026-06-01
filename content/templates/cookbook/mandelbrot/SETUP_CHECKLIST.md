@@ -4,7 +4,7 @@ Quick reference for getting everything working.
 
 ## Prerequisites
 
-### ✅ TT-Metal Installation
+### ✅ TT-Metalium Installation
 
 **Required for ttnn:**
 
@@ -132,7 +132,7 @@ cd ~/tt-metal
 pip install -e .
 ```
 
-If tt-metal doesn't exist:
+If TT-Metalium doesn't exist:
 ```bash
 git clone https://github.com/tenstorrent/tt-metal.git ~/tt-metal
 cd ~/tt-metal
@@ -163,9 +163,9 @@ pip install matplotlib
 
 ---
 
-### ❌ `pip install -e .` fails in tt-metal
+### ❌ `pip install -e .` fails in TT-Metalium
 
-**Fix:** Make sure you built tt-metal first:
+**Fix:** Make sure you built TT-Metalium first:
 ```bash
 cd ~/tt-metal
 ./install_dependencies.sh

@@ -1,9 +1,9 @@
 ---
 id: tt-inference-server
-title: Production Inference with tt-inference-server
+title: Production Inference with TT-Inference-Server
 description: >-
   Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000,
-  P100, p300c, or QuietBox 2. tt-inference-server automates Docker image selection,
+  P100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection,
   model download, and server startup with a single command. OpenAI-compatible
   API ready immediately.
 category: serving
@@ -34,12 +34,12 @@ validationNotes: >-
   validated Complete on WH (n150/n300/T3000) and Experimental on BH (P100/p300c).
 ---
 
-# Production Inference with tt-inference-server
+# Production Inference with TT-Inference-Server
 
-[tt-inference-server](https://github.com/tenstorrent/tt-inference-server) is
+[TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server) is
 Tenstorrent's official workflow automation tool. Give it a model name and your
 hardware type and it handles everything: pulls the right Docker image (pre-built
-tt-metal + vLLM), downloads model weights, and starts an OpenAI-compatible
+TT-Metalium + vLLM), downloads model weights, and starts an OpenAI-compatible
 inference server.
 
 > **QuietBox 2 / p300c users:** Llama-3.1-8B is supported on P100/p150 hardware
@@ -49,9 +49,9 @@ inference server.
 
 ## Prerequisites
 
-### Install tt-inference-server
+### Install TT-Inference-Server
 
-**QuietBox 2 / pre-configured images:** tt-inference-server is pre-installed at
+**QuietBox 2 / pre-configured images:** TT-Inference-Server is pre-installed at
 `~/.local/lib/tt-inference-server`. Skip to the next section.
 
 **All other hardware (n150/n300/T3000/P100/p150):** Clone it:
@@ -88,7 +88,7 @@ ls ~/.local/lib/tt-inference-server/run.py
 
 ## The Model: Llama-3.1-8B
 
-Llama-3.1-8B is the widest-coverage model in tt-inference-server — it runs on
+Llama-3.1-8B is the widest-coverage model in TT-Inference-Server — it runs on
 every current Tenstorrent board:
 
 | Hardware | Device flag | Status | Max context |
@@ -361,7 +361,7 @@ Results land in `~/.local/lib/tt-inference-server/workflow_logs/`.
 
 ## Tuning vLLM Arguments
 
-tt-inference-server's model specs set reasonable defaults for each model/device
+TT-Inference-Server's model specs set reasonable defaults for each model/device
 pair (block size 64, full context window, 32 concurrent sequences). Override
 any of them without rebuilding the container.
 
@@ -530,7 +530,7 @@ Stable Diffusion, FLUX, Mochi video, and more — see
 ### 2. Run vLLM directly (no MODEL_SPECS constraint)
 
 The [vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"])
-shows how to run vLLM directly on the host without tt-inference-server. This
+shows how to run vLLM directly on the host without TT-Inference-Server. This
 accepts any model path or HF repo and gives you full control over every vLLM
 flag — useful for models in development or private repos.
 
@@ -545,7 +545,7 @@ model name, and any performance requirements.
 
 ## Non-Container Deployment (--local-server)
 
-If you have a built tt-metal checkout (e.g. via the Build tt-metal lesson),
+If you have a built TT-Metalium checkout (e.g. via the Build TT-Metalium lesson),
 you can run vLLM directly on the host — no Docker required:
 
 ```bash
@@ -584,7 +584,7 @@ python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
 
 ## Cache Persistence
 
-tt-inference-server uses two separate cache directories inside the container —
+TT-Inference-Server uses two separate cache directories inside the container —
 knowing how each is stored makes the difference between a 2-minute startup and
 a 10-minute one.
 
@@ -799,4 +799,4 @@ high-speed fabric.
 
 - [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — run vLLM directly without the workflow wrapper
 - [VSCode Chat →](command:tenstorrent.showLesson?["vscode-chat"]) — connect the inference server to the VSCode @tenstorrent chat participant
-- [tt-inference-server docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/workflows_user_guide.md) — full CLI reference
+- [TT-Inference-Server docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/workflows_user_guide.md) — full CLI reference

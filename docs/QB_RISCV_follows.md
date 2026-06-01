@@ -16,7 +16,7 @@ This report documents hands-on validation of the newly created **CS Fundamentals
 - **Architecture:** Blackhole (each card acts as single chip)
 - **Firmware:** 19.4.0.0
 - **Clocks:** 1350 MHz AICLK
-- **Software:** tt-metal commit 44ef32f052 (2026-01-09)
+- **Software:** TT-Metalium commit 44ef32f052 (2026-01-09)
 
 ---
 
@@ -408,7 +408,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 
 3. **Performance profiling integration:**
    - Add tracy profiling examples
-   - Show how to use tt-metal's performance counters
+   - Show how to use TT-Metalium's performance counters
    - Teach profiling-driven optimization workflow
 
 ### For Documentation

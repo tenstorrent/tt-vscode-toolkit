@@ -18,7 +18,7 @@ Interactive fractal renderer with GPU-style parallel computation on TT hardware.
 Best for interactive exploration with inline visualizations:
 
 ```bash
-# 1. Ensure ttnn is installed (from TT-Metal)
+# 1. Ensure ttnn is installed (from TT-Metalium)
 cd ~/tt-metal
 pip install -e .
 

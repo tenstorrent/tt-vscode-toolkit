@@ -787,7 +787,7 @@ You've completed the CS Fundamentals series! What's next?
 
 ### Apply Your Knowledge
 
-**Lesson 14: Explore Metalium** - Dive into tt-metal programming
+**Lesson 14: Explore Metalium** - Dive into TT-Metalium programming
 **Lesson 15: Metalium Cookbook** - Build real projects (Conway's Life, Fractals, Audio)
 **Lesson 17: AnimateDiff** - Bring up a new model from scratch
 
@@ -795,7 +795,7 @@ You've completed the CS Fundamentals series! What's next?
 
 **Tenstorrent Model Zoo** - Port models to TT hardware
 **Bounty Program** - Get paid for model bring-ups
-**GitHub** - Contribute to tt-metal, tt-xla, tt-forge
+**GitHub** - Contribute to TT-Metalium, TT-XLA, TT-Forge
 
 ### Go Deeper
 

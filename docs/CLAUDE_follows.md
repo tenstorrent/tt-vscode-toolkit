@@ -35,7 +35,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **Solution:** Create universal `setup-tt-env.sh` script that auto-detects hardware and sets all variables. Generate on first launch, source in every command. **This alone would eliminate 60% of troubleshooting time.**
 
 ### 2. **vLLM Native Install = Version Compatibility Hell** 💥
-**Spent 2 hours debugging:** PyTorch 2.6.0 + vLLM dev branch = type hint incompatibility. Rolling back tt-metal broke TTNN. Trying validated commits still failed.
+**Spent 2 hours debugging:** PyTorch 2.6.0 + vLLM dev branch = type hint incompatibility. Rolling back TT-Metalium broke TTNN. Trying validated commits still failed.
 
 **Solution:** **Rewrite Lesson 7 to prioritize Docker.** Native installation blocked by fundamental API incompatibilities. Docker image is validated and works. Stop fighting this.
 
@@ -51,7 +51,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **`~/tt-scratchpad/setup-tt-env.sh`** (main environment):
 - Auto-detect hardware via tt-smi
 - Set TT_METAL_HOME, MESH_DEVICE, PYTHONPATH, LD_LIBRARY_PATH
-- Activate tt-metal Python environment
+- Activate TT-Metalium Python environment
 - Show status: "✓ Detected hardware: n150"
 
 **`~/tt-scratchpad/setup-tt-xla.sh`** (TT-XLA isolated):
@@ -67,12 +67,12 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **Impact:** 90% reduction in environment setup commands across all lessons.
 
 ### 2. Fix Lesson 7 (vLLM)
-**Current approach:** "Update tt-metal and rebuild" → Fails with version hell
+**Current approach:** "Update TT-Metalium and rebuild" → Fails with version hell
 
 **New approach:**
 1. **Primary path:** Docker image (works, validated, production-ready)
 2. **Quick Start section:** 5 minutes to working vLLM
-3. **Advanced section:** Link to tt-inference-server docs for native build
+3. **Advanced section:** Link to TT-Inference-Server docs for native build
 4. **Remove:** All "just update" instructions
 
 ### 3. Add Missing OpenMPI Documentation
@@ -133,7 +133,7 @@ LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ### Top 5 Most Impactful
 1. **Environment health check command** - "tenstorrent.checkEnvironment" shows what's installed, what's working, what's missing
 2. **Auto-source setup scripts** - Terminal commands automatically source correct environment
-3. **Version compatibility matrix** - Document validated tt-metal/vLLM/Python combinations
+3. **Version compatibility matrix** - Document validated TT-Metalium/vLLM/Python combinations
 4. **Pre-flight checklist** - Run comprehensive checks before Lesson 1 starts
 5. **Progress indicators** - Show expected time for long operations (builds, downloads)
 
@@ -188,21 +188,21 @@ Every minute debugging `PYTHONPATH` or `LD_LIBRARY_PATH` is a minute not learnin
 - Kernel: 5.4.0-216-generic
 - Memory: 503.73 GB
 
-**Existing tt-metal:**
+**Existing TT-Metalium:**
 - Located at ~/tt-metal
 - Last commit: Oct 28, 2024 (5143b856eb)
 - Status: OUTDATED (as mentioned by user)
 - Python environment exists at ~/tt-metal/python_env
 
-**Conclusion:** We have a working n150 with outdated tt-metal. Will need to update/rebuild tt-metal as part of Lesson 1.
+**Conclusion:** We have a working n150 with outdated TT-Metalium. Will need to update/rebuild TT-Metalium as part of Lesson 1.
 
 ---
 
-## Note on tt-installer Lesson
+## Note on TT-Installer Lesson
 
 **Status:** DEFERRED
 
-**Reason:** tt-installer is an advanced/optional lesson in the toolkit, not part of the main "first-inference" track. It's for users who want containerized setups. Will revisit later if needed.
+**Reason:** TT-Installer is an advanced/optional lesson in the toolkit, not part of the main "first-inference" track. It's for users who want containerized setups. Will revisit later if needed.
 
 ---
 
@@ -249,7 +249,7 @@ This appears to be due to running in a non-interactive or incompatible terminal 
 
 ---
 
-## Lesson 2: Verify tt-metal Installation
+## Lesson 2: Verify TT-Metalium Installation
 
 **Started:** 16:04 UTC
 
@@ -266,7 +266,7 @@ This appears to be due to running in a non-interactive or incompatible terminal 
 
 **Command:** `python3 -m ttnn.examples.usage.run_op_on_device`
 
-**Result:** ✓ SUCCESS! tt-metal is working correctly!
+**Result:** ✓ SUCCESS! TT-Metalium is working correctly!
 
 **Output highlights:**
 ```
@@ -293,7 +293,7 @@ tensor([[1.1641],
 
 ### Findings & Recommendations
 
-**Status:** ✓ COMPLETED - tt-metal installation verified and working!
+**Status:** ✓ COMPLETED - TT-Metalium installation verified and working!
 
 **Note:** The lesson instructions were clear and accurate. The install_dependencies.sh script worked perfectly, and the verification example ran without issues.
 
@@ -323,7 +323,7 @@ tensor([[1.1641],
    - Qwen3-0.6B: 0.6B params, sub-millisecond inference, reasoning-capable
    - Llama-3.1-8B: Requires n300/T3000/P100 for reliable operation
 4. **Demo availability:** No Llama demos found in `~/tt-metal/models/demos/wormhole/` directory
-5. **Outdated tt-metal:** Current installation is from Oct 28, 2024
+5. **Outdated TT-Metalium:** Current installation is from Oct 28, 2024
 
 ### Decision
 
@@ -347,7 +347,7 @@ tensor([[1.1641],
    > **n150 Users:** Llama-3.1-8B (8B parameters, 16GB) may exhaust DRAM on n150 hardware. We recommend starting with Qwen3-0.6B (0.6B parameters) or Gemma-3-1B-IT (1B parameters) for reliable single-chip operation.
 
 3. **Check demo compatibility:**
-   - Verify that `simple_text_demo.py` still works with current tt-metal
+   - Verify that `simple_text_demo.py` still works with current TT-Metalium
    - Document which demos are available for which hardware
 
 **Status:** ⚠️ SKIPPED - Needs hardware-specific guidance for n150
@@ -410,11 +410,11 @@ Total: 1.5GB
 
 ## Revisiting Lesson 3: Download Llama-3.1-8B and Run Inference
 
-**User clarification:** Llama-3.1-8B DOES work on n150 with direct tt-metal API. Conservative settings needed for vLLM later, but direct API handles memory well.
+**User clarification:** Llama-3.1-8B DOES work on n150 with direct TT-Metalium API. Conservative settings needed for vLLM later, but direct API handles memory well.
 
 **Plan:**
 1. Download Llama-3.1-8B (have HF token)
-2. Run inference demo with tt-metal
+2. Run inference demo with TT-Metalium
 3. Complete Lessons 4-5 (interactive chat, HTTP API)
 4. Then vLLM with conservative settings
 
@@ -425,16 +425,16 @@ Total: 1.5GB
 **Current lesson approach:** `~/models/Llama-3.1-8B-Instruct` (explicit local directory)
 
 **Problem:**
-- vLLM and tt-inference-server use HF cache by default (`~/.cache/huggingface/hub/`)
+- vLLM and TT-Inference-Server use HF cache by default (`~/.cache/huggingface/hub/`)
 - Downloading to `~/models/` means:
   - ✅ Easy to find models
   - ✅ Works great for direct API (Lessons 3-5)
-  - ❌ vLLM/tt-inference-server won't auto-discover them
+  - ❌ vLLM/TT-Inference-Server won't auto-discover them
   - ❌ May cause duplicate downloads (16GB+ per model!)
 
 **Better approach:**
 1. Download to HF cache (default): `huggingface-cli download meta-llama/Llama-3.1-8B-Instruct`
-2. vLLM/tt-inference-server reference by model ID: `meta-llama/Llama-3.1-8B-Instruct`
+2. vLLM/TT-Inference-Server reference by model ID: `meta-llama/Llama-3.1-8B-Instruct`
 3. Direct API can use symlinks or HF cache paths
 
 **Or hybrid:**
@@ -501,7 +501,7 @@ Both formats present - ready for direct API (Lessons 3-5) and vLLM (Lesson 7)!
 > If you'd like, I can help you explore the world of condiments, and we can discuss the various options available"
 
 **Key findings:**
-- ✓ **User was correct!** Llama-3.1-8B works perfectly on n150 with direct tt-metal API
+- ✓ **User was correct!** Llama-3.1-8B works perfectly on n150 with direct TT-Metalium API
 - ✓ Coherent, contextual responses
 - ✓ Stable inference throughout 128 tokens
 - ✓ Consistent speed (~28 tok/s)
@@ -722,16 +722,16 @@ ValueError: infer_schema(func): Parameter block_size has unsupported type list[i
 ValidationError: Model architectures ['LlamaForCausalLM'] failed to be inspected
 ```
 
-**Root Cause:** Outdated tt-metal (Oct 28, 2024) is incompatible with vLLM dev branch
+**Root Cause:** Outdated TT-Metalium (Oct 28, 2024) is incompatible with vLLM dev branch
 
 **Validation:** ✓ This **confirms** the lesson's Step 0 warning:
-> "⚠️ Important: vLLM dev branch requires the latest tt-metal. If you get an `InputRegistry` error or "sfpi not found" error, update and rebuild tt-metal"
+> "⚠️ Important: vLLM dev branch requires the latest TT-Metalium. If you get an `InputRegistry` error or "sfpi not found" error, update and rebuild TT-Metalium"
 
-### Critical Finding: Update tt-metal First!
+### Critical Finding: Update TT-Metalium First!
 
-The lesson correctly warns about this. Updating tt-metal now as prescribed in Step 0...
+The lesson correctly warns about this. Updating TT-Metalium now as prescribed in Step 0...
 
-**Step 0: Update and Build TT-Metal**
+**Step 0: Update and Build TT-Metalium**
 
 **Commands:**
 ```bash
@@ -749,7 +749,7 @@ Progress:
 - ✓ Updated from commit 5143b856eb (Oct 28) to 3ee39729e9 (Dec 31)
 - ✓ Submodules updated (tracy, tt_llk, umd)
 - ✓ Dependencies installed
-- 🔄 Rebuilding tt-metal (expected: 5-15 minutes)
+- 🔄 Rebuilding TT-Metalium (expected: 5-15 minutes)
 
 **Once build completes, will retry vLLM with conservative settings...**
 
@@ -768,7 +768,7 @@ Progress:
 - Recommendation: Document `tt-smi -s` workaround
 
 **✓ Lesson 2 (Verify Installation):**
-- tt-metal verification passed
+- TT-Metalium verification passed
 - TTNN working correctly
 - Harvesting mask 0x1 normal for n150 L
 
@@ -797,14 +797,14 @@ Progress:
 - ✓ vLLM installed successfully (v0.1.dev8080)
 - ✓ Starter script prepared
 - ❌ First attempt failed (API incompatibility)
-- ✓ **Validates** lesson's Step 0 warning about updating tt-metal
-- 🔄 Updating tt-metal now
+- ✓ **Validates** lesson's Step 0 warning about updating TT-Metalium
+- 🔄 Updating TT-Metalium now
 - ⏳ Pending: Retry vLLM after rebuild
 
 ### Key Findings & Recommendations:
 
 1. **Llama-3.1-8B on n150:**
-   - Works perfectly with direct tt-metal API
+   - Works perfectly with direct TT-Metalium API
    - 27.88 t/s throughput (batch size 1)
    - Should update lesson 3 to be more confident about n150 support
 
@@ -813,11 +813,11 @@ Progress:
 
 3. **Model storage location:**
    - Document trade-offs between `~/models/` vs HF cache
-   - Consider recommending HF cache for vLLM/tt-inference-server workflows
+   - Consider recommending HF cache for vLLM/TT-Inference-Server workflows
 
-4. **Step 0 (Update tt-metal) is CRITICAL:**
+4. **Step 0 (Update TT-Metalium) is CRITICAL:**
    - Lesson correctly warns about this
-   - vLLM fails without updated tt-metal
+   - vLLM fails without updated TT-Metalium
    - Validates the lesson content
 
 5. **Conservative settings approach:**
@@ -825,7 +825,7 @@ Progress:
    - User guidance confirmed as correct approach
 
 ### Still to validate:
-- vLLM with conservative settings (once tt-metal rebuilds)
+- vLLM with conservative settings (once TT-Metalium rebuilds)
 - Lesson 8 (Image Generation) - validated on n150 per metadata
 - Lesson 14-15 (Explore Metalium, Cookbook) - validated on n150 per metadata
 
@@ -853,9 +853,9 @@ ValueError: infer_schema(func): Parameter block_size has unsupported type list[i
 ValidationError: Model architectures ['LlamaForCausalLM'] failed to be inspected
 ```
 
-**Root cause:** Even after updating tt-metal, vLLM still had API incompatibility because ttnn in the vLLM venv was outdated.
+**Root cause:** Even after updating TT-Metalium, vLLM still had API incompatibility because ttnn in the vLLM venv was outdated.
 
-**Fix:** Installed ttnn from updated tt-metal: `pip install ~/tt-metal`
+**Fix:** Installed ttnn from updated TT-Metalium: `pip install ~/tt-metal`
 
 **Result:** ttnn 0.62.0rc36.dev3170+g3ee39729e9 installed successfully.
 
@@ -908,12 +908,12 @@ ValueError: infer_schema(func): Parameter block_size has unsupported type list[i
 **Possible solutions:**
 1. Use a different vLLM branch or tagged release
 2. Upgrade/downgrade PyTorch to match vLLM requirements
-3. Check if there's a known-good vLLM commit for this tt-metal version
+3. Check if there's a known-good vLLM commit for this TT-Metalium version
 
 ### Summary of Progress
 
 **What works:**
-- ✓ tt-metal updated to latest (Dec 31, 2024)
+- ✓ TT-Metalium updated to latest (Dec 31, 2024)
 - ✓ ttnn 0.62.0rc36.dev3170+g3ee39729e9 installed
 - ✓ vLLM 0.1.dev8080 installed
 - ✓ TT platform detected by vLLM
@@ -926,7 +926,7 @@ ValueError: infer_schema(func): Parameter block_size has unsupported type list[i
 **Key findings for lessons:**
 1. **LD_LIBRARY_PATH requirement**: Lesson should document that `LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH` is required
 2. **setup-metal.sh**: This script doesn't exist in tt-vllm repo - remove from lesson commands
-3. **ttnn installation**: Must install ttnn from tt-metal after rebuild: `pip install ~/tt-metal`
+3. **ttnn installation**: Must install ttnn from TT-Metalium after rebuild: `pip install ~/tt-metal`
 4. **Version compatibility**: vLLM dev branch may have breaking changes - needs investigation
 
 ---
@@ -980,15 +980,15 @@ Found validated combination:
 ### Version Analysis
 
 **Previous state:**
-- tt-metal: 3ee39729e9 (Dec 31, 2024) - **too new**
+- TT-Metalium: 3ee39729e9 (Dec 31, 2024) - **too new**
 - vLLM: f49265a2e (dev HEAD) - **only tested with GALAXY, not n150**
 
 **Problem discovered:** vLLM f49265a has NO n150 configurations in model_specs_output.json - only GALAXY models use this commit!
 
 **Actions taken:**
-1. Rolled back tt-metal to 25305db (Dec 8, 2024)
+1. Rolled back TT-Metalium to 25305db (Dec 8, 2024)
 2. Rolled back vLLM to 6e67d2d (validated with n150)
-3. Rebuilding tt-metal at known-good commit (background task bb65275)
+3. Rebuilding TT-Metalium at known-good commit (background task bb65275)
 4. Reinstalling vLLM at known-good commit (background task b3c8000)
 
 ### Key Lesson for Future
@@ -1008,7 +1008,7 @@ Found validated combination:
 
 1. ✅ Installed Python 3.11 via deadsnakes PPA
 2. ✅ Created new venv with Python 3.11
-3. ⚠️ Discovered tt-metal build uses Python 3.10 (build dependency)
+3. ⚠️ Discovered TT-Metalium build uses Python 3.10 (build dependency)
 4. ✅ Recreated venv with Python 3.10
 5. ✅ Installed all vLLM dependencies  
 6. ✅ Successfully imported ttnn via PYTHONPATH (not pip install)
@@ -1038,10 +1038,10 @@ The validated Docker image (`ghcr.io/tenstorrent/tt-inference-server/vllm-tt-met
 ### Current State
 
 **What works:**
-- ✅ tt-metal at commit `25305db` (Dec 8, 2024)
+- ✅ TT-Metalium at commit `25305db` (Dec 8, 2024)
 - ✅ vLLM at commit `6e67d2d` (installed successfully)
 - ✅ ttnn imports correctly via PYTHONPATH
-- ✅ Python 3.10 environment matches tt-metal build
+- ✅ Python 3.10 environment matches TT-Metalium build
 - ✅ OpenMPI library path configured
 - ✅ All environment variables set correctly
 
@@ -1058,11 +1058,11 @@ The validated Docker image (`ghcr.io/tenstorrent/tt-inference-server/vllm-tt-met
 
 2. **Try different vLLM commit**:
    - Find an older vLLM commit that uses `typing.List[int]` instead of `list[int]`
-   - Risk: May not be validated with tt-metal 25305db
+   - Risk: May not be validated with TT-Metalium 25305db
 
 3. **Upgrade PyTorch**:
    - Try PyTorch 2.7+? which may support `list[int]`
-   - Risk: May break tt-metal compatibility
+   - Risk: May break TT-Metalium compatibility
 
 4. **Patch vLLM code**:
    - Replace all `list[int]` → `List[int]` in ~384 locations
@@ -1076,7 +1076,7 @@ The validated Docker image (`ghcr.io/tenstorrent/tt-inference-server/vllm-tt-met
 1. Can we use Docker for vLLM, even if containerization is constrained?
 2. Should we try a different (older) vLLM commit that might use `typing.List[int]`?
 3. Is there a known workaround or patches for this PyTorch + vLLM combination?
-4. Should we explore the tt-inference-server repo for their exact setup/patches?
+4. Should we explore the TT-Inference-Server repo for their exact setup/patches?
 
 **Status:** ⏸️ BLOCKED - Awaiting direction
 
@@ -1120,9 +1120,9 @@ The validated configuration (`25305db` + `6e67d2d` + PyTorch 2.6.0) has tightly 
 **Status:** ⏸️ DEFERRED - Native installation blocked by version compatibility issues
 
 **What was validated:**
-- ✅ Lessons 1-5: Hardware detection, tt-metal verification, direct API (all working!)
+- ✅ Lessons 1-5: Hardware detection, TT-Metalium verification, direct API (all working!)
 - ✅ Model download (Qwen3-0.6B, Llama-3.1-8B-Instruct)
-- ✅ Direct inference with tt-metal (27.88 t/s throughput)
+- ✅ Direct inference with TT-Metalium (27.88 t/s throughput)
 - ✅ Interactive chat script
 - ✅ HTTP API server (0.48s per request after warmup)
 
@@ -1172,14 +1172,14 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 
 ### Root Cause
 
-**Environment is compromised.** Rolling back tt-metal from commit `3ee39729e9` (Dec 31, working) to `25305db` (Dec 8, for vLLM compatibility) broke TTNN.
+**Environment is compromised.** Rolling back TT-Metalium from commit `3ee39729e9` (Dec 31, working) to `25305db` (Dec 8, for vLLM compatibility) broke TTNN.
 
 **What happened:**
 - Lesson 2 (16:06 UTC): TTNN worked perfectly with commit `3ee39729e9`
 - vLLM attempts (17:00-18:12 UTC): Rolled back to `25305db` for validated vLLM config
 - Now (18:23 UTC): Even basic TTNN examples fail
 
-**The older tt-metal build (`25305db`) has broken/incompatible TTNN bindings.**
+**The older TT-Metalium build (`25305db`) has broken/incompatible TTNN bindings.**
 
 ### Conclusion
 
@@ -1198,23 +1198,23 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 
 **Lessons 1-5 (Before vLLM attempts):**
 - ✅ Hardware detection (tt-smi)
-- ✅ tt-metal verification (commit 3ee39729e9)
+- ✅ TT-Metalium verification (commit 3ee39729e9)
 - ✅ Model downloads (Qwen3-0.6B, Llama-3.1-8B-Instruct)
-- ✅ Direct tt-metal inference: **27.88 t/s** throughput
+- ✅ Direct TT-Metalium inference: **27.88 t/s** throughput
 - ✅ Interactive chat script
 - ✅ HTTP API server: **0.48s** per request (warm), 12.4 t/s
 
 **Key learnings:**
-- Llama-3.1-8B works excellently on n150 with direct tt-metal API
+- Llama-3.1-8B works excellently on n150 with direct TT-Metalium API
 - Model-in-memory pattern provides 100x speedup after warmup
-- tt-metal commit `3ee39729e9` (latest) is stable and functional
+- TT-Metalium commit `3ee39729e9` (latest) is stable and functional
 
 ### What Didn't Work ❌
 
 **Lesson 7 (vLLM Production):**
 - ❌ Native installation blocked by PyTorch/vLLM type hint incompatibility
 - ❌ Validated Docker image not available (no Docker/Podman constraint)
-- ❌ Rolling back tt-metal to match vLLM broke TTNN
+- ❌ Rolling back TT-Metalium to match vLLM broke TTNN
 
 **Lesson 15 (Cookbook):**
 - ❌ Attempted after vLLM rollback, found environment compromised
@@ -1225,19 +1225,19 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 **For next session:**
 1. **Start with fresh, untouched cloud environment**
 2. **Skip Lesson 7 (vLLM)** - requires Docker for native installation
-3. **Try Lessons 9, 14, 15** with latest tt-metal (not rolled back)
-4. **Use tt-metal commit `3ee39729e9` or latest** (not older validated commits)
+3. **Try Lessons 9, 14, 15** with latest TT-Metalium (not rolled back)
+4. **Use TT-Metalium commit `3ee39729e9` or latest** (not older validated commits)
 
 **For the extension/lessons:**
 1. **Document vLLM Docker requirement** in Lesson 7
-2. **Add warning** about rolling back tt-metal versions
+2. **Add warning** about rolling back TT-Metalium versions
 3. **Validate Cookbook** (Lesson 15) on fresh n150 environment
 4. **Consider adding** "environment reset" instructions
 
 ### Environment Status
 
 **Current state:** COMPROMISED ⚠️
-- tt-metal at commit `25305db` (Dec 8) - TTNN broken
+- TT-Metalium at commit `25305db` (Dec 8) - TTNN broken
 - vLLM at commit `6e67d2d` - incompatible with native Python/PyTorch
 - Multiple version rollbacks created dependency conflicts
 
@@ -1260,7 +1260,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 2. ✅ Updated submodules
 3. ✅ Cleaned build directories completely
 4. ✅ Ran `install_dependencies.sh`
-5. ✅ Rebuilt tt-metal from scratch
+5. ✅ Rebuilt TT-Metalium from scratch
 6. ✅ Verified TTNN basic functionality
 
 ### Result
@@ -1281,13 +1281,13 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 
 ### Key Findings
 
-**Root cause of earlier failure:** Rolling back to tt-metal commit `25305db` (Dec 8) created incompatible TTNN bindings. The original October 28 commit (`5143b856eb`) has stable, working TTNN.
+**Root cause of earlier failure:** Rolling back to TT-Metalium commit `25305db` (Dec 8) created incompatible TTNN bindings. The original October 28 commit (`5143b856eb`) has stable, working TTNN.
 
-**Lesson learned:** The original/untouched tt-metal version was actually the most stable. Updates for vLLM compatibility broke core functionality.
+**Lesson learned:** The original/untouched TT-Metalium version was actually the most stable. Updates for vLLM compatibility broke core functionality.
 
 **Environment now stable at:**
-- tt-metal: `5143b856eb` (Oct 28, 2024)
-- Python: 3.10.12 (system) + tt-metal python_env
+- TT-Metalium: `5143b856eb` (Oct 28, 2024)
+- Python: 3.10.12 (system) + TT-Metalium python_env
 - TTNN: Working perfectly
 - OpenMPI: `/opt/openmpi-v5.0.7-ulfm/lib` in LD_LIBRARY_PATH
 
@@ -1462,7 +1462,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py::test_sd3 -v
 
 ### Validated Lessons
 
-**✅ Lessons 1-5:** Hardware detection, tt-metal verification, model downloads, direct API inference, HTTP API server (all validated earlier)
+**✅ Lessons 1-5:** Hardware detection, TT-Metalium verification, model downloads, direct API inference, HTTP API server (all validated earlier)
 
 **✅ Lesson 15:** TT-Metalium Cookbook
 - Recipe 1: Game of Life (cellular automata)
@@ -1490,7 +1490,7 @@ All images inlined in this report with markdown references.
 ### Key Technical Findings
 
 **Environment Recovery (Critical):**
-- Rolling back tt-metal versions breaks TTNN bindings
+- Rolling back TT-Metalium versions breaks TTNN bindings
 - Solution: Clean rebuild at known-good commit (5143b856eb)
 - Added FAQ entry for cloud environment troubleshooting
 
@@ -1522,20 +1522,20 @@ All images inlined in this report with markdown references.
 1. FAQ entry for TTNN symbol errors in cloud environments ✅ (added to content/pages/FAQ.md)
 2. Environment recovery procedures ✅ (included in FAQ entry)
 3. OpenMPI library path requirements ✅ (already in FAQ, enhanced)
-4. Known-good tt-metal commits for specific hardware ✅ (5143b856eb documented)
+4. Known-good TT-Metalium commits for specific hardware ✅ (5143b856eb documented)
 
 ### Hardware Validated
 
 **n150 (Wormhole):**
 - ✅ Lessons 1-5, 9, 15 (3 of 4 recipes)
-- ✅ Direct tt-metal API inference (27.88 t/s)
+- ✅ Direct TT-Metalium API inference (27.88 t/s)
 - ✅ HTTP API server (0.48s per request warm)
 - ✅ TTNN parallel computing (Game of Life, Mandelbrot)
 - ✅ Stable Diffusion 3.5 Large (1024x1024 native generation)
 
 **Environment State:** STABLE ✅
-- tt-metal: commit 5143b856eb (Oct 28, 2024)
-- Python: 3.10.12 + tt-metal python_env
+- TT-Metalium: commit 5143b856eb (Oct 28, 2024)
+- Python: 3.10.12 + TT-Metalium python_env
 - TTNN: Working perfectly
 - All cookbook recipes functional (except Image Filters template bug)
 
@@ -1549,7 +1549,7 @@ All images inlined in this report with markdown references.
 
 ### Conclusion
 
-Successfully validated n150 hardware with tt-metal commit 5143b856eb. Lessons 1-5, 9, and 15 (3 of 4 recipes) all working correctly. Environment is stable and suitable for continued lesson validation.
+Successfully validated n150 hardware with TT-Metalium commit 5143b856eb. Lessons 1-5, 9, and 15 (3 of 4 recipes) all working correctly. Environment is stable and suitable for continued lesson validation.
 
 **Next session priorities:**
 1. Fix Image Filters cookbook template (TTNN conv2d API)
@@ -1572,7 +1572,7 @@ TT-XLA is Tenstorrent's production-ready XLA-based compiler for JAX and PyTorch/
 - Multi-chip support (TP/DP on n300/T3000/Galaxy)
 - Wheel-based installation (no source building)
 - Works with Python 3.10+ (lesson recommends 3.11)
-- Separate from tt-metal environment (uses bundled runtime)
+- Separate from TT-Metalium environment (uses bundled runtime)
 
 ### Step 1: Install Python 3.11
 
@@ -1598,7 +1598,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 **Test Results:**
 - ✅ TT device detected: `TTDevice(id=0, arch=Wormhole_b0)`
 - ✅ Simple JAX computation works (dot product = 32.0)
-- ✅ tt-forge repository cloned with submodules
+- ✅ TT-Forge repository cloned with submodules
 
 **GPT-2 Demo Results (4 model variants tested):**
 
@@ -1645,16 +1645,16 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 - ⚠️ Must unset `TT_METAL_HOME` and `LD_LIBRARY_PATH` (TT-XLA uses bundled runtime)
 - ⚠️ Must set `PYTHONPATH` to tt-forge repo root (for imports)
 - ✅ Python 3.11 recommended (works well)
-- ✅ Separate venv required (isolation from tt-metal environment)
+- ✅ Separate venv required (isolation from TT-Metalium environment)
 
 **Environment Compatibility:**
-- TT-XLA environment is completely independent from tt-metal direct API
+- TT-XLA environment is completely independent from TT-Metalium direct API
 - Both can coexist on same system with proper environment variable management
 - No conflicts when environments are isolated properly
 
 ### Comparison to Other Compilers
 
-| Feature | TT-XLA | TT-Forge | TT-Metal Direct |
+| Feature | TT-XLA | TT-Forge | TT-Metalium Direct |
 |---------|--------|----------|-----------------|
 | Status | ✅ Production | ⚠️ Experimental | ✅ Stable |
 | Installation | Wheel (easy) | Build from source | Already installed |
@@ -1672,7 +1672,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 
 ### Total Lessons Validated This Session
 
-**✅ Lessons 1-5:** Hardware detection, tt-metal verification, model downloads, direct API inference, HTTP API server (validated earlier in session)
+**✅ Lessons 1-5:** Hardware detection, TT-Metalium verification, model downloads, direct API inference, HTTP API server (validated earlier in session)
 
 **✅ Lesson 9:** Image Generation with Stable Diffusion 3.5 Large
 - 1024x1024 native generation on n150
@@ -1694,7 +1694,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 ### Validated Lessons Count: 9 of 16 Lessons
 
 **Production-ready lessons validated:**
-- Lessons 1-5: Direct tt-metal API workflow ✅
+- Lessons 1-5: Direct TT-Metalium API workflow ✅
 - Lesson 9: Stable Diffusion image generation ✅
 - Lesson 12: TT-XLA JAX inference ✅
 - Lesson 15: TT-Metalium cookbook (mostly) ✅
@@ -1719,13 +1719,13 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 1. ✅ FAQ entry for TTNN import errors (cloud environments)
 2. ✅ Environment recovery procedures
 3. ✅ OpenMPI library path requirements
-4. ✅ Known-good tt-metal commit documented (5143b856eb)
+4. ✅ Known-good TT-Metalium commit documented (5143b856eb)
 5. ✅ Comprehensive lesson validation notes
 
 ### Key Technical Achievements
 
 **Environment Management:**
-- Stable tt-metal at commit 5143b856eb (Oct 28, 2024)
+- Stable TT-Metalium at commit 5143b856eb (Oct 28, 2024)
 - Isolated TT-XLA environment (Python 3.11, separate venv)
 - Both environments coexist without conflicts
 
@@ -1736,7 +1736,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 - GPT-2 XL: 3 min (1.5B params on n150!)
 
 **Compiler Validation:**
-- TT-Metal Direct API: ✅ Working (Lessons 1-5)
+- TT-Metalium Direct API: ✅ Working (Lessons 1-5)
 - TT-XLA: ✅ Production-ready (Lesson 12)
 - TT-Forge: Not tested (experimental)
 
@@ -1747,7 +1747,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 - ✅ Image generation: SD 3.5 @ 1024x1024
 - ✅ JAX models: GPT-2 XL (1.5B params)
 - ✅ TTNN operations: Parallel computing, fractals
-- ✅ Multi-environment: tt-metal + TT-XLA coexisting
+- ✅ Multi-environment: TT-Metalium + TT-XLA coexisting
 
 ### Recommendations for Extension
 
@@ -1774,7 +1774,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 ### Next Steps
 
 **Remaining lessons to validate:**
-1. Lesson 6: tt-inference-server (production automation)
+1. Lesson 6: TT-Inference-Server (production automation)
 2. Lesson 7: vLLM (requires fresh environment or Docker)
 3. Lesson 8: VSCode Chat integration
 4. Lesson 10: Coding Assistant
@@ -1790,8 +1790,8 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 ### Environment Status
 
 **✅ STABLE AND PRODUCTION-READY**
-- tt-metal: commit 5143b856eb
-- Python 3.10.12 (tt-metal) + 3.11.14 (TT-XLA)
+- TT-Metalium: commit 5143b856eb
+- Python 3.10.12 (TT-Metalium) + 3.11.14 (TT-XLA)
 - All validated lessons reproducible
 - Multiple environments coexisting successfully
 
@@ -1953,7 +1953,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 
 4. **Runtime configuration:**
    - TT-Forge tests require `TT_METAL_RUNTIME_ROOT` environment variable
-   - Runtime integration with tt-metal more complex than build
+   - Runtime integration with TT-Metalium more complex than build
    - Additional setup needed beyond build completion
 
 ### Build Statistics
@@ -1974,7 +1974,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 
 **What's blocked:**
 - ❌ Runtime tests require additional TT_METAL_RUNTIME_ROOT configuration
-- ❌ Integration with tt-metal runtime incomplete
+- ❌ Integration with TT-Metalium runtime incomplete
 - ⚠️ Experimental status confirmed
 
 **Conclusion:** ✅ BUILD VALIDATED - TT-Forge builds successfully on n150 with documented fixes
@@ -1992,7 +1992,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 
 **Session Duration:** 21:07 UTC - 22:10 UTC (~63 minutes active work time)
 **Hardware:** n150 (Wormhole) single chip
-**Starting Environment:** Stable tt-metal at commit 5143b856eb
+**Starting Environment:** Stable TT-Metalium at commit 5143b856eb
 
 ### Lessons Validated in This Session
 
@@ -2008,7 +2008,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 **Total lessons validated across all sessions: 10 of 16**
 
 **Completed lessons:**
-- ✅ Lessons 1-5: Hardware detection, tt-metal verification, direct API workflow
+- ✅ Lessons 1-5: Hardware detection, TT-Metalium verification, direct API workflow
 - ✅ Lesson 9: Stable Diffusion 3.5 (1024x1024 image generation)
 - ✅ Lesson 11: TT-Forge (build validated, experimental)
 - ✅ Lesson 12: TT-XLA JAX inference (GPT-2 Base/Medium/Large/XL)
@@ -2019,7 +2019,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 - ⚠️ Lesson 15 Recipe 4: Image Filters (TTNN conv2d API incompatibility)
 
 **Not yet attempted:**
-- Lesson 6: tt-inference-server
+- Lesson 6: TT-Inference-Server
 - Lesson 8: VSCode Chat integration
 - Lesson 10: Coding Assistant
 - Lesson 13: Bounty Program
@@ -2034,7 +2034,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 - Identified critical gaps in lesson documentation
 
 **Environment Management:**
-- Maintained stable tt-metal at 5143b856eb (no regression)
+- Maintained stable TT-Metalium at 5143b856eb (no regression)
 - Added isolated TT-Forge environment (Python 3.11)
 - Multiple compiler toolchains coexisting successfully
 - Preserved all previously validated lessons
@@ -2068,10 +2068,10 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 ### Environment Status (End of Session)
 
 **✅ STABLE AND PRODUCTION-READY**
-- tt-metal: commit 5143b856eb (Oct 28, 2024) - unchanged, stable
-- Python 3.10.12 (tt-metal) + 3.11.14 (TT-XLA, TT-Forge)
+- TT-Metalium: commit 5143b856eb (Oct 28, 2024) - unchanged, stable
+- Python 3.10.12 (TT-Metalium) + 3.11.14 (TT-XLA, TT-Forge)
 - Multiple environments coexisting:
-  - ~/tt-metal/python_env (tt-metal)
+  - ~/tt-metal/python_env (TT-Metalium)
   - ~/tt-xla-venv (TT-XLA/JAX)
   - ~/ttforge-toolchain/venv (TT-Forge)
 - All previously validated lessons remain functional
@@ -2112,7 +2112,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 2. Lesson 13: Bounty Program (documentation/workflow validation)
 3. Lesson 10: Coding Assistant (depends on models already downloaded)
 4. Lesson 8: VSCode Chat (depends on vLLM or alternative)
-5. Lesson 6: tt-inference-server (Docker-based, complex setup)
+5. Lesson 6: TT-Inference-Server (Docker-based, complex setup)
 
 ### Conclusion
 
@@ -2155,7 +2155,7 @@ This lesson teaches the workflow for contributing to Tenstorrent's bounty progra
 - Only 3 files modified (rope.py, model_config.py, common.py)
 - Component-wise testing before full integration
 - Clear communication with regular updates
-- **Result:** Successfully merged to main, now part of tt-metal
+- **Result:** Successfully merged to main, now part of TT-Metalium
 
 ### Applicability
 
@@ -2388,7 +2388,7 @@ This demonstrates the **true power of Tenstorrent hardware**: enabling complexit
 
 **Total Session Duration:** 21:07 UTC - 22:18 UTC (71 minutes)
 **Hardware:** n150 (Wormhole) single chip
-**Environment:** Stable throughout (tt-metal commit 5143b856eb)
+**Environment:** Stable throughout (TT-Metalium commit 5143b856eb)
 
 ### Lessons Completed This Session
 
@@ -2399,7 +2399,7 @@ This demonstrates the **true power of Tenstorrent hardware**: enabling complexit
 ### Total Lessons Validated Across All Sessions: 11 of 16
 
 **Completed:**
-- Lessons 1-5: Hardware, tt-metal, direct API ✅
+- Lessons 1-5: Hardware, TT-Metalium, direct API ✅
 - Lesson 9: Stable Diffusion 3.5 ✅
 - Lesson 11: TT-Forge (build) ✅
 - Lesson 12: TT-XLA/JAX ✅
@@ -2454,10 +2454,10 @@ This demonstrates the **true power of Tenstorrent hardware**: enabling complexit
 ### Environment Status
 
 **✅ STABLE AND PRODUCTION-READY**
-- tt-metal: 5143b856eb (unchanged, all lessons still work)
-- Python: 3.10.12 (tt-metal) + 3.11.14 (TT-XLA, TT-Forge)
+- TT-Metalium: 5143b856eb (unchanged, all lessons still work)
+- Python: 3.10.12 (TT-Metalium) + 3.11.14 (TT-XLA, TT-Forge)
 - Four isolated environments coexisting:
-  - ~/tt-metal/python_env (tt-metal direct API)
+  - ~/tt-metal/python_env (TT-Metalium direct API)
   - ~/tt-xla-venv (TT-XLA JAX)
   - ~/ttforge-toolchain/venv (TT-Forge MLIR)
   - System Python (NumPy/matplotlib)
@@ -2626,7 +2626,7 @@ And now, the cookbook is richer. ✨
 **Software Environment:**
 - tt-smi: 3.0.27
 - Python: 3.10.12
-- tt-metal: 5143b856eb (Oct 28, 2024)
+- TT-Metalium: 5143b856eb (Oct 28, 2024)
 - OS: Ubuntu 22.04.5 LTS
 
 **Critical Files:**
@@ -2635,7 +2635,7 @@ And now, the cookbook is richer. ✨
 
 **Prerequisites Check:**
 - ✅ Hardware: n150 operational
-- ✅ tt-metal: Installed
+- ✅ TT-Metalium: Installed
 - ✅ Python: 3.10.12
 - ❌ **ffmpeg: NOT INSTALLED** (ISSUE #1)
 - ⚠️ Lesson 9 prerequisite: Assumed complete
@@ -3216,11 +3216,11 @@ Frame 9 - World's Fair closing ceremony with sunset lighting:
 
 ## EPILOGUE 3: Native Video Generation Investigation (2026-01-02, 23:00 UTC)
 
-**Question:** "Are there any paths to actual video generation -- like creating animations -- we can use models for with tt-metal or tt-xla and really make someone feel like they saw some kind of reality temporarily created that hadn't existed before?"
+**Question:** "Are there any paths to actual video generation -- like creating animations -- we can use models for with TT-Metalium or TT-XLA and really make someone feel like they saw some kind of reality temporarily created that hadn't existed before?"
 
 ### Discovery: Mochi Pipeline
 
-**Found:** Native text-to-video generation model in tt-metal experimental!
+**Found:** Native text-to-video generation model in TT-Metalium experimental!
 
 **Location:** `/home/user/tt-metal/models/experimental/tt_dit/pipelines/mochi/pipeline_mochi.py`
 

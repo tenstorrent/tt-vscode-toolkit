@@ -19,9 +19,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15
@@ -693,7 +693,7 @@ Understand transformer components before training from scratch.
 
 ### Configuration Examples
 - **tt-train examples:** Check `tt-metal/tt-train/sources/examples/` for multi-device configs
-- **DDP patterns:** Reference tt-metal documentation for device mesh configuration
+- **DDP patterns:** Reference TT-Metalium documentation for device mesh configuration
 
 ### Profiling Tools
 - `tt-smi` - Device monitoring

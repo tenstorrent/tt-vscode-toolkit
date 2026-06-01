@@ -1,6 +1,6 @@
 # Extension Architecture
 
-This document provides detailed technical architecture for contributors to the Tenstorrent VSCode Toolkit.
+This document provides detailed technical architecture for contributors to the TT-VSCode-Toolkit.
 
 ## Table of Contents
 
@@ -137,7 +137,7 @@ vLLM repository (cloned by lessons):
 
 ### ~/tt-metal/
 
-TT-Metal repository (cloned by lessons):
+TT-Metalium repository (cloned by lessons):
 
 ```
 ~/tt-metal/

@@ -3,7 +3,7 @@ id: bounty-program
 title: 'Bounty Program: Model Bring-Up'
 description: >-
   Learn how to contribute to the Tenstorrent Bounty Program by bringing up new
-  models. Master TT-Metal while becoming part of the open-source ecosystem. Uses
+  models. Master TT-Metalium while becoming part of the open-source ecosystem. Uses
   the successful Phi-3 contribution as a case study.
 category: advanced
 tags:
@@ -36,7 +36,7 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 
 ### Why Participate?
 
-- ✅ **Master cutting-edge technology** - Deep dive into TT-Metal/TT-NN architecture
+- ✅ **Master cutting-edge technology** - Deep dive into TT-Metalium/TT-NN architecture
 - ✅ **Real-world impact** - Your code ships in production and helps the community
 - ✅ **Build ownership** - Public contributions to an open-source hardware ecosystem
 - ✅ **Join the community** - Work alongside Tenstorrent engineers and contributors
@@ -65,7 +65,7 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 - **Model**: microsoft/Phi-3-mini-128k-instruct (3.8B parameters)
 - **Hardware**: n150 / n300 / LoudBox
 - **Theoretical Max**: 48 tokens/second/user
-- **Result**: ✅ **Successfully merged to main** - Now part of tt-metal
+- **Result**: ✅ **Successfully merged to main** - Now part of TT-Metalium
 
 ### Timeline
 
@@ -112,14 +112,14 @@ open https://github.com/tenstorrent/tt-metal/labels/bounty
 
 #### 1.2 Set Up Environment
 
-**Clone and build tt-metal:**
+**Clone and build TT-Metalium:**
 ```bash
 cd ~
 git clone https://github.com/tenstorrent/tt-metal.git
 cd tt-metal
 git submodule update --init --recursive
 
-# Build TT-Metal (takes 10-20 minutes)
+# Build TT-Metalium (takes 10-20 minutes)
 ./build_metal.sh
 
 # Set environment variables
@@ -594,7 +594,7 @@ pytest models/tt_transformers/demo/simple_text_demo.py -k "batch-32"
 
 **PR checklist:**
 - ✅ All tests pass locally
-- ✅ Code follows tt-metal style (use existing patterns)
+- ✅ Code follows TT-Metalium style (use existing patterns)
 - ✅ No code duplication (reuses tt_transformers framework)
 - ✅ Documentation includes build/run instructions
 - ✅ Performance metrics documented

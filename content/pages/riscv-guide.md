@@ -174,7 +174,7 @@ Tenstorrent uses a standard RISC-V GCC toolchain with custom linker scripts:
          │
          ▼
 ┌─────────────────┐
-│  tt-metal       │  (Runtime loads onto device)
+│  TT-Metalium       │  (Runtime loads onto device)
 │  Host API       │
 └─────────────────┘
 ```
@@ -260,7 +260,7 @@ _start:
 
 ## Part 3: Hands-On Example - Adding Two Integers in RISC-V
 
-Let's walk through the canonical example from tt-metal: `add_2_integers_in_riscv`.
+Let's walk through the canonical example from TT-Metalium: `add_2_integers_in_riscv`.
 
 ### High-Level Flow
 
@@ -742,11 +742,11 @@ auto pc_value = device->read_l1(mailbox_addr + PC_OFFSET, sizeof(uint32_t));
 **Challenges:**
 - ❌ **Not general-purpose:** Designed for AI workloads, not typical embedded tasks
 - ❌ **Limited peripherals:** No GPIO, UART, SPI in traditional sense
-- ❌ **Learning curve:** Requires understanding NoC, mesh architecture, and tt-metal API
+- ❌ **Learning curve:** Requires understanding NoC, mesh architecture, and TT-Metalium API
 
 ---
 
-## Part 9: Real-World Examples in tt-metal
+## Part 9: Real-World Examples in TT-Metalium
 
 ### Matrix Multiplication (SPMD Parallelism)
 
@@ -966,7 +966,7 @@ Tenstorrent's Wormhole and Blackhole cards represent a rare opportunity to explo
 - **AI researchers:** Optimize kernels at the lowest level
 
 **Next Steps:**
-1. Build tt-metal and run `add_2_integers_in_riscv`
+1. Build TT-Metalium and run `add_2_integers_in_riscv`
 2. Study the programming examples in `tt_metal/programming_examples/`
 3. Modify existing kernels to experiment with RISC-V assembly
 4. Write multi-core parallel algorithms using the NoC
@@ -1021,7 +1021,7 @@ DPRINT << "message" << value << "\n";
 
 ### Build Commands
 ```bash
-# Build tt-metal with examples
+# Build TT-Metalium with examples
 ./build_metal.sh --build-programming-examples
 
 # Clean rebuild
@@ -1044,7 +1044,7 @@ export MESH_DEVICE=N150                 # Hardware target
 ## Appendix B: Resources
 
 **Official Documentation:**
-- tt-metal GitHub: https://github.com/tenstorrent/tt-metal
+- TT-Metalium GitHub: https://github.com/tenstorrent/tt-metal
 - Metalium Guide: `tt-metal/METALIUM_GUIDE.md`
 - Programming Examples: `tt-metal/tt_metal/programming_examples/`
 
@@ -1061,4 +1061,4 @@ export MESH_DEVICE=N150                 # Hardware target
 **Document Version:** 1.0
 **Last Updated:** 2025-12-16
 **Target Hardware:** Wormhole (n150/n300), Blackhole
-**tt-metal Version:** Latest main branch
+**TT-Metalium Version:** Latest main branch

@@ -34,23 +34,23 @@ All hardware-specific instructions use CSS-styled `<details>` sections for clean
 - See `HARDWARE_CONFIG_TEMPLATE.md` for full pattern
 - See `STYLING_GUIDE.md` for visual preview and CSS details
 
-## Setup Guide: tt-installer 2.0 (Optional/Informational)
+## Setup Guide: TT-Installer 2.0 (Optional/Informational)
 
 **Status:** Implemented (v0.0.81) - Informational guide, not a required walkthrough step
 
 ### Overview
 
-tt-installer 2.0 is Tenstorrent's official one-command installation tool. **Note:** Many users (Tenstorrent Cloud, Quietbox with preinstalled images, managed systems) already have this setup complete and can skip directly to the Learning Path.
+TT-Installer 2.0 is Tenstorrent's official one-command installation tool. **Note:** Many users (Tenstorrent Cloud, Quietbox with preinstalled images, managed systems) already have this setup complete and can skip directly to the Learning Path.
 
-For users who need to set up from scratch, tt-installer:
+For users who need to set up from scratch, TT-Installer:
 
 - ✅ **One command setup** - Complete stack installation in 5-15 minutes
-- ✅ **Container-based** - tt-metalium runs in Podman containers (no complex builds)
+- ✅ **Container-based** - TT-Metalium runs in Podman containers (no complex builds)
 - ✅ **Full automation** - Kernel drivers, HugePages, firmware, tt-smi, tools
 - ✅ **Production-ready** - Tested across Ubuntu, Debian, Fedora
 - ✅ **Two container options:**
   - Standard (1GB) - TTNN library for inference
-  - Model Demos (10GB) - Full tt-metal with demos and examples
+  - Model Demos (10GB) - Full TT-Metalium with demos and examples
 
 ### Quick Start
 
@@ -73,11 +73,11 @@ chmod +x install.sh
 5. **HugePages** - Kernel memory configuration
 6. **tt-smi** - System management interface
 7. **Podman** - Container runtime
-8. **tt-metalium containers** - Standard (1GB) and/or Model Demos (10GB)
-9. **tt-inference-server** - Production inference serving
+8. **TT-Metalium containers** - Standard (1GB) and/or Model Demos (10GB)
+9. **TT-Inference-Server** - Production inference serving
 10. **SFPI** - Scalar floating point interface
 
-### Using tt-metalium Containers
+### Using TT-Metalium Containers
 
 ```bash
 # Interactive shell
@@ -115,9 +115,9 @@ When running inside a container (e.g., Docker):
 
 This automatically skips KMD, HugePages, Podman installation (must live on host).
 
-### Comparison: tt-installer vs Manual Setup
+### Comparison: TT-Installer vs Manual Setup
 
-| Feature | tt-installer 2.0 | Manual Setup (Old Lessons 1-2) |
+| Feature | TT-Installer 2.0 | Manual Setup (Old Lessons 1-2) |
 |---------|------------------|--------------------------------|
 | **Time** | 5-15 minutes | 1-2 hours |
 | **Complexity** | One command | 15+ manual steps |
@@ -128,15 +128,15 @@ This automatically skips KMD, HugePages, Podman installation (must live on host)
 | **Updates** | ✅ Re-run installer | ❌ Rebuild everything |
 | **Production** | ✅ Ready | ❌ Requires hardening |
 
-### Who Should Use tt-installer?
+### Who Should Use TT-Installer?
 
-**Use tt-installer if you have:**
+**Use TT-Installer if you have:**
 - ✅ Fresh Ubuntu/Debian/Fedora system without Tenstorrent software
 - ✅ Personal workstation or server you're setting up yourself
-- ✅ Development environment that needs tt-metalium containers
+- ✅ Development environment that needs TT-Metalium containers
 - ✅ System where you have sudo access and want one-command setup
 
-**Skip tt-installer if you have:**
+**Skip TT-Installer if you have:**
 - ⏭️ **Tenstorrent Cloud environment** (pre-configured)
 - ⏭️ **Quietbox with preinstalled image** (drivers/tools already installed)
 - ⏭️ **Managed system** (sysadmin already set up)
@@ -147,8 +147,8 @@ This automatically skips KMD, HugePages, Podman installation (must live on host)
 Use manual setup only if:
 
 - You need bleeding-edge unreleased features (build from main)
-- You're developing tt-metal itself (need source access)
-- Your OS is unsupported by tt-installer
+- You're developing TT-Metalium itself (need source access)
+- Your OS is unsupported by TT-Installer
 - You need custom compiler flags or build options
 
 ### Implementation Details
@@ -160,7 +160,7 @@ Use manual setup only if:
   - `DOWNLOAD_INSTALLER` - Download script for inspection
   - `RUN_INTERACTIVE_INSTALL` - Interactive mode with prompts
   - `RUN_NON_INTERACTIVE_INSTALL` - Automated mode
-  - `TEST_METALIUM_CONTAINER` - Verify tt-metalium works
+  - `TEST_METALIUM_CONTAINER` - Verify TT-Metalium works
 
 **Command handlers in `src/extension.ts`:**
 - `runQuickInstall()` - Runs quick install (with warning)
@@ -195,9 +195,9 @@ Use manual setup only if:
 
 ## Critical Best Practice: install_dependencies.sh (Manual Setup)
 
-**⚠️ Always run `install_dependencies.sh` when manually installing or updating tt-metal.**
+**⚠️ Always run `install_dependencies.sh` when manually installing or updating TT-Metalium.**
 
-**Note:** If you used tt-installer 2.0, this is already done for you!
+**Note:** If you used TT-Installer 2.0, this is already done for you!
 
 ```bash
 cd ~/tt-metal
@@ -212,11 +212,11 @@ cd ~/tt-metal
 - Should be run after system updates or fresh installations
 
 **When to run it:**
-- First time installing tt-metal
-- After `git pull` on tt-metal (before rebuilding)
+- First time installing TT-Metalium
+- After `git pull` on TT-Metalium (before rebuilding)
 - After system updates
 - When encountering build errors
-- When setting up vLLM or other tt-metal-dependent projects
+- When setting up vLLM or other TT-Metalium-dependent projects
 
 ## Advanced Build Options
 
@@ -254,11 +254,11 @@ cd ~/tt-metal
 
 ### Educational/Example Flags
 
-**`--build-programming-examples` - Build tt-metal examples**
+**`--build-programming-examples` - Build TT-Metalium examples**
 ```bash
 ./build_metal.sh --build-programming-examples
 ```
-- Builds the programming examples from tt-metal repository
+- Builds the programming examples from TT-Metalium repository
 - Useful for "Exploring TT-Metalium" lesson
 - Provides hands-on code examples for learning
 
@@ -282,8 +282,8 @@ You can combine multiple flags:
 | `--enable-ccache` | Active development, frequent rebuilds |
 | `--release` | Production deployment, benchmarking |
 | `--development` | Debugging while keeping reasonable performance |
-| `--debug` | Deep debugging of tt-metal itself |
-| `--build-programming-examples` | Learning tt-metal programming patterns |
+| `--debug` | Deep debugging of TT-Metalium itself |
+| `--build-programming-examples` | Learning TT-Metalium programming patterns |
 
 ## Build and Development Commands
 
@@ -373,7 +373,7 @@ The extension automatically configures an optimal development environment on fir
   - **Python** - Python language support
   - **Pylance** - Fast Python IntelliSense
   - **Jupyter** - Notebook support
-  - **C/C++** - For tt-metal C++ development
+  - **C/C++** - For TT-Metalium C++ development
   - **CMake Tools** - Build system integration
 
 **4. Welcome Page**
@@ -659,7 +659,7 @@ case 'openWalkthrough':
 
 2. **Command Handlers** (lines 73-167)
    - `runHardwareDetection()`: Executes `tt-smi` command
-   - `verifyInstallation()`: Runs tt-metal test program
+   - `verifyInstallation()`: Runs TT-Metalium test program
    - `setHuggingFaceToken()`: Prompts for HF token, sets as env var
    - `loginHuggingFace()`: Authenticates with HF CLI
    - `downloadModel()`: Downloads Llama model from HF
@@ -1086,7 +1086,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
      - These are optional dependencies of `llama-models` that must be installed separately
      - `fairscale`: Required for model parallelism in llama3 reference implementation
      - `termcolor`: Required for colored terminal output in llama3/generation.py
-     - `loguru`: Required by Tenstorrent's tt-metal vision demo code
+     - `loguru`: Required by Tenstorrent's TT-Metalium vision demo code
      - `blobfile`, `fire`: Additional llama3 requirements
    - Uses HuggingFace model format
    - OpenAI-compatible API
@@ -1108,7 +1108,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 **Status:** Fully implemented with NATIVE TT HARDWARE ACCELERATION
 
 **Key features:**
-- ✅ **Native TT Acceleration** - Runs on tt-metal using TT-NN operators (NOT CPU!)
+- ✅ **Native TT Acceleration** - Runs on TT-Metalium using TT-NN operators (NOT CPU!)
 - ✅ **Stable Diffusion 3.5 Large** - State-of-the-art MMDiT architecture
 - ✅ **High Resolution** - Generates 1024x1024 images (vs 512x512)
 - ✅ **Fast** - ~12-15 seconds per image on n150 with hardware acceleration
@@ -1125,7 +1125,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 1. **Model:** Stable Diffusion 3.5 Large (~10 GB)
    - Location: `models/experimental/stable_diffusion_35_large/`
    - From: `stabilityai/stable-diffusion-3.5-large`
-   - Native TT-NN implementation in tt-metal
+   - Native TT-NN implementation in TT-Metalium
 
 2. **Hardware Support:**
    - ✅ n150 (1x1 mesh) - Single chip
@@ -1166,12 +1166,12 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 - ✅ **Native TT acceleration** (not CPU fallback)
 - ✅ **4x higher resolution** (1024x1024 vs 512x512)
 - ✅ **Better quality** - MMDiT architecture
-- ✅ **Built into tt-metal** - No external dependencies
+- ✅ **Built into TT-Metalium** - No external dependencies
 - ✅ **Production ready** - Optimized parallelization
 
 The lesson teaches:
 - How MMDiT transformers work
-- Using experimental models in tt-metal
+- Using experimental models in TT-Metalium
 - Mesh device configuration for n150
 - Native hardware-accelerated image generation
 - Interactive prompt-based workflows
@@ -1191,12 +1191,12 @@ The lesson teaches:
 **Hardware Target:**
 - n150 (Wormhole) single chip
 - Cloud environment
-- tt-metal: **latest main branch** (must be rebuilt after updates)
+- TT-Metalium: **latest main branch** (must be rebuilt after updates)
 - vLLM branch: **dev (HEAD)**
 
 **⚠️ Version Strategy Change:**
-- Initially tried pinning to tt-metal v0.62.0-rc9 (August 2025)
-- Found that vLLM dev requires latest tt-metal APIs
+- Initially tried pinning to TT-Metalium v0.62.0-rc9 (August 2025)
+- Found that vLLM dev requires latest TT-Metalium APIs
 - **Solution:** Use latest on both repos (simpler, better tested)
 - **Critical:** Must run `./install_dependencies.sh` then `./build_metal.sh` after git pull
 
@@ -1223,13 +1223,13 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH   # Critical: Find TTLlamaForCausal
 - `TT_METAL_HOME`: setup-metal.sh uses this to set PYTHON_ENV_DIR correctly
 - `PYTHONPATH`: vLLM needs to import `TTLlamaForCausalLM` from tt-metal
 - Without these, you get: "Cannot find model module 'TTLlamaForCausalLM'"
-- The tt-metal directory contains the model implementation in `models/tt_transformers/tt/generator_vllm.py`
+- The TT-Metalium directory contains the model implementation in `models/tt_transformers/tt/generator_vllm.py`
 
 **Why This Configuration:**
 1. Llama-3.1-8B officially supported on n150 (per vLLM tt_metal/README.md)
 2. Single chip = simpler deployment (no multi-chip tensor parallelism)
 3. Already downloaded in Lesson 3 (no additional downloads)
-4. Compatible with tt-metal v0.62.0 family
+4. Compatible with TT-Metalium v0.62.0 family
 5. Best balance of model capability vs hardware constraints
 
 **Alternative Models (NOT recommended for n150):**
@@ -1298,7 +1298,7 @@ WARNING: TTLlamaForCausalLM has no vLLM implementation, falling back to Transfor
 ```
 
 **Root Cause:**
-vLLM doesn't automatically know about TT-specific model implementations (TTLlamaForCausalLM, etc.) in the tt-metal repository. These models must be explicitly registered using vLLM's `ModelRegistry.register_model()` API before starting the server.
+vLLM doesn't automatically know about TT-specific model implementations (TTLlamaForCausalLM, etc.) in the TT-Metalium repository. These models must be explicitly registered using vLLM's `ModelRegistry.register_model()` API before starting the server.
 
 **Solution:**
 Use `examples/server_example_tt.py` instead of calling the API server directly. This script:
@@ -1436,12 +1436,12 @@ The old approach required custom state management, HTML generation, and webview 
 **Iteration 2: Llama 3.2 6B AlgoCode (Abandoned)**
 - Attempted community fine-tune "prithivMLmods/Llama-3.2-6B-AlgoCode"
 - **Blocker 1:** Model only has HuggingFace format (no Meta `original/` checkpoint)
-- **Blocker 2:** Weight dimensions not tile-aligned for tt-metal (32x32 requirement)
+- **Blocker 2:** Weight dimensions not tile-aligned for TT-Metalium (32x32 requirement)
 - Error: `Physical shard shape (10036, 352) must be tile {32, 32} sized!`
-- **Root cause:** Direct API requires Meta checkpoint format with tt-metal-compatible weights
+- **Root cause:** Direct API requires Meta checkpoint format with TT-Metalium-compatible weights
 
 **Iteration 3: Llama 3.1 8B + Prompt Engineering (FINAL)**
-- ✅ Uses proven tt-metal compatible model (already downloaded in Lesson 3)
+- ✅ Uses proven TT-Metalium compatible model (already downloaded in Lesson 3)
 - ✅ No compatibility issues - Meta format with proper tile alignment
 - ✅ Teaches prompt engineering - critical real-world skill
 - ✅ 80%+ of specialized model quality through system prompts
@@ -1451,7 +1451,7 @@ The old approach required custom state management, HTML generation, and webview 
 
 **Why Specialized Models Failed:**
 1. **Model format mismatch:** Community HuggingFace models lack Meta checkpoint format
-2. **Tile alignment:** tt-metal requires weights divisible by 32x32 tiles
+2. **Tile alignment:** TT-Metalium requires weights divisible by 32x32 tiles
 3. **Hardware constraints:** Some models require multi-chip (TP > 1)
 4. **Direct API requirements:** Needs specifically adapted model architectures
 
@@ -1542,7 +1542,7 @@ The lesson includes a forward-looking "Future Model Options" section listing:
 - Llama 3.2 6B AlgoCode - Needs weight conversion for tile alignment
 - Qwen 2.5 Coder 7B - Needs n300 or single-chip optimization
 - CodeLlama - Needs architecture compatibility work
-- StarCoder2 - Needs custom tt-metal implementation
+- StarCoder2 - Needs custom TT-Metalium implementation
 
 **Migration Path:**
 Once models become compatible, users can swap them in using the same Direct API pattern they learned. The prompt engineering skills remain valuable across all models.
@@ -1623,7 +1623,7 @@ The project includes:
 
 ### Overview
 
-TT-Forge is Tenstorrent's MLIR-based compiler that aims to run PyTorch models on TT hardware with less manual kernel programming than TT-Metal. However, it's under active development and not all models work yet.
+TT-Forge is Tenstorrent's MLIR-based compiler that aims to run PyTorch models on TT hardware with less manual kernel programming than TT-Metalium. However, it's under active development and not all models work yet.
 
 **Key lesson approach:**
 - Realistic about limitations (many models fail to compile)
@@ -1633,10 +1633,10 @@ TT-Forge is Tenstorrent's MLIR-based compiler that aims to run PyTorch models on
 
 ### Critical Discovery: Environment Variable Pollution (v0.0.50)
 
-**Problem:** The #1 cause of `ImportError: undefined symbol` errors is environment variable pollution from TT-Metal installations.
+**Problem:** The #1 cause of `ImportError: undefined symbol` errors is environment variable pollution from TT-Metalium installations.
 
 **Root Cause:** From [GitHub issue #529](https://github.com/tenstorrent/tt-forge/issues/529):
-- `TT_METAL_HOME` and `TT_METAL_VERSION` environment variables cause TT-Forge to load TT-Metal from outdated system paths
+- `TT_METAL_HOME` and `TT_METAL_VERSION` environment variables cause TT-Forge to load TT-Metalium from outdated system paths
 - Even with correct installation, these variables override the build and load the wrong version
 - Results in symbol resolution failures
 
@@ -1650,7 +1650,7 @@ unset TT_METAL_VERSION
 
 **Permanent fix in `~/.bashrc`:**
 ```bash
-# Prevent TT-Metal environment pollution for forge
+# Prevent TT-Metalium environment pollution for forge
 unset TT_METAL_HOME
 unset TT_METAL_VERSION
 ```
@@ -1682,14 +1682,14 @@ INSTALL_FORGE: {
 
 **Option A: Build from Source (Recommended)**
 - Official CMake-based build process
-- Guarantees compatibility with your exact TT-Metal version
+- Guarantees compatibility with your exact TT-Metalium version
 - Builds against `/opt/ttforge-toolchain` and `/opt/ttmlir-toolchain`
 - Requires clang-17, cmake, ninja-build
 - Takes 10-20 minutes (one-time cost)
 
 **Option B: Wheel Installation**
 - Quick installation from Tenstorrent PyPI
-- May have version mismatches (wheels built against specific TT-Metal versions)
+- May have version mismatches (wheels built against specific TT-Metalium versions)
 - Useful for quick prototyping if willing to troubleshoot
 
 ### Model Selection: MobileNetV2
@@ -1736,7 +1736,7 @@ output = compiled_model(input_tensor)
 1. Graph capture: Traces PyTorch operations
 2. Operator validation: Checks if all ops are supported
 3. Optimization: Applies fusion, layout transforms
-4. Lowering: Converts to TTNN operations (TT-Metal layer)
+4. Lowering: Converts to TTNN operations (TT-Metalium layer)
 5. Device mapping: Allocates tensors, schedules execution
 6. JIT compilation: Generates device kernels
 
@@ -1754,7 +1754,7 @@ output = compiled_model(input_tensor)
 - Add to `~/.bashrc` for permanent fix
 
 **10% of symbol errors:** True version mismatch
-- Wheels built against different TT-Metal version
+- Wheels built against different TT-Metalium version
 - Solution: Build from source with both repos on main
 
 ### Files Modified
@@ -1765,7 +1765,7 @@ output = compiled_model(input_tensor)
 - Rewrote troubleshooting to prioritize environment variables
 - Added GitHub issue #529 references
 
-**content/templates/tt-forge-classifier.py:**
+**content/templates/TT-Forge-classifier.py:**
 - Complete MobileNetV2 classification script
 - forge.compile() usage example
 - ImageNet preprocessing
@@ -1804,7 +1804,7 @@ output = compiled_model(input_tensor)
 - Operator coverage expanding but incomplete
 
 **3. Build from source is most reliable**
-- Guarantees compatibility with your TT-Metal version
+- Guarantees compatibility with your TT-Metalium version
 - Avoids wheel version mismatch issues
 - Better for development and experimentation
 
@@ -1833,14 +1833,14 @@ TT-XLA is Tenstorrent's production-ready XLA-based compiler that provides JAX an
 **Key advantages:**
 - ✅ **Simple installation:** Wheel-based via pip (no building)
 - ✅ **Python 3.10+ compatible:** Works with standard Python versions
-- ✅ **No tt-metal rebuild:** Works with existing installation
+- ✅ **No TT-Metalium rebuild:** Works with existing installation
 - ✅ **Multi-chip ready:** Tensor parallelism (TP) and data parallelism (DP)
 - ✅ **Production-tested:** Most mature compiler in the stack
 
 ### User Problem Solved
 
 **Context:** User's cloud environment constraints:
-- tt-metal locked at SHA 9b67e09
+- TT-Metalium locked at SHA 9b67e09
 - Python 3.10.12 (cannot change)
 - TT-Forge requires Python 3.11+ and complex build
 - User reported: "I still can't get the forge lesson to work. Let's try another tact."
@@ -1869,16 +1869,16 @@ TT-XLA PJRT Plugin (pjrt-plugin-tt wheel)
     ↓
 TT-MLIR Compiler (bundled in wheel)
     ↓
-TT-Metal (existing ~/tt-metal)
+TT-Metalium (existing ~/tt-metal)
     ↓
 Hardware (n150/n300/T3000/Galaxy)
 ```
 
-**Why this works without rebuilding tt-metal:**
+**Why this works without rebuilding TT-Metalium:**
 The `pjrt-plugin-tt` wheel includes:
 1. TT-MLIR compiler (bundled)
 2. PJRT interface (connects JAX to hardware)
-3. Runtime compatibility layer (interfaces with tt-metal)
+3. Runtime compatibility layer (interfaces with TT-Metalium)
 
 ### Implementation
 
@@ -1889,7 +1889,7 @@ The `pjrt-plugin-tt` wheel includes:
    - JAX test script
    - Official GPT-2 demo
    - Multi-chip configuration
-   - Comparison table: TT-XLA vs TT-Forge vs TT-Metal
+   - Comparison table: TT-XLA vs TT-Forge vs TT-Metalium
    - Troubleshooting section
 
 2. **`TT_XLA_INSTALL_GUIDE.md`** - Standalone reference guide
@@ -1926,7 +1926,7 @@ The `pjrt-plugin-tt` wheel includes:
 - Simple dot product example
 
 **Step 3: Run Official GPT-2 Demo**
-- Downloads from tt-forge repository
+- Downloads from TT-Forge repository
 - Uses Flax (JAX neural network library)
 - Runs inference on TT hardware
 
@@ -1937,12 +1937,12 @@ The `pjrt-plugin-tt` wheel includes:
 
 **Step 5: Next Steps**
 - Image classification with JAX/Flax
-- More demos from tt-forge repository
+- More demos from TT-Forge repository
 - PyTorch/XLA support (still maturing)
 
-### Comparison: TT-XLA vs TT-Forge vs TT-Metal
+### Comparison: TT-XLA vs TT-Forge vs TT-Metalium
 
-| Feature | TT-XLA | TT-Forge | TT-Metal |
+| Feature | TT-XLA | TT-Forge | TT-Metalium |
 |---------|--------|----------|----------|
 | **Maturity** | Production | Beta/Experimental | Stable |
 | **Installation** | Wheel (easy) | Build from source | Already installed |
@@ -1955,7 +1955,7 @@ The `pjrt-plugin-tt` wheel includes:
 
 **For constrained cloud environments:**
 - No Python version change required
-- No tt-metal rebuild needed
+- No TT-Metalium rebuild needed
 - Simple one-command installation
 - Production-ready maturity
 
@@ -1989,7 +1989,7 @@ Current lesson progression:
 - TT-Metalium Cookbook
 
 This completes the compiler stack coverage:
-- **Low-level:** TT-Metal (Lessons 1-10)
+- **Low-level:** TT-Metalium (Lessons 1-10)
 - **Experimental:** TT-Forge (Lesson 11)
 - **Production:** TT-XLA (Lesson 12) ← NEW
 - **Specialized:** vLLM for LLMs (Lessons 6-7)

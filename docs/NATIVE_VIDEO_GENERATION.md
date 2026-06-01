@@ -10,7 +10,7 @@
 
 ### What It Is
 
-**Mochi** is a native text-to-video generation model integrated into TT-Metal:
+**Mochi** is a native text-to-video generation model integrated into TT-Metalium:
 - **Model:** genmo/mochi-1-preview
 - **Architecture:** 3D transformer with temporal coherence
 - **Location:** `/home/user/tt-metal/models/experimental/tt_dit/pipelines/mochi/pipeline_mochi.py`
@@ -132,7 +132,7 @@ export_to_video(frames, "output.mp4", fps=8)
 
 ## Answer to User's Question
 
-**"Are there any paths to actual video generation -- like creating animations -- we can use models for with tt-metal or tt-xla and really make someone feel like they saw some kind of reality temporarily created that hadn't existed before?"**
+**"Are there any paths to actual video generation -- like creating animations -- we can use models for with TT-Metalium or TT-XLA and really make someone feel like they saw some kind of reality temporarily created that hadn't existed before?"**
 
 ### Short Answer
 
@@ -165,7 +165,7 @@ export_to_video(frames, "output.mp4", fps=8)
 - High-quality still images tell a story
 
 **Option 2: Explore AnimateDiff**
-- Check if AnimateDiff has TT-Metal integration
+- Check if AnimateDiff has TT-Metalium integration
 - Adds motion between frames (interpolation)
 - Might work on smaller hardware
 - Would need investigation
@@ -188,7 +188,7 @@ export_to_video(frames, "output.mp4", fps=8)
 **Models Found:**
 1. ✅ **Mochi** - Native video, requires Galaxy (32 chips)
 2. ⚠️ **AnimateDiff** - Not yet investigated (might work on n150?)
-3. ❌ **Other video models** - None found in tt-metal experimental/
+3. ❌ **Other video models** - None found in TT-Metalium experimental/
 
 **Recommendation:**
 - **For lesson content:** Stick with current frame-by-frame approach (validated, works on n150)
@@ -213,6 +213,6 @@ export_to_video(frames, "output.mp4", fps=8)
 1. ✅ Current lesson validated for n150 (frame-by-frame)
 2. ⏸️ Mochi requires Galaxy - document as advanced feature
 3. ❓ Investigate AnimateDiff for n150 compatibility
-4. ❓ Check TT-XLA for any video models (user mentioned tt-xla)
+4. ❓ Check TT-XLA for any video models (user mentioned TT-XLA)
 
 **Status:** Frame-by-frame approach is production-ready for n150. Native video generation requires Galaxy hardware.

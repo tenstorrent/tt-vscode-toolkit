@@ -81,8 +81,8 @@ This lesson builds on Lesson 4. If you're jumping here directly, verify your set
 # Hardware detected?
 tt-smi -s
 
-# tt-metal working?
-python3 -c "import ttnn; print('✓ tt-metal ready')"
+# TT-Metalium working?
+python3 -c "import ttnn; print('✓ TT-Metalium ready')"
 
 # Model downloaded (Meta format)?
 ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
@@ -96,7 +96,7 @@ python3 -c "import flask; print('✓ flask installed')"
 
 **If any checks fail:**
 
-**No hardware or tt-metal?**
+**No hardware or TT-Metalium?**
 - See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) and [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
 
 **No model?**
@@ -120,7 +120,7 @@ python3 -c "import flask; print('✓ flask installed')"
 ## Prerequisites
 
 Same as Lesson 4:
-- tt-metal installed and working
+- TT-Metalium installed and working
 - Model downloaded (Llama-3.1-8B-Instruct) in **Meta format** (`original/` subdirectory)
 - Dependencies: `pi`, `llama-models`, and `flask` packages
 
@@ -179,7 +179,7 @@ cd ~/tt-metal && \
 **What you'll see:**
 
 ```text
-🔄 Importing tt-metal libraries and loading model...
+🔄 Importing TT-Metalium libraries and loading model...
    This will take 2-5 minutes on first run...
 
 📥 Initializing Tenstorrent mesh device...
@@ -613,4 +613,4 @@ Continue to Lesson 6: Production Inference with vLLM!
 
 - [Flask Documentation](https://flask.palletsprojects.com/)
 - [REST API Best Practices](https://restfulapi.net/)
-- [TT-Metal Generator API](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/generator.py)
+- [TT-Metalium Generator API](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/generator.py)

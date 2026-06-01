@@ -1,8 +1,8 @@
-# Validation Summary - tt-vscode-toolkit v0.65.1
+# Validation Summary - TT-VSCode-Toolkit v0.65.1
 
 **Date:** 2026-02-10
 **Validator:** Claude (AI validation agent)
-**tt-metal Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
+**TT-Metalium Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
 **Hardware:** n150 L (Wormhole - Single Chip)
 **Approach:** Pattern-based content quality audit + selective technical testing
 
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-✅ **tt-metal v0.65.1 Status:** VALIDATED - Working correctly on n150 hardware
+✅ **TT-Metalium v0.65.1 Status:** VALIDATED - Working correctly on n150 hardware
 ✅ **Environment Setup:** Complete (15 min) - All dependencies installed, tensor operations passing
 ✅ **Content Quality Audit:** Complete (40 min) - 3 lessons reviewed in detail, systemic issues identified
 ✅ **UX Fixes Applied:** verify-installation lesson improved with 4 button additions
@@ -23,7 +23,7 @@
 
 ### Current Environment
 
-**tt-metal:**
+**TT-Metalium:**
 - Version: v0.65.1
 - Commit: 558a19699f02c106eb851ef9df0c118979b6c469
 - Date: 2026-01-08
@@ -36,11 +36,11 @@
 - Status: ✅ Snapshot mode (`-s`) works perfectly
 - Note: TUI mode improved but still has issues in non-interactive environments
 
-**tt-forge:**
-- venv Location: ~/tt-forge-venv
+**TT-Forge:**
+- venv Location: ~/TT-Forge-venv
 - Python: 3.11.13
 - Status: ⚠️ Created but empty (pip 24.0, setuptools 65.5.0 only)
-- Action Needed: Setup required when validating tt-forge lessons
+- Action Needed: Setup required when validating TT-Forge lessons
 
 **Hardware Detected:**
 - Board Type: n150 L (Wormhole)
@@ -99,7 +99,7 @@
 ### Lessons Reviewed
 
 **Priority 1 (First Inference):**
-- ✅ tt-installer - Reviewed (600+ lines, needs simplification)
+- ✅ TT-Installer - Reviewed (600+ lines, needs simplification)
 - ✅ hardware-detection - Validated (~3 min vs 5 min estimated)
 - ✅ verify-installation - Validated + UX fixes applied
 - 📋 download-model - Scanned (good UX, has buttons)
@@ -157,7 +157,7 @@
 ### Specific Issues Found
 
 **UX Issues (9 total, but 4 fixed):**
-1. tt-installer: Manual `curl -O` + `chmod +x` should be button
+1. TT-Installer: Manual `curl -O` + `chmod +x` should be button
 2. hardware-detection: `tt-smi -s` missing button
 3. hardware-detection: Hardware type extraction missing button
 4. hardware-detection: Troubleshooting commands not buttonized
@@ -239,7 +239,7 @@
 - api-server
 
 **Production Serving:**
-- tt-inference-server
+- TT-Inference-Server
 - vllm-production
 
 **Image/Video:**
@@ -264,9 +264,9 @@
 
 ### 🔧 Needs Setup
 
-**tt-forge Lessons:**
+**TT-Forge Lessons:**
 - forge-image-classification
-- **Status:** tt-forge-venv exists but empty
+- **Status:** TT-Forge-venv exists but empty
 - **Action:** Clone tt-forge-fe, configure venv, document version
 
 ---
@@ -274,7 +274,7 @@
 ## Validation Status by Category
 
 ### Priority 1: First Inference (6/6 completed)
-- ✅ tt-installer - Reviewed (needs simplification)
+- ✅ TT-Installer - Reviewed (needs simplification)
 - ✅ hardware-detection - Validated (3 min, good UX)
 - ✅ verify-installation - Validated + **UX FIXES APPLIED** (4 buttons added)
 - ✅ download-model - Validated (excellent UX, has all buttons)
@@ -282,7 +282,7 @@
 - ✅ api-server - Validated (**gold standard UX**, generates scripts perfectly)
 
 ### Priority 2: Production Serving (0/2)
-- ⏸️ tt-inference-server - Pending
+- ⏸️ TT-Inference-Server - Pending
 - ⏸️ vllm-production - Pending
 
 ### Priority 3: Image/Video (0/3)
@@ -341,7 +341,7 @@
 1. Complete Priority 1 lessons (3 remaining)
 2. Spot-check Priority 2-3 lessons (production serving, image gen)
 3. Sample Priority 4-5 lessons (training, cookbook)
-4. Set up tt-forge-venv and validate tt-forge lessons
+4. Set up TT-Forge-venv and validate TT-Forge lessons
 5. Document findings and update lesson metadata
 
 ### Content Improvements
@@ -353,7 +353,7 @@
 
 2. Add hardware visualizations
 3. Create interactive environment status dashboard
-4. Simplify tt-installer with Quick Start path
+4. Simplify TT-Installer with Quick Start path
 
 ---
 
@@ -404,7 +404,7 @@
 
 **For Validation:**
 1. Continue with Priority 1-3 lessons
-2. Set up tt-forge-venv
+2. Set up TT-Forge-venv
 3. Test custom training lessons with v0.65.1
 4. Spot-check cookbook recipes
 5. Update lesson metadata
@@ -706,13 +706,13 @@ All share same validated TTNN foundation. Templates deployed and ready.
 
 ### Production Serving Lessons (2/2)
 
-**✅ tt-inference-server** - Content validated (requires tt-installer 2.0 for execution)
+**✅ TT-Inference-Server** - Content validated (requires TT-Installer 2.0 for execution)
 - **Lesson content:** Validated - comprehensive and well-documented ✅
-- **Execution status:** Requires tt-installer 2.0 to be installed
+- **Execution status:** Requires TT-Installer 2.0 to be installed
 - Command not found in validation environment: `tt-inference-server`
 - Path not found: `~/.local/lib/tt-inference-server/run.py`
 - **Note:** Lesson content quality verified, actual execution requires installation
-- Previous validations confirmed functionality with tt-installer 2.0
+- Previous validations confirmed functionality with TT-Installer 2.0
 
 **✅ vllm-production** - Already validated
 - Marked as validated on n150 in metadata
@@ -723,7 +723,7 @@ All share same validated TTNN foundation. Templates deployed and ready.
 
 **Summary:**
 - 2/2 validated (100%)
-- tt-inference-server lesson content validated, execution requires tt-installer 2.0
+- TT-Inference-Server lesson content validated, execution requires TT-Installer 2.0
 
 ---
 

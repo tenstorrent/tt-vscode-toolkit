@@ -1498,5 +1498,5 @@ cat ~/code/tt-agents/framework_comparison.md
 - [smolagents docs](https://huggingface.co/docs/smolagents)
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/)
 - [CrewAI docs](https://docs.crewai.com)
-- [tt-inference-server](https://github.com/tenstorrent/tt-inference-server)
+- [TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server)
 - [Tenstorrent Discord](https://discord.gg/tenstorrent)

@@ -76,8 +76,8 @@
   "lessons": [
     {
       "id": "tt-installer",
-      "title": "Modern Setup with tt-installer 2.0",
-      "description": "The fastest way to get started with Tenstorrent! Use tt-installer 2.0 for one-command installation of the full stack including drivers, firmware, tt-metalium containers, and Python environment.",
+      "title": "Modern Setup with TT-Installer 2.0",
+      "description": "The fastest way to get started with Tenstorrent! Use TT-Installer 2.0 for one-command installation of the full stack including drivers, firmware, TT-Metalium containers, and Python environment.",
       "category": "first-inference",
       "tags": [
         "installation",
@@ -139,7 +139,7 @@
     {
       "id": "verify-installation",
       "title": "Verify Your Setup",
-      "description": "Check that your Tenstorrent hardware, TTNN, and optional tt-metal source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
+      "description": "Check that your Tenstorrent hardware, TTNN, and optional TT-Metalium source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
       "category": "first-inference",
       "tags": [
         "installation"
@@ -203,7 +203,7 @@
     {
       "id": "interactive-chat",
       "title": "Interactive Chat with Direct API",
-      "description": "Build a custom chat application using tt-metal's Generator API directly.",
+      "description": "Build a custom chat application using TT-Metalium's Generator API directly.",
       "category": "first-inference",
       "tags": [
         "chat",
@@ -266,8 +266,8 @@
     },
     {
       "id": "tt-inference-server",
-      "title": "Production Inference with tt-inference-server",
-      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, P100, p300c, or QuietBox 2. tt-inference-server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
+      "title": "Production Inference with TT-Inference-Server",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, P100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
@@ -685,7 +685,7 @@
     {
       "id": "cookbook-overview",
       "title": "Tenstorrent Cookbook Overview",
-      "description": "Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metal techniques: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, Image Filters, and Particle Life. Each recipe is a standalone lesson with full source code and visual output.",
+      "description": "Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metalium techniques: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, Image Filters, and Particle Life. Each recipe is a standalone lesson with full source code and visual output.",
       "category": "cookbook",
       "tags": [
         "ttnn",
@@ -1150,8 +1150,8 @@
     },
     {
       "id": "build-tt-metal",
-      "title": "Build tt-metal from Source",
-      "description": "Clone and build tt-metal from source. Required for Direct API (Generator API) lessons and for running tt-metal examples directly. QuietBox 2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
+      "title": "Build TT-Metalium from Source",
+      "description": "Clone and build TT-Metalium from source. Required for Direct API (Generator API) lessons and for running TT-Metalium examples directly. QuietBox 2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
       "category": "first-inference",
       "tags": [
         "installation",
@@ -1180,7 +1180,7 @@
     {
       "id": "bounty-program",
       "title": "Bounty Program: Model Bring-Up",
-      "description": "Learn how to contribute to the Tenstorrent Bounty Program by bringing up new models. Master TT-Metal while becoming part of the open-source ecosystem. Uses the successful Phi-3 contribution as a case study.",
+      "description": "Learn how to contribute to the Tenstorrent Bounty Program by bringing up new models. Master TT-Metalium while becoming part of the open-source ecosystem. Uses the successful Phi-3 contribution as a case study.",
       "category": "advanced",
       "tags": [
         "model"
@@ -1272,7 +1272,7 @@
     },
     {
       "id": "deploy-vscode-to-koyeb",
-      "title": "Deploy tt-vscode-toolkit to Koyeb",
+      "title": "Deploy TT-VSCode-Toolkit to Koyeb",
       "description": "Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional n300 hardware access.",
       "category": "deployment",
       "tags": [
@@ -1303,7 +1303,7 @@
       "recommended_metal_version": "v0.65.1",
       "minTTMetalVersion": "v0.65.1",
       "validationDate": "2026-02-10",
-      "validationNotes": "Docker images updated to use tt-metal v0.65.1 base (Dockerfile.koyeb commit 558a19699f)"
+      "validationNotes": "Docker images updated to use TT-Metalium v0.65.1 base (Dockerfile.koyeb commit 558a19699f)"
     },
     {
       "id": "deploy-to-koyeb",
@@ -1335,7 +1335,7 @@
       "recommended_metal_version": "v0.65.1",
       "minTTMetalVersion": "v0.65.1",
       "validationDate": "2026-02-10",
-      "validationNotes": "Docker base images updated to tt-metal v0.65.1, extends ghcr.io/tenstorrent/tt-vscode-toolkit:latest"
+      "validationNotes": "Docker base images updated to TT-Metalium v0.65.1, extends ghcr.io/tenstorrent/tt-vscode-toolkit:latest"
     },
     {
       "id": "qb2-openclaw-assistant",
@@ -1422,11 +1422,11 @@
     },
     {
       "id": "tt-lang-intro",
-      "title": "Introduction to tt-lang",
-      "description": "Write your first tt-lang kernel: a concurrent compute + data-movement program that runs on the Tensix grid. Try it live in the browser via ttlang-sim-lite.",
+      "title": "Introduction to TT-Lang",
+      "description": "Write your first TT-Lang kernel: a concurrent compute + data-movement program that runs on the Tensix grid. Try it live in the browser via ttlang-sim-lite.",
       "category": "compilers",
       "tags": [
-        "tt-lang",
+        "TT-Lang",
         "sim",
         "kernels",
         "tensix"

@@ -31,13 +31,13 @@ Detect and verify your Tenstorrent hardware using the `tt-smi` command-line tool
 **If you're using:**
 - ✅ **Tenstorrent Cloud** - Your environment is pre-configured
 - ✅ **Quietbox with preinstalled image** - tt-smi and drivers are already installed
-- ✅ **Managed system** - Your sysadmin likely ran tt-installer already
+- ✅ **Managed system** - Your sysadmin likely ran TT-Installer already
 
 **You can skip directly to running tt-smi below!**
 
-### Need to Install? Use tt-installer 2.0
+### Need to Install? Use TT-Installer 2.0
 
-If `tt-smi` is not found on your system, the fastest way to set up is with **tt-installer 2.0** (recommended for 95% of users):
+If `tt-smi` is not found on your system, the fastest way to set up is with **TT-Installer 2.0** (recommended for 95% of users):
 
 ```bash
 # One-command installation (5-15 minutes)
@@ -49,11 +49,11 @@ If `tt-smi` is not found on your system, the fastest way to set up is with **tt-
 - ✅ Kernel drivers
 - ✅ Firmware updates
 - ✅ HugePages configuration
-- ✅ tt-metalium containers (1GB standard, optional 10GB with demos)
+- ✅ TT-Metalium containers (1GB standard, optional 10GB with demos)
 - ✅ Python environment
 
 
-Consult the [tt-installer](https://github.com/tenstorrent/tt-installer) repo for more information.
+Consult the [TT-Installer](https://github.com/tenstorrent/tt-installer) repo for more information.
 
 ---
 
@@ -342,7 +342,7 @@ tt-smi -s  # Shows all 4 devices
 - ✅ QuietBox multi-device system configuration
 - ✅ Troubleshooting hardware detection issues
 
-**Next step:** Now that you know your hardware, verify your tt-metal installation works correctly.
+**Next step:** Now that you know your hardware, verify your TT-Metalium installation works correctly.
 
 Continue to Lesson 2: Verify Installation!
 

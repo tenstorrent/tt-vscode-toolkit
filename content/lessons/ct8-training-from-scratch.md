@@ -20,9 +20,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 90
@@ -218,7 +218,7 @@ graph LR
 
 ### Install Dependencies
 
-**tt-metal version:** v0.66.0-rc5 or later (v0.67.0+ or latest RC recommended)
+**TT-Metalium version:** v0.66.0-rc5 or later (v0.67.0+ or latest RC recommended)
 
 **Check your version:**
 ```bash
@@ -1355,7 +1355,7 @@ You've trained nano-trickster (11M params) from random initialization. But what 
 ### Next Steps
 - **Scale up:** Try 50M or 200M parameter models
 - **Better data:** Curate high-quality datasets
-- **Production deployment:** CT-6 (vLLM) + CT-7 (tt-inference-server)
+- **Production deployment:** CT-6 (vLLM) + CT-7 (TT-Inference-Server)
 - **Research:** Experiment with novel architectures
 
 ---

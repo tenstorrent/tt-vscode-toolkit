@@ -51,11 +51,11 @@ source ~/tt-forge-venv/bin/activate
 > one path exists, create the link yourself:
 >
 > ```bash
-> # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
-> ln -s /opt/venv-forge ~/tt-forge-venv
+> # /opt/venv-forge exists but ~/TT-Forge-venv doesn't:
+> ln -s /opt/venv-forge ~/TT-Forge-venv
 >
-> # ~/tt-forge-venv exists but /opt/venv-forge doesn't (needs sudo):
-> sudo ln -s ~/tt-forge-venv /opt/venv-forge
+> # ~/TT-Forge-venv exists but /opt/venv-forge doesn't (needs sudo):
+> sudo ln -s ~/TT-Forge-venv /opt/venv-forge
 > ```
 
 > **Note:** The PJRT plugin requires `tt_torch` to be imported before `jax` so the
@@ -261,7 +261,7 @@ source ~/tt-forge-venv/bin/activate
 
 ---
 
-## Run the official tt-forge demos
+## Run the official TT-Forge demos
 
 The `tt-forge` repo has validated GPT-2, ALBERT, ResNet, and OPT demos
 using JAX/Flax and PyTorch/XLA:
@@ -317,4 +317,4 @@ No new venv, no pip install, no Python version change, no library compilation.
   models via the full MLIR compiler pipeline
 - [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — LLM serving (Qwen3, Llama)
 - [JAX documentation](https://jax.readthedocs.io/) — comprehensive JAX tutorials
-- [tt-forge demos](https://github.com/tenstorrent/tt-forge/tree/main/demos/tt-xla) — validated JAX and PyTorch/XLA examples
+- [TT-Forge demos](https://github.com/tenstorrent/tt-forge/tree/main/demos/tt-xla) — validated JAX and PyTorch/XLA examples

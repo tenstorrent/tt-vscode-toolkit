@@ -20,9 +20,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15
@@ -98,7 +98,7 @@ So far in this extension, you've learned how to **run** pre-trained models (infe
 
 Tenstorrent's training ecosystem is designed around clarity and modularity. Here's how the pieces fit together:
 
-### tt-metal (Foundation)
+### TT-Metalium (Foundation)
 - **What it is:** Core SDK for Tenstorrent hardware
 - **What it does:** Low-level operations, kernels, device management, memory handling
 - **Why it matters:** This is the foundation everything else builds on
@@ -121,7 +121,7 @@ Tenstorrent's training ecosystem is designed around clarity and modularity. Here
 ```mermaid
 graph TD
     A[Your Training Script] --> B[tt-train API<br/>High-level Training Interface]
-    B --> C[tt-metal SDK<br/>Hardware Operations]
+    B --> C[TT-Metalium SDK<br/>Hardware Operations]
     C --> D[Tenstorrent Hardware<br/>n150/n300/T3000/P100/Galaxy]
 
     E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
@@ -134,7 +134,7 @@ graph TD
 ```
 
 **Think of it like web development:**
-- tt-metal = Browser APIs (low-level)
+- TT-Metalium = Browser APIs (low-level)
 - tt-train = React/Vue (framework)
 - tt-blacksmith = Design patterns & best practices
 - Your script = Your application
@@ -375,8 +375,8 @@ Train from scratch when:
 
 - **TinyLlama:** Apache 2.0 license (commercial-friendly)
 - **Your fine-tuned model:** You own it
-- **Training code:** Check tt-metal and tt-train licenses
-- **Hosting:** Use tt-inference-server or vLLM (Lesson 7)
+- **Training code:** Check TT-Metalium and tt-train licenses
+- **Hosting:** Use TT-Inference-Server or vLLM (Lesson 7)
 
 Always verify licenses for your specific use case.
 
@@ -450,7 +450,7 @@ You're about to learn how to train custom models - but what will you build with 
 
 **This series teaches you:**
 - ✅ The techniques (fine-tuning, configuration, multi-device training)
-- ✅ The tools (tt-train, tt-metal, experiment tracking)
+- ✅ The tools (tt-train, TT-Metalium, experiment tracking)
 - ✅ The patterns (tt-blacksmith best practices)
 
 **But more importantly, it empowers you to:**
@@ -501,7 +501,7 @@ Now that you understand the concepts, it's time to get hands-on. In the next les
 ## Additional Resources
 
 ### Official Documentation
-- [tt-metal GitHub](https://github.com/tenstorrent/tt-metal) - Core SDK
+- [TT-Metalium GitHub](https://github.com/tenstorrent/tt-metal) - Core SDK
 - [tt-train Documentation](https://github.com/tenstorrent/tt-metal/tree/main/tt-train) - Training framework
 - [tt-blacksmith Examples](https://github.com/tenstorrent/tt-blacksmith) - Framework patterns
 

@@ -11,7 +11,7 @@ The Jupyter notebook now includes **intelligent dependency checking and auto-ins
    - Auto-installed from requirements.txt
    - Fallback to direct pip install
 
-2. **TT-Metal TTNN** (critical requirement)
+2. **TT-Metalium TTNN** (critical requirement)
    - Checked for availability
    - Auto-installation attempted from ~/tt-metal
    - Clear manual installation instructions if auto-install fails
@@ -208,7 +208,7 @@ if not ttnn_available:
 ### For Developers
 1. **Reduced support burden** - Users self-diagnose
 2. **Consistent setup** - Same process for everyone
-3. **Version-agnostic** - Works with any tt-metal installation
+3. **Version-agnostic** - Works with any TT-Metalium installation
 4. **Environment-aware** - Respects user's Python environment
 
 ## Testing Checklist
@@ -261,7 +261,7 @@ if not ttnn_available:
    - Python needs to reload modules
    - Clear instructions provided
 
-3. **Build verification**: Doesn't verify tt-metal was built correctly
+3. **Build verification**: Doesn't verify TT-Metalium was built correctly
    - Assumes if ~/tt-metal exists, it's built
    - User may need to run build_metal.sh first
 
@@ -273,7 +273,7 @@ if not ttnn_available:
 
 1. **Build verification**: Check for built artifacts before installing
 2. **Progress bars**: Show installation progress (especially for ttnn)
-3. **Version checking**: Verify tt-metal/ttnn version compatibility
+3. **Version checking**: Verify TT-Metalium/ttnn version compatibility
 4. **Offline mode**: Detect no internet, provide offline install steps
 5. **Docker support**: Detect Docker environments, adjust instructions
 

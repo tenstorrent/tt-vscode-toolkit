@@ -1,6 +1,6 @@
 # Community Guidelines
 
-Welcome to the Tenstorrent VSCode Toolkit community! These guidelines help ensure a positive and productive environment for all contributors.
+Welcome to the TT-VSCode-Toolkit community! These guidelines help ensure a positive and productive environment for all contributors.
 
 ## Code of Conduct
 

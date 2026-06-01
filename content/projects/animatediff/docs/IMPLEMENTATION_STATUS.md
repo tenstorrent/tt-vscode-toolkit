@@ -23,7 +23,7 @@ transformer block (320-dim features, matching mm_sd_v15_v2.ckpt). No TT hardware
 
 **Status: ✅ Code complete, hardware validation pending**
 
-TTNN UNet (`UNet2D` from tt-metal SD 1.4 demo) denoises frames sequentially on Blackhole.
+TTNN UNet (`UNet2D` from TT-Metalium SD 1.4 demo) denoises frames sequentially on Blackhole.
 Temporal coherence via shared base noise. `TT_METAL_ARCH_NAME=blackhole` required.
 
 **Run:** `python examples/generate_blackhole.py` (requires Blackhole hardware + ~/tt-metal)

@@ -1,10 +1,10 @@
 # TT-Lang Lesson Expansion — Design Spec
 
-**Goal:** Rewrite `content/lessons/tt-lang-intro.md` into a single comprehensive lesson that hooks readers with the browser playground immediately, motivates tt-lang with real project numbers, teaches installation (ttsim + hardware), explains the kernel programming model, and walks through the full Claude Code slash command workflow from idea to validated kernel.
+**Goal:** Rewrite `content/lessons/tt-lang-intro.md` into a single comprehensive lesson that hooks readers with the browser playground immediately, motivates TT-Lang with real project numbers, teaches installation (ttsim + hardware), explains the kernel programming model, and walks through the full Claude Code slash command workflow from idea to validated kernel.
 
 **Architecture:** One expanded markdown lesson replacing the existing `tt-lang-intro.md`. No new files, no registry changes, no new commands. The lesson uses the existing `playground: ttlang-sim` front matter so the browser sandbox renders automatically.
 
-**Target reader:** A developer who has heard of tt-lang and wants to know why it exists, whether it's worth their time, and how to actually start using it — with or without Tenstorrent hardware.
+**Target reader:** A developer who has heard of TT-Lang and wants to know why it exists, whether it's worth their time, and how to actually start using it — with or without Tenstorrent hardware.
 
 ---
 
@@ -14,7 +14,7 @@ The playground panel renders before any prose (controlled by VSCode walkthrough 
 
 | Kernel | What it teaches |
 |--------|----------------|
-| Element-wise Add | Minimal DFB producer/consumer loop — the hello-world of tt-lang |
+| Element-wise Add | Minimal DFB producer/consumer loop — the hello-world of TT-Lang |
 | Fused Multiply-Add | Three DFBs, zero intermediate DRAM writes — what fusion looks like |
 | Matmul + Bias + ReLU | K-reduction accumulator ping-pong; core matmul pattern on Tensix |
 | Row-partitioned Matmul | `ttl.node()` work partitioning across a multi-core grid |
@@ -25,7 +25,7 @@ No installation steps here — the playground is the install.
 
 ---
 
-## Section 2 — The DRAM wall (why tt-lang exists)
+## Section 2 — The DRAM wall (why TT-Lang exists)
 
 Three short paragraphs plus one table.
 
@@ -55,7 +55,7 @@ Five punchy paragraphs, each 2–3 sentences, each with a concrete result and a 
 
 2. **WAN Animate 14B** (`~/code/wan-animate-ttlang`): 40-layer, 5120-hidden DiT brought up on a 4-chip QuietBox 2 (2×2 mesh). TT-Lang kernels cover 3D RoPE, AdaLN modulation, and softcap. The bring-up involved debugging seven integration bugs across the pipeline, traced in a single session log.
 
-3. **Freeciv game AI** (`~/tt-lang-freeciv`): tt-lang kernels for Freeciv's map generation (Perlin noise terrain) and pathfinding, running in the functional simulator. A game AI that started as a "what if" conversation and ended with Tensix doing the world-building.
+3. **Freeciv game AI** (`~/tt-lang-freeciv`): TT-Lang kernels for Freeciv's map generation (Perlin noise terrain) and pathfinding, running in the functional simulator. A game AI that started as a "what if" conversation and ended with Tensix doing the world-building.
 
 4. **DFlash speculative decoder** (`zoecarver/dflash`): Draft model proposes 16 tokens in parallel, verified by Qwen3-30B. Draft forward pass at 93ms with caching (vs 887ms without). 5–6× decode speedup end-to-end. Acceptance rate matches the PyTorch reference.
 
@@ -63,7 +63,7 @@ Five punchy paragraphs, each 2–3 sentences, each with a concrete result and a 
 
 ---
 
-## Section 4 — Getting tt-lang
+## Section 4 — Getting TT-Lang
 
 Three subsections with explicit commands for each path.
 
@@ -97,7 +97,7 @@ cd $TT_METAL_HOME
 
 Note the known limitation: `TT_METAL_SLOW_DISPATCH_MODE=1` is required; fast dispatch is in progress.
 
-### Local — build tt-lang
+### Local — build TT-Lang
 
 ```bash
 git clone https://github.com/tenstorrent/tt-lang.git
@@ -107,7 +107,7 @@ source build/env/activate
 python examples/eltwise_add.py
 ```
 
-Explicit note: the `source build/env/activate` step is required before running any tt-lang commands. Link to `docs/sphinx/build.md`.
+Explicit note: the `source build/env/activate` step is required before running any TT-Lang commands. Link to `docs/sphinx/build.md`.
 
 ### Real hardware
 
@@ -143,7 +143,7 @@ No new kernels added here. The existing three (eltwise_add, fused_mma, matmul_re
 
 ## Section 7 — The Claude Code slash commands
 
-This section documents the `/ttl-*` skills installed in the TT Developer Toolkit. Available when working in Claude Code with tt-lang.
+This section documents the `/ttl-*` skills installed in the TT-VSCode-Toolkit. Available when working in Claude Code with TT-Lang.
 
 ### The workflow
 
@@ -152,7 +152,7 @@ Walk through a complete example: starting from a PyTorch multi-head attention fu
 ```
 /ttl-import attention.py
 ```
-Translates CUDA, Triton, PyTorch, or TTNN code to tt-lang DFB pattern. Handles the mechanical mapping: ops → compute thread, tensor loads → DM0, tensor stores → DM1. Output is a runnable `.py` file.
+Translates CUDA, Triton, PyTorch, or TTNN code to TT-Lang DFB pattern. Handles the mechanical mapping: ops → compute thread, tensor loads → DM0, tensor stores → DM1. Output is a runnable `.py` file.
 
 ```
 /ttl-simulate attention_ttl.py
@@ -162,7 +162,7 @@ Runs the kernel in the functional simulator (ttlang-sim). Catches DFB deadlocks,
 ```
 /ttl-test attention_ttl.py
 ```
-Generates a correctness test suite comparing tt-lang output against a NumPy or PyTorch reference. Covers edge cases: small matrices, non-tile-aligned shapes, zero inputs.
+Generates a correctness test suite comparing TT-Lang output against a NumPy or PyTorch reference. Covers edge cases: small matrices, non-tile-aligned shapes, zero inputs.
 
 ```
 /ttl-profile attention_ttl.py
@@ -177,7 +177,7 @@ Applies optimizations based on profile output: increase DFB depth for double-buf
 ```
 /ttl-export attention_ttl.py
 ```
-Compiles the kernel through LLVM → tt-mlir → tt-metal and produces production C++ code. Also outputs the MLIR at each pass stage for debugging.
+Compiles the kernel through LLVM → tt-mlir → TT-Metalium and produces production C++ code. Also outputs the MLIR at each pass stage for debugging.
 
 ```
 /ttl-bug "description"
@@ -202,11 +202,11 @@ Files a structured bug report with a minimal reproducer when the compiler or sim
 
 Links section:
 
-- [tt-lang on GitHub](https://github.com/tenstorrent/tt-lang) — source, examples, docs
+- [TT-Lang on GitHub](https://github.com/tenstorrent/tt-lang) — source, examples, docs
 - [zoecarver/tt-lang-models](https://github.com/zoecarver/tt-lang-models) — reference models (DFlash, Engram, Oasis, nanochat, Gemma4)
 - [zoecarver/tt-lang-kernels](https://github.com/zoecarver/tt-lang-kernels) — standalone kernel library
 - [ttsim releases](https://github.com/tenstorrent/ttsim/releases/latest) — hardware-free simulator binaries
-- [tt-mlir](https://github.com/tenstorrent/tt-mlir) — the compiler stack under tt-lang
+- [tt-mlir](https://github.com/tenstorrent/tt-mlir) — the compiler stack under TT-Lang
 
 ---
 

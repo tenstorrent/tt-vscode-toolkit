@@ -1,4 +1,4 @@
-# Pre-compiled tt-metal and MOTD System
+# Pre-compiled TT-Metalium and MOTD System
 
 **Version:** 0.0.276
 **Date:** 2026-01-27
@@ -6,22 +6,22 @@
 ## Overview
 
 The Docker images now include:
-1. **Pre-compiled tt-metal** - Ready to use immediately, no build time on first startup
+1. **Pre-compiled TT-Metalium** - Ready to use immediately, no build time on first startup
 2. **MOTD (Message of the Day) system** - Helpful terminal welcome messages with system information
 
 ## Changes Made
 
-### 1. Pre-compiled tt-metal
+### 1. Pre-compiled TT-Metalium
 
 **Dockerfile updates:**
-- Added tt-metal clone and build step during image build (lines 36-60)
+- Added TT-Metalium clone and build step during image build (lines 36-60)
 - Pre-configures Python virtual environment at `~/tt-metal/python_env`
 - Sets up environment variables in `.bashrc` (TT_METAL_HOME, PYTHONPATH, PATH)
 - Build time: ~15-20 minutes (one-time cost during image build)
 - Users save: ~10 minutes on every container startup
 
 **Benefits:**
-- ✅ Instant access to tt-metal on first terminal open
+- ✅ Instant access to TT-Metalium on first terminal open
 - ✅ Python environment auto-activated
 - ✅ No waiting for compilation on first use
 - ✅ Consistent build across all deployments
@@ -37,7 +37,7 @@ The Docker images now include:
 2. `show-motd.sh` reads the MOTD and adds dynamic system information:
    - RAM and CPU cores
    - Tenstorrent hardware detection (via tt-smi)
-   - tt-metal version and status
+   - TT-Metalium version and status
    - Python version
    - Environment variable status
 3. Configured in `.bashrc` to run on terminal open
@@ -67,7 +67,7 @@ The Docker images now include:
 ### 3. docker-entrypoint.sh Simplification
 
 **Removed:**
-- Complex tt-metal installation logic (100+ lines)
+- Complex TT-Metalium installation logic (100+ lines)
 - Old MOTD creation code (80+ lines)
 
 **Kept:**
@@ -78,17 +78,17 @@ The Docker images now include:
 
 **Result:**
 - Simpler, more maintainable entrypoint script
-- Faster container startup (no tt-metal build)
+- Faster container startup (no TT-Metalium build)
 - Cleaner logs
 
 ### 4. Documentation Updates
 
 **Updated lessons:**
-- `deploy-vscode-to-koyeb.md` - Added tt-metal + MOTD to "What's Included"
+- `deploy-vscode-to-koyeb.md` - Added TT-Metalium + MOTD to "What's Included"
 - `deploy-to-koyeb.md` - Added to base image benefits
 
 **Key messaging:**
-- "tt-metal pre-compiled at ~/tt-metal (Python environment ready)"
+- "TT-Metalium pre-compiled at ~/tt-metal (Python environment ready)"
 - "MOTD (Message of the Day) displays on terminal open with system info"
 
 ## Customizing the MOTD
@@ -119,29 +119,29 @@ The MOTD text is static and editable, while system information (RAM, CPU, hardwa
 **In the repository:**
 - `content/motd.txt` - MOTD content (version controlled)
 - `scripts/show-motd.sh` - Display script with dynamic info
-- `Dockerfile` - Builds tt-metal and copies MOTD files
+- `Dockerfile` - Builds TT-Metalium and copies MOTD files
 - `scripts/docker-entrypoint.sh` - Simplified startup script
 
 **In the container:**
 - `/home/coder/.motd` - Copy of MOTD content
 - `/usr/local/bin/show-motd.sh` - Display script
-- `/home/coder/tt-metal/` - Pre-compiled tt-metal
+- `/home/coder/tt-metal/` - Pre-compiled TT-Metalium
 - `/home/coder/tt-metal/python_env/` - Python virtual environment
-- `/home/coder/.bashrc` - Configured to show MOTD and activate tt-metal env
+- `/home/coder/.bashrc` - Configured to show MOTD and activate TT-Metalium env
 
 ## Build Notes
 
 **Image size impact:**
 - tt-metal source: ~500MB
-- tt-metal build artifacts: ~1-2GB
+- TT-Metalium build artifacts: ~1-2GB
 - Total image size: ~3-4GB (acceptable for pre-built convenience)
 
 **Build time:**
-- Without tt-metal: ~2-3 minutes
-- With tt-metal: ~20-25 minutes (one-time cost)
+- Without TT-Metalium: ~2-3 minutes
+- With TT-Metalium: ~20-25 minutes (one-time cost)
 
 **User startup time:**
-- Old: ~10 minutes (tt-metal build on first startup)
+- Old: ~10 minutes (TT-Metalium build on first startup)
 - New: ~30 seconds (just image pull and start)
 
 ## Testing
@@ -171,7 +171,7 @@ koyeb services create vscode-test \
 
 Open a terminal and verify:
 1. MOTD displays with system info
-2. tt-metal is available at `~/tt-metal`
+2. TT-Metalium is available at `~/tt-metal`
 3. Python environment is activated
 4. `import ttnn` works immediately
 
@@ -182,7 +182,7 @@ Open a terminal and verify:
 - Verify `show-motd.sh` has execute permissions
 - Make sure terminal is using login shell (VSCode setting: `"args": ["-l"]`)
 
-**tt-metal not found:**
+**TT-Metalium not found:**
 - Verify image was built correctly
 - Check `/home/coder/tt-metal` exists
 - Look at build logs for compilation errors
@@ -203,11 +203,11 @@ Potential improvements:
 
 ## Related Issues
 
-- #TBD - Pre-compile tt-metal in Docker images
+- #TBD - Pre-compile TT-Metalium in Docker images
 - #TBD - Add MOTD system for better UX
 
 ## Version History
 
-- **0.0.276** (2026-01-27) - Added pre-compiled tt-metal and MOTD system
+- **0.0.276** (2026-01-27) - Added pre-compiled TT-Metalium and MOTD system
 - **0.0.275** (2026-01-27) - Deployment lessons updated for published images
 - **0.0.274** (2026-01-27) - Docker images published to ghcr.io

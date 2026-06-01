@@ -44,7 +44,7 @@ understand the architecture that makes it all tick.
 
 ## Before You Start: Run This Right Now
 
-If you have tt-metal built and your venv activated, you can be running real TTNN code in
+If you have TT-Metalium built and your venv activated, you can be running real TTNN code in
 60 seconds. No Jupyter, no setup — just Python:
 
 ```bash
@@ -68,7 +68,7 @@ silicon doing real work. The full tutorial collection lives at:
 directly.
 
 > **Don't have `~/tt-metal` built yet?** Start with
-> [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+> [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
 > first, then return here.
 
 ---

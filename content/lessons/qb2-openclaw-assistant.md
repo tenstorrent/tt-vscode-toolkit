@@ -37,7 +37,7 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 **What makes this special:**
 - **Runs locally** - Your data never leaves your machine
 - **Hardware-accelerated** - 70B model on your QuietBox 2's 4x Blackhole chips
-- **Self-documenting** - Knows all tt-vscode-toolkit lessons by heart
+- **Self-documenting** - Knows all TT-VSCode-Toolkit lessons by heart
 - **Production-ready** - Used for booth demos and development
 
 ## Architecture
@@ -57,7 +57,7 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 │ vLLM :8000       │ Llama-3.3-70B-Instruct with tool calling
 │ (Docker)         │ (accepts all OpenClaw API fields natively)
 └────────┬─────────┘
-         │ Inference with TT-Metal + vLLM optimizations
+         │ Inference with TT-Metalium + vLLM optimizations
          ▼
 ┌──────────────────┐
 │ 4x p300c Chips   │ 480 Tensix cores, 2,654 TFLOPS, 128K context
@@ -101,7 +101,7 @@ free -h
 
 ### Software Requirements
 
-- **tt-inference-server**: `~/code/tt-inference-server` (cloned and working)
+- **TT-Inference-Server**: `~/code/tt-inference-server` (cloned and working)
 - **OpenClaw**: v2026.3.2+ installed
 - **Python**: 3.8+ with venv support
 - **Docker**: For containerized vLLM deployment
@@ -109,7 +109,7 @@ free -h
 **Quick verification:**
 
 ```bash
-# tt-inference-server available?
+# TT-Inference-Server available?
 ls ~/code/tt-inference-server/run.py
 
 # OpenClaw installed?
@@ -130,7 +130,7 @@ The first step is getting Llama-3.3-70B-Instruct running on your QuietBox 2 with
 **What happens during deployment:**
 1. **Environment preparation** (30 seconds) - Reset hardware, stop existing containers
 2. **Model download** (10-30 minutes, one-time) - Downloads 140 GB from HuggingFace
-3. **Docker startup** (2 minutes) - Initializes container with TT-Metal environment
+3. **Docker startup** (2 minutes) - Initializes container with TT-Metalium environment
 4. **Model loading** (10-20 minutes) - Loads weights to TT hardware (silent phase)
 5. **Warmup** (5 minutes) - Compiles kernels for P300X2 configuration
 6. **Ready** - Health endpoint responds, ready for inference
@@ -354,10 +354,10 @@ ls ~/code/tt-inference-server/README.md
    - Hardware detection and setup
    - Model deployment and optimization
    - Cookbook examples (Game of Life, Mandelbrot, audio)
-   - TT-Forge, TT-XLA, TT-Metal frameworks
+   - TT-Forge, TT-XLA, TT-Metalium frameworks
    - API servers, chat interfaces
 
-2. **TT-Metal Documentation**
+2. **TT-Metalium Documentation**
    - METALIUM_GUIDE.md - Core framework documentation
    - Release notes and version history
    - Contributing and development guides
@@ -496,7 +496,7 @@ How do I deploy vLLM on Tenstorrent?
 ```
 To deploy vLLM on Tenstorrent hardware:
 
-1. Ensure tt-inference-server is installed:
+1. Ensure TT-Inference-Server is installed:
    cd ~/code/tt-inference-server
 
 2. Run the deployment script with your model and device:
@@ -515,7 +515,7 @@ To deploy vLLM on Tenstorrent hardware:
 For larger models (70B) on P300X2, add tool calling support:
    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
 
-The deployment process handles Docker containerization, TT-Metal
+The deployment process handles Docker containerization, TT-Metalium
 environment setup, and hardware initialization automatically.
 
 Source: ../../code/tt-vscode-toolkit/content/lessons/api-server.md#L102-L125
@@ -530,7 +530,7 @@ What cookbook examples can I run on my QuietBox 2?
 
 **Expected response:**
 ```
-The tt-vscode-toolkit includes several cookbook examples you can run:
+The TT-VSCode-Toolkit includes several cookbook examples you can run:
 
 1. **Game of Life** - Conway's cellular automaton on TT hardware
    - Demonstrates matrix operations on Tensix cores
@@ -541,7 +541,7 @@ The tt-vscode-toolkit includes several cookbook examples you can run:
    - Achieves significant speedup over CPU
 
 3. **Audio Processing** - Real-time audio filtering and effects
-   - Uses TT-Metal for low-latency DSP operations
+   - Uses TT-Metalium for low-latency DSP operations
    - Examples: reverb, EQ, compression
 
 4. **Image Filters** - Convolution and image transformations
@@ -822,7 +822,7 @@ LLM Inference Layer:
   └─ Model: Llama-3.3-70B-Instruct (128K context, tool calling)
 
 Hardware Layer:
-  ├─ TT-Metal Framework (kernel compilation, device management)
+  ├─ TT-Metalium Framework (kernel compilation, device management)
   ├─ Firmware (19.4.2.0+ on each chip)
   └─ 4x Blackhole ASICs (480 Tensix cores, 2,654 TFLOPS)
 ```
@@ -922,7 +922,7 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 
 **Community:**
 - Tenstorrent Discord: https://discord.gg/tenstorrent
-- tt-inference-server: https://github.com/tenstorrent/tt-inference-server
+- TT-Inference-Server: https://github.com/tenstorrent/tt-inference-server
 - OpenClaw GitHub: https://github.com/OpenClawIO/openclaw
 
 **Support:**

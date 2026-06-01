@@ -1,6 +1,6 @@
-# Contributing to Tenstorrent VSCode Toolkit
+# Contributing to TT-VSCode-Toolkit
 
-Thank you for your interest in contributing to the Tenstorrent VSCode Toolkit! We welcome contributions from developers of all experience levels.
+Thank you for your interest in contributing to the TT-VSCode-Toolkit! We welcome contributions from developers of all experience levels.
 
 ## Table of Contents
 
@@ -40,7 +40,7 @@ All contributions require:
 
 **Optional:**
 - Tenstorrent hardware (for lesson validation)
-- tt-metal installed (for testing lesson content)
+- TT-Metalium installed (for testing lesson content)
 
 ### Quick Setup
 
@@ -526,10 +526,10 @@ Must include SPDX header:
 
 ### Related Projects
 
-* [tt-metal](https://github.com/tenstorrent/tt-metal) - Core runtime and kernels
+* [TT-Metalium](https://github.com/tenstorrent/tt-metal) - Core runtime and kernels
 * [vLLM](https://github.com/tenstorrent/vllm) - High-performance LLM serving
-* [tt-forge](https://github.com/tenstorrent/tt-forge) - MLIR compiler
-* [tt-xla](https://github.com/tenstorrent/tt-xla) - XLA compiler plugin
+* [TT-Forge](https://github.com/tenstorrent/tt-forge) - MLIR compiler
+* [TT-XLA](https://github.com/tenstorrent/tt-xla) - XLA compiler plugin
 
 ---
 
@@ -541,7 +541,7 @@ All source files must include the appropriate SPDX header.
 
 ---
 
-**Thank you for contributing to the Tenstorrent VSCode Toolkit!** 🎉
+**Thank you for contributing to the TT-VSCode-Toolkit!** 🎉
 
 Your efforts help make Tenstorrent hardware more accessible to developers worldwide.
 

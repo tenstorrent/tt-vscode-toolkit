@@ -1,9 +1,9 @@
 ---
 id: build-tt-metal
-title: Build tt-metal from Source
+title: Build TT-Metalium from Source
 description: >-
-  Clone and build tt-metal from source. Required for Direct API (Generator API)
-  lessons and for running tt-metal examples directly. QuietBox 2 and pre-configured
+  Clone and build TT-Metalium from source. Required for Direct API (Generator API)
+  lessons and for running TT-Metalium examples directly. QuietBox 2 and pre-configured
   images do not ship with ~/tt-metal — start here if Check 3 in Verify Your
   Setup failed.
 category: first-inference
@@ -26,9 +26,9 @@ validatedOn:
 estimatedMinutes: 60
 ---
 
-# Build tt-metal from Source
+# Build TT-Metalium from Source
 
-This lesson walks you through cloning and building tt-metal from source on your
+This lesson walks you through cloning and building TT-Metalium from source on your
 Tenstorrent hardware. Once complete, return to
 [Verify Your Setup](command:tenstorrent.showLesson?["verify-installation"]) to
 confirm Check 3 is green.
@@ -37,21 +37,21 @@ confirm Check 3 is green.
 
 ## When you need this
 
-You need a local tt-metal source build if any of the following apply:
+You need a local TT-Metalium source build if any of the following apply:
 
 - **Direct API / Generator API lessons (Lessons 4–5)** — These run Python
   scripts that import `ttnn` from source and use `tt_lib` / `ttnn` Generator
   APIs. They require `TT_METAL_HOME` to point to a built copy.
 - **Custom kernels** — Writing or modifying C++/Metal kernels requires the full
   source tree and build system.
-- **Running tt-metal examples directly** — Scripts under `tt-metal/models/` or
+- **Running TT-Metalium examples directly** — Scripts under `tt-metal/models/` or
   `tt-metal/tests/` assume the repo is present and built.
 - **Debugging TTNN ops or dispatch issues** — Source-level tracing requires a
   built checkout.
 
 You do **not** need a source build for:
 
-- **vLLM inference (Lessons 6–7)** — tt-inference-server runs inside Docker/
+- **vLLM inference (Lessons 6–7)** — TT-Inference-Server runs inside Docker/
   Podman with its own bundled Metal wheels.
 - **TTNN Python API basics** — TTNN is pip-installable for simple op usage.
 - **Chat assistant (Lesson 8)** and other lessons that go through vLLM.
@@ -67,7 +67,7 @@ run through this lesson.
 
 QuietBox 2 (Quantum Bridge 2) and similar pre-configured Tenstorrent demo images
 include tt-smi, Metal drivers, and a Python environment, but they do **not**
-include a built tt-metal source tree. You must clone and build it yourself
+include a built TT-Metalium source tree. You must clone and build it yourself
 before any command here will work.
 
 This is expected — the source tree is large (~4 GB with submodules) and build
@@ -77,7 +77,7 @@ times are 30–60 minutes, so it is not bundled into images.
 
 ## Docker vs Podman note
 
-tt-metal's `install_dependencies.sh` script defaults to **Podman** on some
+TT-Metalium's `install_dependencies.sh` script defaults to **Podman** on some
 systems. QuietBox 2 images typically ship with Docker and do not have Podman installed.
 
 If `sudo ./install_dependencies.sh` exits with an error referencing `podman`
@@ -101,8 +101,8 @@ git clone --recurse-submodules https://github.com/tenstorrent/tt-metal.git ~/tt-
 cd ~/tt-metal
 ```
 
-> **`--recurse-submodules` is required.** tt-metal depends on several
-> submodules (including tt-metalium and third-party headers). The build will
+> **`--recurse-submodules` is required.** TT-Metalium depends on several
+> submodules (including TT-Metalium and third-party headers). The build will
 > fail with missing-file errors if you skip this flag.
 
 If you already cloned without `--recurse-submodules`, fix it in-place:
@@ -167,7 +167,7 @@ when switching branches or after a significant dependency change.
 
 ## Step 4: Set up Python environment with uv
 
-tt-metal now uses [`uv`](https://docs.astral.sh/uv/) to manage its Python
+TT-Metalium now uses [`uv`](https://docs.astral.sh/uv/) to manage its Python
 virtual environment. The `create_venv.sh` script installs `uv` automatically
 if it is not already on your system, then creates a venv and installs all
 model requirements into it.
@@ -183,7 +183,7 @@ What happens:
 - A Python 3.10 virtual environment is created in `./python_env`
 - All requirements from `tt_metal/python_env/requirements-dev.txt` are
   installed using `uv pip install` (faster than plain pip)
-- `tt-metal` itself is installed in editable mode (`uv pip install -e .`)
+- TT-Metalium itself is installed in editable mode (`uv pip install -e .`)
 
 **You will see `uv` output** — this is expected. `uv` replaces the older
 `pip install` calls and handles Python version management automatically.
@@ -207,7 +207,7 @@ This has no effect on LLM, transformer, or TTNN op lessons.
 ## Step 5: Set environment variables
 
 After the build and venv setup succeed, export these variables before running
-any tt-metal Python scripts. Activate the venv first if you have not already:
+any TT-Metalium Python scripts. Activate the venv first if you have not already:
 
 ```bash
 source ~/tt-metal/python_env/bin/activate
@@ -225,7 +225,7 @@ in Step 4. Required for `import ttnn` to resolve correctly.
 **`PYTHONPATH`** — makes `import ttnn` and `import tt_lib` resolve to the
 locally built copies rather than any pip-installed version.
 
-**`LD_LIBRARY_PATH`** — points to the OpenMPI build that tt-metal's multi-device
+**`LD_LIBRARY_PATH`** — points to the OpenMPI build that TT-Metalium's multi-device
 dispatch was compiled against. Omitting this causes `ImportError: undefined
 symbol: MPIX_Comm_revoke` when importing `ttnn` on multi-device systems.
 
@@ -284,7 +284,7 @@ dispatch_core_config = ttnn.DispatchCoreConfig(
 
 The same rule applies to any script that eventually calls into
 `ttnn.CreateDevice()` or `ttnn.open_mesh_device()` with explicit dispatch
-config. If you copy example scripts from tt-metal and they hardcode
+config. If you copy example scripts from TT-Metalium and they hardcode
 `DispatchCoreAxis.ROW`, patch them before running on Blackhole.
 
 ---

@@ -1,6 +1,6 @@
 ---
 id: deploy-vscode-to-koyeb
-title: "Deploy tt-vscode-toolkit to Koyeb"
+title: "Deploy TT-VSCode-Toolkit to Koyeb"
 description: >-
   Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional n300 hardware access.
 category: deployment
@@ -23,7 +23,7 @@ validatedOn:
 estimatedMinutes: 5
 ---
 
-# Deploy tt-vscode-toolkit to Koyeb
+# Deploy TT-VSCode-Toolkit to Koyeb
 
 Get your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed, running on Koyeb with access to n300 hardware.
 
@@ -186,7 +186,7 @@ Your cloud IDE includes:
 **Software Stack:**
 - Ubuntu 24.04 (noble)
 - code-server (VSCode in browser)
-- Tenstorrent tools installed via tt-installer (container mode)
+- Tenstorrent tools installed via TT-Installer (container mode)
 - Tenstorrent VSCode extension
 - Git, Python 3, build tools
 
@@ -194,17 +194,17 @@ Your cloud IDE includes:
 - Tenstorrent n300 (2x Wormhole chips)
 - Device access via `/dev/tenstorrent/0` and `/dev/tenstorrent/1`
 
-**CLI Tools (via tt-installer):**
+**CLI Tools (via TT-Installer):**
 - `tt-smi` - Tenstorrent hardware monitoring
 - `tt-flash` - Firmware update tool
 - `tt-topology` - Hardware topology detection
-- `tt-inference-server` - Production inference server
+- **TT-Inference-Server** — production inference server
 - `hf` - HuggingFace CLI for downloading models
 - `claude` - Claude Code CLI for AI-assisted development
 - Standard dev tools (git, python3, npm, etc.)
 - Full hardware permissions configured
 
-**Note:** tt-metal can be built via lessons when needed (not pre-installed)
+**Note:** TT-Metalium can be built via lessons when needed (not pre-installed)
 
 **Configuration:**
 - Auto-configured theme (Tenstorrent Dark)
@@ -364,12 +364,12 @@ koyeb deploy . tt-vscode-toolkit/vscode \
 
 The published image includes:
 - code-server (VSCode in browser)
-- Tenstorrent tools installed via tt-installer (`tt-smi`, `tt-flash`, etc.)
+- Tenstorrent tools installed via TT-Installer (`tt-smi`, `tt-flash`, etc.)
 - HuggingFace CLI (`hf`)
 - Claude CLI (`claude`)
 - All hardware permissions configured
 - MOTD system for terminal welcome messages
-- tt-metal can be built via lessons when needed (not pre-installed)
+- TT-Metalium can be built via lessons when needed (not pre-installed)
 
 **Build locally and deploy:**
 

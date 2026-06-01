@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Deploy the Tenstorrent VSCode Toolkit as a browser-based IDE using code-server.
+Deploy the TT-VSCode-Toolkit as a browser-based IDE using code-server.
 
 ## Quick Start
 
@@ -71,22 +71,22 @@ All images are based on **Ubuntu 24.04 (noble) server variant** with code-server
 - **Base:** Ubuntu 24.04 (server/minimal)
 - **Contents:** code-server + Tenstorrent extension
 - **Use case:** Lightweight deployment, remote development
-- **Build:** `docker build -t tt-vscode-toolkit:basic .`
+- **Build:** `docker build -t TT-VSCode-Toolkit:basic .`
 
 ### Full Image (`Dockerfile.full`)
 - **Size:** ~1.8GB
 - **Base:** Ubuntu 24.04 (server/minimal)
-- **Contents:** code-server + extension + tt-metal dependencies
+- **Contents:** code-server + extension + TT-Metalium dependencies
 - **Use case:** Complete development environment with all tools
-- **Build:** `docker build -f Dockerfile.full -t tt-vscode-toolkit:full .`
+- **Build:** `docker build -f Dockerfile.full -t TT-VSCode-Toolkit:full .`
 
 ### Koyeb Image (`Dockerfile.koyeb`)
 - **Size:** ~2-2.5GB
-- **Base:** Ubuntu 24.04 (server/minimal, better tt-installer compatibility)
-- **Contents:** code-server + extension + tt-installer tools (tt-smi, tt-flash, etc.)
+- **Base:** Ubuntu 24.04 (server/minimal, better TT-Installer compatibility)
+- **Contents:** code-server + extension + TT-Installer tools (tt-smi, tt-flash, etc.)
 - **Use case:** Koyeb cloud platform with n300 hardware
-- **Build:** `docker build -f Dockerfile.koyeb -t tt-vscode-toolkit:koyeb .`
-- **Note:** Uses tt-installer with `--mode-container` to install Tenstorrent tools
+- **Build:** `docker build -f Dockerfile.koyeb -t TT-VSCode-Toolkit:koyeb .`
+- **Note:** Uses TT-Installer with `--mode-container` to install Tenstorrent tools
 
 **Optimization:** All images use `--no-install-recommends` flag to avoid installing X11 libraries, documentation, and other bloat.
 

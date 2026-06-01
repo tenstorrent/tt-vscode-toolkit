@@ -15,7 +15,7 @@ body:
     attributes:
       label: Proposed Lesson Title
       description: What would you call this lesson?
-      placeholder: "Building a Custom Model with TT-Metal"
+      placeholder: "Building a Custom Model with TT-Metalium"
     validations:
       required: true
 
@@ -107,7 +107,7 @@ body:
       label: Tools and Frameworks
       description: What tools, frameworks, or libraries would this lesson use?
       placeholder: |
-        - tt-metal
+        - TT-Metalium
         - vLLM
         - TT-Forge
         - PyTorch

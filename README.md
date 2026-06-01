@@ -1,4 +1,4 @@
-# Tenstorrent VSCode Toolkit
+# TT-VSCode-Toolkit
 
 **Interactive learning and development tools for Tenstorrent AI accelerators**
 
@@ -8,20 +8,20 @@
 
 Learn Tenstorrent hardware and software through 48 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference and **custom training** pipelines.
 
-![Screen capture of tt-vscode-toolkit in action](assets/img/screenshot.png)
+![Screen capture of TT-VSCode-Toolkit in action](assets/img/screenshot.png)
 
 ---
 
 ## Overview
 
-The Tenstorrent VSCode Toolkit is an educational extension that provides:
+The TT-VSCode-Toolkit is an educational extension that provides:
 
 - ✅ **48 Interactive Lessons** - From hardware detection to custom training, organized by skill level
 - ✅ **Custom Training Ready** - Train models from scratch or fine-tune existing ones (validated on hardware!)
 - ✅ **Click-to-Run Commands** - Execute lessons step-by-step without copy-pasting commands
 - ✅ **Hardware Auto-Detection** - Automatically detects your Tenstorrent device and provides tailored guidance
 - ✅ **Production Templates** - Real, tested code you can customize for your projects
-- ✅ **Multi-Framework Support** - Learn vLLM, TT-Forge, TT-XLA, and TT-Metal
+- ✅ **Multi-Framework Support** - Learn vLLM, TT-Forge, TT-XLA, and TT-Metalium
 - ✅ **Live Device Monitoring** - Real-time temperature, power, and health status in the status bar
 
 **Target Audience:**
@@ -65,13 +65,13 @@ Access at: http://localhost:8080 (password: `demo`)
 - Linux (Ubuntu 20.04+, RHEL 8+, or compatible)
 - Python 3.10+ (3.11 for TT-XLA)
 - VSCode 1.93+
-- tt-metal installed and configured
+- TT-Metalium installed and configured
 
 **Verify your environment:**
 ```bash
 tt-smi                                           # Hardware detected?
 python3 --version                                # Python 3.10+?
-python3 -c "import ttnn; print('✓ Ready')"       # tt-metal working?
+python3 -c "import ttnn; print('✓ Ready')"       # TT-Metalium working?
 ```
 
 ### Installation
@@ -82,7 +82,7 @@ python3 -c "import ttnn; print('✓ Ready')"       # tt-metal working?
 code --install-extension Tenstorrent.tt-vscode-toolkit
 ```
 
-Or search **"TT Developer Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`) (`tt-vscode-toolkit`).
+Or search **"TT-VSCode-Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`).
 
 → [Open in VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
 
@@ -135,7 +135,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 ```
 1. Hardware Detection      (5 min)  → Verify your hardware setup
-2. Verify Installation     (5 min)  → Test tt-metal installation
+2. Verify Installation     (5 min)  → Test TT-Metalium installation
 3. Download Model          (30 min) → Get Llama-3.1-8B or Qwen3-0.6B
 4. vLLM Production         (20 min) → Launch production server
 ```
@@ -184,18 +184,18 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🚀 Your First Inference
 *7 lessons, 7 validated*
 
-- **Modern Setup with tt-installer 2.0** — `n150` `p300c`
+- **Modern Setup with TT-Installer 2.0** — `n150` `p300c`
 - **Hardware Detection** — `n150` `p300c`
 - **Verify Your Setup** — `n150` `p300c`
 - **Download Model and Run Inference** — `n150` `p300c`
 - **Interactive Chat with Direct API** — `n150`
 - **HTTP API Server with Direct API** — `n150`
-- **Build tt-metal from Source** — `n150` `p300c`
+- **Build TT-Metalium from Source** — `n150` `p300c`
 
 ### 🏭 Serving Models
 *4 lessons, 3 validated*
 
-- **Production Inference with tt-inference-server** — `n150` `P100`
+- **Production Inference with TT-Inference-Server** — `n150` `P100`
 - **Production Inference with vLLM** — `n150` `p300c`
 - **Image Generation with Stable Diffusion XL** — `n150`
 - **Video Generation via Frame-by-Frame Diffusion** — *draft*
@@ -205,7 +205,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 - **Image Classification with TT-Forge** — `p300c`
 - **JAX and PyTorch/XLA on Tenstorrent** — `p300c`
-- **Introduction to tt-lang** — *draft*
+- **Introduction to TT-Lang** — *draft*
 
 ### 🎯 Applications
 *5 lessons, 4 validated*
@@ -237,7 +237,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### ☁️ Deployment
 *2 lessons, 2 validated*
 
-- **Deploy tt-vscode-toolkit to Koyeb** — `n150`
+- **Deploy TT-VSCode-Toolkit to Koyeb** — `n150`
 - **Deploy Your Work to Koyeb** — `n150`
 
 ### 👨‍🍳 Tenstorrent Cookbook
@@ -291,7 +291,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 | **vLLM** | Production LLM serving | OpenAI-compatible API, high throughput |
 | **TT-Forge** | PyTorch compilation | MLIR-based experimental compiler |
 | **TT-XLA** | JAX/PyTorch XLA | Production compiler for JAX workflows |
-| **TT-Metal** | Low-level kernels | Custom ops and hardware programming |
+| **TT-Metalium** | Low-level kernels | Custom ops and hardware programming |
 
 ### Hands-On Cookbook Projects
 
@@ -399,11 +399,11 @@ We welcome contributions! Here's how to get involved:
 
 **Highlights:**
 - ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole/Blackhole chip grids
-- 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the tt-lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
+- 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the TT-Lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
 - 🎮 **Browser playground** — write and run TT-Lang kernels client-side with Pyodide; kernels: eltwise_add, fused_mma, matmul_relu, matmul_1d
 - 🔬 **Dev Container** — `devcontainer.json` for simulator-only development; extension detects context and routes commands accordingly
 - ☁️ **Cloud simulator API skeleton** — FastAPI + WebSocket execution server with `/sim-test` PR comment trigger
-- 🔍 **Drift detection scripts** — `check-sim-lite-drift.py` (fork vs upstream), `check-vendor-drift.py` (all vendor repos: tt-metal, tt-vllm, tt-inference-server, tt-forge-models, ttsim)
+- 🔍 **Drift detection scripts** — `check-sim-lite-drift.py` (fork vs upstream), `check-vendor-drift.py` (all vendor repos: TT-Metalium, tt-vllm, TT-Inference-Server, tt-forge-models, ttsim)
 
 ### Previous Release: v0.0.400 (2026-04-21)
 
@@ -457,11 +457,11 @@ Built by the Tenstorrent community with contributions from:
 ## Related Projects
 
 **Tenstorrent Ecosystem:**
-- **[tt-metal](https://github.com/tenstorrent/tt-metal)** - Core runtime and kernel library
+- **[TT-Metalium](https://github.com/tenstorrent/tt-metal)** - Core runtime and kernel library
 - **[vLLM](https://github.com/tenstorrent/vllm)** - High-performance LLM serving (TT fork)
-- **[tt-forge](https://github.com/tenstorrent/tt-forge)** - MLIR-based compiler for PyTorch
-- **[tt-xla](https://github.com/tenstorrent/tt-xla)** - XLA compiler plugin for JAX
-- **[tt-inference-server](https://github.com/tenstorrent/tt-inference-server)** - Production inference automation
+- **[TT-Forge](https://github.com/tenstorrent/tt-forge)** - MLIR-based compiler for PyTorch
+- **[TT-XLA](https://github.com/tenstorrent/tt-xla)** - XLA compiler plugin for JAX
+- **[TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server)** - Production inference automation
 
 ---
 

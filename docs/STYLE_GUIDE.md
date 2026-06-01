@@ -1,6 +1,6 @@
 # Style Guide
 
-This style guide ensures consistency across all lessons, documentation, and code in the Tenstorrent VSCode Toolkit.
+This style guide ensures consistency across all lessons, documentation, and code in the TT-VSCode-Toolkit.
 
 ## Table of Contents
 
@@ -23,28 +23,33 @@ This style guide ensures consistency across all lessons, documentation, and code
 - ❌ `TensTorrent`, `tensTorrent`, `TENSTORRENT`
 
 **Software Projects:**
-- ✅ `tt-metal` (lowercase, hyphenated) in code/commands
-- ✅ `TT-Metal` (title case, hyphenated) in prose and documentation
-- ❌ `TT Metal`, `tt metal`, `TTMetal`, `ttmetal`
+- ✅ `tt-metal` (lowercase, hyphenated) in code/commands, paths (`~/tt-metal`), and repo URLs
+- ✅ **TT-Metalium** in prose and documentation (replaces legacy **TT-Metal**)
+- ❌ `TT Metal`, `tt metal`, `TTMetal`, `ttmetal`, `TT-Metal`
 
-- ✅ `tt-forge` (lowercase, hyphenated) in code/commands
-- ✅ `TT-Forge` (title case, hyphenated) in prose and documentation
+- ✅ `tt-forge` / `tt-forge-fe` (lowercase) in code/commands and paths
+- ✅ **TT-Forge** in prose and documentation
 - ❌ `TT Forge`, `tt forge`, `TTForge`, `ttforge`
 
-- ✅ `tt-xla` (lowercase, hyphenated) in code/commands
-- ✅ `TT-XLA` (all caps for XLA) in prose and documentation
+- ✅ `tt-xla` / `tt-xla-venv` (lowercase) in code/commands and paths
+- ✅ **TT-XLA** in prose and documentation
 - ❌ `TT XLA`, `tt xla`, `TTXLA`
+
+- ✅ `tt-lang` (lowercase) in code/commands and lesson slug `tt-lang-intro`
+- ✅ **TT-Lang** in prose and documentation
+- ❌ `TTLang`, `tt lang`
 
 - ✅ `vLLM` (camelCase with lowercase v)
 - ❌ `VLLM`, `vllm`, `Vllm`, `VLlm`
 
-- ✅ `tt-inference-server` (lowercase, hyphenated)
+- ✅ **TT-Installer** in prose (repo paths and install script URLs stay `tt-installer`)
+- ✅ **TT-Inference-Server** in prose (repo paths and `MESH_DEVICE` values stay lowercase hyphenated)
 - ✅ `TT Inference Server` (title case) in prose only when clarity demands
 - ❌ `TTInferenceServer`, `tt_inference_server`
 
 **VSCode Extension:**
 - ✅ `tt-vscode-toolkit` (lowercase, hyphenated) in code/repo names
-- ✅ `Tenstorrent VSCode Toolkit` (title case) in prose and UI
+- ✅ `TT-VSCode-Toolkit` (title case) in prose and UI
 - ❌ `tt_vscode_toolkit`, `TTVSCodeToolkit`
 
 ### Hardware Product Names
@@ -177,7 +182,7 @@ Let's spin up a vLLM server! It's gonna be super easy and quick! 😎
 
 ✅ Good:
 ```markdown
-# Introduction to TT-Metal
+# Introduction to TT-Metalium
 ## Setting Up Your Environment
 ### Install dependencies
 ```
@@ -252,7 +257,7 @@ See [Testing Guide](docs/TESTING.md) for details.
 
 **External links:**
 ```markdown
-Read the [TT-Metal documentation](https://docs.tenstorrent.com/tt-metal) for more information.
+Read the [TT-Metalium documentation](https://docs.tenstorrent.com/tt-metal) for more information.
 ```
 
 **Reference-style links for repeated URLs:**
@@ -323,7 +328,7 @@ estimatedMinutes: 30
 - `estimatedMinutes` - Time to complete (realistic estimate)
 
 **Optional fields:**
-- `minTTMetalVersion` - Minimum tt-metal version required (e.g., "v0.51.0")
+- `minTTMetalVersion` - Minimum TT-Metalium version required (e.g., "v0.51.0")
 - `validationDate` - ISO date when validated (e.g., "2026-01-30")
 - `validationNotes` - Multi-line notes about validation testing
 
@@ -436,7 +441,7 @@ Button Text in Title Case
 
 **Be specific:**
 - ✅ "Detect n150 Hardware"
-- ✅ "Install tt-metal v0.51.0"
+- ✅ "Install TT-Metalium v0.51.0"
 - ❌ "Detect Hardware"
 - ❌ "Install Software"
 
@@ -456,7 +461,7 @@ command:tenstorrent.installDependencies
 Install Dependencies
 
 command:tenstorrent.buildMetal
-Build TT-Metal
+Build TT-Metalium
 
 command:tenstorrent.verifyInstallation
 Verify Installation
@@ -710,4 +715,4 @@ For questions about this style guide:
 
 **Version:** 1.0.0
 **Last Updated:** 2026-01-30
-**Maintainers:** Tenstorrent VSCode Toolkit Team
+**Maintainers:** TT-VSCode-Toolkit Team
