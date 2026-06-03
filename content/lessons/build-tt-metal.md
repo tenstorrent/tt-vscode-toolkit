@@ -26,9 +26,9 @@ validatedOn:
 estimatedMinutes: 60
 ---
 
-# Build TT-Metalium from Source
+# Build TT-Metalium<sup>®</sup> from Source
 
-This lesson walks you through cloning and building TT-Metalium from source on your
+This lesson walks you through cloning and building TT-Metalium<sup>®</sup> from source on your
 Tenstorrent hardware. Once complete, return to
 [Verify Your Setup](command:tenstorrent.showLesson?["verify-installation"]) to
 confirm Check 3 is green.
@@ -46,14 +46,14 @@ You need a local TT-Metalium source build if any of the following apply:
   source tree and build system.
 - **Running TT-Metalium examples directly** — Scripts under `tt-metal/models/` or
   `tt-metal/tests/` assume the repo is present and built.
-- **Debugging TTNN ops or dispatch issues** — Source-level tracing requires a
+- **Debugging TT-NN<sup>®</sup> ops or dispatch issues** — Source-level tracing requires a
   built checkout.
 
 You do **not** need a source build for:
 
 - **vLLM inference (Lessons 6–7)** — TT-Inference-Server runs inside Docker/
   Podman with its own bundled Metal wheels.
-- **TTNN Python API basics** — TTNN is pip-installable for simple op usage.
+- **TT-NN Python API basics** — TT-NN is pip-installable for simple op usage.
 - **Chat assistant (Lesson 8)** and other lessons that go through vLLM.
 
 When in doubt: if `Check 3` in Verify Your Setup is red and you want it green,
@@ -61,7 +61,7 @@ run through this lesson.
 
 ---
 
-## QuietBox 2 / Pre-configured image note
+## QuietBox<sup>®</sup> 2 / Pre-configured image note
 
 > **QuietBox 2 does not ship with `~/tt-metal`.**
 
@@ -200,7 +200,7 @@ comment it out before running `create_venv.sh`:
 sed -i 's/^mmcv/#mmcv/' ~/tt-metal/tt_metal/python_env/requirements-dev.txt
 ```
 
-This has no effect on LLM, transformer, or TTNN op lessons.
+This has no effect on LLM, transformer, or TT-NN op lessons.
 
 ---
 
@@ -245,7 +245,7 @@ source ~/.bashrc
 
 ## Step 6: Verify
 
-Run the built-in TTNN smoke test:
+Run the built-in TT-NN smoke test:
 
 ```bash
 python3 -m ttnn.examples.usage.run_op_on_device
@@ -259,10 +259,10 @@ and re-run the checks — Check 3 should now be green.
 
 ---
 
-## Blackhole architecture note (P100 / p150 / p300c / QuietBox 2)
+## Blackhole<sup>®</sup> architecture note (p100 / p150 / p300c / QuietBox 2)
 
 > **This section is critical if you are writing or adapting scripts for
-> Blackhole hardware (P100, p150, p300c, QuietBox 2).**
+> Blackhole hardware (p100, p150, p300c, QuietBox 2).**
 
 When opening a mesh device with `ttnn.open_mesh_device()`, do **not** hardcode
 `DispatchCoreAxis.ROW`. Blackhole uses column dispatch (`COL`), and passing
@@ -275,7 +275,7 @@ dispatch_core_config = ttnn.DispatchCoreConfig(
     ttnn.DispatchCoreAxis.ROW  # <-- hardcoded axis, breaks on Blackhole
 )
 
-# ✅ Arch-agnostic — auto-detects COL on Blackhole, ROW on Wormhole:
+# ✅ Arch-agnostic — auto-detects COL on Blackhole, ROW on Wormhole<sup>™</sup>:
 dispatch_core_config = ttnn.DispatchCoreConfig(
     ttnn.DispatchCoreType.WORKER
     # No axis argument — Metal picks the correct one for your hardware

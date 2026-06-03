@@ -88,7 +88,7 @@ body:
     attributes:
       label: Tenstorrent Hardware
       description: What hardware are you using?
-      placeholder: "n150, n300, T3000, P100, p150, Galaxy, or None"
+      placeholder: "n150, n300, T3000, p100, p150, Galaxy, or None"
     validations:
       required: false
 

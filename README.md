@@ -57,7 +57,7 @@ Access at: http://localhost:8080 (password: `demo`)
 ### Prerequisites
 
 **Hardware:**
-- Tenstorrent accelerator (n150, n300, T3000, P100, p150, or Galaxy)
+- Tenstorrent accelerator (n150, n300, T3000, p100, p150, or Galaxy)
 - 32GB+ RAM recommended (16GB minimum)
 - 100GB+ free disk space for models
 
@@ -65,7 +65,7 @@ Access at: http://localhost:8080 (password: `demo`)
 - Linux (Ubuntu 20.04+, RHEL 8+, or compatible)
 - Python 3.10+ (3.11 for TT-XLA)
 - VSCode 1.93+
-- TT-Metalium installed and configured
+- TT-Metalium<sup>®</sup> installed and configured
 
 **Verify your environment:**
 ```bash
@@ -195,7 +195,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🏭 Serving Models
 *4 lessons, 3 validated*
 
-- **Production Inference with TT-Inference-Server** — `n150` `P100`
+- **Production Inference with TT-Inference-Server** — `n150` `p100`
 - **Production Inference with vLLM** — `n150` `p300c`
 - **Image Generation with Stable Diffusion XL** — `n150`
 - **Video Generation via Frame-by-Frame Diffusion** — *draft*
@@ -203,7 +203,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🔧 Compilers & Tools
 *3 lessons, 0 validated*
 
-- **Image Classification with TT-Forge** — `p300c`
+- **Image Classification with TT-Forge<sup>®</sup>** — `p300c`
 - **JAX and PyTorch/XLA on Tenstorrent** — `p300c`
 - **Introduction to TT-Lang** — *draft*
 
@@ -212,7 +212,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 - **Coding Assistant with Aider** — *draft*
 - **Native Video Animation with AnimateDiff** — `p300c`
-- **OpenClaw AI Assistant on QuietBox 2** — `P300X2`
+- **OpenClaw AI Assistant on QuietBox<sup>®</sup> 2** — `P300X2`
 - **Generating Video on QuietBox 2** — `P300X2`
 - **Local AI Agents on QuietBox 2** — `P300X2`
 
@@ -268,7 +268,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ## Key Features
 
 ### Intelligent Hardware Detection
-- Auto-detects device type (n150, n300, T3000, P100, p150, Galaxy)
+- Auto-detects device type (n150, n300, T3000, p100, p150, Galaxy)
 - Provides hardware-specific commands and configurations
 - Real-time telemetry monitoring (temperature, power, clock speed)
 - Multi-device support with aggregate health status
@@ -301,7 +301,7 @@ The Cookbook (Lesson 16) includes 5 interactive projects that run directly on Te
 <tr>
 <td width="50%">
 <a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif"><img src="assets/img/game_of_life_preview.png" alt="Conway's Game of Life running on Tenstorrent hardware" /></a>
-<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN acceleration<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif">View full animation →</a></sup></p>
+<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN<sup>®</sup> acceleration<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif">View full animation →</a></sup></p>
 </td>
 <td width="50%">
 <a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/particle_life.gif"><img src="assets/img/particle_life_preview.png" alt="Particle Life simulation on Tenstorrent" /></a>
@@ -398,7 +398,7 @@ We welcome contributions! Here's how to get involved:
 ### Latest Release: v0.0.401 (2026-04-23)
 
 **Highlights:**
-- ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole/Blackhole chip grids
+- ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole<sup>™</sup>/Blackhole<sup>®</sup> chip grids
 - 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the TT-Lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
 - 🎮 **Browser playground** — write and run TT-Lang kernels client-side with Pyodide; kernels: eltwise_add, fused_mma, matmul_relu, matmul_1d
 - 🔬 **Dev Container** — `devcontainer.json` for simulator-only development; extension detects context and routes commands accordingly

@@ -522,7 +522,7 @@ void kernel_main() {
 }
 ```
 
-**Better approach:** Use TT-Metalium's built-in barrier (when available).
+**Better approach:** Use TT-Metalium<sup>®</sup>'s built-in barrier (when available).
 
 ### Pattern 2: Producer-Consumer
 

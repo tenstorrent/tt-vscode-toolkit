@@ -15,7 +15,7 @@ This guide documents validated combinations of hardware, software versions, and 
 **Model:** Qwen3-0.6B (1.5GB, no HuggingFace token needed)
 
 ### Production Inference (vLLM)
-**Hardware:** n150/n300/T3000/P100/p150
+**Hardware:** n150/n300/T3000/p100/p150
 **Deployment:** TT-Inference-Server Docker image (recommended)
 **Alternative:** Native installation requires careful version matching
 
@@ -34,7 +34,7 @@ This guide documents validated combinations of hardware, software versions, and 
 
 ## 🖥️ Hardware Configurations
 
-### Wormhole Architecture
+### Wormhole<sup>™</sup> Architecture
 
 #### n150 (Single Chip)
 - **DRAM:** 12GB
@@ -65,7 +65,7 @@ This guide documents validated combinations of hardware, software versions, and 
 - **Multi-chip support:** Yes (8 chips)
 
 #### QuietBox (Wormhole-based)
-- **Architecture:** Wormhole (not Blackhole)
+- **Architecture:** Wormhole (not Blackhole<sup>®</sup>)
 - **Configuration:** Multi-chip Wormhole system
 - **Production validation:** ✅ Validated for vLLM (Batch 32: 22.1 T/S/U, 707.2 T/S)
 - **Best for:** Production inference deployments
@@ -74,7 +74,7 @@ This guide documents validated combinations of hardware, software versions, and 
 
 ### Blackhole Architecture
 
-#### P100 (Single Chip)
+#### p100 (Single Chip)
 - **DRAM:** ~32GB
 - **Tensix Cores:** 140 (14x10 grid, 13x10 available for compute)
 - **Best for:** Next-generation single-chip performance
@@ -103,7 +103,7 @@ This guide documents validated combinations of hardware, software versions, and 
   - p150 x2: Llama-3.1-8B (fast), medium models ✅
   - p150 x4: Llama-3.1-70B ✅
   - p150 x8: 70B+ models, large-scale inference ✅
-- **Enhanced features:** Same as P100
+- **Enhanced features:** Same as p100
 - **Requirements:** `export TT_METAL_ARCH_NAME=blackhole`
 - **Multi-chip support:** Yes (2, 4, or 8 chips via mesh topology)
 
@@ -120,8 +120,8 @@ This guide documents validated combinations of hardware, software versions, and 
 
 | Component | Version | Python | Installation Method | Notes |
 |-----------|---------|--------|-------------------|-------|
-| **TT-Metalium** | Latest (main branch) | 3.10 | Source build | Core low-level API |
-| **TTNN** | Bundled with TT-Metalium | 3.10 | Included | High-level neural network ops |
+| **TT-Metalium<sup>®</sup>** | Latest (main branch) | 3.10 | Source build | Core low-level API |
+| **TT-NN<sup>®</sup>** | Bundled with TT-Metalium<sup>®</sup> | 3.10 | Included | High-level neural network ops |
 | **OpenMPI ULFM** | 5.0.7 | N/A | System package | Required for all hardware |
 | **PyTorch** | 2.x | 3.10 | pip (in venv) | ML framework |
 | **Transformers** | Latest | 3.10 | pip (in venv) | HuggingFace models |
@@ -138,7 +138,7 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 | Deployment Method | Hardware | Status | Notes |
 |------------------|----------|--------|-------|
-| **TT-Inference-Server (Docker)** | n150/n300/T3000/P100/p150 | ✅ **Recommended** | Pre-validated configurations |
+| **TT-Inference-Server (Docker)** | n150/n300/T3000/p100/p150 | ✅ **Recommended** | Pre-validated configurations |
 | **Native installation** | n150/n300/T3000 | ⚠️ **Advanced** | Version compatibility challenges |
 
 **Docker method (validated):**
@@ -177,7 +177,7 @@ export TT_METAL_ARCH_NAME=blackhole
 |-----------|---------|--------|-------------------|------------------|
 | **TT-XLA** | Latest wheel | 3.11 | pip (wheel) | n150/n300/T3000/Galaxy |
 | **JAX** | 0.7.1+ | 3.11 | pip | Required dependency |
-| **TT-Forge** | Cloned for demos | 3.11 | git clone | Demo code only |
+| **TT-Forge<sup>®</sup>** | Cloned for demos | 3.11 | git clone | Demo code only |
 
 **Status:** ✅ **Production-ready for multi-chip**
 
@@ -202,7 +202,7 @@ export PYTHONPATH=~/tt-forge:$PYTHONPATH  # For demo imports only
 source ~/tt-scratchpad/setup-tt-xla.sh
 ```
 
-### TT-Forge MLIR Compiler (Lesson 11)
+### TT-Forge<sup>®</sup> MLIR Compiler (Lesson 11)
 
 | Component | Version | Python | Installation Method | Hardware Support |
 |-----------|---------|--------|-------------------|------------------|
@@ -255,7 +255,7 @@ source ~/tt-scratchpad/setup-tt-forge.sh
 
 | Component | Hardware | Status | Notes |
 |-----------|----------|--------|-------|
-| **SD 3.5 Large** | n150/n300/T3000/P100 | ✅ Validated | 1024x1024 generation |
+| **SD 3.5 Large** | n150/n300/T3000/p100 | ✅ Validated | 1024x1024 generation |
 | **Generation time** | n150 | ~2-3 minutes | First run, includes model load |
 | **Environment** | Standard TT-Metalium | ✅ Works | No special setup needed |
 
@@ -283,7 +283,7 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 ### Hardware-Specific
 
-**For Blackhole chips (P100/p150):**
+**For Blackhole chips (p100/p150):**
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 ```

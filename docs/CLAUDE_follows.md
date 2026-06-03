@@ -1,7 +1,7 @@
 # Claude Follows Own Tutorial - Execution Log
 
 **Date:** 2025-12-31
-**Hardware:** Single n150 (Wormhole)
+**Hardware:** Single n150 (Wormhole<sup>™</sup>)
 **Environment:** Cloud Ubuntu instance, barebones setup
 **Starting State:** Outdated ~/tt-metal exists
 
@@ -35,7 +35,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **Solution:** Create universal `setup-tt-env.sh` script that auto-detects hardware and sets all variables. Generate on first launch, source in every command. **This alone would eliminate 60% of troubleshooting time.**
 
 ### 2. **vLLM Native Install = Version Compatibility Hell** 💥
-**Spent 2 hours debugging:** PyTorch 2.6.0 + vLLM dev branch = type hint incompatibility. Rolling back TT-Metalium broke TTNN. Trying validated commits still failed.
+**Spent 2 hours debugging:** PyTorch 2.6.0 + vLLM dev branch = type hint incompatibility. Rolling back TT-Metalium broke TT-NN. Trying validated commits still failed.
 
 **Solution:** **Rewrite Lesson 7 to prioritize Docker.** Native installation blocked by fundamental API incompatibilities. Docker image is validated and works. Stop fighting this.
 
@@ -84,7 +84,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 - Add to FAQ (already done, but needs lesson integration)
 
 ### 4. Fix/Remove Broken Content
-- **Cookbook Recipe 4** (Image Filters): TTNN conv2d API mismatch - fix template or remove
+- **Cookbook Recipe 4** (Image Filters): TT-NN conv2d API mismatch - fix template or remove
 - **setup-metal.sh references:** This file doesn't exist in tt-vllm - remove from lessons
 
 ### 5. Update TT-Forge Lesson
@@ -108,7 +108,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ## 🗑️ What to Remove/Deprecate
 
 ❌ **Lesson 7 native install path** - replace with Docker
-❌ **Cookbook Recipe 4** - TTNN API incompatibility (fix or remove)
+❌ **Cookbook Recipe 4** - TT-NN API incompatibility (fix or remove)
 ❌ **References to setup-metal.sh** - file doesn't exist
 ❌ **"Update to latest" advice** - causes version conflicts
 
@@ -188,7 +188,7 @@ Every minute debugging `PYTHONPATH` or `LD_LIBRARY_PATH` is a minute not learnin
 - Kernel: 5.4.0-216-generic
 - Memory: 503.73 GB
 
-**Existing TT-Metalium:**
+**Existing TT-Metalium<sup>®</sup>:**
 - Located at ~/tt-metal
 - Last commit: Oct 28, 2024 (5143b856eb)
 - Status: OUTDATED (as mentioned by user)
@@ -321,7 +321,7 @@ tensor([[1.1641],
 2. **Model size:** Llama-3.1-8B is 16GB - likely too large for n150 with SRAM constraints
 3. **Extension recommendations:** According to CLAUDE.md (v0.0.97+), Qwen3-0.6B is the primary recommendation for n150:
    - Qwen3-0.6B: 0.6B params, sub-millisecond inference, reasoning-capable
-   - Llama-3.1-8B: Requires n300/T3000/P100 for reliable operation
+   - Llama-3.1-8B: Requires n300/T3000/p100 for reliable operation
 4. **Demo availability:** No Llama demos found in `~/tt-metal/models/demos/wormhole/` directory
 5. **Outdated TT-Metalium:** Current installation is from Oct 28, 2024
 
@@ -341,7 +341,7 @@ tensor([[1.1641],
 
 1. **Add hardware-specific guidance:**
    - n150: Recommend Qwen3-0.6B or Gemma-3-1B-IT (not Llama-3.1-8B)
-   - n300/T3000/P100: Llama-3.1-8B works well
+   - n300/T3000/p100: Llama-3.1-8B works well
 
 2. **Add SRAM constraint note:**
    > **n150 Users:** Llama-3.1-8B (8B parameters, 16GB) may exhaust DRAM on n150 hardware. We recommend starting with Qwen3-0.6B (0.6B parameters) or Gemma-3-1B-IT (1B parameters) for reliable single-chip operation.
@@ -769,7 +769,7 @@ Progress:
 
 **✓ Lesson 2 (Verify Installation):**
 - TT-Metalium verification passed
-- TTNN working correctly
+- TT-NN working correctly
 - Harvesting mask 0x1 normal for n150 L
 
 **✓ Lesson 3 (Download Model & Run Inference):**
@@ -1162,7 +1162,7 @@ The validated configuration (`25305db` + `6e67d2d` + PyTorch 2.6.0) has tightly 
 
 1. ✅ Deployed all 4 cookbook projects to `~/tt-scratchpad/cookbook/`
 2. ✅ Game of Life project ready (256x256 grid, 200 generations)
-3. ❌ **FAILED** - TTNN import error
+3. ❌ **FAILED** - TT-NN import error
 
 ### Error
 
@@ -1172,18 +1172,18 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 
 ### Root Cause
 
-**Environment is compromised.** Rolling back TT-Metalium from commit `3ee39729e9` (Dec 31, working) to `25305db` (Dec 8, for vLLM compatibility) broke TTNN.
+**Environment is compromised.** Rolling back TT-Metalium from commit `3ee39729e9` (Dec 31, working) to `25305db` (Dec 8, for vLLM compatibility) broke TT-NN.
 
 **What happened:**
-- Lesson 2 (16:06 UTC): TTNN worked perfectly with commit `3ee39729e9`
+- Lesson 2 (16:06 UTC): TT-NN worked perfectly with commit `3ee39729e9`
 - vLLM attempts (17:00-18:12 UTC): Rolled back to `25305db` for validated vLLM config
-- Now (18:23 UTC): Even basic TTNN examples fail
+- Now (18:23 UTC): Even basic TT-NN examples fail
 
-**The older TT-Metalium build (`25305db`) has broken/incompatible TTNN bindings.**
+**The older TT-Metalium build (`25305db`) has broken/incompatible TT-NN bindings.**
 
 ### Conclusion
 
-**The development environment has been sullied** by our vLLM compatibility attempts. The backward rollback broke core TTNN functionality.
+**The development environment has been sullied** by our vLLM compatibility attempts. The backward rollback broke core TT-NN functionality.
 
 **Status:** ⚠️ **ENVIRONMENT COMPROMISED** - Need fresh environment
 
@@ -1214,11 +1214,11 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 **Lesson 7 (vLLM Production):**
 - ❌ Native installation blocked by PyTorch/vLLM type hint incompatibility
 - ❌ Validated Docker image not available (no Docker/Podman constraint)
-- ❌ Rolling back TT-Metalium to match vLLM broke TTNN
+- ❌ Rolling back TT-Metalium to match vLLM broke TT-NN
 
 **Lesson 15 (Cookbook):**
 - ❌ Attempted after vLLM rollback, found environment compromised
-- ❌ TTNN import failures due to symbol mismatches
+- ❌ TT-NN import failures due to symbol mismatches
 
 ### Recommendations
 
@@ -1237,7 +1237,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 ### Environment Status
 
 **Current state:** COMPROMISED ⚠️
-- TT-Metalium at commit `25305db` (Dec 8) - TTNN broken
+- TT-Metalium at commit `25305db` (Dec 8) - TT-NN broken
 - vLLM at commit `6e67d2d` - incompatible with native Python/PyTorch
 - Multiple version rollbacks created dependency conflicts
 
@@ -1261,13 +1261,13 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 3. ✅ Cleaned build directories completely
 4. ✅ Ran `install_dependencies.sh`
 5. ✅ Rebuilt TT-Metalium from scratch
-6. ✅ Verified TTNN basic functionality
+6. ✅ Verified TT-NN basic functionality
 
 ### Result
 
 ✅ **ENVIRONMENT RESTORED!**
 
-**TTNN verification:** ✅ SUCCESS
+**TT-NN verification:** ✅ SUCCESS
 - Device opened correctly
 - Tensor operations working
 - Harvesting mask 0x1 (normal for n150 L)
@@ -1281,14 +1281,14 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 
 ### Key Findings
 
-**Root cause of earlier failure:** Rolling back to TT-Metalium commit `25305db` (Dec 8) created incompatible TTNN bindings. The original October 28 commit (`5143b856eb`) has stable, working TTNN.
+**Root cause of earlier failure:** Rolling back to TT-Metalium commit `25305db` (Dec 8) created incompatible TT-NN bindings. The original October 28 commit (`5143b856eb`) has stable, working TT-NN.
 
 **Lesson learned:** The original/untouched TT-Metalium version was actually the most stable. Updates for vLLM compatibility broke core functionality.
 
 **Environment now stable at:**
 - TT-Metalium: `5143b856eb` (Oct 28, 2024)
 - Python: 3.10.12 (system) + TT-Metalium python_env
-- TTNN: Working perfectly
+- TT-NN: Working perfectly
 - OpenMPI: `/opt/openmpi-v5.0.7-ulfm/lib` in LD_LIBRARY_PATH
 
 ---
@@ -1304,7 +1304,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 - Projects deployed to `~/tt-scratchpad/cookbook/`
 - Game of Life simulation successful (256x256, 200 generations)
 - Animation generated: `game_of_life.gif` (3.9MB)
-- TTNN parallel computing working perfectly
+- TT-NN parallel computing working perfectly
 - Headless environment detection working (auto-saved to GIF)
 
 **Performance:**
@@ -1338,7 +1338,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 - Rendered Mandelbrot set: 1024×1024 @ 256 iterations
 - Rendered Julia set: 1024×1024 @ 256 iterations (c = -0.7 + 0.27015i)
 - Both fractals saved with logarithmic colormaps
-- TTNN parallel pixel computation working perfectly
+- TT-NN parallel pixel computation working perfectly
 
 **Performance:**
 - Mandelbrot rendering: ~10 seconds (0.10 Mpixels/sec)
@@ -1359,7 +1359,7 @@ ImportError: /home/user/tt-metal/ttnn/ttnn/_ttnn.so: undefined symbol: _ZN2tt9tt
 
 ### Recipe 4: Image Filters (Convolution Kernels) ❌
 
-**Result:** ❌ BLOCKED - TTNN API incompatibility
+**Result:** ❌ BLOCKED - TT-NN API incompatibility
 
 **Error:**
 ```
@@ -1370,20 +1370,20 @@ batch_size, input_height, input_width, kernel_size, stride, padding, dilation, g
 Template uses simplified API: ttnn.conv2d(channel, kernel_tt, padding='same')
 ```
 
-**Root cause:** The cookbook template's `filters.py` uses a simplified high-level API that doesn't match TTNN's actual low-level conv2d implementation. The real TTNN conv2d requires extensive parameter specification.
+**Root cause:** The cookbook template's `filters.py` uses a simplified high-level API that doesn't match TT-NN's actual low-level conv2d implementation. The real TT-NN conv2d requires extensive parameter specification.
 
-**Status:** Recipe template needs updating to use correct TTNN conv2d API signature.
+**Status:** Recipe template needs updating to use correct TT-NN conv2d API signature.
 
 ### Summary
 
 **Validated recipes: 3 of 4**
-- ✅ Game of Life: TTNN parallel computing, cellular automata
+- ✅ Game of Life: TT-NN parallel computing, cellular automata
 - ✅ Audio Processor: Mel-spectrogram, signal processing
 - ✅ Mandelbrot/Julia: Fractal rendering, complex math
 - ❌ Image Filters: API incompatibility (needs template fix)
 
 **Key findings:**
-- TTNN works excellently for parallel pixel/grid computations
+- TT-NN works excellently for parallel pixel/grid computations
 - Headless rendering infrastructure working correctly
 - All visualizations saved to `~/tt-scratchpad/cookbook/*/` directories
 - All images archived to `~/tt-vscode-toolkit/assets/img/` for documentation
@@ -1424,7 +1424,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py::test_sd3 -v
 
 **Comparison to lesson expectations:** Lesson predicted ~12-15 seconds per image for n150. Actual time was ~137 seconds for full pipeline (first run). This includes:
 - Model loading from Hugging Face (~14 seconds)
-- TT-NN transformer initialization (~82 seconds first run)
+- TT-NN<sup>®</sup> transformer initialization (~82 seconds first run)
 - 28 inference steps (~128 seconds)
 - VAE decoding (~9 seconds)
 
@@ -1490,7 +1490,7 @@ All images inlined in this report with markdown references.
 ### Key Technical Findings
 
 **Environment Recovery (Critical):**
-- Rolling back TT-Metalium versions breaks TTNN bindings
+- Rolling back TT-Metalium versions breaks TT-NN bindings
 - Solution: Clean rebuild at known-good commit (5143b856eb)
 - Added FAQ entry for cloud environment troubleshooting
 
@@ -1501,8 +1501,8 @@ All images inlined in this report with markdown references.
 - Audio: Mel-spectrogram computation in 3 seconds
 
 **API Compatibility Issues:**
-- Image Filters cookbook recipe blocked by TTNN conv2d API mismatch
-- Template uses simplified high-level API not present in actual TTNN
+- Image Filters cookbook recipe blocked by TT-NN conv2d API mismatch
+- Template uses simplified high-level API not present in actual TT-NN
 - Needs cookbook template update with correct low-level conv2d signature
 
 **vLLM Native Installation:**
@@ -1516,10 +1516,10 @@ All images inlined in this report with markdown references.
 1. Lesson 3: Add hardware-specific model recommendations (Qwen3-0.6B for n150)
 2. Lesson 7: Document Docker requirement for vLLM native installation
 3. Lesson 9: Clarify that "12-15 seconds" is for warm runs (cold ~2-3 minutes)
-4. Lesson 15: Fix Image Filters template to use correct TTNN conv2d API
+4. Lesson 15: Fix Image Filters template to use correct TT-NN conv2d API
 
 **Documentation Additions:**
-1. FAQ entry for TTNN symbol errors in cloud environments ✅ (added to content/pages/FAQ.md)
+1. FAQ entry for TT-NN symbol errors in cloud environments ✅ (added to content/pages/FAQ.md)
 2. Environment recovery procedures ✅ (included in FAQ entry)
 3. OpenMPI library path requirements ✅ (already in FAQ, enhanced)
 4. Known-good TT-Metalium commits for specific hardware ✅ (5143b856eb documented)
@@ -1530,13 +1530,13 @@ All images inlined in this report with markdown references.
 - ✅ Lessons 1-5, 9, 15 (3 of 4 recipes)
 - ✅ Direct TT-Metalium API inference (27.88 t/s)
 - ✅ HTTP API server (0.48s per request warm)
-- ✅ TTNN parallel computing (Game of Life, Mandelbrot)
+- ✅ TT-NN parallel computing (Game of Life, Mandelbrot)
 - ✅ Stable Diffusion 3.5 Large (1024x1024 native generation)
 
 **Environment State:** STABLE ✅
 - TT-Metalium: commit 5143b856eb (Oct 28, 2024)
 - Python: 3.10.12 + TT-Metalium python_env
-- TTNN: Working perfectly
+- TT-NN: Working perfectly
 - All cookbook recipes functional (except Image Filters template bug)
 
 ### Time Investment
@@ -1552,7 +1552,7 @@ All images inlined in this report with markdown references.
 Successfully validated n150 hardware with TT-Metalium commit 5143b856eb. Lessons 1-5, 9, and 15 (3 of 4 recipes) all working correctly. Environment is stable and suitable for continued lesson validation.
 
 **Next session priorities:**
-1. Fix Image Filters cookbook template (TTNN conv2d API)
+1. Fix Image Filters cookbook template (TT-NN conv2d API)
 2. Validate Lesson 14 (RISC-V Programming) - currently draft status
 3. Explore Lesson 12 (TT-XLA/JAX) - validated on n150 per metadata
 4. Consider fresh environment for vLLM lesson validation
@@ -1598,7 +1598,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 **Test Results:**
 - ✅ TT device detected: `TTDevice(id=0, arch=Wormhole_b0)`
 - ✅ Simple JAX computation works (dot product = 32.0)
-- ✅ TT-Forge repository cloned with submodules
+- ✅ TT-Forge<sup>®</sup> repository cloned with submodules
 
 **GPT-2 Demo Results (4 model variants tested):**
 
@@ -1716,7 +1716,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 
 ### Documentation Completed
 
-1. ✅ FAQ entry for TTNN import errors (cloud environments)
+1. ✅ FAQ entry for TT-NN import errors (cloud environments)
 2. ✅ Environment recovery procedures
 3. ✅ OpenMPI library path requirements
 4. ✅ Known-good TT-Metalium commit documented (5143b856eb)
@@ -1746,7 +1746,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 - ✅ Direct inference: Llama-3.1-8B @ 27.88 t/s
 - ✅ Image generation: SD 3.5 @ 1024x1024
 - ✅ JAX models: GPT-2 XL (1.5B params)
-- ✅ TTNN operations: Parallel computing, fractals
+- ✅ TT-NN operations: Parallel computing, fractals
 - ✅ Multi-environment: TT-Metalium + TT-XLA coexisting
 
 ### Recommendations for Extension
@@ -1756,7 +1756,7 @@ All images saved to `~/tt-vscode-toolkit/assets/img/`:
 2. Lesson 7: Document Docker requirement clearly
 3. Lesson 9: Clarify cold vs warm run timing
 4. Lesson 12: Update status from "draft" to "validated" ✅
-5. Lesson 15 Recipe 4: Fix Image Filters TTNN conv2d API
+5. Lesson 15 Recipe 4: Fix Image Filters TT-NN conv2d API
 
 **Metadata Updates:**
 - Lesson 12: Change status "draft" → "validated"
@@ -2016,7 +2016,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 
 **Deferred/Blocked:**
 - ⏸️ Lesson 7: vLLM (requires Docker or fresh environment)
-- ⚠️ Lesson 15 Recipe 4: Image Filters (TTNN conv2d API incompatibility)
+- ⚠️ Lesson 15 Recipe 4: Image Filters (TT-NN conv2d API incompatibility)
 
 **Not yet attempted:**
 - Lesson 6: TT-Inference-Server
@@ -2097,7 +2097,7 @@ python -c "import forge; print('✓ TT-Forge installed successfully!')"
 5. Emphasize experimental status more clearly
 
 **Medium Priority:**
-6. Fix Lesson 15 Recipe 4 (Image Filters TTNN conv2d API)
+6. Fix Lesson 15 Recipe 4 (Image Filters TT-NN conv2d API)
 7. Add FAQ entry for TT-Forge build issues
 8. Document TT-Forge runtime setup for advanced users
 
@@ -2279,7 +2279,7 @@ Species:   0      1      2      3      4      5
 
 **Scalability:**
 - Current: 2048 particles (CPU baseline)
-- With TTNN: Could handle 4096-8192+ particles
+- With TT-NN: Could handle 4096-8192+ particles
 - Hardware limit: 100K+ particles possible on n150
 - Bottleneck: Visualization, not computation!
 
@@ -2472,7 +2472,7 @@ This demonstrates the **true power of Tenstorrent hardware**: enabling complexit
 5. Emphasize experimental status upfront
 
 **Medium Priority:**
-6. Fix Lesson 15 Recipe 4 (Image Filters TTNN conv2d API)
+6. Fix Lesson 15 Recipe 4 (Image Filters TT-NN conv2d API)
 7. Add Particle Life to cookbook or examples
 8. Create FAQ entry for TT-Forge build issues
 
@@ -2555,7 +2555,7 @@ python test_particle_life.py
 1. ✅ Game of Life - Cellular automata (Conway's classic)
 2. ✅ Audio Processor - Mel-spectrogram visualization
 3. ✅ Mandelbrot/Julia - Fractal rendering (complex math)
-4. ⚠️ Image Filters - TTNN conv2d API incompatibility (needs fix)
+4. ⚠️ Image Filters - TT-NN conv2d API incompatibility (needs fix)
 5. ✅ **Particle Life** - Emergent complexity simulator (NEW!)
 
 **5 recipes total, 4 fully functional.**
@@ -2732,7 +2732,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py -v -s
 
 **Status:** ✅ Generation started successfully
 - Device opened: n150 (device 0)
-- TTNN initialized
+- TT-NN initialized
 - Model loading from HuggingFace
 - TT-NN transformer creating
 
@@ -2839,7 +2839,7 @@ From generation logs:
 
 **Hardware verification:**
 - ✅ Model loaded on TT hardware (n150 device 0)
-- ✅ TTNN initialized with WORKER dispatch core type
+- ✅ TT-NN initialized with WORKER dispatch core type
 - ✅ Mesh device created successfully
 - ✅ TT-NN transformer running on hardware
 
@@ -3045,7 +3045,7 @@ All critical issues identified during validation have been resolved:
   - n150: ~30-45s → **~4 minutes** (first frame ~5 min with compilation)
   - n300: ~15-20s → **~2 minutes**
   - T3000: ~5-8s → **~40 seconds**
-  - P100: ~30-45s → **~4 minutes**
+  - p100: ~30-45s → **~4 minutes**
 - Updated Step 7 scaling calculations to reflect reality
 - Updated troubleshooting threshold from ">5 minutes" to ">10 minutes"
 - Added notes about first frame compilation overhead

@@ -18,7 +18,7 @@ All hardware-specific instructions use CSS-styled `<details>` sections for clean
 
 ```html
 <details open style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n150 (Wormhole - Single Chip)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n150 (Wormhole<sup>™</sup> - Single Chip)</b></summary>
 
 **Specifications:** ...
 **Environment Variables:** ...
@@ -45,11 +45,11 @@ TT-Installer 2.0 is Tenstorrent's official one-command installation tool. **Note
 For users who need to set up from scratch, TT-Installer:
 
 - ✅ **One command setup** - Complete stack installation in 5-15 minutes
-- ✅ **Container-based** - TT-Metalium runs in Podman containers (no complex builds)
+- ✅ **Container-based** - TT-Metalium<sup>®</sup> runs in Podman containers (no complex builds)
 - ✅ **Full automation** - Kernel drivers, HugePages, firmware, tt-smi, tools
 - ✅ **Production-ready** - Tested across Ubuntu, Debian, Fedora
 - ✅ **Two container options:**
-  - Standard (1GB) - TTNN library for inference
+  - Standard (1GB) - TT-NN library for inference
   - Model Demos (10GB) - Full TT-Metalium with demos and examples
 
 ### Quick Start
@@ -167,7 +167,7 @@ Use manual setup only if:
 - `downloadInstaller()` - Downloads install.sh to ~/
 - `runInteractiveInstall()` - Runs with prompts
 - `runNonInteractiveInstall()` - Runs with defaults
-- `testMetaliumContainer()` - Tests TTNN import
+- `testMetaliumContainer()` - Tests TT-NN import
 
 **Positioning in Extension:**
 - **Not a walkthrough step** - Informational guide only
@@ -1108,7 +1108,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 **Status:** Fully implemented with NATIVE TT HARDWARE ACCELERATION
 
 **Key features:**
-- ✅ **Native TT Acceleration** - Runs on TT-Metalium using TT-NN operators (NOT CPU!)
+- ✅ **Native TT Acceleration** - Runs on TT-Metalium using TT-NN<sup>®</sup> operators (NOT CPU!)
 - ✅ **Stable Diffusion 3.5 Large** - State-of-the-art MMDiT architecture
 - ✅ **High Resolution** - Generates 1024x1024 images (vs 512x512)
 - ✅ **Fast** - ~12-15 seconds per image on n150 with hardware acceleration
@@ -1567,7 +1567,7 @@ This lesson teaches a critical skill that applies to GPT, Claude, Gemini, and al
 **Repository Location:** `~/tt-jukebox/`
 
 TT-Jukebox is an intelligent environment manager for Tenstorrent hardware that:
-- Auto-detects your hardware (n150, n300, T3000, P100, etc.)
+- Auto-detects your hardware (n150, n300, T3000, p100, etc.)
 - Fetches official model specifications from GitHub
 - Matches models to your hardware with intelligent filtering
 - Executes automated setup (checkouts, builds, downloads)
@@ -1617,7 +1617,7 @@ The project includes:
 - Usage examples for all hardware types
 - MIT License for open source use
 
-## Lesson 11: Image Classification with TT-Forge (2025-11-14)
+## Lesson 11: Image Classification with TT-Forge<sup>®</sup> (2025-11-14)
 
 **Status:** Implemented with critical environment variable fixes (v0.0.50)
 
@@ -1736,7 +1736,7 @@ output = compiled_model(input_tensor)
 1. Graph capture: Traces PyTorch operations
 2. Operator validation: Checks if all ops are supported
 3. Optimization: Applies fusion, layout transforms
-4. Lowering: Converts to TTNN operations (TT-Metalium layer)
+4. Lowering: Converts to TT-NN operations (TT-Metalium layer)
 5. Device mapping: Allocates tensors, schedules execution
 6. JIT compilation: Generates device kernels
 

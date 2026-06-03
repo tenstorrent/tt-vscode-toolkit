@@ -66,8 +66,8 @@ playground: ttlang-sim
 ```
 
 **ttsim release info (verified at plan-writing time, v1.5.4):**
-- Wormhole: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so`
-- Blackhole: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so`
+- Wormhole<sup>™</sup>: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so`
+- Blackhole<sup>®</sup>: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so`
 - Use `https://github.com/tenstorrent/ttsim/releases/latest` as the releases page link so it stays current.
 
 **Key external URLs:**
@@ -353,7 +353,7 @@ mkdir -p ~/sim && cd ~/sim
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 
-# OR: Blackhole (P100, p150, p300c, QuietBox 2)
+# OR: Blackhole (p100, p150, p300c, QuietBox<sup>®</sup> 2)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 ```
@@ -391,7 +391,7 @@ If you have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
 
 - [ ] **Step 2: Verify the command link in the lesson is valid**
 
-The `command:TT-VSCode-Toolkit.openLesson?%22build-tt-metal%22` link references the build-TT-Metalium lesson. Confirm it exists:
+The `command:TT-VSCode-Toolkit.openLesson?%22build-tt-metal%22` link references the build-TT-Metalium<sup>®</sup> lesson. Confirm it exists:
 
 ```bash
 grep -r "build-tt-metal" /home/ttuser/code/tt-vscode-toolkit/content/lesson-registry.json | head -3

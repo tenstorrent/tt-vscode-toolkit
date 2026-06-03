@@ -16,10 +16,10 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 
 | Hardware | Architecture | Chips | Tensix Cores | Context Limit | Best For | Extension Type |
 |----------|--------------|-------|--------------|---------------|----------|----------------|
-| **n150** | Wormhole | 1 | 72 | 64K | Development, single-user | `n150` |
+| **n150** | Wormhole<sup>™</sup> | 1 | 72 | 64K | Development, single-user | `n150` |
 | **n300** | Wormhole | 2 | 144 | 128K | Multi-user, higher throughput | `n300` |
 | **T3000** | Wormhole | 8 | 576 | 128K | Large models (70B+) | `t3k` |
-| **P100** | Blackhole | 1 | TBD | 64K | Cloud/standalone | `p100` |
+| **p100** | Blackhole<sup>®</sup> | 1 | TBD | 64K | Cloud/standalone | `p100` |
 | **p150** | Blackhole | 2 | TBD | 128K | Higher performance | `p150` |
 | **p300/p300c** | Blackhole | 1 | TBD | 64K | QuietBox systems | `p300` |
 | **Galaxy** | Wormhole | 32+ | 2304+ | 128K+ | Multi-rack clusters | `galaxy` |
@@ -138,10 +138,10 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 **Architecture Principle:**
 > "Anything that can run on one Blackhole card should be able to run on any one of Blackhole cards"
 
-All Blackhole variants (P100, p150, p300/p300c) share:
+All Blackhole variants (p100, p150, p300/p300c) share:
 - Same instruction set
 - Same core architecture
-- Same TT-Metalium API
+- Same TT-Metalium<sup>®</sup> API
 - Same model compatibility
 
 **Differences:**
@@ -149,7 +149,7 @@ All Blackhole variants (P100, p150, p300/p300c) share:
 - Packaging (cloud vs QuietBox)
 - Possibly memory/firmware variations
 
-#### P100 - Single Chip
+#### p100 - Single Chip
 
 **Hardware Specifications:**
 - **Chips:** 1 Blackhole chip
@@ -197,15 +197,15 @@ All Blackhole variants (P100, p150, p300/p300c) share:
 
 **Hardware Specifications:**
 - **Chips:** 1 Blackhole chip per card
-- **Tensix cores:** TBD (same as P100)
+- **Tensix cores:** TBD (same as p100)
 - **Context limit:** 64K tokens
 - **Deployment:** QuietBox multi-device systems
 - **Common configuration:** 4x p300c (QuietBox Tower)
 
 **Architecture:**
-- **Identical to P100** (single Blackhole chip)
+- **Identical to p100** (single Blackhole chip)
 - p300c likely "compute" variant name
-- Runs in P100 mode for single-chip lessons
+- Runs in p100 mode for single-chip lessons
 - Each card is independently addressable
 
 **Best For:**
@@ -237,22 +237,22 @@ All Blackhole variants (P100, p150, p300/p300c) share:
 All Blackhole cards share the same core architecture:
 
 **Blackhole Variants:**
-- **P100**: Single Blackhole chip (cloud/standalone)
+- **p100**: Single Blackhole chip (cloud/standalone)
 - **p150**: Dual Blackhole chip (higher performance)
 - **p300/p300c**: Single Blackhole chip (QuietBox, compute variant)
 
 **Equivalence Rules:**
-1. **P100 = p300c** (architecture-wise)
+1. **p100 = p300c** (architecture-wise)
    - Use `MESH_DEVICE=P100` for p300c
    - Same instruction set and capabilities
-   - Lessons supporting P100 work on p300c
+   - Lessons supporting p100 work on p300c
 
 2. **Single-chip lessons work on all Blackhole**
-   - P100 lesson → works on p300c
-   - P100 lesson → requires adaptation for p150 (dual chip)
+   - p100 lesson → works on p300c
+   - p100 lesson → requires adaptation for p150 (dual chip)
 
 3. **Dual-chip lessons p150-specific**
-   - p150 lessons don't apply to P100/p300c
+   - p150 lessons don't apply to p100/p300c
    - Different MESH_DEVICE configuration
 
 ### Wormhole Family Consistency
@@ -301,7 +301,7 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 | **n150** | (no MESH_DEVICE) | N/A | N/A |
 | **n300** | `MESH_DEVICE=N300` | `MESH_DEVICE=N300` | N/A |
 | **T3000** | `MESH_DEVICE=T3K` | `MESH_DEVICE=T3K` | Varies |
-| **P100** | `MESH_DEVICE=P100` | N/A | N/A |
+| **p100** | `MESH_DEVICE=P100` | N/A | N/A |
 | **p150** | `MESH_DEVICE=P150` | `MESH_DEVICE=P150` | N/A |
 | **p300c (1 card)** | `MESH_DEVICE=P100` | N/A | N/A |
 | **p300c (4 cards)** | `MESH_DEVICE=P100` + `TT_METAL_DEVICE_ID=0` | N/A | `TT_METAL_NUM_DEVICES=4` + multi-device code |
@@ -312,7 +312,7 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 
 ### Hardware Support by Lesson
 
-| Lesson | n150 | n300 | T3000 | P100 | p150 | p300 | Galaxy | Notes |
+| Lesson | n150 | n300 | T3000 | p100 | p150 | p300 | Galaxy | Notes |
 |--------|------|------|-----|------|------|------|--------|-------|
 | 01 Hardware Detection | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 02 Verify Installation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
@@ -324,7 +324,7 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 | 08 VSCode Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 09 Image Generation | ✅ | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | p300c arch supported, SDXL bug blocks |
 | 10 Coding Assistant | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
-| 11 TT-Forge | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | n150 only (experimental) |
+| 11 TT-Forge<sup>®</sup> | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | n150 only (experimental) |
 | 12 TT-XLA JAX | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ✅ | Wormhole only |
 | 13 RISC-V Programming | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 14 Explore Metalium | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
@@ -429,7 +429,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 
 **"Unknown board type 'p300c'" Error:**
 - **Solution:** Use `MESH_DEVICE=P100` (p300c = single Blackhole)
-- **Explanation:** p300c architecturally identical to P100
+- **Explanation:** p300c architecturally identical to p100
 
 **Multi-device mesh initialization timeout:**
 - **Check:** All 4 devices detected (`tt-smi -s`)
@@ -439,7 +439,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 **Lesson shows "not supported" for p300c:**
 - **Check:** Extension version (needs v0.0.232+)
 - **Verify:** HardwareType enum includes `p300`
-- **Workaround:** Treat as P100 for single-chip lessons
+- **Workaround:** Treat as p100 for single-chip lessons
 
 ### Blackhole Firmware Warnings
 
@@ -455,11 +455,11 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 ### By Use Case
 
 **Development & Prototyping:**
-- **Recommended:** n150 or P100
+- **Recommended:** n150 or p100
 - **Why:** Single chip, cost-effective, widely supported
 
 **Production Single-User Inference:**
-- **Recommended:** n150, n300, or P100
+- **Recommended:** n150, n300, or p100
 - **Why:** Proven, validated models, production-ready
 
 **Production Multi-User Serving:**
@@ -475,7 +475,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 - **Why:** Multi-device development, workload distribution research
 
 **Latest Architecture Evaluation:**
-- **Recommended:** P100 or p300c (Blackhole)
+- **Recommended:** p100 or p300c (Blackhole)
 - **Why:** 3rd generation, experimental models, future-proof
 
 ---

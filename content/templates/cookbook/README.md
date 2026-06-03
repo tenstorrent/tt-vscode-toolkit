@@ -1,6 +1,6 @@
-# TT-Metalium Cookbook Projects
+# TT-Metalium<sup>®</sup> Cookbook Projects
 
-This directory contains 4 complete, hands-on projects for learning TT-Metalium programming.
+This directory contains 4 complete, hands-on projects for learning TT-Metalium<sup>®</sup> programming.
 
 ## Projects
 
@@ -8,7 +8,7 @@ This directory contains 4 complete, hands-on projects for learning TT-Metalium p
 Conway's cellular automaton demonstrating parallel tile computing.
 
 **Files:**
-- `game_of_life.py` - Core implementation using TTNN convolution
+- `game_of_life.py` - Core implementation using TT-NN<sup>®</sup> convolution
 - `patterns.py` - Classic patterns (glider, blinker, Gosper gun, etc.)
 - `visualizer.py` - Matplotlib animation
 - `requirements.txt` - Dependencies
@@ -24,7 +24,7 @@ python game_of_life.py
 Real-time audio signal processing with mel-spectrograms and effects.
 
 **Files:**
-- `processor.py` - Core TTNN audio operations (STFT, mel-spectrogram, MFCC)
+- `processor.py` - Core TT-NN audio operations (STFT, mel-spectrogram, MFCC)
 - `effects.py` - Audio effects (reverb, pitch shift, echo, chorus)
 - `visualizer.py` - Real-time visualization
 - `examples/sample.wav` - Example audio file
@@ -110,7 +110,7 @@ done
 
 ## Key Concepts Taught
 
-- **TTNN Operations**: `conv2d`, `matmul`, `fft`, tensor manipulation
+- **TT-NN Operations**: `conv2d`, `matmul`, `fft`, tensor manipulation
 - **Tile-Based Computing**: 32×32 tiles, padding, layout conversion
 - **Parallel Execution**: Leveraging multiple Tensix cores
 - **Memory Management**: L1 SRAM, DRAM transfers

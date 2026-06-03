@@ -74,7 +74,7 @@ python explorer.py
 | `mandelbrot_explorer.ipynb` | 📓 **Jupyter notebook** - inline visualizations in VSCode |
 | `explorer_save.py` | 💾 **Batch renderer** - saves multiple views to files |
 | `explorer.py` | 🔄 **Flexible** - interactive or save mode (use `--save` flag) |
-| `renderer.py` | ⚙️ **Core engine** - TTNN rendering implementation |
+| `renderer.py` | ⚙️ **Core engine** - TT-NN<sup>®</sup> rendering implementation |
 
 ## Usage Examples
 
@@ -176,7 +176,7 @@ When using interactive mode (GUI window):
 ## Complete Implementation
 
 See **Lesson 12** for the full implementation details including:
-- Complex number operations with TTNN
+- Complex number operations with TT-NN<sup>®</sup>
 - Julia set rendering algorithms
 - Interactive explorer with undo/redo
 - Performance benchmarking

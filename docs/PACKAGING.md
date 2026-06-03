@@ -215,7 +215,7 @@ Every lesson has metadata tracking validation status and hardware compatibility.
 
 **`blockReason` (optional):**
 - Human-readable explanation if status is `blocked`
-- Example: "Requires TT-Metalium v0.52.0+ (not yet released)"
+- Example: "Requires TT-Metalium<sup>®</sup> v0.52.0+ (not yet released)"
 
 ### Hardware Types
 
@@ -223,10 +223,10 @@ Every lesson has metadata tracking validation status and hardware compatibility.
 
 | Hardware | Description | Family |
 |----------|-------------|--------|
-| `n150` | Wormhole - Single chip | Wormhole |
+| `n150` | Wormhole<sup>™</sup> - Single chip | Wormhole |
 | `n300` | Wormhole - Dual chip | Wormhole |
 | `t3k` | TT-QuietBox - 8 chips | Wormhole |
-| `p100` | Blackhole - Single chip | Blackhole |
+| `p100` | Blackhole<sup>®</sup> - Single chip | Blackhole |
 | `p150` | Blackhole - Dual chip | Blackhole |
 | `galaxy` | TT-LoudBox - 32 chips | Wormhole |
 | `simulator` | Software simulator | N/A |

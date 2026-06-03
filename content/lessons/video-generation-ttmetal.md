@@ -35,12 +35,12 @@ a single n150 to a T3000 (8 chips). Each frame is a text-to-image generation
 pass. A handful of carefully worded prompts becomes a short film.
 
 **Hardware this works on:**
-- **n150 / n300** (Wormhole): `models/demos/wormhole/stable_diffusion/`
-- **P100 / p300c** (Blackhole): same demo, set `TT_METAL_ARCH_NAME=blackhole`
+- **n150 / n300** (Wormhole<sup>™</sup>): `models/demos/wormhole/stable_diffusion/`
+- **p100 / p300c** (Blackhole<sup>®</sup>): same demo, set `TT_METAL_ARCH_NAME=blackhole`
 - **T3000 (8 chips)**: same code, passes more context in parallel
 
 **Requires `~/tt-metal` built from source.** If you don't have that yet, see
-[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+[Build TT-Metalium<sup>®</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 ---
 
@@ -57,7 +57,7 @@ A short video showcasing "Tenstorrent at the 1964–1965 World's Fair" using:
 
 - ✅ `~/tt-metal` built from source (see Build TT-Metalium lesson)
 - ✅ tt-metal Python venv activated (`source ~/tt-metal/python_env/bin/activate`)
-- ✅ Hardware: n150, n300, T3000, P100, or p300c
+- ✅ Hardware: n150, n300, T3000, p100, or p300c
 - ✅ HuggingFace account with `hf auth login` completed (for model download)
 - ✅ ffmpeg installed
 
@@ -77,7 +77,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 cd ~/tt-metal
 ```
 
-**For P100 / p300c (Blackhole):**
+**For p100 / p300c (Blackhole):**
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 ```
@@ -156,7 +156,7 @@ pytest --disable-warnings \
 - **n150:** ~30–45 seconds per 512×512 frame
 - **n300:** ~15–25 seconds per frame (2 chips)
 - **T3000:** ~5–10 seconds per frame (8 chips)
-- **P100 / p300c:** ~30–45 seconds per frame (similar to n150)
+- **p100 / p300c:** ~30–45 seconds per frame (similar to n150)
 
 > **First frame is always slower** — kernel compilation adds 3–5 minutes on initial run.
 > Subsequent runs use cached compiled kernels and are much faster.
@@ -235,7 +235,7 @@ The same demo code runs across hardware tiers — the difference is parallelism:
 | n150 | 1 | 1× (baseline) | Development, testing |
 | n300 | 2 | ~2× faster | Faster iteration |
 | T3000 | 8 | ~6× faster | Production video |
-| P100 / p300c | 1 BH | ~1× | Blackhole validation |
+| p100 / p300c | 1 BH | ~1× | Blackhole validation |
 
 **Benchmark example (10 frames at 512×512):**
 - n150: ~350 seconds total (~35s/frame after warmup)
@@ -303,7 +303,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 hf auth login
 ```
 
-**"p300c / QuietBox 2: ROW dispatch error"**
+**"p300c / QuietBox<sup>®</sup> 2: ROW dispatch error"**
 
 The SD demo uses `ttnn.open_device()` without hardcoding dispatch axis, so it should be Blackhole-safe. If you see dispatch errors, ensure `TT_METAL_ARCH_NAME=blackhole` is set.
 
@@ -316,7 +316,7 @@ Rename already-completed frames before re-running to preserve them.
 
 ## Key Takeaways
 
-- ✅ **SD 1.4 runs on all single-chip Tenstorrent hardware** (n150, p300c, P100)
+- ✅ **SD 1.4 runs on all single-chip Tenstorrent hardware** (n150, p300c, p100)
 - ✅ **Frame-by-frame video** is a practical approach for hardware without native video models
 - ✅ **Hardware scaling is automatic** — same pytest command, better hardware = faster
 - ✅ **First-run warmup** (download + compilation) is a one-time cost; subsequent runs are fast

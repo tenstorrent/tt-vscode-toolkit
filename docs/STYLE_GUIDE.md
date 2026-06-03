@@ -66,7 +66,11 @@ This style guide ensures consistency across all lessons, documentation, and code
 **Hardware architecture names:**
 - ✅ `Grayskull` (capital G)
 - ✅ `Wormhole` (capital W)
-- ✅ `Blackhole` (capital B)
+- ✅ `Blackhole` (capital B); first mention per page: `Blackhole<sup>®</sup>`
+- ✅ `Wormhole` (capital W); first mention per page: `Wormhole<sup>™</sup>`
+- ✅ `QuietBox 2` (prose; not `QB2`); first mention per page: `QuietBox<sup>®</sup> 2`
+- ✅ `TT-NN` in prose (not `TTNN`); first mention per page: `TT-NN<sup>®</sup>`
+- ✅ `TT-Metalium`, `TT-Forge` — first mention per page: `TT-Metalium<sup>®</sup>`, `TT-Forge<sup>®</sup>`
 - ❌ `grayskull`, `wormhole`, `blackhole` (except in code/environment variables)
 
 **In code and configuration:**
@@ -356,7 +360,7 @@ estimatedMinutes: 30
 - `n150` — Wormhole single chip
 - `n300` — Wormhole 2-chip
 - `t3k` — Wormhole 8-chip (prose: **T3000**)
-- `p100` - P100 (Blackhole single chip)
+- `p100` - p100 (Blackhole<sup>®</sup> single chip)
 - `p150` - p150 (Blackhole 2-chip)
 - `galaxy` - Galaxy (Wormhole large-scale)
 - `simulator` - Software simulator (no hardware)

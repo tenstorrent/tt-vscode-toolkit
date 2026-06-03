@@ -169,7 +169,7 @@ The multi-device implementation:
 To push toward 3-4x speedup:
 - **Larger workloads:** 4,096+ particles (more work per device)
 - **Longer simulations:** Amortize setup cost over more timesteps
-- **On-device TTNN operations:** Move calculations to TT hardware
+- **On-device TT-NN<sup>®</sup> operations:** Move calculations to TT hardware
 
 See `MULTI_DEVICE_RESULTS.md` for detailed performance analysis.
 

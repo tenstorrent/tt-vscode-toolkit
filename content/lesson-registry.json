@@ -139,7 +139,7 @@
     {
       "id": "verify-installation",
       "title": "Verify Your Setup",
-      "description": "Check that your Tenstorrent hardware, TTNN, and optional TT-Metalium source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
+      "description": "Check that your Tenstorrent hardware, TT-NN, and optional TT-Metalium source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
       "category": "first-inference",
       "tags": [
         "installation"
@@ -267,7 +267,7 @@
     {
       "id": "tt-inference-server",
       "title": "Production Inference with TT-Inference-Server",
-      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, P100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, p100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
@@ -718,7 +718,7 @@
     {
       "id": "cookbook-game-of-life",
       "title": "Recipe 1: Conway's Game of Life",
-      "description": "Build Conway's Game of Life using TTNN parallel tile computing. Learn convolution operations, cellular automata, and visual output generation. Includes classic patterns: gliders, blinkers, and the famous Gosper Glider Gun!",
+      "description": "Build Conway's Game of Life using TT-NN parallel tile computing. Learn convolution operations, cellular automata, and visual output generation. Includes classic patterns: gliders, blinkers, and the famous Gosper Glider Gun!",
       "category": "cookbook",
       "tags": [
         "ttnn",
@@ -752,7 +752,7 @@
     {
       "id": "cookbook-audio-processor",
       "title": "Recipe 2: Audio Signal Processing",
-      "description": "Build a real-time audio processing pipeline with TTNN. Compute mel-spectrograms, detect beats, extract pitch, and apply creative effects. Foundation for speech recognition models like Whisper!",
+      "description": "Build a real-time audio processing pipeline with TT-NN. Compute mel-spectrograms, detect beats, extract pitch, and apply creative effects. Foundation for speech recognition models like Whisper!",
       "category": "cookbook",
       "tags": [
         "ttnn",
@@ -1206,7 +1206,7 @@
     {
       "id": "explore-metalium",
       "title": "Exploring TT-Metalium",
-      "description": "Discover what's possible with TT-Metalium! Run TTNN operations immediately, explore the model zoo, and understand the architecture that powers Tenstorrent hardware — from first script to custom kernels.",
+      "description": "Discover what's possible with TT-Metalium! Run TT-NN operations immediately, explore the model zoo, and understand the architecture that powers Tenstorrent hardware — from first script to custom kernels.",
       "category": "advanced",
       "tags": [
         "model",
@@ -1240,7 +1240,7 @@
     {
       "id": "animatediff-video-generation",
       "title": "Native Video Animation with AnimateDiff",
-      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TTNN UNet. Learn the complete model bring-up workflow — from research to a standalone package that accelerates SD frame generation at 15 seconds per frame on p300c/QuietBox 2.",
+      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet. Learn the complete model bring-up workflow — from research to a standalone package that accelerates SD frame generation at 15 seconds per frame on p300c/QuietBox 2.",
       "category": "applications",
       "tags": [
         "animation",

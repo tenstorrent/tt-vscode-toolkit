@@ -70,7 +70,7 @@ abstractions over that control is exactly what TT-Lang does.
 []
 ```
 
-*Blackhole chip: 140 Tensix compute cores (teal), DRAM banks (blue edges), ETH links (purple). Wormhole is the same architecture at 80 cores (8×10 grid).*
+*Blackhole<sup>®</sup> chip: 140 Tensix compute cores (teal), DRAM banks (blue edges), ETH links (purple). Wormhole<sup>™</sup> is the same architecture at 80 cores (8×10 grid).*
 
 ---
 
@@ -81,9 +81,9 @@ middle — the same position that Triton occupies in the NVIDIA ecosystem:
 
 | Layer | What it is | Analogous to |
 |-------|-----------|--------------|
-| **TTNN** | High-level tensor ops — `ttnn.matmul`, `ttnn.softmax`, ready to use | PyTorch / cuDNN |
+| **TT-NN<sup>®</sup>** | High-level tensor ops — `ttnn.matmul`, `ttnn.softmax`, ready to use | PyTorch / cuDNN |
 | **TT-Lang** | Python DSL for custom fused kernels with explicit data movement | OpenAI Triton |
-| **TT-Metalium** | Full hardware control — every register, every DMA, every semaphore | CUDA C / PTX |
+| **TT-Metalium<sup>®</sup>** | Full hardware control — every register, every DMA, every semaphore | CUDA C / PTX |
 
 If you've used PyTorch on a GPU, you've lived at the top layer — calling
 library functions and letting cuDNN figure out the rest. If you've written a
@@ -91,7 +91,7 @@ Triton kernel to fuse ops for performance, you've been in the middle. If you've
 written CUDA C to squeeze every cycle from GPU hardware, you've been at the
 bottom. TT-Lang is Tenstorrent's equivalent of that middle layer.
 
-The rule of thumb: **start with TTNN**. When TTNN can't express what you need,
+The rule of thumb: **start with TT-NN**. When TT-NN can't express what you need,
 or when you need more performance than pre-built ops can deliver, drop into
 TT-Lang. When even TT-Lang isn't enough (rare), go to TT-Metalium.
 
@@ -110,9 +110,9 @@ The TT-Lang README describes the problem that drove its creation:
 > expressivity for application-level concerns."*
 
 TT-Metalium is powerful but takes weeks to learn and demands hardware debugging
-expertise. TTNN is approachable but can't express fused custom ops. Engineers
+expertise. TT-NN is approachable but can't express fused custom ops. Engineers
 porting models kept hitting the same wall: they'd need to fuse a sequence of
-TTNN ops for performance, and the only path forward was a full rewrite in
+TT-NN ops for performance, and the only path forward was a full rewrite in
 TT-Metalium. That's a multi-week detour just to get one optimization landed.
 
 TT-Lang bridges that gap through **progressive disclosure**: simple kernels
@@ -163,7 +163,7 @@ any of this effort is worthwhile.
 This is the concrete performance story. It's worth understanding before you
 write a single line of TT-Lang.
 
-When TTNN executes a model, it dispatches each operation as a separate kernel.
+When TT-NN executes a model, it dispatches each operation as a separate kernel.
 Between every op, tensor data writes out to DRAM and reads back in. For a
 single transformer layer, that's a chain of round-trips that looks like this:
 
@@ -187,7 +187,7 @@ production projects:
 
 | Project | What was fused | Improvement |
 |---------|---------------|-------------|
-| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TTNN |
+| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TT-NN |
 | [DFlash speculative decoder](https://github.com/zoecarver/dflash) | RoPE, RMSNorm, SiLU, residuals | 5–6× decode speedup |
 | [DeepSeek Engram module](https://github.com/zoecarver/Engram) | gating + depthwise conv | 2.2× all kernels; 3.4× gating alone |
 | [nanochat fused MLP](https://github.com/zoecarver/nanochat/commit/f849d3f) | 7 dispatches → 1 | +21% tok/s (13.13 → 15.89) |
@@ -204,9 +204,9 @@ These are real projects built with TT-Lang. Each one started as a "what if we
 ran this on Tensix?" and ended with working kernels.
 
 **[SkyReels-1.3B](https://github.com/zoecarver/tt-lang-models)** — The full WAN
-video transformer block fused into a single kernel on QuietBox 2 (4-chip Blackhole).
+video transformer block fused into a single kernel on QuietBox<sup>®</sup> 2 (4-chip Blackhole).
 Five ops collapsed into one: input tiles stream in once, compute flows through
-L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op TTNN
+L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op TT-NN
 dispatch at production model dimensions.
 
 **[WAN Animate 14B](https://github.com/tenstorrent/tt-lang)** — A 40-layer,
@@ -298,7 +298,7 @@ Run "Element-wise Add" first. You'll see three function definitions inside the
 
 > **Try it now:** select "Element-wise Add" in the playground above.
 
-The simplest possible kernel: add two tensors element-by-element. In TTNN you'd
+The simplest possible kernel: add two tensors element-by-element. In TT-NN you'd
 call `ttnn.add(a, b)`. In TT-Lang, you express the same operation with explicit
 control over when data moves and where it lives.
 
@@ -360,7 +360,7 @@ operation happens entirely in L1.
 > **Try it now:** select "Fused Multiply-Add" in the playground above.
 
 Here's where fusion pays off. Computing `y = a * b + c` naively requires three
-separate TTNN ops — three DRAM round-trips. In TT-Lang, you wire three input
+separate TT-NN ops — three DRAM round-trips. In TT-Lang, you wire three input
 DFBs and fuse all the math in a single L1 pass:
 
 ```python
@@ -541,7 +541,7 @@ a fused Tensix kernel.
 /ttl-import attention.py
 ```
 
-Translates CUDA, Triton, PyTorch, or TTNN code to a TT-Lang DFB pattern.
+Translates CUDA, Triton, PyTorch, or TT-NN code to a TT-Lang DFB pattern.
 Handles the mechanical mapping: ops become compute thread logic, tensor loads
 become DM0 reads, tensor stores become DM1 writes. Output is a runnable `.py`
 file ready for simulation.
@@ -595,7 +595,7 @@ simulator behaves unexpectedly.
 
 | Command | When to reach for it |
 |---------|---------------------|
-| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TTNN |
+| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TT-NN |
 | `/ttl-simulate <file>` | After any change — validate before profiling or hardware |
 | `/ttl-test <file>` | Simulation passes — build a regression suite |
 | `/ttl-profile <file>` | Kernel is correct, want to find the bottleneck |

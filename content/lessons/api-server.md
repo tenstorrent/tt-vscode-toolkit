@@ -96,7 +96,7 @@ python3 -c "import flask; print('✓ flask installed')"
 
 **If any checks fail:**
 
-**No hardware or TT-Metalium?**
+**No hardware or TT-Metalium<sup>®</sup>?**
 - See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) and [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
 
 **No model?**

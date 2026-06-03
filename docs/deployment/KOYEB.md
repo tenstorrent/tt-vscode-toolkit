@@ -279,7 +279,7 @@ Choice [1]:
 
 | Hardware | Chips | Use Case |
 |----------|-------|----------|
-| **Single n300** | 2 chips (Wormhole) | Development, testing, single models |
+| **Single n300** | 2 chips (Wormhole<sup>™</sup>) | Development, testing, single models |
 | **3x n300** | 6 chips total | Production, multi-model serving |
 
 ### What Works with Hardware

@@ -2,13 +2,13 @@
 
 **Date:** January 3, 2026
 **Status:** Phases 1-3 Complete | Phase 4 (Pipeline Integration) Ready to Begin
-**Hardware:** n150 (Wormhole - Single Chip)
+**Hardware:** n150 (Wormhole<sup>™</sup> - Single Chip)
 
 ---
 
 ## Executive Summary
 
-**AnimateDiff temporal attention has been successfully ported to TTNN and injected into SD 3.5!**
+**AnimateDiff temporal attention has been successfully ported to TT-NN and injected into SD 3.5!**
 
 We've completed the core implementation that enables native animated video generation on TT hardware. The temporal attention module is now fully integrated with SD 3.5's DiT transformer architecture.
 
@@ -36,7 +36,7 @@ hidden_states = rearrange(hidden_states, "(b f) d c -> (b d) f c", f=video_lengt
 ### Phase 2: Architecture Understanding ✅
 
 **Completed:**
-- Explored SD 3.5 pipeline architecture in TT-Metalium
+- Explored SD 3.5 pipeline architecture in TT-Metalium<sup>®</sup>
 - Identified SD 3.5 uses DiT (Diffusion Transformer), not UNet
 - Found transformer block structure in `fun_transformer_block.py`
 - Located perfect injection point: **Line 336** (after spatial attention, before feed-forward)
@@ -49,12 +49,12 @@ hidden_states = rearrange(hidden_states, "(b f) d c -> (b d) f c", f=video_lengt
 4. Feed-Forward Network (line 356-365)
 ```
 
-### Phase 3: TTNN Implementation and Injection ✅
+### Phase 3: TT-NN<sup>®</sup> Implementation and Injection ✅
 
 **Created:** `/home/user/tt-metal/models/experimental/stable_diffusion_35_large/tt/temporal_module.py`
 
 **Features:**
-- Full TTNN-based temporal attention implementation
+- Full TT-NN-based temporal attention implementation
 - `TtTemporalAttentionParameters` dataclass following SD 3.5 patterns
 - `temporal_attention()` function with detailed algorithm
 - Sinusoidal positional encoding for frame indices
@@ -375,7 +375,7 @@ export_to_video(frames, "butterfly_animation.mp4", fps=8)
 
 4. **Test and iterate:**
    - Run 2-frame test
-   - Debug any TTNN operation issues
+   - Debug any TT-NN operation issues
    - Scale up to 16-frame test
    - Optimize performance
 
@@ -385,7 +385,7 @@ export_to_video(frames, "butterfly_animation.mp4", fps=8)
 
 **We've successfully completed the hardest part!** 🎉
 
-The temporal attention module is fully implemented in TTNN, injected into SD 3.5's transformer, and ready to create animated videos. All core architecture work (Phases 1-3) is complete.
+The temporal attention module is fully implemented in TT-NN, injected into SD 3.5's transformer, and ready to create animated videos. All core architecture work (Phases 1-3) is complete.
 
 The remaining work (Phases 4-6) is more straightforward:
 - Plumbing num_frames through the pipeline

@@ -22,7 +22,7 @@ validatedOn:
 estimatedMinutes: 60
 ---
 
-# Local AI Agents on QuietBox 2
+# Local AI Agents on QuietBox<sup>®</sup> 2
 
 > **QuietBox 2-only lesson.** Everything here requires a 32B or 70B model. The agent reliability gap between 7B and 32B+ is large enough that 7B is not a supported path — the demos will fail or loop indefinitely at smaller scales.
 
@@ -332,7 +332,7 @@ FINAL RESULT:
 Open source AI inference hardware has matured significantly heading into 2026.
 Three companies have moved beyond vaporware into shipping products:
 
-**Tenstorrent (QuietBox 2 / Blackhole):** QuietBox 2 runs Qwen3-32B at ~8 s/response
+**Tenstorrent (QuietBox 2 / Blackhole<sup>®</sup>):** QuietBox 2 runs Qwen3-32B at ~8 s/response
 and Llama-3.3-70B-Instruct at ~14 s/response on 4× Blackhole ASICs...
 
 ✓ Completed in 5 steps

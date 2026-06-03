@@ -2,7 +2,7 @@
 
 Two-phase implementation: **Phase 1** generates real, temporally coherent video
 on CPU using the correct AnimateDiff architecture. **Phase 2** accelerates spatial
-denoising on Blackhole hardware using the TTNN UNet.
+denoising on Blackhole<sup>®</sup> hardware using the TT-NN<sup>®</sup> UNet.
 
 | *"World of Tomorrow"* | *"Phosphor Horizon"* |
 |---|---|
@@ -51,17 +51,17 @@ Expected output: `output/baseline.gif` — 16 frames of temporally coherent anim
 
 ## Phase 2 — Blackhole-Accelerated Frame Generation
 
-Uses the SD 1.4 TTNN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/` —
+Uses the SD 1.4 TT-NN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/` —
 the same code runs on Blackhole via `TT_METAL_ARCH_NAME=blackhole`. Frames are denoised
 sequentially using `sd_helper_funcs.run()`. Temporal coherence from shared base noise.
 
 **Documented tradeoff:** This is TT-hardware-accelerated spatial denoising for video
 frames, not full AnimateDiff temporal attention. Full integration would require injecting
-`TemporalTransformer` blocks into the TTNN UNet transformer blocks.
+`TemporalTransformer` blocks into the TT-NN UNet transformer blocks.
 
 ### Requirements
 
-- Blackhole hardware (P100 or p300c)
+- Blackhole hardware (p100 or p300c)
 - `~/tt-metal` present, environment activated: `source ~/tt-metal/python_env/bin/activate`
 - `hf download CompVis/stable-diffusion-v1-4` (also used by Phase 1; CLIP loads from this model's subfolders)
 
@@ -127,5 +127,5 @@ SD 1.4 UNet WITH MotionAdapter (Phase 1):
                               This is where mm_sd_v15_v2.ckpt weights live
 ```
 
-For full AnimateDiff on Blackhole, the TTNN UNet transformer blocks would need
+For full AnimateDiff on Blackhole, the TT-NN UNet transformer blocks would need
 TemporalTransformer layers inserted — a deeper integration than Phase 2 attempts.

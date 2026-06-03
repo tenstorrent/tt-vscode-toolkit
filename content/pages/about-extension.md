@@ -1,6 +1,6 @@
 # TT-VSCode-Toolkit — Extension Guide
 
-**TT-VSCode-Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole (n150, n300, T3000) and Blackhole (P100, p150, p300, p300c, QuietBox 2) hardware.
+**TT-VSCode-Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole<sup>™</sup> (n150, n300, T3000) and Blackhole<sup>®</sup> (p100, p150, p300, p300c, QuietBox<sup>®</sup> 2) hardware.
 
 ---
 
@@ -91,7 +91,7 @@ Get from zero to a running inference server.
 | Verify Your Setup | n150 · p300c |
 | Interactive Chat with Direct API | n150 |
 | HTTP API Server with Direct API | n150 |
-| Build TT-Metalium from Source | n150 · p300c |
+| Build TT-Metalium<sup>®</sup> from Source | n150 · p300c |
 
 ### 🏭 Serving Models *(4 lessons)*
 
@@ -99,7 +99,7 @@ Production-grade inference serving.
 
 | Lesson | Hardware |
 |---|---|
-| Production Inference with TT-Inference-Server | n150 · P100 |
+| Production Inference with TT-Inference-Server | n150 · p100 |
 | Production Inference with vLLM | n150 · p300c |
 | Image Generation with Stable Diffusion XL | n150 |
 | Video Generation via Frame-by-Frame Diffusion | *(draft)* |
@@ -132,7 +132,7 @@ Self-contained programs that showcase Tenstorrent capabilities with vivid visual
 
 | Lesson | Focus |
 |---|---|
-| Image Classification with TT-Forge | PyTorch model compilation |
+| Image Classification with TT-Forge<sup>®</sup> | PyTorch model compilation |
 | JAX and PyTorch/XLA on Tenstorrent | XLA/PJRT plugin path |
 
 ### 🧠 Advanced *(2 lessons)*
@@ -157,7 +157,7 @@ A structured computer-science curriculum designed for the Tenstorrent architectu
 
 ## Hardware Filtering
 
-The **Lessons panel** includes a hardware filter. Select your card (n150, n300, T3000, P100, QuietBox 2, etc.) and the list narrows to only the lessons validated on your hardware. The filter state is remembered across sessions.
+The **Lessons panel** includes a hardware filter. Select your card (n150, n300, T3000, p100, QuietBox 2, etc.) and the list narrows to only the lessons validated on your hardware. The filter state is remembered across sessions.
 
 ---
 
@@ -170,7 +170,7 @@ Beyond lessons, the extension registers 70+ commands accessible via the Command 
 | **Setup** | Run TT-Installer Quick Install, Download TT-Installer Script |
 | **Hardware** | Run Hardware Detection (tt-smi), Reset Device, Clear Device State |
 | **Models** | Set Hugging Face Token, Login to HuggingFace, Download Model |
-| **Inference** | Start TT-Inference-Server (n150/n300), Start vLLM Server (T3000/P100) |
+| **Inference** | Start TT-Inference-Server (n150/n300), Start vLLM Server (T3000/p100) |
 | **Compilers** | Activate TT-Forge Environment, Install TT-XLA PJRT Plugin, Test TT-Forge Installation |
 | **Metalium** | Build Programming Examples, Run RISC-V Addition Example |
 | **Video gen** | Clone tt-local-generator, Start Wan2.2 Video Server, Launch tt-gen GUI |

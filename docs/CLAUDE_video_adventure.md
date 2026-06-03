@@ -2,7 +2,7 @@
 
 **Mission:** Create 10-second video ad for 64-65 World's Fair using TT hardware
 **Date:** 2026-01-02
-**Hardware:** n150 (Wormhole - Single Chip)
+**Hardware:** n150 (Wormhole<sup>™</sup> - Single Chip)
 **Goal:** Demonstrate hardware scaling story - code that works on n150 and scales exponentially to Galaxy
 
 ---
@@ -81,7 +81,7 @@
 **Options:**
 1. ❌ **Port video model to JAX** - High effort (weeks), uncertain success
 2. ✅ **Use SD JAX/Flax for frame-by-frame video** - Works now, exercises TT hardware
-3. ⚠️ **Fall back to TT-Metalium SD 3.5** - Already proven in Lesson 9
+3. ⚠️ **Fall back to TT-Metalium<sup>®</sup> SD 3.5** - Already proven in Lesson 9
 
 ---
 
@@ -507,7 +507,7 @@ The video generation lesson has been successfully integrated into the extension:
 - **Category:** advanced
 - **Order:** 9
 - **Status:** draft (ready for testing)
-- **Hardware:** n150, n300, T3000, P100
+- **Hardware:** n150, n300, T3000, p100
 - **Estimated time:** 30 minutes
 
 **Next steps for users:**

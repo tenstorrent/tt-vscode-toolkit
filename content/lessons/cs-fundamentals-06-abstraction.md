@@ -239,7 +239,7 @@ sw   t2, 0x1008    # Store c
 - Error-prone
 - No portability
 
-### Path 2: TTNN (Mid Level - TT Neural Network Library)
+### Path 2: TT-NN<sup>®</sup> (Mid Level - TT Neural Network Library)
 
 **You write:**
 ```python
@@ -252,7 +252,7 @@ C = ttnn.matmul(A, B)  # Matrix multiply on Tenstorrent
 ```
 
 **What happens:**
-1. TTNN decomposes matmul into suboperations
+1. TT-NN decomposes matmul into suboperations
 2. Tiles data for L1 SRAM (blocking)
 3. Generates RISC-V kernels for each tile
 4. Launches parallel kernels across cores
@@ -261,7 +261,7 @@ C = ttnn.matmul(A, B)  # Matrix multiply on Tenstorrent
 **Advantages:**
 - Easy to write (familiar PyTorch-like API)
 - Optimized for common patterns (matmul, conv2d)
-- Portable (works on n150, n300, T3000, P100)
+- Portable (works on n150, n300, T3000, p100)
 
 **Disadvantages:**
 - Less control (can't hand-tune every instruction)
@@ -287,7 +287,7 @@ result = model_tt(input_data)
 1. JAX traces your Python function
 2. Builds HLO (High-Level Operations) graph
 3. XLA compiler optimizes graph (fusion, layout)
-4. TT-XLA backend generates TT-Metalium code
+4. TT-XLA backend generates TT-Metalium<sup>®</sup> code
 5. Executes on hardware
 
 **Advantages:**
@@ -302,7 +302,7 @@ result = model_tt(input_data)
 
 ### Comparing the Paths
 
-| Feature | Direct RISC-V | TTNN | TT-XLA |
+| Feature | Direct RISC-V | TT-NN | TT-XLA |
 |---------|---------------|------|--------|
 | **Ease of use** | Hard | Medium | Easy |
 | **Control** | Complete | Medium | Low |
@@ -312,7 +312,7 @@ result = model_tt(input_data)
 
 **Recommendation:**
 - **Prototyping:** TT-XLA (fast development)
-- **Production:** TTNN (good balance)
+- **Production:** TT-NN (good balance)
 - **Optimization:** Direct RISC-V (squeeze last 10%)
 
 ---
@@ -368,7 +368,7 @@ print(f"NumPy: {elapsed:.3f} seconds")
 
 **Why?** NumPy calls optimized C/Fortran BLAS libraries (OpenBLAS, Intel MKL).
 
-#### Level 3: TTNN on Tenstorrent (Fastest on TT Hardware)
+#### Level 3: TT-NN on Tenstorrent (Fastest on TT Hardware)
 
 ```python
 # TTNN (Tenstorrent Neural Network library)
@@ -461,7 +461,7 @@ RETURN_VALUE
 PyObject* result = PyNumber_Add(a, b);
 ```
 
-**For TTNN (C++ → RISC-V):**
+**For TT-NN (C++ → RISC-V):**
 
 **Source code (C++):**
 ```cpp
@@ -684,7 +684,7 @@ for x in 0..100 {
 - Requires good optimizing compiler
 - Doesn't apply to dynamic languages (Python, JavaScript)
 
-**Tenstorrent TTNN aims for this:** High-level API, but compiles to optimal low-level kernels.
+**Tenstorrent TT-NN aims for this:** High-level API, but compiles to optimal low-level kernels.
 
 ### Question 3: Should We Avoid Abstractions?
 
@@ -858,7 +858,7 @@ We've explored the abstraction stack. But all these layers still execute algorit
 
 ### Tenstorrent Resources
 
-- **TTNN Documentation:** `~/tt-metal/ttnn/`
+- **TT-NN Documentation:** `~/tt-metal/ttnn/`
 - **TT-XLA Examples:** `~/tt-xla/demos/`
 - **Metalium Guide:** `~/tt-metal/METALIUM_GUIDE.md`
 
@@ -869,8 +869,8 @@ We've explored the abstraction stack. But all these layers still execute algorit
 We explored:
 - **Theory:** Abstraction stack (Python to silicon), compilation pipeline, JIT
 - **Industry:** NumPy (1000x speedup), TensorFlow (eager vs graph), Flash Attention
-- **Tenstorrent:** Direct RISC-V (control), TTNN (balance), TT-XLA (ease)
-- **Practice:** Matrix multiply (10,000x speedup from Python to TTNN)
+- **Tenstorrent:** Direct RISC-V (control), TT-NN (balance), TT-XLA (ease)
+- **Practice:** Matrix multiply (10,000x speedup from Python to TT-NN)
 
 **Key lesson:** Use the right abstraction level for the task. High-level for development, low-level for optimization.
 

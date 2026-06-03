@@ -524,7 +524,7 @@ Only 0.008% of peak compute!
 **Module 3 (Parallelism):** 176 cores, but Amdahl's Law limits speedup
 **Module 4 (Networks):** NoC transfers (1 cycle/hop)
 **Module 5 (Synchronization):** Barrier overhead (~50 cycles)
-**Module 6 (Abstraction):** TTNN compiles to optimized kernels
+**Module 6 (Abstraction):** TT-NN<sup>®</sup> compiles to optimized kernels
 **Module 7 (Complexity):** This module!
 
 **Performance model for C = A × B (n×n matrices on Tenstorrent):**
@@ -787,7 +787,7 @@ You've completed the CS Fundamentals series! What's next?
 
 ### Apply Your Knowledge
 
-**Lesson 14: Explore Metalium** - Dive into TT-Metalium programming
+**Lesson 14: Explore Metalium** - Dive into TT-Metalium<sup>®</sup> programming
 **Lesson 15: Metalium Cookbook** - Build real projects (Conway's Life, Fractals, Audio)
 **Lesson 17: AnimateDiff** - Bring up a new model from scratch
 
@@ -795,7 +795,7 @@ You've completed the CS Fundamentals series! What's next?
 
 **Tenstorrent Model Zoo** - Port models to TT hardware
 **Bounty Program** - Get paid for model bring-ups
-**GitHub** - Contribute to TT-Metalium, TT-XLA, TT-Forge
+**GitHub** - Contribute to TT-Metalium<sup>®</sup>, TT-XLA, TT-Forge<sup>®</sup>
 
 ### Go Deeper
 
@@ -846,7 +846,7 @@ We explored 7 fundamental CS concepts on real hardware:
 
 **Module 6: Abstraction Layers**
 - Python → C → Assembly → Silicon
-- Saw 10,000x speedup from Python to TTNN
+- Saw 10,000x speedup from Python to TT-NN
 
 **Module 7: Computational Complexity**
 - Big-O + constants + hardware = real performance
@@ -916,7 +916,7 @@ add  t2, t0, t1
 3. **Module 3 (Parallelism):** Scaled from 1 → 880 cores (Amdahl's Law constraints)
 4. **Module 4 (Networks):** Mastered the NoC connecting those 880 cores
 5. **Module 5 (Sync):** Learned explicit barriers (no cache coherence hardware)
-6. **Module 6 (Abstraction):** Understood Python → TTNN → C++ → RISC-V stack
+6. **Module 6 (Abstraction):** Understood Python → TT-NN → C++ → RISC-V stack
 7. **Module 7 (Complexity):** Applied everything to real algorithm optimization
 
 **You started with `add t2, t0, t1` and ended with Flash Attention on 880 cores.**
@@ -969,7 +969,7 @@ flowchart TD
 - ✅ **When parallelism helps** - Amdahl's Law predicts speedup limits
 - ✅ **How 880 cores talk** - NoC routing, multicast, congestion
 - ✅ **Why synchronization is hard** - No cache coherence hardware
-- ✅ **How abstractions work** - Python → TTNN → RISC-V compilation
+- ✅ **How abstractions work** - Python → TT-NN → RISC-V compilation
 - ✅ **When Big-O lies** - Constants + memory = real performance
 
 **You can now:**
@@ -1008,7 +1008,7 @@ You've completed the CS Fundamentals series. You now have:
 
 **Want to go deeper?**
 - **Bounty Program:** Bring up new models on Tenstorrent hardware
-- **Metalium Cookbook:** Build creative projects with TTNN
+- **Metalium Cookbook:** Build creative projects with TT-NN
 - **RISC-V Specs:** Read the official RISC-V ISA manual
 - **Performance Tuning:** Profile real workloads, optimize kernels
 

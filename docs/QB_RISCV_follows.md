@@ -1,7 +1,7 @@
 # QuietBox CS Fundamentals Validation Report
 
 **Date:** 2026-01-09
-**Hardware:** 4x p300c (Blackhole)
+**Hardware:** 4x p300c (Blackhole<sup>®</sup>)
 **Validator:** Claude Code
 **Purpose:** Validate CS Fundamentals lesson series by following them step-by-step on real hardware
 
@@ -302,7 +302,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 **Status:** ✅ CONCEPTUAL MODULE
 - Teaching code: Python → C → Assembly → Silicon examples
 - Concepts: Compilation pipeline, JIT compilation, abstraction tradeoffs
-- Comparisons: Pure Python (10s) vs NumPy (0.01s) vs TTNN (0.001s)
+- Comparisons: Pure Python (10s) vs NumPy (0.01s) vs TT-NN<sup>®</sup> (0.001s)
 - **Content Quality:** ✅ Excellent - 10,000x speedup explanation
 
 ### Module 7: Computational Complexity in Practice
@@ -408,7 +408,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 
 3. **Performance profiling integration:**
    - Add tracy profiling examples
-   - Show how to use TT-Metalium's performance counters
+   - Show how to use TT-Metalium<sup>®</sup>'s performance counters
    - Teach profiling-driven optimization workflow
 
 ### For Documentation

@@ -2,7 +2,7 @@
 id: explore-metalium
 title: Exploring TT-Metalium
 description: >-
-  Discover what's possible with TT-Metalium! Run TTNN operations immediately,
+  Discover what's possible with TT-Metalium! Run TT-NN operations immediately,
   explore the model zoo, and understand the architecture that powers
   Tenstorrent hardware — from first script to custom kernels.
 category: advanced
@@ -26,25 +26,25 @@ validatedOn:
 estimatedMinutes: 30
 ---
 
-# Exploring the TT-Metalium Playground
+# Exploring the TT-Metalium<sup>®</sup> Playground
 
 Welcome to the heart of Tenstorrent development! In this lesson you'll discover what's
-possible with **TT-Metalium** and **TTNN**, run real hardware code in minutes, and
+possible with **TT-Metalium<sup>®</sup>** and **TT-NN<sup>®</sup>**, run real hardware code in minutes, and
 understand the architecture that makes it all tick.
 
 ## What You'll Do
 
-- ⚡ Run your first TTNN operation on TT hardware in five lines of code
+- ⚡ Run your first TT-NN operation on TT hardware in five lines of code
 - 🧠 Understand tile-based computing and the Tensix core
 - 🏗️ Explore the three-kernel programming model
 - 📚 Browse the model zoo and Jupyter tutorials
-- 🔧 See the path from TTNN (high-level Python) to TT-Metalium (custom C++ kernels)
+- 🔧 See the path from TT-NN (high-level Python) to TT-Metalium (custom C++ kernels)
 
 ---
 
 ## Before You Start: Run This Right Now
 
-If you have TT-Metalium built and your venv activated, you can be running real TTNN code in
+If you have TT-Metalium built and your venv activated, you can be running real TT-NN code in
 60 seconds. No Jupyter, no setup — just Python:
 
 ```bash
@@ -77,7 +77,7 @@ directly.
 
 Before diving in, here's what makes Tenstorrent hardware worth exploring:
 
-**Wormhole n150 (single chip, 8 TOPS):**
+**Wormhole<sup>™</sup> n150 (single chip, 8 TOPS):**
 - Runs Llama 3.1 8B at ~20 tok/s
 - Generates 512×512 images in ~30s with Stable Diffusion
 - Runs BERT-Large inference at ~400 sentences/sec
@@ -87,7 +87,7 @@ Before diving in, here's what makes Tenstorrent hardware worth exploring:
 - Stable Diffusion 3.5 Large in 5.6 seconds per image
 - Llama 3 70B at hundreds of tok/s
 
-**The same TTNN Python code runs on all of these.** You write for n150, scale to Galaxy
+**The same TT-NN Python code runs on all of these.** You write for n150, scale to Galaxy
 by changing a device count. That's the architecture advantage this lesson explores.
 
 ---
@@ -96,7 +96,7 @@ by changing a device count. That's the architecture advantage this lesson explor
 
 ### The Quickest Path: basic_python Scripts
 
-Every TTNN concept has a runnable Python script. These are the best starting point
+Every TT-NN concept has a runnable Python script. These are the best starting point
 because they don't require Jupyter and have clear, commented code:
 
 ```bash
@@ -145,10 +145,10 @@ files in the same directory:
 ~/tt-metal/ttnn/tutorials/
 ```
 
-[📓 Open TTNN Tutorials](command:tenstorrent.launchTtnnTutorials)
+[📓 Open TT-NN Tutorials](command:tenstorrent.launchTtnnTutorials)
 
 **Available notebooks:**
-- `ttnn_intro.ipynb` — Introduction to TTNN concepts
+- `ttnn_intro.ipynb` — Introduction to TT-NN concepts
 - `ttnn_add_tensors.ipynb` — Tensor creation and addition
 - `ttnn_basic_operations.ipynb` — Element-wise ops, reductions
 - `ttnn_basic_matrix_multiplication.ipynb` — matmul deep dive
@@ -177,7 +177,7 @@ hardware-optimized AI models available. Here's what you can run right now:
 - **Qwen 2.5 VL** — Vision-language understanding
 
 **Vision Models:**
-- **Stable Diffusion 1.4** — Text-to-image (n150/n300/P100)
+- **Stable Diffusion 1.4** — Text-to-image (n150/n300/p100)
 - **YOLO v10/v11/v12** — Real-time object detection
 - **SegFormer** — Semantic segmentation
 - **SigLIP** — Image-text matching
@@ -203,7 +203,7 @@ Models are organized by target hardware for easy discovery:
 ```
 models/demos/wormhole/   — n150/n300 optimized
 models/demos/t3000/      — T3000 (8-chip) configurations
-models/demos/blackhole/  — p100/p300c (Blackhole)
+models/demos/blackhole/  — p100/p300c (Blackhole<sup>®</sup>)
 models/demos/tg/         — Galaxy (32-chip)
 ```
 
@@ -329,7 +329,7 @@ moving where.
 
 ### Two Levels of Abstraction
 
-**TTNN (Python) — High Level:**
+**TT-NN (Python) — High Level:**
 
 ```python
 import ttnn
@@ -347,7 +347,7 @@ result = ttnn.to_torch(e)
 ttnn.close_device(device)
 ```
 
-Use TTNN for: rapid prototyping, standard model inference, Python-first development.
+Use TT-NN for: rapid prototyping, standard model inference, Python-first development.
 
 ---
 
@@ -421,7 +421,7 @@ cd ~/tt-metal
 
 ## Hands-On: Tile Padding Experiment
 
-Run this short script to see how TTNN handles the 32×32 tile requirement:
+Run this short script to see how TT-NN handles the 32×32 tile requirement:
 
 ```bash
 cat > /tmp/tile_experiment.py << 'EOF'
@@ -459,12 +459,12 @@ cd ~/tt-metal && python3 /tmp/tile_experiment.py
 
 ## Key Takeaways
 
-- ✅ **TTNN runs on every Tenstorrent chip** — write once, scale from n150 to Galaxy
+- ✅ **TT-NN runs on every Tenstorrent chip** — write once, scale from n150 to Galaxy
 - ✅ **Tile-based computing** (32×32) is the native format — align your shapes!
 - ✅ **Three-kernel model** (Reader→Compute→Writer) enables pipelined execution
 - ✅ **Explicit memory** (L1 SRAM) instead of caches — predictable performance
 - ✅ **Production models exist** for LLMs, vision, audio, video, and more
-- ✅ **Both levels matter**: TTNN for productivity, Metalium for maximum performance
+- ✅ **Both levels matter**: TT-NN for productivity, Metalium for maximum performance
 
 ---
 

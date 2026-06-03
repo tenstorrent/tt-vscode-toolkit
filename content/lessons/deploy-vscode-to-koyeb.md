@@ -44,7 +44,7 @@ A browser-accessible VSCode environment with:
 ## Why Deploy to Koyeb?
 
 Koyeb offers **direct access to Tenstorrent n300 hardware** (`gpu-tenstorrent-n300s` instance type) with:
-- Native n300 support (2 Wormhole chips)
+- Native n300 support (2 Wormhole<sup>™</sup> chips)
 - `/dev/tenstorrent/` device access
 - Dedicated hardware for your workloads
 - HTTPS endpoints with automatic SSL
@@ -204,7 +204,7 @@ Your cloud IDE includes:
 - Standard dev tools (git, python3, npm, etc.)
 - Full hardware permissions configured
 
-**Note:** TT-Metalium can be built via lessons when needed (not pre-installed)
+**Note:** TT-Metalium<sup>®</sup> can be built via lessons when needed (not pre-installed)
 
 **Configuration:**
 - Auto-configured theme (Tenstorrent Dark)

@@ -37,10 +37,10 @@ Each walkthrough step in `package.json` can include metadata for hardware compat
 ## Hardware Values
 
 Use lowercase values:
-- `n150` - Wormhole n150 (single chip)
+- `n150` - Wormhole<sup>™</sup> n150 (single chip)
 - `n300` - Wormhole n300 (dual chip)
 - `t3k` - T3000 (8-chip cluster)
-- `p100` - Blackhole P100 (single chip)
+- `p100` - Blackhole<sup>®</sup> p100 (single chip)
 - `p150` - Blackhole p150 (dual chip)
 - `p300` - Blackhole p300/p300c (single chip, QuietBox variant)
 - `galaxy` - Galaxy (32-chip cluster)
@@ -235,7 +235,7 @@ node scripts/check-lessons.js --filter
 | 08 VSCode Chat | validated | all | n150 |
 | 09 Image Generation | validated | n150, n300, t3k, p100 | n150 |
 | 10 Coding Assistant | validated | all | n150 |
-| 11 TT-Forge | draft | n150 | - |
+| 11 TT-Forge<sup>®</sup> | draft | n150 | - |
 | 12 TT-XLA JAX | validated | n150, n300, t3k, galaxy | n150 |
 | 13 RISC-V Programming | validated | all | n150 |
 | 14 Metalium Cookbook | validated | all | n150 |
@@ -245,7 +245,7 @@ node scripts/check-lessons.js --filter
 All Blackhole cards share the same core architecture and instruction set:
 
 **Blackhole Variants:**
-- **P100**: Single Blackhole chip (cloud/standalone deployments)
+- **p100**: Single Blackhole chip (cloud/standalone deployments)
 - **p150**: Dual Blackhole chip (higher performance configurations)
 - **p300/p300c**: Single Blackhole chip (QuietBox systems, compute variant)
 
@@ -266,7 +266,7 @@ All Blackhole cards share the same core architecture and instruction set:
 
 **Validation Notes:**
 - p300c validated on Lesson 7 (vLLM Production) and Lesson 15 (Metalium Cookbook - Particle Life)
-- p300c runs identically to P100 with `MESH_DEVICE=P100`
+- p300c runs identically to p100 with `MESH_DEVICE=P100`
 - See `docs/QB_follows.md` for comprehensive QuietBox validation results
 
 ## Migration Plan

@@ -236,7 +236,7 @@ def reduce_fn(counts1, counts2):
 
 ### The Hardware Reality
 
-**Wormhole chip:**
+**Wormhole<sup>™</sup> chip:**
 ```
 176 Tensix cores × 5 RISC-V processors = 880 cores
 

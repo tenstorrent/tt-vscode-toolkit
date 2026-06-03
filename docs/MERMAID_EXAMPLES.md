@@ -18,7 +18,7 @@ graph TD
 
 ## Example Diagrams
 
-### Flowchart - TT-Metalium Stack
+### Flowchart - TT-Metalium<sup>®</sup> Stack
 ```mermaid
 graph TB
     App[Your Application]

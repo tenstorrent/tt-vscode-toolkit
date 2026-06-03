@@ -35,7 +35,7 @@ validationNotes: Rewritten for pre-installed venv-forge; zero install steps
 The `venv-forge` / `tt-forge-venv` environment ships JAX, torch-xla, and the TT PJRT plugin
 pre-installed. There is no installation step — just activate and start computing.
 
-> **QuietBox 2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
+> **QuietBox<sup>®</sup> 2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
 > four entries). `pmap` distributes work across them automatically.
 
 ---
@@ -51,7 +51,7 @@ source ~/tt-forge-venv/bin/activate
 > one path exists, create the link yourself:
 >
 > ```bash
-> # /opt/venv-forge exists but ~/TT-Forge-venv doesn't:
+> # /opt/venv-forge exists but ~/TT-Forge<sup>®</sup>-venv doesn't:
 > ln -s /opt/venv-forge ~/TT-Forge-venv
 >
 > # ~/TT-Forge-venv exists but /opt/venv-forge doesn't (needs sudo):
@@ -239,7 +239,7 @@ print(output.shape)       # torch.Size([1, 1000])
 
 ## Hardware configuration
 
-Wormhole and Blackhole chips are configured identically at the JAX API level.
+Wormhole<sup>™</sup> and Blackhole<sup>®</sup> chips are configured identically at the JAX API level.
 `jax.devices()` returns one entry per chip, regardless of board type.
 
 | Hardware | `jax.devices()` | Notes |

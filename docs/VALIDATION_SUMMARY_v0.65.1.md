@@ -2,8 +2,8 @@
 
 **Date:** 2026-02-10
 **Validator:** Claude (AI validation agent)
-**TT-Metalium Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
-**Hardware:** n150 L (Wormhole - Single Chip)
+**TT-Metalium<sup>®</sup> Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
+**Hardware:** n150 L (Wormhole<sup>™</sup> - Single Chip)
 **Approach:** Pattern-based content quality audit + selective technical testing
 
 ---
@@ -23,12 +23,12 @@
 
 ### Current Environment
 
-**TT-Metalium:**
+**TT-Metalium<sup>®</sup>:**
 - Version: v0.65.1
 - Commit: 558a19699f02c106eb851ef9df0c118979b6c469
 - Date: 2026-01-08
 - Python: 3.10
-- TTNN: 0.65.1
+- TT-NN<sup>®</sup>: 0.65.1
 - Status: ✅ Fully functional
 
 **tt-smi:**
@@ -36,8 +36,8 @@
 - Status: ✅ Snapshot mode (`-s`) works perfectly
 - Note: TUI mode improved but still has issues in non-interactive environments
 
-**TT-Forge:**
-- venv Location: ~/TT-Forge-venv
+**TT-Forge<sup>®</sup>:**
+- venv Location: ~/TT-Forge<sup>®</sup>-venv
 - Python: 3.11.13
 - Status: ⚠️ Created but empty (pip 24.0, setuptools 65.5.0 only)
 - Action Needed: Setup required when validating TT-Forge lessons
@@ -447,7 +447,7 @@
    - Location: `models/experimental/stable_diffusion_xl_base/`
    - Status: ✅ **Production-ready** (closely monitored in CI)
    - Architecture: Larger UNet with dual encoders, 1024×1024 default
-   - Hardware: All (Wormhole, Blackhole, Galaxy)
+   - Hardware: All (Wormhole, Blackhole<sup>®</sup>, Galaxy)
    - Pipelines: Base, base+refiner, img2img, inpainting
    - Use Case: Production quality, higher resolution, more capable
 
@@ -608,14 +608,14 @@ Prerequisites validated - lesson commands are correct and will work.
 1. ✅ Project structure deployed to ~/tt-scratchpad/cookbook/game_of_life/
 2. ✅ Python dependencies (ttnn, torch, numpy)
 3. ✅ Device initialization and cleanup
-4. ✅ TTNN tensor creation with TILE_LAYOUT
+4. ✅ TT-NN tensor creation with TILE_LAYOUT
 5. ✅ Convolution kernel setup (core Game of Life operation)
 
 **What Works:**
 - All 5 cookbook projects pre-deployed in ~/tt-scratchpad/cookbook/
 - Device opens successfully (n150 L, 1x1 mesh)
-- TTNN tensor operations validated
-- Layout conversions work (torch → TTNN TILE_LAYOUT)
+- TT-NN tensor operations validated
+- Layout conversions work (torch → TT-NN TILE_LAYOUT)
 - Convolution operations ready (neighbor counting for cellular automata)
 
 **Lesson Quality:**
@@ -635,15 +635,15 @@ Prerequisites validated - lesson commands are correct and will work.
 - TensorAccessor migration provides cleaner API
 - Sharding-aware ops for larger grids on multi-chip hardware
 
-**Note:** Full visual animation not run (requires matplotlib display). Core TTNN operations validated - lesson ready for users!
+**Note:** Full visual animation not run (requires matplotlib display). Core TT-NN operations validated - lesson ready for users!
 
 **Other Cookbook Lessons (Same Structure):**
-- ✅ audio_processor - TTNN for Mel-spectrograms, beat detection
+- ✅ audio_processor - TT-NN for Mel-spectrograms, beat detection
 - ✅ image_filters - Custom convolutions, edge detection
 - ✅ mandelbrot - Parallel fractal computation
 - ✅ particle_life - N² force calculations, multi-species dynamics
 
-All share same validated TTNN foundation. Templates deployed and ready.
+All share same validated TT-NN foundation. Templates deployed and ready.
 
 
 ## Additional Validation Results (2026-02-11 Continuation)
@@ -662,11 +662,11 @@ All share same validated TTNN foundation. Templates deployed and ready.
 - Structure validated (AudioProcessor class with proper initialization)
 - Uses librosa for DSP operations (appropriate for starter template)
 - Device management correct (open/close)
-- **Note:** Full TTNN-accelerated version referenced in "Lesson 12"
+- **Note:** Full TT-NN-accelerated version referenced in "Lesson 12"
 
-**✅ cookbook-mandelbrot** - Full TTNN implementation
+**✅ cookbook-mandelbrot** - Full TT-NN implementation
 - All files deployed (renderer.py, explorer.py, notebooks, docs)
-- **TTNN operations validated:**
+- **TT-NN operations validated:**
   - ✅ `ttnn.from_torch()` with TILE_LAYOUT
   - ✅ `ttnn.zeros_like()`, `ttnn.full_like()`
   - ✅ `ttnn.square()`, `ttnn.add()`, `ttnn.subtract()`, `ttnn.multiply()`
@@ -700,7 +700,7 @@ All share same validated TTNN foundation. Templates deployed and ready.
 - 5/6 cookbook lessons validated (83%)
 - 1 blocked (image-filters conv2d API)
 - All deployed templates accessible
-- Mix of full TTNN implementations and starter templates (appropriate for learning)
+- Mix of full TT-NN implementations and starter templates (appropriate for learning)
 
 ---
 

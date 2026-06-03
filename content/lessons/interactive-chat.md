@@ -22,11 +22,11 @@ estimatedMinutes: 10
 
 # Interactive Chat with Direct API
 
-Build your own interactive chat application using TT-Metalium's Generator API directly.
+Build your own interactive chat application using TT-Metalium<sup>®</sup>'s Generator API directly.
 
 > **⚠️ Llama + tt-metal source required.** The Generator API used in this lesson is Llama-specific and requires `~/tt-metal` cloned and built from source. If you:
 > - Haven't accepted [Meta's data terms](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) for Llama access, or
-> - Don't have `~/tt-metal` built (QuietBox 2 and pre-configured images don't ship it)
+> - Don't have `~/tt-metal` built (QuietBox<sup>®</sup> 2 and pre-configured images don't ship it)
 >
 > → Use the **[vLLM path with Qwen3-0.6B](command:tenstorrent.showLesson?["vllm-production"])** instead — no source build, no license gate, works on all hardware.
 

@@ -98,7 +98,7 @@ So far in this extension, you've learned how to **run** pre-trained models (infe
 
 Tenstorrent's training ecosystem is designed around clarity and modularity. Here's how the pieces fit together:
 
-### TT-Metalium (Foundation)
+### TT-Metalium<sup>®</sup> (Foundation)
 - **What it is:** Core SDK for Tenstorrent hardware
 - **What it does:** Low-level operations, kernels, device management, memory handling
 - **Why it matters:** This is the foundation everything else builds on
@@ -122,7 +122,7 @@ Tenstorrent's training ecosystem is designed around clarity and modularity. Here
 graph TD
     A[Your Training Script] --> B[tt-train API<br/>High-level Training Interface]
     B --> C[TT-Metalium SDK<br/>Hardware Operations]
-    C --> D[Tenstorrent Hardware<br/>n150/n300/T3000/P100/Galaxy]
+    C --> D[Tenstorrent Hardware<br/>n150/n300/T3000/p100/Galaxy]
 
     E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
 
@@ -134,7 +134,7 @@ graph TD
 ```
 
 **Think of it like web development:**
-- TT-Metalium = Browser APIs (low-level)
+- TT-Metalium<sup>®</sup> = Browser APIs (low-level)
 - tt-train = React/Vue (framework)
 - tt-blacksmith = Design patterns & best practices
 - Your script = Your application
@@ -257,7 +257,7 @@ Once training is complete, use your fine-tuned model for inference. Integrate wi
 
 ## Hardware Considerations
 
-### n150 (Single Wormhole Chip)
+### n150 (Single Wormhole<sup>™</sup> Chip)
 - **Perfect for:** Fine-tuning small models (1-3B params)
 - **Batch size:** 4-8 (conservative for DRAM)
 - **Training time:** 1-3 hours typical
@@ -269,7 +269,7 @@ Once training is complete, use your fine-tuned model for inference. Integrate wi
 - **Training time:** 30-60 minutes (2x faster than n150)
 - **What you'll learn:** DDP patterns, multi-device coordination
 
-### T3000 / Blackhole / Galaxy (Advanced)
+### T3000 / Blackhole<sup>®</sup> / Galaxy (Advanced)
 - **Perfect for:** Large-scale training, experimentation
 - **Batch size:** 32+ (highly parallel)
 - **Training time:** Minutes for small jobs
@@ -391,7 +391,7 @@ You're about to learn how to train custom models - but what will you build with 
 **Real-world custom models running on TT hardware:**
 
 🎯 **Domain-Specific Coding Assistants**
-- Python → TTNN translators (convert PyTorch to TT-optimized code)
+- Python → TT-NN<sup>®</sup> translators (convert PyTorch to TT-optimized code)
 - Hardware description language generators (Verilog patterns)
 - Code review bots trained on team style guides
 - API documentation chatbots
@@ -507,7 +507,7 @@ Now that you understand the concepts, it's time to get hands-on. In the next les
 
 ### Related Lessons
 - **Lesson 7:** vLLM Production (inference with fine-tuned models)
-- **Lesson 11:** TT-Forge (experimental compiler)
+- **Lesson 11:** TT-Forge<sup>®</sup> (experimental compiler)
 - **Lesson 12:** TT-XLA JAX (alternative training framework)
 
 ### Community

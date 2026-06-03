@@ -1,10 +1,10 @@
-# AnimateDiff on Blackhole — Implementation Plan
+# AnimateDiff on Blackhole<sup>®</sup> — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rewrite `content/projects/animatediff/` to produce a working two-phase AnimateDiff implementation — Phase 1 as a correct diffusers AnimateDiffPipeline baseline (CPU, no hardware needed), Phase 2 as TTNN UNet frame generation on Blackhole hardware.
+**Goal:** Rewrite `content/projects/animatediff/` to produce a working two-phase AnimateDiff implementation — Phase 1 as a correct diffusers AnimateDiffPipeline baseline (CPU, no hardware needed), Phase 2 as TT-NN<sup>®</sup> UNet frame generation on Blackhole hardware.
 
-**Architecture:** Phase 1 uses `diffusers.AnimateDiffPipeline` with `MotionAdapter("guoyww/animatediff-motion-adapter-v1-5-2")` on `CompVis/stable-diffusion-v1-4` — the correct architecture (MotionAdapter injects temporal attention at each UNet transformer block at 320-dim features, exactly where `mm_sd_v15_v2.ckpt` weights were trained). Phase 2 uses the TT-Metalium SD 1.4 TTNN UNet (`UNet2D` from `models/demos/wormhole/stable_diffusion/tt/`) running on Blackhole via `TT_METAL_ARCH_NAME=blackhole`, with shared base noise for inter-frame coherence.
+**Architecture:** Phase 1 uses `diffusers.AnimateDiffPipeline` with `MotionAdapter("guoyww/animatediff-motion-adapter-v1-5-2")` on `CompVis/stable-diffusion-v1-4` — the correct architecture (MotionAdapter injects temporal attention at each UNet transformer block at 320-dim features, exactly where `mm_sd_v15_v2.ckpt` weights were trained). Phase 2 uses the TT-Metalium<sup>®</sup> SD 1.4 TT-NN UNet (`UNet2D` from `models/demos/wormhole/stable_diffusion/tt/`) running on Blackhole via `TT_METAL_ARCH_NAME=blackhole`, with shared base noise for inter-frame coherence.
 
 **Tech Stack:** Python 3.10+, diffusers>=0.32.1, torch, Pillow, ttnn (from ~/tt-metal), TtPNDMScheduler, CLIPTokenizer/CLIPTextModel (openai/clip-vit-large-patch14), AutoencoderKL+Vae, pytest
 
@@ -22,7 +22,7 @@
 | `animatediff_ttnn/pipeline.py` | **REWRITE** | Phase 1: thin wrapper around diffusers AnimateDiffPipeline |
 | `animatediff_ttnn/__init__.py` | **UPDATE** | Export only Phase 1 + Phase 2 public API |
 | `animatediff_ttnn/temporal_module.py` | **KEEP AS-IS** | Reference only — no longer exported publicly |
-| `animatediff_ttnn/ttnn_pipeline.py` | **CREATE** | Phase 2: TTNN UNet on Blackhole, frame generation |
+| `animatediff_ttnn/ttnn_pipeline.py` | **CREATE** | Phase 2: TT-NN UNet on Blackhole, frame generation |
 | `tests/test_pipeline.py` | **CREATE** | Tests for Phase 1 pipeline functions |
 | `tests/test_ttnn_pipeline.py` | **CREATE** | Tests for Phase 2 setup_blackhole() and build_tlist() |
 | `examples/generate_baseline.py` | **CREATE** | Phase 1 end-to-end example (CPU, no hardware) |
@@ -442,22 +442,22 @@ git commit -m "feat(animatediff): add Phase 1 baseline example (diffusers Animat
 
 ---
 
-## Task 4: Create animatediff_ttnn/ttnn_pipeline.py (Phase 2 — TTNN Blackhole)
+## Task 4: Create animatediff_ttnn/ttnn_pipeline.py (Phase 2 — TT-NN Blackhole)
 
 **Background context for implementer:**
 
-The SD 1.4 TTNN demo lives at `~/tt-metal/models/demos/wormhole/stable_diffusion/`. Key imports:
-- `UNet2D` from `tt.ttnn_functional_unet_2d_condition_model_new_conv` — TTNN UNet
-- `TtPNDMScheduler` from `sd_pndm_scheduler` — TTNN-wrapped PNDM scheduler
-- `Vae` from `tt.vae.ttnn_vae` — TTNN VAE
-- `SD_L1_SMALL_SIZE` from `common` — 21056 on Blackhole, 20928 on Wormhole (auto-detected)
-- `sd_helper_funcs.run()` — takes (model, config, tt_vae, input_latents, input_encoder_hidden_states, _tlist, time_step, guidance_scale, ttnn_scheduler) and returns TTNN tensor (1, 3, 512, 512) with values in [-1, 1]
+The SD 1.4 TT-NN demo lives at `~/tt-metal/models/demos/wormhole/stable_diffusion/`. Key imports:
+- `UNet2D` from `tt.ttnn_functional_unet_2d_condition_model_new_conv` — TT-NN UNet
+- `TtPNDMScheduler` from `sd_pndm_scheduler` — TT-NN-wrapped PNDM scheduler
+- `Vae` from `tt.vae.ttnn_vae` — TT-NN VAE
+- `SD_L1_SMALL_SIZE` from `common` — 21056 on Blackhole, 20928 on Wormhole<sup>™</sup> (auto-detected)
+- `sd_helper_funcs.run()` — takes (model, config, tt_vae, input_latents, input_encoder_hidden_states, _tlist, time_step, guidance_scale, ttnn_scheduler) and returns TT-NN tensor (1, 3, 512, 512) with values in [-1, 1]
 
 `constant_prop_time_embeddings` is NOT in `sd_helper_funcs` — it's defined locally in demo.py. Define it inline in `ttnn_pipeline.py` (it's 4 lines).
 
 `run()` output post-processing: `(output / 2 + 0.5).clamp(0, 1)` → `(* 255).round().astype("uint8")` → `Image.fromarray()`.
 
-`_tlist[i]` needs `unet.time_proj` from the PyTorch UNet (not TTNN model) to compute time embeddings per timestep.
+`_tlist[i]` needs `unet.time_proj` from the PyTorch UNet (not TT-NN model) to compute time embeddings per timestep.
 
 **Files:**
 - Create: `content/projects/animatediff/animatediff_ttnn/ttnn_pipeline.py`
@@ -1096,7 +1096,7 @@ Expected: `output/blackhole.gif` — 8 frames generated on Blackhole hardware.
 ```
 animatediff_ttnn/
   pipeline.py          Phase 1: thin wrapper around diffusers AnimateDiffPipeline
-  ttnn_pipeline.py     Phase 2: TTNN UNet frame generation on Blackhole
+  ttnn_pipeline.py     Phase 2: TT-NN UNet frame generation on Blackhole
   temporal_module.py   Reference only — temporal attention math (kept for study)
   __init__.py          Exports Phase 1 public API
 

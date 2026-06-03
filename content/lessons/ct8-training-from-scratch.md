@@ -218,7 +218,7 @@ graph LR
 
 ### Install Dependencies
 
-**TT-Metalium version:** v0.66.0-rc5 or later (v0.67.0+ or latest RC recommended)
+**TT-Metalium<sup>®</sup> version:** v0.66.0-rc5 or later (v0.67.0+ or latest RC recommended)
 
 **Check your version:**
 ```bash

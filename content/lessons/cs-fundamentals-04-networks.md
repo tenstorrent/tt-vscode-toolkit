@@ -254,7 +254,7 @@ Latency: ~5 cycles (~5 nanoseconds!)
 
 ## Part 3: On Tenstorrent Hardware - The NoC
 
-### Wormhole NoC Architecture
+### Wormhole<sup>™</sup> NoC Architecture
 
 ```mermaid
 graph TD

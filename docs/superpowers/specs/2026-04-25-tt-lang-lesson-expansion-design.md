@@ -29,7 +29,7 @@ No installation steps here — the playground is the install.
 
 Three short paragraphs plus one table.
 
-**Para 1:** TTNN dispatches each op as a separate kernel. Data written to DRAM after every op. For a transformer forward pass, that's roughly one DRAM round-trip per layer component (norm → proj → attn → proj → FFN = 5+ DRAM writes per layer).
+**Para 1:** TT-NN<sup>®</sup> dispatches each op as a separate kernel. Data written to DRAM after every op. For a transformer forward pass, that's roughly one DRAM round-trip per layer component (norm → proj → attn → proj → FFN = 5+ DRAM writes per layer).
 
 **Para 2:** TT-Lang breaks that pattern. Tile data streams in from DRAM once, flows through L1 using Dataflow Buffers (DFBs), compute happens entirely in registers, and results drain to DRAM once. The whole fused block is one kernel dispatch.
 
@@ -37,7 +37,7 @@ Three short paragraphs plus one table.
 
 | Project | What was fused | Improvement |
 |---------|---------------|-------------|
-| SkyReels-1.3B transformer block | 5 ops → 1 kernel | 3–5× vs TTNN |
+| SkyReels-1.3B transformer block | 5 ops → 1 kernel | 3–5× vs TT-NN |
 | DFlash speculative decoder (draft forward) | RoPE, RMSNorm, SiLU, residuals | 5–6× decode speedup |
 | DeepSeek Engram module | gating + depthwise conv | 2.2× all kernels; 3.4× gating alone |
 | nanochat fused MLP projection | 7 dispatches → 1 | +21% tok/s (13.13 → 15.89) |
@@ -51,7 +51,7 @@ The table includes links to the relevant GitHub repos.
 
 Five punchy paragraphs, each 2–3 sentences, each with a concrete result and a GitHub link. No filler. Chronological roughly by ambition level.
 
-1. **SkyReels-1.3B** (`zoecarver/tt-lang-models`): Full WAN transformer block kernel on QuietBox 2. Fused to one DRAM read + one write per layer. 3–5× throughput improvement over op-by-op TTNN dispatch at production batch dimensions.
+1. **SkyReels-1.3B** (`zoecarver/tt-lang-models`): Full WAN transformer block kernel on QuietBox<sup>®</sup> 2. Fused to one DRAM read + one write per layer. 3–5× throughput improvement over op-by-op TT-NN dispatch at production batch dimensions.
 
 2. **WAN Animate 14B** (`~/code/wan-animate-ttlang`): 40-layer, 5120-hidden DiT brought up on a 4-chip QuietBox 2 (2×2 mesh). TT-Lang kernels cover 3D RoPE, AdaLN modulation, and softcap. The bring-up involved debugging seven integration bugs across the pipeline, traced in a single session log.
 
@@ -59,7 +59,7 @@ Five punchy paragraphs, each 2–3 sentences, each with a concrete result and a 
 
 4. **DFlash speculative decoder** (`zoecarver/dflash`): Draft model proposes 16 tokens in parallel, verified by Qwen3-30B. Draft forward pass at 93ms with caching (vs 887ms without). 5–6× decode speedup end-to-end. Acceptance rate matches the PyTorch reference.
 
-5. **Oasis real-time Minecraft** (`zoecarver/open-oasis`): 500M diffusion transformer generating Minecraft frames on a single Blackhole card. Runs at 8 FPS in a single captured trace with 4-way tensor parallelism. Interactive browser play across 26 Atari games.
+5. **Oasis real-time Minecraft** (`zoecarver/open-oasis`): 500M diffusion transformer generating Minecraft frames on a single Blackhole<sup>®</sup> card. Runs at 8 FPS in a single captured trace with 4-way tensor parallelism. Interactive browser play across 26 Atari games.
 
 ---
 
@@ -76,7 +76,7 @@ One sentence: the playground above is the browser path, no install required.
 # Prerequisites: tt-metal built, TT_METAL_HOME set
 mkdir -p ~/sim && cd ~/sim
 
-# Wormhole simulator
+# Wormhole<sup>™</sup> simulator
 wget https://github.com/tenstorrent/ttsim/releases/latest/download/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 
@@ -152,7 +152,7 @@ Walk through a complete example: starting from a PyTorch multi-head attention fu
 ```
 /ttl-import attention.py
 ```
-Translates CUDA, Triton, PyTorch, or TTNN code to TT-Lang DFB pattern. Handles the mechanical mapping: ops → compute thread, tensor loads → DM0, tensor stores → DM1. Output is a runnable `.py` file.
+Translates CUDA, Triton, PyTorch, or TT-NN code to TT-Lang DFB pattern. Handles the mechanical mapping: ops → compute thread, tensor loads → DM0, tensor stores → DM1. Output is a runnable `.py` file.
 
 ```
 /ttl-simulate attention_ttl.py
@@ -177,7 +177,7 @@ Applies optimizations based on profile output: increase DFB depth for double-buf
 ```
 /ttl-export attention_ttl.py
 ```
-Compiles the kernel through LLVM → tt-mlir → TT-Metalium and produces production C++ code. Also outputs the MLIR at each pass stage for debugging.
+Compiles the kernel through LLVM → tt-mlir → TT-Metalium<sup>®</sup> and produces production C++ code. Also outputs the MLIR at each pass stage for debugging.
 
 ```
 /ttl-bug "description"

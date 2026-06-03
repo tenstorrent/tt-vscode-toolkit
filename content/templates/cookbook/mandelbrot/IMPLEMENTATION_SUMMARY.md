@@ -1,4 +1,4 @@
-# 🎯 Implementation Summary: Hardened Notebook with TTNN Support
+# 🎯 Implementation Summary: Hardened Notebook with TT-NN<sup>®</sup> Support
 
 ## What Was Implemented
 
@@ -11,7 +11,7 @@ The Jupyter notebook now includes **intelligent dependency checking and auto-ins
    - Auto-installed from requirements.txt
    - Fallback to direct pip install
 
-2. **TT-Metalium TTNN** (critical requirement)
+2. **TT-Metalium<sup>®</sup> TT-NN** (critical requirement)
    - Checked for availability
    - Auto-installation attempted from ~/tt-metal
    - Clear manual installation instructions if auto-install fails
@@ -208,7 +208,7 @@ if not ttnn_available:
 ### For Developers
 1. **Reduced support burden** - Users self-diagnose
 2. **Consistent setup** - Same process for everyone
-3. **Version-agnostic** - Works with any TT-Metalium installation
+3. **Version-agnostic** - Works with any TT-Metalium<sup>®</sup> installation
 4. **Environment-aware** - Respects user's Python environment
 
 ## Testing Checklist

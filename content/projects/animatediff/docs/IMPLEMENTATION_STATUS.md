@@ -19,18 +19,18 @@ transformer block (320-dim features, matching mm_sd_v15_v2.ckpt). No TT hardware
 
 ---
 
-## Phase 2 — Blackhole-Accelerated Frame Generation
+## Phase 2 — Blackhole<sup>®</sup>-Accelerated Frame Generation
 
 **Status: ✅ Code complete, hardware validation pending**
 
-TTNN UNet (`UNet2D` from TT-Metalium SD 1.4 demo) denoises frames sequentially on Blackhole.
+TT-NN<sup>®</sup> UNet (`UNet2D` from TT-Metalium<sup>®</sup> SD 1.4 demo) denoises frames sequentially on Blackhole.
 Temporal coherence via shared base noise. `TT_METAL_ARCH_NAME=blackhole` required.
 
 **Run:** `python examples/generate_blackhole.py` (requires Blackhole hardware + ~/tt-metal)
 
-**Known tradeoff:** Temporal attention is NOT applied during TTNN denoising. For full
+**Known tradeoff:** Temporal attention is NOT applied during TT-NN denoising. For full
 AnimateDiff on TT hardware, TemporalTransformer blocks would need to be added to the
-TTNN UNet — that is out of scope here and would require modifying tt-metal source.
+TT-NN UNet — that is out of scope here and would require modifying tt-metal source.
 
 ---
 

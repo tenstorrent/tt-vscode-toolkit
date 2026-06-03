@@ -32,7 +32,7 @@ Generate images on your Tenstorrent hardware using Stable Diffusion XL Base - tu
 **Stable Diffusion XL Base** is a powerful text-to-image diffusion model that generates high-quality 1024x1024 images from text descriptions. SDXL uses a two-stage architecture with dual text encoders (CLIP-L and OpenCLIP-G) for improved prompt understanding.
 
 **Why Image Generation on Tenstorrent?**
-- 🎨 **Native TT Acceleration** - Runs directly on Tenstorrent hardware using TT-Metalium
+- 🎨 **Native TT Acceleration** - Runs directly on Tenstorrent hardware using TT-Metalium<sup>®</sup>
 - 🔒 **Privacy** - Your prompts and images stay private
 - ⚡ **High Resolution** - Generate 1024x1024 images (vs 512x512 in older models)
 - 🎓 **Production Ready** - Real hardware acceleration, not CPU fallback
@@ -85,13 +85,13 @@ Stable Diffusion XL uses a two-stage architecture with dual text encoders:
 
 ## Hardware Compatibility
 
-Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN acceleration (not CPU fallback!):
+Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN<sup>®</sup> acceleration (not CPU fallback!):
 
 | Hardware | Status | Performance | Notes |
 |----------|--------|-------------|-------|
-| **n150** (Wormhole) | ✅ Supported | ~12-15 sec/image | Optimized single-chip config |
+| **n150** (Wormhole<sup>™</sup>) | ✅ Supported | ~12-15 sec/image | Optimized single-chip config |
 | **n300** (Wormhole) | ✅ Supported | ~8-10 sec/image | Faster with 2 chips |
-| **P100** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Same Blackhole arch as p300c |
+| **p100** (Blackhole<sup>®</sup>) | ⚠️ Experimental | ~12-15 sec/image | Same Blackhole arch as p300c |
 | **p300c** (Blackhole) | ⚠️ Experimental | ~12-15 sec/image | Single Blackhole chip; use `MESH_DEVICE=P100` |
 | **T3000** (Wormhole) | ✅ Supported | ~5-8 sec/image | Production scale (8 chips) |
 
@@ -187,7 +187,7 @@ export MESH_DEVICE=T3K
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 P100 (Blackhole - Single Chip)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 p100 (Blackhole - Single Chip)</b></summary>
 
 ```bash
 export MESH_DEVICE=P100
@@ -201,7 +201,7 @@ export TT_METAL_ARCH_NAME=blackhole  # Required for Blackhole
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 p300c (Blackhole - Single Chip / QuietBox 2)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 p300c (Blackhole - Single Chip / QuietBox<sup>®</sup> 2)</b></summary>
 
 ```bash
 export MESH_DEVICE=P100          # p300c runs in single-chip P100 mode
@@ -210,7 +210,7 @@ export TT_METAL_ARCH_NAME=blackhole
 
 **Performance:** ~12-15 seconds per 1024x1024 image
 
-p300c is a single Blackhole chip — identical instruction set to P100.
+p300c is a single Blackhole chip — identical instruction set to p100.
 Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
 
 **QuietBox 2 note:** QuietBox 2 ships without `~/tt-metal`. You must clone and build

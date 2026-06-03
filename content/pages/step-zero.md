@@ -55,7 +55,7 @@ Choose your path:
 - ✅ Docker image is validated and production-ready
 - ✅ OpenAI-compatible API
 - **You'll learn:** Production deployment, batching, scaling
-- **Hardware:** n150/n300/T3000/P100 with appropriate model sizes
+- **Hardware:** n150/n300/T3000/p100 with appropriate model sizes
 
 ### Path C: "I want to bring my own model to Tenstorrent hardware"
 → **Start with Lessons 1-5, then Lesson 13** (Bounty Program)
@@ -76,7 +76,7 @@ Choose your path:
 - 🎨 1024x1024 image generation
 - ✅ Works perfectly on n150
 - 2-3 minutes per image (first run)
-- **Hardware:** n150/n300/T3000/P100
+- **Hardware:** n150/n300/T3000/p100
 
 ### Path F: "I want to learn low-level programming on Tensix cores"
 → **Lesson 15** (TT-Metalium Cookbook) then **Lesson 14** (RISC-V)
@@ -113,7 +113,7 @@ graph TB
         n150[n150]
         n300[n300]
         T3000[T3000]
-        P100[P100/p150]
+        p100[p100/p150]
     end
 
     JAX --> PJRT
@@ -128,7 +128,7 @@ graph TB
     TTMetal --> n150
     TTMetal --> n300
     TTMetal --> T3000
-    TTMetal --> P100
+    TTMetal --> p100
 
     style JAX fill:#5347a4,color:#fff
     style PyTorch fill:#5347a4,color:#fff
@@ -141,12 +141,12 @@ graph TB
     style n150 fill:#ffb71b,color:#000
     style n300 fill:#ffb71b,color:#000
     style T3000 fill:#ffb71b,color:#000
-    style P100 fill:#ffb71b,color:#000
+    style p100 fill:#ffb71b,color:#000
 ```
 
 ### Core Components
 
-#### 1. **TT-Metalium** (The Foundation)
+#### 1. **TT-Metalium<sup>®</sup>** (The Foundation)
 **What it is:** Low-level API for programming Tenstorrent accelerators
 - C++ core with Python bindings
 - Direct access to Tensix cores, NoC (Network on Chip), DRAM
@@ -155,7 +155,7 @@ graph TB
 **Where it lives:** `~/tt-metal/`
 
 **What you'll use:**
-- **TTNN** (TT Neural Network library) - High-level ops for ML
+- **TT-NN<sup>®</sup>** (TT Neural Network library) - High-level ops for ML
 - **tt_lib** - Lower-level tensor operations
 - **Model implementations** - Pre-optimized models in `models/`
 
@@ -171,9 +171,9 @@ source python_env/bin/activate  # Activates Python environment
 **What they are:** Isolated Python installations with specific package versions
 
 **Why they matter:** Different compilers need different package versions
-- **TT-Metalium:** Python 3.10, uses `~/tt-metal/python_env/`
+- **TT-Metalium<sup>®</sup>:** Python 3.10, uses `~/tt-metal/python_env/`
 - **TT-XLA:** Python 3.11, uses `~/tt-xla-venv/`
-- **TT-Forge:** Python 3.11, uses `~/tt-forge-fe/env/`
+- **TT-Forge<sup>®</sup>:** Python 3.11, uses `~/tt-forge-fe/env/`
 
 **You DON'T need to understand pyenv, virtualenv, conda** - the lessons activate the right environment for you.
 
@@ -182,7 +182,7 @@ source python_env/bin/activate  # Activates Python environment
 source ~/tt-metal/python_env/bin/activate  # Use TT-Metalium environment
 ```
 
-#### 3. **TTNN** (TT Neural Network Library)
+#### 3. **TT-NN** (TT Neural Network Library)
 **What it is:** High-level API for ML operations on Tenstorrent hardware
 - Import with `import ttnn`
 - Like PyTorch ops, but runs on Tensix cores
@@ -241,7 +241,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 #### `LD_LIBRARY_PATH`
 **What:** Where Linux looks for shared libraries (.so files)
 **Typical value:** `/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH`
-**Why needed:** TTNN depends on OpenMPI libraries
+**Why needed:** TT-NN depends on OpenMPI libraries
 **Set it:**
 ```bash
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
@@ -250,11 +250,11 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 #### `MESH_DEVICE`
 **What:** Tells software which hardware configuration you have
-**Possible values:** `n150`, `n300`, `T3000`, `P100`, `p150`, `GALAXY`
+**Possible values:** `n150`, `n300`, `T3000`, `p100`, `p150`, `GALAXY`
 **Why needed:** Model optimizations differ per hardware
 **Set it:**
 ```bash
-export MESH_DEVICE=N150  # For single Wormhole chip
+export MESH_DEVICE=N150  # For single Wormhole<sup>™</sup> chip
 ```
 
 **Auto-detect it:**
@@ -272,16 +272,16 @@ tt-smi -s | grep board_type  # Shows your hardware
 export VLLM_TARGET_DEVICE=tt
 ```
 
-#### `TT_METAL_ARCH_NAME` (Blackhole chips only)
-**What:** Architecture name for Blackhole chips (P100/p150)
-**Value:** `blackhole` (if you have P100/p150)
+#### `TT_METAL_ARCH_NAME` (Blackhole<sup>®</sup> chips only)
+**What:** Architecture name for Blackhole chips (p100/p150)
+**Value:** `blackhole` (if you have p100/p150)
 **Why needed:** Blackhole uses different instruction set than Wormhole
 **Set it:**
 ```bash
 export TT_METAL_ARCH_NAME=blackhole  # Only for p100/p150
 ```
 
-### TT-Forge Variables (Lesson 11)
+### TT-Forge<sup>®</sup> Variables (Lesson 11)
 
 **IMPORTANT:** TT-Forge **unsets** TT-Metalium variables to avoid conflicts!
 
@@ -392,13 +392,13 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 
 ## 🎓 Common Beginner Questions
 
-### Q: What's the difference between TT-Metalium, TTNN, and tt_lib?
+### Q: What's the difference between TT-Metalium, TT-NN, and tt_lib?
 **A:**
 - **TT-Metalium** = The whole platform (like "CUDA Toolkit")
-- **TTNN** = High-level neural network ops (like "cuDNN")
+- **TT-NN** = High-level neural network ops (like "cuDNN")
 - **tt_lib** = Lower-level tensor ops (like "CUDA runtime")
 
-**Use TTNN** for ML work (it's easiest). That's what lessons 1-10 use.
+**Use TT-NN** for ML work (it's easiest). That's what lessons 1-10 use.
 
 ### Q: Do I need to learn C++?
 **A:** No! Python API covers everything. C++ is only for:
@@ -447,8 +447,8 @@ tt-smi -s | grep -i dram
 - **Tensix cores:** 8x10 grid (80 cores per chip)
 - **Ethernet:** 16 cores with 256KB L1
 
-**Blackhole Architecture (P100/p150):**
-- P100: ~32GB DRAM (single chip)
+**Blackhole Architecture (p100/p150):**
+- p100: ~32GB DRAM (single chip)
 - p150: ~32GB per chip (configurable as 1, 2, 4, or 8 chips)
   - p150 x1: ~32GB (single chip)
   - p150 x2: ~64GB (2 chips)
@@ -460,14 +460,14 @@ tt-smi -s | grep -i dram
 - **Ethernet:** 14 cores with 512KB L1, 2x RISC-V per core
 - **DRAM:** 8 banks with programmable 1x RISC-V, 128KB L1 per bank
 
-**🔧 Important:** Blackhole chips (P100/p150) require:
+**🔧 Important:** Blackhole chips (p100/p150) require:
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 ```
 
 **Model sizing:**
-- Qwen3-0.6B: ~1.5GB (fits easily on n150 or P100)
-- Llama-3.1-8B: ~16GB (tight on n150, comfortable on P100/n300+)
+- Qwen3-0.6B: ~1.5GB (fits easily on n150 or p100)
+- Llama-3.1-8B: ~16GB (tight on n150, comfortable on p100/n300+)
 - Llama-3.1-70B: ~140GB (requires T3000 or p150 x4+)
 
 The two chips have different grid shapes — Wormhole (above) has 80 Tensix compute cores, Blackhole (below) has 140:

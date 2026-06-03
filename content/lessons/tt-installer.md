@@ -35,10 +35,10 @@ TT-Installer 2.0 is Tenstorrent's official one-command installation tool that se
 TT-Installer 2.0 is a comprehensive installation script that:
 
 - ✅ **Installs the full Tenstorrent stack** - Everything you need in one command
-- ✅ **Uses modern containers** - TT-Metalium runs in Podman containers (no complex builds)
+- ✅ **Uses modern containers** - TT-Metalium<sup>®</sup> runs in Podman containers (no complex builds)
 - ✅ **Configures your system** - Kernel drivers, HugePages, firmware automatically set up
 - ✅ **Provides production tools** - tt-smi, tt-flash, TT-Inference-Server included
-- ✅ **Supports multiple hardware** - Works with n150, n300, T3000, Galaxy, P100, p150, p300c, and QuietBox 2
+- ✅ **Supports multiple hardware** - Works with n150, n300, T3000, Galaxy, p100, p150, p300c, and QuietBox<sup>®</sup> 2
 - ✅ **Offers flexibility** - Interactive or non-interactive modes, customizable options
 
 > **⚠️ IMPORTANT: Cloud and Container Environments**
@@ -82,7 +82,7 @@ TT-Installer 2.0 sets up:
 6. **System Management Interface (tt-smi)** - Monitor your Tenstorrent devices
 7. **Podman** - Container runtime for TT-Metalium
 8. **TT-Metalium containers** - Two options:
-   - **Standard container** (1GB) - For TT-NN inference and development
+   - **Standard container** (1GB) - For TT-NN<sup>®</sup> inference and development
    - **Model Demos container** (10GB) - Includes full TT-Metalium build and demos
 
 9. **TT-Inference-Server** - Production inference serving
@@ -198,7 +198,7 @@ tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
 
 This verifies:
 - ✅ Container launches successfully
-- ✅ TTNN library is available
+- ✅ TT-NN library is available
 - ✅ Python environment is configured
 
 [🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
@@ -241,7 +241,7 @@ tt-metalium "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
 ### Standard vs Model Demos Container
 
 **Standard container** (1GB) - `tt-metalium`:
-- ✅ TTNN library for inference
+- ✅ TT-NN library for inference
 - ✅ Python 3.10+ environment
 - ✅ Fast to download and update
 - ✅ Best for production inference
@@ -373,7 +373,7 @@ After installation completes, you're ready to:
    - Generate images with Stable Diffusion (Lesson 8)
    - Create coding assistants (Lesson 9)
    - Use TT-Jukebox for model management (Lesson 10)
-   - Compile models with TT-Forge (Lesson 11)
+   - Compile models with TT-Forge<sup>®</sup> (Lesson 11)
    - Use JAX with TT-XLA (Lesson 12)
 
 2. **Try Model Demos** (if you installed Model Demos container):
@@ -385,7 +385,7 @@ After installation completes, you're ready to:
 
 3. **Read Official Documentation**:
    - [TT-Metalium Docs](https://docs.tenstorrent.com/tt-metal/latest/)
-   - [TTNN Examples](https://docs.tenstorrent.com/tt-metal/latest/ttnn/ttnn/usage.html)
+   - [TT-NN Examples](https://docs.tenstorrent.com/tt-metal/latest/ttnn/ttnn/usage.html)
    - [TT-Installer Wiki](https://github.com/tenstorrent/tt-installer/wiki)
 
 4. **Join the Community**:

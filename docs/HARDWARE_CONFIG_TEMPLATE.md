@@ -50,7 +50,7 @@ Look for the "Board Type" field in the output (e.g., n150, n300, T3000, p100).
 **Choose your hardware configuration below:**
 
 <details open style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n150 (Wormhole - Single Chip)</b> - Most common for development</summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 n150 (Wormhole<sup>™</sup> - Single Chip)</b> - Most common for development</summary>
 
 **Specifications:**
 - Chips: 1
@@ -134,7 +134,7 @@ cd ~/tt-vllm && \
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 P100 (Blackhole - Single Chip)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 p100 (Blackhole<sup>®</sup> - Single Chip)</b></summary>
 
 **Specifications:**
 - Chips: 1 (newer architecture)
@@ -159,7 +159,7 @@ cd ~/tt-vllm && \
   [... rest of command ...]
 ```
 
-[🚀 Run Command for P100](command:tenstorrent.lessonCommandP100)
+[🚀 Run Command for p100](command:tenstorrent.lessonCommandP100)
 
 </details>
 

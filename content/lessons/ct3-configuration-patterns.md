@@ -109,7 +109,7 @@ graph TD
 ### Full Example: `training_n150.yaml`
 
 ```yaml
-# Training Configuration for n150 (Single Wormhole Chip)
+# Training Configuration for n150 (Single Wormhole<sup>™</sup> Chip)
 #
 # Optimized for single-chip development hardware
 # Typical training time: 1-3 hours depending on dataset size
@@ -778,7 +778,7 @@ device_config:
 
 ### Scenario 2: The Code Translator (Speed Matters)
 
-**Challenge:** PyTorch → TTNN translator for internal dev team. Need fast iteration.
+**Challenge:** PyTorch → TT-NN<sup>®</sup> translator for internal dev team. Need fast iteration.
 
 **Configuration decisions:**
 ```yaml

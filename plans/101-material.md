@@ -1,6 +1,6 @@
-# QuietBox 2 Experience Analysis + First-Inference Lesson Restructure
+# QuietBox<sup>®</sup> 2 Experience Analysis + First-Inference Lesson Restructure
 
-Source: `experience_notes.md` — coworker's QuietBox 2 (4× p300c Blackhole) walkthrough log
+Source: `experience_notes.md` — coworker's QuietBox 2 (4× p300c Blackhole<sup>®</sup>) walkthrough log
 
 ---
 
@@ -8,7 +8,7 @@ Source: `experience_notes.md` — coworker's QuietBox 2 (4× p300c Blackhole) wa
 
 ### Goal
 Restructure the early lessons so users reach the **same steady state** regardless of how they arrived:
-- Fresh machine with TT-Installer (`~/.tenstorrent-venv` + Podman/Docker container with TTNN)
+- Fresh machine with TT-Installer (`~/.tenstorrent-venv` + Podman/Docker container with TT-NN)
 - Pre-configured box (QuietBox 2, cloud image)
 - Source build fan (wants to clone `~/tt-metal`)
 
@@ -21,7 +21,7 @@ Replace Llama-3.1-8B (Meta license gate, DRAM-heavy on n150/p300c) with **Qwen3-
 
 **Problems with current chain:**
 - `verify-installation` runs `python3 -m ttnn.examples.usage.run_op_on_device`, which assumes `~/tt-metal` is cloned. Breaks immediately for QuietBox 2/tt-installer users who don't have it.
-- It's placed BEFORE `download-model`, so people without TT-Metalium are blocked before they can even get a model.
+- It's placed BEFORE `download-model`, so people without TT-Metalium<sup>®</sup> are blocked before they can even get a model.
 - `download-model` leads with Llama (Meta license gate, data farming objections)
 - `interactive-chat` uses the Generator API (`models/tt_transformers`) which is Llama-specific and requires tt-metal source
 - No branching: "do you have tt-metal source or not?"
@@ -45,7 +45,7 @@ This becomes a **diagnostic hub and return-to article**:
 - Runs 3 checks: `tt-smi -s`, `python3 -c "import ttnn"`, optional `run_op_on_device`
 - If all pass → proceed to interactive-chat / vLLM
 - If tt-smi fails → link to [TT-Installer lesson](TT-Installer)
-- If TTNN import fails → link to [Build tt-metal from Source](build-tt-metal)
+- If TT-NN<sup>®</sup> import fails → link to [Build tt-metal from Source](build-tt-metal)
 - If `run_op_on_device` fails → link to [Build tt-metal from Source](build-tt-metal) with debug tips
 - People return to this article after doing setup work to confirm they're green
 
@@ -88,7 +88,7 @@ python3 -m ttnn.examples.usage.run_op_on_device
 If writing your own scripts, do NOT hardcode DispatchCoreAxis.ROW on Blackhole:
   # ❌ Crashes on Blackhole (p100/p150/p300c):
   ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER, ttnn.DispatchCoreAxis.ROW)
-  # ✅ Arch-agnostic (auto: COL on Blackhole, ROW on Wormhole):
+  # ✅ Arch-agnostic (auto: COL on Blackhole, ROW on Wormhole<sup>™</sup>):
   ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)
 ```
 
@@ -111,10 +111,10 @@ If writing your own scripts, do NOT hardcode DispatchCoreAxis.ROW on Blackhole:
 
 | Action | File | Changes |
 |--------|------|---------|
-| **REWRITE** | `content/lessons/verify-installation.md` | "Verify Your Setup" diagnostic hub; 3-check flow; links to TT-Installer + build-TT-Metalium; move BEFORE interactive-chat but AFTER download-model |
+| **REWRITE** | `content/lessons/verify-installation.md` | "Verify Your Setup" diagnostic hub; 3-check flow; links to TT-Installer + build-TT-Metalium<sup>®</sup>; move BEFORE interactive-chat but AFTER download-model |
 | **CREATE** | `content/lessons/build-tt-metal.md` | New reference lesson: clone, Docker/Podman, setuptools, build, verify |
 | **REVISE** | `content/lessons/download-model.md` | Qwen3-0.6B primary; `hf auth login` / `hf download`; Llama → optional gated section; chain order: after hardware-detection, before verify-installation |
-| **REVISE** | `content/lessons/hardware-detection.md` | Add p300c to validatedOn; P100 equivalence callout more prominent |
+| **REVISE** | `content/lessons/hardware-detection.md` | Add p300c to validatedOn; p100 equivalence callout more prominent |
 | **REVISE** | `content/lessons/tt-installer.md` | Change category `advanced` → `first-inference`; position as recommended on-ramp |
 | **REVISE** | `content/lessons/interactive-chat.md` | `hf` CLI; Generator API = Llama-only notice; link to vLLM path for non-Llama users |
 | **UPDATE** | `content/lessons/vllm-production.md` | Add QuietBox 2/p300c hardware section; `hf` CLI update |
@@ -147,7 +147,7 @@ If writing your own scripts, do NOT hardcode DispatchCoreAxis.ROW on Blackhole:
 **Known arch differences to watch for:**
 - `DispatchCoreAxis`: ROW is the Wormhole default, COL is the Blackhole default → use `DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` with no hardcoded axis; TTNN auto-detects the right value
 - Multi-device API: Always use `CreateDevices`/`CloseDevices` (see Multi-Device section below)
-- `MESH_DEVICE` env var: N150/N300/T3K for Wormhole; P100/P150 for single-chip Blackhole (p300c = P100 mode)
+- `MESH_DEVICE` env var: N150/N300/T3K for Wormhole; P100/P150 for single-chip Blackhole (p300c = p100 mode)
 - Model DRAM: Llama-3.1-8B consistently exhausts n150 DRAM; Qwen3-0.6B is the recommended first-model for all hardware
 ```
 
@@ -179,8 +179,8 @@ The Generator API in `models/tt_transformers` (`interactive-chat`, `api-server` 
 ## Themes Extracted from QuietBox 2 Experience Notes
 
 ### Theme 1: Hardware Recognition Gap (p300c not "validated")
-- **What happened:** `hardware-detection.md` metadata lists `validatedOn: [n150]` only. `supportedHardware` does not include `p300` or `p300c`. User saw "P100" guidance where they have "p300c" — confusing.
-- **The fact:** p300c is architecturally identical to P100 (single Blackhole chip), but the lesson doesn't explain this clearly enough or show p300c in the validated hardware list.
+- **What happened:** `hardware-detection.md` metadata lists `validatedOn: [n150]` only. `supportedHardware` does not include `p300` or `p300c`. User saw "p100" guidance where they have "p300c" — confusing.
+- **The fact:** p300c is architecturally identical to p100 (single Blackhole chip), but the lesson doesn't explain this clearly enough or show p300c in the validated hardware list.
 
 ### Theme 2: "Lesson Not Found" Navigation Bug
 - **What happened:** Clicking the "Next Step" button from Hardware Detection triggered a `Lesson not found: <id>` error. User had to navigate back to the welcome page to proceed.

@@ -2,7 +2,7 @@
 id: animatediff-video-generation
 title: Native Video Animation with AnimateDiff
 description: >-
-  Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TTNN UNet.
+  Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet.
   Learn the complete model bring-up workflow — from research to a standalone package
   that accelerates SD frame generation at 15 seconds per frame on p300c/QuietBox 2.
 category: applications
@@ -27,14 +27,14 @@ estimatedMinutes: 45
 
 # Native Video Animation with AnimateDiff
 
-**Run SD 1.4 video generation on Blackhole — 15 seconds per frame, real images, no CPU fallback on the UNet.**
+**Run SD 1.4 video generation on Blackhole<sup>®</sup> — 15 seconds per frame, real images, no CPU fallback on the UNet.**
 
 This lesson shows two paths to generating animated videos:
 
 - **Phase 1 (any hardware)** — `diffusers` `AnimateDiffPipeline` on CPU, full temporal attention via MotionAdapter, ~2 min/frame
-- **Phase 2 (Blackhole)** — TTNN UNet on Blackhole, sequential denoising, ~15 seconds/frame
+- **Phase 2 (Blackhole)** — TT-NN<sup>®</sup> UNet on Blackhole, sequential denoising, ~15 seconds/frame
 
-Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metalium without modifying the core repository.
+Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metalium<sup>®</sup> without modifying the core repository.
 
 ## What you'll build
 
@@ -84,7 +84,7 @@ hidden = hidden.reshape(batch*spatial, frames, channels)
 
 Frames attend across each other at every denoising step — motion is baked in, not post-processed.
 
-**Phase 2 tradeoff:** The TTNN UNet does not currently have TemporalTransformer blocks, so frames are denoised sequentially with shared base noise for coherence. This gives ~15 s/frame vs ~2 min/frame for Phase 1. Adding full temporal attention to the TTNN UNet is future work.
+**Phase 2 tradeoff:** The TT-NN UNet does not currently have TemporalTransformer blocks, so frames are denoised sequentially with shared base noise for coherence. This gives ~15 s/frame vs ~2 min/frame for Phase 1. Adding full temporal attention to the TT-NN UNet is future work.
 
 ---
 
@@ -166,11 +166,11 @@ python examples/generate_baseline.py \
 
 ---
 
-## Step 4: Phase 2 — Blackhole TTNN UNet
+## Step 4: Phase 2 — Blackhole TT-NN UNet
 
-Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/`. The denoising loop runs on Blackhole; latents are decoded with the CPU PyTorch VAE (the TTNN VAE OOMs on Blackhole's final `conv_out` due to a L1 grid mismatch in the Wormhole-targeted kernel — see Known Limitations below).
+Replaces the PyTorch UNet with the TT-NN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/`. The denoising loop runs on Blackhole; latents are decoded with the CPU PyTorch VAE (the TT-NN VAE OOMs on Blackhole's final `conv_out` due to a L1 grid mismatch in the Wormhole<sup>™</sup>-targeted kernel — see Known Limitations below).
 
-**Requires:** Blackhole hardware (P100/p150/p300c/QuietBox 2) and `~/tt-metal` built.
+**Requires:** Blackhole hardware (p100/p150/p300c/QuietBox<sup>®</sup> 2) and `~/tt-metal` built.
 
 [⚡ Run Phase 2 (Blackhole)](command:tenstorrent.runAnimateDiff16Frame)
 
@@ -287,7 +287,7 @@ What this project demonstrates is **the complete workflow for integrating any ne
 1. Start with PyTorch — easier to debug, matches reference
 2. Implement the core module first
 3. Build the high-level wrapper second
-4. Add the TTNN path last, after PyTorch is validated
+4. Add the TT-NN path last, after PyTorch is validated
 
 ### Phase 4: Packaging (1 hour)
 - `setup.py` + `requirements.txt` makes it `pip install -e .`-able
@@ -308,8 +308,8 @@ What this project demonstrates is **the complete workflow for integrating any ne
 
 | Issue | Status |
 |-------|--------|
-| TTNN VAE OOMs on Blackhole `conv_out` | Workaround: CPU PyTorch VAE decode |
-| No TemporalTransformer in TTNN UNet | Phase 1 only; Phase 2 uses shared-noise coherence |
+| TT-NN VAE OOMs on Blackhole `conv_out` | Workaround: CPU PyTorch VAE decode |
+| No TemporalTransformer in TT-NN UNet | Phase 1 only; Phase 2 uses shared-noise coherence |
 | `DispatchCoreAxis.ROW` crashes on Blackhole | Avoided: `setup_blackhole()` uses auto-detect |
 | First run 2–3 min kernel compilation | Expected; cached after first run |
 
@@ -317,9 +317,9 @@ What this project demonstrates is **the complete workflow for integrating any ne
 
 ## What's next
 
-### Add temporal attention to the TTNN UNet
+### Add temporal attention to the TT-NN UNet
 
-Full Phase 2 would inject `TemporalTransformer` blocks into the TTNN UNet's `BasicTransformerBlock` instances — the same injection pattern as Phase 1's MotionAdapter, but in TTNN ops. This would bring true AnimateDiff temporal coherence to Blackhole-accelerated generation.
+Full Phase 2 would inject `TemporalTransformer` blocks into the TT-NN UNet's `BasicTransformerBlock` instances — the same injection pattern as Phase 1's MotionAdapter, but in TT-NN ops. This would bring true AnimateDiff temporal coherence to Blackhole-accelerated generation.
 
 ### Apply this pattern to other models
 
@@ -327,6 +327,6 @@ The standalone package pattern works for any model:
 - **ControlNet** — conditioning inputs for SD 1.4
 - **LoRA** — weight delta injection into the SD UNet
 - **IP-Adapter** — image-conditioned generation
-- **Any PyTorch model** — wrap it, validate on CPU, port to TTNN
+- **Any PyTorch model** — wrap it, validate on CPU, port to TT-NN
 
 ---

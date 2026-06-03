@@ -188,7 +188,7 @@ Your framework hides the hardware... until it doesn't:
 
 ### Meet Your 880 Computers
 
-A Tenstorrent Wormhole chip contains **176 Tensix cores**. Each Tensix contains **5 RISC-V processors**:
+A Tenstorrent Wormhole<sup>™</sup> chip contains **176 Tensix cores**. Each Tensix contains **5 RISC-V processors**:
 
 ```mermaid
 graph TD
@@ -260,7 +260,7 @@ Let's run the canonical first program: **adding two integers**.
 
 ### Step 1: Build Programming Examples
 
-First, build TT-Metalium with RISC-V programming examples enabled:
+First, build TT-Metalium<sup>®</sup> with RISC-V programming examples enabled:
 
 ```bash
 cd ~/tt-metal && \

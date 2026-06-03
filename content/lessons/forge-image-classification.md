@@ -30,14 +30,14 @@ validationDate: 2026-04-15
 validationNotes: Rewritten for pre-installed venv-forge; forge.compile() via TT-Forge-onnx
 ---
 
-# Image Classification with TT-Forge
+# Image Classification with TT-Forge<sup>®</sup>
 
 TT-Forge compiles PyTorch models directly for Tenstorrent hardware. The `venv-forge`
 environment is **pre-installed** in this developer image — one command to activate,
 then `forge.compile()` handles the rest.
 
-> **QuietBox 2 users:** Works on all four p300c chips. Each chip is an independent
-> Blackhole device; `tt-smi -s` will show four boards.
+> **QuietBox<sup>®</sup> 2 users:** Works on all four p300c chips. Each chip is an independent
+> Blackhole<sup>®</sup> device; `tt-smi -s` will show four boards.
 
 ---
 
@@ -96,7 +96,7 @@ tt devices: [TtDevice(id=0)]
 | `torch-xla` 2.9.0 | PyTorch/XLA backend with TT plugin |
 | `tt-forge-onnx` | `forge.compile()` — PyTorch/ONNX → TT compiler |
 
-Switch back to the TT-Metalium or vLLM envs at any time:
+Switch back to the TT-Metalium<sup>®</sup> or vLLM envs at any time:
 
 ```bash
 deactivate && source /etc/profile.d/tt-env-metal.sh   # tt-metal / TTNN

@@ -2,7 +2,7 @@
 
 ## Introduction: An Unconventional RISC-V Environment
 
-When most people think of RISC-V programming, they imagine embedded development boards like SiFive's HiFive or ESP32-C3 microcontrollers. But Tenstorrent's Wormhole and Blackhole accelerator cards offer something far more exotic: **hundreds of RISC-V cores networked together on a single chip, each with direct access to 1.5MB of local SRAM and connected via a high-performance Network-on-Chip (NoC)**.
+When most people think of RISC-V programming, they imagine embedded development boards like SiFive's HiFive or ESP32-C3 microcontrollers. But Tenstorrent's Wormhole<sup>™</sup> and Blackhole<sup>®</sup> accelerator cards offer something far more exotic: **hundreds of RISC-V cores networked together on a single chip, each with direct access to 1.5MB of local SRAM and connected via a high-performance Network-on-Chip (NoC)**.
 
 This isn't your typical embedded RISC-V environment. Each Tensix core on a Tenstorrent processor contains **five independent RISC-V CPUs** working in concert - two for data movement, three for compute pipeline stages. Rather than being hidden behind abstraction layers, these processors are directly programmable, offering a unique platform for exploring RISC-V assembly programming, parallel computing, and near-memory compute architectures.
 
@@ -260,7 +260,7 @@ _start:
 
 ## Part 3: Hands-On Example - Adding Two Integers in RISC-V
 
-Let's walk through the canonical example from TT-Metalium: `add_2_integers_in_riscv`.
+Let's walk through the canonical example from TT-Metalium<sup>®</sup>: `add_2_integers_in_riscv`.
 
 ### High-Level Flow
 

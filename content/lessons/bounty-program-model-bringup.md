@@ -36,7 +36,7 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 
 ### Why Participate?
 
-- ✅ **Master cutting-edge technology** - Deep dive into TT-Metalium/TT-NN architecture
+- ✅ **Master cutting-edge technology** - Deep dive into TT-Metalium<sup>®</sup>/TT-NN<sup>®</sup> architecture
 - ✅ **Real-world impact** - Your code ships in production and helps the community
 - ✅ **Build ownership** - Public contributions to an open source hardware ecosystem
 - ✅ **Join the community** - Work alongside Tenstorrent engineers and contributors

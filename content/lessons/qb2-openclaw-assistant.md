@@ -20,7 +20,7 @@ validatedOn:
 estimatedMinutes: 45
 ---
 
-# OpenClaw AI Assistant on QuietBox 2
+# OpenClaw AI Assistant on QuietBox<sup>®</sup> 2
 
 Transform your QuietBox 2 into an expert AI assistant that knows everything about Tenstorrent hardware, deployment, and programming - with citations from 45+ interactive lessons and official documentation.
 
@@ -36,7 +36,7 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 
 **What makes this special:**
 - **Runs locally** - Your data never leaves your machine
-- **Hardware-accelerated** - 70B model on your QuietBox 2's 4x Blackhole chips
+- **Hardware-accelerated** - 70B model on your QuietBox 2's 4x Blackhole<sup>®</sup> chips
 - **Self-documenting** - Knows all TT-VSCode-Toolkit lessons by heart
 - **Production-ready** - Used for booth demos and development
 
@@ -130,7 +130,7 @@ The first step is getting Llama-3.3-70B-Instruct running on your QuietBox 2 with
 **What happens during deployment:**
 1. **Environment preparation** (30 seconds) - Reset hardware, stop existing containers
 2. **Model download** (10-30 minutes, one-time) - Downloads 140 GB from HuggingFace
-3. **Docker startup** (2 minutes) - Initializes container with TT-Metalium environment
+3. **Docker startup** (2 minutes) - Initializes container with TT-Metalium<sup>®</sup> environment
 4. **Model loading** (10-20 minutes) - Loads weights to TT hardware (silent phase)
 5. **Warmup** (5 minutes) - Compiles kernels for P300X2 configuration
 6. **Ready** - Health endpoint responds, ready for inference
@@ -354,7 +354,7 @@ ls ~/code/tt-inference-server/README.md
    - Hardware detection and setup
    - Model deployment and optimization
    - Cookbook examples (Game of Life, Mandelbrot, audio)
-   - TT-Forge, TT-XLA, TT-Metalium frameworks
+   - TT-Forge<sup>®</sup>, TT-XLA, TT-Metalium frameworks
    - API servers, chat interfaces
 
 2. **TT-Metalium Documentation**

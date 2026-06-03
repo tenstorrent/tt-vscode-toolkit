@@ -137,7 +137,7 @@ vLLM repository (cloned by lessons):
 
 ### ~/tt-metal/
 
-TT-Metalium repository (cloned by lessons):
+TT-Metalium<sup>®</sup> repository (cloned by lessons):
 
 ```
 ~/tt-metal/
@@ -220,7 +220,7 @@ TT-Metalium repository (cloned by lessons):
 
 **Implementation:**
 - `tt-smi -s` JSON output parsed for hardware type
-- Commands adapt to n150, n300, T3000, P100, p150, Galaxy
+- Commands adapt to n150, n300, T3000, p100, p150, Galaxy
 - Lessons show hardware compatibility in metadata
 - Filter tree view by detected hardware (optional)
 

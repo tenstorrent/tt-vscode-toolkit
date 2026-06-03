@@ -27,7 +27,7 @@ validationNotes: >-
 
 ## Overview
 
-Build a library of creative image filters and effects using TTNN convolution operations. From classic edge detection to artistic stylization.
+Build a library of creative image filters and effects using TT-NN<sup>®</sup> convolution operations. From classic edge detection to artistic stylization.
 
 **Features:**
 - Classic filters (blur, sharpen, edge detect)
@@ -354,7 +354,7 @@ while True:
 ```
 
 ### 2. Neural Style Transfer
-Use pre-trained VGG features + TTNN for fast style transfer.
+Use pre-trained VGG features + TT-NN for fast style transfer.
 
 ### 3. Seam Carving (Content-Aware Resize)
 Find and remove low-energy seams.

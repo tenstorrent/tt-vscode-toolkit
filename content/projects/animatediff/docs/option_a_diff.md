@@ -1,6 +1,6 @@
 > **Note:** This document was written before the v0.2.0 rewrite. `generate_with_sd35.py` has been removed. See README.md for the current implementation.
 
-# Option A: Minimal TT-Metalium Modification (Optional Performance Enhancement)
+# Option A: Minimal TT-Metalium<sup>®</sup> Modification (Optional Performance Enhancement)
 
 This document describes an optional modification to `tt-metal` that provides a cleaner integration with AnimateDiff. **This modification is NOT required** - the current Phase 1/Phase 2 scripts (`examples/generate_baseline.py` / `examples/generate_blackhole.py`) work without it.
 
@@ -128,7 +128,7 @@ for frame_idx in range(num_frames):
 
 If you'd like to contribute this enhancement to the TT-Metalium community:
 
-1. Test thoroughly on all hardware (n150, n300, T3000, P100)
+1. Test thoroughly on all hardware (n150, n300, T3000, p100)
 2. Add unit tests for the new parameter
 3. Update documentation
 4. Submit PR with use case explanation (AnimateDiff integration)

@@ -230,7 +230,7 @@ history = sim.simulate(num_steps=500)
 
 ### Benchmark Results (4x p300c QuietBox)
 
-Real-world performance on QuietBox Blackhole Tower:
+Real-world performance on QuietBox Blackhole<sup>®</sup> Tower:
 
 | Mode | Runtime | Performance | Speedup |
 |------|---------|-------------|---------|
@@ -276,7 +276,7 @@ python particle_life_multi_device.py --multi-device --num-steps 1000
 
 ### Advanced: On-Device Force Calculations
 
-For maximum performance, move force calculations entirely to TT hardware using TTNN operations:
+For maximum performance, move force calculations entirely to TT hardware using TT-NN<sup>®</sup> operations:
 
 ```python
 # Convert positions to TTNN tensors on device

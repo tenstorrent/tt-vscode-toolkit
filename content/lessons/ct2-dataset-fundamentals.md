@@ -828,9 +828,9 @@ You've learned the mechanics of creating datasets - but what makes a dataset tru
 ### Domain-Specific Excellence
 
 **Code & Technical Writing:**
-- **"Python to TTNN Translator"** - 500 examples of PyTorch patterns → TTNN equivalents
+- **"Python to TT-NN<sup>®</sup> Translator"** - 500 examples of PyTorch patterns → TT-NN equivalents
   - Why it works: Narrow domain, clear input/output pairs
-  - Impact: Speeds up TT-Metalium development for entire teams
+  - Impact: Speeds up TT-Metalium<sup>®</sup> development for entire teams
 - **"API Documentation Q&A"** - Company-specific API questions with accurate answers
   - Why it works: Internal knowledge that base models don't have
   - Impact: Reduces developer support burden by 60%

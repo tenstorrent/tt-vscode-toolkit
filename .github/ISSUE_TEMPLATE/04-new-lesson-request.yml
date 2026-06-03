@@ -93,7 +93,7 @@ body:
         - "n150"
         - "n300"
         - "T3000"
-        - "P100"
+        - "p100"
         - "p150"
         - "Galaxy"
         - "Any hardware"

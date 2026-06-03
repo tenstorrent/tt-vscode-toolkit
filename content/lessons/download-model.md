@@ -217,7 +217,7 @@ The download typically completes in under a minute on a fast connection.
 > for reliable operation. It consistently exhausts DRAM on n150 and p300c.
 > Qwen3-0.6B is the recommended choice for those devices.
 
-If you've accepted Meta's license terms and are running on n300/T3000/P100/Galaxy,
+If you've accepted Meta's license terms and are running on n300/T3000/p100/Galaxy,
 you can download Llama-3.1-8B-Instruct:
 
 ```bash
@@ -242,5 +242,5 @@ You've successfully downloaded your model and are ready to run inference.
 
 - [Qwen3-0.6B on Hugging Face](https://huggingface.co/Qwen/Qwen3-0.6B)
 - [Llama 3.1 model on Hugging Face](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct)
-- [TT-Metalium GitHub Repository](https://github.com/tenstorrent/tt-metal)
-- [TT-NN Documentation](https://docs.tenstorrent.com/tt-metal/latest/ttnn/)
+- [TT-Metalium<sup>®</sup> GitHub Repository](https://github.com/tenstorrent/tt-metal)
+- [TT-NN<sup>®</sup> Documentation](https://docs.tenstorrent.com/tt-metal/latest/ttnn/)

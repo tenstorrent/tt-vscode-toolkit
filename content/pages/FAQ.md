@@ -42,7 +42,7 @@ Coding Assistant, AnimateDiff Video Generation
 Game of Life, Audio, Mandelbrot, Image Filters, Particle Life + Overview
 
 **🔧 Compilers & Tools (2 lessons)**
-TT-Forge, TT-XLA
+TT-Forge<sup>®</sup>, TT-XLA
 
 **🧠 CS Fundamentals (7 lessons)**
 Computer Architecture, Memory, Parallelism, Networks, Synchronization, Abstraction, Complexity
@@ -70,16 +70,16 @@ TT-Installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 
 | Tool | Purpose | When to Use | Maturity |
 |------|---------|-------------|----------|
-| **TT-Metalium** | Low-level framework | Custom kernels, maximum control | Stable |
+| **TT-Metalium<sup>®</sup>** | Low-level framework | Custom kernels, maximum control | Stable |
 | **vLLM** | LLM serving | Production LLM deployment | Production |
-| **TT-Forge** | MLIR compiler | PyTorch models (experimental) | Beta |
+| **TT-Forge<sup>®</sup>** | MLIR compiler | PyTorch models (experimental) | Beta |
 | **TT-XLA** | XLA compiler | JAX/PyTorch (production) | Production |
 
 **Simple guide:**
 - Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])**
 - Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.showLesson?["forge-image-classification"])**
 - Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])**
-- Building custom kernels? → **TT-Metalium** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
+- Building custom kernels? → **TT-Metalium<sup>®</sup>** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
 
 ---
 
@@ -304,7 +304,7 @@ docker stop <container-id>   # Stop servers
 **A:** **Yes!** Use **ttsim** - Tenstorrent's full-system simulator.
 
 **What is ttsim:**
-- Virtual Wormhole or Blackhole device that runs on any Linux/x86_64 system
+- Virtual Wormhole<sup>™</sup> or Blackhole<sup>®</sup> device that runs on any Linux/x86_64 system
 - No physical hardware needed
 - Slower than silicon but fast enough for learning and experimentation
 - Perfect for exploring before purchasing hardware
@@ -335,7 +335,7 @@ cd $TT_METAL_HOME
 - ✅ Learn TT-Metalium programming model
 - ✅ Run programming examples and tests
 - ✅ Develop and debug kernels
-- ✅ Test TTNN operations
+- ✅ Test TT-NN<sup>®</sup> operations
 - ✅ Explore Tenstorrent architecture
 
 **What you CAN'T do (too slow):**
@@ -369,7 +369,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 - **n150** - Single Wormhole chip (development, 64K context)
 - **n300** - Dual Wormhole chips (128K context, TP=2)
 - **T3000** - Eight Wormhole chips (large models, TP=8)
-- **P100** - Single Blackhole chip (newer architecture)
+- **p100** - Single Blackhole chip (newer architecture)
 - **p150** - Dual Blackhole chips (TP=2)
 
 ### Q: tt-smi says "No devices found" - what do I do?
@@ -407,7 +407,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 **A:**
 - **Wormhole (n150, n300, T3000)** - 2nd generation, well-validated, most models tested
-- **Blackhole (P100, p150)** - Latest generation, newer architecture, some experimental models
+- **Blackhole (p100, p150)** - Latest generation, newer architecture, some experimental models
 
 **For production:** Stick with Wormhole (n150/n300/T3000) - more models validated.
 
@@ -419,7 +419,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 | Hardware | Max Model Size | Max Context | Multi-chip | Best For |
 |----------|---------------|-------------|------------|----------|
-| n150, P100 | 8B | 64K | No (TP=1) | Development, prototyping |
+| n150, p100 | 8B | 64K | No (TP=1) | Development, prototyping |
 | n300, p150 | 13B | 128K | Yes (TP=2) | Medium models, multi-user |
 | T3000 | 70B+ | 128K | Yes (TP=8) | Large models, production |
 
@@ -624,7 +624,7 @@ login(token="your_token_from_huggingface")
 - Includes both input (prompt) + output (response)
 
 **Hardware limits:**
-- n150/P100: 64K tokens (~48K words)
+- n150/p100: 64K tokens (~48K words)
 - n300/T3000: 128K tokens (~96K words)
 
 **Exceeding context?**
@@ -920,17 +920,17 @@ cd ~/tt-metal
 - **clang-17 required:** `sudo apt-get install clang-17`
 - **Environment variables:** Must unset TT_METAL_HOME first
 
-### Q: TTNN import errors or symbol undefined errors in cloud environments - how do I fix them?
+### Q: TT-NN import errors or symbol undefined errors in cloud environments - how do I fix them?
 
-**A:** After rolling back or updating TT-Metalium versions, TTNN bindings may become incompatible.
+**A:** After rolling back or updating TT-Metalium versions, TT-NN bindings may become incompatible.
 
 **Symptoms:**
 - `ImportError: undefined symbol: _ZN2tt9tt_fabric15SetFabricConfigENS0...`
 - `ImportError: undefined symbol: MPIX_Comm_revoke`
-- TTNN examples that previously worked now fail
+- TT-NN examples that previously worked now fail
 
 **Common Cause:**
-Rolling back or updating TT-Metalium versions (for example, to match specific vLLM compatibility) can break TTNN bindings.
+Rolling back or updating TT-Metalium versions (for example, to match specific vLLM compatibility) can break TT-NN bindings.
 
 **Solution - Clean Rebuild to Known-Good Version:**
 
@@ -961,7 +961,7 @@ Rolling back or updating TT-Metalium versions (for example, to match specific vL
    ./build_metal.sh
    ```
 
-4. **Test TTNN:**
+4. **Test TT-NN:**
    ```bash
    source ~/tt-metal/python_env/bin/activate
    export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
@@ -976,7 +976,7 @@ Rolling back or updating TT-Metalium versions (for example, to match specific vL
 - OpenMPI library path is required: `/opt/openmpi-v5.0.7-ulfm/lib`
 
 **Known-Good Commit (as of Dec 2024):**
-- `5143b856eb` (Oct 28, 2024) - Stable TTNN, validated on n150
+- `5143b856eb` (Oct 28, 2024) - Stable TT-NN, validated on n150
 
 ### Q: Getting OpenMPI errors - how do I fix them?
 
@@ -1182,7 +1182,7 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 - **Documentation:** https://docs.tenstorrent.com
 
 **When asking for help, include:**
-1. Hardware type (n150/n300/T3000/P100)
+1. Hardware type (n150/n300/T3000/p100)
 2. Error message (full text)
 3. Command you ran
 4. Output of `tt-smi`

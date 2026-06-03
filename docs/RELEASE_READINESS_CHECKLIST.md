@@ -56,7 +56,7 @@
 ### Priority 2 (Important for Quality) - Recommended Before Release
 
 - [ ] **Standardize terminology across all lessons**
-  - Issue: Mixed use of "TT-Metalium" vs "TT-Metalium", "vLLM" vs "VLLM"
+  - Issue: Mixed use of "TT-Metalium<sup>®</sup>" vs "TT-Metalium", "vLLM" vs "VLLM"
   - Impact: Medium (confusing but not blocking)
   - Effort: 2-3 hours
   - Tool: `grep -ri "tt-metal\|TT-Metalium" content/` to find instances
@@ -70,7 +70,7 @@
   - Tool: `grep -r "is \w\+ed" content/lessons/*.md`
 
 - [x] **Add dates to version-specific statements**
-  - Example: "TT-Forge is experimental" → "TT-Forge is experimental (as of December 2025)"
+  - Example: "TT-Forge<sup>®</sup> is experimental" → "TT-Forge is experimental (as of December 2025)"
   - Impact: Low (future-proofing)
   - Effort: 30 minutes
   - Status: ✅ **COMPLETE** (v0.0.116)

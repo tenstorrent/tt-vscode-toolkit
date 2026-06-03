@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-09
 **Author:** Claude Code
-**Hardware:** QuietBox Blackhole Tower (4x p300c)
+**Hardware:** QuietBox Blackhole<sup>®</sup> Tower (4x p300c)
 **Task:** Extend Particle Life cookbook recipe with multi-chip parallelization
 
 ---
@@ -16,7 +16,7 @@ Successfully extended the Particle Life emergent complexity simulator to leverag
 ## Mission
 
 **User Request:**
-> "I've updated the cookbook lesson to include particle life. Claude made it for a n300. Can you follow the lesson and get it up and running, then bonus points add a new part to the lesson to extend support to using the QuietBox 2's full power in the exercise?"
+> "I've updated the cookbook lesson to include particle life. Claude made it for a n300. Can you follow the lesson and get it up and running, then bonus points add a new part to the lesson to extend support to using the QuietBox<sup>®</sup> 2's full power in the exercise?"
 
 **Objectives:**
 1. Get single-device Particle Life running on QuietBox
@@ -179,7 +179,7 @@ This is actually quite good for a first multi-device implementation! Efficiency 
    - Better amortization of overhead
    - Expected: 2.5-3x speedup
 
-2. **On-Device TTNN Operations (→ 3-3.5x):**
+2. **On-Device TT-NN<sup>®</sup> Operations (→ 3-3.5x):**
    ```python
    # Move force calculations to TT hardware
    positions_tt = ttnn.from_torch(positions, device=device, layout=ttnn.TILE_LAYOUT)
@@ -216,7 +216,7 @@ This is actually quite good for a first multi-device implementation! Efficiency 
 - Commands to run multi-device mode
 - Efficiency analysis (50% explained)
 - Optimization suggestions for 3-4x speedup
-- Advanced techniques (on-device TTNN ops)
+- Advanced techniques (on-device TT-NN ops)
 
 ### Key Code Examples Included
 
@@ -429,12 +429,12 @@ def _calculate_forces_multi_device(self, positions: torch.Tensor) -> torch.Tenso
 
 1. **Device cleanup errors** on exit (minor, doesn't affect results)
 2. **Small workload granularity** limited efficiency (expected)
-3. **CPU bottleneck** in aggregation (solvable with TTNN)
+3. **CPU bottleneck** in aggregation (solvable with TT-NN)
 
 ### Future Improvements
 
 1. Use `ttnn.CreateDevices()` API for cleaner device management
-2. Implement on-device TTNN operations for 3x speedup
+2. Implement on-device TT-NN operations for 3x speedup
 3. Add device-to-device communication for 4x speedup
 4. Test with larger workloads (8,192+ particles)
 

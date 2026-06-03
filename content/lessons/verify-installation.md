@@ -2,7 +2,7 @@
 id: verify-installation
 title: Verify Your Setup
 description: >-
-  Check that your Tenstorrent hardware, TTNN, and optional TT-Metalium source are
+  Check that your Tenstorrent hardware, TT-NN, and optional TT-Metalium source are
   ready before running your first model. A diagnostic checkpoint — returns you
   here after any setup work.
 category: first-inference
@@ -29,13 +29,13 @@ validationNotes: Rewritten as diagnostic hub for QuietBox 2/WH/BH parity
 
 # Verify Your Setup
 
-This is your diagnostic checkpoint. Run three quick checks to confirm hardware, TTNN,
+This is your diagnostic checkpoint. Run three quick checks to confirm hardware, TT-NN<sup>®</sup>,
 and (optionally) tt-metal source are ready. If anything fails, follow the link for that
 check — then come back here to confirm you're green before moving on.
 
-> **QuietBox 2 / Pre-configured image users:** QuietBox 2 ships with a pre-installed environment but
+> **QuietBox<sup>®</sup> 2 / Pre-configured image users:** QuietBox 2 ships with a pre-installed environment but
 > does **not** include `~/tt-metal`. Check 1 and Check 2 should pass out of the box.
-> Check 3 will fail unless you clone and build TT-Metalium yourself — that's expected and
+> Check 3 will fail unless you clone and build TT-Metalium<sup>®</sup> yourself — that's expected and
 > fine for most lessons.
 
 ---
@@ -46,9 +46,9 @@ Before running checks, pick the path that matches your goal:
 
 | Goal | What you need | Next lesson after green |
 |------|--------------|------------------------|
-| Interactive chat with Llama (Generator API) | Hardware + TTNN + tt-metal source | [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) |
-| Production vLLM serving (Qwen3-0.6B, no source needed) | Hardware + TTNN | [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) |
-| Image generation, TT-Forge, TT-XLA | Hardware + TTNN (source optional) | See individual lesson |
+| Interactive chat with Llama (Generator API) | Hardware + TT-NN + tt-metal source | [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) |
+| Production vLLM serving (Qwen3-0.6B, no source needed) | Hardware + TT-NN | [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) |
+| Image generation, TT-Forge<sup>®</sup>, TT-XLA | Hardware + TT-NN (source optional) | See individual lesson |
 
 Not sure? Start with the vLLM path — it works on all hardware without needing to build from source.
 
@@ -74,7 +74,7 @@ tt-smi -s
 
 ---
 
-## Check 2: TTNN
+## Check 2: TT-NN
 
 ```bash
 python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source build)'))"
@@ -82,8 +82,8 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 
 **Interpreting results:**
 
-- Prints `✓ TTNN <version>` → **✅ TTNN ready**, continue to Check 3
-- `ModuleNotFoundError: No module named 'ttnn'` → TTNN is not importable in your current
+- Prints `✓ TTNN <version>` → **✅ TT-NN ready**, continue to Check 3
+- `ModuleNotFoundError: No module named 'ttnn'` → TT-NN is not importable in your current
   Python environment. You need one of:
   - **QuietBox 2 / TT-Installer users:** activate the pre-installed container or venv
     (check your setup guide for the activate command)
@@ -93,7 +93,7 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
     export TT_METAL_HOME=~/tt-metal
     export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
     ```
-  - **Don't have TT-Metalium yet:** go to
+  - **Don't have TT-Metalium<sup>®</sup> yet:** go to
     [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
     return here when done
 - `ImportError: undefined symbol: MPIX_Comm_revoke` → OpenMPI libraries missing from

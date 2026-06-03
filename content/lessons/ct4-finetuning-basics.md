@@ -152,8 +152,8 @@ It is the east, and Juliet is the sun.
 
 ### System Requirements
 
-- **TT-Metalium:** v0.67.0 or later (including latest RC) - required for proper inference
-- **Hardware:** n150, n300, T3000, P100, p150, p300c, or Galaxy
+- **TT-Metalium<sup>®</sup>:** v0.67.0 or later (including latest RC) - required for proper inference
+- **Hardware:** n150, n300, T3000, p100, p150, p300c, or Galaxy
 - **Disk space:** 5GB free (for TT-Metalium build and checkpoints)
 - **Python:** 3.10+
 
@@ -1156,7 +1156,7 @@ python train_nanogpt.py \
 
 This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all Tenstorrent hardware. Here's what to expect on each platform:
 
-### n150 (Wormhole - Single Chip)
+### n150 (Wormhole<sup>™</sup> - Single Chip)
 
 **Specifications:**
 - Single Wormhole chip
@@ -1210,7 +1210,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Production training pipelines
 - Scaling experiments
 
-### P100 (Blackhole - Single Chip)
+### p100 (Blackhole<sup>®</sup> - Single Chip)
 
 **Specifications:**
 - Single Blackhole chip (next-gen architecture)
@@ -1287,7 +1287,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 | **n150** | 20-30 min | Learning, experimentation, small models |
 | **n300** | 10-20 min | Faster iteration, larger batches |
 | **T3000** | 5-10 min (multi-device) | Production training, scaling |
-| **P100** | 15-25 min | Next-gen testing, production |
+| **p100** | 15-25 min | Next-gen testing, production |
 | **p150** | 8-15 min | Next-gen multi-device |
 | **p300c** | Scales with chips | Cloud production |
 | **Galaxy** | <5 min (full cluster) | LLM pre-training, research |

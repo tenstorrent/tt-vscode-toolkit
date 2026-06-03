@@ -120,8 +120,8 @@ spatial = (batch*frames, spatial_tokens, channels)
 **Key files:**
 - `fun_transformer_block.py`: Transformer block with dual_attn + feed_forward
 - `fun_pipeline.py`: Main pipeline, latent preparation
-- `fun_attention.py`: TTNN-optimized attention implementation
-- `fun_feed_forward.py`: TTNN-optimized feed-forward
+- `fun_attention.py`: TT-NN<sup>®</sup>-optimized attention implementation
+- `fun_feed_forward.py`: TT-NN-optimized feed-forward
 
 ---
 
@@ -138,12 +138,12 @@ spatial = (batch*frames, spatial_tokens, channels)
 - Matches AnimateDiff's proven architecture
 
 **Cons:**
-- Need to port temporal attention to TTNN ops
+- Need to port temporal attention to TT-NN ops
 - Need to adapt for SD 3.5's DiT (not UNet)
 
 **Implementation:**
 
-1. **Create `temporal_module.py`** with TTNN operations:
+1. **Create `temporal_module.py`** with TT-NN operations:
 ```python
 class TtTemporalAttention:
     def __init__(self, dim, num_heads, device):
@@ -264,17 +264,17 @@ def load_temporal_weights(checkpoint_path, device):
 
 ## Next Steps (Phase 3: Implementation)
 
-### Priority 1: Port Temporal Attention to TTNN
+### Priority 1: Port Temporal Attention to TT-NN
 
 **Tasks:**
-1. Create `temporal_module.py` with TTNN operations
+1. Create `temporal_module.py` with TT-NN operations
 2. Implement `TtTemporalAttention` class
-3. Map PyTorch ops to TTNN equivalents:
+3. Map PyTorch ops to TT-NN equivalents:
    - `torch.nn.Linear` → `ttnn.linear`
    - `torch.matmul` → `ttnn.matmul`
    - `torch.softmax` → `ttnn.softmax`
    - Manual tensor reshaping with `ttnn.reshape`, `ttnn.permute`
-4. Load AnimateDiff weights and convert to TTNN format
+4. Load AnimateDiff weights and convert to TT-NN format
 
 ### Priority 2: Inject into SD 3.5 Transformer
 
@@ -298,7 +298,7 @@ def load_temporal_weights(checkpoint_path, device):
 1. Test 2-frame sequence (baseline functionality)
 2. Test 16-frame sequence (full animation)
 3. Optimize memory usage (batch processing if needed)
-4. Optimize performance (TTNN acceleration)
+4. Optimize performance (TT-NN acceleration)
 
 ---
 
@@ -323,9 +323,9 @@ def load_temporal_weights(checkpoint_path, device):
 **Problem:** SD 3.5 uses different tensor shapes than AnimateDiff (DiT vs UNet)
 **Solution:** Adapt reshaping logic for SD 3.5's `(batch*frames, spatial_tokens, channels)` format
 
-### Challenge 2: TTNN Operation Coverage
-**Problem:** Some PyTorch ops may not have TTNN equivalents
-**Solution:** Start with CPU fallback for temporal layers, gradually port to TTNN
+### Challenge 2: TT-NN Operation Coverage
+**Problem:** Some PyTorch ops may not have TT-NN equivalents
+**Solution:** Start with CPU fallback for temporal layers, gradually port to TT-NN
 
 ### Challenge 3: Memory Constraints
 **Problem:** 16 frames @ 512x512 may exceed n150 DRAM
@@ -351,4 +351,4 @@ def load_temporal_weights(checkpoint_path, device):
 
 ---
 
-**Status:** Ready to begin Phase 3 (TTNN implementation)
+**Status:** Ready to begin Phase 3 (TT-NN implementation)

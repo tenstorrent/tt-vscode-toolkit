@@ -1,6 +1,6 @@
-# Model Bring-Up Tutorial: AnimateDiff on TT-Metalium
+# Model Bring-Up Tutorial: AnimateDiff on TT-Metalium<sup>®</sup>
 
-**A comprehensive guide to integrating new model architectures with TT-Metalium**
+**A comprehensive guide to integrating new model architectures with TT-Metalium<sup>®</sup>**
 
 This tutorial documents the complete process of bringing AnimateDiff (temporal attention for video generation) to Tenstorrent hardware. Follow this same methodology to integrate other model architectures with TT-Metalium.
 
@@ -8,7 +8,7 @@ This tutorial documents the complete process of bringing AnimateDiff (temporal a
 - How to research and understand a new model architecture
 - How to analyze existing TT-Metalium implementations
 - How to find integration points in complex codebases
-- How to port PyTorch code to TTNN operations
+- How to port PyTorch code to TT-NN<sup>®</sup> operations
 - How to create standalone packages that don't modify TT-Metalium
 - How to test and validate your implementation
 
@@ -45,7 +45,7 @@ This tutorial documents the complete process of bringing AnimateDiff (temporal a
 - How does AnimateDiff actually work?
 - Where does temporal attention fit in SD 3.5?
 - Is the architecture even compatible?
-- How do we port PyTorch code to TTNN?
+- How do we port PyTorch code to TT-NN?
 
 ### The Approach
 
@@ -53,7 +53,7 @@ We used a **phased research and implementation** strategy:
 
 1. **Research**: Understand AnimateDiff architecture from source
 2. **Analysis**: Map AnimateDiff to SD 3.5 structure
-3. **Implementation**: Port temporal attention to TTNN
+3. **Implementation**: Port temporal attention to TT-NN
 4. **Refactor**: Create standalone package
 5. **Validation**: Test and verify functionality
 
@@ -271,7 +271,7 @@ def sd_transformer_block(
 
 **Matches AnimateDiff pattern:** ✅ Spatial → Temporal → Feed-Forward
 
-### Step 2.4: Understand TTNN Coding Patterns
+### Step 2.4: Understand TT-NN Coding Patterns
 
 **File:** `fun_attention.py`
 
@@ -288,7 +288,7 @@ class TtAttentionParameters:
     # ... more fields
 ```
 
-**Lesson:** TTNN uses dataclasses to pass weights around. You'll need this for temporal attention.
+**Lesson:** TT-NN uses dataclasses to pass weights around. You'll need this for temporal attention.
 
 2. **Linear operations:**
 ```python
@@ -300,7 +300,7 @@ q = ttnn.linear(
 )
 ```
 
-**Lesson:** TTNN linear ops are similar to PyTorch, but weight tensors must be pre-loaded in TTNN format.
+**Lesson:** TT-NN linear ops are similar to PyTorch, but weight tensors must be pre-loaded in TT-NN format.
 
 3. **Attention computation:**
 ```python
@@ -314,7 +314,7 @@ attention_probs = ttnn.softmax(attention_scores, dim=-1)
 output = ttnn.matmul(attention_probs, v)
 ```
 
-**Lesson:** Standard attention pattern works in TTNN. You can port this directly.
+**Lesson:** Standard attention pattern works in TT-NN. You can port this directly.
 
 ### Step 2.5: Document Architecture Mapping
 
@@ -335,16 +335,16 @@ output = ttnn.matmul(attention_probs, v)
 - ✅ SD 3.5 uses DiT (different from SD 1.5 UNet)
 - ✅ DiT is still compatible with temporal attention
 - ✅ Perfect injection point found at line 336
-- ✅ TTNN patterns understood (dataclasses, linear ops, attention)
+- ✅ TT-NN patterns understood (dataclasses, linear ops, attention)
 
-**Next step:** Implement temporal attention in TTNN
+**Next step:** Implement temporal attention in TT-NN
 
 ---
 
 ## Phase 3: Implementation
 
 **Duration:** 2-4 hours
-**Goal:** Port temporal attention to TTNN
+**Goal:** Port temporal attention to TT-NN
 
 ### Step 3.1: Create Temporal Module File
 
@@ -414,7 +414,7 @@ def temporal_attention(hidden_states, parameters, num_frames, ...):
     # ...
 ```
 
-**Pro tip:** Test reshaping logic with PyTorch first using simple tensors. Once you verify the math, port to TTNN.
+**Pro tip:** Test reshaping logic with PyTorch first using simple tensors. Once you verify the math, port to TT-NN.
 
 ### Step 3.3: Implement Positional Encoding
 
@@ -605,7 +605,7 @@ def sd_transformer_block(
 ### Phase 3 Summary
 
 **What we built:**
-- ✅ Complete TTNN temporal attention implementation (484 lines)
+- ✅ Complete TT-NN temporal attention implementation (484 lines)
 - ✅ Weight loading from AnimateDiff checkpoint
 - ✅ Integration with SD 3.5 transformer blocks
 - ✅ Positional encoding for frame order
@@ -730,11 +730,11 @@ def temporal_attention_torch(
 
 **Why PyTorch first:**
 - Easier to debug (better error messages)
-- Faster iteration (no TTNN device management)
+- Faster iteration (no TT-NN device management)
 - Can test on CPU without hardware
-- Port to TTNN once validated
+- Port to TT-NN once validated
 
-**TTNN version kept as `temporal_attention_ttnn()`** for future hardware acceleration.
+**TT-NN version kept as `temporal_attention_ttnn()`** for future hardware acceleration.
 
 ### Step 4.4: Create Pipeline Wrapper
 
@@ -849,7 +849,7 @@ class AnimateDiffPipeline:
 **Design principles:**
 - Simple API: One method to apply temporal attention
 - Flexible: Works with any tensor format
-- Future-proof: Can switch between PyTorch and TTNN
+- Future-proof: Can switch between PyTorch and TT-NN
 
 ### Step 4.5: Create Example Scripts
 
@@ -1005,7 +1005,7 @@ echo "Weights saved to: $WEIGHTS_DIR/mm_sd_v15_v2.ckpt"
 - ✅ Standalone Python package (`animatediff_ttnn`)
 - ✅ Zero modifications to TT-Metalium
 - ✅ PyTorch implementation for easy testing
-- ✅ TTNN implementation ready for hardware acceleration
+- ✅ TT-NN implementation ready for hardware acceleration
 - ✅ High-level pipeline wrapper
 - ✅ 2-frame and 16-frame examples
 - ✅ Automated weight download
@@ -1195,7 +1195,7 @@ animatediff.export_video(frames, "butterfly.mp4", fps=8)
 
 **Next steps:**
 - Integrate with SD 3.5 pipeline
-- Test TTNN implementation on hardware
+- Test TT-NN implementation on hardware
 - Optimize for n150 memory constraints
 
 ---
@@ -1218,11 +1218,11 @@ animatediff.export_video(frames, "butterfly.mp4", fps=8)
 
 **Takeaway:** Documentation is part of implementation, not an afterthought.
 
-### 3. Test in Layers (PyTorch → TTNN)
+### 3. Test in Layers (PyTorch → TT-NN)
 
-**Lesson:** Implement with PyTorch first, then port to TTNN once validated.
+**Lesson:** Implement with PyTorch first, then port to TT-NN once validated.
 
-**Example:** PyTorch version took 30 minutes to write and test. TTNN version would have taken hours to debug if we started there.
+**Example:** PyTorch version took 30 minutes to write and test. TT-NN version would have taken hours to debug if we started there.
 
 **Takeaway:** Use the tool with better debugging first, then optimize.
 
@@ -1294,7 +1294,7 @@ print(ckpt.keys())
 ### Phase 3: Implementation
 1. Create new module file
 2. Implement core functionality
-3. Follow TT-Metalium coding patterns (dataclasses, TTNN ops)
+3. Follow TT-Metalium coding patterns (dataclasses, TT-NN ops)
 4. Test with PyTorch first
 
 ### Phase 4: Standalone Package
@@ -1393,10 +1393,10 @@ cd ~/tt-metal/models/experimental/stable_diffusion_35_large/tt/
 - Studied SD 3.5 DiT architecture
 - Found perfect injection point (line 336)
 - Verified compatibility despite architecture differences
-- Learned TTNN coding patterns
+- Learned TT-NN coding patterns
 
 ✅ **Implementation Phase**
-- Ported temporal attention to TTNN (484 lines)
+- Ported temporal attention to TT-NN (484 lines)
 - Implemented weight loading from checkpoint
 - Created positional encoding for frames
 - Integrated with transformer blocks
@@ -1485,7 +1485,7 @@ prefix = "down_blocks.0.motion_modules.0.temporal_transformer.transformer_blocks
 to_q = ckpt[f"{prefix}.to_q.weight"]
 ```
 
-### TTNN Patterns
+### TT-NN Patterns
 ```python
 # Dataclass parameters
 @dataclass

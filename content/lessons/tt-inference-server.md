@@ -3,7 +3,7 @@ id: tt-inference-server
 title: Production Inference with TT-Inference-Server
 description: >-
   Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000,
-  P100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection,
+  p100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection,
   model download, and server startup with a single command. OpenAI-compatible
   API ready immediately.
 category: serving
@@ -31,7 +31,7 @@ recommended_metal_version: v0.65.1
 validationDate: 2026-04-15
 validationNotes: >-
   Rewritten for v0.12.0 Docker images; --tt-device auto-detection; Llama-3.1-8B
-  validated Complete on WH (n150/n300/T3000) and Experimental on BH (P100/p300c).
+  validated Complete on WH (n150/n300/T3000) and Experimental on BH (p100/p300c).
 ---
 
 # Production Inference with TT-Inference-Server
@@ -39,10 +39,10 @@ validationNotes: >-
 [TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server) is
 Tenstorrent's official workflow automation tool. Give it a model name and your
 hardware type and it handles everything: pulls the right Docker image (pre-built
-TT-Metalium + vLLM), downloads model weights, and starts an OpenAI-compatible
+TT-Metalium<sup>®</sup> + vLLM), downloads model weights, and starts an OpenAI-compatible
 inference server.
 
-> **QuietBox 2 / p300c users:** Llama-3.1-8B is supported on P100/p150 hardware
+> **QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware
 > (🛠️ Experimental status). Use `--tt-device p100` for p300c or QuietBox 2.
 
 ---
@@ -54,7 +54,7 @@ inference server.
 **QuietBox 2 / pre-configured images:** TT-Inference-Server is pre-installed at
 `~/.local/lib/tt-inference-server`. Skip to the next section.
 
-**All other hardware (n150/n300/T3000/P100/p150):** Clone it:
+**All other hardware (n150/n300/T3000/p100/p150):** Clone it:
 
 ```bash
 git clone https://github.com/tenstorrent/tt-inference-server.git \
@@ -96,7 +96,7 @@ every current Tenstorrent board:
 | n150 | `--tt-device n150` | 🟢 Complete | 64 K |
 | n300 | `--tt-device n300` | 🟢 Complete | 128 K |
 | T3000 (WH QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
-| P100 / p300c / QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| p100 / p300c / QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
 | p150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
 | Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
 
@@ -132,7 +132,7 @@ Add `--tt-device <device>` if auto-detection doesn't match your hardware.
 
 ### Hardware-specific commands
 
-#### n150 (Wormhole — single chip, 64 K context)
+#### n150 (Wormhole<sup>™</sup> — single chip, 64 K context)
 
 ```bash
 python3 run.py \
@@ -175,7 +175,7 @@ python3 run.py \
 
 ---
 
-#### P100 / p300c / QuietBox 2 (Blackhole — 64 K context, Experimental)
+#### p100 / p300c / QuietBox 2 (Blackhole<sup>®</sup> — 64 K context, Experimental)
 
 ```bash
 python3 run.py \
@@ -215,7 +215,7 @@ docker run \
 
 Change `--tt-device` to `n300` or `t3k` for those boards — same image.
 
-**Blackhole (P100 / p300c / QuietBox 2):**
+**Blackhole (p100 / p300c / QuietBox 2):**
 
 ```bash
 docker run \
@@ -437,7 +437,7 @@ print(response.choices[0].message.tool_calls)
 ### Reducing Context Length
 
 By default the server uses the full context window supported by the hardware
-(64 K on n150/P100, 128 K on n300/T3000). Reducing it lowers DRAM usage and
+(64 K on n150/p100, 128 K on n300/T3000). Reducing it lowers DRAM usage and
 can speed up model load:
 
 ```bash

@@ -133,7 +133,7 @@ pip install numpy matplotlib
 
 **Solution:** The first cell will detect this and try to auto-install from ~/tt-metal.
 
-If auto-install fails or TT-Metalium not found, install manually:
+If auto-install fails or TT-Metalium<sup>®</sup> not found, install manually:
 ```bash
 # If tt-metal already exists
 cd ~/tt-metal

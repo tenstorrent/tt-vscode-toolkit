@@ -24,7 +24,7 @@ Fixed 5 critical API compatibility issues:
 - `docs/CLAUDE_follows.md` - Complete validation documentation
 
 ### 4. Performance Measured ✅
-**n150 (Wormhole) Performance:**
+**n150 (Wormhole<sup>™</sup>) Performance:**
 - First frame: ~2:17 (includes compilation)
 - Subsequent frames: ~1:30 each (optimized)
 - Total for 10 frames: ~14 minutes
@@ -101,7 +101,7 @@ assets/img/samples/
 1. **Consider lesson reorganization** (Option A recommended)
 2. **Add device reset troubleshooting** section
 3. **Update lesson-registry.json** if reorganized
-4. **Test on other hardware** (n300/T3000/P100) to validate scaling claims
+4. **Test on other hardware** (n300/T3000/p100) to validate scaling claims
 
 ---
 

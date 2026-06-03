@@ -2,7 +2,7 @@
 id: cookbook-game-of-life
 title: "Recipe 1: Conway's Game of Life"
 description: >-
-  Build Conway's Game of Life using TTNN parallel tile computing. Learn convolution operations, cellular automata, and visual output generation. Includes classic patterns: gliders, blinkers, and the famous Gosper Glider Gun!
+  Build Conway's Game of Life using TT-NN parallel tile computing. Learn convolution operations, cellular automata, and visual output generation. Includes classic patterns: gliders, blinkers, and the famous Gosper Glider Gun!
 category: cookbook
 tags:
   - ttnn

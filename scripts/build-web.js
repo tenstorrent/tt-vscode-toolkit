@@ -665,7 +665,7 @@ function renderLesson(markdownPath) {
   });
 
   html = DOMPurify.sanitize(html, {
-    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
+    ADD_TAGS: ['button', 'div', 'pre', 'span', 'sup', 'details', 'summary',
                'figure', 'figcaption', 'video', 'source', 'iframe'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
                'data-arch', 'data-script',
@@ -2226,7 +2226,7 @@ function renderMarkdownPage(filePath) {
     return `<pre class="mermaid">${MERMAID_PH}${mermaidBlocks.length - 1}</pre>`;
   });
   html = DOMPurify.sanitize(html, {
-    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
+    ADD_TAGS: ['button', 'div', 'pre', 'span', 'sup', 'details', 'summary',
                'figure', 'figcaption', 'video', 'source', 'iframe'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
                'data-arch', 'data-script',

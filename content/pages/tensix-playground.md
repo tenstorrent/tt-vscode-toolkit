@@ -82,9 +82,9 @@ NOC reads/writes. They communicate via lock-free circular buffers (Dataflow Buff
 
 ---
 
-## Blackhole Architecture
+## Blackhole<sup>®</sup> Architecture
 
-The P100/p150/p300c (Blackhole) chip has a wider grid than Wormhole.
+The p100/p150/p300c (Blackhole) chip has a wider grid than Wormhole<sup>™</sup>.
 The same programming model applies — compute cores in the center,
 DRAM controllers on the edges, Ethernet links for multi-chip connectivity.
 
