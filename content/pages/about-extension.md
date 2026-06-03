@@ -140,7 +140,7 @@ Self-contained programs that showcase Tenstorrent capabilities with vivid visual
 | Lesson | Focus |
 |---|---|
 | Exploring TT-Metalium | Low-level kernel programming, validated |
-| Bounty Program: Model Bring-Up | Open-source contribution workflow |
+| Bounty Program: Model Bring-Up | Open Source contribution workflow |
 
 ### 🎓 CS Fundamentals *(7 modules, in development)*
 

@@ -1562,7 +1562,7 @@ This lesson teaches a critical skill that applies to GPT, Claude, Gemini, and al
 
 ## TT-Jukebox: Moved to Standalone Repository
 
-**Note:** TT-Jukebox has been extracted into its own open-source project!
+**Note:** TT-Jukebox has been extracted into its own open source project!
 
 **Repository Location:** `~/tt-jukebox/`
 
@@ -1615,7 +1615,7 @@ The project includes:
 - Full source code
 - Comprehensive README
 - Usage examples for all hardware types
-- MIT License for open-source use
+- MIT License for open source use
 
 ## Lesson 11: Image Classification with TT-Forge (2025-11-14)
 

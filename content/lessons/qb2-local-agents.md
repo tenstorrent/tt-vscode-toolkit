@@ -301,7 +301,7 @@ Model:    Qwen/Qwen3-32B
 Endpoint: http://localhost:8000/v1
 
 Query:
-  Research the current state of open-source AI inference hardware...
+  Research the current state of open source AI inference hardware...
 ----------------------------------------------------------------------
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 1 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -324,12 +324,12 @@ Query:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 5 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ─ Executing this code:
-    final_answer("Open-source AI inference hardware has matured significantly...")
+    final_answer("Open source AI inference hardware has matured significantly...")
 
 ======================================================================
 FINAL RESULT:
 ======================================================================
-Open-source AI inference hardware has matured significantly heading into 2026.
+Open source AI inference hardware has matured significantly heading into 2026.
 Three companies have moved beyond vaporware into shipping products:
 
 **Tenstorrent (QuietBox 2 / Blackhole):** QuietBox 2 runs Qwen3-32B at ~8 s/response

@@ -105,7 +105,7 @@ Use our [issue templates](.github/ISSUE_TEMPLATE/):
 - **Feature requests:** Triaged within 2 weeks
 - **Discord questions:** Often answered within hours (community-driven)
 
-**Note:** Response times are best-effort. This is an open-source project maintained by volunteers and Tenstorrent staff.
+**Note:** Response times are best-effort. This is an open source project maintained by volunteers and Tenstorrent staff.
 
 ---
 

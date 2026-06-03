@@ -28,7 +28,7 @@ estimatedMinutes: 15
 
 ## Overview
 
-[Aider](https://aider.chat/) is an open-source AI pair programming tool that runs in
+[Aider](https://aider.chat/) is an open source AI pair programming tool that runs in
 your terminal. It reads your codebase, edits files, and auto-commits changes — and it
 speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM server.
 

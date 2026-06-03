@@ -52,6 +52,11 @@ This style guide ensures consistency across all lessons, documentation, and code
 - ✅ `TT-VSCode-Toolkit` (title case) in prose and UI
 - ❌ `tt_vscode_toolkit`, `TTVSCodeToolkit`
 
+**Open source:**
+- ✅ `open source` (two words, lowercase) in running prose
+- ✅ `Open Source` in headings, table cells, and emphasized labels (e.g. **Open Source**)
+- ❌ `open-source`, `Open-source`, `opensource`
+
 ### Hardware Product Names
 
 **Use lowercase hardware IDs in prose** (matches lesson metadata and the hardware filter):

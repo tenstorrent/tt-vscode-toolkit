@@ -2188,7 +2188,7 @@ This lesson teaches the workflow for contributing to Tenstorrent's bounty progra
 
 **✅ LESSON REVIEWED** - Comprehensive educational content
 
-This tutorial provides excellent guidance for contributing to open-source hardware acceleration. The Phi-3 case study demonstrates that successful contributions:
+This tutorial provides excellent guidance for contributing to open source hardware acceleration. The Phi-3 case study demonstrates that successful contributions:
 1. Leverage existing frameworks (tt_transformers)
 2. Make minimal, targeted modifications
 3. Follow disciplined testing methodology

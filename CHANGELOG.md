@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.466] - 2026-05-27
+
+### Changed
+
+- **Open source wording (branch audit)** — fixed remaining hyphenated forms in `docs/CLAUDE_FULL_ARCHIVE.md` and `docs/CLAUDE_follows.md`; added `scripts/normalize-open-source-copy.js` with `--check` for copy-path audits.
+
+---
+
+## [0.0.465] - 2026-05-27
+
+### Changed
+
+- **Open source wording** — normalized hyphenated `open-source` to two-word `open source` in user-facing lessons, pages, README, and community docs; title-case **Open Source** for headings and labels. Updated `STYLE_GUIDE.md` and Vale `Terminology.yml`.
+
+---
+
 ## [0.0.464] - 2026-05-27
 
 ### Fixed
@@ -2085,7 +2101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed separate device count status bar item
 - Retired Python environment status bar indicators (switching still available via command palette)
 - Simplified device actions menu with sysfs as default monitoring
-- Updated CODE_OF_CONDUCT, CONTRIBUTING, README, SECURITY for open-source
+- Updated CODE_OF_CONDUCT, CONTRIBUTING, README, SECURITY for open source
 - Theme activation now uses standard configurationDefaults in package.json
 - Moved .cleanup.sh → scripts/cleanup.sh for better organization
 

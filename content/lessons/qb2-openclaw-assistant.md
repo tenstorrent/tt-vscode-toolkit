@@ -470,7 +470,7 @@ What is QuietBox 2?
 ```
 QuietBox 2 is TT-QuietBox™ 2, a liquid-cooled, desk-friendly AI
 workstation that runs models up to 120 billion parameters locally with a
-fully open-source software stack. It features:
+fully open source software stack. It features:
 
 - 4x Blackhole ASICs (p300c boards)
 - 480 Tensix cores (120 cores per chip)

@@ -31,7 +31,7 @@ Take your AI deployment to the next level with vLLM - a production-grade inferen
 
 ## What is vLLM?
 
-**vLLM** is an open-source LLM serving library designed for high-throughput, low-latency inference. Tenstorrent maintains a fork that brings vLLM's advanced features to Tenstorrent hardware.
+**vLLM** is an open source LLM serving library designed for high-throughput, low-latency inference. Tenstorrent maintains a fork that brings vLLM's advanced features to Tenstorrent hardware.
 
 **Why vLLM?**
 - 🚀 **OpenAI-compatible API** - drop-in replacement for OpenAI's API

@@ -43,6 +43,9 @@ swap:
   '\btt_inference_server\b': TT-Inference-Server
   '\btt-inference-server\b': TT-Inference-Server
   'TTInferenceServer': TT-Inference-Server
+  # open source — two words, no hyphen
+  'open-source': open source
+  'Open-source': Open source
   # CLI tools
   '\bTTSMI\b': tt-smi
   '\btt_smi\b': tt-smi

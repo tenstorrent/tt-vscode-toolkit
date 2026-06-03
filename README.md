@@ -430,7 +430,7 @@ This software assists in programming Tenstorrent products. However, making, usin
 
 ### Third-Party Licenses
 
-This extension depends on several open-source projects:
+This extension depends on several open source projects:
 - **marked** (MIT) - Markdown parsing
 - **sanitize-html** (MIT) - HTML sanitization
 - **mermaid** (MIT) - Diagram rendering
@@ -443,7 +443,7 @@ Run `npm list --prod` to see all production dependencies.
 
 Built by the Tenstorrent community with contributions from:
 - Tenstorrent Developer Relations and Engineering teams
-- Open-source contributors worldwide
+- Open source contributors worldwide
 - Community members providing feedback and hardware validation
 
 **Special thanks to:**

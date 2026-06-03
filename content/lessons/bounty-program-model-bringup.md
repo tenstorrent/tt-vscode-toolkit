@@ -3,7 +3,7 @@ id: bounty-program
 title: 'Bounty Program: Model Bring-Up'
 description: >-
   Learn how to contribute to the Tenstorrent Bounty Program by bringing up new
-  models. Master TT-Metalium while becoming part of the open-source ecosystem. Uses
+  models. Master TT-Metalium while becoming part of the open source ecosystem. Uses
   the successful Phi-3 contribution as a case study.
 category: advanced
 tags:
@@ -38,7 +38,7 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 
 - ✅ **Master cutting-edge technology** - Deep dive into TT-Metalium/TT-NN architecture
 - ✅ **Real-world impact** - Your code ships in production and helps the community
-- ✅ **Build ownership** - Public contributions to an open-source hardware ecosystem
+- ✅ **Build ownership** - Public contributions to an open source hardware ecosystem
 - ✅ **Join the community** - Work alongside Tenstorrent engineers and contributors
 - ✅ **Develop expertise** - Deep learning, hardware acceleration, systems programming
 
@@ -856,4 +856,4 @@ Ready to make your first contribution? Try the hands-on example:
 
 **Ready to contribute?** 🎯
 
-The Tenstorrent community is welcoming to newcomers. Start with a warmup task, learn the workflow, then scale up to more challenging contributions. Your work will run on cutting-edge AI hardware, become part of the open-source ecosystem, and help advance the field. The real reward is owning and being part of your own open future.
+The Tenstorrent community is welcoming to newcomers. Start with a warmup task, learn the workflow, then scale up to more challenging contributions. Your work will run on cutting-edge AI hardware, become part of the open source ecosystem, and help advance the field. The real reward is owning and being part of your own open future.
