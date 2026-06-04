@@ -3859,24 +3859,13 @@ async function viewAnimateDiffOutput(): Promise<void> {
 
 /**
  * Command: tenstorrent.setupAnimateDiffProject
- * Sets up the AnimateDiff project from the bundled extension files
+ * Clones tt-animatediff from GitHub into ~/tt-projects/tt-animatediff
  */
 async function setupAnimateDiffProject(): Promise<void> {
-  const extensionPath = vscode.extensions.getExtension('tenstorrent.tt-vscode-toolkit')?.extensionPath;
-  if (!extensionPath) {
-    vscode.window.showErrorMessage('Could not find extension path');
-    return;
-  }
-
-  const projectPath = `${extensionPath}/dist/content/projects/animatediff`;
-
   const terminal = getOrCreateSimpleTerminal();
-  const command = replaceVariables(TERMINAL_COMMANDS.SETUP_ANIMATEDIFF_PROJECT.template, {
-    projectPath,
-  });
-  runInTerminal(terminal, command);
+  runInTerminal(terminal, TERMINAL_COMMANDS.SETUP_ANIMATEDIFF_PROJECT.template);
   vscode.window.showInformationMessage(
-    '📦 Setting up AnimateDiff project at ~/tt-scratchpad/tt-animatediff/...'
+    '📦 Cloning tt-animatediff v0.1.0 into ~/tt-projects/tt-animatediff...'
   );
 }
 

@@ -166,7 +166,7 @@ Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal`, running natively
 source ~/tt-metal/python_env/bin/activate
 cd ~/tt-projects/tt-animatediff
 
-python examples/generate.py \
+python examples/generate.py --mode blackhole \
     --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" \
     --frames 8 --steps 25 --temporal-alpha 0.35 \
     --output output/blackhole.gif
