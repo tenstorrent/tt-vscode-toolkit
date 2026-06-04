@@ -83,7 +83,7 @@ git clone --depth 1 --branch v0.1.0 \
     ~/tt-projects/tt-animatediff
 
 cd ~/tt-projects/tt-animatediff
-pip install -e ".[dev]"
+python3 -m pip install -e ".[dev]"
 ```
 
 [📦 Setup AnimateDiff Project](command:tenstorrent.setupAnimateDiffProject)
@@ -132,7 +132,7 @@ The `diffusers` `AnimateDiffPipeline` loads SD 1.4, injects the MotionAdapter at
 
 ```bash
 cd ~/tt-projects/tt-animatediff
-python examples/generate.py --mode cpu \
+python3 examples/generate.py --mode cpu \
     --prompt "aurora borealis over arctic ice, green and violet ribbons, cinematic" \
     --frames 8 --steps 25 --output output/phase1.gif
 ```
@@ -166,7 +166,7 @@ Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal`, running natively
 source ~/tt-metal/python_env/bin/activate
 cd ~/tt-projects/tt-animatediff
 
-python examples/generate.py --mode blackhole \
+python3 examples/generate.py --mode blackhole \
     --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" \
     --frames 8 --steps 25 --temporal-alpha 0.35 \
     --output output/blackhole.gif
@@ -237,9 +237,9 @@ Then retry — this clears hung ethernet cores from prior incomplete teardowns.
 All three modes are one script with a `--mode` flag:
 
 ```bash
-python examples/generate.py --mode cpu        # any machine, ~2 min/frame
-python examples/generate.py --mode blackhole  # Blackhole hardware, ~15 s/frame
-python examples/generate.py --mode sim        # no hardware, ttsim virtual device
+python3 examples/generate.py --mode cpu        # any machine, ~2 min/frame
+python3 examples/generate.py --mode blackhole  # Blackhole hardware, ~15 s/frame
+python3 examples/generate.py --mode sim        # no hardware, ttsim virtual device
 ```
 
 ### tt-metal path tracking
@@ -406,7 +406,7 @@ What this project demonstrates is **the complete workflow for integrating any ne
 [ttsim](https://github.com/tenstorrent/ttsim) is a bit-exact Blackhole simulator that runs on any Linux/x86_64 machine — same TTNN dispatch path as real hardware.
 
 ```bash
-python examples/generate.py --mode sim \
+python3 examples/generate.py --mode sim \
     --sim ~/sim/libttsim_bh.so \
     --frames 2 --steps 4 --output output/sim_test.gif
 ```

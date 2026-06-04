@@ -637,7 +637,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_ANIMATEDIFF_2FRAME: {
     id: 'run-animatediff-phase1',
     name: 'Run Phase 1 — CPU AnimateDiffPipeline',
-    template: 'cd ~/tt-projects/tt-animatediff && python examples/generate.py --mode cpu --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
+    template: 'cd ~/tt-projects/tt-animatediff && python3 examples/generate.py --mode cpu --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate animated frames on CPU using diffusers AnimateDiffPipeline with MotionAdapter',
   },
 
@@ -658,7 +658,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   SETUP_ANIMATEDIFF_PROJECT: {
     id: 'setup-animatediff-project',
     name: 'Setup AnimateDiff Project',
-    template: 'mkdir -p ~/tt-projects && git clone --depth 1 --branch v0.1.0 https://github.com/tenstorrent/tt-animatediff.git ~/tt-projects/tt-animatediff 2>&1 || (cd ~/tt-projects/tt-animatediff && git fetch --tags && git checkout v0.1.0) && cd ~/tt-projects/tt-animatediff && pip install -e ".[dev]" && python3 -c "import animatediff_ttnn; print(\'✓ tt-animatediff v0.1.0 ready at ~/tt-projects/tt-animatediff/\')"',
+    template: 'mkdir -p ~/tt-projects && git clone --depth 1 --branch v0.1.0 https://github.com/tenstorrent/tt-animatediff.git ~/tt-projects/tt-animatediff 2>&1 || (cd ~/tt-projects/tt-animatediff && git fetch --tags && git checkout v0.1.0) && cd ~/tt-projects/tt-animatediff && python3 -m pip install -e ".[dev]" && python3 -c "import animatediff_ttnn; print(\'✓ tt-animatediff v0.1.0 ready at ~/tt-projects/tt-animatediff/\')"',
     description: 'Clones tt-animatediff v0.1.0 from GitHub into ~/tt-projects/tt-animatediff and installs it',
   },
 

@@ -3875,7 +3875,7 @@ async function setupAnimateDiffProject(): Promise<void> {
  */
 async function viewAnimateDiffTutorial(): Promise<void> {
   const tutorialPath = vscode.Uri.file(
-    `${process.env.HOME}/tt-animatediff/MODEL_BRINGUP_TUTORIAL.md`
+    `${process.env.HOME}/tt-projects/tt-animatediff/MODEL_BRINGUP_TUTORIAL.md`
   );
   const doc = await vscode.workspace.openTextDocument(tutorialPath);
   await vscode.window.showTextDocument(doc, { preview: false });
@@ -3889,7 +3889,7 @@ async function viewAnimateDiffTutorial(): Promise<void> {
  * Opens the AnimateDiff package directory in explorer
  */
 async function exploreAnimateDiffPackage(): Promise<void> {
-  const packagePath = vscode.Uri.file(`${process.env.HOME}/tt-animatediff`);
+  const packagePath = vscode.Uri.file(`${process.env.HOME}/tt-projects/tt-animatediff`);
   await vscode.commands.executeCommand('revealFileInOS', packagePath);
   vscode.window.showInformationMessage(
     '📂 Opening AnimateDiff package directory...'
