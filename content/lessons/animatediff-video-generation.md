@@ -86,6 +86,8 @@ cd ~/tt-projects/tt-animatediff
 python3 -m pip install -e ".[dev]"
 ```
 
+**Or use the button above** — it runs the same clone + install steps automatically:
+
 [📦 Setup AnimateDiff Project](command:tenstorrent.setupAnimateDiffProject)
 
 **Project structure:**
