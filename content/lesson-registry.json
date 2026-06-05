@@ -1261,7 +1261,7 @@
       "validatedOn": [
         "p300c"
       ],
-      "estimatedMinutes": 45,
+      "estimatedMinutes": 60,
       "order": 17,
       "previousLesson": "explore-metalium",
       "nextLesson": "deploy-vscode-to-koyeb",
