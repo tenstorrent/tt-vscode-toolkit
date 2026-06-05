@@ -445,7 +445,7 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
       const alt = imgTok ? escapeHtml(imgTok.text || '') : escapeHtml(text);
       const cap = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : '';
       return `<figure class="tt-media-figure">` +
-             `<img src="${escapeAttr(localMedia)}" alt="${alt}" loading="lazy">${cap}` +
+             `<img src="${escapeAttr(siteUrl(localMedia))}" alt="${alt}" loading="lazy">${cap}` +
              `</figure>`;
     }
 
@@ -453,13 +453,13 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
     if (hasImageChild && (ext === '.mp4' || ext === '.webm')) {
       const cap = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : '';
       return `<figure class="tt-media-figure">` +
-             `<video src="${escapeAttr(localMedia)}" autoplay loop muted playsinline controls>${cap}` +
+             `<video src="${escapeAttr(siteUrl(localMedia))}" autoplay loop muted playsinline controls>${cap}` +
              `</video></figure>`;
     }
 
     // Plain text link (e.g. "View full animation →") → rewrite to local path
     const titleStr = title ? ` title="${escapeAttr(title)}"` : '';
-    return `<a href="${escapeAttr(localMedia)}" class="tt-media-link"${titleStr}>${escapeHtml(text)}</a>`;
+    return `<a href="${escapeAttr(siteUrl(localMedia))}" class="tt-media-link"${titleStr}>${escapeHtml(text)}</a>`;
   }
 
   // ---- Non-GitHub links ----------------------------------------------------

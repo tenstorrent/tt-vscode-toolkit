@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.454] - 2026-06-05
+
+### Fixed
+
+- **Web build — GitHub-blob media links missing BASE_PATH prefix** — `resolveGithubMediaToLocal` in `build-web.js` returned bare `/assets/img/...` paths that were used directly as `src`/`href` in `<figure>`, `<video>`, and `<a>` elements. On GitHub Pages (sub-path `/tt-vscode-toolkit`) these resolved to the domain root instead of the correct sub-path, breaking the particle-life simulation GIF and any similar media. All three cases now go through `siteUrl()`. Added a new link-validator test to catch missing local targets for GitHub-blob media links.
+
+---
+
 ## [0.0.453] - 2026-05-29
 
 ### Fixed
