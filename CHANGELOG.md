@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.456] - 2026-06-05
+
+### Fixed
+
+- **ttsim lesson** — correct multicast binary path (`contributed/multicast`, not `contributed/multicast/multicast`) and profiler test path (`programming_examples/profiler/`, not `test/tt_metal/profiler/`).
+
+---
+
 ## [0.0.455] - 2026-06-05
 
 ### Added

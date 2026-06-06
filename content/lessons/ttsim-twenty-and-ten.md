@@ -550,7 +550,7 @@ multiplications — one sender, all receivers, a single NoC transaction.
 ```
 
 ```bash
-./build/programming_examples/contributed/multicast/multicast
+./build/programming_examples/contributed/multicast
 ```
 
 ```text
@@ -623,7 +623,7 @@ intentionally divergent on the simulator — the README states this explicitly. 
 cycle counting inside kernels still works.
 
 ```bash
-./build/test/tt_metal/profiler/test_custom_cycle_count_slow_dispatch
+./build/programming_examples/profiler/test_custom_cycle_count_slow_dispatch
 ```
 
 The ratio of dispatch overhead to execution time at this workload size tells you when a
