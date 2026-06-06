@@ -1014,7 +1014,7 @@ function buildHomePage() {
   // Collect all hardware values for filter chips
   const allHw = new Set();
   lessons.forEach(l => (l.supportedHardware || []).forEach(hw => allHw.add(hw)));
-  const hwOrder = ['n150', 'n300', 't3k', 'p100', 'p150', 'p300', 'p300c', 'p300x2', 'galaxy'];
+  const hwOrder = ['n150', 'n300', 't3k', 'p100', 'p150', 'p300', 'p300c', 'p300x2', 'galaxy', 'simulator'];
   const sortedHw = hwOrder.filter(hw => allHw.has(hw));
 
   // Filter chip bar
