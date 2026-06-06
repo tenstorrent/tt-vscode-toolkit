@@ -81,6 +81,14 @@ WSL2 + `libttsim_wh.so`. Set the three env vars above inside a WSL2 session and 
 entry in this lesson works. No hardware. No special drivers. No silicon anywhere in the
 chain.
 
+```bash
+# In a WSL2 terminal on Windows:
+export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+# Then run any entry in this lesson
+```
+
 ---
 
 ### 2. Hello, RISC-V
