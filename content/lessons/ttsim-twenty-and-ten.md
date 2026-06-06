@@ -48,7 +48,7 @@ Or manually:
 
 ```bash
 mkdir -p ~/sim
-TTSIM_VERSION=v1.3.0
+TTSIM_VERSION=v1.5.4
 
 # Download Wormhole and Blackhole simulators
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so \
@@ -110,7 +110,7 @@ of a virtual Tensix. Two integers added together. Real RISC-V ISA. Real dispatch
 
 ```bash
 cd $TT_METAL_HOME
-./build/programming_examples/add_2_integers_in_riscv/add_2_integers_in_riscv
+./build/programming_examples/metal_example_add_2_integers_in_riscv
 ```
 
 ```text
@@ -129,7 +129,7 @@ one environment variable and replacing the SOC descriptor.
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 export TT_METAL_SIMULATOR=~/sim/libttsim_bh.so
 
-./build/programming_examples/add_2_integers_in_riscv/add_2_integers_in_riscv
+./build/programming_examples/metal_example_add_2_integers_in_riscv
 
 # Switch back to Wormhole
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
@@ -162,7 +162,7 @@ The compute RISC-V (TRISC) is a separate processor from the data-movement RISC-V
 ```
 
 ```bash
-./build/programming_examples/hello_world_compute_kernel/hello_world_compute_kernel
+./build/programming_examples/metal_example_hello_world_compute_kernel
 ```
 
 ```text
@@ -178,7 +178,7 @@ dispatch path — host program, command queue, kernel compilation, BRISC/TRISC e
 for a trivial operation.
 
 ```bash
-./build/programming_examples/add_2_integers_in_compute/add_2_integers_in_compute
+./build/programming_examples/metal_example_add_2_integers_in_compute
 ```
 
 ```text
@@ -206,7 +206,7 @@ not library calls.
 ```
 
 ```bash
-./build/programming_examples/eltwise_sfpu/eltwise_sfpu
+./build/programming_examples/metal_example_eltwise_sfpu
 ```
 
 ```text
@@ -222,7 +222,7 @@ results touching DRAM. The values stay in the register file between steps. This 
 softmax is computed on Tensix hardware.
 
 ```bash
-./build/programming_examples/sfpu_eltwise_chain/sfpu_eltwise_chain
+./build/programming_examples/metal_example_sfpu_eltwise_chain
 ```
 
 ```text
@@ -239,12 +239,12 @@ experiment.
 
 ```bash
 # Without DPRINT: standard kernel binary, no instrumentation
-./build/programming_examples/hello_world_datamovement_kernel/hello_world_datamovement_kernel
+./build/programming_examples/metal_example_hello_world_datamovement_kernel
 
 # With DPRINT: a different kernel binary is compiled and dispatched
 export TT_METAL_DPRINT_CORES=0,0
 export TT_METAL_DPRINT_RISCVS=BR
-./build/programming_examples/hello_world_datamovement_kernel/hello_world_datamovement_kernel
+./build/programming_examples/metal_example_hello_world_datamovement_kernel
 unset TT_METAL_DPRINT_CORES TT_METAL_DPRINT_RISCVS
 ```
 
@@ -269,7 +269,7 @@ multiplies every element in a single dispatched operation.
 ```
 
 ```bash
-./build/programming_examples/eltwise_binary/eltwise_binary
+./build/programming_examples/metal_example_eltwise_binary
 ```
 
 ```text
@@ -284,7 +284,7 @@ Matrix multiplication is the fundamental operation of transformer inference.
 `matmul_single_core` runs it on one core, start to finish, in tile layout.
 
 ```bash
-./build/programming_examples/matmul/matmul_single_core/matmul_single_core
+./build/programming_examples/metal_example_matmul_single_core
 ```
 
 ```text
@@ -307,7 +307,7 @@ Finished: Single core matmul
 ```
 
 ```bash
-./build/programming_examples/matmul/matmul_multi_core/matmul_multi_core
+./build/programming_examples/metal_example_matmul_multi_core
 ```
 
 ```text
@@ -337,7 +337,7 @@ raw FLOP capacity and memory bandwidth on Tensix hardware.
 ```
 
 ```bash
-./build/programming_examples/matmul/matmul_multicore_reuse/matmul_multicore_reuse
+./build/programming_examples/metal_example_matmul_multicore_reuse
 ```
 
 ```text
@@ -359,7 +359,7 @@ simultaneously.
 ```
 
 ```bash
-./build/programming_examples/vecadd_multi_core/vecadd_multi_core
+./build/programming_examples/metal_example_vecadd_multi_core
 ```
 
 ```text
@@ -374,7 +374,7 @@ Finished: Vec add multi-core
 A single Tensix chip has multiple DRAM banks and benefits from using all of them.
 
 ```bash
-./build/programming_examples/vecadd_sharding/vecadd_sharding
+./build/programming_examples/metal_example_vecadd_sharding
 ```
 
 ```text
@@ -398,7 +398,7 @@ No CPU involvement after dispatch. The tile travels the NoC and arrives.
 ```
 
 ```bash
-./build/programming_examples/NoC_tile_transfer/noc_tile_transfer
+./build/programming_examples/metal_example_noc_tile_transfer
 ```
 
 ```text
@@ -413,7 +413,7 @@ Finished: NoC tile transfer
 functional unit. This is ISA-level code for a production AI accelerator.
 
 ```bash
-./build/programming_examples/custom_sfpi_add/custom_sfpi_add
+./build/programming_examples/metal_example_custom_sfpi_add
 ```
 
 ```text
@@ -430,7 +430,7 @@ inference. Running it on a Tenstorrent chip is completely unnecessary and entire
 possible.
 
 ```bash
-./build/programming_examples/custom_sfpi_smoothstep/custom_sfpi_smoothstep
+./build/programming_examples/metal_example_custom_smoothstep
 ```
 
 ```text
@@ -445,7 +445,7 @@ Finished: Custom SFPI smoothstep
 identical to single-device dispatch — the API scales, and so does the program.
 
 ```bash
-./build/programming_examples/distributed/1_distributed_program_dispatch/1_distributed_program_dispatch
+./build/programming_examples/distributed/distributed_program_dispatch
 ```
 
 ```text
@@ -460,7 +460,7 @@ Finished: Distributed program dispatch
 model does this operation millions of times per inference.
 
 ```bash
-./build/programming_examples/distributed/2_distributed_buffer_rw/2_distributed_buffer_rw
+./build/programming_examples/distributed/distributed_buffer_rw
 ```
 
 ```text
@@ -476,7 +476,7 @@ Splitting a tensor across devices, computing in parallel, gathering results — 
 the building block that lets a model span multiple chips.
 
 ```bash
-./build/programming_examples/distributed/3_distributed_eltwise_add/3_distributed_eltwise_add
+./build/programming_examples/distributed/distributed_eltwise_add
 ```
 
 ```text
@@ -493,7 +493,7 @@ Finished: Distributed eltwise add
 virtual mesh. The shape of the execution trace matches hardware. The timings do not.
 
 ```bash
-./build/programming_examples/distributed/4_distributed_trace_and_events/4_distributed_trace_and_events
+./build/programming_examples/distributed/distributed_trace_and_events
 ```
 
 ```text
@@ -523,7 +523,7 @@ and run any SFPU example. The simulator will report `UnimplementedFunctionality`
 
 ```bash
 unset TT_METAL_DISABLE_SFPLOADMACRO
-./build/programming_examples/eltwise_sfpu/eltwise_sfpu 2>&1 | grep -i "unimplemented\|undefined\|error" | head -5
+./build/programming_examples/metal_example_eltwise_sfpu 2>&1 | grep -i "unimplemented\|undefined\|error" | head -5
 export TT_METAL_DISABLE_SFPLOADMACRO=1
 ```
 
@@ -561,9 +561,9 @@ Finished: Multicast
 
 ### 24. Run the transformer attention kernel
 
-`matmul_multicore_reuse_mcast` combines L1 weight reuse with multicast broadcasting.
-Weights stay in L1 across output tiles and are simultaneously available to multiple cores.
-This is the kernel at the center of every attention layer.
+`matmul_multicore_reuse` keeps weight tiles in L1 SRAM across multiple output tiles.
+This is the core optimization that drives transformer attention layers — weights loaded
+once, used many times across a grid of output cores.
 
 ```tensix_viz arch=wormhole
 [
@@ -572,17 +572,17 @@ This is the kernel at the center of every attention layer.
   { "step": "transfer", "from": [0,0], "to": [1,0], "ms": 300 },
   { "step": "transfer", "from": [0,0], "to": [2,0], "ms": 300 },
   { "step": "transfer", "from": [0,0], "to": [3,0], "ms": 300 },
-  { "step": "highlight", "cores": [[1,0],[2,0],[3,0]], "color": "teal", "label": "Compute cores — reuse + mcast", "ms": 600 },
+  { "step": "highlight", "cores": [[1,0],[2,0],[3,0]], "color": "teal", "label": "Compute cores — L1 reuse across output tiles", "ms": 600 },
   { "step": "pause", "ms": 400 }
 ]
 ```
 
 ```bash
-./build/programming_examples/matmul/matmul_multicore_reuse_mcast/matmul_multicore_reuse_mcast
+./build/programming_examples/metal_example_matmul_multicore_reuse
 ```
 
 ```text
-Finished: Multicore matmul with reuse and mcast
+Finished: Multicore matmul with reuse
 ```
 
 ---
@@ -633,14 +633,14 @@ kernel is too small to schedule efficiently.
 
 ### 27. Simulate Blackhole on a machine that has never seen Blackhole
 
-Switch to `libttsim_bh.so` and run `matmul_multicore_reuse_mcast` against the Blackhole
+Switch to `libttsim_bh.so` and run `matmul_multicore_reuse` against the Blackhole
 SOC descriptor. Your machine is now running kernels compiled for a 140-core Blackhole chip.
 
 ```bash
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 export TT_METAL_SIMULATOR=~/sim/libttsim_bh.so
 
-./build/programming_examples/matmul/matmul_multicore_reuse_mcast/matmul_multicore_reuse_mcast
+./build/programming_examples/metal_example_matmul_multicore_reuse
 
 # Switch back
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
@@ -664,7 +664,9 @@ operation orders that are extremely unlikely on silicon."
 ```bash
 # Deploy the demo script
 mkdir -p ~/tt-scratchpad/ttsim
-cp $TT_METAL_HOME/../tt-vscode-toolkit/content/templates/ttsim/ttsim_race_demo.py ~/tt-scratchpad/ttsim/
+# Copy from the tt-vscode-toolkit checkout (adjust TOOLKIT_DIR to match yours):
+TOOLKIT_DIR="${TOOLKIT_DIR:-~/code/tt-vscode-toolkit}"
+cp $TOOLKIT_DIR/content/templates/ttsim/ttsim_race_demo.py ~/tt-scratchpad/ttsim/
 
 export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
 python3 ~/tt-scratchpad/ttsim/ttsim_race_demo.py
@@ -694,7 +696,9 @@ characterize bfloat16 numerical error against a float64 reference.
 
 ```bash
 mkdir -p ~/tt-scratchpad/ttsim
-cp $TT_METAL_HOME/../tt-vscode-toolkit/content/templates/ttsim/ttsim_biquad_kernel.py ~/tt-scratchpad/ttsim/
+# Copy from the tt-vscode-toolkit checkout (adjust TOOLKIT_DIR to match yours):
+TOOLKIT_DIR="${TOOLKIT_DIR:-~/code/tt-vscode-toolkit}"
+cp $TOOLKIT_DIR/content/templates/ttsim/ttsim_biquad_kernel.py ~/tt-scratchpad/ttsim/
 python3 ~/tt-scratchpad/ttsim/ttsim_biquad_kernel.py
 ```
 
@@ -727,7 +731,9 @@ Or manually:
 
 ```bash
 mkdir -p ~/tt-scratchpad/ttsim
-cp $TT_METAL_HOME/../tt-vscode-toolkit/content/templates/ttsim/ttsim_attention.py ~/tt-scratchpad/ttsim/
+# Copy from the tt-vscode-toolkit checkout (adjust TOOLKIT_DIR to match yours):
+TOOLKIT_DIR="${TOOLKIT_DIR:-~/code/tt-vscode-toolkit}"
+cp $TOOLKIT_DIR/content/templates/ttsim/ttsim_attention.py ~/tt-scratchpad/ttsim/
 python3 ~/tt-scratchpad/ttsim/ttsim_attention.py
 ```
 
@@ -747,7 +753,7 @@ works. The question is how fast.
 
 ### 31. One more thing
 
-`matmul_multicore_reuse_mcast` on the simulator takes several seconds. On a P300c it
+`matmul_multicore_reuse` on the simulator takes several seconds. On a P300c it
 takes milliseconds. On a QuietBox with four P300cs, less than that.
 
 Two things the simulator cannot give you.

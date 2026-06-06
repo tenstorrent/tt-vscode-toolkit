@@ -866,7 +866,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     name: 'Set Up ttsim Simulator',
     template: [
       'mkdir -p ~/sim',
-      'export TTSIM_VERSION=v1.3.0',
+      'export TTSIM_VERSION=v1.5.4',
       'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so -O ~/sim/libttsim_wh.so',
       'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh.so -O ~/sim/libttsim_bh.so',
       '[ -n "$TT_METAL_HOME" ] && cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || echo "⚠ TT_METAL_HOME not set — SOC descriptor copy skipped"',
