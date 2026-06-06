@@ -856,6 +856,36 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     template: 'python3 ~/code/tt-agents/06_landscape_svg.py --simulate',
     description: 'Runs Demo 6: parameterized generative landscape SVG — direct LLM → SVG with gradients, terrain, clouds, stars',
   },
+
+  // ========================================
+  // ttsim: Twenty-and-Ten Lesson
+  // ========================================
+
+  SETUP_TTSIM: {
+    id: 'setup-ttsim',
+    name: 'Set Up ttsim Simulator',
+    template: [
+      'mkdir -p ~/sim',
+      'TTSIM_VERSION=v1.3.0',
+      'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so -O ~/sim/libttsim_wh.so',
+      'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh.so -O ~/sim/libttsim_bh.so',
+      'cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml',
+      'echo "✓ ttsim ready. Set TT_METAL_SIMULATOR=~/sim/libttsim_wh.so to use Wormhole."',
+    ].join(' && '),
+    description: 'Downloads ttsim Wormhole and Blackhole binaries and copies the SOC descriptor',
+  },
+
+  RUN_TTSIM_ATTENTION: {
+    id: 'run-ttsim-attention',
+    name: 'Run Transformer Attention on ttsim',
+    template: [
+      'export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so',
+      'export TT_METAL_SLOW_DISPATCH_MODE=1',
+      'export TT_METAL_DISABLE_SFPLOADMACRO=1',
+      'python3 ~/tt-scratchpad/ttsim/ttsim_attention.py',
+    ].join(' && '),
+    description: 'Runs a transformer attention layer forward pass on the ttsim Wormhole simulator',
+  },
 };
 
 /**
