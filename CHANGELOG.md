@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.460] - 2026-06-06
+
+### Fixed
+
+- **Simulator tags corrected after real ttsim testing** — `cookbook-mandelbrot`, `cookbook-image-filters`, and `cookbook-audio-processor` were incorrectly tagged as simulator-compatible in v0.0.459 based on code inspection alone. After running each against ttsim v1.5.4, all three fail with `UnimplementedFunctionality: riscv_debug_regs_rd32` (SFPU compute path). Removed `simulator` from `supportedHardware` and removed the `⚡ Sim-ready` callouts from their Deploy sections. `cookbook-particle-life` confirmed passing (26 s, 500 steps, clean exit) — its sim badge and callout are correct and retained. `cookbook-game-of-life` was similarly reverted in v0.0.459 after its actual test failure was confirmed.
+
+---
+
+## [0.0.459] - 2026-06-06
+
+### Added
+
+- **Simulator badge and inline iconography** — lessons that can run on ttsim now carry a distinct teal outline `Sim` badge (vs. the solid teal real-hardware chips). Added `simulator` to `supportedHardware` in: `cookbook-particle-life`, `cs-fundamentals-02` through `07`. Added `> **⚡ Sim-ready:**` inline callout in particle-life (with partial-sim note for its multi-device section). CSS: `.hardware-chip.chip-sim` (outline pill), `.sim-callout` (teal-left-border block). Build: `sim-note` fenced block renders as `.sim-callout` div on the website. Note: `cookbook-game-of-life`, `cookbook-mandelbrot`, `cookbook-image-filters`, `cookbook-audio-processor` were incorrectly tagged in this release — corrected in v0.0.460.
+
+---
+
+## [0.0.458] - 2026-06-06
+
+### Fixed
+
+- **ttsim lesson — all expected output blocks corrected to real ttsim v1.5.4 results** — every `text` block previously showed fabricated `Finished: ...` strings. All 19 blocks now show the actual output verified by running each example against ttsim v1.5.4. Three pass cleanly (`add_2_integers_in_riscv`, `hello_world_compute_kernel`, `noc_tile_transfer`, `multicast`, `profiler`); SFPU/compute examples note the `UnimplementedFunctionality: riscv_debug_regs_rd32` limitation; distributed examples note the 8-device mesh requirement.
+
+---
+
+## [0.0.457] - 2026-06-06
+
+### Fixed
+
+- **ttsim lesson — setup and attention commands now render as interactive blocks on the website** — `SETUP_TTSIM` and `RUN_TTSIM_ATTENTION` templates used `.join(' && ')` which the web build parser cannot statically extract. Converted to backtick template literals; both buttons now render with Copy and VS Code badge on the website.
+
+---
+
 ## [0.0.456] - 2026-06-05
 
 ### Fixed

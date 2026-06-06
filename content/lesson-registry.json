@@ -861,7 +861,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "validated",
       "validatedOn": [
@@ -991,7 +992,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1020,7 +1022,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1049,7 +1052,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1078,7 +1082,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1107,7 +1112,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1136,7 +1142,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
