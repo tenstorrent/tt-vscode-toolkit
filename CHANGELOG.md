@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.455] - 2026-06-05
+
+### Added
+
+- **ttsim twenty-and-ten lesson** (`content/lessons/ttsim-twenty-and-ten.md`) — 31-entry escalating lesson covering simulator setup through DSP prototyping and a hardware cliffhanger. Self-contained, no hardware required. Includes 12 tensix_viz animations, three deployable template scripts (`ttsim_attention.py`, `ttsim_biquad_kernel.py`, `ttsim_race_demo.py`), and two new VSCode commands (`tenstorrent.setupTtsim`, `tenstorrent.runTtsimAttention`). ttsim v1.5.4, Wormhole and Blackhole.
+
+---
+
 ## [0.0.454] - 2026-06-05
 
 ### Fixed
