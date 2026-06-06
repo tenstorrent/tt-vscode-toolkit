@@ -3809,6 +3809,51 @@ async function runParticleLife(): Promise<void> {
 }
 
 // ============================================================================
+// ttsim: Twenty-and-Ten Lesson
+// ============================================================================
+
+/**
+ * Command: tenstorrent.setupTtsim
+ * Downloads ttsim Wormhole and Blackhole binaries to ~/sim/ and sets up the
+ * SOC descriptor so TT_METAL_SIMULATOR can be pointed at the shared library.
+ */
+async function setupTtsim(): Promise<void> {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.SETUP_TTSIM.template);
+  vscode.window.showInformationMessage(
+    'Downloading ttsim binaries to ~/sim/. Check the terminal for progress.'
+  );
+}
+
+/**
+ * Command: tenstorrent.runTtsimAttention
+ * Copies the ttsim_attention.py template to ~/tt-scratchpad/ttsim/ (if not
+ * already present) and runs a transformer attention forward pass on ttsim.
+ */
+async function runTtsimAttention(): Promise<void> {
+  const fs = require('fs') as typeof import('fs');
+  const path = require('path') as typeof import('path');
+  const os = require('os') as typeof import('os');
+
+  const scratchpadDir = path.join(os.homedir(), 'tt-scratchpad', 'ttsim');
+  const templateSrc = path.join(__dirname, '..', 'content', 'templates', 'ttsim', 'ttsim_attention.py');
+  const destPath = path.join(scratchpadDir, 'ttsim_attention.py');
+
+  if (!fs.existsSync(scratchpadDir)) {
+    fs.mkdirSync(scratchpadDir, { recursive: true });
+  }
+  if (!fs.existsSync(destPath)) {
+    fs.copyFileSync(templateSrc, destPath);
+  }
+
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.RUN_TTSIM_ATTENTION.template);
+  vscode.window.showInformationMessage(
+    'Running transformer attention on ttsim. Set TT_METAL_SIMULATOR first if not already set.'
+  );
+}
+
+// ============================================================================
 // Lesson 17: Native Video Animation with AnimateDiff
 // ============================================================================
 
@@ -5104,6 +5149,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runImageFilters', runImageFilters),
     vscode.commands.registerCommand('tenstorrent.createParticleLife', createParticleLife),
     vscode.commands.registerCommand('tenstorrent.runParticleLife', runParticleLife),
+
+    // ttsim: Twenty-and-Ten Lesson
+    vscode.commands.registerCommand('tenstorrent.setupTtsim', setupTtsim),
+    vscode.commands.registerCommand('tenstorrent.runTtsimAttention', runTtsimAttention),
 
     // Lesson 17 - Native Video Animation with AnimateDiff
     vscode.commands.registerCommand('tenstorrent.setupAnimateDiffProject', setupAnimateDiffProject),
