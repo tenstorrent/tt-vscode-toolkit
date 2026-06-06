@@ -90,8 +90,10 @@ def main():
     print(f"With barrier:    {'CORRECT' if safe_ok else 'WRONG'}")
     print(f"Without barrier: {'CORRECT' if unsafe_ok else 'WRONG (race detected)'}")
     print()
-    print("Exercise: comment out the synchronization line in run_without_barrier()")
-    print("and run again. The simulator may produce 'WRONG' where silicon would pass.")
+    print("NOTE: both paths ship with synchronization in place.")
+    print("Exercise: in run_without_barrier(), remove the ttnn.from_device() call")
+    print("on the line marked '# remove this line to race', then run again.")
+    print("The simulator may produce 'WRONG (race detected)' where silicon would pass.")
 
 
 if __name__ == "__main__":

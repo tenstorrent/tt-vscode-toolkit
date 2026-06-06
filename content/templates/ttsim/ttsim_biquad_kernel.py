@@ -7,7 +7,12 @@ Demonstrates using the simulator as a DSP prototyping environment.
 The filter computes:
     y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
 
-This is a Butterworth lowpass filter with Fc=0.1*Fs, Q=0.707.
+This is a Butterworth lowpass filter with Fc=0.2*Fs, Q=0.707.
+
+Note: The coefficients (B0=0.06745527, A1=-1.14298050, A2=0.41280160) match
+Fc=0.2*Fs (20% of sample rate). The on-device computation is a round-trip
+demonstration — filter arithmetic runs on the CPU; the device is used for
+tensor upload/download to verify the ttsim data path.
 
 Usage:
     export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
@@ -20,7 +25,7 @@ import torch
 import ttnn
 import numpy as np
 
-# Butterworth lowpass: Fc=0.1*Fs, Q=0.707
+# Butterworth lowpass: Fc=0.2*Fs, Q=0.707
 B0, B1, B2 = 0.06745527, 0.13491055, 0.06745527
 A1, A2 = -1.14298050, 0.41280160
 
@@ -46,6 +51,9 @@ def biquad_ttnn(x_pt: torch.Tensor, device) -> torch.Tensor:
     Processes in tiles of 32 samples (one tile row). This is the ttsim
     version — on hardware you would implement this in custom_sfpi assembly
     to keep intermediate values in the SFPU register file.
+    The filter arithmetic is computed on the CPU (Python); the device is used for
+    tensor upload/download to verify the ttsim data path. A production implementation
+    would use ttnn.add/ttnn.multiply on-device with the SFPU keeping state in registers.
     """
     n = x_pt.shape[0]
     # Pad to tile boundary

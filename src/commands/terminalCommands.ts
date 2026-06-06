@@ -869,7 +869,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
       'export TTSIM_VERSION=v1.3.0',
       'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so -O ~/sim/libttsim_wh.so',
       'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh.so -O ~/sim/libttsim_bh.so',
-      'cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml',
+      '[ -n "$TT_METAL_HOME" ] && cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || echo "⚠ TT_METAL_HOME not set — SOC descriptor copy skipped"',
       'echo "✓ ttsim ready. Set TT_METAL_SIMULATOR=~/sim/libttsim_wh.so to use Wormhole."',
     ].join(' && '),
     description: 'Downloads ttsim Wormhole and Blackhole binaries and copies the SOC descriptor',

@@ -3831,9 +3831,9 @@ async function setupTtsim(): Promise<void> {
  * already present) and runs a transformer attention forward pass on ttsim.
  */
 async function runTtsimAttention(): Promise<void> {
-  const fs = require('fs') as typeof import('fs');
-  const path = require('path') as typeof import('path');
-  const os = require('os') as typeof import('os');
+  const fs = require('fs');
+  const path = require('path');
+  const os = require('os');
 
   const scratchpadDir = path.join(os.homedir(), 'tt-scratchpad', 'ttsim');
   const templateSrc = path.join(__dirname, '..', 'content', 'templates', 'ttsim', 'ttsim_attention.py');
