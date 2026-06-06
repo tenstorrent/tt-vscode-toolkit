@@ -1,250 +1,228 @@
 """
-Conway's Game of Life using TTNN
-Implements parallel computation across tiles for efficient execution.
+Conway's Game of Life using TTNN matrix multiplication.
+
+Neighbour counting is performed with two circulant-matrix matmuls:
+
+    K_row (H×H) — sums each row with its two cyclic neighbours
+    K_col (W×W) — sums each column with its two cyclic neighbours
+    N = K_row @ G @ K_col − G   →  8-neighbour count per cell
+
+On real Tenstorrent hardware both matmuls run on the Matrix Engine.
+On the ttsim software simulator (TT_METAL_SIMULATOR is set) the same
+math runs via torch.mm on CPU — ttsim v1.5.4 does not implement SFPU
+compute kernels, so all ttnn compute ops raise UnimplementedFunctionality.
+Conway's rules are applied in PyTorch on the CPU in both paths.
 
 Run:
     python game_of_life.py
+    python game_of_life.py --pattern glider_gun --generations 500 --size 256
 """
 
-import ttnn
-import torch
+import argparse
+import os
+
 import numpy as np
+import torch
+import ttnn
+
+
+def _on_simulator() -> bool:
+    """True when TT_METAL_SIMULATOR is set (ttsim software simulator)."""
+    return bool(os.environ.get("TT_METAL_SIMULATOR"))
+
+
+def _circulant_shift_sum(n: int) -> torch.Tensor:
+    """Return an n×n circulant matrix whose product sums each element with its two cyclic neighbours.
+
+    For any vector v:  (M @ v)[i] = v[i-1] + v[i] + v[i+1]  (indices mod n)
+
+    Composing two of these — M_H @ G @ M_W — implements a 3×3 neighbourhood
+    sum over the entire grid with a single pair of matmuls.
+    """
+    M = torch.zeros(n, n, dtype=torch.bfloat16)
+    for i in range(n):
+        M[i, i] = 1.0              # self
+        M[i, (i - 1) % n] = 1.0   # previous
+        M[i, (i + 1) % n] = 1.0   # next
+    return M
+
 
 class GameOfLife:
     def __init__(self, device, grid_size=(128, 128)):
         """
-        Initialize Game of Life on TT hardware.
+        Initialise Game of Life on TT hardware (or ttsim).
 
         Args:
-            device: TTNN device handle
-            grid_size: (height, width) - must be multiples of 32 for optimal performance
+            device:    TTNN device handle
+            grid_size: (H, W) — multiples of 32 required for tile alignment
         """
         self.device = device
         self.grid_size = grid_size
+        self._sim = _on_simulator()
 
-    def initialize_random(self, density=0.3):
-        """
-        Create random initial grid.
+        H, W = grid_size
+        K_row_cpu = _circulant_shift_sum(H)   # H×H
+        K_col_cpu = _circulant_shift_sum(W)   # W×W
 
-        Args:
-            density: Probability of cell being alive (0.0-1.0)
+        if self._sim:
+            # CPU path: keep as float32 for torch.mm
+            self.K_row_cpu = K_row_cpu.float()
+            self.K_col_cpu = K_col_cpu.float()
+            print("ℹ️  ttsim mode — neighbour counting via torch.mm on CPU")
+        else:
+            # Hardware path: place on device for ttnn.matmul (Matrix Engine)
+            self.K_row = ttnn.from_torch(K_row_cpu, device=device, layout=ttnn.TILE_LAYOUT)
+            self.K_col = ttnn.from_torch(K_col_cpu, device=device, layout=ttnn.TILE_LAYOUT)
 
-        Returns:
-            TTNN tensor on device with random configuration
-        """
-        random_grid = (torch.rand(self.grid_size) < density).float()
-        return ttnn.from_torch(
-            random_grid.unsqueeze(0).unsqueeze(0),  # Add batch and channel dims
-            device=self.device,
-            layout=ttnn.TILE_LAYOUT
-        )
+    def initialize_random(self, density: float = 0.3):
+        """Random initial grid.  Returns a TTNN tensor on device, or a CPU tensor in sim mode."""
+        H, W = self.grid_size
+        cpu = (torch.rand(H, W) < density).to(torch.bfloat16)
+        if self._sim:
+            return cpu
+        return ttnn.from_torch(cpu, device=self.device, layout=ttnn.TILE_LAYOUT)
 
-    def initialize_pattern(self, pattern_name):
-        """
-        Initialize with a known pattern (glider, blinker, etc.)
-
-        Args:
-            pattern_name: Name of pattern ('glider', 'blinker', 'gosper_gun')
-
-        Returns:
-            TTNN tensor with pattern centered in grid
-        """
+    def initialize_pattern(self, pattern_name: str):
+        """Named pattern centred on an otherwise-empty grid."""
         from patterns import get_pattern
 
-        grid = torch.zeros(self.grid_size, dtype=torch.float32)
-        pattern = get_pattern(pattern_name)
-
-        # Center the pattern
-        h, w = self.grid_size
+        H, W = self.grid_size
+        grid_cpu = torch.zeros(H, W, dtype=torch.bfloat16)
+        pattern = torch.tensor(get_pattern(pattern_name), dtype=torch.bfloat16)
         ph, pw = pattern.shape
-        start_h = (h - ph) // 2
-        start_w = (w - pw) // 2
+        r0 = (H - ph) // 2
+        c0 = (W - pw) // 2
+        grid_cpu[r0:r0 + ph, c0:c0 + pw] = pattern
 
-        grid[start_h:start_h+ph, start_w:start_w+pw] = torch.tensor(pattern, dtype=torch.float32)
+        if self._sim:
+            return grid_cpu
+        return ttnn.from_torch(grid_cpu, device=self.device, layout=ttnn.TILE_LAYOUT)
 
-        return ttnn.from_torch(
-            grid.unsqueeze(0).unsqueeze(0),
-            device=self.device,
-            layout=ttnn.TILE_LAYOUT
-        )
+    # ------------------------------------------------------------------
+    # Neighbour counting — two implementations, same circulant-matmul math
+    # ------------------------------------------------------------------
 
-    def count_neighbors(self, grid):
+    def _count_neighbors_hw(self, grid_tt):
         """
-        Count neighbors for each cell using shifts and additions.
-        This is a simpler alternative to convolution that works with TTNN.
+        Hardware path: count 8-neighbours using two Matrix Engine matmuls.
 
-        Args:
-            grid: Current state (TTNN tensor)
+        K_row @ G            sums three consecutive rows   (H×H × H×W → H×W)
+        (K_row @ G) @ K_col  sums three consecutive columns (H×W × W×W → H×W)
 
-        Returns:
-            Neighbor count tensor
+        The result includes each cell itself (from the identity component of
+        each circulant matrix), so we subtract G once to get the 8-neighbour sum.
         """
-        # Convert to torch for easier manipulation
-        grid_torch = ttnn.to_torch(grid).squeeze()
-        h, w = grid_torch.shape
+        temp  = ttnn.matmul(self.K_row, grid_tt)   # vertical neighbourhood
+        N_raw = ttnn.matmul(temp, self.K_col)       # horizontal neighbourhood
 
-        # Manual circular padding (wrap around edges)
-        # Create padded grid by wrapping edges
-        padded = torch.zeros((h + 2, w + 2), dtype=grid_torch.dtype)
+        N_cpu    = ttnn.to_torch(N_raw).float()
+        grid_cpu = ttnn.to_torch(grid_tt).float()
+        return N_cpu - grid_cpu, grid_cpu
 
-        # Center
-        padded[1:-1, 1:-1] = grid_torch
+    def _count_neighbors_sim(self, grid_cpu: torch.Tensor):
+        """Simulator path: identical math via torch.mm on CPU."""
+        g     = grid_cpu.float()
+        temp  = torch.mm(self.K_row_cpu, g)
+        N_raw = torch.mm(temp, self.K_col_cpu)
+        return N_raw - g, g
 
-        # Edges (wrap around)
-        padded[0, 1:-1] = grid_torch[-1, :]    # top edge from bottom
-        padded[-1, 1:-1] = grid_torch[0, :]    # bottom edge from top
-        padded[1:-1, 0] = grid_torch[:, -1]    # left edge from right
-        padded[1:-1, -1] = grid_torch[:, 0]    # right edge from left
-
-        # Corners (wrap around both dimensions)
-        padded[0, 0] = grid_torch[-1, -1]      # top-left from bottom-right
-        padded[0, -1] = grid_torch[-1, 0]      # top-right from bottom-left
-        padded[-1, 0] = grid_torch[0, -1]      # bottom-left from top-right
-        padded[-1, -1] = grid_torch[0, 0]      # bottom-right from top-left
-
-        # Count all 8 neighbors using shifts
-        neighbors = torch.zeros_like(grid_torch)
-
-        # Top-left, top, top-right
-        neighbors += padded[0:h, 0:w]      # top-left
-        neighbors += padded[0:h, 1:w+1]    # top
-        neighbors += padded[0:h, 2:w+2]    # top-right
-
-        # Left, right
-        neighbors += padded[1:h+1, 0:w]    # left
-        neighbors += padded[1:h+1, 2:w+2]  # right
-
-        # Bottom-left, bottom, bottom-right
-        neighbors += padded[2:h+2, 0:w]    # bottom-left
-        neighbors += padded[2:h+2, 1:w+1]  # bottom
-        neighbors += padded[2:h+2, 2:w+2]  # bottom-right
-
-        # Convert back to TTNN tensor
-        return ttnn.from_torch(
-            neighbors.unsqueeze(0).unsqueeze(0),
-            device=self.device,
-            layout=ttnn.TILE_LAYOUT
-        )
+    # ------------------------------------------------------------------
 
     def step(self, grid):
         """
-        Compute one generation of the Game of Life.
+        Advance one generation.
 
-        Conway's Rules:
-        - Birth: dead cell with exactly 3 neighbors becomes alive
-        - Survival: live cell with 2-3 neighbors stays alive
-        - Death: all other cells die or stay dead
+        Neighbour count:  Matrix Engine (real HW) or torch.mm (ttsim / CPU)
+        Rule application: PyTorch on CPU — no SFPU dependency
+        """
+        if self._sim:
+            neighbors_cpu, grid_f = self._count_neighbors_sim(grid)
+        else:
+            neighbors_cpu, grid_f = self._count_neighbors_hw(grid)
 
-        Args:
-            grid: Current state (TTNN tensor)
+        # Conway's rules — all operations are simple boolean comparisons on CPU
+        alive = grid_f > 0.5
+        n     = neighbors_cpu
+        next_alive = (alive & ((n == 2) | (n == 3))) | (~alive & (n == 3))
+        next_cpu   = next_alive.to(torch.bfloat16)
+
+        if self._sim:
+            return next_cpu
+        return ttnn.from_torch(next_cpu, device=self.device, layout=ttnn.TILE_LAYOUT)
+
+    def simulate(self, initial_grid, num_generations: int = 100):
+        """
+        Run for num_generations steps.
 
         Returns:
-            Next state (TTNN tensor)
-        """
-        # Count neighbors
-        neighbors = self.count_neighbors(grid)
-
-        # Apply Conway's rules using element-wise operations
-        # Birth: neighbors == 3 AND cell == 0
-        birth = ttnn.logical_and(
-            ttnn.eq(neighbors, 3.0),
-            ttnn.eq(grid, 0.0)
-        )
-
-        # Survival: (neighbors == 2 OR neighbors == 3) AND cell == 1
-        survival_condition = ttnn.logical_or(
-            ttnn.eq(neighbors, 2.0),
-            ttnn.eq(neighbors, 3.0)
-        )
-        survival = ttnn.logical_and(survival_condition, ttnn.eq(grid, 1.0))
-
-        # New state: birth OR survival
-        next_grid = ttnn.logical_or(birth, survival)
-
-        # Convert bool back to float (bfloat16 is the standard dtype for ttnn)
-        return ttnn.typecast(next_grid, dtype=ttnn.bfloat16)
-
-    def simulate(self, initial_grid, num_generations=100):
-        """
-        Run simulation for multiple generations.
-
-        Args:
-            initial_grid: Starting configuration
-            num_generations: Number of steps to simulate
-
-        Returns:
-            List of grids (as numpy arrays) for visualization
+            List of H×W float32 numpy arrays, one per generation.
         """
         history = []
-        grid = initial_grid
+        grid    = initial_grid
 
         for gen in range(num_generations):
-            # Compute next generation
-            grid = self.step(grid)
-
-            # Store state (convert to numpy for visualization)
-            # .float() converts bfloat16 to float32, which NumPy supports
-            grid_np = ttnn.to_torch(grid).squeeze().float().cpu().numpy()
+            if self._sim:
+                grid_np = grid.float().numpy()
+            else:
+                grid_np = ttnn.to_torch(grid).float().cpu().numpy()
             history.append(grid_np)
 
-            # Optional: Check for stability (compare with previous state)
-            if gen > 0 and np.array_equal(history[-2], history[-1]):
-                print(f"Stable state reached at generation {gen+1}")
+            grid = self.step(grid)
+
+            if gen > 0 and np.array_equal(history[-1], history[-2]):
+                print(f"Stable state reached at generation {gen}")
                 break
 
         return history
 
 
-# Example usage
 if __name__ == "__main__":
-    # Initialize device
+    parser = argparse.ArgumentParser(description="Conway's Game of Life on TT hardware")
+    parser.add_argument("--pattern", default=None,
+                        help="Named pattern: glider, blinker, toad, beacon, pulsar, glider_gun")
+    parser.add_argument("--generations", type=int, default=200)
+    parser.add_argument("--size", type=int, default=256,
+                        help="Grid side length — must be a multiple of 32")
+    parser.add_argument("--density", type=float, default=0.3,
+                        help="Random initial density (0.0–1.0)")
+    parser.add_argument("--save", default=None,
+                        help="Save animation to this .gif path instead of displaying")
+    args = parser.parse_args()
+
     device = ttnn.open_device(device_id=0)
 
-    # Create game
-    game = GameOfLife(device, grid_size=(256, 256))
-
-    # Initialize with random configuration
-    initial = game.initialize_random(density=0.3)
-
-    # Or initialize with a pattern:
-    # initial = game.initialize_pattern('glider')
-
-    # Run simulation
-    print("Running Game of Life simulation...")
-    history = game.simulate(initial, num_generations=200)
-
-    # Visualize results
-    print(f"\n✅ Simulation complete! Generated {len(history)} generations.")
-
-    # Try to visualize (requires matplotlib)
     try:
-        import matplotlib
-        # Check if we're in a headless environment
-        import os
-        if 'DISPLAY' not in os.environ and matplotlib.get_backend() != 'agg':
-            print("📊 Headless environment detected, using non-interactive backend...")
-            matplotlib.use('Agg')  # Non-interactive backend
+        game = GameOfLife(device, grid_size=(args.size, args.size))
 
-        from visualizer import animate_game_of_life
-
-        # Check if we should save to file instead of displaying
-        if 'DISPLAY' not in os.environ or matplotlib.get_backend() == 'agg':
-            print("💾 Saving animation to game_of_life.gif...")
-            animate_game_of_life(history, interval=50, save_path='game_of_life.gif')
-            print("✅ Animation saved! Download game_of_life.gif to view.")
+        if args.pattern:
+            print(f"Initialising with pattern: {args.pattern}")
+            initial = game.initialize_pattern(args.pattern)
         else:
-            print("🎬 Starting animation... (close window to exit)")
-            animate_game_of_life(history, interval=50)
+            print(f"Initialising {args.size}×{args.size} random grid (density={args.density})")
+            initial = game.initialize_random(density=args.density)
 
-    except ImportError as e:
-        print(f"\n⚠️  Visualization requires matplotlib: {e}")
-        print("Install with: pip install matplotlib")
-        print(f"\nSimulation data saved in memory ({len(history)} frames)")
-        print("You can still access 'history' variable for analysis.")
-    except Exception as e:
-        print(f"\n⚠️  Visualization error: {e}")
-        print(f"Simulation data is available in 'history' variable ({len(history)} frames)")
+        print(f"Running {args.generations} generations…")
+        history = game.simulate(initial, num_generations=args.generations)
+        print(f"✅ Simulation complete — {len(history)} generations.")
 
-    # Cleanup
-    ttnn.close_device(device)
-    print("Done!")
+        try:
+            import matplotlib
+            if "DISPLAY" not in os.environ:
+                matplotlib.use("Agg")
+            from visualizer import animate_game_of_life
+
+            save_path = args.save or (None if "DISPLAY" in os.environ else "game_of_life.gif")
+            if save_path:
+                print(f"💾 Saving animation to {save_path} …")
+                animate_game_of_life(history, interval=50, save_path=save_path)
+                print(f"✅ Saved.")
+            else:
+                animate_game_of_life(history, interval=50)
+
+        except ImportError as exc:
+            print(f"\n⚠️  Visualisation requires matplotlib: {exc}")
+            print("Install with: pip install matplotlib")
+
+    finally:
+        ttnn.close_device(device)
+        print("Done!")

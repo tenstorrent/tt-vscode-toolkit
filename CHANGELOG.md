@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.461] - 2026-06-06
+
+### Changed
+
+- **Game of Life — neighbour counting rewritten as two circulant-matrix matmuls** — replaced the per-cell shift-and-add CPU loop with `K_row @ G @ K_col` where `K` is an N×N circulant shift-sum matrix. Both matmuls run on the Tenstorrent Matrix Engine (no SFPU required). Conway's rules are applied in PyTorch on CPU. A runtime check for `TT_METAL_SIMULATOR` swaps the matmul backend to `torch.mm` for the ttsim simulator, so the script runs on both hardware and ttsim v1.5.4 without degrading real-hardware quality. `simulator` added back to `supportedHardware`; confirmed passing on ttsim (20 generations, 64×64). Extensions section updated to match new design (removed old `ttnn.conv2d`/`ttnn.eq` snippets).
+
+---
+
 ## [0.0.460] - 2026-06-06
 
 ### Fixed
