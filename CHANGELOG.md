@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.463] - 2026-06-07
+
+### Added
+
+- **ttsim lesson — tensix_viz animations for 5 new entries** — entries #5 (compute dispatch), #7 (SFPU register pipeline), #10 (single-core matmul), #14 (DRAM banking), and #16 (custom SFPI assembly) now have interactive core-grid visualizations on the web page, matching the pattern used by the existing 11 viz-enabled entries.
+- **ttsim lesson — VHS highlight-reel GIF** — `assets/img/ttsim-demo.gif` recorded against ttsim v1.7.3 showing 6 entries (RISC-V add, compute dispatch, DPRINT observer effect, NoC tile transfer, multicast, profiler). Embedded at the top of the lesson above the Setup section using the Tenstorrent dark theme (`#0F2A35` background, `#4FD1C5` teal). Tape source preserved at `assets/ttsim-demo.tape`.
+
+---
+
 ## [0.0.462] - 2026-06-07
 
 ### Changed

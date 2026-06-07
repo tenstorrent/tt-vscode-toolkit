@@ -38,6 +38,8 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 > **Have hardware?** The simulator is still useful for debugging, architecture
 > exploration, and running experiments without tying up a device.
 
+[![ttsim highlight reel — 6 of 31 entries running against ttsim v1.7.3](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
+
 ---
 
 ## Setup
@@ -178,6 +180,18 @@ Thank you, Core {0, 0} on Device 0, for the completed task.
 dispatch path — host program, command queue, kernel compilation, BRISC/TRISC execution —
 for a trivial operation.
 
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "BRISC + TRISC — full dispatch path", "ms": 700 },
+  { "step": "label", "core": [0,0], "text": "COMPILE" },
+  { "step": "pause", "ms": 500 },
+  { "step": "label", "core": [0,0], "text": "2 + 3" },
+  { "step": "pause", "ms": 600 },
+  { "step": "label", "core": [0,0], "text": "= 5 ✓" },
+  { "step": "pause", "ms": 600 }
+]
+```
+
 ```bash
 ./build/programming_examples/metal_example_add_2_integers_in_compute
 ```
@@ -221,6 +235,20 @@ Test Passed
 `sfpu_eltwise_chain` runs a sequence of SFPU operations on a tile without intermediate
 results touching DRAM. The values stay in the register file between steps. This is how
 softmax is computed on Tensix hardware.
+
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "SFPU register file — stays on-chip", "ms": 700 },
+  { "step": "label", "core": [0,0], "text": "exp(x)" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "÷ sum" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "× scale" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "PCC✓" },
+  { "step": "pause", "ms": 500 }
+]
+```
 
 ```bash
 ./build/programming_examples/metal_example_sfpu_eltwise_chain
@@ -283,6 +311,19 @@ Test Passed
 
 Matrix multiplication is the fundamental operation of transformer inference.
 `matmul_single_core` runs it on one core, start to finish, in tile layout.
+
+```tensix_viz arch=wormhole
+[
+  { "step": "transfer", "from": [0,6], "to": [0,0], "ms": 500 },
+  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "Matrix Engine — A×B in tile layout", "ms": 700 },
+  { "step": "label", "core": [0,0], "text": "A tiles" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "× B tiles" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "PCC✓" },
+  { "step": "pause", "ms": 500 }
+]
+```
 
 ```bash
 ./build/programming_examples/metal_example_matmul_single_core
@@ -381,6 +422,18 @@ All results match expected values within tolerance.
 `vecadd_sharding` distributes tensor data across multiple DRAM channels on the same chip.
 A single Tensix chip has multiple DRAM banks and benefits from using all of them.
 
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[0,6],[0,7],[0,8],[0,9]], "color": "pink", "label": "DRAM banks — striped across channels", "ms": 700 },
+  { "step": "transfer", "from": [0,6], "to": [0,0], "ms": 400 },
+  { "step": "transfer", "from": [0,7], "to": [1,0], "ms": 400 },
+  { "step": "transfer", "from": [0,8], "to": [2,0], "ms": 400 },
+  { "step": "transfer", "from": [0,9], "to": [3,0], "ms": 400 },
+  { "step": "highlight", "cores": [[0,0],[1,0],[2,0],[3,0]], "color": "teal", "label": "Compute cores — parallel access", "ms": 600 },
+  { "step": "pause", "ms": 400 }
+]
+```
+
 ```bash
 ./build/programming_examples/metal_example_vecadd_sharding
 ```
@@ -424,6 +477,20 @@ Result = 14 : Expected = 14
 
 `custom_sfpi_add` is hand-authored SFPI assembly — the instruction set of the SFPU
 functional unit. This is ISA-level code for a production AI accelerator.
+
+```tensix_viz arch=wormhole
+[
+  { "step": "highlight", "cores": [[0,0]], "color": "pink", "label": "SFPU — hand-authored SFPI assembly", "ms": 700 },
+  { "step": "label", "core": [0,0], "text": "SFPLOAD" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "SFPADD" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "SFPSTORE" },
+  { "step": "pause", "ms": 400 },
+  { "step": "label", "core": [0,0], "text": "PASS ✓" },
+  { "step": "pause", "ms": 500 }
+]
+```
 
 ```bash
 ./build/programming_examples/metal_example_custom_sfpi_add
