@@ -48,7 +48,7 @@ Or manually:
 
 ```bash
 mkdir -p ~/sim
-TTSIM_VERSION=v1.5.4
+TTSIM_VERSION=v1.7.3
 
 # Download Wormhole and Blackhole simulators
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so \
@@ -114,7 +114,7 @@ cd $TT_METAL_HOME
 ```
 
 ```text
-Finished: Add 2 integers in RISC-V
+Success: Result is 21
 ```
 
 ---
@@ -166,7 +166,8 @@ The compute RISC-V (TRISC) is a separate processor from the data-movement RISC-V
 ```
 
 ```text
-Hello World! TRISC0 results are correct!
+Hello, Core (0, 0) on Device 0, I am sending you a compute kernel. Standby awaiting communication.
+Thank you, Core {0, 0} on Device 0, for the completed task.
 ```
 
 ---
@@ -182,7 +183,7 @@ for a trivial operation.
 ```
 
 ```text
-Finished: Add 2 integers in compute kernel
+Success: Result matches expected value!
 ```
 
 ---
@@ -210,7 +211,7 @@ not library calls.
 ```
 
 ```text
-Finished: Eltwise SFPU
+Test Passed
 ```
 
 ---
@@ -226,7 +227,7 @@ softmax is computed on Tensix hardware.
 ```
 
 ```text
-Finished: SFPU eltwise chain
+Metalium vs Golden -- PCC = 0.99986374
 ```
 
 ---
@@ -273,7 +274,7 @@ multiplies every element in a single dispatched operation.
 ```
 
 ```text
-Finished: Eltwise binary
+Test Passed
 ```
 
 ---
@@ -288,7 +289,9 @@ Matrix multiplication is the fundamental operation of transformer inference.
 ```
 
 ```text
-Finished: Single core matmul
+Output vector of size 409600
+Metalium vs Golden -- PCC = 0.982093
+Test Passed
 ```
 
 ---
@@ -311,7 +314,9 @@ Finished: Single core matmul
 ```
 
 ```text
-Finished: Multicore matmul
+Output vector of size 409600
+Metalium vs Golden -- PCC = 0.9999391
+Test Passed
 ```
 
 ---
@@ -341,7 +346,8 @@ raw FLOP capacity and memory bandwidth on Tensix hardware.
 ```
 
 ```text
-Finished: Multicore matmul with reuse
+Metalium vs Golden -- PCC = 0.99930096
+Test Passed
 ```
 
 ---
@@ -363,7 +369,9 @@ simultaneously.
 ```
 
 ```text
-Finished: Vec add multi-core
+Kernel execution finished
+Partial results: (note we are running under BFP16. It's going to be less accurate)
+All results match expected values within tolerance.
 ```
 
 ---
@@ -378,7 +386,12 @@ A single Tensix chip has multiple DRAM banks and benefits from using all of them
 ```
 
 ```text
-Finished: Vec add sharding
+Sharding 4x4 tiles to 4x1 cores in TensorMemoryLayout::HEIGHT_SHARDED mode
+Each core will handle 1x4 tiles
+
+Kernel execution finished. Reading results...
+Partial results: (note we are running under BFP16. It's going to be less accurate)
+All results match expected values within tolerance.
 ```
 
 ---
@@ -402,7 +415,7 @@ No CPU involvement after dispatch. The tile travels the NoC and arrives.
 ```
 
 ```text
-Finished: NoC tile transfer
+Result = 14 : Expected = 14
 ```
 
 ---
@@ -417,7 +430,7 @@ functional unit. This is ISA-level code for a production AI accelerator.
 ```
 
 ```text
-Finished: Custom SFPI add
+Test Passed
 ```
 
 ---
@@ -434,7 +447,7 @@ possible.
 ```
 
 ```text
-Finished: Custom SFPI smoothstep
+Test Passed
 ```
 
 ---
@@ -448,9 +461,8 @@ identical to single-device dispatch — the API scales, and so does the program.
 ./build/programming_examples/distributed/distributed_program_dispatch
 ```
 
-```text
-Finished: Distributed program dispatch
-```
+> **ttsim note:** Requires an 8-device MeshShape `[2, 4]` — ttsim simulates one chip only.
+> This example requires a multi-device system (T3K, Galaxy, QB2, or equivalent).
 
 ---
 
@@ -463,9 +475,8 @@ model does this operation millions of times per inference.
 ./build/programming_examples/distributed/distributed_buffer_rw
 ```
 
-```text
-Finished: Distributed buffer read/write
-```
+> **ttsim note:** Requires an 8-device mesh — ttsim simulates one chip only.
+> Run on a multi-device system (T3K, Galaxy, QB2) to execute this example.
 
 ---
 
@@ -480,8 +491,12 @@ the building block that lets a model span multiple chips.
 ```
 
 ```text
-Finished: Distributed eltwise add
+Total values: 1024
+Distributed elementwise add verification: 1024 / 1024
 ```
+
+> **ttsim note:** Requires an 8-device mesh — ttsim simulates one chip only.
+> Run on a multi-device system (T3K, Galaxy, QB2) to execute this example.
 
 ---
 
@@ -497,8 +512,11 @@ virtual mesh. The shape of the execution trace matches hardware. The timings do 
 ```
 
 ```text
-Finished: Distributed trace and events
+Running EltwiseBinary MeshTraces on 2 MeshCQs Passed!
 ```
+
+> **ttsim note:** Requires an 8-device mesh — ttsim simulates one chip only.
+> Run on a multi-device system (T3K, Galaxy, QB2) to execute this example.
 
 ---
 
@@ -550,11 +568,25 @@ multiplications — one sender, all receivers, a single NoC transaction.
 ```
 
 ```bash
+export TT_METAL_DPRINT_CORES='(0,0)-(3,0)'
+export TT_METAL_DPRINT_PREPEND_DEVICE_CORE_RISC=0
 ./build/programming_examples/contributed/multicast
 ```
 
 ```text
-Finished: Multicast
+Hello, Core (0, 0) on Device 0, please multicast the tile to your neighbors.
+CORE (0,0): Tile ready for multicast. I am starting all inbound kernels in cores in given range.
+CORE (1,0): Inbound kernel has received and acknowledged its tile.
+CORE (2,0): Inbound kernel has received and acknowledged its tile.
+CORE (3,0): Inbound kernel has received and acknowledged its tile.
+Thank you, Core (0, 0) on Device 0, for the multicast.
+
+=========== MULTICASTED TILE VERIFICATION ===========
+[✅ PASS] Receiver tile 1 matches the golden tile.
+[✅ PASS] Receiver tile 2 matches the golden tile.
+[✅ PASS] Receiver tile 3 matches the golden tile.
+[✅ PASS] All 3 receiver tiles match the golden tile.
+=====================================================
 ```
 
 ---
@@ -582,7 +614,8 @@ once, used many times across a grid of output cores.
 ```
 
 ```text
-Finished: Multicore matmul with reuse
+Metalium vs Golden -- PCC = 0.99930096
+Test Passed
 ```
 
 ---
@@ -626,6 +659,10 @@ cycle counting inside kernels still works.
 ./build/programming_examples/profiler/test_custom_cycle_count_slow_dispatch
 ```
 
+```text
+Test Passed
+```
+
 The ratio of dispatch overhead to execution time at this workload size tells you when a
 kernel is too small to schedule efficiently.
 
@@ -633,22 +670,26 @@ kernel is too small to schedule efficiently.
 
 ### 27. Simulate Blackhole on a machine that has never seen Blackhole
 
-Switch to `libttsim_bh.so` and run `matmul_multicore_reuse` against the Blackhole
-SOC descriptor. Your machine is now running kernels compiled for a 140-core Blackhole chip.
+Switch to `libttsim_bh.so`. Your machine is now running kernels under a 140-core
+Blackhole SOC model. Use `add_2_integers_in_riscv` — compiled for WH, but the
+data-movement dispatch path works on both architectures.
 
 ```bash
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 export TT_METAL_SIMULATOR=~/sim/libttsim_bh.so
 
-./build/programming_examples/metal_example_matmul_multicore_reuse
+./build/programming_examples/metal_example_add_2_integers_in_riscv
 
 # Switch back
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
 ```
 
-Some Wormhole-specific code fails on the Blackhole simulator. The error messages name
-the divergence. Debug it without touching a P-series card.
+To run compute-heavy examples on the BH simulator, build tt-metal targeting Blackhole
+(`TT_METAL_ARCH_NAME=blackhole`) and the compiled binaries will run under `libttsim_bh.so`.
+WH-compiled compute kernels fail on the BH simulator with named divergence errors —
+you can read exactly which ISA feature mismatch caused the fault, without touching a
+P-series card.
 
 ---
 
@@ -753,7 +794,7 @@ works. The question is how fast.
 
 ### 31. One more thing
 
-`matmul_multicore_reuse` on the simulator takes several seconds. On a P300c it
+`matmul_multicore_reuse` on the simulator takes about five seconds. On a P300c it
 takes milliseconds. On a QuietBox with four P300cs, less than that.
 
 Two things the simulator cannot give you.

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.462] - 2026-06-07
+
+### Changed
+
+- **ttsim lesson upgraded to v1.7.3** — all 14 previously failing entries in "Twenty-and-Ten" now pass on ttsim v1.7.3 (v1.7.x implemented the SFPU debug register interface that was blocking SFPU/compute examples). Updated setup block to download v1.7.3. Removed all "ttsim v1.5.4 note: Fails" callouts from entries #5–14, #16–17, #24. Captured accurate output from actual simulator runs for all passing entries. Entries #18–21 (distributed mesh) still correctly marked as requiring real multi-device hardware. Entry #27 (BH switch) updated to use `add_2_integers_in_riscv` as the demo binary and explains that compute examples must be built targeting Blackhole.
+- **Game of Life docstring and lesson comment updated** — removed stale "ttsim v1.5.4 doesn't support" phrasing; replaced with accurate rationale (torch.mm is faster than routing through the sim's kernel dispatch for this workload).
+
+---
+
 ## [0.0.461] - 2026-06-06
 
 ### Changed

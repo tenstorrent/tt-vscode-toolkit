@@ -9,9 +9,9 @@ Neighbour counting is performed with two circulant-matrix matmuls:
 
 On real Tenstorrent hardware both matmuls run on the Matrix Engine.
 On the ttsim software simulator (TT_METAL_SIMULATOR is set) the same
-math runs via torch.mm on CPU — ttsim v1.5.4 does not implement SFPU
-compute kernels, so all ttnn compute ops raise UnimplementedFunctionality.
-Conway's rules are applied in PyTorch on the CPU in both paths.
+math runs via torch.mm on CPU — faster than routing through the sim's
+kernel dispatch stack for this pure-integer workload. Conway's rules
+are applied in PyTorch on the CPU in both paths.
 
 Run:
     python game_of_life.py

@@ -129,7 +129,7 @@ class GameOfLife:
         K_col_cpu = _circulant_shift_sum(W)
 
         if self._sim:
-            # torch.mm path — avoids ttnn compute ops that ttsim v1.5.4 doesn't support
+            # torch.mm path — faster than routing through the sim's kernel dispatch
             self.K_row_cpu = K_row_cpu.float()
             self.K_col_cpu = K_col_cpu.float()
         else:
