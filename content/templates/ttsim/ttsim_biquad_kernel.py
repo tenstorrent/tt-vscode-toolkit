@@ -1,8 +1,8 @@
 """
 ttsim_biquad_kernel.py
 
-Second-order IIR (biquad) filter implemented using TTNN operations on ttsim.
-Demonstrates using the simulator as a DSP prototyping environment.
+Second-order IIR (biquad) filter — CPU arithmetic validated via a single
+TTNN device round-trip on ttsim.
 
 The filter computes:
     y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
@@ -10,9 +10,11 @@ The filter computes:
 This is a Butterworth lowpass filter with Fc=0.2*Fs, Q=0.707.
 
 Note: The coefficients (B0=0.06745527, A1=-1.14298050, A2=0.41280160) match
-Fc=0.2*Fs (20% of sample rate). The on-device computation is a round-trip
-demonstration — filter arithmetic runs on the CPU; the device is used for
-tensor upload/download to verify the ttsim data path.
+Fc=0.2*Fs (20% of sample rate). The filter arithmetic runs entirely on the
+CPU; the full output tensor is uploaded to the device and downloaded once to
+verify the ttsim data path and bfloat16 round-trip precision. A production
+implementation would use custom_sfpi assembly to keep y[n-1]/y[n-2] in the
+SFPU register file, eliminating DRAM round-trips between samples.
 
 Usage:
     export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
@@ -47,36 +49,28 @@ def biquad_reference(x: np.ndarray) -> np.ndarray:
 
 def biquad_ttnn(x_pt: torch.Tensor, device) -> torch.Tensor:
     """
-    Biquad filter using TTNN operations.
-    Processes in tiles of 32 samples (one tile row). This is the ttsim
-    version — on hardware you would implement this in custom_sfpi assembly
-    to keep intermediate values in the SFPU register file.
-    The filter arithmetic is computed on the CPU (Python); the device is used for
-    tensor upload/download to verify the ttsim data path. A production implementation
-    would use ttnn.add/ttnn.multiply on-device with the SFPU keeping state in registers.
+    Compute the biquad filter on the CPU, then perform a single TTNN
+    upload/download round-trip to verify the ttsim data path and bfloat16
+    precision.  This avoids 1024 separate device transactions while still
+    exercising the device I/O path that the lesson is demonstrating.
     """
     n = x_pt.shape[0]
-    # Pad to tile boundary
-    pad = (32 - n % 32) % 32
-    x_padded = torch.cat([x_pt, torch.zeros(pad, dtype=torch.bfloat16)])
-
-    y = torch.zeros_like(x_padded)
+    # Run filter entirely on CPU in bfloat16
+    y = torch.zeros(n, dtype=torch.bfloat16)
     for i in range(n):
-        xn_1 = x_padded[i - 1].item() if i >= 1 else 0.0
-        xn_2 = x_padded[i - 2].item() if i >= 2 else 0.0
+        xn_1 = x_pt[i - 1].item() if i >= 1 else 0.0
+        xn_2 = x_pt[i - 2].item() if i >= 2 else 0.0
         yn_1 = y[i - 1].item() if i >= 1 else 0.0
         yn_2 = y[i - 2].item() if i >= 2 else 0.0
+        y[i] = B0 * x_pt[i].item() + B1 * xn_1 + B2 * xn_2 - A1 * yn_1 - A2 * yn_2
 
-        tile = torch.tensor(
-            [[B0 * x_padded[i].item() + B1 * xn_1 + B2 * xn_2
-              - A1 * yn_1 - A2 * yn_2] + [0.0] * 31],
-            dtype=torch.bfloat16
-        ).unsqueeze(0).reshape(1, 1, 32, 1)
-        tt = ttnn.from_torch(tile, layout=ttnn.TILE_LAYOUT, device=device)
-        out = ttnn.from_device(tt)
-        y[i] = ttnn.to_torch(out)[0, 0, 0, 0]
-
-    return y[:n]
+    # Pad to tile boundary, do one upload + download to verify the I/O path
+    pad = (32 - n % 32) % 32
+    y_padded = torch.cat([y, torch.zeros(pad, dtype=torch.bfloat16)])
+    tile = y_padded.reshape(1, 1, 32, n // 32 + (1 if pad else 0))
+    tt = ttnn.from_torch(tile, layout=ttnn.TILE_LAYOUT, device=device)
+    out = ttnn.to_torch(ttnn.from_device(tt))
+    return out.reshape(-1)[:n]
 
 
 def main():

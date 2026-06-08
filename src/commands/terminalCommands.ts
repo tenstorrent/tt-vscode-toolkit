@@ -864,11 +864,11 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     id: 'setup-ttsim',
     name: 'Set Up ttsim Simulator',
     template: `mkdir -p ~/sim
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so -O ~/sim/libttsim_wh.so
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so -O ~/sim/libttsim_bh.so
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
 [ -n "$TT_METAL_HOME" ] && cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
-echo "ttsim ready"`,
-    description: 'Downloads ttsim Wormhole and Blackhole binaries and copies the SOC descriptor',
+echo "ttsim v1.7.3 ready"`,
+    description: 'Downloads ttsim v1.7.3 Wormhole and Blackhole binaries and copies the SOC descriptor',
   },
 
   RUN_TTSIM_ATTENTION: {

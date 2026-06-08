@@ -189,6 +189,9 @@ if __name__ == "__main__":
                         help="Save animation to this .gif path instead of displaying")
     args = parser.parse_args()
 
+    if args.size % 32 != 0:
+        parser.error(f"--size must be a multiple of 32 for tile alignment (got {args.size})")
+
     device = ttnn.open_device(device_id=0)
 
     try:

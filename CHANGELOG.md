@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.464] - 2026-06-08
+
+### Fixed
+
+- **SETUP_TTSIM command pinned to v1.7.3** — previously downloaded ttsim v1.5.4, mismatching the lesson and demo GIF which require v1.7.3. Both `libttsim_wh.so` and `libttsim_bh.so` URLs updated. wget calls now fail fast with a clear error message if the download fails instead of silently leaving a broken binary on disk.
+- **runTtsimAttention template path** — replaced brittle `__dirname/../content/...` path with `extensionContext.extensionPath` + dist/ fallback, matching all other template-copy helpers in the file.
+- **tensix-viz canvas responsive sizing** — constructor now reads container width and scales the logical canvas dimensions down when the viewport is narrower, preventing right-side clipping.
+- **tensix-viz float label clamping** — labels on row-1 cores no longer render above the top of the canvas; clamped with `Math.max`/`Math.min`.
+- **ttsim-twenty-and-ten Wormhole grid coordinates** — all 16 tensix_viz blocks were using `[0,0]` (ETH cell on Wormhole) as their base core; remapped to valid Tensix cells starting at `[1,1]`.
+- **build-web.js GitHub-blob media links** — `resolveGithubMediaToLocal` results now go through `siteUrl()` for correct `BASE_PATH` prefix on GitHub Pages, fixing broken GIFs on particle-life and other lessons.
+- **biquad template** — replaced 1024 per-sample TTNN round-trips with CPU filter + single upload/download; fixed docstring contradiction between "implemented using TTNN operations" and the actual CPU-arithmetic approach.
+- **game_of_life `--size` validation** — added explicit check that `--size` is a multiple of 32; fails with a clear error message instead of a confusing hardware error later.
+
+---
+
 ## [0.0.463] - 2026-06-07
 
 ### Added

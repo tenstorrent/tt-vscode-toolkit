@@ -3836,7 +3836,10 @@ async function runTtsimAttention(): Promise<void> {
   const os = require('os');
 
   const scratchpadDir = path.join(os.homedir(), 'tt-scratchpad', 'ttsim');
-  const templateSrc = path.join(__dirname, '..', 'content', 'templates', 'ttsim', 'ttsim_attention.py');
+  const extPath = extensionContext.extensionPath;
+  const templateSrc = fs.existsSync(path.join(extPath, 'dist', 'content', 'templates', 'ttsim', 'ttsim_attention.py'))
+    ? path.join(extPath, 'dist', 'content', 'templates', 'ttsim', 'ttsim_attention.py')
+    : path.join(extPath, 'content', 'templates', 'ttsim', 'ttsim_attention.py');
   const destPath = path.join(scratchpadDir, 'ttsim_attention.py');
 
   if (!fs.existsSync(scratchpadDir)) {
@@ -3848,9 +3851,7 @@ async function runTtsimAttention(): Promise<void> {
 
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.RUN_TTSIM_ATTENTION.template);
-  vscode.window.showInformationMessage(
-    'Running transformer attention on ttsim. Set TT_METAL_SIMULATOR first if not already set.'
-  );
+  vscode.window.showInformationMessage('Running transformer attention on ttsim.');
 }
 
 // ============================================================================
