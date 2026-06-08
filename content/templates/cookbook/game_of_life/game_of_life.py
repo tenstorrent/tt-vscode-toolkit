@@ -165,13 +165,14 @@ class GameOfLife:
                 grid_np = grid.float().numpy()
             else:
                 grid_np = ttnn.to_torch(grid).float().cpu().numpy()
-            history.append(grid_np)
 
-            grid = self.step(grid)
-
-            if gen > 0 and np.array_equal(history[-1], history[-2]):
+            if gen > 0 and np.array_equal(grid_np, history[-1]):
                 print(f"Stable state reached at generation {gen}")
+                history.append(grid_np)
                 break
+
+            history.append(grid_np)
+            grid = self.step(grid)
 
         return history
 

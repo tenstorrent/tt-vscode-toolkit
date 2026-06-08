@@ -46,14 +46,14 @@ def run_with_barrier(device) -> torch.Tensor:
 
 def run_without_barrier(device) -> torch.Tensor:
     """
-    Unsafe version: no synchronization between write and read.
+    Intended to be the unsafe version with no synchronization between write
+    and read — but the barrier (ttnn.from_device) is still present by default
+    so the function runs correctly out of the box.
 
-    On the ttsim simulator this may produce incorrect results because ttsim
-    exercises operation orderings that are unlikely on real hardware.
-
-    Remove the ttnn.from_device() call between the write and the read to
-    reproduce the race. On silicon this probably passes. On the simulator
-    it may not.
+    To reproduce the race: remove the ttnn.from_device() call marked below.
+    Without it, the read may see stale data on the simulator (ttsim exercises
+    operation orderings that are unlikely on real hardware, making the race
+    visible). On silicon this version probably passes even without the barrier.
     """
     data = torch.ones(32, 32, dtype=torch.bfloat16)
     buf = ttnn.from_torch(data, layout=ttnn.TILE_LAYOUT, device=device)

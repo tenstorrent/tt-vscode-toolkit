@@ -28,7 +28,7 @@ The lesson is self-contained. Setup happens inside it.
 | **Title** | "Twenty-and-Ten Things You Can Do with ttsim" |
 | **Category** | `advanced` |
 | **Tags** | `ttsim`, `simulator`, `metalium`, `kernels`, `architecture` |
-| **Supported hardware** | all + `sim` (runs without any hardware) |
+| **Supported hardware** | all + `simulator` (runs without any hardware) |
 | **Status** | `draft` |
 | **Estimated time** | 60 minutes |
 
@@ -92,8 +92,8 @@ A reader who does this once can run every subsequent entry by changing one env v
 mkdir -p ~/sim
 
 # Download Wormhole and Blackhole simulators (v1.3.0 — check releases for latest)
-wget https://github.com/tenstorrent/ttsim/releases/download/v1.3.0/libttsim_wh.so -O ~/sim/libttsim_wh.so
-wget https://github.com/tenstorrent/ttsim/releases/download/v1.3.0/libttsim_bh.so -O ~/sim/libttsim_bh.so
+wget https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_wh.so -O ~/sim/libttsim_wh.so
+wget https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_bh.so -O ~/sim/libttsim_bh.so
 
 # Copy SOC descriptors from your tt-metal build
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
@@ -738,7 +738,7 @@ New entry in `content/lesson-registry.json`:
   "description": "31 things you can do with the ttsim hardware simulator — no Tenstorrent device required. Runs on any Linux machine, including WSL2 on Windows. Escalates from first kernel to DSP prototyping to a cliffhanger only real hardware can resolve.",
   "category": "advanced",
   "tags": ["ttsim", "simulator", "metalium", "kernels", "architecture"],
-  "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "p300c", "galaxy", "sim"],
+  "supportedHardware": ["n150", "n300", "t3k", "p100", "p150", "p300c", "galaxy", "simulator"],
   "status": "draft",
   "estimatedMinutes": 60,
   "markdownFile": "content/lessons/ttsim-twenty-and-ten.md",
@@ -773,7 +773,7 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-  - sim
+  - simulator
 status: draft
 estimatedMinutes: 60
 ---
@@ -788,7 +788,7 @@ estimatedMinutes: 60
 - [x] `~/tt-metal` existence required — lesson explicitly states this prerequisite
       and links to `build-tt-metal` lesson
 - [x] `p300c` in `supportedHardware`
-- [x] `sim` added as a supported hardware value (no-hardware path)
+- [x] `simulator` added as a supported hardware value (no-hardware path)
 - [x] `TT_METAL_SLOW_DISPATCH_MODE=1` set in setup — required for simulator
 - [x] `TT_METAL_DISABLE_SFPLOADMACRO=1` set in setup — required for simulator
 
@@ -806,16 +806,14 @@ estimatedMinutes: 60
 
 ## Open Questions
 
-1. **`sim` as a hardware value**: The lesson metadata uses `sim` in `supportedHardware`.
-   This value is not yet in the lesson registry schema or the validator. The validator
-   and `package.json` step definitions will need updating before this lesson ships in
-   production.
+1. ~~**`sim` as a hardware value**~~ — **Resolved**: standardised on `simulator` throughout
+   lesson front matter, `lesson-registry.json`, and this spec.
 
 2. **`custom_sfpi_biquad` example location**: This example doesn't exist yet. It should
    live in the vendor `tt-metal` repo ideally, but since vendor is not committed to the
    extension repo, the lesson will either need to ship the source inline or point to a
    `~/tt-scratchpad` script. Decision needed at implementation time.
 
-3. **ttsim version pinning**: The lesson pins v1.3.0 in the setup commands. This will
-   need updating as ttsim releases. Consider a `{{TTSIM_VERSION}}` variable in the
-   template at implementation time.
+3. ~~**ttsim version pinning**~~ — **Resolved**: pinned to v1.7.3 (the minimum version
+   required for SFPU/compute examples to pass). Update the download URLs when a newer
+   release is validated.

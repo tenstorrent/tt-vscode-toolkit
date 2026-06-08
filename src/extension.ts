@@ -3837,11 +3837,16 @@ async function runTtsimAttention(): Promise<void> {
 
   const scratchpadDir = path.join(os.homedir(), 'tt-scratchpad', 'ttsim');
   const extPath = extensionContext.extensionPath;
-  const templateSrc = fs.existsSync(path.join(extPath, 'dist', 'content', 'templates', 'ttsim', 'ttsim_attention.py'))
-    ? path.join(extPath, 'dist', 'content', 'templates', 'ttsim', 'ttsim_attention.py')
-    : path.join(extPath, 'content', 'templates', 'ttsim', 'ttsim_attention.py');
-  const destPath = path.join(scratchpadDir, 'ttsim_attention.py');
+  const distSrc = path.join(extPath, 'dist', 'content', 'templates', 'ttsim', 'ttsim_attention.py');
+  const devSrc  = path.join(extPath, 'content', 'templates', 'ttsim', 'ttsim_attention.py');
+  const templateSrc = fs.existsSync(distSrc) ? distSrc : fs.existsSync(devSrc) ? devSrc : null;
 
+  if (!templateSrc) {
+    vscode.window.showErrorMessage('ttsim_attention.py template not found. Try reinstalling the extension.');
+    return;
+  }
+
+  const destPath = path.join(scratchpadDir, 'ttsim_attention.py');
   if (!fs.existsSync(scratchpadDir)) {
     fs.mkdirSync(scratchpadDir, { recursive: true });
   }
