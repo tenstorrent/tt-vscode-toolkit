@@ -637,30 +637,29 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_ANIMATEDIFF_2FRAME: {
     id: 'run-animatediff-phase1',
     name: 'Run Phase 1 — CPU AnimateDiffPipeline',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_baseline.py --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
+    template: 'cd ~/tt-projects/tt-animatediff && python3 examples/generate.py --mode cpu --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate animated frames on CPU using diffusers AnimateDiffPipeline with MotionAdapter',
   },
 
   RUN_ANIMATEDIFF_16FRAME: {
     id: 'run-animatediff-phase2',
-    name: 'Run Phase 2 — Blackhole TTNN UNet',
-    template: `cd ~/tt-metal && source python_env/bin/activate && export TT_METAL_HOME=~/tt-metal TT_METAL_ARCH_NAME=blackhole && cd ~/tt-scratchpad/tt-animatediff && python examples/generate_blackhole.py --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" --frames 8 --steps 25 --output output/blackhole.gif 2>&1 | grep -v "DEBUG\\|Config{" | grep -v "^2026\\|UMD"`,
-    description: 'Generate frames using TTNN UNet on Blackhole hardware (P100/P300C/QB2)',
+    name: 'Run Phase 2.5 — Blackhole TTNN UNet + temporal attention',
+    template: `cd ~/tt-metal && source python_env/bin/activate && cd ~/tt-projects/tt-animatediff && python3 examples/generate.py --mode blackhole --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" --frames 8 --steps 25 --temporal-alpha 0.35 --output output/blackhole.gif 2>&1 | grep -v "DEBUG\\|Config{" | grep -v "^2026\\|UMD"`,
+    description: 'Generate frames using TTNN UNet + cross-frame temporal attention on Blackhole hardware (P100/P300C/QB2)',
   },
 
   VIEW_ANIMATEDIFF_OUTPUT: {
     id: 'view-animatediff-output',
     name: 'View Generated Frames',
-    template: 'ls -lh ~/tt-scratchpad/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2 first"',
+    template: 'ls -lh ~/tt-projects/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2.5 first"',
     description: 'List generated GIF files in the output directory',
   },
 
   SETUP_ANIMATEDIFF_PROJECT: {
     id: 'setup-animatediff-project',
     name: 'Setup AnimateDiff Project',
-    template: 'mkdir -p ~/tt-scratchpad/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-scratchpad/tt-animatediff/ && cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-scratchpad/tt-animatediff/\')"',
-    description: 'Copies AnimateDiff project from extension to ~/tt-scratchpad/tt-animatediff and installs it',
-    variables: ['projectPath'],
+    template: 'mkdir -p ~/tt-projects && git clone --depth 1 --branch v0.1.0 https://github.com/tenstorrent/tt-animatediff.git ~/tt-projects/tt-animatediff 2>&1 || (cd ~/tt-projects/tt-animatediff && git fetch --tags && git checkout v0.1.0) && cd ~/tt-projects/tt-animatediff && python3 -m pip install -e ".[dev]" && python3 -c "import animatediff_ttnn; print(\'✓ tt-animatediff v0.1.0 ready at ~/tt-projects/tt-animatediff/\')"',
+    description: 'Clones tt-animatediff v0.1.0 from GitHub into ~/tt-projects/tt-animatediff and installs it',
   },
 
   // ========================================
