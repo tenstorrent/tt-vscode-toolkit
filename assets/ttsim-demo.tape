@@ -135,4 +135,10 @@ Enter
 Sleep 1.5s
 Type "python3 ~/.figlet_cosmic.py one more thing..."
 Enter
-Sleep 3s
+Sleep 2s
+Type "# transformer attention — one head, no model download needed"
+Enter
+Sleep 400ms
+Type "python3 ~/code/tt-vscode-toolkit/content/templates/ttsim/ttsim_attention.py 2>&1 | grep -v 'nanobind\|leaked\|ttnn:<module>\|Config{'"
+Enter
+Sleep 5s
