@@ -57,8 +57,12 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 python3 ~/tt-metal/ttnn/tutorials/basic_python/ttnn_add_tensors.py
 ```
 
+> **⚡ Sim-ready:** The `ttnn/tutorials/basic_python/` scripts all use `ttnn.open_device(device_id=0)`
+> and run on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]).
+> Add `export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` before the commands above to run without hardware.
+
 You'll see the device open, the computation run, and the device close. That's real
-silicon doing real work. The full tutorial collection lives at:
+silicon doing real work (or the simulator, if you set `TT_METAL_SIMULATOR`). The full tutorial collection lives at:
 
 ```
 ~/tt-metal/ttnn/tutorials/basic_python/

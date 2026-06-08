@@ -15,6 +15,7 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
+  - simulator
 status: validated
 validatedOn:
   - n150
@@ -46,6 +47,10 @@ Particle Life is an emergent complexity simulator where different particle speci
 ---
 
 ## Deploy the Project
+
+> **⚡ Sim-ready (single-chip path):** `particle_life.py` runs on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) — no hardware required.
+> Set `TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` and run `particle_life.py`.
+> The multi-chip `particle_life_multi_device.py` requires a real multi-device system (T3K, QB2).
 
 [📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
 
@@ -195,6 +200,9 @@ positions_3d = np.random.rand(num_particles, 3)
 ---
 
 ## 🚀 Bonus: Multi-Chip Acceleration (QuietBox Systems)
+
+> **Hardware required:** This section needs a real multi-device system (T3K, QB2 / 4× P300c, etc.).
+> The single-device `particle_life.py` above is sim-compatible; this section is not.
 
 **Unlock the full power of QuietBox with multi-device parallelization!**
 

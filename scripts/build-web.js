@@ -339,10 +339,11 @@ try {
   hljsExtension = markedHighlight({
     langPrefix: 'hljs language-',
     highlight(code, lang) {
-      // Custom fences (tensix_viz, mermaid) must NOT be auto-highlighted —
+      // Custom fences (tensix_viz, mermaid, sim-note) must NOT be auto-highlighted —
       // their content is parsed by our renderer, not displayed as code.
       if (lang && lang.startsWith('tensix_viz')) return code;
       if (lang && lang === 'mermaid') return code;
+      if (lang && lang === 'sim-note') return code;
       if (lang && hljs.getLanguage(lang)) {
         return hljs.highlight(code, { language: lang }).value;
       }
@@ -524,6 +525,11 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
 WEB_RENDERER.code = function ({ text, lang }) {
   if (lang === 'mermaid') {
     return `<pre class="mermaid">${escapeHtml(text)}</pre>\n`;
+  }
+
+  // sim-note fences → teal callout block
+  if (lang === 'sim-note') {
+    return `<div class="sim-callout">${escapeHtml(text)}</div>\n`;
   }
 
   if (lang && lang.startsWith('tensix_viz')) {
@@ -792,20 +798,25 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
  * ------------------------------------------------------------------ */
 
 const HW_LABELS = {
-  n150:   'N150',
-  n300:   'N300',
-  t3k:    'T3K',
-  p100:   'P100',
-  p150:   'P150',
-  p300:   'P300',
-  p300c:  'P300C',
-  p300x2: 'P300×2',
-  galaxy: 'Galaxy',
+  n150:      'N150',
+  n300:      'N300',
+  t3k:       'T3K',
+  p100:      'P100',
+  p150:      'P150',
+  p300:      'P300',
+  p300c:     'P300C',
+  p300x2:    'P300×2',
+  galaxy:    'Galaxy',
+  simulator: 'Sim',   // ttsim — outline pill via chip-sim class
 };
+
+// Hardware keys that render with the outline simulator style
+const SIM_HW_KEYS = new Set(['simulator', 'sim']);
 
 function hwBadge(hw) {
   const label = HW_LABELS[hw] || hw.toUpperCase();
-  return `<span class="hardware-chip">${escapeHtml(label)}</span>`;
+  const cls = SIM_HW_KEYS.has(hw) ? 'hardware-chip chip-sim' : 'hardware-chip';
+  return `<span class="${escapeAttr(cls)}">${escapeHtml(label)}</span>`;
 }
 
 function statusBadge(status) {

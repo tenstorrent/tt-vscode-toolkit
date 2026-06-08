@@ -100,12 +100,12 @@ of a virtual Tensix. Two integers added together. Real RISC-V ISA. Real dispatch
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "BRISC — data movement RISC-V", "ms": 800 },
-  { "step": "label", "core": [0,0], "text": "DISPATCH" },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "BRISC — data movement RISC-V", "ms": 800 },
+  { "step": "label", "core": [1,1], "text": "DISPATCH" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "ADD" },
+  { "step": "label", "core": [1,1], "text": "ADD" },
   { "step": "pause", "ms": 600 },
-  { "step": "label", "core": [0,0], "text": "DONE" },
+  { "step": "label", "core": [1,1], "text": "DONE" },
   { "step": "pause", "ms": 400 }
 ]
 ```
@@ -140,9 +140,9 @@ export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
 
 ```tensix_viz arch=blackhole
 [
-  { "step": "highlight", "cores": [[0,0],[1,0],[2,0]], "color": "pink", "label": "Blackhole — 140-core SOC", "ms": 800 },
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[1,2],[2,2],[3,2]], "color": "pink", "label": "Blackhole — 140-core SOC", "ms": 800 },
   { "step": "pause", "ms": 500 },
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "Running add_2_integers_in_riscv", "ms": 600 }
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "Running add_2_integers_in_riscv", "ms": 600 }
 ]
 ```
 
@@ -155,10 +155,10 @@ The compute RISC-V (TRISC) is a separate processor from the data-movement RISC-V
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "Tensix core", "ms": 500 },
-  { "step": "label", "core": [0,0], "text": "TRISC0" },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "Tensix core", "ms": 500 },
+  { "step": "label", "core": [1,1], "text": "TRISC0" },
   { "step": "pause", "ms": 800 },
-  { "step": "label", "core": [0,0], "text": "HELLO" },
+  { "step": "label", "core": [1,1], "text": "HELLO" },
   { "step": "pause", "ms": 600 }
 ]
 ```
@@ -182,12 +182,12 @@ for a trivial operation.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "BRISC + TRISC — full dispatch path", "ms": 700 },
-  { "step": "label", "core": [0,0], "text": "COMPILE" },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "BRISC + TRISC — full dispatch path", "ms": 700 },
+  { "step": "label", "core": [1,1], "text": "COMPILE" },
   { "step": "pause", "ms": 500 },
-  { "step": "label", "core": [0,0], "text": "2 + 3" },
+  { "step": "label", "core": [1,1], "text": "2 + 3" },
   { "step": "pause", "ms": 600 },
-  { "step": "label", "core": [0,0], "text": "= 5 ✓" },
+  { "step": "label", "core": [1,1], "text": "= 5 ✓" },
   { "step": "pause", "ms": 600 }
 ]
 ```
@@ -210,12 +210,12 @@ not library calls.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "SFPU — transcendental ops", "ms": 700 },
-  { "step": "label", "core": [0,0], "text": "exp(x)" },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "SFPU — transcendental ops", "ms": 700 },
+  { "step": "label", "core": [1,1], "text": "exp(x)" },
   { "step": "pause", "ms": 500 },
-  { "step": "label", "core": [0,0], "text": "sqrt(x)" },
+  { "step": "label", "core": [1,1], "text": "sqrt(x)" },
   { "step": "pause", "ms": 500 },
-  { "step": "label", "core": [0,0], "text": "gelu(x)" },
+  { "step": "label", "core": [1,1], "text": "gelu(x)" },
   { "step": "pause", "ms": 500 }
 ]
 ```
@@ -238,14 +238,14 @@ softmax is computed on Tensix hardware.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "SFPU register file — stays on-chip", "ms": 700 },
-  { "step": "label", "core": [0,0], "text": "exp(x)" },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "SFPU register file — stays on-chip", "ms": 700 },
+  { "step": "label", "core": [1,1], "text": "exp(x)" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "÷ sum" },
+  { "step": "label", "core": [1,1], "text": "÷ sum" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "× scale" },
+  { "step": "label", "core": [1,1], "text": "× scale" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "PCC✓" },
+  { "step": "label", "core": [1,1], "text": "PCC✓" },
   { "step": "pause", "ms": 500 }
 ]
 ```
@@ -289,10 +289,10 @@ multiplies every element in a single dispatched operation.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "32×32 tile — 1,024 bfloat16 values", "ms": 700 },
-  { "step": "label", "core": [0,0], "text": "ADD×1024" },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "32×32 tile — 1,024 bfloat16 values", "ms": 700 },
+  { "step": "label", "core": [1,1], "text": "ADD×1024" },
   { "step": "pause", "ms": 700 },
-  { "step": "label", "core": [0,0], "text": "DONE" },
+  { "step": "label", "core": [1,1], "text": "DONE" },
   { "step": "pause", "ms": 400 }
 ]
 ```
@@ -314,13 +314,13 @@ Matrix multiplication is the fundamental operation of transformer inference.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "transfer", "from": [0,6], "to": [0,0], "ms": 500 },
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "Matrix Engine — A×B in tile layout", "ms": 700 },
-  { "step": "label", "core": [0,0], "text": "A tiles" },
+  { "step": "transfer", "from": [0,1], "to": [1,1], "ms": 500 },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "Matrix Engine — A×B in tile layout", "ms": 700 },
+  { "step": "label", "core": [1,1], "text": "A tiles" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "× B tiles" },
+  { "step": "label", "core": [1,1], "text": "× B tiles" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "PCC✓" },
+  { "step": "label", "core": [1,1], "text": "PCC✓" },
   { "step": "pause", "ms": 500 }
 ]
 ```
@@ -343,9 +343,9 @@ Test Passed
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "Core 0 — dispatch", "ms": 400 },
-  { "step": "highlight", "cores": [[1,0],[2,0],[3,0]], "color": "teal", "label": "Cores 1–3 activated", "ms": 400 },
-  { "step": "highlight", "cores": [[4,0],[5,0],[6,0],[7,0]], "color": "teal", "label": "Cores 4–7 activated", "ms": 400 },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "Core 0 — dispatch", "ms": 400 },
+  { "step": "highlight", "cores": [[2,1],[3,1],[4,1]], "color": "teal", "label": "Cores 1–3 activated", "ms": 400 },
+  { "step": "highlight", "cores": [[6,1],[7,1],[8,1],[9,1]], "color": "teal", "label": "Cores 4–7 activated", "ms": 400 },
   { "step": "pause", "ms": 600 }
 ]
 ```
@@ -370,14 +370,14 @@ raw FLOP capacity and memory bandwidth on Tensix hardware.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "transfer", "from": [0,6], "to": [0,0], "ms": 600 },
-  { "step": "label", "core": [0,0], "text": "weights in L1" },
+  { "step": "transfer", "from": [0,1], "to": [1,1], "ms": 600 },
+  { "step": "label", "core": [1,1], "text": "weights in L1" },
   { "step": "pause", "ms": 300 },
-  { "step": "label", "core": [0,0], "text": "tile 1 out" },
+  { "step": "label", "core": [1,1], "text": "tile 1 out" },
   { "step": "pause", "ms": 300 },
-  { "step": "label", "core": [0,0], "text": "tile 2 out" },
+  { "step": "label", "core": [1,1], "text": "tile 2 out" },
   { "step": "pause", "ms": 300 },
-  { "step": "label", "core": [0,0], "text": "tile 3 out" },
+  { "step": "label", "core": [1,1], "text": "tile 3 out" },
   { "step": "pause", "ms": 400 }
 ]
 ```
@@ -400,7 +400,7 @@ simultaneously.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1]], "color": "teal", "label": "All cores — parallel vector add", "ms": 800 },
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1],[6,1],[7,1],[8,1],[9,1],[1,2],[2,2],[3,2],[4,2],[6,2],[7,2],[8,2],[9,2]], "color": "teal", "label": "All cores — parallel vector add", "ms": 800 },
   { "step": "pause", "ms": 500 }
 ]
 ```
@@ -424,12 +424,12 @@ A single Tensix chip has multiple DRAM banks and benefits from using all of them
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,6],[0,7],[0,8],[0,9]], "color": "pink", "label": "DRAM banks — striped across channels", "ms": 700 },
-  { "step": "transfer", "from": [0,6], "to": [0,0], "ms": 400 },
-  { "step": "transfer", "from": [0,7], "to": [1,0], "ms": 400 },
-  { "step": "transfer", "from": [0,8], "to": [2,0], "ms": 400 },
-  { "step": "transfer", "from": [0,9], "to": [3,0], "ms": 400 },
-  { "step": "highlight", "cores": [[0,0],[1,0],[2,0],[3,0]], "color": "teal", "label": "Compute cores — parallel access", "ms": 600 },
+  { "step": "highlight", "cores": [[0,1],[0,2],[0,3],[0,4]], "color": "pink", "label": "DRAM banks — striped across channels", "ms": 700 },
+  { "step": "transfer", "from": [0,1], "to": [1,1], "ms": 400 },
+  { "step": "transfer", "from": [0,2], "to": [2,1], "ms": 400 },
+  { "step": "transfer", "from": [0,3], "to": [3,1], "ms": 400 },
+  { "step": "transfer", "from": [0,4], "to": [4,1], "ms": 400 },
+  { "step": "highlight", "cores": [[1,1],[2,1],[3,1],[4,1]], "color": "teal", "label": "Compute cores — parallel access", "ms": 600 },
   { "step": "pause", "ms": 400 }
 ]
 ```
@@ -456,9 +456,9 @@ No CPU involvement after dispatch. The tile travels the NoC and arrives.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "teal", "label": "Source — core (0,0)", "ms": 500 },
-  { "step": "transfer", "from": [0,0], "to": [0,1], "ms": 900 },
-  { "step": "highlight", "cores": [[0,1]], "color": "pink", "label": "Destination — core (0,1)", "ms": 500 },
+  { "step": "highlight", "cores": [[1,1]], "color": "teal", "label": "Source — Tensix (1,1)", "ms": 500 },
+  { "step": "transfer", "from": [1,1], "to": [2,1], "ms": 900 },
+  { "step": "highlight", "cores": [[2,1]], "color": "pink", "label": "Destination — Tensix (2,1)", "ms": 500 },
   { "step": "pause", "ms": 400 }
 ]
 ```
@@ -480,14 +480,14 @@ functional unit. This is ISA-level code for a production AI accelerator.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "pink", "label": "SFPU — hand-authored SFPI assembly", "ms": 700 },
-  { "step": "label", "core": [0,0], "text": "SFPLOAD" },
+  { "step": "highlight", "cores": [[1,1]], "color": "pink", "label": "SFPU — hand-authored SFPI assembly", "ms": 700 },
+  { "step": "label", "core": [1,1], "text": "SFPLOAD" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "SFPADD" },
+  { "step": "label", "core": [1,1], "text": "SFPADD" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "SFPSTORE" },
+  { "step": "label", "core": [1,1], "text": "SFPSTORE" },
   { "step": "pause", "ms": 400 },
-  { "step": "label", "core": [0,0], "text": "PASS ✓" },
+  { "step": "label", "core": [1,1], "text": "PASS ✓" },
   { "step": "pause", "ms": 500 }
 ]
 ```
@@ -622,14 +622,14 @@ multiplications — one sender, all receivers, a single NoC transaction.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "highlight", "cores": [[0,0]], "color": "pink", "label": "Source — single sender", "ms": 500 },
-  { "step": "transfer", "from": [0,0], "to": [1,0], "ms": 300 },
-  { "step": "transfer", "from": [0,0], "to": [2,0], "ms": 300 },
-  { "step": "transfer", "from": [0,0], "to": [3,0], "ms": 300 },
-  { "step": "transfer", "from": [0,0], "to": [1,1], "ms": 300 },
-  { "step": "transfer", "from": [0,0], "to": [2,1], "ms": 300 },
-  { "step": "transfer", "from": [0,0], "to": [3,1], "ms": 300 },
-  { "step": "highlight", "cores": [[1,0],[2,0],[3,0],[1,1],[2,1],[3,1]], "color": "teal", "label": "Rectangle — all received", "ms": 600 },
+  { "step": "highlight", "cores": [[1,1]], "color": "pink", "label": "Source — single sender", "ms": 500 },
+  { "step": "transfer", "from": [1,1], "to": [2,1], "ms": 300 },
+  { "step": "transfer", "from": [1,1], "to": [3,1], "ms": 300 },
+  { "step": "transfer", "from": [1,1], "to": [4,1], "ms": 300 },
+  { "step": "transfer", "from": [1,1], "to": [2,2], "ms": 300 },
+  { "step": "transfer", "from": [1,1], "to": [3,2], "ms": 300 },
+  { "step": "transfer", "from": [1,1], "to": [4,2], "ms": 300 },
+  { "step": "highlight", "cores": [[2,1],[3,1],[4,1],[2,2],[3,2],[4,2]], "color": "teal", "label": "Rectangle — all received", "ms": 600 },
   { "step": "pause", "ms": 400 }
 ]
 ```
@@ -666,12 +666,12 @@ once, used many times across a grid of output cores.
 
 ```tensix_viz arch=wormhole
 [
-  { "step": "transfer", "from": [0,6], "to": [0,0], "ms": 500 },
-  { "step": "label", "core": [0,0], "text": "weights in L1" },
-  { "step": "transfer", "from": [0,0], "to": [1,0], "ms": 300 },
-  { "step": "transfer", "from": [0,0], "to": [2,0], "ms": 300 },
-  { "step": "transfer", "from": [0,0], "to": [3,0], "ms": 300 },
-  { "step": "highlight", "cores": [[1,0],[2,0],[3,0]], "color": "teal", "label": "Compute cores — L1 reuse across output tiles", "ms": 600 },
+  { "step": "transfer", "from": [0,1], "to": [1,1], "ms": 500 },
+  { "step": "label", "core": [1,1], "text": "weights in L1" },
+  { "step": "transfer", "from": [1,1], "to": [2,1], "ms": 300 },
+  { "step": "transfer", "from": [1,1], "to": [3,1], "ms": 300 },
+  { "step": "transfer", "from": [1,1], "to": [4,1], "ms": 300 },
+  { "step": "highlight", "cores": [[2,1],[3,1],[4,1]], "color": "teal", "label": "Compute cores — L1 reuse across output tiles", "ms": 600 },
   { "step": "pause", "ms": 400 }
 ]
 ```

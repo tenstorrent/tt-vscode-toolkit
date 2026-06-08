@@ -194,14 +194,26 @@ var _TensixVizBundle = (() => {
     this._padY = 0;
     this._dram = [];
     this._compute = [];
-    this._logicalW = canvas.width;
-    this._logicalH = canvas.height;
     var dpr = typeof window !== "undefined" && window.devicePixelRatio || 1;
+    // Responsive sizing: cap logical dimensions to the container's actual width
+    // so the canvas never overflows narrow viewports. The HTML width/height
+    // attributes are the preferred size; clientWidth is the hard ceiling.
+    var logicalW = canvas.width;
+    var logicalH = canvas.height;
+    if (typeof window !== "undefined" && canvas.parentElement) {
+      var containerW = canvas.parentElement.clientWidth;
+      if (containerW > 0 && containerW < logicalW) {
+        logicalH = Math.round(logicalH * containerW / logicalW);
+        logicalW = containerW;
+      }
+    }
+    this._logicalW = logicalW;
+    this._logicalH = logicalH;
+    canvas.width = Math.round(logicalW * dpr);
+    canvas.height = Math.round(logicalH * dpr);
+    canvas.style.width = logicalW + "px";
+    canvas.style.height = logicalH + "px";
     if (dpr > 1) {
-      canvas.width = Math.round(this._logicalW * dpr);
-      canvas.height = Math.round(this._logicalH * dpr);
-      canvas.style.width = this._logicalW + "px";
-      canvas.style.height = this._logicalH + "px";
       this.ctx.scale(dpr, dpr);
     }
     this._computeLayout();
@@ -1030,11 +1042,15 @@ var _TensixVizBundle = (() => {
     _origRender.call(this);
     if (this._floatLabelData) {
       const ctx = this.ctx;
-      const { cx, cy, text } = this._floatLabelData;
+      const { cx: rawCx, cy: rawCy, text } = this._floatLabelData;
       const pad = 6;
       ctx.font = "bold 11px sans-serif";
       const w = ctx.measureText(text).width + pad * 2;
       const h = 18;
+      // Clamp so the label box never overflows any canvas edge.
+      const margin = 4;
+      const cx = Math.max(w / 2 + margin, Math.min(this._logicalW - w / 2 - margin, rawCx));
+      const cy = Math.max(h / 2 + margin, Math.min(this._logicalH - h / 2 - margin, rawCy));
       const T = this._theme;
       ctx.fillStyle = T.floatLabelBg;
       ctx.strokeStyle = T.teal;

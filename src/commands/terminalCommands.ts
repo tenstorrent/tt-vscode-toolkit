@@ -863,26 +863,21 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   SETUP_TTSIM: {
     id: 'setup-ttsim',
     name: 'Set Up ttsim Simulator',
-    template: [
-      'mkdir -p ~/sim',
-      'export TTSIM_VERSION=v1.5.4',
-      'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so -O ~/sim/libttsim_wh.so',
-      'wget -q https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh.so -O ~/sim/libttsim_bh.so',
-      '[ -n "$TT_METAL_HOME" ] && cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || echo "⚠ TT_METAL_HOME not set — SOC descriptor copy skipped"',
-      'echo "✓ ttsim ready. Set TT_METAL_SIMULATOR=~/sim/libttsim_wh.so to use Wormhole."',
-    ].join(' && '),
+    template: `mkdir -p ~/sim
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so -O ~/sim/libttsim_wh.so
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so -O ~/sim/libttsim_bh.so
+[ -n "$TT_METAL_HOME" ] && cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
+echo "ttsim ready"`,
     description: 'Downloads ttsim Wormhole and Blackhole binaries and copies the SOC descriptor',
   },
 
   RUN_TTSIM_ATTENTION: {
     id: 'run-ttsim-attention',
     name: 'Run Transformer Attention on ttsim',
-    template: [
-      'export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so',
-      'export TT_METAL_SLOW_DISPATCH_MODE=1',
-      'export TT_METAL_DISABLE_SFPLOADMACRO=1',
-      'python3 ~/tt-scratchpad/ttsim/ttsim_attention.py',
-    ].join(' && '),
+    template: `export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
     description: 'Runs a transformer attention layer forward pass on the ttsim Wormhole simulator',
   },
 };

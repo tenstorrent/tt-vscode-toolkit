@@ -217,10 +217,11 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Local AI Agents on QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
-*2 lessons, 1 validated*
+*3 lessons, 1 validated*
 
 - **Bounty Program: Model Bring-Up** — *draft*
 - **Exploring TT-Metalium** — `N150` `P300C`
+- **Twenty-and-Ten Things You Can Do with ttsim** — *draft*
 
 ### 🎓 Custom Training
 *8 lessons, 0 validated*
