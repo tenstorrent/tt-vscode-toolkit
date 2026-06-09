@@ -334,8 +334,10 @@ describe('Internal Link Validation', () => {
         // previously auto-linked anchor, producing <a href="...<a href=...>term</a>...">.
         const siteDir = path.join(projectRoot, 'site');
         if (!fs.existsSync(siteDir)) {
-            console.warn('\n⚠️  site/ not built — skipping nested-anchor check (run node scripts/build-web.js first)\n');
-            return;
+            // Build the site on-demand so this test always runs, even in the default
+            // `npm run test:links` flow where the site is not pre-built.
+            const { execSync } = require('child_process');
+            execSync('node scripts/build-web.js', { cwd: projectRoot, stdio: 'inherit' });
         }
 
         const nestedAnchorErrors: string[] = [];
