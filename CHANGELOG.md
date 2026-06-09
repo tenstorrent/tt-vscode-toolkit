@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.466] - 2026-06-09
+
+### Fixed
+
+- **Auto-link nested-anchor bug** — `autoLinkFirstMentions` in `build-web.js` was mutating the text segment in-place then continuing to match shorter terms (e.g. `tt-metal`) inside the href of an already-inserted anchor (e.g. `TT-Metalium`), producing `<a href="...<a href=...>tt-metal</a>...">TT-Metalium</a>`. Fixed by breaking out of the term loop after the first substitution per text node. Added a new link-validator test scanning all built site HTML for `href` attributes containing literal `<a` strings to catch regressions.
+
+---
+
 ## [0.0.465] - 2026-06-09
 
 ### Added

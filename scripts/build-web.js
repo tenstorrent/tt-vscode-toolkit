@@ -146,6 +146,7 @@ function autoLinkFirstMentions(html) {
         + `<a href="${escapeAttr(url)}" target="_blank" rel="noreferrer">${term}</a>`
         + text.slice(idx + term.length);
       linked.add(term);
+      break; // only one substitution per text node — prevents matching inside injected href values
     }
     return text;
   }).join('');

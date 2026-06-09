@@ -329,6 +329,45 @@ describe('Internal Link Validation', () => {
         }
     });
 
+    it('should have no nested <a> tags inside href attributes in built site HTML', () => {
+        // Catches the auto-link bug where a term gets substituted inside the href of a
+        // previously auto-linked anchor, producing <a href="...<a href=...>term</a>...">.
+        const siteDir = path.join(projectRoot, 'site');
+        if (!fs.existsSync(siteDir)) {
+            console.warn('\n⚠️  site/ not built — skipping nested-anchor check (run node scripts/build-web.js first)\n');
+            return;
+        }
+
+        const nestedAnchorErrors: string[] = [];
+
+        function walkSite(dir: string) {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) { walkSite(fullPath); continue; }
+                if (!entry.name.endsWith('.html')) continue;
+
+                const html = fs.readFileSync(fullPath, 'utf-8');
+                const relPath = path.relative(projectRoot, fullPath);
+
+                // Find <a ...> where the href value contains a literal "<a"
+                const hrefRe = /href="([^"]*<a[^"]*)"/g;
+                let m: RegExpExecArray | null;
+                while ((m = hrefRe.exec(html)) !== null) {
+                    nestedAnchorErrors.push(`${relPath} — nested <a> in href: href="${m[1].slice(0, 80)}..."`);
+                }
+            }
+        }
+
+        walkSite(siteDir);
+
+        if (nestedAnchorErrors.length > 0) {
+            assert.fail(
+                `Found ${nestedAnchorErrors.length} href attributes containing nested <a> tags (auto-link bug):\n` +
+                `  ${nestedAnchorErrors.join('\n  ')}`
+            );
+        }
+    });
+
     it('should have all lessons in registry referenced somewhere in documentation', () => {
         // This is a warning test - lessons not referenced anywhere might be orphaned
         const allContent: string[] = [];
