@@ -1460,7 +1460,7 @@
     {
       "id": "ttsim-twenty-and-ten",
       "title": "Twenty-and-Ten Things You Can Do with ttsim",
-      "description": "31 things you can do with the ttsim hardware simulator — no Tenstorrent device required. Runs on any Linux machine, including WSL2 on Windows. Escalates from first kernel to DSP prototyping to a cliffhanger only real hardware can resolve.",
+      "description": "31 things you can do with the ttsim hardware simulator — no Tenstorrent device required. Runs on any Linux machine, including WSL2 on Windows. Includes N300 two-chip mesh simulation (v1.8.0+). Escalates from first kernel to DSP prototyping to a cliffhanger only real hardware can resolve.",
       "category": "advanced",
       "tags": [
         "ttsim",

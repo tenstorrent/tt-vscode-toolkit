@@ -92,8 +92,9 @@ A reader who does this once can run every subsequent entry by changing one env v
 mkdir -p ~/sim
 
 # Download Wormhole and Blackhole simulators (v1.3.0 — check releases for latest)
-wget https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_wh.so -O ~/sim/libttsim_wh.so
-wget https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_bh.so -O ~/sim/libttsim_bh.so
+wget https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh.so -O ~/sim/libttsim_wh.so
+wget https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_bh.so -O ~/sim/libttsim_bh.so
+wget https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so
 
 # Copy SOC descriptors from your tt-metal build
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
@@ -814,6 +815,5 @@ estimatedMinutes: 60
    extension repo, the lesson will either need to ship the source inline or point to a
    `~/tt-scratchpad` script. Decision needed at implementation time.
 
-3. ~~**ttsim version pinning**~~ — **Resolved**: pinned to v1.7.3 (the minimum version
-   required for SFPU/compute examples to pass). Update the download URLs when a newer
-   release is validated.
+3. ~~**ttsim version pinning**~~ — **Resolved**: upgraded to v1.8.0 (2026-06-09). Added
+   `libttsim_wh_x2.so` for N300 multichip simulation (entry 31). URLs updated throughout.

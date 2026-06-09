@@ -864,15 +864,17 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     id: 'setup-ttsim',
     name: 'Set Up ttsim Simulator',
     template: `mkdir -p ~/sim
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.7.3/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so || { echo "ERROR: failed to download libttsim_wh_x2.so"; exit 1; }
 if [ -n "$TT_METAL_HOME" ]; then
   cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || { echo "ERROR: failed to copy SOC descriptor"; exit 1; }
+  cp $TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml ~/sim/n300_cluster_desc.yaml || { echo "WARNING: n300 cluster desc copy skipped (optional for N300 sim)"; }
 else
   echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
 fi
-echo "ttsim v1.7.3 ready"`,
-    description: 'Downloads ttsim v1.7.3 Wormhole and Blackhole binaries and copies the SOC descriptor',
+echo "ttsim v1.8.0 ready (wh + bh + wh_x2 for N300 multichip)"`,
+    description: 'Downloads ttsim v1.8.0 Wormhole, Blackhole, and N300 (wh_x2) binaries and copies SOC descriptors',
   },
 
   RUN_TTSIM_ATTENTION: {

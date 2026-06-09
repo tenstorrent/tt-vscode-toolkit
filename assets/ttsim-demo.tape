@@ -1,4 +1,4 @@
-# ttsim v1.7.3 highlight reel — 6 entries, ~55 second loop
+# ttsim v1.8.0 highlight reel — 6 entries, ~55 second loop
 # Embed in ttsim-twenty-and-ten.md as a looping GIF preview
 
 Output assets/img/ttsim-demo.gif

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.465] - 2026-06-09
+
+### Added
+
+- **ttsim v1.8.0 upgrade** — updated SETUP_TTSIM command and ttsim lesson from v1.7.3 to v1.8.0. New `libttsim_wh_x2.so` (N300 two-chip Wormhole mesh) is now downloaded alongside the single-chip WH and BH binaries.
+- **N300 multichip simulation (entry 31)** — new lesson entry demonstrates `libttsim_wh_x2.so` with `TT_METAL_MOCK_CLUSTER_DESC_PATH=~/sim/n300_cluster_desc.yaml`, opening a `MeshDevice(1, 2)` and running a sharded element-wise add across two virtual chips. Matching template added at `content/templates/ttsim/ttsim_n300_mesh.py`.
+- **n300_cluster_desc.yaml** — SETUP_TTSIM now copies the cluster descriptor from `$TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml` to `~/sim/n300_cluster_desc.yaml`.
+
+---
+
 ## [0.0.464] - 2026-06-08
 
 ### Fixed

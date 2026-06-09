@@ -4,8 +4,8 @@ title: "Twenty-and-Ten Things You Can Do with ttsim"
 description: >-
   31 things you can do with the ttsim hardware simulator — no Tenstorrent
   device required. Runs on any Linux machine, including WSL2 on Windows.
-  Escalates from first kernel to DSP prototyping to a cliffhanger only
-  real hardware can resolve.
+  Includes N300 two-chip mesh simulation (v1.8.0+). Escalates from first
+  kernel to DSP prototyping to a cliffhanger only real hardware can resolve.
 category: advanced
 tags:
   - ttsim
@@ -26,7 +26,7 @@ status: draft
 estimatedMinutes: 60
 ---
 
-# Twenty-and-Ten Things You Can Do with ttsim
+# Twenty-and-Ten-Plus-One Things You Can Do with ttsim
 
 ttsim is a hardware-accurate functional simulator for Tenstorrent Wormhole and Blackhole
 chips. It ships as a single `.so` file that plugs into TT-Metalium via an environment
@@ -38,7 +38,7 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 > **Have hardware?** The simulator is still useful for debugging, architecture
 > exploration, and running experiments without tying up a device.
 
-[![ttsim highlight reel — 6 of 31 entries running against ttsim v1.7.3](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
+[![ttsim highlight reel — 6 of 31 entries running against ttsim v1.8.0](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
 
 ---
 
@@ -50,16 +50,22 @@ Or manually:
 
 ```bash
 mkdir -p ~/sim
-TTSIM_VERSION=v1.7.3
+TTSIM_VERSION=v1.8.0
 
-# Download Wormhole and Blackhole simulators
+# Download Wormhole, Blackhole, and N300 (2-chip Wormhole mesh) simulators
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so \
      -O ~/sim/libttsim_wh.so
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh.so \
      -O ~/sim/libttsim_bh.so
+wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh_x2.so \
+     -O ~/sim/libttsim_wh_x2.so
 
 # Copy the SOC descriptor for Wormhole (switch for Blackhole in entries 3 and 27)
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
+
+# Copy the N300 cluster descriptor (used for multichip simulation — entry 31)
+cp $TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml \
+   ~/sim/n300_cluster_desc.yaml
 
 # Required env vars — set these before running any entry below
 export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
@@ -839,7 +845,6 @@ Or manually:
 
 ```bash
 mkdir -p ~/tt-scratchpad/ttsim
-# Copy from the tt-vscode-toolkit checkout (adjust TOOLKIT_DIR to match yours):
 TOOLKIT_DIR="${TOOLKIT_DIR:-~/code/tt-vscode-toolkit}"
 cp $TOOLKIT_DIR/content/templates/ttsim/ttsim_attention.py ~/tt-scratchpad/ttsim/
 python3 ~/tt-scratchpad/ttsim/ttsim_attention.py
@@ -854,26 +859,78 @@ PASSED
 The output is correct. Verified against the PyTorch reference. Running on a chip that
 does not exist in this machine.
 
-When the hardware arrives, the question is not whether this works. You already know it
-works. The question is how fast.
-
 ---
 
 ### 31. One more thing
 
+v1.8.0 ships `libttsim_wh_x2.so`: a virtual N300 that gives you **two Wormhole chips
+connected by simulated Ethernet**. Open a `MeshDevice(1, 2)`, shard a tensor across both
+chips with `ShardTensorToMesh`, run an op — it dispatches to both chips simultaneously.
+Same TTNN API you'd use on a real N300.
+
+```bash
+export TT_METAL_SIMULATOR=~/sim/libttsim_wh_x2.so
+export TT_METAL_MOCK_CLUSTER_DESC_PATH=~/sim/n300_cluster_desc.yaml
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+```
+
+```python
+import torch, ttnn
+
+# Open a 1×2 mesh — two virtual Wormhole chips (N300 topology)
+mesh = ttnn.open_mesh_device(ttnn.MeshShape(1, 2))
+print(mesh)  # MeshDevice(1x2 grid, 2 devices)
+
+a = torch.randn(64, 64, dtype=torch.bfloat16)
+b = torch.randn(64, 64, dtype=torch.bfloat16)
+
+# Shard: top 32 rows → chip 0, bottom 32 rows → chip 1
+a_mesh = ttnn.from_torch(a, layout=ttnn.TILE_LAYOUT, device=mesh,
+                          mesh_mapper=ttnn.ShardTensorToMesh(mesh, dim=0))
+b_mesh = ttnn.from_torch(b, layout=ttnn.TILE_LAYOUT, device=mesh,
+                          mesh_mapper=ttnn.ShardTensorToMesh(mesh, dim=0))
+
+# Dispatches to both chips in parallel
+c_mesh = ttnn.add(a_mesh, b_mesh)
+
+# Reconstruct full result
+c = ttnn.to_torch(c_mesh, mesh_composer=ttnn.ConcatMeshToTensor(mesh, dim=0))
+ttnn.close_mesh_device(mesh)
+```
+
+Or run the complete script:
+
+```bash
+mkdir -p ~/tt-scratchpad/ttsim
+TOOLKIT_DIR="${TOOLKIT_DIR:-~/code/tt-vscode-toolkit}"
+cp $TOOLKIT_DIR/content/templates/ttsim/ttsim_n300_mesh.py ~/tt-scratchpad/ttsim/
+python3 ~/tt-scratchpad/ttsim/ttsim_n300_mesh.py
+```
+
+```text
+Opened mesh: MeshDevice(1x2 grid, 2 devices)
+Max error vs reference: 0.031250
+✅ PASS — N300 mesh add (64x64, sharded across 2 chips)
+```
+
+Two devices. One simulation. The exact same API call you'd use on real N300 hardware —
+`ShardTensorToMesh`, `ttnn.add`, `ConcatMeshToTensor`. The multi-chip path works
+before you have the hardware.
+
 `matmul_multicore_reuse` on the simulator takes about five seconds. On a P300c it
 takes milliseconds. On a QuietBox with four P300cs, less than that.
 
-Two things the simulator cannot give you.
+Two things the simulator still cannot give you.
 
 First: the performance counter values. Reads from hardware cycle counters and performance
 monitors return values the README explicitly marks as divergent. The simulator does not
 model real-time execution.
 
-Second: fast dispatch. `TT_METAL_SLOW_DISPATCH_MODE=1` is required in the simulator.
-The fast dispatch path is not yet implemented. On hardware, turning off slow dispatch
-mode is the moment the architecture behaves differently. The dispatch overhead collapses.
-The ratio you measured in entry 26 changes by an order of magnitude.
+Second: fast dispatch. `TT_METAL_SLOW_DISPATCH_MODE=1` is required. The fast dispatch
+path is not yet implemented. On hardware, turning off slow dispatch mode is the moment
+the architecture behaves differently. The dispatch overhead collapses. The ratio you
+measured in entry 26 changes by an order of magnitude.
 
 There is a third thing, harder to describe. The biquad filter in entry 29 runs in the
 simulator. On silicon, with fast dispatch enabled, 1,024 samples of biquad filtering at
@@ -882,18 +939,22 @@ arithmetic. The same bit patterns. A different physical reality.
 
 The simulator gave you the model. Hardware gives you the thing.
 
+> To return to single-chip mode: `export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` and
+> `unset TT_METAL_MOCK_CLUSTER_DESC_PATH`.
+
 ---
 
 ## What You Learned
 
-- ✅ **ttsim setup**: both Wormhole and Blackhole simulators running on any Linux machine
+- ✅ **ttsim setup**: Wormhole, Blackhole, and N300 (wh_x2) simulators on any Linux machine
 - ✅ **Kernel dispatch**: RISC-V data-movement and compute paths, DPRINT observer effect
 - ✅ **SFPU operations**: native transcendental functions, custom SFPI assembly, DSP use
 - ✅ **Memory hierarchy**: L1 reuse, DRAM sharding, NoC tile transfer
 - ✅ **Multi-core patterns**: grid dispatch, multicast, distributed mesh
+- ✅ **Multi-chip simulation**: N300 1×2 MeshDevice with ShardTensorToMesh (v1.8.0+)
 - ✅ **Simulator strictness**: named error categories, race detection, bit-exact NaN
-- ✅ **Architecture exploration**: Wormhole vs Blackhole without owning either
+- ✅ **Architecture exploration**: Wormhole vs Blackhole vs N300 without owning any of them
 
 **Ready for hardware?** Start with
 [verifying your installation](command:tenstorrent.showLesson?["verify-installation"])
-to confirm your device is operational, then return here and run entry 31 again.
+to confirm your device is operational, then return here and run entries 30–31 again.
