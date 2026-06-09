@@ -136,9 +136,14 @@ Sleep 1.5s
 Type "python3 ~/.figlet_cosmic.py one more thing..."
 Enter
 Sleep 2s
-Type "# transformer attention — one head, no model download needed"
+Type "export TT_METAL_SIMULATOR=~/sim/libttsim_wh_x2.so"
+Enter
+Type "export TT_METAL_MOCK_CLUSTER_DESC_PATH=~/sim/n300_cluster_desc.yaml"
 Enter
 Sleep 400ms
-Type "python3 ~/code/tt-vscode-toolkit/content/templates/ttsim/ttsim_attention.py 2>&1 | grep -v 'nanobind\|leaked\|ttnn:<module>\|Config{'"
+Type "# N300: two Wormhole chips, one simulation"
 Enter
-Sleep 5s
+Sleep 300ms
+Type "python3 ~/code/tt-vscode-toolkit/content/templates/ttsim/ttsim_n300_mesh.py 2>&1 | grep -v 'nanobind\|leaked\|ttnn:<module>\|Config{\|DEBUG\|skipped'"
+Enter
+Sleep 6s
