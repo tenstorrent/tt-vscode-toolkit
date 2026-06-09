@@ -733,7 +733,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "validated",
       "validatedOn": [
@@ -861,7 +862,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "validated",
       "validatedOn": [
@@ -991,7 +993,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1020,7 +1023,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1049,7 +1053,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1078,7 +1083,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1107,7 +1113,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1136,7 +1143,8 @@
         "p100",
         "p150",
         "p300c",
-        "galaxy"
+        "galaxy",
+        "simulator"
       ],
       "status": "draft",
       "estimatedMinutes": 30,
@@ -1448,6 +1456,36 @@
       "nextLesson": null,
       "completionEvents": [],
       "markdownFile": "content/lessons/tt-lang-intro.md"
+    },
+    {
+      "id": "ttsim-twenty-and-ten",
+      "title": "Twenty-and-Ten Things You Can Do with ttsim",
+      "description": "31 things you can do with the ttsim hardware simulator — no Tenstorrent device required. Runs on any Linux machine, including WSL2 on Windows. Includes N300 two-chip mesh simulation (v1.8.0+). Escalates from first kernel to DSP prototyping to a cliffhanger only real hardware can resolve.",
+      "category": "advanced",
+      "tags": [
+        "ttsim",
+        "simulator",
+        "metalium",
+        "kernels",
+        "architecture"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 60,
+      "order": 99,
+      "previousLesson": null,
+      "nextLesson": null,
+      "completionEvents": [],
+      "markdownFile": "content/lessons/ttsim-twenty-and-ten.md"
     }
   ]
 }
