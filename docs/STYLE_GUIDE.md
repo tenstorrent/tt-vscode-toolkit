@@ -24,11 +24,11 @@ This style guide ensures consistency across all lessons, documentation, and code
 
 **Software Projects:**
 - ✅ `tt-metal` (lowercase, hyphenated) in code/commands, paths (`~/tt-metal`), and repo URLs
-- ✅ **TT-Metalium** in prose and documentation (replaces legacy **TT-Metal**)
+- ✅ **TT-Metalium<sup>™</sup>** in prose and documentation (replaces legacy **TT-Metal**)
 - ❌ `TT Metal`, `tt metal`, `TTMetal`, `ttmetal`, `TT-Metal`
 
 - ✅ `tt-forge` / `tt-forge-fe` (lowercase) in code/commands and paths
-- ✅ **TT-Forge** in prose and documentation
+- ✅ **TT-Forge<sup>™</sup>** in prose and documentation
 - ❌ `TT Forge`, `tt forge`, `TTForge`, `ttforge`
 
 - ✅ `tt-xla` / `tt-xla-venv` (lowercase) in code/commands and paths
@@ -69,8 +69,8 @@ This style guide ensures consistency across all lessons, documentation, and code
 - ✅ `Blackhole` (capital B); first mention per page: `Blackhole<sup>®</sup>`
 - ✅ `Wormhole` (capital W); first mention per page: `Wormhole<sup>™</sup>`
 - ✅ `TT-QuietBox 2` in prose (not `QB2` or bare `QuietBox`); first mention per page: `TT-QuietBox<sup>®</sup> 2`
-- ✅ `TT-NN` in prose (not `TTNN`); first mention per page: `TT-NN<sup>®</sup>`
-- ✅ `TT-Metalium`, `TT-Forge` — first mention per page: `TT-Metalium<sup>®</sup>`, `TT-Forge<sup>™</sup>`
+- ✅ `TT-NN` in prose (not `TTNN`); first mention per page: `TT-NN`
+- ✅ `TT-Metalium`, `TT-Forge` — first mention per page: `TT-Metalium`, `TT-Forge`
 - ❌ `grayskull`, `wormhole`, `blackhole` (except in code/environment variables)
 
 **In code and configuration:**

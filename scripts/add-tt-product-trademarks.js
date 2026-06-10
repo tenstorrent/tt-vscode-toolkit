@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * First prose mention per page (each term independently):
- *   TT-Metalium → TT-Metalium<sup>®</sup>
- *   TT-NN       → TT-NN<sup>®</sup>
+ *   TT-Metalium → TT-Metalium<sup>™</sup>
+ *   TT-NN       → TT-NN<sup>™</sup>
  *   TT-Forge    → TT-Forge<sup>™</sup>
  *
  * Skips YAML front matter, fenced code, inline `code`, markdown link URLs,
@@ -21,9 +21,9 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 
 const TERMS = [
-  { id: 'TT-Metalium', re: /TT-Metalium(?!<sup>)/, mark: 'TT-Metalium<sup>®</sup>' },
+  { id: 'TT-Metalium', re: /TT-Metalium(?!<sup>)/, mark: 'TT-Metalium<sup>™</sup>' },
   { id: 'TT-Forge', re: /TT-Forge(?!<sup>)/, mark: 'TT-Forge<sup>™</sup>' },
-  { id: 'TT-NN', re: /TT-NN(?!<sup>)/, mark: 'TT-NN<sup>®</sup>' },
+  { id: 'TT-NN', re: /TT-NN(?!<sup>)/, mark: 'TT-NN<sup>™</sup>' },
 ];
 
 const ROOTS = [
@@ -118,27 +118,30 @@ function transformMarkdownLine(line, term, done) {
 
 function transformMarkdown(text) {
   const lines = text.split('\n');
+  const hasYamlFrontmatter = lines.length > 0 && lines[0] === '---';
   let inFrontmatter = false;
-  let frontmatterDone = false;
+  let frontmatterDone = !hasYamlFrontmatter;
   let inFence = false;
   const done = new Set();
   const out = [];
 
   for (const line of lines) {
-    if (!frontmatterDone && line === '---') {
-      if (!inFrontmatter) {
-        inFrontmatter = true;
+    if (!frontmatterDone) {
+      if (line === '---') {
+        if (!inFrontmatter) {
+          inFrontmatter = true;
+          out.push(line);
+          continue;
+        }
+        inFrontmatter = false;
+        frontmatterDone = true;
         out.push(line);
         continue;
       }
-      inFrontmatter = false;
-      frontmatterDone = true;
-      out.push(line);
-      continue;
-    }
-    if (inFrontmatter) {
-      out.push(line);
-      continue;
+      if (inFrontmatter) {
+        out.push(line);
+        continue;
+      }
     }
     if (/^(`{3,}|~{3,})/.test(line.trim())) {
       inFence = !inFence;
@@ -207,28 +210,25 @@ function transformHtml(text) {
   return { text: out.join('\n'), changed: text !== out.join('\n') };
 }
 
-function needsAnyTerm(text) {
-  return TERMS.some((t) => t.re.test(text) && !text.includes(t.mark));
-}
-
-function stripLegacyForgeRegisteredMark(text) {
-  return text.replace(/TT-Forge<sup>®<\/sup>/g, 'TT-Forge');
+function stripProductMarks(text) {
+  return text
+    .replace(/TT-Metalium<sup>®<\/sup>/g, 'TT-Metalium')
+    .replace(/TT-NN<sup>®<\/sup>/g, 'TT-NN')
+    .replace(/TT-Forge<sup>®<\/sup>/g, 'TT-Forge')
+    .replace(/TT-Metalium<sup>™<\/sup>/g, 'TT-Metalium')
+    .replace(/TT-NN<sup>™<\/sup>/g, 'TT-NN')
+    .replace(/TT-Forge<sup>™<\/sup>/g, 'TT-Forge');
 }
 
 function transformFile(rel) {
   const abs = path.join(ROOT, rel);
   const raw = fs.readFileSync(abs, 'utf8');
-  const before = stripLegacyForgeRegisteredMark(raw);
-  if (!needsAnyTerm(before) && before === raw) {
-    return { rel, changed: false };
-  }
-
-  const { text: after, changed: transformed } = rel.endsWith('.html')
+  const before = stripProductMarks(raw);
+  const { text: after } = rel.endsWith('.html')
     ? transformHtml(before)
     : transformMarkdown(before);
 
-  const changed = transformed || before !== raw;
-  return { rel, changed, after };
+  return { rel, changed: after !== raw, after };
 }
 
 function main() {
@@ -254,7 +254,7 @@ function main() {
       console.error(`\n${pending} file(s) need TT product first-mention marks.`);
       process.exit(1);
     }
-    console.log('OK: all pages have first-mention marks for TT-Metalium (®), TT-NN (®), and TT-Forge (™).');
+    console.log('OK: all pages have first-mention ™ for TT-Metalium, TT-NN, and TT-Forge.');
     process.exit(0);
   }
 

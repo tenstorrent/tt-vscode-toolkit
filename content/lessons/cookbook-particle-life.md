@@ -276,7 +276,7 @@ python particle_life_multi_device.py --multi-device --num-steps 1000
 
 ### Advanced: On-Device Force Calculations
 
-For maximum performance, move force calculations entirely to TT hardware using TT-NN<sup>®</sup> operations:
+For maximum performance, move force calculations entirely to TT hardware using TT-NN<sup>™</sup> operations:
 
 ```python
 # Convert positions to TTNN tensors on device

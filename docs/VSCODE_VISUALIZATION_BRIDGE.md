@@ -561,7 +561,7 @@ Contributions welcome! Areas for improvement:
 ### Tenstorrent
 - [Extension README](../README.md)
 - [Cookbook Lessons](../content/lessons/cookbook-overview.md)
-- [TT-Metalium<sup>®</sup> Documentation](https://docs.tenstorrent.com/)
+- [TT-Metalium<sup>™</sup> Documentation](https://docs.tenstorrent.com/)
 
 ---
 

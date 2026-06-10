@@ -45,12 +45,12 @@ TT-Installer 2.0 is Tenstorrent's official one-command installation tool. **Note
 For users who need to set up from scratch, TT-Installer:
 
 - ✅ **One command setup** - Complete stack installation in 5-15 minutes
-- ✅ **Container-based** - TT-Metalium<sup>®</sup> runs in Podman containers (no complex builds)
+- ✅ **Container-based** - TT-Metalium<sup>™</sup> runs in Podman containers (no complex builds)
 - ✅ **Full automation** - Kernel drivers, HugePages, firmware, tt-smi, tools
 - ✅ **Production-ready** - Tested across Ubuntu, Debian, Fedora
 - ✅ **Two container options:**
-  - Standard (1GB) - TT-NN<sup>®</sup> library for inference
-  - Model Demos (10GB) - Full TT-Metalium<sup>®</sup> with demos and examples
+  - Standard (1GB) - TT-NN<sup>™</sup> library for inference
+  - Model Demos (10GB) - Full TT-Metalium with demos and examples
 
 ### Quick Start
 
@@ -1108,7 +1108,7 @@ Each lesson builds on the previous, maintaining the Generator API understanding 
 **Status:** Fully implemented with NATIVE TT HARDWARE ACCELERATION
 
 **Key features:**
-- ✅ **Native TT Acceleration** - Runs on TT-Metalium using TT-NN<sup>®</sup> operators (NOT CPU!)
+- ✅ **Native TT Acceleration** - Runs on TT-Metalium using TT-NN operators (NOT CPU!)
 - ✅ **Stable Diffusion 3.5 Large** - State-of-the-art MMDiT architecture
 - ✅ **High Resolution** - Generates 1024x1024 images (vs 512x512)
 - ✅ **Fast** - ~12-15 seconds per image on n150 with hardware acceleration

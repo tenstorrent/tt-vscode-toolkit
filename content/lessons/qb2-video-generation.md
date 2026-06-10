@@ -549,6 +549,6 @@ sudo apt install gstreamer1.0-libav gstreamer1.0-plugins-ugly
 
 ## What's Next
 
-- **Explore the kernel level:** The `~/code/skyreels-ttlang/` directory has hand-written Tensix kernels for the WAN transformer block, verified in the functional simulator at SkyReels-1.3B production dimensions — a starting point for pushing throughput beyond TT-NN<sup>®</sup> dispatch
+- **Explore the kernel level:** The `~/code/skyreels-ttlang/` directory has hand-written Tensix kernels for the WAN transformer block, verified in the functional simulator at SkyReels-1.3B production dimensions — a starting point for pushing throughput beyond TT-NN<sup>™</sup> dispatch
 - **Build on the API:** `api_client.py` exposes a simple `generate()` call — write scripts that feed prompts from any source and collect the output MP4s
 - **Automate at scale:** Hook `generate_prompt.py --raw` into a cron job; pipe output to `tt-ctl generate` for hands-off overnight batch runs

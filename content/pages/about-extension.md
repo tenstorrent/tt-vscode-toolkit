@@ -91,7 +91,7 @@ Get from zero to a running inference server.
 | Verify Your Setup | n150 · p300c |
 | Interactive Chat with Direct API | n150 |
 | HTTP API Server with Direct API | n150 |
-| Build TT-Metalium<sup>®</sup> from Source | n150 · p300c |
+| Build TT-Metalium<sup>™</sup> from Source | n150 · p300c |
 
 ### 🏭 Serving Models *(4 lessons)*
 
@@ -139,7 +139,7 @@ Self-contained programs that showcase Tenstorrent capabilities with vivid visual
 
 | Lesson | Focus |
 |---|---|
-| Exploring TT-Metalium<sup>®</sup> | Low-level kernel programming, validated |
+| Exploring TT-Metalium | Low-level kernel programming, validated |
 | Bounty Program: Model Bring-Up | Open Source contribution workflow |
 
 ### 🎓 CS Fundamentals *(7 modules, in development)*

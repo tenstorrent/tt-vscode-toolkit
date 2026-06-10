@@ -40,7 +40,7 @@ pass. A handful of carefully worded prompts becomes a short film.
 - **T3000 (8 chips)**: same code, passes more context in parallel
 
 **Requires `~/tt-metal` built from source.** If you don't have that yet, see
-[Build TT-Metalium<sup>®</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+[Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 ---
 

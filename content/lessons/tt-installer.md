@@ -35,7 +35,7 @@ TT-Installer 2.0 is Tenstorrent's official one-command installation tool that se
 TT-Installer 2.0 is a comprehensive installation script that:
 
 - ✅ **Installs the full Tenstorrent stack** - Everything you need in one command
-- ✅ **Uses modern containers** - TT-Metalium<sup>®</sup> runs in Podman containers (no complex builds)
+- ✅ **Uses modern containers** - TT-Metalium<sup>™</sup> runs in Podman containers (no complex builds)
 - ✅ **Configures your system** - Kernel drivers, HugePages, firmware automatically set up
 - ✅ **Provides production tools** - tt-smi, tt-flash, TT-Inference-Server included
 - ✅ **Supports multiple hardware** - Works with n150, n300, T3000, Galaxy, p100, p150, p300c, and TT-QuietBox<sup>®</sup> 2
@@ -80,9 +80,9 @@ TT-Installer 2.0 sets up:
 4. **Firmware updater (tt-flash)** - Updates your card's firmware to latest
 5. **HugePages** - Kernel memory configuration for fast hardware access
 6. **System Management Interface (tt-smi)** - Monitor your Tenstorrent devices
-7. **Podman** - Container runtime for TT-Metalium<sup>®</sup>
+7. **Podman** - Container runtime for TT-Metalium
 8. **TT-Metalium containers** - Two options:
-   - **Standard container** (1GB) - For TT-NN<sup>®</sup> inference and development
+   - **Standard container** (1GB) - For TT-NN<sup>™</sup> inference and development
    - **Model Demos container** (10GB) - Includes full TT-Metalium build and demos
 
 9. **TT-Inference-Server** - Production inference serving
@@ -198,7 +198,7 @@ tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
 
 This verifies:
 - ✅ Container launches successfully
-- ✅ TT-NN<sup>®</sup> library is available
+- ✅ TT-NN library is available
 - ✅ Python environment is configured
 
 [🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)

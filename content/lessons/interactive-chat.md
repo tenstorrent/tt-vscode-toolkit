@@ -22,7 +22,7 @@ estimatedMinutes: 10
 
 # Interactive Chat with Direct API
 
-Build your own interactive chat application using TT-Metalium<sup>®</sup>'s Generator API directly.
+Build your own interactive chat application using TT-Metalium<sup>™</sup>'s Generator API directly.
 
 > **⚠️ Llama + tt-metal source required.** The Generator API used in this lesson is Llama-specific and requires `~/tt-metal` cloned and built from source. If you:
 > - Haven't accepted [Meta's data terms](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) for Llama access, or

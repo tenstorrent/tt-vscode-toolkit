@@ -52,7 +52,7 @@ source ~/tt-forge-venv/bin/activate
 >
 > ```bash
 > # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
-> ln -s /opt/venv-forge ~/TT-Forge-venv
+> ln -s /opt/venv-forge ~/TT-Forge<sup>™</sup>-venv
 >
 > # ~/TT-Forge-venv exists but /opt/venv-forge doesn't (needs sudo):
 > sudo ln -s ~/TT-Forge-venv /opt/venv-forge
@@ -232,7 +232,7 @@ print(output.shape)       # torch.Size([1, 1000])
 ```
 
 > **Note:** torch-xla (without `forge.compile()`) runs models via the XLA JIT path.
-> For the full TT-Forge<sup>™</sup> compiler pipeline with MLIR optimization, see the
+> For the full TT-Forge compiler pipeline with MLIR optimization, see the
 > [TT-Forge Image Classification lesson](command:tenstorrent.showLesson?["forge-image-classification"]).
 
 ---

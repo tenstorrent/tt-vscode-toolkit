@@ -76,7 +76,7 @@ All images are based on **Ubuntu 24.04 (noble) server variant** with code-server
 ### Full Image (`Dockerfile.full`)
 - **Size:** ~1.8GB
 - **Base:** Ubuntu 24.04 (server/minimal)
-- **Contents:** code-server + extension + TT-Metalium<sup>®</sup> dependencies
+- **Contents:** code-server + extension + TT-Metalium<sup>™</sup> dependencies
 - **Use case:** Complete development environment with all tools
 - **Build:** `docker build -f Dockerfile.full -t TT-VSCode-Toolkit:full .`
 

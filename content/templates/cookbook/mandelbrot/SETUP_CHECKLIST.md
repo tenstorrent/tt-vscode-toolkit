@@ -4,7 +4,7 @@ Quick reference for getting everything working.
 
 ## Prerequisites
 
-### ✅ TT-Metalium<sup>®</sup> Installation
+### ✅ TT-Metalium<sup>™</sup> Installation
 
 **Required for ttnn:**
 

@@ -3,7 +3,7 @@
 **Date:** 2026-01-08
 **Hardware:** 4x p300c (Blackhole) - TT-QuietBox Tower
 **Environment:** Production TT-QuietBox with fresh TT-Installer setup
-**Starting State:** TT-Metalium<sup>®</sup> installed, no models downloaded
+**Starting State:** TT-Metalium<sup>™</sup> installed, no models downloaded
 
 ---
 
@@ -80,7 +80,7 @@ Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
 
 ### Software Baseline ✅
 
-**TT-Metalium<sup>®</sup>:**
+**TT-Metalium:**
 - Location: `~/tt-metal/`
 - Commit: `44ef32f` (Dec 18, 2025)
 - Build: Present (`build_Release/`)
@@ -1251,7 +1251,7 @@ This is actually quite good for a first implementation! Limited by:
 **How to improve toward 3-4x:**
 - Larger workloads (4,096+ particles = 1,024 per device)
 - Longer simulations (amortize setup cost)
-- On-device TT-NN<sup>®</sup> operations (eliminate CPU bottleneck)
+- On-device TT-NN<sup>™</sup> operations (eliminate CPU bottleneck)
 - Device-to-device communication (skip CPU aggregation)
 
 ### Lesson Content Updates

@@ -56,7 +56,7 @@
 ### Priority 2 (Important for Quality) - Recommended Before Release
 
 - [ ] **Standardize terminology across all lessons**
-  - Issue: Mixed use of "TT-Metalium<sup>®</sup>" vs "TT-Metalium", "vLLM" vs "VLLM"
+  - Issue: Mixed use of "TT-Metalium<sup>™</sup>" vs "TT-Metalium", "vLLM" vs "VLLM"
   - Impact: Medium (confusing but not blocking)
   - Effort: 2-3 hours
   - Tool: `grep -ri "tt-metal\|TT-Metalium" content/` to find instances

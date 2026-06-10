@@ -49,7 +49,7 @@ If `tt-smi` is not found on your system, the fastest way to set up is with **TT-
 - ✅ Kernel drivers
 - ✅ Firmware updates
 - ✅ HugePages configuration
-- ✅ TT-Metalium<sup>®</sup> containers (1GB standard, optional 10GB with demos)
+- ✅ TT-Metalium<sup>™</sup> containers (1GB standard, optional 10GB with demos)
 - ✅ Python environment
 
 

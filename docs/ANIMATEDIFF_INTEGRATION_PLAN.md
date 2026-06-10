@@ -120,7 +120,7 @@ spatial = (batch*frames, spatial_tokens, channels)
 **Key files:**
 - `fun_transformer_block.py`: Transformer block with dual_attn + feed_forward
 - `fun_pipeline.py`: Main pipeline, latent preparation
-- `fun_attention.py`: TT-NN<sup>®</sup>-optimized attention implementation
+- `fun_attention.py`: TT-NN<sup>™</sup>-optimized attention implementation
 - `fun_feed_forward.py`: TT-NN-optimized feed-forward
 
 ---

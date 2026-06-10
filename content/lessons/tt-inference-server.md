@@ -39,7 +39,7 @@ validationNotes: >-
 [TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server) is
 Tenstorrent's official workflow automation tool. Give it a model name and your
 hardware type and it handles everything: pulls the right Docker image (pre-built
-TT-Metalium<sup>®</sup> + vLLM), downloads model weights, and starts an OpenAI-compatible
+TT-Metalium<sup>™</sup> + vLLM), downloads model weights, and starts an OpenAI-compatible
 inference server.
 
 > **TT-QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware

@@ -1,4 +1,4 @@
-# Pre-compiled TT-Metalium<sup>®</sup> and MOTD System
+# Pre-compiled TT-Metalium<sup>™</sup> and MOTD System
 
 **Version:** 0.0.276
 **Date:** 2026-01-27

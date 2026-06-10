@@ -205,7 +205,7 @@ Each module follows a consistent 10-part structure:
 - Leaky abstractions
 
 **Key Experiments:**
-- Matrix multiply at 3 levels (Python: 10s, NumPy: 0.01s, TT-NN<sup>®</sup>: 0.001s)
+- Matrix multiply at 3 levels (Python: 10s, NumPy: 0.01s, TT-NN<sup>™</sup>: 0.001s)
 - Analyze 10,000x speedup from abstraction changes
 - Understand when to drop down levels
 
@@ -458,7 +458,7 @@ docs/CS_FUNDAMENTALS_SERIES.md  - This summary document
 ### Learning Outcomes
 - Pre/post quiz: "What is Amdahl's Law?" (before: 20% correct, after: 90% correct)
 - Project completion: Users who go on to complete Lesson 15 (Cookbook)
-- Community contributions: PRs to TT-Metalium<sup>®</sup> after completing series
+- Community contributions: PRs to TT-Metalium<sup>™</sup> after completing series
 
 ### Performance Impact
 - Users who complete series write 2-3x faster kernels (measured via benchmarks)
@@ -494,7 +494,7 @@ docs/CS_FUNDAMENTALS_SERIES.md  - This summary document
 
 ### Hardware Updates
 - **New chips:** When Blackhole<sup>®</sup> 2.0 / next-gen released, update Module 1-4
-- **New features:** When TT-Metalium<sup>®</sup> adds features, integrate into relevant modules
+- **New features:** When TT-Metalium adds features, integrate into relevant modules
 - **Deprecations:** Mark lessons if hardware/software changes break examples
 
 ### Community Engagement

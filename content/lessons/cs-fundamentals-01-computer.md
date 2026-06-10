@@ -260,7 +260,7 @@ Let's run the canonical first program: **adding two integers**.
 
 ### Step 1: Build Programming Examples
 
-First, build TT-Metalium<sup>®</sup> with RISC-V programming examples enabled:
+First, build TT-Metalium<sup>™</sup> with RISC-V programming examples enabled:
 
 ```bash
 cd ~/tt-metal && \

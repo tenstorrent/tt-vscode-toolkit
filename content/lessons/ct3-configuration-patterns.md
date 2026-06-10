@@ -778,7 +778,7 @@ device_config:
 
 ### Scenario 2: The Code Translator (Speed Matters)
 
-**Challenge:** PyTorch → TT-NN<sup>®</sup> translator for internal dev team. Need fast iteration.
+**Challenge:** PyTorch → TT-NN<sup>™</sup> translator for internal dev team. Need fast iteration.
 
 **Configuration decisions:**
 ```yaml

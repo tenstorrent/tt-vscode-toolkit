@@ -29,7 +29,7 @@ No installation steps here — the playground is the install.
 
 Three short paragraphs plus one table.
 
-**Para 1:** TT-NN<sup>®</sup> dispatches each op as a separate kernel. Data written to DRAM after every op. For a transformer forward pass, that's roughly one DRAM round-trip per layer component (norm → proj → attn → proj → FFN = 5+ DRAM writes per layer).
+**Para 1:** TT-NN<sup>™</sup> dispatches each op as a separate kernel. Data written to DRAM after every op. For a transformer forward pass, that's roughly one DRAM round-trip per layer component (norm → proj → attn → proj → FFN = 5+ DRAM writes per layer).
 
 **Para 2:** TT-Lang breaks that pattern. Tile data streams in from DRAM once, flows through L1 using Dataflow Buffers (DFBs), compute happens entirely in registers, and results drain to DRAM once. The whole fused block is one kernel dispatch.
 
@@ -177,7 +177,7 @@ Applies optimizations based on profile output: increase DFB depth for double-buf
 ```
 /ttl-export attention_ttl.py
 ```
-Compiles the kernel through LLVM → tt-mlir → TT-Metalium<sup>®</sup> and produces production C++ code. Also outputs the MLIR at each pass stage for debugging.
+Compiles the kernel through LLVM → tt-mlir → TT-Metalium<sup>™</sup> and produces production C++ code. Also outputs the MLIR at each pass stage for debugging.
 
 ```
 /ttl-bug "description"

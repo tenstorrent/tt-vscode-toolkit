@@ -35,7 +35,7 @@ Uses the diffusers `AnimateDiffPipeline` with `MotionAdapter`. No TT hardware re
 
 ### Phase 2 — Blackhole-Accelerated Spatial Diffusion
 
-Replaces the PyTorch UNet with the TT-NN<sup>®</sup> UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/unet_2d_condition_model.py`. The same TT-NN UNet code runs on Blackhole (confirmed: `models/demos/blackhole/stable_diffusion/` imports it directly). Frames are denoised sequentially using `sd_helper_funcs.run()`.
+Replaces the PyTorch UNet with the TT-NN<sup>™</sup> UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/unet_2d_condition_model.py`. The same TT-NN UNet code runs on Blackhole (confirmed: `models/demos/blackhole/stable_diffusion/` imports it directly). Frames are denoised sequentially using `sd_helper_funcs.run()`.
 
 **Temporal coherence mechanism:** Shared base noise initialization across frames. Each frame's latent is the base noise plus a small per-frame perturbation. This is a documented simplification — not full AnimateDiff temporal attention.
 
@@ -193,7 +193,7 @@ Both are open-weight (no gated access). SD 1.4 is ~4GB; motion adapter is ~700MB
 | Phase | Hardware | Setup |
 |-------|----------|-------|
 | Phase 1 | Any CPU (no TT hardware) | `pip install -r requirements.txt` |
-| Phase 2 | Blackhole (p100 or p300c) | `TT_METAL_ARCH_NAME=blackhole` + TT-Metalium<sup>®</sup> activated |
+| Phase 2 | Blackhole (p100 or p300c) | `TT_METAL_ARCH_NAME=blackhole` + TT-Metalium<sup>™</sup> activated |
 
 Phase 2 requires `~/tt-metal` present and the metal environment activated.
 

@@ -260,7 +260,7 @@ _start:
 
 ## Part 3: Hands-On Example - Adding Two Integers in RISC-V
 
-Let's walk through the canonical example from TT-Metalium<sup>®</sup>: `add_2_integers_in_riscv`.
+Let's walk through the canonical example from TT-Metalium<sup>™</sup>: `add_2_integers_in_riscv`.
 
 ### High-Level Flow
 

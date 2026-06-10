@@ -98,7 +98,7 @@ So far in this extension, you've learned how to **run** pre-trained models (infe
 
 Tenstorrent's training ecosystem is designed around clarity and modularity. Here's how the pieces fit together:
 
-### TT-Metalium<sup>®</sup> (Foundation)
+### TT-Metalium<sup>™</sup> (Foundation)
 - **What it is:** Core SDK for Tenstorrent hardware
 - **What it does:** Low-level operations, kernels, device management, memory handling
 - **Why it matters:** This is the foundation everything else builds on
@@ -134,7 +134,7 @@ graph TD
 ```
 
 **Think of it like web development:**
-- TT-Metalium<sup>®</sup> = Browser APIs (low-level)
+- TT-Metalium = Browser APIs (low-level)
 - tt-train = React/Vue (framework)
 - tt-blacksmith = Design patterns & best practices
 - Your script = Your application
@@ -375,7 +375,7 @@ Train from scratch when:
 
 - **TinyLlama:** Apache 2.0 license (commercial-friendly)
 - **Your fine-tuned model:** You own it
-- **Training code:** Check TT-Metalium<sup>®</sup> and tt-train licenses
+- **Training code:** Check TT-Metalium and tt-train licenses
 - **Hosting:** Use TT-Inference-Server or vLLM (Lesson 7)
 
 Always verify licenses for your specific use case.
@@ -391,7 +391,7 @@ You're about to learn how to train custom models - but what will you build with 
 **Real-world custom models running on TT hardware:**
 
 🎯 **Domain-Specific Coding Assistants**
-- Python → TT-NN<sup>®</sup> translators (convert PyTorch to TT-optimized code)
+- Python → TT-NN<sup>™</sup> translators (convert PyTorch to TT-optimized code)
 - Hardware description language generators (Verilog patterns)
 - Code review bots trained on team style guides
 - API documentation chatbots

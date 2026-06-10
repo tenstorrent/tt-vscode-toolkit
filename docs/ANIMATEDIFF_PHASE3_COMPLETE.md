@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-**AnimateDiff temporal attention has been successfully ported to TT-NN and injected into SD 3.5!**
+**AnimateDiff temporal attention has been successfully ported to TT-NN<sup>™</sup> and injected into SD 3.5!**
 
 We've completed the core implementation that enables native animated video generation on TT hardware. The temporal attention module is now fully integrated with SD 3.5's DiT transformer architecture.
 
@@ -36,7 +36,7 @@ hidden_states = rearrange(hidden_states, "(b f) d c -> (b d) f c", f=video_lengt
 ### Phase 2: Architecture Understanding ✅
 
 **Completed:**
-- Explored SD 3.5 pipeline architecture in TT-Metalium<sup>®</sup>
+- Explored SD 3.5 pipeline architecture in TT-Metalium<sup>™</sup>
 - Identified SD 3.5 uses DiT (Diffusion Transformer), not UNet
 - Found transformer block structure in `fun_transformer_block.py`
 - Located perfect injection point: **Line 336** (after spatial attention, before feed-forward)
@@ -49,7 +49,7 @@ hidden_states = rearrange(hidden_states, "(b f) d c -> (b d) f c", f=video_lengt
 4. Feed-Forward Network (line 356-365)
 ```
 
-### Phase 3: TT-NN<sup>®</sup> Implementation and Injection ✅
+### Phase 3: TT-NN Implementation and Injection ✅
 
 **Created:** `/home/user/tt-metal/models/experimental/stable_diffusion_35_large/tt/temporal_module.py`
 

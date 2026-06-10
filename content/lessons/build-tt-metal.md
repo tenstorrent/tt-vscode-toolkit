@@ -26,9 +26,9 @@ validatedOn:
 estimatedMinutes: 60
 ---
 
-# Build TT-Metalium<sup>®</sup> from Source
+# Build TT-Metalium<sup>™</sup> from Source
 
-This lesson walks you through cloning and building TT-Metalium<sup>®</sup> from source on your
+This lesson walks you through cloning and building TT-Metalium from source on your
 Tenstorrent hardware. Once complete, return to
 [Verify Your Setup](command:tenstorrent.showLesson?["verify-installation"]) to
 confirm Check 3 is green.
@@ -46,7 +46,7 @@ You need a local TT-Metalium source build if any of the following apply:
   source tree and build system.
 - **Running TT-Metalium examples directly** — Scripts under `tt-metal/models/` or
   `tt-metal/tests/` assume the repo is present and built.
-- **Debugging TT-NN<sup>®</sup> ops or dispatch issues** — Source-level tracing requires a
+- **Debugging TT-NN<sup>™</sup> ops or dispatch issues** — Source-level tracing requires a
   built checkout.
 
 You do **not** need a source build for:

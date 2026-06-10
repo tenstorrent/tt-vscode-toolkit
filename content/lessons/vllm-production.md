@@ -92,7 +92,7 @@ graph TB
 
 ## Prerequisites
 
-- TT-Metalium<sup>®</sup> installed and working (latest main branch - see Step 0 below if you need to update)
+- TT-Metalium<sup>™</sup> installed and working (latest main branch - see Step 0 below if you need to update)
 - Model downloaded (Llama-3.1-8B-Instruct)
 - Python 3.10+ recommended
 - ~20GB disk space for vLLM installation

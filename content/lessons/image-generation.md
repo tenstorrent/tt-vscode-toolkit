@@ -32,7 +32,7 @@ Generate images on your Tenstorrent hardware using Stable Diffusion XL Base - tu
 **Stable Diffusion XL Base** is a powerful text-to-image diffusion model that generates high-quality 1024x1024 images from text descriptions. SDXL uses a two-stage architecture with dual text encoders (CLIP-L and OpenCLIP-G) for improved prompt understanding.
 
 **Why Image Generation on Tenstorrent?**
-- 🎨 **Native TT Acceleration** - Runs directly on Tenstorrent hardware using TT-Metalium<sup>®</sup>
+- 🎨 **Native TT Acceleration** - Runs directly on Tenstorrent hardware using TT-Metalium<sup>™</sup>
 - 🔒 **Privacy** - Your prompts and images stay private
 - ⚡ **High Resolution** - Generate 1024x1024 images (vs 512x512 in older models)
 - 🎓 **Production Ready** - Real hardware acceleration, not CPU fallback
@@ -85,7 +85,7 @@ Stable Diffusion XL uses a two-stage architecture with dual text encoders:
 
 ## Hardware Compatibility
 
-Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN<sup>®</sup> acceleration (not CPU fallback!):
+Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN<sup>™</sup> acceleration (not CPU fallback!):
 
 | Hardware | Status | Performance | Notes |
 |----------|--------|-------------|-------|

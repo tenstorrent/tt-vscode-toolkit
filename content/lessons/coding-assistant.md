@@ -46,7 +46,7 @@ speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM ser
 pip install aider-chat
 ```
 
-That's the only install. Aider is a self-contained Python package with no TT-Metalium<sup>®</sup>
+That's the only install. Aider is a self-contained Python package with no TT-Metalium<sup>™</sup>
 dependencies. Install it in any environment — your system Python, a separate venv,
 or even `pipx`:
 

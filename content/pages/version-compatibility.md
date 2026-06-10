@@ -10,7 +10,7 @@ This guide documents validated combinations of hardware, software versions, and 
 
 ### Just Starting Out (Lessons 1-5)
 **Hardware:** n150 (Wormhole single-chip)
-**TT-Metalium:** Latest from main branch
+**TT-Metalium<sup>™</sup>:** Latest from main branch
 **Python:** 3.10 (system default on Ubuntu 22.04)
 **Model:** Qwen3-0.6B (1.5GB, no HuggingFace token needed)
 
@@ -120,8 +120,8 @@ This guide documents validated combinations of hardware, software versions, and 
 
 | Component | Version | Python | Installation Method | Notes |
 |-----------|---------|--------|-------------------|-------|
-| **TT-Metalium<sup>®</sup>** | Latest (main branch) | 3.10 | Source build | Core low-level API |
-| **TT-NN<sup>®</sup>** | Bundled with TT-Metalium<sup>®</sup> | 3.10 | Included | High-level neural network ops |
+| **TT-Metalium** | Latest (main branch) | 3.10 | Source build | Core low-level API |
+| **TT-NN<sup>™</sup>** | Bundled with TT-Metalium | 3.10 | Included | High-level neural network ops |
 | **OpenMPI ULFM** | 5.0.7 | N/A | System package | Required for all hardware |
 | **PyTorch** | 2.x | 3.10 | pip (in venv) | ML framework |
 | **Transformers** | Latest | 3.10 | pip (in venv) | HuggingFace models |
@@ -150,7 +150,7 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 **Native installation compatibility matrix:**
 
-| Hardware | TT-Metalium<sup>®</sup> | vLLM | Status | Notes |
+| Hardware | TT-Metalium | vLLM | Status | Notes |
 |----------|----------|------|--------|-------|
 | n150 | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
 | n150 | Specific commits | Native build | ⚠️ Complex | Requires model_specs_output.json matching |

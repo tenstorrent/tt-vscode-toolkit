@@ -204,7 +204,7 @@ Your cloud IDE includes:
 - Standard dev tools (git, python3, npm, etc.)
 - Full hardware permissions configured
 
-**Note:** TT-Metalium<sup>®</sup> can be built via lessons when needed (not pre-installed)
+**Note:** TT-Metalium<sup>™</sup> can be built via lessons when needed (not pre-installed)
 
 **Configuration:**
 - Auto-configured theme (Tenstorrent Dark)

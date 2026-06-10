@@ -2,7 +2,7 @@
 
 Two-phase implementation: **Phase 1** generates real, temporally coherent video
 on CPU using the correct AnimateDiff architecture. **Phase 2** accelerates spatial
-denoising on Blackhole<sup>®</sup> hardware using the TT-NN<sup>®</sup> UNet.
+denoising on Blackhole<sup>®</sup> hardware using the TT-NN<sup>™</sup> UNet.
 
 | *"World of Tomorrow"* | *"Phosphor Horizon"* |
 |---|---|

@@ -32,9 +32,9 @@ estimatedMinutes: 45
 This lesson shows two paths to generating animated videos:
 
 - **Phase 1 (any hardware)** — `diffusers` `AnimateDiffPipeline` on CPU, full temporal attention via MotionAdapter, ~2 min/frame
-- **Phase 2 (Blackhole)** — TT-NN<sup>®</sup> UNet on Blackhole, sequential denoising, ~15 seconds/frame
+- **Phase 2 (Blackhole)** — TT-NN<sup>™</sup> UNet on Blackhole, sequential denoising, ~15 seconds/frame
 
-Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metalium<sup>®</sup> without modifying the core repository.
+Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metalium<sup>™</sup> without modifying the core repository.
 
 ## What you'll build
 

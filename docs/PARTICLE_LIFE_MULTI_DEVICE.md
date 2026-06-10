@@ -179,7 +179,7 @@ This is actually quite good for a first multi-device implementation! Efficiency 
    - Better amortization of overhead
    - Expected: 2.5-3x speedup
 
-2. **On-Device TT-NN<sup>®</sup> Operations (→ 3-3.5x):**
+2. **On-Device TT-NN<sup>™</sup> Operations (→ 3-3.5x):**
    ```python
    # Move force calculations to TT hardware
    positions_tt = ttnn.from_torch(positions, device=device, layout=ttnn.TILE_LAYOUT)

@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.476] - 2026-05-27
+
+### Changed
+
+- **TT-Metalium<sup>™</sup> and TT-NN<sup>™</sup> trademarks** — first prose mention per page now uses `TT-Metalium` and `TT-NN` (trademark, not registered). Updated `scripts/add-tt-product-trademarks.js` and `STYLE_GUIDE.md`; migrated prior `<sup>®</sup>` marks across lessons, pages, and docs.
+
+---
+
 ## [0.0.475] - 2026-05-27
 
 ### Changed
 
-- **TT-Forge trademark** — first prose mention per page now uses `TT-Forge<sup>™</sup>` (trademark, not registered). Updated `scripts/add-tt-product-trademarks.js` and `STYLE_GUIDE.md`; migrated prior `TT-Forge` marks in lessons, pages, and docs.
+- **TT-Forge<sup>™</sup> trademark** — first prose mention per page now uses `TT-Forge` (trademark, not registered). Updated `scripts/add-tt-product-trademarks.js` and `STYLE_GUIDE.md`; migrated prior `TT-Forge` marks in lessons, pages, and docs.
 
 ---
 
@@ -27,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **TT-NN<sup>®</sup> spelling in prose** — normalized `TTNN` to `TT-NN` across lessons, pages, and docs (unchanged: `import ttnn`, code fences, paths, and literal CLI output). Added `scripts/normalize-ttnn-copy.js`; re-applied first-mention `TT-NN<sup>®</sup>` where needed.
+- **TT-NN spelling in prose** — normalized `TTNN` to `TT-NN` across lessons, pages, and docs (unchanged: `import ttnn`, code fences, paths, and literal CLI output). Added `scripts/normalize-ttnn-copy.js`; re-applied first-mention `TT-NN` where needed.
 
 ---
 
@@ -107,7 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Product naming in user-facing copy** — normalized **TT-Metalium<sup>®</sup>** (all `tt-metal` / `TT-Metal` prose), **TT-Forge<sup>™</sup>**, **TT-XLA**, and **TT-Lang** across lessons, pages, README, and docs; updated Vale `Terminology.yml` and `STYLE_GUIDE.md` (unchanged: `~/tt-metal` paths, repo URLs, lesson slugs like `build-tt-metal` / `tt-lang-intro`, and CLI commands).
+- **Product naming in user-facing copy** — normalized **TT-Metalium** (all `tt-metal` / `TT-Metal` prose), **TT-Forge**, **TT-XLA**, and **TT-Lang** across lessons, pages, README, and docs; updated Vale `Terminology.yml` and `STYLE_GUIDE.md` (unchanged: `~/tt-metal` paths, repo URLs, lesson slugs like `build-tt-metal` / `tt-lang-intro`, and CLI commands).
 
 ---
 
@@ -292,7 +300,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **AnimateDiff Phase 2 TT-NN<sup>®</sup> VAE OOM on Blackhole** — The TT-NN VAE decoder's `conv_out` crashes with an L1 grid mismatch on Blackhole (Wormhole<sup>™</sup>-targeted kernel). Bypassed by running the full PNDM denoising loop on the Blackhole TT-NN UNet, then decoding latents with CPU PyTorch `AutoencoderKL`. UNet denoising remains fully Blackhole-accelerated.
+- **AnimateDiff Phase 2 TT-NN VAE OOM on Blackhole** — The TT-NN VAE decoder's `conv_out` crashes with an L1 grid mismatch on Blackhole (Wormhole<sup>™</sup>-targeted kernel). Bypassed by running the full PNDM denoising loop on the Blackhole TT-NN UNet, then decoding latents with CPU PyTorch `AutoencoderKL`. UNet denoising remains fully Blackhole-accelerated.
 - **AnimateDiff Phase 2 PNDM scheduler state contamination across frames** — `TtPNDMScheduler` accumulates `counter`, `ets`, and `cur_sample` state across `step()` calls. Added `set_timesteps()` call before each frame's denoising loop to reset scheduler state, preventing corrupted outputs on frames 2+.
 
 ---
@@ -723,7 +731,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`test/lesson-tests/tensix-viz.test.ts`** — 14 Mocha tests: fence HTML structure, arch variants, JSON payload preservation, sanitize-html allowlist, per-lesson fence body validation (480 total tests passing).
 - **`test_sim_lite.py`** — extended from 5 to 7 tests; new: `fused_mma` (3-thread DFB model) and `matmul_relu` (k-reduction accumulator) kernel tests.
 - **`scripts/check-sim-lite-drift.py`** — compares public API surface of ttlang-sim-lite fork against upstream `~/code/tt-lang/python/sim/`; reports new symbols, signature changes, and new module files. Run: `npm run check:sim-drift`.
-- **`scripts/check-vendor-drift.py`** — vendor repo freshness checker for TT-Metalium<sup>®</sup>, tt-vllm, TT-Inference-Server, tt-forge-models, ttsim, TT-XLA, TT-Forge-onnx; shows commits-behind, changed Python API surface (with `--show-api`), and `model_spec.json` model catalog diffs. Run: `npm run check:vendor-drift`.
+- **`scripts/check-vendor-drift.py`** — vendor repo freshness checker for TT-Metalium, tt-vllm, TT-Inference-Server, tt-forge-models, ttsim, TT-XLA, TT-Forge-onnx; shows commits-behind, changed Python API surface (with `--show-api`), and `model_spec.json` model catalog diffs. Run: `npm run check:vendor-drift`.
 - **`npm run check:sim-drift`**, **`check:vendor-drift`**, **`test:sim-lite`** scripts added.
 
 **Other**
@@ -922,7 +930,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.357] - 2026-04-16
 
 ### Changed
-- **build-TT-Metalium<sup>®</sup> lesson**: moved from `advanced` category to `first-inference` — it is a prerequisite lesson, not an advanced topic.
+- **build-TT-Metalium lesson**: moved from `advanced` category to `first-inference` — it is a prerequisite lesson, not an advanced topic.
 - **custom-training lessons (ct1–ct8)**: marked all eight as `status: blocked`. The `ttml` Python bindings require building from a tt-metal v0.67.0+ source tree alongside the Metal build; they are not available as a standalone pip package. Lessons will return when `ttml` ships as a prebuilt wheel.
 
 ---

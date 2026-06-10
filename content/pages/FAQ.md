@@ -70,7 +70,7 @@ TT-Installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 
 | Tool | Purpose | When to Use | Maturity |
 |------|---------|-------------|----------|
-| **TT-Metalium<sup>®</sup>** | Low-level framework | Custom kernels, maximum control | Stable |
+| **TT-Metalium<sup>™</sup>** | Low-level framework | Custom kernels, maximum control | Stable |
 | **vLLM** | LLM serving | Production LLM deployment | Production |
 | **TT-Forge** | MLIR compiler | PyTorch models (experimental) | Beta |
 | **TT-XLA** | XLA compiler | JAX/PyTorch (production) | Production |
@@ -79,7 +79,7 @@ TT-Installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 - Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])**
 - Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.showLesson?["forge-image-classification"])**
 - Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])**
-- Building custom kernels? → **TT-Metalium<sup>®</sup>** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
+- Building custom kernels? → **TT-Metalium** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
 
 ---
 
@@ -232,7 +232,7 @@ curl http://localhost:8002/...  # User 2
 5. Start developing!
 
 **Cloud benefits:**
-- ✅ Pre-installed TT-Metalium<sup>®</sup> and drivers
+- ✅ Pre-installed TT-Metalium and drivers
 - ✅ Pre-configured environment
 - ✅ No hardware setup needed
 - ✅ Access from anywhere
@@ -335,7 +335,7 @@ cd $TT_METAL_HOME
 - ✅ Learn TT-Metalium programming model
 - ✅ Run programming examples and tests
 - ✅ Develop and debug kernels
-- ✅ Test TT-NN<sup>®</sup> operations
+- ✅ Test TT-NN<sup>™</sup> operations
 - ✅ Explore Tenstorrent architecture
 
 **What you CAN'T do (too slow):**
@@ -920,7 +920,7 @@ cd ~/tt-metal
 - **clang-17 required:** `sudo apt-get install clang-17`
 - **Environment variables:** Must unset TT_METAL_HOME first
 
-### Q: TT-NN<sup>®</sup> import errors or symbol undefined errors in cloud environments - how do I fix them?
+### Q: TT-NN import errors or symbol undefined errors in cloud environments - how do I fix them?
 
 **A:** After rolling back or updating TT-Metalium versions, TT-NN bindings may become incompatible.
 

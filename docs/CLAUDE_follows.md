@@ -35,7 +35,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **Solution:** Create universal `setup-tt-env.sh` script that auto-detects hardware and sets all variables. Generate on first launch, source in every command. **This alone would eliminate 60% of troubleshooting time.**
 
 ### 2. **vLLM Native Install = Version Compatibility Hell** 💥
-**Spent 2 hours debugging:** PyTorch 2.6.0 + vLLM dev branch = type hint incompatibility. Rolling back TT-Metalium broke TT-NN. Trying validated commits still failed.
+**Spent 2 hours debugging:** PyTorch 2.6.0 + vLLM dev branch = type hint incompatibility. Rolling back TT-Metalium<sup>™</sup> broke TT-NN<sup>™</sup>. Trying validated commits still failed.
 
 **Solution:** **Rewrite Lesson 7 to prioritize Docker.** Native installation blocked by fundamental API incompatibilities. Docker image is validated and works. Stop fighting this.
 
@@ -188,13 +188,13 @@ Every minute debugging `PYTHONPATH` or `LD_LIBRARY_PATH` is a minute not learnin
 - Kernel: 5.4.0-216-generic
 - Memory: 503.73 GB
 
-**Existing TT-Metalium<sup>®</sup>:**
+**Existing TT-Metalium:**
 - Located at ~/tt-metal
 - Last commit: Oct 28, 2024 (5143b856eb)
 - Status: OUTDATED (as mentioned by user)
 - Python environment exists at ~/tt-metal/python_env
 
-**Conclusion:** We have a working n150 with outdated TT-Metalium<sup>®</sup>. Will need to update/rebuild TT-Metalium as part of Lesson 1.
+**Conclusion:** We have a working n150 with outdated TT-Metalium. Will need to update/rebuild TT-Metalium as part of Lesson 1.
 
 ---
 
@@ -769,7 +769,7 @@ Progress:
 
 **✓ Lesson 2 (Verify Installation):**
 - TT-Metalium verification passed
-- TT-NN<sup>®</sup> working correctly
+- TT-NN working correctly
 - Harvesting mask 0x1 normal for n150 L
 
 **✓ Lesson 3 (Download Model & Run Inference):**
@@ -1424,7 +1424,7 @@ pytest models/experimental/stable_diffusion_35_large/demo.py::test_sd3 -v
 
 **Comparison to lesson expectations:** Lesson predicted ~12-15 seconds per image for n150. Actual time was ~137 seconds for full pipeline (first run). This includes:
 - Model loading from Hugging Face (~14 seconds)
-- TT-NN<sup>®</sup> transformer initialization (~82 seconds first run)
+- TT-NN transformer initialization (~82 seconds first run)
 - 28 inference steps (~128 seconds)
 - VAE decoding (~9 seconds)
 

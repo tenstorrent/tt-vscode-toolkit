@@ -137,7 +137,7 @@ vLLM repository (cloned by lessons):
 
 ### ~/tt-metal/
 
-TT-Metalium<sup>®</sup> repository (cloned by lessons):
+TT-Metalium<sup>™</sup> repository (cloned by lessons):
 
 ```
 ~/tt-metal/

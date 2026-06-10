@@ -81,7 +81,7 @@
 **Options:**
 1. ❌ **Port video model to JAX** - High effort (weeks), uncertain success
 2. ✅ **Use SD JAX/Flax for frame-by-frame video** - Works now, exercises TT hardware
-3. ⚠️ **Fall back to TT-Metalium<sup>®</sup> SD 3.5** - Already proven in Lesson 9
+3. ⚠️ **Fall back to TT-Metalium<sup>™</sup> SD 3.5** - Already proven in Lesson 9
 
 ---
 

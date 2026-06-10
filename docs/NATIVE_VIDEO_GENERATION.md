@@ -10,7 +10,7 @@
 
 ### What It Is
 
-**Mochi** is a native text-to-video generation model integrated into TT-Metalium:
+**Mochi** is a native text-to-video generation model integrated into TT-Metalium<sup>™</sup>:
 - **Model:** genmo/mochi-1-preview
 - **Architecture:** 3D transformer with temporal coherence
 - **Location:** `/home/user/tt-metal/models/experimental/tt_dit/pipelines/mochi/pipeline_mochi.py`
@@ -132,7 +132,7 @@ export_to_video(frames, "output.mp4", fps=8)
 
 ## Answer to User's Question
 
-**"Are there any paths to actual video generation -- like creating animations -- we can use models for with TT-Metalium<sup>®</sup> or TT-XLA and really make someone feel like they saw some kind of reality temporarily created that hadn't existed before?"**
+**"Are there any paths to actual video generation -- like creating animations -- we can use models for with TT-Metalium or TT-XLA and really make someone feel like they saw some kind of reality temporarily created that hadn't existed before?"**
 
 ### Short Answer
 

@@ -8,7 +8,7 @@ Source: `experience_notes.md` — coworker's TT-QuietBox 2 (4× p300c Blackhole<
 
 ### Goal
 Restructure the early lessons so users reach the **same steady state** regardless of how they arrived:
-- Fresh machine with TT-Installer (`~/.tenstorrent-venv` + Podman/Docker container with TT-NN)
+- Fresh machine with TT-Installer (`~/.tenstorrent-venv` + Podman/Docker container with TT-NN<sup>™</sup>)
 - Pre-configured box (TT-QuietBox 2, cloud image)
 - Source build fan (wants to clone `~/tt-metal`)
 
@@ -21,7 +21,7 @@ Replace Llama-3.1-8B (Meta license gate, DRAM-heavy on n150/p300c) with **Qwen3-
 
 **Problems with current chain:**
 - `verify-installation` runs `python3 -m ttnn.examples.usage.run_op_on_device`, which assumes `~/tt-metal` is cloned. Breaks immediately for TT-QuietBox 2/tt-installer users who don't have it.
-- It's placed BEFORE `download-model`, so people without TT-Metalium<sup>®</sup> are blocked before they can even get a model.
+- It's placed BEFORE `download-model`, so people without TT-Metalium<sup>™</sup> are blocked before they can even get a model.
 - `download-model` leads with Llama (Meta license gate, data farming objections)
 - `interactive-chat` uses the Generator API (`models/tt_transformers`) which is Llama-specific and requires tt-metal source
 - No branching: "do you have tt-metal source or not?"
@@ -45,7 +45,7 @@ This becomes a **diagnostic hub and return-to article**:
 - Runs 3 checks: `tt-smi -s`, `python3 -c "import ttnn"`, optional `run_op_on_device`
 - If all pass → proceed to interactive-chat / vLLM
 - If tt-smi fails → link to [TT-Installer lesson](TT-Installer)
-- If TT-NN<sup>®</sup> import fails → link to [Build tt-metal from Source](build-tt-metal)
+- If TT-NN import fails → link to [Build tt-metal from Source](build-tt-metal)
 - If `run_op_on_device` fails → link to [Build tt-metal from Source](build-tt-metal) with debug tips
 - People return to this article after doing setup work to confirm they're green
 
@@ -111,7 +111,7 @@ If writing your own scripts, do NOT hardcode DispatchCoreAxis.ROW on Blackhole:
 
 | Action | File | Changes |
 |--------|------|---------|
-| **REWRITE** | `content/lessons/verify-installation.md` | "Verify Your Setup" diagnostic hub; 3-check flow; links to TT-Installer + build-TT-Metalium<sup>®</sup>; move BEFORE interactive-chat but AFTER download-model |
+| **REWRITE** | `content/lessons/verify-installation.md` | "Verify Your Setup" diagnostic hub; 3-check flow; links to TT-Installer + build-TT-Metalium; move BEFORE interactive-chat but AFTER download-model |
 | **CREATE** | `content/lessons/build-tt-metal.md` | New reference lesson: clone, Docker/Podman, setuptools, build, verify |
 | **REVISE** | `content/lessons/download-model.md` | Qwen3-0.6B primary; `hf auth login` / `hf download`; Llama → optional gated section; chain order: after hardware-detection, before verify-installation |
 | **REVISE** | `content/lessons/hardware-detection.md` | Add p300c to validatedOn; p100 equivalence callout more prominent |

@@ -693,7 +693,7 @@ Understand transformer components before training from scratch.
 
 ### Configuration Examples
 - **tt-train examples:** Check `tt-metal/tt-train/sources/examples/` for multi-device configs
-- **DDP patterns:** Reference TT-Metalium<sup>®</sup> documentation for device mesh configuration
+- **DDP patterns:** Reference TT-Metalium<sup>™</sup> documentation for device mesh configuration
 
 ### Profiling Tools
 - `tt-smi` - Device monitoring

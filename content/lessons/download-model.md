@@ -242,5 +242,5 @@ You've successfully downloaded your model and are ready to run inference.
 
 - [Qwen3-0.6B on Hugging Face](https://huggingface.co/Qwen/Qwen3-0.6B)
 - [Llama 3.1 model on Hugging Face](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct)
-- [TT-Metalium<sup>®</sup> GitHub Repository](https://github.com/tenstorrent/tt-metal)
-- [TT-NN<sup>®</sup> Documentation](https://docs.tenstorrent.com/tt-metal/latest/ttnn/)
+- [TT-Metalium<sup>™</sup> GitHub Repository](https://github.com/tenstorrent/tt-metal)
+- [TT-NN<sup>™</sup> Documentation](https://docs.tenstorrent.com/tt-metal/latest/ttnn/)

@@ -81,9 +81,9 @@ middle — the same position that Triton occupies in the NVIDIA ecosystem:
 
 | Layer | What it is | Analogous to |
 |-------|-----------|--------------|
-| **TT-NN<sup>®</sup>** | High-level tensor ops — `ttnn.matmul`, `ttnn.softmax`, ready to use | PyTorch / cuDNN |
+| **TT-NN<sup>™</sup>** | High-level tensor ops — `ttnn.matmul`, `ttnn.softmax`, ready to use | PyTorch / cuDNN |
 | **TT-Lang** | Python DSL for custom fused kernels with explicit data movement | OpenAI Triton |
-| **TT-Metalium<sup>®</sup>** | Full hardware control — every register, every DMA, every semaphore | CUDA C / PTX |
+| **TT-Metalium<sup>™</sup>** | Full hardware control — every register, every DMA, every semaphore | CUDA C / PTX |
 
 If you've used PyTorch on a GPU, you've lived at the top layer — calling
 library functions and letting cuDNN figure out the rest. If you've written a

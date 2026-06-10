@@ -1,6 +1,6 @@
 > **Note:** This document was written before the v0.2.0 rewrite. `generate_with_sd35.py` has been removed. See README.md for the current implementation.
 
-# Option A: Minimal TT-Metalium<sup>®</sup> Modification (Optional Performance Enhancement)
+# Option A: Minimal TT-Metalium<sup>™</sup> Modification (Optional Performance Enhancement)
 
 This document describes an optional modification to `tt-metal` that provides a cleaner integration with AnimateDiff. **This modification is NOT required** - the current Phase 1/Phase 2 scripts (`examples/generate_baseline.py` / `examples/generate_blackhole.py`) work without it.
 

@@ -152,7 +152,7 @@ It is the east, and Juliet is the sun.
 
 ### System Requirements
 
-- **TT-Metalium<sup>®</sup>:** v0.67.0 or later (including latest RC) - required for proper inference
+- **TT-Metalium<sup>™</sup>:** v0.67.0 or later (including latest RC) - required for proper inference
 - **Hardware:** n150, n300, T3000, p100, p150, p300c, or Galaxy
 - **Disk space:** 5GB free (for TT-Metalium build and checkpoints)
 - **Python:** 3.10+

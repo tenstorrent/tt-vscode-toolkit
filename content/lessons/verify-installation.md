@@ -29,13 +29,13 @@ validationNotes: Rewritten as diagnostic hub for TT-QuietBox 2/WH/BH parity
 
 # Verify Your Setup
 
-This is your diagnostic checkpoint. Run three quick checks to confirm hardware, TT-NN<sup>®</sup>,
+This is your diagnostic checkpoint. Run three quick checks to confirm hardware, TT-NN<sup>™</sup>,
 and (optionally) tt-metal source are ready. If anything fails, follow the link for that
 check — then come back here to confirm you're green before moving on.
 
 > **TT-QuietBox<sup>®</sup> 2 / Pre-configured image users:** TT-QuietBox 2 ships with a pre-installed environment but
 > does **not** include `~/tt-metal`. Check 1 and Check 2 should pass out of the box.
-> Check 3 will fail unless you clone and build TT-Metalium<sup>®</sup> yourself — that's expected and
+> Check 3 will fail unless you clone and build TT-Metalium<sup>™</sup> yourself — that's expected and
 > fine for most lessons.
 
 ---
@@ -46,7 +46,7 @@ Before running checks, pick the path that matches your goal:
 
 | Goal | What you need | Next lesson after green |
 |------|--------------|------------------------|
-| Interactive chat with Llama (Generator API) | Hardware + TT-NN<sup>®</sup> + tt-metal source | [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) |
+| Interactive chat with Llama (Generator API) | Hardware + TT-NN + tt-metal source | [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) |
 | Production vLLM serving (Qwen3-0.6B, no source needed) | Hardware + TT-NN | [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) |
 | Image generation, TT-Forge<sup>™</sup>, TT-XLA | Hardware + TT-NN (source optional) | See individual lesson |
 
@@ -93,8 +93,8 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
     export TT_METAL_HOME=~/tt-metal
     export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
     ```
-  - **Don't have TT-Metalium<sup>®</sup> yet:** go to
-    [Build TT-Metalium<sup>®</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
+  - **Don't have TT-Metalium yet:** go to
+    [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
     return here when done
 - `ImportError: undefined symbol: MPIX_Comm_revoke` → OpenMPI libraries missing from
   `LD_LIBRARY_PATH`:

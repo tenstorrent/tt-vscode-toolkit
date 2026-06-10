@@ -44,7 +44,7 @@ This is actually quite good for a first multi-device implementation! The efficie
 1. **Larger workloads**: Test with 4,096+ particles (1,024 per device)
 2. **More simulation steps**: Amortize setup cost over longer runs
 3. **Optimize data movement**: Use device-to-device communication instead of CPU aggregation
-4. **TT-NN<sup>®</sup> on-device operations**: Move more computation to TT hardware
+4. **TT-NN<sup>™</sup> on-device operations**: Move more computation to TT hardware
 
 ## Conclusions
 

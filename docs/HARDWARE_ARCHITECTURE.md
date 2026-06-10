@@ -141,7 +141,7 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 All Blackhole variants (p100, p150, p300/p300c) share:
 - Same instruction set
 - Same core architecture
-- Same TT-Metalium<sup>®</sup> API
+- Same TT-Metalium<sup>™</sup> API
 - Same model compatibility
 
 **Differences:**
@@ -446,7 +446,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 **"Firmware 19.4.0 newer than max supported 19.1.0":**
 - **Impact:** May hit unsupported features
 - **Status:** Basic operations work, documented limitation
-- **Solution:** Update TT-Metalium<sup>®</sup> to support newer firmware
+- **Solution:** Update TT-Metalium to support newer firmware
 
 ---
 

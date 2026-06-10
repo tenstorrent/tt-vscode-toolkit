@@ -26,10 +26,10 @@ validatedOn:
 estimatedMinutes: 30
 ---
 
-# Exploring the TT-Metalium<sup>®</sup> Playground
+# Exploring the TT-Metalium<sup>™</sup> Playground
 
 Welcome to the heart of Tenstorrent development! In this lesson you'll discover what's
-possible with **TT-Metalium<sup>®</sup>** and **TT-NN<sup>®</sup>**, run real hardware code in minutes, and
+possible with **TT-Metalium** and **TT-NN<sup>™</sup>**, run real hardware code in minutes, and
 understand the architecture that makes it all tick.
 
 ## What You'll Do

@@ -1,6 +1,6 @@
-# Model Bring-Up Tutorial: AnimateDiff on TT-Metalium<sup>®</sup>
+# Model Bring-Up Tutorial: AnimateDiff on TT-Metalium<sup>™</sup>
 
-**A comprehensive guide to integrating new model architectures with TT-Metalium<sup>®</sup>**
+**A comprehensive guide to integrating new model architectures with TT-Metalium**
 
 This tutorial documents the complete process of bringing AnimateDiff (temporal attention for video generation) to Tenstorrent hardware. Follow this same methodology to integrate other model architectures with TT-Metalium.
 
@@ -8,7 +8,7 @@ This tutorial documents the complete process of bringing AnimateDiff (temporal a
 - How to research and understand a new model architecture
 - How to analyze existing TT-Metalium implementations
 - How to find integration points in complex codebases
-- How to port PyTorch code to TT-NN<sup>®</sup> operations
+- How to port PyTorch code to TT-NN<sup>™</sup> operations
 - How to create standalone packages that don't modify TT-Metalium
 - How to test and validate your implementation
 

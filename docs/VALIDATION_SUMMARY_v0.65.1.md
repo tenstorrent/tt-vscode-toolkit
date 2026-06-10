@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-10
 **Validator:** Claude (AI validation agent)
-**TT-Metalium<sup>®</sup> Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
+**TT-Metalium<sup>™</sup> Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
 **Hardware:** n150 L (Wormhole<sup>™</sup> - Single Chip)
 **Approach:** Pattern-based content quality audit + selective technical testing
 
@@ -23,12 +23,12 @@
 
 ### Current Environment
 
-**TT-Metalium<sup>®</sup>:**
+**TT-Metalium:**
 - Version: v0.65.1
 - Commit: 558a19699f02c106eb851ef9df0c118979b6c469
 - Date: 2026-01-08
 - Python: 3.10
-- TT-NN<sup>®</sup>: 0.65.1
+- TT-NN<sup>™</sup>: 0.65.1
 - Status: ✅ Fully functional
 
 **tt-smi:**
@@ -608,7 +608,7 @@ Prerequisites validated - lesson commands are correct and will work.
 1. ✅ Project structure deployed to ~/tt-scratchpad/cookbook/game_of_life/
 2. ✅ Python dependencies (ttnn, torch, numpy)
 3. ✅ Device initialization and cleanup
-4. ✅ TT-NN<sup>®</sup> tensor creation with TILE_LAYOUT
+4. ✅ TT-NN tensor creation with TILE_LAYOUT
 5. ✅ Convolution kernel setup (core Game of Life operation)
 
 **What Works:**

@@ -130,7 +130,7 @@ The first step is getting Llama-3.3-70B-Instruct running on your TT-QuietBox 2 w
 **What happens during deployment:**
 1. **Environment preparation** (30 seconds) - Reset hardware, stop existing containers
 2. **Model download** (10-30 minutes, one-time) - Downloads 140 GB from HuggingFace
-3. **Docker startup** (2 minutes) - Initializes container with TT-Metalium<sup>®</sup> environment
+3. **Docker startup** (2 minutes) - Initializes container with TT-Metalium<sup>™</sup> environment
 4. **Model loading** (10-20 minutes) - Loads weights to TT hardware (silent phase)
 5. **Warmup** (5 minutes) - Compiles kernels for P300X2 configuration
 6. **Ready** - Health endpoint responds, ready for inference
@@ -354,7 +354,7 @@ ls ~/code/tt-inference-server/README.md
    - Hardware detection and setup
    - Model deployment and optimization
    - Cookbook examples (Game of Life, Mandelbrot, audio)
-   - TT-Forge<sup>™</sup>, TT-XLA, TT-Metalium<sup>®</sup> frameworks
+   - TT-Forge<sup>™</sup>, TT-XLA, TT-Metalium frameworks
    - API servers, chat interfaces
 
 2. **TT-Metalium Documentation**

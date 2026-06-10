@@ -26,7 +26,7 @@ validationNotes: Validated on p300c (TT-QuietBox 2) — mel-spectrogram computat
 
 ## Overview
 
-Build a real-time audio processing pipeline using TT-NN<sup>®</sup> for signal processing operations. This project demonstrates practical DSP (Digital Signal Processing) on TT hardware.
+Build a real-time audio processing pipeline using TT-NN<sup>™</sup> for signal processing operations. This project demonstrates practical DSP (Digital Signal Processing) on TT hardware.
 
 **Features:**
 - Load and process audio files (WAV, MP3)

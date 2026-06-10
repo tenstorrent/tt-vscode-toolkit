@@ -27,11 +27,11 @@ validationNotes: All 5 cookbook recipes validated on p300c (TT-QuietBox 2) with 
 
 # Tenstorrent Cookbook: Learn by Building
 
-Welcome to the Tenstorrent Cookbook! This series of hands-on projects teaches you TT-Metalium<sup>®</sup> fundamentals through creative, visual applications.
+Welcome to the Tenstorrent Cookbook! This series of hands-on projects teaches you TT-Metalium<sup>™</sup> fundamentals through creative, visual applications.
 
 ## What You'll Build
 
-Each recipe is a complete, working project that demonstrates core TT-Metalium<sup>®</sup> techniques:
+Each recipe is a complete, working project that demonstrates core TT-Metalium techniques:
 
 ### 🎮 [Recipe 1: Conway's Game of Life](command:tenstorrent.showLesson?["cookbook-game-of-life"])
 **Learn:** Cellular automata, parallel tile computing, convolution operations
@@ -119,7 +119,7 @@ These recipes teach fundamental techniques used in production models:
 After completing the cookbook, you'll have:
 
 - ✅ **5 complete, working projects** you built yourself
-- ✅ **Deep understanding of TT-NN<sup>®</sup> operations** (convolution, FFT, parallel compute)
+- ✅ **Deep understanding of TT-NN<sup>™</sup> operations** (convolution, FFT, parallel compute)
 - ✅ **Experience with parallel tile computing** optimized for TT hardware
 - ✅ **Foundation for production applications** and model bring-up
 

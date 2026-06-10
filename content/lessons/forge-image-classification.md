@@ -96,7 +96,7 @@ tt devices: [TtDevice(id=0)]
 | `torch-xla` 2.9.0 | PyTorch/XLA backend with TT plugin |
 | `tt-forge-onnx` | `forge.compile()` — PyTorch/ONNX → TT compiler |
 
-Switch back to the TT-Metalium<sup>®</sup> or vLLM envs at any time:
+Switch back to the TT-Metalium<sup>™</sup> or vLLM envs at any time:
 
 ```bash
 deactivate && source /etc/profile.d/tt-env-metal.sh   # tt-metal / TTNN

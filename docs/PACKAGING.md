@@ -215,7 +215,7 @@ Every lesson has metadata tracking validation status and hardware compatibility.
 
 **`blockReason` (optional):**
 - Human-readable explanation if status is `blocked`
-- Example: "Requires TT-Metalium<sup>®</sup> v0.52.0+ (not yet released)"
+- Example: "Requires TT-Metalium<sup>™</sup> v0.52.0+ (not yet released)"
 
 ### Hardware Types
 

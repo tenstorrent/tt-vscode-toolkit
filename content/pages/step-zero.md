@@ -42,7 +42,7 @@ graph TD
 Choose your path:
 
 ### Path A: "I just want to run HuggingFace models on Tenstorrent hardware"
-→ **Start with Lessons 1-5** (Direct TT-Metalium API)
+→ **Start with Lessons 1-5** (Direct TT-Metalium<sup>™</sup> API)
 - ✅ Works great on n150 (single chip)
 - ✅ Easiest path, fewest dependencies
 - ✅ 30 minutes to first inference
@@ -146,7 +146,7 @@ graph TB
 
 ### Core Components
 
-#### 1. **TT-Metalium<sup>®</sup>** (The Foundation)
+#### 1. **TT-Metalium** (The Foundation)
 **What it is:** Low-level API for programming Tenstorrent accelerators
 - C++ core with Python bindings
 - Direct access to Tensix cores, NoC (Network on Chip), DRAM
@@ -155,7 +155,7 @@ graph TB
 **Where it lives:** `~/tt-metal/`
 
 **What you'll use:**
-- **TT-NN<sup>®</sup>** (TT Neural Network library) - High-level ops for ML
+- **TT-NN<sup>™</sup>** (TT Neural Network library) - High-level ops for ML
 - **tt_lib** - Lower-level tensor operations
 - **Model implementations** - Pre-optimized models in `models/`
 
@@ -171,7 +171,7 @@ source python_env/bin/activate  # Activates Python environment
 **What they are:** Isolated Python installations with specific package versions
 
 **Why they matter:** Different compilers need different package versions
-- **TT-Metalium<sup>®</sup>:** Python 3.10, uses `~/tt-metal/python_env/`
+- **TT-Metalium:** Python 3.10, uses `~/tt-metal/python_env/`
 - **TT-XLA:** Python 3.11, uses `~/tt-xla-venv/`
 - **TT-Forge:** Python 3.11, uses `~/tt-forge-fe/env/`
 
@@ -182,7 +182,7 @@ source python_env/bin/activate  # Activates Python environment
 source ~/tt-metal/python_env/bin/activate  # Use TT-Metalium environment
 ```
 
-#### 3. **TT-NN<sup>®</sup>** (TT Neural Network Library)
+#### 3. **TT-NN** (TT Neural Network Library)
 **What it is:** High-level API for ML operations on Tenstorrent hardware
 - Import with `import ttnn`
 - Like PyTorch ops, but runs on Tensix cores
@@ -210,7 +210,7 @@ ttnn.close_device(device)
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ```
 
-**You DON'T need to understand MPI programming** - TT-Metalium<sup>®</sup> handles it internally.
+**You DON'T need to understand MPI programming** - TT-Metalium handles it internally.
 
 ---
 

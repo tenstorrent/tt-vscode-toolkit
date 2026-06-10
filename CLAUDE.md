@@ -20,14 +20,14 @@ All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy
 
 - **p300c = p100 mode**: p300c is a single Blackhole chip; TT-QuietBox 2 = 4× p300c operating
   as 4 independent single-chip devices (not a mesh). Treat p300c exactly like p100.
-- **TT-QuietBox 2 ships without `~/tt-metal`**: Pre-configured TT-QuietBox 2 images have TT-NN<sup>®</sup> and vLLM
+- **TT-QuietBox 2 ships without `~/tt-metal`**: Pre-configured TT-QuietBox 2 images have TT-NN<sup>™</sup> and vLLM
   pre-installed but do not include the tt-metal source tree. Lessons must not assume
   `~/tt-metal` exists — link to `build-tt-metal` lesson for users who need it.
 - **`hf` CLI, not `huggingface-cli`**: All lessons and templates must use the new
   `hf` CLI commands: `hf auth login`, `hf auth whoami`, `hf download`.
 - **`DispatchCoreAxis.ROW` crashes on Blackhole**: Never use
   `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER, ttnn.DispatchCoreAxis.ROW)`.
-  Use `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` — TT-NN<sup>®</sup> auto-detects
+  Use `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` — TT-NN auto-detects
   the correct axis (COL on Blackhole, ROW on Wormhole).
 - **`TT_METAL_ARCH_NAME`**: Must be `blackhole` for P-series, `wormhole_b0` for N-series.
   Use `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` pattern to honour user-supplied values.
@@ -40,7 +40,7 @@ When authoring or reviewing a lesson or template, verify:
 
 - [ ] `hf` CLI used throughout (not `huggingface-cli`)
 - [ ] `DispatchCoreAxis.ROW` not present in any template
-- [ ] `~/tt-metal` existence not assumed without fallback / link to build-TT-Metalium<sup>®</sup>
+- [ ] `~/tt-metal` existence not assumed without fallback / link to build-TT-Metalium<sup>™</sup>
 - [ ] `p300c` added to `supportedHardware` and `validatedOn` in front matter where applicable
 - [ ] TT-QuietBox 2 callout or note added for lessons that behave differently on TT-QuietBox 2
 - [ ] `HF_MODEL` exported before any inference command that requires it
@@ -49,7 +49,7 @@ When authoring or reviewing a lesson or template, verify:
 
 ## 🔧 Recent Multi-Device API Update (Jan 2026)
 
-**IMPORTANT:** Multi-device TT-NN<sup>®</sup> code must now use `CreateDevices`/`CloseDevices` API.
+**IMPORTANT:** Multi-device TT-NN code must now use `CreateDevices`/`CloseDevices` API.
 
 **Problem:** Opening/closing devices individually causes dispatch core errors:
 ```python

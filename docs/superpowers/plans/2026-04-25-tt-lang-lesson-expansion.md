@@ -391,7 +391,7 @@ If you have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
 
 - [ ] **Step 2: Verify the command link in the lesson is valid**
 
-The `command:TT-VSCode-Toolkit.openLesson?%22build-tt-metal%22` link references the build-TT-Metalium<sup>®</sup> lesson. Confirm it exists:
+The `command:TT-VSCode-Toolkit.openLesson?%22build-tt-metal%22` link references the build-TT-Metalium<sup>™</sup> lesson. Confirm it exists:
 
 ```bash
 grep -r "build-tt-metal" /home/ttuser/code/tt-vscode-toolkit/content/lesson-registry.json | head -3

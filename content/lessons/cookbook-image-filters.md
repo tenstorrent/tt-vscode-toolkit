@@ -27,7 +27,7 @@ validationNotes: >-
 
 ## Overview
 
-Build a library of creative image filters and effects using TT-NN<sup>®</sup> convolution operations. From classic edge detection to artistic stylization.
+Build a library of creative image filters and effects using TT-NN<sup>™</sup> convolution operations. From classic edge detection to artistic stylization.
 
 **Features:**
 - Classic filters (blur, sharpen, edge detect)

@@ -239,7 +239,7 @@ sw   t2, 0x1008    # Store c
 - Error-prone
 - No portability
 
-### Path 2: TT-NN<sup>®</sup> (Mid Level - TT Neural Network Library)
+### Path 2: TT-NN<sup>™</sup> (Mid Level - TT Neural Network Library)
 
 **You write:**
 ```python
@@ -287,7 +287,7 @@ result = model_tt(input_data)
 1. JAX traces your Python function
 2. Builds HLO (High-Level Operations) graph
 3. XLA compiler optimizes graph (fusion, layout)
-4. TT-XLA backend generates TT-Metalium<sup>®</sup> code
+4. TT-XLA backend generates TT-Metalium<sup>™</sup> code
 5. Executes on hardware
 
 **Advantages:**

@@ -1,6 +1,6 @@
-# TT-Metalium<sup>®</sup> Cookbook Projects
+# TT-Metalium<sup>™</sup> Cookbook Projects
 
-This directory contains 4 complete, hands-on projects for learning TT-Metalium<sup>®</sup> programming.
+This directory contains 4 complete, hands-on projects for learning TT-Metalium programming.
 
 ## Projects
 
@@ -8,7 +8,7 @@ This directory contains 4 complete, hands-on projects for learning TT-Metalium<s
 Conway's cellular automaton demonstrating parallel tile computing.
 
 **Files:**
-- `game_of_life.py` - Core implementation using TT-NN<sup>®</sup> convolution
+- `game_of_life.py` - Core implementation using TT-NN<sup>™</sup> convolution
 - `patterns.py` - Classic patterns (glider, blinker, Gosper gun, etc.)
 - `visualizer.py` - Matplotlib animation
 - `requirements.txt` - Dependencies
