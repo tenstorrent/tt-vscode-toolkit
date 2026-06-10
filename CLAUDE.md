@@ -13,14 +13,14 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
-## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
+## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
 All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy) and
-**Blackhole** (p100/p150/p300c/QuietBox 2) hardware. Key constraints:
+**Blackhole** (p100/p150/p300c/TT-QuietBox 2) hardware. Key constraints:
 
-- **p300c = p100 mode**: p300c is a single Blackhole chip; QuietBox 2 = 4× p300c operating
+- **p300c = p100 mode**: p300c is a single Blackhole chip; TT-QuietBox 2 = 4× p300c operating
   as 4 independent single-chip devices (not a mesh). Treat p300c exactly like p100.
-- **QuietBox 2 ships without `~/tt-metal`**: Pre-configured QuietBox 2 images have TT-NN<sup>®</sup> and vLLM
+- **TT-QuietBox 2 ships without `~/tt-metal`**: Pre-configured TT-QuietBox 2 images have TT-NN<sup>®</sup> and vLLM
   pre-installed but do not include the tt-metal source tree. Lessons must not assume
   `~/tt-metal` exists — link to `build-tt-metal` lesson for users who need it.
 - **`hf` CLI, not `huggingface-cli`**: All lessons and templates must use the new
@@ -42,10 +42,10 @@ When authoring or reviewing a lesson or template, verify:
 - [ ] `DispatchCoreAxis.ROW` not present in any template
 - [ ] `~/tt-metal` existence not assumed without fallback / link to build-TT-Metalium<sup>®</sup>
 - [ ] `p300c` added to `supportedHardware` and `validatedOn` in front matter where applicable
-- [ ] QuietBox 2 callout or note added for lessons that behave differently on QuietBox 2
+- [ ] TT-QuietBox 2 callout or note added for lessons that behave differently on TT-QuietBox 2
 - [ ] `HF_MODEL` exported before any inference command that requires it
 - [ ] `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install
-  (fixes `pkg_resources` missing on fresh QuietBox 2 environments)
+  (fixes `pkg_resources` missing on fresh TT-QuietBox 2 environments)
 
 ## 🔧 Recent Multi-Device API Update (Jan 2026)
 
@@ -600,7 +600,7 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 **Good examples:**
 - ✅ "Fixed terminal accumulation in API test commands by adding reusable terminal helper"
-- ✅ "Removed broken FAQ link from OpenClaw QuietBox 2 assistant walkthrough"
+- ✅ "Removed broken FAQ link from OpenClaw TT-QuietBox 2 assistant walkthrough"
 - ✅ "Updated default terminal name to match environment registry for proper detection"
 
 **Bad examples:**

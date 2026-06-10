@@ -605,7 +605,7 @@ source ~/activate-vllm-env.sh && \
 
 ### p100 / p300c (Blackhole<sup>®</sup> - Single Chip)
 
-> **QuietBox<sup>®</sup> 2 / QuietBox users:** p300c is architecturally identical to p100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A QuietBox 2 with 4× p300c = 4 independent single-chip devices; for most lessons use device 0 only.
+> **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** p300c is architecturally identical to p100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A TT-QuietBox 2 with 4× p300c = 4 independent single-chip devices; for most lessons use device 0 only.
 
 ```bash
 source ~/activate-vllm-env.sh && \

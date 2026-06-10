@@ -3,7 +3,7 @@ id: tt-inference-server
 title: Production Inference with TT-Inference-Server
 description: >-
   Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000,
-  p100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection,
+  p100, p300c, or TT-QuietBox 2. TT-Inference-Server automates Docker image selection,
   model download, and server startup with a single command. OpenAI-compatible
   API ready immediately.
 category: serving
@@ -42,8 +42,8 @@ hardware type and it handles everything: pulls the right Docker image (pre-built
 TT-Metalium<sup>®</sup> + vLLM), downloads model weights, and starts an OpenAI-compatible
 inference server.
 
-> **QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware
-> (🛠️ Experimental status). Use `--tt-device p100` for p300c or QuietBox 2.
+> **TT-QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware
+> (🛠️ Experimental status). Use `--tt-device p100` for p300c or TT-QuietBox 2.
 
 ---
 
@@ -51,7 +51,7 @@ inference server.
 
 ### Install TT-Inference-Server
 
-**QuietBox 2 / pre-configured images:** TT-Inference-Server is pre-installed at
+**TT-QuietBox 2 / pre-configured images:** TT-Inference-Server is pre-installed at
 `~/.local/lib/tt-inference-server`. Skip to the next section.
 
 **All other hardware (n150/n300/T3000/p100/p150):** Clone it:
@@ -95,8 +95,8 @@ every current Tenstorrent board:
 |----------|-------------|--------|-------------|
 | n150 | `--tt-device n150` | 🟢 Complete | 64 K |
 | n300 | `--tt-device n300` | 🟢 Complete | 128 K |
-| T3000 (WH QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
-| p100 / p300c / QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| T3000 (WH TT-QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
+| p100 / p300c / TT-QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
 | p150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
 | Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
 
@@ -162,7 +162,7 @@ python3 run.py \
 
 ---
 
-#### T3000 — WH QuietBox / LoudBox (8 chips, 128 K context)
+#### T3000 — WH TT-QuietBox / LoudBox (8 chips, 128 K context)
 
 ```bash
 python3 run.py \
@@ -175,7 +175,7 @@ python3 run.py \
 
 ---
 
-#### p100 / p300c / QuietBox 2 (Blackhole<sup>®</sup> — 64 K context, Experimental)
+#### p100 / p300c / TT-QuietBox 2 (Blackhole<sup>®</sup> — 64 K context, Experimental)
 
 ```bash
 python3 run.py \
@@ -186,7 +186,7 @@ python3 run.py \
   --no-auth
 ```
 
-> QuietBox 2 exposes each p300c chip as an independent `p100` device. Run one server
+> TT-QuietBox 2 exposes each p300c chip as an independent `p100` device. Run one server
 > per chip, each on a different `--service-port`, or use the T3000-class
 > configurations when available on future firmware.
 
@@ -215,7 +215,7 @@ docker run \
 
 Change `--tt-device` to `n300` or `t3k` for those boards — same image.
 
-**Blackhole (p100 / p300c / QuietBox 2):**
+**Blackhole (p100 / p300c / TT-QuietBox 2):**
 
 ```bash
 docker run \
@@ -625,7 +625,7 @@ For video and image models (WAN 2.2, Mochi, FLUX) the container compiles tensor
 weights at startup and stores them in `TT_DIT_CACHE_DIR`. The default is
 `/tmp/TT_DIT_CACHE`, which is lost when the container stops.
 
-**First run without cache:** ~525 seconds (WAN 2.2 on QuietBox 2)
+**First run without cache:** ~525 seconds (WAN 2.2 on TT-QuietBox 2)
 **Subsequent runs with cache:** ~5 minutes
 
 Move the cache under `cache_root` so it lives in the persistent Docker volume:

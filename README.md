@@ -212,9 +212,9 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 - **Coding Assistant with Aider** — *draft*
 - **Native Video Animation with AnimateDiff** — `p300c`
-- **OpenClaw AI Assistant on QuietBox<sup>®</sup> 2** — `P300X2`
-- **Generating Video on QuietBox 2** — `P300X2`
-- **Local AI Agents on QuietBox 2** — `P300X2`
+- **OpenClaw AI Assistant on TT-QuietBox<sup>®</sup> 2** — `P300X2`
+- **Generating Video on TT-QuietBox 2** — `P300X2`
+- **Local AI Agents on TT-QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
 *2 lessons, 1 validated*

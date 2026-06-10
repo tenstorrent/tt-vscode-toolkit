@@ -292,7 +292,7 @@ Success: Result is 21
 0:(x=0,y=0):BR: Adding integers: 14 + 7
 ```
 
-**Note:** You'll see device initialization logs and possibly firmware version warnings before the output. These are normal - the system initializes all detected hardware before running your kernel. On multi-device systems (like QuietBox), you'll see initialization for all cards even though only device 0 is used.
+**Note:** You'll see device initialization logs and possibly firmware version warnings before the output. These are normal - the system initializes all detected hardware before running your kernel. On multi-device systems (like TT-QuietBox), you'll see initialization for all cards even though only device 0 is used.
 
 **🎉 Congratulations!** You just ran a program on a RISC-V processor.
 

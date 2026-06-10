@@ -51,9 +51,9 @@ The table includes links to the relevant GitHub repos.
 
 Five punchy paragraphs, each 2–3 sentences, each with a concrete result and a GitHub link. No filler. Chronological roughly by ambition level.
 
-1. **SkyReels-1.3B** (`zoecarver/tt-lang-models`): Full WAN transformer block kernel on QuietBox<sup>®</sup> 2. Fused to one DRAM read + one write per layer. 3–5× throughput improvement over op-by-op TT-NN dispatch at production batch dimensions.
+1. **SkyReels-1.3B** (`zoecarver/tt-lang-models`): Full WAN transformer block kernel on TT-QuietBox<sup>®</sup> 2. Fused to one DRAM read + one write per layer. 3–5× throughput improvement over op-by-op TT-NN dispatch at production batch dimensions.
 
-2. **WAN Animate 14B** (`~/code/wan-animate-ttlang`): 40-layer, 5120-hidden DiT brought up on a 4-chip QuietBox 2 (2×2 mesh). TT-Lang kernels cover 3D RoPE, AdaLN modulation, and softcap. The bring-up involved debugging seven integration bugs across the pipeline, traced in a single session log.
+2. **WAN Animate 14B** (`~/code/wan-animate-ttlang`): 40-layer, 5120-hidden DiT brought up on a 4-chip TT-QuietBox 2 (2×2 mesh). TT-Lang kernels cover 3D RoPE, AdaLN modulation, and softcap. The bring-up involved debugging seven integration bugs across the pipeline, traced in a single session log.
 
 3. **Freeciv game AI** (`~/tt-lang-freeciv`): TT-Lang kernels for Freeciv's map generation (Perlin noise terrain) and pathfinding, running in the functional simulator. A game AI that started as a "what if" conversation and ended with Tensix doing the world-building.
 

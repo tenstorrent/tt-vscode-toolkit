@@ -267,7 +267,7 @@
     {
       "id": "tt-inference-server",
       "title": "Production Inference with TT-Inference-Server",
-      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, p100, p300c, or QuietBox 2. TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, p100, p300c, or TT-QuietBox 2. TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
@@ -848,7 +848,7 @@
     {
       "id": "cookbook-particle-life",
       "title": "Recipe 5: Particle Life Simulator",
-      "description": "Simulate emergent complexity from simple particle interactions! Features N² force calculations, multi-species dynamics, and multi-device acceleration for QuietBox systems. Beautiful chaos from simple physics!",
+      "description": "Simulate emergent complexity from simple particle interactions! Features N² force calculations, multi-species dynamics, and multi-device acceleration for TT-QuietBox systems. Beautiful chaos from simple physics!",
       "category": "cookbook",
       "tags": [
         "ttnn",
@@ -1151,7 +1151,7 @@
     {
       "id": "build-tt-metal",
       "title": "Build TT-Metalium from Source",
-      "description": "Clone and build TT-Metalium from source. Required for Direct API (Generator API) lessons and for running TT-Metalium examples directly. QuietBox 2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
+      "description": "Clone and build TT-Metalium from source. Required for Direct API (Generator API) lessons and for running TT-Metalium examples directly. TT-QuietBox 2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
       "category": "first-inference",
       "tags": [
         "installation",
@@ -1240,7 +1240,7 @@
     {
       "id": "animatediff-video-generation",
       "title": "Native Video Animation with AnimateDiff",
-      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet. Learn the complete model bring-up workflow — from research to a standalone package that accelerates SD frame generation at 15 seconds per frame on p300c/QuietBox 2.",
+      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet. Learn the complete model bring-up workflow — from research to a standalone package that accelerates SD frame generation at 15 seconds per frame on p300c/TT-QuietBox 2.",
       "category": "applications",
       "tags": [
         "animation",
@@ -1339,8 +1339,8 @@
     },
     {
       "id": "qb2-openclaw-assistant",
-      "title": "OpenClaw AI Assistant on QuietBox 2",
-      "description": "Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your QuietBox 2 hardware",
+      "title": "OpenClaw AI Assistant on TT-QuietBox 2",
+      "description": "Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your TT-QuietBox 2 hardware",
       "category": "applications",
       "tags": [
         "qb2",
@@ -1364,8 +1364,8 @@
     },
     {
       "id": "qb2-video-generation",
-      "title": "Generating Video on QuietBox 2",
-      "description": "Go from a fresh QuietBox 2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI and automated prompt generation",
+      "title": "Generating Video on TT-QuietBox 2",
+      "description": "Go from a fresh TT-QuietBox 2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI and automated prompt generation",
       "category": "applications",
       "tags": [
         "qb2",
@@ -1388,12 +1388,12 @@
       "nextLesson": "qb2-local-agents",
       "markdownFile": "content/lessons/qb2-video-generation.md",
       "validationDate": "2026-04-15",
-      "validationNotes": "Full pipeline validated on QuietBox 2 (2× p300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs."
+      "validationNotes": "Full pipeline validated on TT-QuietBox 2 (2× p300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs."
     },
     {
       "id": "qb2-local-agents",
-      "title": "Local AI Agents on QuietBox 2",
-      "description": "Build real AI agents in pure Python — web research, codebase navigation, multi-agent pipelines, and stateful text adventures — all running locally on your QuietBox 2's 32B/70B models",
+      "title": "Local AI Agents on TT-QuietBox 2",
+      "description": "Build real AI agents in pure Python — web research, codebase navigation, multi-agent pipelines, and stateful text adventures — all running locally on your TT-QuietBox 2's 32B/70B models",
       "category": "applications",
       "tags": [
         "qb2",
@@ -1418,7 +1418,7 @@
       "previousLesson": "qb2-video-generation",
       "markdownFile": "content/lessons/qb2-local-agents.md",
       "validationDate": "2026-04-21",
-      "validationNotes": "All five demo scripts validated on QuietBox 2 (p300x2) with Qwen3-32B (hermes parser) and Llama-3.3-70B-Instruct (llama3_json parser). Tool calling confirmed working. Research agent, code explorer, writing pipeline, and dungeon master all produce expected output."
+      "validationNotes": "All five demo scripts validated on TT-QuietBox 2 (p300x2) with Qwen3-32B (hermes parser) and Llama-3.3-70B-Instruct (llama3_json parser). Tool calling confirmed working. Research agent, code explorer, writing pipeline, and dungeon master all produce expected output."
     },
     {
       "id": "tt-lang-intro",

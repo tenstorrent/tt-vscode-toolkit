@@ -1,6 +1,6 @@
 # Particle Life Multi-Device Performance Results
 
-## QuietBox Blackhole<sup>®</sup> Tower (4x p300c) Benchmark
+## TT-QuietBox Blackhole<sup>®</sup> Tower (4x p300c) Benchmark
 
 **Test Configuration:**
 - Hardware: 4x p300c (Blackhole) chips

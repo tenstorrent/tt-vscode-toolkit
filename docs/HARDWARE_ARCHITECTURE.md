@@ -21,7 +21,7 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 | **T3000** | Wormhole | 8 | 576 | 128K | Large models (70B+) | `t3k` |
 | **p100** | Blackhole<sup>®</sup> | 1 | TBD | 64K | Cloud/standalone | `p100` |
 | **p150** | Blackhole | 2 | TBD | 128K | Higher performance | `p150` |
-| **p300/p300c** | Blackhole | 1 | TBD | 64K | QuietBox systems | `p300` |
+| **p300/p300c** | Blackhole | 1 | TBD | 64K | TT-QuietBox systems | `p300` |
 | **Galaxy** | Wormhole | 32+ | 2304+ | 128K+ | Multi-rack clusters | `galaxy` |
 | **Simulator** | Virtual | N/A | N/A | Varies | Development without hardware | `simulator` |
 
@@ -146,7 +146,7 @@ All Blackhole variants (p100, p150, p300/p300c) share:
 
 **Differences:**
 - Chip count (single vs dual)
-- Packaging (cloud vs QuietBox)
+- Packaging (cloud vs TT-QuietBox)
 - Possibly memory/firmware variations
 
 #### p100 - Single Chip
@@ -193,14 +193,14 @@ All Blackhole variants (p100, p150, p300/p300c) share:
 - Check official documentation for validated configurations
 - Experimental for many models
 
-#### p300/p300c - Single Chip (QuietBox Variant)
+#### p300/p300c - Single Chip (TT-QuietBox Variant)
 
 **Hardware Specifications:**
 - **Chips:** 1 Blackhole chip per card
 - **Tensix cores:** TBD (same as p100)
 - **Context limit:** 64K tokens
-- **Deployment:** QuietBox multi-device systems
-- **Common configuration:** 4x p300c (QuietBox Tower)
+- **Deployment:** TT-QuietBox multi-device systems
+- **Common configuration:** 4x p300c (TT-QuietBox Tower)
 
 **Architecture:**
 - **Identical to p100** (single Blackhole chip)
@@ -209,16 +209,16 @@ All Blackhole variants (p100, p150, p300/p300c) share:
 - Each card is independently addressable
 
 **Best For:**
-- QuietBox development systems
+- TT-QuietBox development systems
 - Multi-device workload distribution
 - Research on multi-chip scaling
 
 **Configuration:**
 - `MESH_DEVICE=P100` (each card = single Blackhole)
 - `TT_METAL_ARCH_NAME=blackhole`
-- QuietBox Tower: Devices 0-3 (4 cards)
+- TT-QuietBox Tower: Devices 0-3 (4 cards)
 
-**QuietBox Multi-Device Pattern:**
+**TT-QuietBox Multi-Device Pattern:**
 - **4x p300c ≠ 4-chip system**
 - **4x p300c = 4 separate single-chip cards**
 - For single-chip lessons: Use device 0
@@ -239,7 +239,7 @@ All Blackhole cards share the same core architecture:
 **Blackhole Variants:**
 - **p100**: Single Blackhole chip (cloud/standalone)
 - **p150**: Dual Blackhole chip (higher performance)
-- **p300/p300c**: Single Blackhole chip (QuietBox, compute variant)
+- **p300/p300c**: Single Blackhole chip (TT-QuietBox, compute variant)
 
 **Equivalence Rules:**
 1. **p100 = p300c** (architecture-wise)
@@ -281,11 +281,11 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 
 ### Multi-Device System
 - **Multiple devices**, each with 1 or more chips
-- Example: QuietBox Tower (4x p300c = 4 devices, 4 chips total)
+- Example: TT-QuietBox Tower (4x p300c = 4 devices, 4 chips total)
 - Example: T3000 could be (8 devices × 1 chip) or (4 devices × 2 chips)
 - Configuration: `TT_METAL_NUM_DEVICES=4`, each device configured independently
 
-**QuietBox Example:**
+**TT-QuietBox Example:**
 - **4x p300c** = 4 separate devices
 - Each device has 1 Blackhole chip
 - Each device enumerated: 0, 1, 2, 3
@@ -339,9 +339,9 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 
 ## Validation Status
 
-### p300/p300c Validation (QuietBox Tower)
+### p300/p300c Validation (TT-QuietBox Tower)
 
-**Hardware:** 4x p300c (Blackhole) QuietBox Tower
+**Hardware:** 4x p300c (Blackhole) TT-QuietBox Tower
 **Date:** 2026-01-09
 **Source:** `docs/QB_follows.md`
 
@@ -367,7 +367,7 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 
 ## Configuration Examples
 
-### Single-Chip p300c (QuietBox - Device 0 Only)
+### Single-Chip p300c (TT-QuietBox - Device 0 Only)
 
 ```bash
 # Environment setup
@@ -384,7 +384,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 tt-smi -s | jq '.device_0'
 ```
 
-### Multi-Device p300c (QuietBox - All 4 Devices)
+### Multi-Device p300c (TT-QuietBox - All 4 Devices)
 
 ```bash
 # Environment setup
@@ -425,7 +425,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 
 ## Troubleshooting by Hardware
 
-### QuietBox p300c Issues
+### TT-QuietBox p300c Issues
 
 **"Unknown board type 'p300c'" Error:**
 - **Solution:** Use `MESH_DEVICE=P100` (p300c = single Blackhole)
@@ -470,8 +470,8 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 - **Recommended:** T3000 or Galaxy
 - **Why:** 8+ chips required for memory and compute
 
-**QuietBox Multi-Device Research:**
-- **Recommended:** 4x p300c (QuietBox Tower)
+**TT-QuietBox Multi-Device Research:**
+- **Recommended:** 4x p300c (TT-QuietBox Tower)
 - **Why:** Multi-device development, workload distribution research
 
 **Latest Architecture Evaluation:**
@@ -486,7 +486,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 - More Blackhole variants as architecture matures
 - Larger Galaxy configurations (64+, 128+ chips)
 - Cloud availability of P-series hardware
-- Further QuietBox configurations
+- Further TT-QuietBox configurations
 
 **Extension design:**
 - Blackhole family equivalence enables easy addition of new variants
@@ -499,7 +499,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 
 - **Official Hardware Specs:** [tenstorrent.com/hardware](https://tenstorrent.com/hardware)
 - **tt-smi Documentation:** [github.com/tenstorrent/tt-smi](https://github.com/tenstorrent/tt-smi)
-- **QuietBox Validation:** `docs/QB_follows.md` (comprehensive p300c testing)
+- **TT-QuietBox Validation:** `docs/QB_follows.md` (comprehensive p300c testing)
 - **Lesson Metadata:** `docs/LESSON_METADATA.md` (metadata schema, hardware values)
 - **Community Support:** [discord.gg/tenstorrent](https://discord.gg/tenstorrent)
 
@@ -512,7 +512,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
   - Added p300/p300c documentation
   - Documented Blackhole family equivalence
   - Created comprehensive hardware reference
-  - QuietBox multi-device configuration
+  - TT-QuietBox multi-device configuration
 
 **Update Triggers:**
 - New hardware released → Add to Quick Reference + Architecture section

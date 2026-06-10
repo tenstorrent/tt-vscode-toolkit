@@ -130,17 +130,17 @@ Look for the `board_type` field to identify your hardware:
   - Context limit: 128K tokens
   - Status: Check official documentation for validated configurations
 
-- **p300/p300c** - Single chip (QuietBox variant)
+- **p300/p300c** - Single chip (TT-QuietBox variant)
   - Architecture: Blackhole (identical to p100)
-  - Common in: Multi-device QuietBox Tower systems
+  - Common in: Multi-device TT-QuietBox Tower systems
   - MESH_DEVICE: Use p100 for single-chip lessons
   - Example: 4x p300c = 4 separate single-chip devices
 
 **Blackhole Architecture Equivalence:**
 All Blackhole cards (p100, p150, p300/p300c) share the same instruction set and capabilities. Lessons supporting p100 will work on p300/p300c without modification.
 
-**QuietBox Multi-Device Detection:**
-If you have a QuietBox Tower (4x p300c), `tt-smi` will show 4 devices:
+**TT-QuietBox Multi-Device Detection:**
+If you have a TT-QuietBox Tower (4x p300c), `tt-smi` will show 4 devices:
 ```
 Device 0: 0000:01:00.0 | P300c | FW 19.4.0.0
 Device 1: 0000:02:00.0 | P300c | FW 19.4.0.0
@@ -291,10 +291,10 @@ dmesg | grep -i tenstorrent
 
 ---
 
-## QuietBox Multi-Device Systems
+## TT-QuietBox Multi-Device Systems
 
-**What is QuietBox?**
-QuietBox is a Tenstorrent multi-chip development system. The QuietBox Blackhole Tower contains **4x p300c cards** (4 separate single-chip Blackhole devices).
+**What is TT-QuietBox?**
+TT-QuietBox is a Tenstorrent multi-chip development system. The TT-QuietBox Blackhole Tower contains **4x p300c cards** (4 separate single-chip Blackhole devices).
 
 **Key Concepts:**
 
@@ -339,7 +339,7 @@ tt-smi -s  # Shows all 4 devices
 - ✅ Understanding different hardware types (n150, n300, T3000, p100, p150, p300/p300c)
 - ✅ Using `tt-smi -s` for structured JSON output
 - ✅ Identifying your specific hardware for later lessons
-- ✅ QuietBox multi-device system configuration
+- ✅ TT-QuietBox multi-device system configuration
 - ✅ Troubleshooting hardware detection issues
 
 **Next step:** Now that you know your hardware, verify your TT-Metalium installation works correctly.

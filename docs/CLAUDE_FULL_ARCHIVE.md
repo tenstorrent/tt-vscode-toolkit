@@ -1234,7 +1234,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH   # Critical: Find TTLlamaForCausal
 
 **Alternative Models (NOT recommended for n150):**
 - Qwen 2.5 7B: Requires n300 (2 chips, TP=2)
-- Llama 3.3 70B: Requires QuietBox (8 chips, TP=8)
+- Llama 3.3 70B: Requires TT-QuietBox (8 chips, TP=8)
 - Larger models exceed n150 memory capacity
 
 **Commands Updated:**

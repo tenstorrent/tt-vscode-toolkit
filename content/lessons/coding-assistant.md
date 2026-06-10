@@ -230,7 +230,7 @@ stays private, and you can swap models in seconds.
 - Use `--dry-run` to preview changes without applying them
 - All edits are git commits — `git log` and `git diff HEAD~1` let you review everything
 
-**n150 / QuietBox<sup>®</sup> 2 model recommendation:**
+**n150 / TT-QuietBox<sup>®</sup> 2 model recommendation:**
 - Use `Qwen3-0.6B` — it's fast, reasoning-capable, and fits comfortably in n150 DRAM
 - The prompting techniques here work identically regardless of model size
 

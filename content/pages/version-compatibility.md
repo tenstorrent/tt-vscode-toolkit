@@ -64,12 +64,12 @@ This guide documents validated combinations of hardware, software versions, and 
   - Large-scale inference workloads
 - **Multi-chip support:** Yes (8 chips)
 
-#### QuietBox (Wormhole-based)
+#### TT-QuietBox (Wormhole-based)
 - **Architecture:** Wormhole (not Blackhole<sup>®</sup>)
 - **Configuration:** Multi-chip Wormhole system
 - **Production validation:** ✅ Validated for vLLM (Batch 32: 22.1 T/S/U, 707.2 T/S)
 - **Best for:** Production inference deployments
-- **Reference:** [Tenstorrent QuietBox](https://tenstorrent.com/hardware/tt-quietbox)
+- **Reference:** [Tenstorrent TT-QuietBox](https://tenstorrent.com/hardware/tt-quietbox)
 - **vLLM compatibility:** Fully validated (see README.md performance benchmarks)
 
 ### Blackhole Architecture

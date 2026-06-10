@@ -201,7 +201,7 @@ export TT_METAL_ARCH_NAME=blackhole  # Required for Blackhole
 </details>
 
 <details style="border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 12px; margin: 8px 0; background: var(--vscode-editor-background);">
-<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 p300c (Blackhole - Single Chip / QuietBox<sup>®</sup> 2)</b></summary>
+<summary style="cursor: pointer; font-weight: bold; padding: 4px; margin: -12px -12px 12px -12px; background: var(--vscode-sideBar-background); border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--vscode-panel-border);"><b>🔧 p300c (Blackhole - Single Chip / TT-QuietBox<sup>®</sup> 2)</b></summary>
 
 ```bash
 export MESH_DEVICE=P100          # p300c runs in single-chip P100 mode
@@ -213,7 +213,7 @@ export TT_METAL_ARCH_NAME=blackhole
 p300c is a single Blackhole chip — identical instruction set to p100.
 Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
 
-**QuietBox 2 note:** QuietBox 2 ships without `~/tt-metal`. You must clone and build
+**TT-QuietBox 2 note:** TT-QuietBox 2 ships without `~/tt-metal`. You must clone and build
 tt-metal from source before running SDXL. See
 [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
 

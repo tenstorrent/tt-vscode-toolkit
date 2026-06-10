@@ -1,4 +1,4 @@
-# QuietBox CS Fundamentals Validation Report
+# TT-QuietBox CS Fundamentals Validation Report
 
 **Date:** 2026-01-09
 **Hardware:** 4x p300c (Blackhole<sup>®</sup>)
@@ -9,10 +9,10 @@
 
 ## Executive Summary
 
-This report documents hands-on validation of the newly created **CS Fundamentals series** (7 modules) on QuietBox hardware. The goal is to verify that all lesson instructions are accurate, executable, and produce expected results on Blackhole p300c cards.
+This report documents hands-on validation of the newly created **CS Fundamentals series** (7 modules) on TT-QuietBox hardware. The goal is to verify that all lesson instructions are accurate, executable, and produce expected results on Blackhole p300c cards.
 
 **Hardware Configuration:**
-- **System:** QuietBox with 4x p300c cards
+- **System:** TT-QuietBox with 4x p300c cards
 - **Architecture:** Blackhole (each card acts as single chip)
 - **Firmware:** 19.4.0.0
 - **Clocks:** 1350 MHz AICLK
@@ -199,7 +199,7 @@ Success: Result is 21
 - Continue following each module's hands-on experiments
 - Document any deviations from lesson instructions
 - Verify performance characteristics match lesson predictions
-- Test multi-core examples on QuietBox (leveraging 4 devices)
+- Test multi-core examples on TT-QuietBox (leveraging 4 devices)
 
 ---
 
@@ -319,7 +319,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 **CS Fundamentals Series Status: ✅ VALIDATED**
 
 ### Executable Code Validation
-- ✅ **Module 1:** RISC-V addition example runs correctly on QuietBox p300c
+- ✅ **Module 1:** RISC-V addition example runs correctly on TT-QuietBox p300c
 - ✅ **Modules 2-7:** Conceptual teaching (no executable code by design)
 
 ### Content Accuracy Assessment
@@ -358,7 +358,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 
 ## Hardware-Specific Observations
 
-### QuietBox p300c Configuration
+### TT-QuietBox p300c Configuration
 
 **What Worked Well:**
 - ✅ Single-device example (Module 1) ran perfectly
@@ -368,7 +368,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
 - ✅ Harvesting masks normal (manufacturing yield)
 
 **Multi-Device Potential:**
-- The conceptual code in Modules 3-4 (parallel computing, NoC communication) could be implemented as actual runnable examples on QuietBox's 4 devices
+- The conceptual code in Modules 3-4 (parallel computing, NoC communication) could be implemented as actual runnable examples on TT-QuietBox's 4 devices
 - Would provide hands-on validation of multi-chip concepts
 - **Recommendation:** Consider adding actual multi-device examples in future
 
@@ -402,7 +402,7 @@ After scanning all remaining modules, I found that only **Module 1** contains ac
    - Module 7: Simple roofline analysis script
 
 2. **Multi-device tutorials:**
-   - Leverage QuietBox's 4 p300c cards
+   - Leverage TT-QuietBox's 4 p300c cards
    - Show multi-chip data-parallel execution
    - Demonstrate inter-chip NoC communication
 

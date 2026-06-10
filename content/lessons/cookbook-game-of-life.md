@@ -23,7 +23,7 @@ validatedOn:
   - p300c
 estimatedMinutes: 30
 validationDate: 2026-04-16
-validationNotes: Validated on p300c (QuietBox 2 QuietBox) — ttnn.matmul neighbour-count computation runs correctly on Blackhole
+validationNotes: Validated on p300c (TT-QuietBox 2) — ttnn.matmul neighbour-count computation runs correctly on Blackhole
 ---
 
 # Recipe 1: Conway's Game of Life 🎮

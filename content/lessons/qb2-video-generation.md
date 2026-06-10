@@ -1,7 +1,7 @@
 ---
 id: qb2-video-generation
-title: Generating Video on QuietBox 2
-description: Go from a fresh QuietBox 2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI and automated prompt generation
+title: Generating Video on TT-QuietBox 2
+description: Go from a fresh TT-QuietBox 2 to AI-generated video clips in one session — Wan2.2-T2V-A14B on 4× Blackhole chips with a GTK4 GUI and automated prompt generation
 category: applications
 tags:
   - qb2
@@ -20,11 +20,11 @@ validatedOn:
 estimatedMinutes: 90
 ---
 
-# Generating Video on QuietBox<sup>®</sup> 2
+# Generating Video on TT-QuietBox<sup>®</sup> 2
 
-> **QuietBox 2-only lesson.** Everything here is validated on QuietBox 2 (P300X2 — 4× Blackhole<sup>®</sup> chips in a (2,2) mesh). The model, the patch set, the timing data, and TT-TV attractor mode were all built and tested directly on QuietBox 2 hardware.
+> **TT-QuietBox 2-only lesson.** Everything here is validated on TT-QuietBox 2 (P300X2 — 4× Blackhole<sup>®</sup> chips in a (2,2) mesh). The model, the patch set, the timing data, and TT-TV attractor mode were all built and tested directly on TT-QuietBox 2 hardware.
 
-Your QuietBox 2 can generate original AI video — 5–7 minute clips of cinematic footage driven by natural language prompts, running completely offline with no cloud API required. This lesson takes you from a fresh Ubuntu 24.04 install to a running GPU-accelerated video generation studio.
+Your TT-QuietBox 2 can generate original AI video — 5–7 minute clips of cinematic footage driven by natural language prompts, running completely offline with no cloud API required. This lesson takes you from a fresh Ubuntu 24.04 install to a running GPU-accelerated video generation studio.
 
 ## What You'll Build
 
@@ -45,7 +45,7 @@ Your QuietBox 2 can generate original AI video — 5–7 minute clips of cinemat
            │ TTNN dispatch
            ▼
 ┌─────────────────────┐
-│  QuietBox 2         │  2x p300, 4x Blackhole, (2,2) mesh, 2654 TFLOPS
+│  TT-QuietBox 2         │  2x p300, 4x Blackhole, (2,2) mesh, 2654 TFLOPS
 └─────────────────────┘
 
   Qwen3-0.6B  (CPU, port 8001)  -- prompt polish, no TT hardware needed
@@ -73,20 +73,20 @@ Your QuietBox 2 can generate original AI video — 5–7 minute clips of cinemat
 | First video generated | ~6 min after warmup |  |
 | Steady-state per clip | **~370 s (~6 min)** | 480×832, 80 frames |
 
-> **The script says "~5 min" during warmup. Ignore it.** Measured time to `Application startup complete` on QuietBox 2 hardware is consistently 525 s on the first cold start after reboot.
+> **The script says "~5 min" during warmup. Ignore it.** Measured time to `Application startup complete` on TT-QuietBox 2 hardware is consistently 525 s on the first cold start after reboot.
 
 ---
 
 ## Prerequisites
 
-- QuietBox 2 hardware detected and healthy (`tt-smi` showing 4 chips)
+- TT-QuietBox 2 hardware detected and healthy (`tt-smi` showing 4 chips)
 - Tenstorrent PPA installed (firmware + KMD current)
 - Docker CE installed and running
 - `python3-gi`, `python3-gi-cairo`, `gir1.2-gtk-4.0` installed (system apt, **not venv**)
 - ~180 GB free disk (`~/.cache/huggingface` + `TT_DIT_CACHE_DIR`)
 - HuggingFace account (Wan2.2 requires `hf auth login`)
 
-**Verify your QuietBox 2 hardware:**
+**Verify your TT-QuietBox 2 hardware:**
 
 ```bash
 tt-smi -s | python3 -m json.tool
@@ -97,7 +97,7 @@ tt-smi -s | python3 -m json.tool
 
 ---
 
-## Step 1: Verify QuietBox 2 Hardware
+## Step 1: Verify TT-QuietBox 2 Hardware
 
 Before starting, confirm all four Blackhole chips are healthy:
 
@@ -165,13 +165,13 @@ cat ~/code/tt-local-generator/vendor/VENDOR_SHA
 
 ---
 
-## Step 4: Apply QuietBox 2 Hotpatches
+## Step 4: Apply TT-QuietBox 2 Hotpatches
 
 ```bash
 cd ~/code/tt-local-generator && ./bin/apply_patches.sh
 ```
 
-[Apply QuietBox 2 Patches](command:tenstorrent.applyVideoGenPatches)
+[Apply TT-QuietBox 2 Patches](command:tenstorrent.applyVideoGenPatches)
 
 This injects two sets of patches into the vendored server:
 
@@ -180,7 +180,7 @@ This injects two sets of patches into the vendored server:
 | Config overrides | `patches/media_server_config/` | P300X2 device shape, request timeouts |
 | Pipeline fixes | `patches/tt_dit/` | WAN transformer forward pass fixes |
 
-**Always run `apply_patches.sh` after `setup_vendor.sh`.** The patches are what make the server work correctly on QuietBox 2.
+**Always run `apply_patches.sh` after `setup_vendor.sh`.** The patches are what make the server work correctly on TT-QuietBox 2.
 
 ---
 
@@ -242,7 +242,7 @@ nano ~/code/tt-local-generator/vendor/tt-inference-server/.env
 Set or confirm these values:
 
 ```bash
-# QuietBox 2-specific: cache compiled TT weights across container restarts (~66 GB after first run)
+# TT-QuietBox 2-specific: cache compiled TT weights across container restarts (~66 GB after first run)
 TT_DIT_CACHE_DIR=/home/ttuser/.cache/tt_dit_cache
 
 # Keep HF offline after download (prevents startup delays)
@@ -342,7 +342,7 @@ Underwater coral reef at dawn, schools of colorful fish, shafts of morning light
 
 | Setting | Default | Notes |
 |---|---|---|
-| Resolution | 480×832 | Native for Wan2.2 on QuietBox 2 |
+| Resolution | 480×832 | Native for Wan2.2 on TT-QuietBox 2 |
 | Frames | 80 | ~3.3 s at 24 fps |
 | Steps | 50 | More = better quality, linearly slower |
 | Guidance scale | 7.0 | Higher = follows prompt more strictly |
@@ -408,7 +408,7 @@ To activate TT-TV:
 2. Click the **TT-TV** button in the toolbar (looks like a television icon)
 3. The window goes fullscreen — move the mouse to see the HUD overlay
 
-TT-TV is the reason to keep the servers running overnight. Wake up to a gallery of AI video your QuietBox 2 generated while you slept.
+TT-TV is the reason to keep the servers running overnight. Wake up to a gallery of AI video your TT-QuietBox 2 generated while you slept.
 
 > **Disk space:** TT-TV stops generating when free disk drops below 18 GB. Check `df -h ~` if generation pauses.
 
@@ -495,7 +495,7 @@ The GTK bindings are installed as **system apt packages**. Always launch with th
 
 ### Prompt server shows "algo only" from a remote client
 
-If you're running the GUI from a Mac and connecting to QuietBox 2 via `--server http://quietbox2:8000`, the prompt server must also bind to `0.0.0.0`:
+If you're running the GUI from a Mac and connecting to TT-QuietBox 2 via `--server http://quietbox2:8000`, the prompt server must also bind to `0.0.0.0`:
 
 ```bash
 # Check if it's bound to 127.0.0.1 (loopback only)

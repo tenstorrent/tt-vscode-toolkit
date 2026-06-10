@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * First mention of "QuietBox 2" per page → QuietBox<sup>®</sup> 2
+ * First mention of "TT-QuietBox 2" per page → TT-QuietBox<sup>®</sup> 2
  * Skips YAML front matter, fenced code, inline `code`, markdown link URLs,
  * and HTML script/style blocks.
  *
@@ -223,14 +223,14 @@ function main() {
 
   if (checkOnly) {
     if (pending > 0) {
-      console.error(`\n${pending} file(s) missing first-mention QuietBox<sup>®</sup> 2.`);
+      console.error(`\n${pending} file(s) missing first-mention TT-QuietBox<sup>®</sup> 2.`);
       process.exit(1);
     }
-    console.log('OK: all pages with QuietBox 2 have first-mention trademark.');
+    console.log('OK: all pages with TT-QuietBox 2 have first-mention trademark.');
     process.exit(0);
   }
 
-  console.log(pending ? `\n${pending} file(s) updated.` : 'No QuietBox 2 pages needed updates.');
+  console.log(pending ? `\n${pending} file(s) updated.` : 'No TT-QuietBox 2 pages needed updates.');
 }
 
 main();

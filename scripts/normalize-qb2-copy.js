@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Replace QB2 → QuietBox 2 in user-facing copy only (not code, slugs, or paths).
+ * Replace QB2 → TT-QuietBox 2 in user-facing copy only (not code, slugs, or paths).
  *
  * Usage: node scripts/normalize-qb2-copy.js
  */
@@ -12,7 +12,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const FROM = 'QB2';
-const TO = 'QuietBox 2';
+const TO = 'TT-QuietBox 2';
 const MATCH_RE = /\bQB2\b/g;
 
 const COPY_ROOTS = [
@@ -142,7 +142,7 @@ function main() {
     console.log(`  ${path.relative(ROOT, abs)} (${before - after} replacements)`);
   }
 
-  console.log(`\nDone: ${touched} files, ~${replacements} QB2 → QuietBox 2 in prose.\n`);
+  console.log(`\nDone: ${touched} files, ~${replacements} QB2 → TT-QuietBox 2 in prose.\n`);
 }
 
 main();

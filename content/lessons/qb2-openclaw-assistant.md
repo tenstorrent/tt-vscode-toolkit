@@ -1,7 +1,7 @@
 ---
 id: qb2-openclaw-assistant
-title: OpenClaw AI Assistant on QuietBox 2
-description: Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your QuietBox 2 hardware
+title: OpenClaw AI Assistant on TT-QuietBox 2
+description: Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your TT-QuietBox 2 hardware
 category: applications
 tags:
   - qb2
@@ -20,13 +20,13 @@ validatedOn:
 estimatedMinutes: 45
 ---
 
-# OpenClaw AI Assistant on QuietBox<sup>®</sup> 2
+# OpenClaw AI Assistant on TT-QuietBox<sup>®</sup> 2
 
-Transform your QuietBox 2 into an expert AI assistant that knows everything about Tenstorrent hardware, deployment, and programming - with citations from 45+ interactive lessons and official documentation.
+Transform your TT-QuietBox 2 into an expert AI assistant that knows everything about Tenstorrent hardware, deployment, and programming - with citations from 45+ interactive lessons and official documentation.
 
 ## What You'll Build
 
-**OpenClaw** is an enterprise-grade AI agent framework that runs entirely on your QuietBox 2. Once configured, you get:
+**OpenClaw** is an enterprise-grade AI agent framework that runs entirely on your TT-QuietBox 2. Once configured, you get:
 
 - 🧠 **TT Expert Mode**: Ask questions about hardware, deployment, lessons - get detailed answers with citations
 - 📚 **Memory Search**: Automatically searches 45+ lessons + official TT docs (1,200+ knowledge chunks)
@@ -36,7 +36,7 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 
 **What makes this special:**
 - **Runs locally** - Your data never leaves your machine
-- **Hardware-accelerated** - 70B model on your QuietBox 2's 4x Blackhole<sup>®</sup> chips
+- **Hardware-accelerated** - 70B model on your TT-QuietBox 2's 4x Blackhole<sup>®</sup> chips
 - **Self-documenting** - Knows all TT-VSCode-Toolkit lessons by heart
 - **Production-ready** - Used for booth demos and development
 
@@ -44,7 +44,7 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 
 ```
 ┌─────────────┐
-│  User (TUI) │ Ask: "What is QuietBox 2?"
+│  User (TUI) │ Ask: "What is TT-QuietBox 2?"
 └──────┬──────┘
        │ WebSocket to ws://127.0.0.1:18789
        ▼
@@ -65,7 +65,7 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 └──────────────────┘
 ```
 
-**Performance on QuietBox 2 (70B model):**
+**Performance on TT-QuietBox 2 (70B model):**
 - First response: ~14 seconds (includes memory search)
 - Follow-ups: ~8-10 seconds
 - Context window: 131,072 tokens (128K)
@@ -78,14 +78,14 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 
 ### Hardware Requirements
 
-**For QuietBox 2 (P300X2) - 70B Model:**
+**For TT-QuietBox 2 (P300X2) - 70B Model:**
 - 4x Blackhole ASICs (p300c boards)
 - 236 GB RAM (175 GB required for 70B)
 - 2.3 TB disk space (160 GB required)
 - Firmware: 19.4.2.0+
 - KMD: 2.7.0+
 
-**Verify your QuietBox 2:**
+**Verify your TT-QuietBox 2:**
 
 ```bash
 # Check hardware detection
@@ -97,7 +97,7 @@ free -h
 # Should show: ~236 GB total
 ```
 
-**🔍 Check QuietBox 2 Hardware**
+**🔍 Check TT-QuietBox 2 Hardware**
 
 ### Software Requirements
 
@@ -123,7 +123,7 @@ docker --version
 
 ## Step 1: Deploy vLLM with 70B Model
 
-The first step is getting Llama-3.3-70B-Instruct running on your QuietBox 2 with tool calling support (required for OpenClaw agents).
+The first step is getting Llama-3.3-70B-Instruct running on your TT-QuietBox 2 with tool calling support (required for OpenClaw agents).
 
 ### Understanding the Deployment
 
@@ -463,12 +463,12 @@ Try these queries to verify everything works:
 
 **You ask:**
 ```
-What is QuietBox 2?
+What is TT-QuietBox 2?
 ```
 
 **Expected response (with citations):**
 ```
-QuietBox 2 is TT-QuietBox™ 2, a liquid-cooled, desk-friendly AI
+TT-QuietBox™ 2 is a liquid-cooled, desk-friendly AI
 workstation that runs models up to 120 billion parameters locally with a
 fully open source software stack. It features:
 
@@ -525,7 +525,7 @@ Source: ../../code/tt-vscode-toolkit/content/lessons/api-server.md#L102-L125
 
 **You ask:**
 ```
-What cookbook examples can I run on my QuietBox 2?
+What cookbook examples can I run on my TT-QuietBox 2?
 ```
 
 **Expected response:**
@@ -562,7 +562,7 @@ Source: ../../code/tt-vscode-toolkit/content/lessons/cookbook-overview.md#L28-L8
 
 ## Alternative: n150 with 8B Model
 
-If you have an n150 (single chip) instead of QuietBox 2, you can run OpenClaw with a smaller model.
+If you have an n150 (single chip) instead of TT-QuietBox 2, you can run OpenClaw with a smaller model.
 
 ### n150 Specifications
 
@@ -571,7 +571,7 @@ If you have an n150 (single chip) instead of QuietBox 2, you can run OpenClaw wi
 - **Memory**: 8 GB GDDR6
 - **Model size**: Up to 8B parameters
 - **Context**: 8,192 tokens
-- **Power**: ~75W (vs ~300W for QuietBox 2)
+- **Power**: ~75W (vs ~300W for TT-QuietBox 2)
 
 ### Deployment for n150
 
@@ -621,7 +621,7 @@ Edit `~/tt-claw/runtime/openclaw.json`:
 
 ### Performance Comparison: 70B vs 8B
 
-| Feature              | QuietBox 2 (70B)          | n150 (8B)         |
+| Feature              | TT-QuietBox 2 (70B)          | n150 (8B)         |
 |----------------------|--------------------|-------------------|
 | Response time        | 14+ seconds        | 2-3 seconds       |
 | Context window       | 131K tokens        | 8K tokens         |
@@ -850,7 +850,7 @@ Hardware Layer:
 ### Key Features
 
 - ✅ **Fully Local** - No data leaves your machine
-- ✅ **Hardware Accelerated** - 70B model on QuietBox 2's Blackhole chips
+- ✅ **Hardware Accelerated** - 70B model on TT-QuietBox 2's Blackhole chips
 - ✅ **Self-Documenting** - Knows all 45+ lessons by heart
 - ✅ **Extensible** - Build custom agents and skills
 - ✅ **Production Ready** - Used for real demos and development
@@ -933,7 +933,7 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 
 ## Summary
 
-You've deployed a complete AI assistant on your QuietBox 2:
+You've deployed a complete AI assistant on your TT-QuietBox 2:
 
 - ✅ **70B model running** on 4x Blackhole chips with tool calling
 - ✅ **Memory search** indexing 45+ lessons and TT documentation
@@ -946,6 +946,6 @@ You've deployed a complete AI assistant on your QuietBox 2:
 cd ~/openclaw && ./openclaw.sh tui
 ```
 
-Ask: "What is QuietBox 2?" or "How do I deploy vLLM?" and watch it respond with citations!
+Ask: "What is TT-QuietBox 2?" or "How do I deploy vLLM?" and watch it respond with citations!
 
-Your QuietBox 2 is now an expert on Tenstorrent hardware, deployment, and programming. 🎉
+Your TT-QuietBox 2 is now an expert on Tenstorrent hardware, deployment, and programming. 🎉

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.474] - 2026-05-27
+
+### Changed
+
+- **TT-QuietBox naming** — prefixed all user-facing `QuietBox` mentions with `TT-` (`TT-QuietBox`, `TT-QuietBox<sup>®</sup> 2`). Updated trademark script, QB2 normalizer, `STYLE_GUIDE.md`, and Vale `Terminology.yml` (unchanged: `quietbox2` hostnames and lesson slugs `qb2-*`).
+
+---
+
 ## [0.0.473] - 2026-05-27
 
 ### Changed
@@ -27,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **QuietBox® placement** — moved first-mention registered mark from after `2` to after `QuietBox` (`QuietBox<sup>®</sup> 2`, not `QuietBox 2<sup>®</sup>`).
+- **TT-QuietBox® placement** — moved first-mention registered mark from after `2` to after `QuietBox` (`QuietBox<sup>®</sup> 2`, not `QuietBox 2<sup>®</sup>`).
 
 ---
 
@@ -35,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **QuietBox 2® first mention** — each lesson and reference page marks the first `QuietBox 2` with a registered superscript in prose (skips front matter, code fences, inline code, and link URLs). Added `scripts/add-quietbox2-trademark.js`.
+- **TT-QuietBox 2® first mention** — each lesson and reference page marks the first `QuietBox 2` with a registered superscript in prose (skips front matter, code fences, inline code, and link URLs). Added `scripts/add-quietbox2-trademark.js`.
 
 ---
 
@@ -514,7 +522,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`src/renderers/MarkdownRenderer.ts` YouTube thumbnail fallback** — replaced YouTube `<iframe>` embeds with a static thumbnail + external link to avoid VSCode Error 153 (CSP blocks iframes from external origins in webviews); clicking the thumbnail opens the video in the system browser
 - **`src/views/LessonWebviewManager.ts` `openExternal` message handler** — added handler so external links (`<a target="_blank">`) clicked inside the lesson webview open in the OS browser rather than inside the webview
 - **`src/webview/scripts/lesson-viewer.js` external link intercept** — added click listener that posts `openExternal` messages for links pointing outside the webview origin
-- **`content/lessons/qb2-local-agents.md` updates** — expanded QuietBox<sup>®</sup> 2 agents lesson with YouTube embed section, glitch-art lesson section, and landscape SVG template sync
+- **`content/lessons/qb2-local-agents.md` updates** — expanded TT-QuietBox<sup>®</sup> 2 agents lesson with YouTube embed section, glitch-art lesson section, and landscape SVG template sync
 - **`content/templates/agents/06_landscape_svg.py` glitch post-processing** — added additional scene generation and glitch effects to the landscape SVG template
 
 ### Fixed
@@ -539,7 +547,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Install page gallery** — trimmed agent lesson row to landscape SVG only (pixel-art text-adventure scenes removed); updated section sub-text to mention agent-generated art running on QuietBox 2
+- **Install page gallery** — trimmed agent lesson row to landscape SVG only (pixel-art text-adventure scenes removed); updated section sub-text to mention agent-generated art running on TT-QuietBox 2
 
 ---
 
@@ -874,13 +882,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `ttnn/tutorials/basic_python/` scripts (no Jupyter required), performance
   context section, expanded model zoo with current demos, corrected tutorial path
   (removed stale `2025_dx_rework/` subdirectory). Promoted to `status: validated`.
-- **video-generation-ttmetal lesson**: replaced SD 3.5 (Galaxy/QuietBox only) with
+- **video-generation-ttmetal lesson**: replaced SD 3.5 (Galaxy/TT-QuietBox only) with
   SD 1.4 (`CompVis/stable-diffusion-v1-4`), which works on n150, n300, T3000, p100,
   and p300c. Fixed demo command path, output filename pattern
   (`input_data_N_512x512_ttnn.png`), added HuggingFace auth step, added interactive
   mode section. Removed incorrect SD 3.5 performance claims.
 - **coding-assistant lesson**: fixed `pip install pi` bug (stale/broken dependency),
-  added n300+ hardware requirement callout with n150/QuietBox 2 redirect, added explicit
+  added n300+ hardware requirement callout with n150/TT-QuietBox 2 redirect, added explicit
   venv activation to startup command, added `TT_METAL_ARCH_NAME=blackhole` note for
   p100/p300c users. Removed stale hardcoded lesson number references.
 - **TT-Inference-Server lesson**: updated "Dev Branch" section to reflect that `dev`
@@ -917,8 +925,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **cs-fundamentals-01–07 lessons**: corrected `p300` → `p300c` in `supportedHardware` (all seven conceptual lessons).
 
 ### Changed
-- **TT-Inference-Server lesson**: added installation step — n150/n300/T3000/p100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (QuietBox 2/pre-configured images have it pre-installed).
-- **video-generation-ttmetal lesson**: added `p300c` to `supportedHardware`; added p300c/QuietBox 2 note to hardware selection section.
+- **TT-Inference-Server lesson**: added installation step — n150/n300/T3000/p100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (TT-QuietBox 2/pre-configured images have it pre-installed).
+- **video-generation-ttmetal lesson**: added `p300c` to `supportedHardware`; added p300c/TT-QuietBox 2 note to hardware selection section.
 
 ---
 
@@ -926,7 +934,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **build-tt-metal lesson**: updated Step 3 (Python environment setup) to document the new `uv`-based `create_venv.sh` workflow — `create_venv.sh` now installs `uv` automatically and uses `uv venv` / `uv pip install` instead of plain pip. Added `source python_env/bin/activate` to Step 5 (env vars). Added `uv not found in PATH` error table entry.
-- **coding-assistant lesson**: removed stale "Future Model Options (Coming Soon as of December 2025)" section; replaced with current model availability table (Qwen3-0.6B, Qwen3-8B, Llama 3.1 8B all available now via vLLM). Added QuietBox 2/p300c prerequisite note. Added `p300c` to `supportedHardware`.
+- **coding-assistant lesson**: removed stale "Future Model Options (Coming Soon as of December 2025)" section; replaced with current model availability table (Qwen3-0.6B, Qwen3-8B, Llama 3.1 8B all available now via vLLM). Added TT-QuietBox 2/p300c prerequisite note. Added `p300c` to `supportedHardware`.
 - **explore-metalium lesson**: added `p300c` to `supportedHardware`; removed stale "as of December 2025" date references.
 
 ---
@@ -952,16 +960,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.352] - 2026-04-16
 
 ### Changed
-- **interactive-chat lesson**: added `p300c` to `supportedHardware` (architecturally identical to p100; lesson already has the QuietBox 2/no-tt-metal caveat).
+- **interactive-chat lesson**: added `p300c` to `supportedHardware` (architecturally identical to p100; lesson already has the TT-QuietBox 2/no-tt-metal caveat).
 - **api-server lesson**: added `p300c` to `supportedHardware`; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"` in prerequisite check.
-- **image-generation lesson**: added `p300c` to `supportedHardware`; added p300c hardware config section (`MESH_DEVICE=P100` + `TT_METAL_ARCH_NAME=blackhole`) with QuietBox 2 source-build note; added p300c row to hardware compatibility table; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"`.
+- **image-generation lesson**: added `p300c` to `supportedHardware`; added p300c hardware config section (`MESH_DEVICE=P100` + `TT_METAL_ARCH_NAME=blackhole`) with TT-QuietBox 2 source-build note; added p300c row to hardware compatibility table; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"`.
 
 ---
 
 ## [0.0.351] - 2026-04-16
 
 ### Fixed
-- **image_filters cookbook template rewritten** for current TT-NN conv2d API: replaced non-existent positional `ttnn.conv2d(tensor, kernel, padding='same')` call with correct keyword-arg form (`input_tensor`, `weight_tensor`, `bias_tensor`, `in_channels`, `out_channels`, `device`, `kernel_size`, `stride`, `padding`, `batch_size`, `input_height`, `input_width`, `conv_config`, `groups`). RGB channels are now processed as a batch (`batch_size=C`, `in_channels=1`, `out_channels=1`) — avoids depthwise grouping constraints and keeps the API straightforward. Added `l1_small_size=8192` to `open_device`. Validated on p300c (QuietBox 2).
+- **image_filters cookbook template rewritten** for current TT-NN conv2d API: replaced non-existent positional `ttnn.conv2d(tensor, kernel, padding='same')` call with correct keyword-arg form (`input_tensor`, `weight_tensor`, `bias_tensor`, `in_channels`, `out_channels`, `device`, `kernel_size`, `stride`, `padding`, `batch_size`, `input_height`, `input_width`, `conv_config`, `groups`). RGB channels are now processed as a batch (`batch_size=C`, `in_channels=1`, `out_channels=1`) — avoids depthwise grouping constraints and keeps the API straightforward. Added `l1_small_size=8192` to `open_device`. Validated on p300c (TT-QuietBox 2).
 - **audio_processor cookbook CLI**: hardcoded `examples/sample.wav` path replaced with `sys.argv[1]` fallback pattern, matching all other cookbooks.
 
 ### Changed
@@ -972,7 +980,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.350] - 2026-04-16
 
 ### Added
-- **Cache persistence section in TT-Inference-Server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT Metal kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on QuietBox 2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
+- **Cache persistence section in TT-Inference-Server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT Metal kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on TT-QuietBox 2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
 
 ---
 
@@ -988,7 +996,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.339] - 2026-04-16
 
 ### Changed
-- **TT-Inference-Server lesson rewritten** for current v0.12.0 Docker images and modern CLI: updated `--device` → `--tt-device` (with auto-detection note), added `--no-auth` to quickstart, added direct `docker run` commands per hardware family, added p100/p300c/QuietBox 2 support with Experimental status, added non-container `--local-server` section, added dev branch (v0.12.0) section covering C++ server, session manager, disaggregated prefill/decode, Grafana metrics, and `/v1/responses` endpoint. Llama-3.1-8B is now clearly framed as the universal model across all hardware.
+- **TT-Inference-Server lesson rewritten** for current v0.12.0 Docker images and modern CLI: updated `--device` → `--tt-device` (with auto-detection note), added `--no-auth` to quickstart, added direct `docker run` commands per hardware family, added p100/p300c/TT-QuietBox 2 support with Experimental status, added non-container `--local-server` section, added dev branch (v0.12.0) section covering C++ server, session manager, disaggregated prefill/decode, Grafana metrics, and `/v1/responses` endpoint. Llama-3.1-8B is now clearly framed as the universal model across all hardware.
 - **Terminal commands for TT-Inference-Server updated**: `--device` flag replaced with `--tt-device`; `--no-auth` added to all server start commands; prereq check improved to parse `tt-smi -s` JSON output.
 
 ### Added
@@ -1011,15 +1019,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.336] - 2026-04-15
 
 ### Added
-- **New lesson: Build tt-metal from Source** (`content/lessons/build-tt-metal.md`) — standalone reference covering clone, system deps, Python setuptools fix, build, env vars, and common errors. Targeted at QuietBox 2/pre-configured image users where `~/tt-metal` is absent. Includes Blackhole DispatchCoreAxis warning with bad/good code examples.
+- **New lesson: Build tt-metal from Source** (`content/lessons/build-tt-metal.md`) — standalone reference covering clone, system deps, Python setuptools fix, build, env vars, and common errors. Targeted at TT-QuietBox 2/pre-configured image users where `~/tt-metal` is absent. Includes Blackhole DispatchCoreAxis warning with bad/good code examples.
 - **p300c hardware support** across multiple lessons: added to `supportedHardware` and `validatedOn` in `vllm-production.md`, `verify-installation.md`, and `hardware-detection.md`
-- **QuietBox 2 callout in vllm-production.md**: p100/p300c section now explains that p300c is architecturally identical to p100 and that QuietBox 2 = 4× p300c operating as independent single-chip devices
-- **Llama-only warning in interactive-chat.md**: prominent callout at top of lesson directing QuietBox 2 and no-source-build users to the vLLM/Qwen3-0.6B path instead
-- **WH/BH Compatibility section in CLAUDE.md**: new guidance block covering DispatchCoreAxis, hf CLI migration, QuietBox 2 TT-Metalium absence, TT_METAL_ARCH_NAME, HF_MODEL requirement, and a per-lesson WH/BH compatibility checklist
+- **TT-QuietBox 2 callout in vllm-production.md**: p100/p300c section now explains that p300c is architecturally identical to p100 and that TT-QuietBox 2 = 4× p300c operating as independent single-chip devices
+- **Llama-only warning in interactive-chat.md**: prominent callout at top of lesson directing TT-QuietBox 2 and no-source-build users to the vLLM/Qwen3-0.6B path instead
+- **WH/BH Compatibility section in CLAUDE.md**: new guidance block covering DispatchCoreAxis, hf CLI migration, TT-QuietBox 2 TT-Metalium absence, TT_METAL_ARCH_NAME, HF_MODEL requirement, and a per-lesson WH/BH compatibility checklist
 
 ### Changed
 - **Lesson chain reordered**: `hardware-detection → download-model → verify-installation → interactive-chat` (previously verify-installation was step 2, before download-model)
-- **verify-installation.md rewritten** as diagnostic hub ("Verify Your Setup"): three checks with pass/fail interpretation and contextual links; no longer assumes `~/tt-metal` exists; QuietBox 2 callout explaining pre-configured images ship without source
+- **verify-installation.md rewritten** as diagnostic hub ("Verify Your Setup"): three checks with pass/fail interpretation and contextual links; no longer assumes `~/tt-metal` exists; TT-QuietBox 2 callout explaining pre-configured images ship without source
 - **download-model.md rewritten**: Qwen3-0.6B is now the primary model (no license gate, works on all hardware including n150/p300c); Llama-3.1-8B-Instruct moved to optional section with n300+ DRAM warning; Steps 4-6 (TT-Metalium clone/setup) removed (now in build-TT-Metalium lesson)
 - **tt-installer.md category**: `advanced` → `first-inference`
 - **lesson-registry.json navigation updated**: previousLesson/nextLesson chain reflects new order; build-TT-Metalium entry added; verify-installation and download-model titles/descriptions synced with markdown front matter
@@ -1028,7 +1036,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **DispatchCoreAxis.ROW crash on Blackhole** in three templates (`tt-chat-direct.py`, `tt-coding-assistant.py`, `tt-api-server-direct.py`): removed `ttnn.DispatchCoreAxis.ROW` argument from `DispatchCoreConfig` calls — TT-NN auto-detects the correct axis per architecture
 - **`hf` CLI migration**: replaced deprecated `huggingface-cli` with `hf` CLI equivalents (`hf auth login`, `hf auth whoami`, `hf download`) in `download-model.md`, `interactive-chat.md`, `vllm-production.md`, and `terminalCommands.ts`
 - **HF_MODEL not exported**: added `export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct"` to the RUN_INFERENCE terminal command template in `terminalCommands.ts` — previously `simple_text_demo.py` would fail with missing env var
-- **setuptools/pkg_resources missing on QuietBox 2**: added `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install in the SETUP_ENVIRONMENT terminal command template
+- **setuptools/pkg_resources missing on TT-QuietBox 2**: added `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install in the SETUP_ENVIRONMENT terminal command template
 
 ---
 
@@ -1130,7 +1138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.330] - 2026-03-19
 
 ### Fixed
-- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson in OpenClaw QuietBox 2 assistant walkthrough
+- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson in OpenClaw TT-QuietBox 2 assistant walkthrough
 
 ---
 
@@ -1176,7 +1184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.319] - 2026-01-19
 
 ### Added
-- **QuietBox 2 Demos Cohesive Setup System:** Unified environment management for all QuietBox 2 demos
+- **TT-QuietBox 2 Demos Cohesive Setup System:** Unified environment management for all TT-QuietBox 2 demos
   - Master setup script: `setup_qb2_demos.sh` creates shared Python venv at `~/qb2-demos-venv`
   - Installs all dependencies for demos 1-3 in one go (~2-3 minutes)
   - Optional Rust setup for Hardware Constellation (~5 minutes)
@@ -1189,7 +1197,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `neon-chaos/run.sh` - Particle Life runner
   - `recursive-dreams/run.sh` - Stable Diffusion XL runner
   - Each script:
-    - ✅ Activates QuietBox 2 venv automatically
+    - ✅ Activates TT-QuietBox 2 venv automatically
     - ✅ Exports TT_METAL_HOME and PYTHONPATH
     - ✅ Checks for ttnn availability
     - ✅ Detects devices with tt-smi
@@ -1197,8 +1205,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - ✅ Shows estimated time and controls
 
 ### Changed
-- **Extension QuietBox 2 Commands Enhanced:**
-  - All QuietBox 2 demo creation commands now call `copyQB2MasterFiles()` helper
+- **Extension TT-QuietBox 2 Commands Enhanced:**
+  - All TT-QuietBox 2 demo creation commands now call `copyQB2MasterFiles()` helper
   - Automatically copies master setup files to `~/tt-scratchpad/qb2-demos/`
   - Makes all shell scripts executable (chmod 0o755)
   - Consistent file deployment across all 4 demos
@@ -1238,7 +1246,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.326] - 2026-02-26
 
 ### Added
-- **QuietBox 2 Hardware Constellation Demo:** Fourth Quietbox 2 demo - Real-time TT hardware monitoring with stunning visualizations
+- **TT-QuietBox 2 Hardware Constellation Demo:** Fourth Quietbox 2 demo - Real-time TT hardware monitoring with stunning visualizations
   - New lesson: `qb2-hardware-constellation` - "Your Tensix cores are STARS!"
   - Integration with tt-toplike-rs (public Rust project)
   - 5 progressive demos from mock hardware to GPU-accelerated native GUI
@@ -1307,7 +1315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.325] - 2026-02-26
 
 ### Added
-- **QuietBox 2 Recursive Dreams Demo:** Third Quietbox 2 demo - AI-generated impossible realities with Stable Diffusion XL
+- **TT-QuietBox 2 Recursive Dreams Demo:** Third Quietbox 2 demo - AI-generated impossible realities with Stable Diffusion XL
   - New lesson: `qb2-recursive-dreams` - "Where Logic Goes to Die!"
   - 5 progressive demos from simple recursion to peak cognitive dissonance
   - Demo 1: Simple Paradox 🪞 (1 image, 20 steps) - Basic mirror recursion
@@ -1358,7 +1366,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.324] - 2026-02-26
 
 ### Added
-- **QuietBox 2 Neon Chaos Demo:** Second Quietbox 2 demo - Particle Life with TRON/TEMPEST aesthetic
+- **TT-QuietBox 2 Neon Chaos Demo:** Second Quietbox 2 demo - Particle Life with TRON/TEMPEST aesthetic
   - New lesson: `qb2-neon-chaos` - "Emergence meets cyberpunk!"
   - 5 progressive demos from 512 to 10,000 particles
   - Demo 1: Gentle Orbits (512 particles, 3 species, soft pastels)
@@ -1395,7 +1403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.323] - 2026-02-26
 
 ### Added
-- **QuietBox 2 Life Acceleration Demo:** First Quietbox 2 demo lesson - progressive Game of Life showcase
+- **TT-QuietBox 2 Life Acceleration Demo:** First Quietbox 2 demo lesson - progressive Game of Life showcase
   - New lesson: `qb2-life-acceleration` - "Click Click Click!" demo series
   - 5 progressive demos from 128×128 to 4096×4096 grids (16 million cells!)
   - Demo 1: Baby Steps (128×128, gentle intro)
@@ -1411,7 +1419,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Computational theater approach - show, don't tell!
 
 ### Technical Details
-- **QuietBox 2 Demo Philosophy:** Progressive intensity, fullscreen wow factor, spectacular finale
+- **TT-QuietBox 2 Demo Philosophy:** Progressive intensity, fullscreen wow factor, spectacular finale
 - **Performance Expectations:**
   - n150 (1 chip): Demo 1-2 at target FPS, Demo 5 at ~20 FPS
   - p150 (4 chips): Demo 5 hits 500+ FPS target
@@ -1424,7 +1432,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.322] - 2026-02-26
 
 ### Added
-- **Quietbox 2 Demos Category:** New lesson category for QuietBox 2 demos and creative showcases
+- **Quietbox 2 Demos Category:** New lesson category for TT-QuietBox 2 demos and creative showcases
   - Category ID: `qb2-demos`
   - Positioned at order 2 (right after Welcome section)
   - Icon: ⚡ zap
@@ -1432,9 +1440,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All existing categories reordered (incremented by 1)
 
 ### Changed
-- **Category Order:** Shifted all categories down by 1 to accommodate new QuietBox 2 Demos section
+- **Category Order:** Shifted all categories down by 1 to accommodate new TT-QuietBox 2 Demos section
   - Welcome remains order 1
-  - QuietBox 2 Demos is now order 2
+  - TT-QuietBox 2 Demos is now order 2
   - Your First Inference moved from order 2 → 3
   - All subsequent categories incremented accordingly
 
@@ -2195,7 +2203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.242] - 2026-01-08
 
 ### Added
-- Full validation of CS Fundamentals series (7 modules) on QuietBox p300c
+- Full validation of CS Fundamentals series (7 modules) on TT-QuietBox p300c
 - docs/QB_RISCV_follows.md - Comprehensive validation documentation
 
 ### Fixed

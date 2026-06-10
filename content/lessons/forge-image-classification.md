@@ -36,7 +36,7 @@ TT-Forge compiles PyTorch models directly for Tenstorrent hardware. The `venv-fo
 environment is **pre-installed** in this developer image — one command to activate,
 then `forge.compile()` handles the rest.
 
-> **QuietBox<sup>®</sup> 2 users:** Works on all four p300c chips. Each chip is an independent
+> **TT-QuietBox<sup>®</sup> 2 users:** Works on all four p300c chips. Each chip is an independent
 > Blackhole<sup>®</sup> device; `tt-smi -s` will show four boards.
 
 ---
@@ -202,7 +202,7 @@ TTNN operations      ← TT-Metalium layer
 p300c / n150 / …     ← hardware execution
 ```
 
-**What compiles reliably** — compilation times measured on QuietBox 2 (p300c):
+**What compiles reliably** — compilation times measured on TT-QuietBox 2 (p300c):
 
 | Architecture | Compile time | Params | Status |
 |---|---|---|---|
@@ -225,7 +225,7 @@ p300c / n150 / …     ← hardware execution
 Full list: [tt-forge-models](https://github.com/tenstorrent/tt-forge-models) (169 validated architectures).
 
 > **Bulk compilation testing:** [`tt-forge-compiletron`](https://github.com/tenstorrent/tt-forge-compiletron)
-> runs 108 models across all four QuietBox 2 chips in parallel and reports per-model compile
+> runs 108 models across all four TT-QuietBox 2 chips in parallel and reports per-model compile
 > times and success rates. The timing data above comes from that sweep (94.4% success
 > rate, 108 models).
 
@@ -281,7 +281,7 @@ That's the point of TT-Forge.
 ## Next steps
 
 - [JAX Inference with TT-XLA →](command:tenstorrent.showLesson?["tt-xla-jax"]) — use JAX and pmap for
-  multi-device workloads on QuietBox 2's four chips
+  multi-device workloads on TT-QuietBox 2's four chips
 - [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — serving Qwen3 and Llama
   at scale
 - [tt-forge-models](https://github.com/tenstorrent/tt-forge-models) — 169 validated

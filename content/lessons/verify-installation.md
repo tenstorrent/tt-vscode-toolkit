@@ -24,7 +24,7 @@ estimatedMinutes: 5
 minTTMetalVersion: v0.65.1
 recommended_metal_version: v0.65.1
 validationDate: 2026-04-15
-validationNotes: Rewritten as diagnostic hub for QuietBox 2/WH/BH parity
+validationNotes: Rewritten as diagnostic hub for TT-QuietBox 2/WH/BH parity
 ---
 
 # Verify Your Setup
@@ -33,7 +33,7 @@ This is your diagnostic checkpoint. Run three quick checks to confirm hardware, 
 and (optionally) tt-metal source are ready. If anything fails, follow the link for that
 check — then come back here to confirm you're green before moving on.
 
-> **QuietBox<sup>®</sup> 2 / Pre-configured image users:** QuietBox 2 ships with a pre-installed environment but
+> **TT-QuietBox<sup>®</sup> 2 / Pre-configured image users:** TT-QuietBox 2 ships with a pre-installed environment but
 > does **not** include `~/tt-metal`. Check 1 and Check 2 should pass out of the box.
 > Check 3 will fail unless you clone and build TT-Metalium<sup>®</sup> yourself — that's expected and
 > fine for most lessons.
@@ -85,7 +85,7 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 - Prints `✓ TTNN <version>` → **✅ TT-NN ready**, continue to Check 3
 - `ModuleNotFoundError: No module named 'ttnn'` → TT-NN is not importable in your current
   Python environment. You need one of:
-  - **QuietBox 2 / TT-Installer users:** activate the pre-installed container or venv
+  - **TT-QuietBox 2 / TT-Installer users:** activate the pre-installed container or venv
     (check your setup guide for the activate command)
   - **Build-from-source users:** activate your tt-metal venv and set `TT_METAL_HOME`:
     ```bash
@@ -120,7 +120,7 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
   If TT-Metalium is present but not yet built, run `bash /tmp/build_tt_metal.sh` inside the
   developer container, or go to
   [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
-- `✗ ~/tt-metal not found` → Source not present. That's expected on QuietBox 2 pre-installed images
+- `✗ ~/tt-metal not found` → Source not present. That's expected on TT-QuietBox 2 pre-installed images
   and fine for all vLLM production lessons. Only needed for the Generator API (Interactive Chat).
   If you need it, go to
   [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and

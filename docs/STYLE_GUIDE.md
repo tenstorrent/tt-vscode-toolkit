@@ -68,7 +68,7 @@ This style guide ensures consistency across all lessons, documentation, and code
 - ✅ `Wormhole` (capital W)
 - ✅ `Blackhole` (capital B); first mention per page: `Blackhole<sup>®</sup>`
 - ✅ `Wormhole` (capital W); first mention per page: `Wormhole<sup>™</sup>`
-- ✅ `QuietBox 2` (prose; not `QB2`); first mention per page: `QuietBox<sup>®</sup> 2`
+- ✅ `TT-QuietBox 2` in prose (not `QB2` or bare `QuietBox`); first mention per page: `TT-QuietBox<sup>®</sup> 2`
 - ✅ `TT-NN` in prose (not `TTNN`); first mention per page: `TT-NN<sup>®</sup>`
 - ✅ `TT-Metalium`, `TT-Forge` — first mention per page: `TT-Metalium<sup>®</sup>`, `TT-Forge<sup>®</sup>`
 - ❌ `grayskull`, `wormhole`, `blackhole` (except in code/environment variables)

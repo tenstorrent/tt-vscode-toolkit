@@ -1,6 +1,6 @@
 # TT-VSCode-Toolkit — Extension Guide
 
-**TT-VSCode-Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole<sup>™</sup> (n150, n300, T3000) and Blackhole<sup>®</sup> (p100, p150, p300, p300c, QuietBox<sup>®</sup> 2) hardware.
+**TT-VSCode-Toolkit** (`Tenstorrent.tt-vscode-toolkit`) is a VS Code extension that puts the entire Tenstorrent developer experience inside your editor. It ships interactive lessons that run shell commands for you, a hardware-aware lesson browser, built-in walkthroughs, and code templates — all targeting developers working with Wormhole<sup>™</sup> (n150, n300, T3000) and Blackhole<sup>®</sup> (p100, p150, p300, p300c, TT-QuietBox<sup>®</sup> 2) hardware.
 
 ---
 
@@ -112,8 +112,8 @@ Real demos you can run end-to-end.
 |---|---|
 | Coding Assistant with Aider | n150 · n300 |
 | Native Video Animation with AnimateDiff | n150 |
-| OpenClaw AI Assistant on QuietBox 2 | QuietBox 2 |
-| Generating Video on QuietBox 2 | QuietBox 2 |
+| OpenClaw AI Assistant on TT-QuietBox 2 | TT-QuietBox 2 |
+| Generating Video on TT-QuietBox 2 | TT-QuietBox 2 |
 
 ### 🍳 Cookbook *(6 lessons, all validated)*
 
@@ -157,7 +157,7 @@ A structured computer-science curriculum designed for the Tenstorrent architectu
 
 ## Hardware Filtering
 
-The **Lessons panel** includes a hardware filter. Select your card (n150, n300, T3000, p100, QuietBox 2, etc.) and the list narrows to only the lessons validated on your hardware. The filter state is remembered across sessions.
+The **Lessons panel** includes a hardware filter. Select your card (n150, n300, T3000, p100, TT-QuietBox 2, etc.) and the list narrows to only the lessons validated on your hardware. The filter state is remembered across sessions.
 
 ---
 

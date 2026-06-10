@@ -189,7 +189,7 @@ hardware-optimized AI models available. Here's what you can run right now:
 
 ### Experimental (models/experimental/)
 
-- **Stable Diffusion 3.5 Large** — via tt-dit (Galaxy/QuietBox 8+ chips)
+- **Stable Diffusion 3.5 Large** — via tt-dit (Galaxy/TT-QuietBox 8+ chips)
 - **Flux 1** — Text-to-image generation
 - **Mochi-1** — Native video generation
 - **Wan 2.2** — Text-to-video model

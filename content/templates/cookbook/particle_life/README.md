@@ -132,11 +132,11 @@ positions = torch.rand(self.num_particles, 3) * self.world_size
 # All calculations work the same in 3D!
 ```
 
-## Multi-Device Acceleration (QuietBox Systems)
+## Multi-Device Acceleration (TT-QuietBox Systems)
 
 **Unlock the full power of multi-chip systems!**
 
-If you're running on a QuietBox or other multi-device system, you can accelerate the simulation by distributing N² force calculations across all available chips.
+If you're running on a TT-QuietBox or other multi-device system, you can accelerate the simulation by distributing N² force calculations across all available chips.
 
 ### Running Multi-Device Mode
 
@@ -148,7 +148,7 @@ python test_multi_device.py
 python particle_life_multi_device.py --multi-device
 ```
 
-### Performance Results (4x p300c QuietBox)
+### Performance Results (4x p300c TT-QuietBox)
 
 | Mode | Runtime (100 steps) | Performance | Speedup |
 |------|---------------------|-------------|---------|
@@ -186,7 +186,7 @@ See `MULTI_DEVICE_RESULTS.md` for detailed performance analysis.
 - n150: Up to 4,096 particles
 - n300: Up to 8,192 particles
 - T3000: Up to 16,384 particles
-- **QuietBox (multi-device)**: Up to 16,384+ particles with 2-4x speedup
+- **TT-QuietBox (multi-device)**: Up to 16,384+ particles with 2-4x speedup
 
 ## What You Learned
 

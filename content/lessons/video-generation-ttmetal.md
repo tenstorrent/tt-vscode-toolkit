@@ -303,7 +303,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 hf auth login
 ```
 
-**"p300c / QuietBox<sup>®</sup> 2: ROW dispatch error"**
+**"p300c / TT-QuietBox<sup>®</sup> 2: ROW dispatch error"**
 
 The SD demo uses `ttnn.open_device()` without hardcoding dispatch axis, so it should be Blackhole-safe. If you see dispatch errors, ensure `TT_METAL_ARCH_NAME=blackhole` is set.
 

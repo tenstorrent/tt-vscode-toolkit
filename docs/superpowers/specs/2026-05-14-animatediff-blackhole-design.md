@@ -214,7 +214,7 @@ The rewritten `README.md` will:
 
 - Injecting `TemporalTransformer` blocks into the TT-NN UNet (would require modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`)
 - Multi-chip (T3000, Galaxy) distribution of the animation pipeline
-- SD 3.5 / DiT-based video generation (separate model family — see WAN2.2 for production video on QuietBox<sup>®</sup> 2)
+- SD 3.5 / DiT-based video generation (separate model family — see WAN2.2 for production video on TT-QuietBox<sup>®</sup> 2)
 - ControlNet or IP-Adapter combination
 
 ---

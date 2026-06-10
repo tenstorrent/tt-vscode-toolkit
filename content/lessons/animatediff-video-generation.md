@@ -4,7 +4,7 @@ title: Native Video Animation with AnimateDiff
 description: >-
   Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet.
   Learn the complete model bring-up workflow — from research to a standalone package
-  that accelerates SD frame generation at 15 seconds per frame on p300c/QuietBox 2.
+  that accelerates SD frame generation at 15 seconds per frame on p300c/TT-QuietBox 2.
 category: applications
 tags:
   - animation
@@ -170,7 +170,7 @@ python examples/generate_baseline.py \
 
 Replaces the PyTorch UNet with the TT-NN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/`. The denoising loop runs on Blackhole; latents are decoded with the CPU PyTorch VAE (the TT-NN VAE OOMs on Blackhole's final `conv_out` due to a L1 grid mismatch in the Wormhole<sup>™</sup>-targeted kernel — see Known Limitations below).
 
-**Requires:** Blackhole hardware (p100/p150/p300c/QuietBox<sup>®</sup> 2) and `~/tt-metal` built.
+**Requires:** Blackhole hardware (p100/p150/p300c/TT-QuietBox<sup>®</sup> 2) and `~/tt-metal` built.
 
 [⚡ Run Phase 2 (Blackhole)](command:tenstorrent.runAnimateDiff16Frame)
 

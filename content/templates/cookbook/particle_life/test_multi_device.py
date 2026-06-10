@@ -1,7 +1,7 @@
 """
 Multi-Device Performance Test for Particle Life
 
-Compares single-device vs multi-device performance on QuietBox systems.
+Compares single-device vs multi-device performance on TT-QuietBox systems.
 Demonstrates scaling efficiency across multiple P300c chips.
 """
 

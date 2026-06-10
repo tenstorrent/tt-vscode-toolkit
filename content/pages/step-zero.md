@@ -439,11 +439,11 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 tt-smi -s | grep -i dram
 ```
 
-**Wormhole Architecture (n150/n300/T3000/QuietBox):**
+**Wormhole Architecture (n150/n300/T3000/TT-QuietBox):**
 - n150: 12GB DRAM per chip (single chip)
 - n300: 24GB total (2 chips)
 - T3000: 96GB total (8 chips)
-- **QuietBox:** Wormhole-based system (production-validated for vLLM)
+- **TT-QuietBox:** Wormhole-based system (production-validated for vLLM)
 - **Tensix cores:** 8x10 grid (80 cores per chip)
 - **Ethernet:** 16 cores with 256KB L1
 

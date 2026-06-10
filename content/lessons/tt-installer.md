@@ -38,7 +38,7 @@ TT-Installer 2.0 is a comprehensive installation script that:
 - ✅ **Uses modern containers** - TT-Metalium<sup>®</sup> runs in Podman containers (no complex builds)
 - ✅ **Configures your system** - Kernel drivers, HugePages, firmware automatically set up
 - ✅ **Provides production tools** - tt-smi, tt-flash, TT-Inference-Server included
-- ✅ **Supports multiple hardware** - Works with n150, n300, T3000, Galaxy, p100, p150, p300c, and QuietBox<sup>®</sup> 2
+- ✅ **Supports multiple hardware** - Works with n150, n300, T3000, Galaxy, p100, p150, p300c, and TT-QuietBox<sup>®</sup> 2
 - ✅ **Offers flexibility** - Interactive or non-interactive modes, customizable options
 
 > **⚠️ IMPORTANT: Cloud and Container Environments**

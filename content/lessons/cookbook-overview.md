@@ -22,7 +22,7 @@ validatedOn:
   - p300c
 estimatedMinutes: 5
 validationDate: 2026-04-16
-validationNotes: All 5 cookbook recipes validated on p300c (QuietBox 2 QuietBox) with Blackhole architecture
+validationNotes: All 5 cookbook recipes validated on p300c (TT-QuietBox 2) with Blackhole architecture
 ---
 
 # Tenstorrent Cookbook: Learn by Building
@@ -72,7 +72,7 @@ Build a library of image filters from edge detection to artistic effects. Same t
 ### 🌌 [Recipe 5: Particle Life - Emergent Complexity](command:tenstorrent.showLesson?["cookbook-particle-life"])
 **Learn:** N² algorithms, physics simulation, multi-device parallelization
 
-Simulate emergent patterns from simple particle interactions. Includes multi-chip acceleration bonus for QuietBox systems!
+Simulate emergent patterns from simple particle interactions. Includes multi-chip acceleration bonus for TT-QuietBox systems!
 
 **Time:** 30 minutes | **Difficulty:** Intermediate
 
