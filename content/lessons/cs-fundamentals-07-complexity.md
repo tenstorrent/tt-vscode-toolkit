@@ -795,7 +795,7 @@ You've completed the CS Fundamentals series! What's next?
 
 **Tenstorrent Model Zoo** - Port models to TT hardware
 **Bounty Program** - Get paid for model bring-ups
-**GitHub** - Contribute to TT-Metalium<sup>®</sup>, TT-XLA, TT-Forge<sup>®</sup>
+**GitHub** - Contribute to TT-Metalium<sup>®</sup>, TT-XLA, TT-Forge<sup>™</sup>
 
 ### Go Deeper
 
@@ -846,7 +846,7 @@ We explored 7 fundamental CS concepts on real hardware:
 
 **Module 6: Abstraction Layers**
 - Python → C → Assembly → Silicon
-- Saw 10,000x speedup from Python to TT-NN
+- Saw 10,000x speedup from Python to TT-NN<sup>®</sup>
 
 **Module 7: Computational Complexity**
 - Big-O + constants + hardware = real performance

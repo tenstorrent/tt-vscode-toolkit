@@ -46,9 +46,9 @@ Before running checks, pick the path that matches your goal:
 
 | Goal | What you need | Next lesson after green |
 |------|--------------|------------------------|
-| Interactive chat with Llama (Generator API) | Hardware + TT-NN + tt-metal source | [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) |
+| Interactive chat with Llama (Generator API) | Hardware + TT-NN<sup>®</sup> + tt-metal source | [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) |
 | Production vLLM serving (Qwen3-0.6B, no source needed) | Hardware + TT-NN | [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) |
-| Image generation, TT-Forge<sup>®</sup>, TT-XLA | Hardware + TT-NN (source optional) | See individual lesson |
+| Image generation, TT-Forge<sup>™</sup>, TT-XLA | Hardware + TT-NN (source optional) | See individual lesson |
 
 Not sure? Start with the vLLM path — it works on all hardware without needing to build from source.
 
@@ -94,7 +94,7 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
     export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
     ```
   - **Don't have TT-Metalium<sup>®</sup> yet:** go to
-    [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
+    [Build TT-Metalium<sup>®</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
     return here when done
 - `ImportError: undefined symbol: MPIX_Comm_revoke` → OpenMPI libraries missing from
   `LD_LIBRARY_PATH`:

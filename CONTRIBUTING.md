@@ -526,9 +526,9 @@ Must include SPDX header:
 
 ### Related Projects
 
-* [TT-Metalium](https://github.com/tenstorrent/tt-metal) - Core runtime and kernels
+* [TT-Metalium<sup>®</sup>](https://github.com/tenstorrent/tt-metal) - Core runtime and kernels
 * [vLLM](https://github.com/tenstorrent/vllm) - High-performance LLM serving
-* [TT-Forge<sup>®</sup>](https://github.com/tenstorrent/tt-forge) - MLIR compiler
+* [TT-Forge<sup>™</sup>](https://github.com/tenstorrent/tt-forge) - MLIR compiler
 * [TT-XLA](https://github.com/tenstorrent/tt-xla) - XLA compiler plugin
 
 ---

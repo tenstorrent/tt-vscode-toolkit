@@ -324,7 +324,7 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 | 08 VSCode Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 09 Image Generation | ✅ | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | p300c arch supported, SDXL bug blocks |
 | 10 Coding Assistant | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
-| 11 TT-Forge<sup>®</sup> | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | n150 only (experimental) |
+| 11 TT-Forge<sup>™</sup> | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | n150 only (experimental) |
 | 12 TT-XLA JAX | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ✅ | Wormhole only |
 | 13 RISC-V Programming | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
 | 14 Explore Metalium | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | All hardware |
@@ -446,7 +446,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 **"Firmware 19.4.0 newer than max supported 19.1.0":**
 - **Impact:** May hit unsupported features
 - **Status:** Basic operations work, documented limitation
-- **Solution:** Update TT-Metalium to support newer firmware
+- **Solution:** Update TT-Metalium<sup>®</sup> to support newer firmware
 
 ---
 

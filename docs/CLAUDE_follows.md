@@ -59,7 +59,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 - Activate tt-xla-venv
 - Prevent conflicts with main environment
 
-**`~/tt-scratchpad/setup-tt-forge.sh`** (TT-Forge isolated):
+**`~/tt-scratchpad/setup-tt-forge.sh`** (TT-Forge<sup>™</sup> isolated):
 - Unset TT_METAL_HOME/VERSION
 - Set TTFORGE_TOOLCHAIN_DIR (absolute paths!)
 - Set CC/CXX to clang-17
@@ -194,7 +194,7 @@ Every minute debugging `PYTHONPATH` or `LD_LIBRARY_PATH` is a minute not learnin
 - Status: OUTDATED (as mentioned by user)
 - Python environment exists at ~/tt-metal/python_env
 
-**Conclusion:** We have a working n150 with outdated TT-Metalium. Will need to update/rebuild TT-Metalium as part of Lesson 1.
+**Conclusion:** We have a working n150 with outdated TT-Metalium<sup>®</sup>. Will need to update/rebuild TT-Metalium as part of Lesson 1.
 
 ---
 
@@ -769,7 +769,7 @@ Progress:
 
 **✓ Lesson 2 (Verify Installation):**
 - TT-Metalium verification passed
-- TT-NN working correctly
+- TT-NN<sup>®</sup> working correctly
 - Harvesting mask 0x1 normal for n150 L
 
 **✓ Lesson 3 (Download Model & Run Inference):**
@@ -1598,7 +1598,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa && \
 **Test Results:**
 - ✅ TT device detected: `TTDevice(id=0, arch=Wormhole_b0)`
 - ✅ Simple JAX computation works (dot product = 32.0)
-- ✅ TT-Forge<sup>®</sup> repository cloned with submodules
+- ✅ TT-Forge repository cloned with submodules
 
 **GPT-2 Demo Results (4 model variants tested):**
 

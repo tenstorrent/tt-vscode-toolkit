@@ -24,7 +24,7 @@ This guide documents validated combinations of hardware, software versions, and 
 **Python:** 3.11
 **Installation:** Wheel-based (no source build required)
 
-### Experimental Compiler (TT-Forge)
+### Experimental Compiler (TT-Forge<sup>™</sup>)
 **Hardware:** n150 only (single-chip)
 **Python:** 3.11
 **Build time:** 45-60 minutes
@@ -150,7 +150,7 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 
 **Native installation compatibility matrix:**
 
-| Hardware | TT-Metalium | vLLM | Status | Notes |
+| Hardware | TT-Metalium<sup>®</sup> | vLLM | Status | Notes |
 |----------|----------|------|--------|-------|
 | n150 | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
 | n150 | Specific commits | Native build | ⚠️ Complex | Requires model_specs_output.json matching |
@@ -177,7 +177,7 @@ export TT_METAL_ARCH_NAME=blackhole
 |-----------|---------|--------|-------------------|------------------|
 | **TT-XLA** | Latest wheel | 3.11 | pip (wheel) | n150/n300/T3000/Galaxy |
 | **JAX** | 0.7.1+ | 3.11 | pip | Required dependency |
-| **TT-Forge<sup>®</sup>** | Cloned for demos | 3.11 | git clone | Demo code only |
+| **TT-Forge** | Cloned for demos | 3.11 | git clone | Demo code only |
 
 **Status:** ✅ **Production-ready for multi-chip**
 
@@ -202,7 +202,7 @@ export PYTHONPATH=~/tt-forge:$PYTHONPATH  # For demo imports only
 source ~/tt-scratchpad/setup-tt-xla.sh
 ```
 
-### TT-Forge<sup>®</sup> MLIR Compiler (Lesson 11)
+### TT-Forge MLIR Compiler (Lesson 11)
 
 | Component | Version | Python | Installation Method | Hardware Support |
 |-----------|---------|--------|-------------------|------------------|

@@ -30,7 +30,7 @@ validationDate: 2026-04-15
 validationNotes: Rewritten for pre-installed venv-forge; forge.compile() via TT-Forge-onnx
 ---
 
-# Image Classification with TT-Forge<sup>®</sup>
+# Image Classification with TT-Forge<sup>™</sup>
 
 TT-Forge compiles PyTorch models directly for Tenstorrent hardware. The `venv-forge`
 environment is **pre-installed** in this developer image — one command to activate,

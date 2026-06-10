@@ -36,8 +36,8 @@
 - Status: ✅ Snapshot mode (`-s`) works perfectly
 - Note: TUI mode improved but still has issues in non-interactive environments
 
-**TT-Forge<sup>®</sup>:**
-- venv Location: ~/TT-Forge<sup>®</sup>-venv
+**TT-Forge<sup>™</sup>:**
+- venv Location: ~/TT-Forge-venv
 - Python: 3.11.13
 - Status: ⚠️ Created but empty (pip 24.0, setuptools 65.5.0 only)
 - Action Needed: Setup required when validating TT-Forge lessons
@@ -608,7 +608,7 @@ Prerequisites validated - lesson commands are correct and will work.
 1. ✅ Project structure deployed to ~/tt-scratchpad/cookbook/game_of_life/
 2. ✅ Python dependencies (ttnn, torch, numpy)
 3. ✅ Device initialization and cleanup
-4. ✅ TT-NN tensor creation with TILE_LAYOUT
+4. ✅ TT-NN<sup>®</sup> tensor creation with TILE_LAYOUT
 5. ✅ Convolution kernel setup (core Game of Life operation)
 
 **What Works:**

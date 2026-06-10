@@ -70,7 +70,7 @@
   - Tool: `grep -r "is \w\+ed" content/lessons/*.md`
 
 - [x] **Add dates to version-specific statements**
-  - Example: "TT-Forge<sup>®</sup> is experimental" → "TT-Forge is experimental (as of December 2025)"
+  - Example: "TT-Forge<sup>™</sup> is experimental" → "TT-Forge is experimental (as of December 2025)"
   - Impact: Low (future-proofing)
   - Effort: 30 minutes
   - Status: ✅ **COMPLETE** (v0.0.116)

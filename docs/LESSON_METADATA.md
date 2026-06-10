@@ -235,7 +235,7 @@ node scripts/check-lessons.js --filter
 | 08 VSCode Chat | validated | all | n150 |
 | 09 Image Generation | validated | n150, n300, t3k, p100 | n150 |
 | 10 Coding Assistant | validated | all | n150 |
-| 11 TT-Forge<sup>®</sup> | draft | n150 | - |
+| 11 TT-Forge<sup>™</sup> | draft | n150 | - |
 | 12 TT-XLA JAX | validated | n150, n300, t3k, galaxy | n150 |
 | 13 RISC-V Programming | validated | all | n150 |
 | 14 Metalium Cookbook | validated | all | n150 |

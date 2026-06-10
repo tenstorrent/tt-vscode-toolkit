@@ -65,7 +65,7 @@ Choose your path:
 - **Hardware:** Start with n150, scale to multi-chip later
 
 ### Path D: "I want to explore different compilers (XLA, Forge)"
-→ **Lesson 12 (TT-XLA)** for production JAX, **Lesson 11 (TT-Forge)** for experimental MLIR
+→ **Lesson 12 (TT-XLA)** for production JAX, **Lesson 11 (TT-Forge<sup>™</sup>)** for experimental MLIR
 - ⚙️ Advanced users comfortable with build systems
 - **TT-XLA:** Production-ready, wheel install, multi-chip support
 - **TT-Forge:** Experimental, 56-minute build, cutting-edge
@@ -173,7 +173,7 @@ source python_env/bin/activate  # Activates Python environment
 **Why they matter:** Different compilers need different package versions
 - **TT-Metalium<sup>®</sup>:** Python 3.10, uses `~/tt-metal/python_env/`
 - **TT-XLA:** Python 3.11, uses `~/tt-xla-venv/`
-- **TT-Forge<sup>®</sup>:** Python 3.11, uses `~/tt-forge-fe/env/`
+- **TT-Forge:** Python 3.11, uses `~/tt-forge-fe/env/`
 
 **You DON'T need to understand pyenv, virtualenv, conda** - the lessons activate the right environment for you.
 
@@ -182,7 +182,7 @@ source python_env/bin/activate  # Activates Python environment
 source ~/tt-metal/python_env/bin/activate  # Use TT-Metalium environment
 ```
 
-#### 3. **TT-NN** (TT Neural Network Library)
+#### 3. **TT-NN<sup>®</sup>** (TT Neural Network Library)
 **What it is:** High-level API for ML operations on Tenstorrent hardware
 - Import with `import ttnn`
 - Like PyTorch ops, but runs on Tensix cores
@@ -210,7 +210,7 @@ ttnn.close_device(device)
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ```
 
-**You DON'T need to understand MPI programming** - TT-Metalium handles it internally.
+**You DON'T need to understand MPI programming** - TT-Metalium<sup>®</sup> handles it internally.
 
 ---
 
@@ -281,7 +281,7 @@ export VLLM_TARGET_DEVICE=tt
 export TT_METAL_ARCH_NAME=blackhole  # Only for p100/p150
 ```
 
-### TT-Forge<sup>®</sup> Variables (Lesson 11)
+### TT-Forge Variables (Lesson 11)
 
 **IMPORTANT:** TT-Forge **unsets** TT-Metalium variables to avoid conflicts!
 

@@ -3,7 +3,7 @@
  * First prose mention per page (each term independently):
  *   TT-Metalium → TT-Metalium<sup>®</sup>
  *   TT-NN       → TT-NN<sup>®</sup>
- *   TT-Forge    → TT-Forge<sup>®</sup>
+ *   TT-Forge    → TT-Forge<sup>™</sup>
  *
  * Skips YAML front matter, fenced code, inline `code`, markdown link URLs,
  * and HTML script/style blocks. Does not match TTNN (no hyphen).
@@ -22,7 +22,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 const TERMS = [
   { id: 'TT-Metalium', re: /TT-Metalium(?!<sup>)/, mark: 'TT-Metalium<sup>®</sup>' },
-  { id: 'TT-Forge', re: /TT-Forge(?!<sup>)/, mark: 'TT-Forge<sup>®</sup>' },
+  { id: 'TT-Forge', re: /TT-Forge(?!<sup>)/, mark: 'TT-Forge<sup>™</sup>' },
   { id: 'TT-NN', re: /TT-NN(?!<sup>)/, mark: 'TT-NN<sup>®</sup>' },
 ];
 
@@ -211,17 +211,23 @@ function needsAnyTerm(text) {
   return TERMS.some((t) => t.re.test(text) && !text.includes(t.mark));
 }
 
+function stripLegacyForgeRegisteredMark(text) {
+  return text.replace(/TT-Forge<sup>®<\/sup>/g, 'TT-Forge');
+}
+
 function transformFile(rel) {
   const abs = path.join(ROOT, rel);
-  const before = fs.readFileSync(abs, 'utf8');
-  if (!needsAnyTerm(before)) {
+  const raw = fs.readFileSync(abs, 'utf8');
+  const before = stripLegacyForgeRegisteredMark(raw);
+  if (!needsAnyTerm(before) && before === raw) {
     return { rel, changed: false };
   }
 
-  const { text: after, changed } = rel.endsWith('.html')
+  const { text: after, changed: transformed } = rel.endsWith('.html')
     ? transformHtml(before)
     : transformMarkdown(before);
 
+  const changed = transformed || before !== raw;
   return { rel, changed, after };
 }
 
@@ -248,7 +254,7 @@ function main() {
       console.error(`\n${pending} file(s) need TT product first-mention marks.`);
       process.exit(1);
     }
-    console.log('OK: all pages have first-mention ® for TT-Metalium, TT-NN, and TT-Forge.');
+    console.log('OK: all pages have first-mention marks for TT-Metalium (®), TT-NN (®), and TT-Forge (™).');
     process.exit(0);
   }
 

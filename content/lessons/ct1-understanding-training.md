@@ -375,7 +375,7 @@ Train from scratch when:
 
 - **TinyLlama:** Apache 2.0 license (commercial-friendly)
 - **Your fine-tuned model:** You own it
-- **Training code:** Check TT-Metalium and tt-train licenses
+- **Training code:** Check TT-Metalium<sup>®</sup> and tt-train licenses
 - **Hosting:** Use TT-Inference-Server or vLLM (Lesson 7)
 
 Always verify licenses for your specific use case.
@@ -507,7 +507,7 @@ Now that you understand the concepts, it's time to get hands-on. In the next les
 
 ### Related Lessons
 - **Lesson 7:** vLLM Production (inference with fine-tuned models)
-- **Lesson 11:** TT-Forge<sup>®</sup> (experimental compiler)
+- **Lesson 11:** TT-Forge<sup>™</sup> (experimental compiler)
 - **Lesson 12:** TT-XLA JAX (alternative training framework)
 
 ### Community

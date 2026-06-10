@@ -49,8 +49,8 @@ For users who need to set up from scratch, TT-Installer:
 - ✅ **Full automation** - Kernel drivers, HugePages, firmware, tt-smi, tools
 - ✅ **Production-ready** - Tested across Ubuntu, Debian, Fedora
 - ✅ **Two container options:**
-  - Standard (1GB) - TT-NN library for inference
-  - Model Demos (10GB) - Full TT-Metalium with demos and examples
+  - Standard (1GB) - TT-NN<sup>®</sup> library for inference
+  - Model Demos (10GB) - Full TT-Metalium<sup>®</sup> with demos and examples
 
 ### Quick Start
 
@@ -1617,7 +1617,7 @@ The project includes:
 - Usage examples for all hardware types
 - MIT License for open source use
 
-## Lesson 11: Image Classification with TT-Forge<sup>®</sup> (2025-11-14)
+## Lesson 11: Image Classification with TT-Forge<sup>™</sup> (2025-11-14)
 
 **Status:** Implemented with critical environment variable fixes (v0.0.50)
 

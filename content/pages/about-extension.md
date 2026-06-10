@@ -132,14 +132,14 @@ Self-contained programs that showcase Tenstorrent capabilities with vivid visual
 
 | Lesson | Focus |
 |---|---|
-| Image Classification with TT-Forge<sup>®</sup> | PyTorch model compilation |
+| Image Classification with TT-Forge<sup>™</sup> | PyTorch model compilation |
 | JAX and PyTorch/XLA on Tenstorrent | XLA/PJRT plugin path |
 
 ### 🧠 Advanced *(2 lessons)*
 
 | Lesson | Focus |
 |---|---|
-| Exploring TT-Metalium | Low-level kernel programming, validated |
+| Exploring TT-Metalium<sup>®</sup> | Low-level kernel programming, validated |
 | Bounty Program: Model Bring-Up | Open Source contribution workflow |
 
 ### 🎓 CS Fundamentals *(7 modules, in development)*

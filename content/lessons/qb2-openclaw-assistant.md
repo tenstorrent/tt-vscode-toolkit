@@ -354,7 +354,7 @@ ls ~/code/tt-inference-server/README.md
    - Hardware detection and setup
    - Model deployment and optimization
    - Cookbook examples (Game of Life, Mandelbrot, audio)
-   - TT-Forge<sup>®</sup>, TT-XLA, TT-Metalium frameworks
+   - TT-Forge<sup>™</sup>, TT-XLA, TT-Metalium<sup>®</sup> frameworks
    - API servers, chat interfaces
 
 2. **TT-Metalium Documentation**

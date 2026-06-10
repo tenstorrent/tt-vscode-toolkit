@@ -80,7 +80,7 @@ TT-Installer 2.0 sets up:
 4. **Firmware updater (tt-flash)** - Updates your card's firmware to latest
 5. **HugePages** - Kernel memory configuration for fast hardware access
 6. **System Management Interface (tt-smi)** - Monitor your Tenstorrent devices
-7. **Podman** - Container runtime for TT-Metalium
+7. **Podman** - Container runtime for TT-Metalium<sup>®</sup>
 8. **TT-Metalium containers** - Two options:
    - **Standard container** (1GB) - For TT-NN<sup>®</sup> inference and development
    - **Model Demos container** (10GB) - Includes full TT-Metalium build and demos
@@ -198,7 +198,7 @@ tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
 
 This verifies:
 - ✅ Container launches successfully
-- ✅ TT-NN library is available
+- ✅ TT-NN<sup>®</sup> library is available
 - ✅ Python environment is configured
 
 [🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
@@ -373,7 +373,7 @@ After installation completes, you're ready to:
    - Generate images with Stable Diffusion (Lesson 8)
    - Create coding assistants (Lesson 9)
    - Use TT-Jukebox for model management (Lesson 10)
-   - Compile models with TT-Forge<sup>®</sup> (Lesson 11)
+   - Compile models with TT-Forge<sup>™</sup> (Lesson 11)
    - Use JAX with TT-XLA (Lesson 12)
 
 2. **Try Model Demos** (if you installed Model Demos container):

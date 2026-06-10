@@ -21,7 +21,7 @@ The TT-VSCode-Toolkit is an educational extension that provides:
 - ✅ **Click-to-Run Commands** - Execute lessons step-by-step without copy-pasting commands
 - ✅ **Hardware Auto-Detection** - Automatically detects your Tenstorrent device and provides tailored guidance
 - ✅ **Production Templates** - Real, tested code you can customize for your projects
-- ✅ **Multi-Framework Support** - Learn vLLM, TT-Forge, TT-XLA, and TT-Metalium
+- ✅ **Multi-Framework Support** - Learn vLLM, TT-Forge<sup>™</sup>, TT-XLA, and TT-Metalium
 - ✅ **Live Device Monitoring** - Real-time temperature, power, and health status in the status bar
 
 **Target Audience:**
@@ -190,7 +190,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Download Model and Run Inference** — `n150` `p300c`
 - **Interactive Chat with Direct API** — `n150`
 - **HTTP API Server with Direct API** — `n150`
-- **Build TT-Metalium from Source** — `n150` `p300c`
+- **Build TT-Metalium<sup>®</sup> from Source** — `n150` `p300c`
 
 ### 🏭 Serving Models
 *4 lessons, 3 validated*
@@ -203,7 +203,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🔧 Compilers & Tools
 *3 lessons, 0 validated*
 
-- **Image Classification with TT-Forge<sup>®</sup>** — `p300c`
+- **Image Classification with TT-Forge** — `p300c`
 - **JAX and PyTorch/XLA on Tenstorrent** — `p300c`
 - **Introduction to TT-Lang** — *draft*
 

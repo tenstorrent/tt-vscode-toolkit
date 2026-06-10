@@ -49,7 +49,7 @@ When authoring or reviewing a lesson or template, verify:
 
 ## 🔧 Recent Multi-Device API Update (Jan 2026)
 
-**IMPORTANT:** Multi-device TT-NN code must now use `CreateDevices`/`CloseDevices` API.
+**IMPORTANT:** Multi-device TT-NN<sup>®</sup> code must now use `CreateDevices`/`CloseDevices` API.
 
 **Problem:** Opening/closing devices individually causes dispatch core errors:
 ```python
@@ -186,7 +186,7 @@ package.json      # Extension manifest + walkthrough definitions
 - **TT-Metalium** - Primary reference: demos, APIs, examples, model implementations
 - **vllm** - Production inference patterns, server examples
 - **TT-XLA** - JAX/TT-XLA examples, demos, compiler documentation
-- **tt-forge-fe** - TT-Forge examples, experimental compiler reference
+- **tt-forge-fe** - TT-Forge<sup>™</sup> examples, experimental compiler reference
 - **TT-Inference-Server** - Production deployment automation, MODEL_SPECS
 - **TT-Installer** - Installation workflows, setup patterns
 - **ttsim** - Simulator reference for testing without hardware

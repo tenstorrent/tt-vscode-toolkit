@@ -42,7 +42,7 @@ Coding Assistant, AnimateDiff Video Generation
 Game of Life, Audio, Mandelbrot, Image Filters, Particle Life + Overview
 
 **🔧 Compilers & Tools (2 lessons)**
-TT-Forge<sup>®</sup>, TT-XLA
+TT-Forge<sup>™</sup>, TT-XLA
 
 **🧠 CS Fundamentals (7 lessons)**
 Computer Architecture, Memory, Parallelism, Networks, Synchronization, Abstraction, Complexity
@@ -72,7 +72,7 @@ TT-Installer, Bounty Program, Explore Metalium, Koyeb Deployment (2)
 |------|---------|-------------|----------|
 | **TT-Metalium<sup>®</sup>** | Low-level framework | Custom kernels, maximum control | Stable |
 | **vLLM** | LLM serving | Production LLM deployment | Production |
-| **TT-Forge<sup>®</sup>** | MLIR compiler | PyTorch models (experimental) | Beta |
+| **TT-Forge** | MLIR compiler | PyTorch models (experimental) | Beta |
 | **TT-XLA** | XLA compiler | JAX/PyTorch (production) | Production |
 
 **Simple guide:**
@@ -232,7 +232,7 @@ curl http://localhost:8002/...  # User 2
 5. Start developing!
 
 **Cloud benefits:**
-- ✅ Pre-installed TT-Metalium and drivers
+- ✅ Pre-installed TT-Metalium<sup>®</sup> and drivers
 - ✅ Pre-configured environment
 - ✅ No hardware setup needed
 - ✅ Access from anywhere
@@ -920,7 +920,7 @@ cd ~/tt-metal
 - **clang-17 required:** `sudo apt-get install clang-17`
 - **Environment variables:** Must unset TT_METAL_HOME first
 
-### Q: TT-NN import errors or symbol undefined errors in cloud environments - how do I fix them?
+### Q: TT-NN<sup>®</sup> import errors or symbol undefined errors in cloud environments - how do I fix them?
 
 **A:** After rolling back or updating TT-Metalium versions, TT-NN bindings may become incompatible.
 
