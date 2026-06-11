@@ -1,7 +1,7 @@
 # ttsim v1.8.0 highlight reel — 6 entries, ~55 second loop
 # Embed in ttsim-twenty-and-ten.md as a looping GIF preview
 
-Output assets/img/ttsim-demo.mp4
+Output assets/img/ttsim-demo.gif
 
 Set Shell "bash"
 Set Theme { "name": "Tenstorrent", "black": "#0F2A35", "red": "#FF6B6B", "green": "#27AE60", "yellow": "#F4C471", "blue": "#4FD1C5", "magenta": "#EC96B8", "cyan": "#81E6D9", "white": "#E8F0F2", "brightBlack": "#2D4F5C", "brightRed": "#FF8A80", "brightGreen": "#4EDD8F", "brightYellow": "#F9D789", "brightBlue": "#81E6D9", "brightMagenta": "#F0B8D0", "brightCyan": "#A7EEE7", "brightWhite": "#F5F9FA", "background": "#0F2A35", "foreground": "#E8F0F2", "selectionBackground": "#2D4F5C", "cursor": "#4FD1C5" }
