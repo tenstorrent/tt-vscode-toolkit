@@ -138,6 +138,40 @@ h4 {
   font-size: 1.1em;
 }
 
+/* Heading permalink anchors — injected by lesson-web.js */
+.heading-anchor {
+  display: inline-block;
+  margin-left: 0.4em;
+  font-size: 0.75em;
+  font-weight: 400;
+  color: var(--tt-primary);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  vertical-align: middle;
+  user-select: none;
+}
+
+h1:hover .heading-anchor,
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+h4:hover .heading-anchor,
+h5:hover .heading-anchor,
+h6:hover .heading-anchor,
+.heading-anchor:focus {
+  opacity: 1;
+}
+
+.heading-anchor:hover {
+  color: var(--tt-primary-light);
+  text-decoration: none;
+}
+
+.heading-anchor-copied {
+  color: var(--tt-success) !important;
+  opacity: 1 !important;
+}
+
 /* Paragraphs */
 p {
   margin: 16px 0;
@@ -392,6 +426,29 @@ tr:hover {
   white-space: nowrap;
 }
 
+/* Simulator badge — outline pill, visually distinct from real-HW chips */
+.hardware-chip.chip-sim {
+  background: transparent;
+  color: var(--tt-accent, #74c5df);
+  border: 1.5px solid var(--tt-accent, #74c5df);
+  padding: 4px 12px;  /* Slightly tighter to account for border */
+}
+
+/* Inline sim-ready callout block */
+.sim-callout {
+  border-left: 3px solid var(--tt-accent, #74c5df);
+  background: rgba(116, 197, 223, 0.07);
+  border-radius: 0 4px 4px 0;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+  color: var(--vscode-foreground);
+}
+
+.sim-callout strong {
+  color: var(--tt-accent, #74c5df);
+}
+
 /* Prerequisites checklist */
 .prerequisites {
   background: var(--tt-hover-bg);
@@ -495,6 +552,19 @@ tr:hover {
   .lesson-nav {
     flex-direction: column;
     gap: 12px;
+  }
+
+  /* Prevent long words / identifiers from blowing out mobile layout */
+  p, li, blockquote, td {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Horizontal scroll for tables that are too wide */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

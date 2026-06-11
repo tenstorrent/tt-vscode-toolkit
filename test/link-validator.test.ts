@@ -291,6 +291,89 @@ describe('Internal Link Validation', () => {
         }
     });
 
+    it('should have all GitHub-blob media links resolve to existing assets/img/ files', () => {
+        // Links like [text](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/foo.gif)
+        // are rewritten by build-web.js to serve the file locally.  If the file doesn't
+        // exist the rendered page will show a broken image/link.
+        const GH_BLOB_RE = /https:\/\/github\.com\/tenstorrent\/tt-vscode-toolkit\/blob\/main\/(assets\/img\/[^\s)]+)/g;
+        const missingAssets: string[] = [];
+
+        const lessonFiles = fs.readdirSync(path.join(contentRoot, 'lessons'))
+            .filter(f => f.endsWith('.md'))
+            .map(f => path.join(contentRoot, 'lessons', f));
+
+        for (const filePath of lessonFiles) {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const relFile = path.relative(projectRoot, filePath);
+            const lines = content.split('\n');
+            let inCodeBlock = false;
+
+            lines.forEach((line, idx) => {
+                if (line.trim().startsWith('```')) { inCodeBlock = !inCodeBlock; return; }
+                if (inCodeBlock) return;
+
+                let m;
+                GH_BLOB_RE.lastIndex = 0;
+                while ((m = GH_BLOB_RE.exec(line)) !== null) {
+                    const repoRelPath = m[1]; // e.g. "assets/img/samples/foo.gif"
+                    const diskPath = path.join(projectRoot, repoRelPath);
+                    if (!fs.existsSync(diskPath)) {
+                        missingAssets.push(`${relFile}:${idx + 1} — GitHub blob target not on disk: ${repoRelPath}`);
+                    }
+                }
+            });
+        }
+
+        if (missingAssets.length > 0) {
+            assert.fail(`Found ${missingAssets.length} GitHub-blob media links with missing local assets:\n  ${missingAssets.join('\n  ')}`);
+        }
+    });
+
+    it('should have no nested <a> tags inside href attributes in built site HTML', function () {
+        // Catches the auto-link bug where a term gets substituted inside the href of a
+        // previously auto-linked anchor, producing <a href="...<a href=...>term</a>...">.
+        // Always builds into a temp directory so the scan is never stale.
+        this.timeout(60000);
+
+        const { execSync } = require('child_process');
+        const os = require('os');
+        const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tt-site-'));
+        try {
+            execSync(`node scripts/build-web.js --out ${tmpDir}`, { cwd: projectRoot, stdio: 'inherit' });
+
+            const nestedAnchorErrors: string[] = [];
+
+            function walkSite(dir: string) {
+                for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                    const fullPath = path.join(dir, entry.name);
+                    if (entry.isDirectory()) { walkSite(fullPath); continue; }
+                    if (!entry.name.endsWith('.html')) continue;
+
+                    const html = fs.readFileSync(fullPath, 'utf-8');
+                    const relPath = path.relative(tmpDir, fullPath);
+
+                    // Find <a ...> where the href value contains a literal "<a"
+                    const hrefRe = /href="([^"]*<a[^"]*)"/g;
+                    let m: RegExpExecArray | null;
+                    while ((m = hrefRe.exec(html)) !== null) {
+                        nestedAnchorErrors.push(`${relPath} — nested <a> in href: href="${m[1].slice(0, 80)}..."`);
+                    }
+                }
+            }
+
+            walkSite(tmpDir);
+
+            if (nestedAnchorErrors.length > 0) {
+                assert.fail(
+                    `Found ${nestedAnchorErrors.length} href attributes containing nested <a> tags (auto-link bug):\n` +
+                    `  ${nestedAnchorErrors.join('\n  ')}`
+                );
+            }
+        } finally {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        }
+    });
+
     it('should have all lessons in registry referenced somewhere in documentation', () => {
         // This is a warning test - lessons not referenced anywhere might be orphaned
         const allContent: string[] = [];

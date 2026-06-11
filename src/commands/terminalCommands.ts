@@ -637,30 +637,29 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   RUN_ANIMATEDIFF_2FRAME: {
     id: 'run-animatediff-phase1',
     name: 'Run Phase 1 — CPU AnimateDiffPipeline',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && python3 examples/generate_baseline.py --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
+    template: 'cd ~/tt-projects/tt-animatediff && python3 examples/generate.py --mode cpu --prompt "purple phosphor glow across distant mountains at 2am, retro CRT haze, cyan mist, cinematic" --frames 8 --steps 25 --output output/phase1.gif 2>&1 | grep -v "DEBUG\\|Config{"',
     description: 'Generate animated frames on CPU using diffusers AnimateDiffPipeline with MotionAdapter',
   },
 
   RUN_ANIMATEDIFF_16FRAME: {
     id: 'run-animatediff-phase2',
-    name: 'Run Phase 2 — Blackhole TTNN UNet',
-    template: `cd ~/tt-metal && source python_env/bin/activate && export TT_METAL_HOME=~/tt-metal TT_METAL_ARCH_NAME=blackhole && cd ~/tt-scratchpad/tt-animatediff && python examples/generate_blackhole.py --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" --frames 8 --steps 25 --output output/blackhole.gif 2>&1 | grep -v "DEBUG\\|Config{" | grep -v "^2026\\|UMD"`,
-    description: 'Generate frames using TTNN UNet on Blackhole hardware (P100/P300C/QB2)',
+    name: 'Run Phase 2.5 — Blackhole TTNN UNet + temporal attention',
+    template: `cd ~/tt-metal && source python_env/bin/activate && cd ~/tt-projects/tt-animatediff && python3 examples/generate.py --mode blackhole --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" --frames 8 --steps 25 --temporal-alpha 0.35 --output output/blackhole.gif 2>&1 | grep -v "DEBUG\\|Config{" | grep -v "^2026\\|UMD"`,
+    description: 'Generate frames using TTNN UNet + cross-frame temporal attention on Blackhole hardware (P100/P300C/QB2)',
   },
 
   VIEW_ANIMATEDIFF_OUTPUT: {
     id: 'view-animatediff-output',
     name: 'View Generated Frames',
-    template: 'ls -lh ~/tt-scratchpad/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2 first"',
+    template: 'ls -lh ~/tt-projects/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2.5 first"',
     description: 'List generated GIF files in the output directory',
   },
 
   SETUP_ANIMATEDIFF_PROJECT: {
     id: 'setup-animatediff-project',
     name: 'Setup AnimateDiff Project',
-    template: 'mkdir -p ~/tt-scratchpad/tt-animatediff && cp -r "{{projectPath}}"/* ~/tt-scratchpad/tt-animatediff/ && cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff project setup complete at ~/tt-scratchpad/tt-animatediff/\')"',
-    description: 'Copies AnimateDiff project from extension to ~/tt-scratchpad/tt-animatediff and installs it',
-    variables: ['projectPath'],
+    template: 'mkdir -p ~/tt-projects && git clone --depth 1 --branch v0.1.0 https://github.com/tenstorrent/tt-animatediff.git ~/tt-projects/tt-animatediff 2>&1 || (cd ~/tt-projects/tt-animatediff && git fetch --tags && git checkout v0.1.0) && cd ~/tt-projects/tt-animatediff && python3 -m pip install -e ".[dev]" && python3 -c "import animatediff_ttnn; print(\'✓ tt-animatediff v0.1.0 ready at ~/tt-projects/tt-animatediff/\')"',
+    description: 'Clones tt-animatediff v0.1.0 from GitHub into ~/tt-projects/tt-animatediff and installs it',
   },
 
   // ========================================
@@ -855,6 +854,37 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     name: 'Generate Landscape SVG (Demo 6)',
     template: 'python3 ~/code/tt-agents/06_landscape_svg.py --simulate',
     description: 'Runs Demo 6: parameterized generative landscape SVG — direct LLM → SVG with gradients, terrain, clouds, stars',
+  },
+
+  // ========================================
+  // ttsim: Twenty-and-Ten Lesson
+  // ========================================
+
+  SETUP_TTSIM: {
+    id: 'setup-ttsim',
+    name: 'Set Up ttsim Simulator',
+    template: `mkdir -p ~/sim
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so || { echo "ERROR: failed to download libttsim_wh_x2.so"; exit 1; }
+if [ -n "$TT_METAL_HOME" ]; then
+  cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || { echo "ERROR: failed to copy SOC descriptor"; exit 1; }
+  cp $TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml ~/sim/n300_cluster_desc.yaml || { echo "WARNING: n300 cluster desc copy skipped (optional for N300 sim)"; }
+else
+  echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
+fi
+echo "ttsim v1.8.0 ready (wh + bh + wh_x2 for N300 multichip)"`,
+    description: 'Downloads ttsim v1.8.0 Wormhole, Blackhole, and N300 (wh_x2) binaries and copies SOC descriptors',
+  },
+
+  RUN_TTSIM_ATTENTION: {
+    id: 'run-ttsim-attention',
+    name: 'Run Transformer Attention on ttsim',
+    template: `export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
+    description: 'Runs a transformer attention layer forward pass on the ttsim Wormhole simulator',
   },
 };
 

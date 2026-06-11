@@ -17,6 +17,7 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
+  - simulator
 status: draft
 estimatedMinutes: 30
 ---

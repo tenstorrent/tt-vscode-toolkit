@@ -23,7 +23,8 @@ import math
 from typing import Optional
 
 import torch
-import ttnn
+
+# ttnn imported lazily inside temporal_attention_ttnn() to allow import on CPU machines
 
 
 @dataclass
@@ -148,37 +149,39 @@ def temporal_attention_torch(
 
 
 def temporal_attention_ttnn(
-    hidden_states: ttnn.Tensor,
+    hidden_states,
     weights: TemporalAttentionWeights,
     num_frames: int,
-    device: ttnn.Device,
-) -> ttnn.Tensor:
-    """Apply temporal attention across video frames (TTNN version).
+    device,
+):
+    """Phase 3 stub: temporal attention via CPU bounce (not yet TTNN-native).
+
+    NOTE: Despite the name, all compute happens on CPU — this bounces the tensor
+    to torch, runs temporal_attention_torch(), then sends it back to device.
+    Phase 3 will replace the bounce with native ttnn.matmul / ttnn.softmax ops
+    once this module is wired into the TTNN UNet BasicTransformerBlock.
 
     Args:
-        hidden_states: Input tensor of shape (batch*frames, spatial_tokens, channels)
+        hidden_states: ttnn.Tensor of shape (batch*frames, spatial_tokens, channels)
         weights: Temporal attention weights
         num_frames: Number of frames in the video sequence
         device: TTNN device
 
     Returns:
-        Output tensor of same shape as input
+        ttnn.Tensor of same shape as input
     """
-    # Convert to torch for processing, then back to ttnn
-    # This is a simplified version - full TTNN version would use all TTNN ops
+    import ttnn
 
     hidden_states_torch = ttnn.to_torch(hidden_states)
     output_torch = temporal_attention_torch(hidden_states_torch, weights, num_frames)
 
-    output_ttnn = ttnn.from_torch(
+    return ttnn.from_torch(
         output_torch,
         dtype=ttnn.bfloat16,
         device=device,
         layout=ttnn.TILE_LAYOUT,
         memory_config=ttnn.DRAM_MEMORY_CONFIG,
     )
-
-    return output_ttnn
 
 
 def load_animatediff_weights(

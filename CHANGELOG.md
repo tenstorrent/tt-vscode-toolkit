@@ -232,6 +232,177 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.466] - 2026-06-09
+
+### Fixed
+
+- **Auto-link nested-anchor bug** — `autoLinkFirstMentions` in `build-web.js` was mutating the text segment in-place then continuing to match shorter terms (e.g. `tt-metal`) inside the href of an already-inserted anchor (e.g. `TT-Metalium`), producing `<a href="...<a href=...>tt-metal</a>...">TT-Metalium</a>`. Fixed by breaking out of the term loop after the first substitution per text node. Added a new link-validator test scanning all built site HTML for `href` attributes containing literal `<a` strings to catch regressions.
+
+---
+
+## [0.0.465] - 2026-06-09
+
+### Added
+
+- **ttsim v1.8.0 upgrade** — updated SETUP_TTSIM command and ttsim lesson from v1.7.3 to v1.8.0. New `libttsim_wh_x2.so` (N300 two-chip Wormhole mesh) is now downloaded alongside the single-chip WH and BH binaries.
+- **N300 multichip simulation (entry 31)** — new lesson entry demonstrates `libttsim_wh_x2.so` with `TT_METAL_MOCK_CLUSTER_DESC_PATH=~/sim/n300_cluster_desc.yaml`, opening a `MeshDevice(1, 2)` and running a sharded element-wise add across two virtual chips. Matching template added at `content/templates/ttsim/ttsim_n300_mesh.py`.
+- **n300_cluster_desc.yaml** — SETUP_TTSIM now copies the cluster descriptor from `$TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml` to `~/sim/n300_cluster_desc.yaml`.
+
+---
+
+## [0.0.464] - 2026-06-08
+
+### Fixed
+
+- **SETUP_TTSIM command pinned to v1.7.3** — previously downloaded ttsim v1.5.4, mismatching the lesson and demo GIF which require v1.7.3. Both `libttsim_wh.so` and `libttsim_bh.so` URLs updated. wget calls now fail fast with a clear error message if the download fails instead of silently leaving a broken binary on disk.
+- **runTtsimAttention template path** — replaced brittle `__dirname/../content/...` path with `extensionContext.extensionPath` + dist/ fallback, matching all other template-copy helpers in the file.
+- **tensix-viz canvas responsive sizing** — constructor now reads container width and scales the logical canvas dimensions down when the viewport is narrower, preventing right-side clipping.
+- **tensix-viz float label clamping** — labels on row-1 cores no longer render above the top of the canvas; clamped with `Math.max`/`Math.min`.
+- **ttsim-twenty-and-ten Wormhole grid coordinates** — all 16 tensix_viz blocks were using `[0,0]` (ETH cell on Wormhole) as their base core; remapped to valid Tensix cells starting at `[1,1]`.
+- **build-web.js GitHub-blob media links** — `resolveGithubMediaToLocal` results now go through `siteUrl()` for correct `BASE_PATH` prefix on GitHub Pages, fixing broken GIFs on particle-life and other lessons.
+- **biquad template** — replaced 1024 per-sample TTNN round-trips with CPU filter + single upload/download; fixed docstring contradiction between "implemented using TTNN operations" and the actual CPU-arithmetic approach.
+- **game_of_life `--size` validation** — added explicit check that `--size` is a multiple of 32; fails with a clear error message instead of a confusing hardware error later.
+
+---
+
+## [0.0.463] - 2026-06-07
+
+### Added
+
+- **ttsim lesson — tensix_viz animations for 5 new entries** — entries #5 (compute dispatch), #7 (SFPU register pipeline), #10 (single-core matmul), #14 (DRAM banking), and #16 (custom SFPI assembly) now have interactive core-grid visualizations on the web page, matching the pattern used by the existing 11 viz-enabled entries.
+- **ttsim lesson — VHS highlight-reel GIF** — `assets/img/ttsim-demo.gif` recorded against ttsim v1.7.3 showing 6 entries (RISC-V add, compute dispatch, DPRINT observer effect, NoC tile transfer, multicast, profiler). Embedded at the top of the lesson above the Setup section using the Tenstorrent dark theme (`#0F2A35` background, `#4FD1C5` teal). Tape source preserved at `assets/ttsim-demo.tape`.
+
+---
+
+## [0.0.462] - 2026-06-07
+
+### Changed
+
+- **ttsim lesson upgraded to v1.7.3** — all 14 previously failing entries in "Twenty-and-Ten" now pass on ttsim v1.7.3 (v1.7.x implemented the SFPU debug register interface that was blocking SFPU/compute examples). Updated setup block to download v1.7.3. Removed all "ttsim v1.5.4 note: Fails" callouts from entries #5–14, #16–17, #24. Captured accurate output from actual simulator runs for all passing entries. Entries #18–21 (distributed mesh) still correctly marked as requiring real multi-device hardware. Entry #27 (BH switch) updated to use `add_2_integers_in_riscv` as the demo binary and explains that compute examples must be built targeting Blackhole.
+- **Game of Life docstring and lesson comment updated** — removed stale "ttsim v1.5.4 doesn't support" phrasing; replaced with accurate rationale (torch.mm is faster than routing through the sim's kernel dispatch for this workload).
+
+---
+
+## [0.0.461] - 2026-06-06
+
+### Changed
+
+- **Game of Life — neighbour counting rewritten as two circulant-matrix matmuls** — replaced the per-cell shift-and-add CPU loop with `K_row @ G @ K_col` where `K` is an N×N circulant shift-sum matrix. Both matmuls run on the Tenstorrent Matrix Engine (no SFPU required). Conway's rules are applied in PyTorch on CPU. A runtime check for `TT_METAL_SIMULATOR` swaps the matmul backend to `torch.mm` for the ttsim simulator, so the script runs on both hardware and ttsim v1.5.4 without degrading real-hardware quality. `simulator` added back to `supportedHardware`; confirmed passing on ttsim (20 generations, 64×64). Extensions section updated to match new design (removed old `ttnn.conv2d`/`ttnn.eq` snippets).
+
+---
+
+## [0.0.460] - 2026-06-06
+
+### Fixed
+
+- **Simulator tags corrected after real ttsim testing** — `cookbook-mandelbrot`, `cookbook-image-filters`, and `cookbook-audio-processor` were incorrectly tagged as simulator-compatible in v0.0.459 based on code inspection alone. After running each against ttsim v1.5.4, all three fail with `UnimplementedFunctionality: riscv_debug_regs_rd32` (SFPU compute path). Removed `simulator` from `supportedHardware` and removed the `⚡ Sim-ready` callouts from their Deploy sections. `cookbook-particle-life` confirmed passing (26 s, 500 steps, clean exit) — its sim badge and callout are correct and retained. `cookbook-game-of-life` was similarly reverted in v0.0.459 after its actual test failure was confirmed.
+
+---
+
+## [0.0.459] - 2026-06-06
+
+### Added
+
+- **Simulator badge and inline iconography** — lessons that can run on ttsim now carry a distinct teal outline `Sim` badge (vs. the solid teal real-hardware chips). Added `simulator` to `supportedHardware` in: `cookbook-particle-life`, `cs-fundamentals-02` through `07`. Added `> **⚡ Sim-ready:**` inline callout in particle-life (with partial-sim note for its multi-device section). CSS: `.hardware-chip.chip-sim` (outline pill), `.sim-callout` (teal-left-border block). Build: `sim-note` fenced block renders as `.sim-callout` div on the website. Note: `cookbook-game-of-life`, `cookbook-mandelbrot`, `cookbook-image-filters`, `cookbook-audio-processor` were incorrectly tagged in this release — corrected in v0.0.460.
+
+---
+
+## [0.0.458] - 2026-06-06
+
+### Fixed
+
+- **ttsim lesson — all expected output blocks corrected to real ttsim v1.5.4 results** — every `text` block previously showed fabricated `Finished: ...` strings. All 19 blocks now show the actual output verified by running each example against ttsim v1.5.4. Three pass cleanly (`add_2_integers_in_riscv`, `hello_world_compute_kernel`, `noc_tile_transfer`, `multicast`, `profiler`); SFPU/compute examples note the `UnimplementedFunctionality: riscv_debug_regs_rd32` limitation; distributed examples note the 8-device mesh requirement.
+
+---
+
+## [0.0.457] - 2026-06-06
+
+### Fixed
+
+- **ttsim lesson — setup and attention commands now render as interactive blocks on the website** — `SETUP_TTSIM` and `RUN_TTSIM_ATTENTION` templates used `.join(' && ')` which the web build parser cannot statically extract. Converted to backtick template literals; both buttons now render with Copy and VS Code badge on the website.
+
+---
+
+## [0.0.456] - 2026-06-05
+
+### Fixed
+
+- **ttsim lesson** — correct multicast binary path (`contributed/multicast`, not `contributed/multicast/multicast`) and profiler test path (`programming_examples/profiler/`, not `test/tt_metal/profiler/`).
+
+---
+
+## [0.0.455] - 2026-06-05
+
+### Added
+
+- **ttsim twenty-and-ten lesson** (`content/lessons/ttsim-twenty-and-ten.md`) — 31-entry escalating lesson covering simulator setup through DSP prototyping and a hardware cliffhanger. Self-contained, no hardware required. Includes 12 tensix_viz animations, three deployable template scripts (`ttsim_attention.py`, `ttsim_biquad_kernel.py`, `ttsim_race_demo.py`), and two new VSCode commands (`tenstorrent.setupTtsim`, `tenstorrent.runTtsimAttention`). ttsim v1.5.4, Wormhole and Blackhole.
+
+---
+
+## [0.0.454] - 2026-06-05
+
+### Fixed
+
+- **Web build — GitHub-blob media links missing BASE_PATH prefix** — `resolveGithubMediaToLocal` in `build-web.js` returned bare `/assets/img/...` paths that were used directly as `src`/`href` in `<figure>`, `<video>`, and `<a>` elements. On GitHub Pages (sub-path `/tt-vscode-toolkit`) these resolved to the domain root instead of the correct sub-path, breaking the particle-life simulation GIF and any similar media. All three cases now go through `siteUrl()`. Added a new link-validator test to catch missing local targets for GitHub-blob media links.
+
+---
+
+## [0.0.453] - 2026-05-29
+
+### Fixed
+
+- **AnimateDiff generate_blackhole.py — close_mesh_device** — `ttnn.close_device(device)` → `ttnn.close_mesh_device(device)`: the device returned by `setup_blackhole()` is always a `MeshDevice`; the wrong close call would crash on cleanup.
+- **AnimateDiff temporal_module.py — lazy ttnn import** — moved `import ttnn` inside `temporal_attention_ttnn()` so the module can be imported on CPU-only machines (CI, non-Blackhole envs). Was breaking on module load.
+- **AnimateDiff temporal_attention.py docstring** — corrected "denoised in parallel" to "denoised sequentially"; the frame loop is serialized in Python.
+- **AnimateDiff temporal_module.py — Phase 3 stub comment** — `temporal_attention_ttnn()` bounces tensors to CPU; documented this clearly so it is not mistaken for an accelerated path.
+- **AnimateDiff setup.py stale metadata** — description was "SD 3.5" (removed), URL was placeholder, diffusers floor was inconsistent with requirements.txt, entry_point referenced a deleted file.
+
+### Added
+
+- **AnimateDiff tests/test_temporal_attention.py** — 7 tests for `cross_frame_attention()` (pure PyTorch, runs in CI without hardware): shape/dtype preservation, alpha=0 identity, N=1 passthrough, reproducibility, finite output.
+- **AnimateDiff CI: run full test suite** — CI now runs `tests/` (all files) instead of only `test_pipeline.py`.
+
+---
+
+## [0.0.452] - 2026-05-29
+
+### Fixed
+
+- **AnimateDiff temporal_attention.py — seeded RNG for per-frame perturbation** — `torch.randn_like(base_noise)` replaced with `torch.randn(..., generator=generator)` so Phase 2.5 runs with the same seed now produce identical output, matching the docstring and the equivalent code path in `ttnn_pipeline.py`.
+- **AnimateDiff generate_blackhole_v2.py — restrict to single chip** — `setup_blackhole()` reverted to `setup_blackhole(device_ids=[0])` in Phase 2.5 because the SD 1.4 TTNN UNet crashes on multi-chip MeshDevice tensors (wormhole-targeted `to_torch()` has no mesh composer).
+- **AnimateDiff lesson code snippet** — Updated the `generate_frames` illustration to show the seeded generator; added note that per-frame perturbation is reproducible.
+- **AnimateDiff temporal_attention.py — multi-chip comment** — Added comment at the frame denoising loop documenting that Phase 2.5 is serialized per chip; extra chips on a MeshDevice pay replication cost without throughput gain. Phase 3 target: `ShardTensorToMesh`.
+
+---
+
+## [0.0.451] - 2026-05-28
+
+### Added
+
+- **FAQ: Environment Reference section** — New section with Q&A covering every assumption lessons make: `~/tt-scratchpad` origin, the three-venv map (tt-metal / vLLM / Forge-XLA), `TT_METAL_HOME` scope and QB2 caveat, `~/models/` convention, Ubuntu version matrix, and a numbered-lesson-to-ID translation table for old "Lesson N" references. Direct entry point for developers who land on a lesson out of order.
+- **llms.txt: Environment Layout section** — Same information structured for LLM consumption: venv table, `TT_METAL_HOME` env block, model storage convention, Ubuntu version note.
+
+### Fixed
+
+- **FAQ stale content** — Corrected lesson count (was "48", removed the number to avoid future drift), updated starter model recommendation from Llama-3.1-8B to Qwen3-0.6B, corrected category lesson counts to match the current registry.
+- **FAQ table of contents** — Added Environment Reference entry.
+
+---
+
+## [0.0.450] - 2026-05-28
+
+### Added
+
+- **Heading permalink anchors on the docs site** — Hovering any heading reveals a `#` link that copies the section URL to the clipboard and confirms with a `✓` flash. No markdown changes required; injected by `lesson-web.js` at page load.
+- **Mobile sidebar overlay backdrop** — Opening the sidebar on mobile now dims the content area with a blurred overlay. Tapping the overlay or pressing Escape closes the sidebar and returns focus to the toggle button. Background scroll is locked while the sidebar is open.
+
+### Fixed
+
+- **Mobile table overflow** — Tables wider than the viewport now scroll horizontally instead of breaking the page layout.
+- **Mobile long-word overflow** — Long identifiers and inline code in paragraphs, list items, and table cells now wrap correctly on narrow screens (`overflow-wrap: break-word`).
+
+---
+
 ## [0.0.449] - 2026-05-27
 
 ### Security

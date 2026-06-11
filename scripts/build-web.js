@@ -146,6 +146,7 @@ function autoLinkFirstMentions(html) {
         + `<a href="${escapeAttr(url)}" target="_blank" rel="noreferrer">${term}</a>`
         + text.slice(idx + term.length);
       linked.add(term);
+      break; // only one substitution per text node — prevents matching inside injected href values
     }
     return text;
   }).join('');
@@ -339,10 +340,11 @@ try {
   hljsExtension = markedHighlight({
     langPrefix: 'hljs language-',
     highlight(code, lang) {
-      // Custom fences (tensix_viz, mermaid) must NOT be auto-highlighted —
+      // Custom fences (tensix_viz, mermaid, sim-note) must NOT be auto-highlighted —
       // their content is parsed by our renderer, not displayed as code.
       if (lang && lang.startsWith('tensix_viz')) return code;
       if (lang && lang === 'mermaid') return code;
+      if (lang && lang === 'sim-note') return code;
       if (lang && hljs.getLanguage(lang)) {
         return hljs.highlight(code, { language: lang }).value;
       }
@@ -445,7 +447,7 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
       const alt = imgTok ? escapeHtml(imgTok.text || '') : escapeHtml(text);
       const cap = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : '';
       return `<figure class="tt-media-figure">` +
-             `<img src="${escapeAttr(localMedia)}" alt="${alt}" loading="lazy">${cap}` +
+             `<img src="${escapeAttr(siteUrl(localMedia))}" alt="${alt}" loading="lazy">${cap}` +
              `</figure>`;
     }
 
@@ -453,13 +455,13 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
     if (hasImageChild && (ext === '.mp4' || ext === '.webm')) {
       const cap = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : '';
       return `<figure class="tt-media-figure">` +
-             `<video src="${escapeAttr(localMedia)}" autoplay loop muted playsinline controls>${cap}` +
+             `<video src="${escapeAttr(siteUrl(localMedia))}" autoplay loop muted playsinline controls>${cap}` +
              `</video></figure>`;
     }
 
     // Plain text link (e.g. "View full animation →") → rewrite to local path
     const titleStr = title ? ` title="${escapeAttr(title)}"` : '';
-    return `<a href="${escapeAttr(localMedia)}" class="tt-media-link"${titleStr}>${escapeHtml(text)}</a>`;
+    return `<a href="${escapeAttr(siteUrl(localMedia))}" class="tt-media-link"${titleStr}>${escapeHtml(text)}</a>`;
   }
 
   // ---- Non-GitHub links ----------------------------------------------------
@@ -524,6 +526,11 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
 WEB_RENDERER.code = function ({ text, lang }) {
   if (lang === 'mermaid') {
     return `<pre class="mermaid">${escapeHtml(text)}</pre>\n`;
+  }
+
+  // sim-note fences → teal callout block
+  if (lang === 'sim-note') {
+    return `<div class="sim-callout">${escapeHtml(text)}</div>\n`;
   }
 
   if (lang && lang.startsWith('tensix_viz')) {
@@ -792,20 +799,25 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
  * ------------------------------------------------------------------ */
 
 const HW_LABELS = {
-  n150:   'n150',
-  n300:   'n300',
-  t3k:    'T3000',
-  p100:   'p100',
-  p150:   'p150',
-  p300:   'p300',
-  p300c:  'p300c',
-  p300x2: 'p300×2',
-  galaxy: 'Galaxy',
+  n150:      'n150',
+  n300:      'n300',
+  t3k:       'T3000',
+  p100:      'p100',
+  p150:      'p150',
+  p300:      'p300',
+  p300c:     'p300c',
+  p300x2:    'p300×2',
+  galaxy:    'Galaxy',
+  simulator: 'Sim',   // ttsim — outline pill via chip-sim class
 };
+
+// Hardware keys that render with the outline simulator style
+const SIM_HW_KEYS = new Set(['simulator', 'sim']);
 
 function hwBadge(hw) {
   const label = HW_LABELS[hw] || hw.toUpperCase();
-  return `<span class="hardware-chip">${escapeHtml(label)}</span>`;
+  const cls = SIM_HW_KEYS.has(hw) ? 'hardware-chip chip-sim' : 'hardware-chip';
+  return `<span class="${escapeAttr(cls)}">${escapeHtml(label)}</span>`;
 }
 
 function statusBadge(status) {
@@ -1014,7 +1026,7 @@ function buildHomePage() {
   // Collect all hardware values for filter chips
   const allHw = new Set();
   lessons.forEach(l => (l.supportedHardware || []).forEach(hw => allHw.add(hw)));
-  const hwOrder = ['n150', 'n300', 't3k', 'p100', 'p150', 'p300', 'p300c', 'p300x2', 'galaxy'];
+  const hwOrder = ['n150', 'n300', 't3k', 'p100', 'p150', 'p300', 'p300c', 'p300x2', 'galaxy', 'simulator'];
   const sortedHw = hwOrder.filter(hw => allHw.has(hw));
 
   // Filter chip bar
@@ -1620,6 +1632,27 @@ body.page-install .lesson-content {
   .lesson-card-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ===== Mobile sidebar overlay backdrop ===== */
+
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 49; /* below sidebar (z-index 50) */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+#sidebar-overlay.sidebar-overlay-visible {
+  display: block;
+}
+
+/* Prevent background scroll while sidebar is open on mobile */
+body.sidebar-body-lock {
+  overflow: hidden;
 }
 
 /* ===== VS Code badge (on command blocks) ===== */
@@ -2336,6 +2369,13 @@ function build() {
   // Emit a .nojekyll file so GitHub Pages serves _ prefixed files correctly
   fs.writeFileSync(path.join(SITE, '.nojekyll'), '', 'utf8');
   console.log('  [OK]   .nojekyll');
+
+  // Copy llms.txt from repo root into site root
+  const llmsSrc = path.join(ROOT, 'llms.txt');
+  if (fs.existsSync(llmsSrc)) {
+    fs.copyFileSync(llmsSrc, path.join(SITE, 'llms.txt'));
+    console.log('  [OK]   llms.txt');
+  }
 
   console.log(`\nDone. ${lessons.length} lessons + ${PAGES.length} reference pages built.\n`);
 }
