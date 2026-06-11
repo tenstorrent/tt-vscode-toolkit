@@ -24,7 +24,7 @@ This style guide ensures consistency across all lessons, documentation, and code
 
 **Software Projects:**
 - ✅ `tt-metal` (lowercase, hyphenated) in code/commands, paths (`~/tt-metal`), and repo URLs
-- ✅ **TT-Metalium<sup>™</sup>** in prose and documentation (replaces legacy **TT-Metal**)
+- ✅ **TT-Metalium<sup>™</sup>** in prose and documentation (replaces legacy **TT-Metalium**)
 - ❌ `TT Metal`, `tt metal`, `TTMetal`, `ttmetal`, `TT-Metal`
 
 - ✅ `tt-forge` / `tt-forge-fe` (lowercase) in code/commands and paths
@@ -59,18 +59,18 @@ This style guide ensures consistency across all lessons, documentation, and code
 
 ### Hardware Product Names
 
-**Use lowercase hardware IDs in prose** (matches lesson metadata and the hardware filter):
-- ✅ `n150`, `n300`, `T3000`, `p100`, `p150`, `galaxy`
-- ❌ `N150`, `N300`, `T3K` in running text (keep those only in shell env vars and command IDs — see below)
+**Use lowercase hardware IDs in prose and sample output** (matches lesson metadata and the hardware filter):
+- ✅ `n150`, `n300`, `T3000`, `p100`, `p150`, `p300c` — always lowercase in prose and sample output
+- ✅ `Galaxy` — always capitalized in prose and sample output (metadata IDs stay `galaxy`)
+- ❌ `N150`, `N300`, `T3K`, `P300C` in running text (keep uppercase only in shell env vars like `MESH_DEVICE=N150` and command IDs — see below)
 
 **Hardware architecture names:**
 - ✅ `Grayskull` (capital G)
-- ✅ `Wormhole` (capital W)
 - ✅ `Blackhole` (capital B); first mention per page: `Blackhole<sup>®</sup>`
 - ✅ `Wormhole` (capital W); first mention per page: `Wormhole<sup>™</sup>`
 - ✅ `TT-QuietBox 2` in prose (not `QB2` or bare `QuietBox`); first mention per page: `TT-QuietBox<sup>®</sup> 2`
-- ✅ `TT-NN` in prose (not `TTNN`); first mention per page: `TT-NN`
-- ✅ `TT-Metalium`, `TT-Forge` — first mention per page: `TT-Metalium`, `TT-Forge`
+- ✅ `TT-NN` in prose (not `TTNN`); first mention per page gets `<sup>™</sup>`
+- ✅ `TT-Metalium`, `TT-Forge` — first mention per page gets `<sup>™</sup>`
 - ❌ `grayskull`, `wormhole`, `blackhole` (except in code/environment variables)
 
 **In code and configuration:**
@@ -362,7 +362,7 @@ estimatedMinutes: 30
 - `t3k` — Wormhole 8-chip (prose: **T3000**)
 - `p100` - p100 (Blackhole<sup>®</sup> single chip)
 - `p150` - p150 (Blackhole 2-chip)
-- `galaxy` - Galaxy (Wormhole large-scale)
+- `Galaxy` - Galaxy (Wormhole large-scale)
 - `simulator` - Software simulator (no hardware)
 
 ### Registry Sync Workflow

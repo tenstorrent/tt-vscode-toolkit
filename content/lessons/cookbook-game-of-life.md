@@ -67,7 +67,7 @@ This creates the project in `~/tt-scratchpad/cookbook/game_of_life/`.
 
 ```text
 ~/tt-scratchpad/cookbook/game_of_life/
-├── game_of_life.py       # Core TTNN implementation
+├── game_of_life.py       # Core TT-NN implementation
 ├── visualizer.py          # Matplotlib animation
 ├── patterns.py            # Glider, blinker, Gosper gun, etc.
 ├── requirements.txt

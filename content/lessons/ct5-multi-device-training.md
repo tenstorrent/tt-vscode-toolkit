@@ -186,8 +186,8 @@ tt-smi
 
 **Expected output:**
 ```
-Device 0: Wormhole<sup>™</sup> (N300)
-Device 1: Wormhole (N300)
+Device 0: Wormhole<sup>™</sup> (n300)
+Device 1: Wormhole (n300)
 ```
 
 ### Step 2: Launch Training

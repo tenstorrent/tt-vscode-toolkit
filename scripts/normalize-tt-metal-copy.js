@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Normalize prose and sample output: TTNN → TT-NN
+ * Normalize prose/sample output: TT Metal → TT-Metalium
  * Skips executable code fences (python, bash, etc.) and inline `code`.
  *
  * Usage:
- *   node scripts/normalize-ttnn-copy.js
- *   node scripts/normalize-ttnn-copy.js --check
+ *   node scripts/normalize-tt-metal-copy.js
+ *   node scripts/normalize-tt-metal-copy.js --check
  */
 
 'use strict';
@@ -15,8 +15,8 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const checkOnly = process.argv.includes('--check');
-const FROM_RE = /\bTTNN\b/g;
-const TO = 'TT-NN';
+const FROM_RE = /\bTT Metal\b/g;
+const TO = 'TT-Metalium';
 
 const EXEC_FENCE_LANGS = new Set([
   'bash', 'sh', 'shell', 'python', 'py', 'javascript', 'js', 'typescript', 'ts',
@@ -31,7 +31,6 @@ const COPY_ROOTS = [
   'content/templates',
   'docs',
   'plans',
-  '.github/ISSUE_TEMPLATE',
 ];
 
 const COPY_FILES = [
@@ -39,11 +38,9 @@ const COPY_FILES = [
   'CONTRIBUTING.md',
   'CHANGELOG.md',
   'CLAUDE.md',
-  'TT_METAL_PRECOMPILED.md',
-  'content/lesson-registry.json',
 ];
 
-function replaceInProseSegment(segment) {
+function replaceSegment(segment) {
   if (!FROM_RE.test(segment)) {
     FROM_RE.lastIndex = 0;
     return segment;
@@ -60,7 +57,7 @@ function transformMarkdownLine(line) {
   });
 
   const parts = s.split(/(`[^`]*`)/);
-  const out = parts.map((part, i) => (i % 2 === 1 ? part : replaceInProseSegment(part)));
+  const out = parts.map((part, i) => (i % 2 === 1 ? part : replaceSegment(part)));
   return out.join('').replace(/\x00U(\d+)\x00/g, (_, idx) => urlSlots[Number(idx)]);
 }
 
@@ -120,9 +117,7 @@ function collectFiles(dir, acc) {
   const stat = fs.statSync(dir);
   if (stat.isFile()) {
     const ext = path.extname(dir);
-    if (['.md', '.html', '.yml', '.yaml', '.json'].includes(ext)) {
-      acc.push(dir);
-    }
+    if (['.md', '.html'].includes(ext)) acc.push(dir);
     return;
   }
   for (const entry of fs.readdirSync(dir)) {
@@ -138,44 +133,36 @@ function main() {
   }
   for (const rel of COPY_FILES) {
     const abs = path.join(ROOT, rel);
-    if (fs.existsSync(abs)) {
-      files.push(abs);
-    }
+    if (fs.existsSync(abs)) files.push(abs);
   }
 
   let touched = 0;
-  let count = 0;
-
   for (const abs of files) {
     const raw = fs.readFileSync(abs, 'utf8');
     const before = (raw.match(FROM_RE) || []).length;
     const { text, changed } = transformContent(raw);
-    if (!changed) {
-      continue;
-    }
+    if (!changed) continue;
     const after = (text.match(FROM_RE) || []).length;
-    const n = before - after;
-    count += n;
     touched++;
     const rel = path.relative(ROOT, abs);
     if (checkOnly) {
-      console.log(`  ${rel} (${n} would change)`);
+      console.log(`  ${rel} (${before - after} would change)`);
     } else {
       fs.writeFileSync(abs, text, 'utf8');
-      console.log(`  ${rel} (${n} replacements)`);
+      console.log(`  ${rel} (${before - after} replacements)`);
     }
   }
 
   if (checkOnly) {
     if (touched > 0) {
-      console.error(`\n${touched} file(s) still contain prose/sample TTNN.`);
+      console.error(`\n${touched} file(s) still contain prose "TT Metal".`);
       process.exit(1);
     }
-    console.log('OK: no prose TTNN in copy paths.');
+    console.log('OK: no prose TT Metal in copy paths.');
     process.exit(0);
   }
 
-  console.log(`\nDone: ${touched} files, ${count} TTNN → TT-NN in prose/sample output.\n`);
+  console.log(touched ? `\nDone: ${touched} file(s) updated.` : 'No files needed TT Metal updates.');
 }
 
 main();

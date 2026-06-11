@@ -139,15 +139,15 @@ If writing your own scripts, do NOT hardcode DispatchCoreAxis.ROW on Blackhole:
 **This project targets both Wormhole (WH) and Blackhole (BH) architectures.** Every lesson, template, and code example should work on both unless there is a documented, necessary divergence.
 
 **Guiding principles:**
-- **Prefer arch-agnostic code** — where TTNN/tt-metal provides auto-detection (e.g., `DispatchCoreConfig` without a hardcoded axis), use it. Don't hardcode arch-specific behavior unless unavoidable.
+- **Prefer arch-agnostic code** — where TT-NN/tt-metal provides auto-detection (e.g., `DispatchCoreConfig` without a hardcoded axis), use it. Don't hardcode arch-specific behavior unless unavoidable.
 - **When diverging is required** — be explicit, educational, and upfront about which hardware is affected and why. The reader should never be surprised.
 - **Never silently fail** — a user following a lesson must not reach code that crashes on their hardware without a clear warning beforehand and a working alternative. The last thing we want is someone running the wrong script.
 - **Track validation honestly** — if a template or lesson has only been tested on n150 (Wormhole), say so in `validatedOn`. Don't list hardware as supported unless it has been verified.
 
 **Known arch differences to watch for:**
-- `DispatchCoreAxis`: ROW is the Wormhole default, COL is the Blackhole default → use `DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` with no hardcoded axis; TTNN auto-detects the right value
+- `DispatchCoreAxis`: ROW is the Wormhole default, COL is the Blackhole default → use `DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` with no hardcoded axis; TT-NN auto-detects the right value
 - Multi-device API: Always use `CreateDevices`/`CloseDevices` (see Multi-Device section below)
-- `MESH_DEVICE` env var: N150/N300/T3K for Wormhole; P100/P150 for single-chip Blackhole (p300c = p100 mode)
+- `MESH_DEVICE` env var: n150/n300/T3000 for Wormhole; P100/P150 for single-chip Blackhole (p300c = p100 mode)
 - Model DRAM: Llama-3.1-8B consistently exhausts n150 DRAM; Qwen3-0.6B is the recommended first-model for all hardware
 ```
 

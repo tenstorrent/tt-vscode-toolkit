@@ -272,7 +272,7 @@ This appears to be due to running in a non-interactive or incompatible terminal 
 ```
 Device 0 opened successfully
 - Chip ID: 0, PCIe ID: 3
-- Harvesting mask: 0x1 (1 core harvested - normal for N150 L)
+- Harvesting mask: 0x1 (1 core harvested - normal for n150 L)
 - Firmware: 18.7.0
 - KMD: 2.4.1
 - Software: 6.0.0
@@ -981,9 +981,9 @@ Found validated combination:
 
 **Previous state:**
 - TT-Metalium: 3ee39729e9 (Dec 31, 2024) - **too new**
-- vLLM: f49265a2e (dev HEAD) - **only tested with GALAXY, not n150**
+- vLLM: f49265a2e (dev HEAD) - **only tested with Galaxy, not n150**
 
-**Problem discovered:** vLLM f49265a has NO n150 configurations in model_specs_output.json - only GALAXY models use this commit!
+**Problem discovered:** vLLM f49265a has NO n150 configurations in model_specs_output.json - only Galaxy models use this commit!
 
 **Actions taken:**
 1. Rolled back TT-Metalium to 25305db (Dec 8, 2024)
@@ -2576,7 +2576,7 @@ python test_particle_life.py
 
 **Scientific insight:**
 - Complex macroscopic behavior from simple microscopic rules
-- Parallels: galaxy formation, cell organization, social dynamics
+- Parallels: Galaxy formation, cell organization, social dynamics
 - Demonstrates fundamental principle of emergence
 
 ### Goldstar Achievement 🌟

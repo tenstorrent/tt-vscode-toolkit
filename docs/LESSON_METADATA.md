@@ -43,7 +43,7 @@ Use lowercase values:
 - `p100` - Blackhole<sup>®</sup> p100 (single chip)
 - `p150` - Blackhole p150 (dual chip)
 - `p300` - Blackhole p300/p300c (single chip, TT-QuietBox variant)
-- `galaxy` - Galaxy (32-chip cluster)
+- `Galaxy` - Galaxy (32-chip cluster)
 - `simulator` - TTSim (no hardware required)
 
 ## Status Values
@@ -236,7 +236,7 @@ node scripts/check-lessons.js --filter
 | 09 Image Generation | validated | n150, n300, t3k, p100 | n150 |
 | 10 Coding Assistant | validated | all | n150 |
 | 11 TT-Forge<sup>™</sup> | draft | n150 | - |
-| 12 TT-XLA JAX | validated | n150, n300, t3k, galaxy | n150 |
+| 12 TT-XLA JAX | validated | n150, n300, t3k, Galaxy | n150 |
 | 13 RISC-V Programming | validated | all | n150 |
 | 14 Metalium Cookbook | validated | all | n150 |
 

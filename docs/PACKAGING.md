@@ -211,7 +211,7 @@ Every lesson has metadata tracking validation status and hardware compatibility.
 
 **`validatedOn` array:**
 - Lists hardware types where lesson has been tested
-- Values: `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`, `simulator`
+- Values: `n150`, `n300`, `t3k`, `p100`, `p150`, `Galaxy`, `simulator`
 
 **`blockReason` (optional):**
 - Human-readable explanation if status is `blocked`
@@ -228,7 +228,7 @@ Every lesson has metadata tracking validation status and hardware compatibility.
 | `t3k` | TT-QuietBox - 8 chips | Wormhole |
 | `p100` | Blackhole<sup>®</sup> - Single chip | Blackhole |
 | `p150` | Blackhole - Dual chip | Blackhole |
-| `galaxy` | TT-LoudBox - 32 chips | Wormhole |
+| `Galaxy` | TT-LoudBox - 32 chips | Wormhole |
 | `simulator` | Software simulator | N/A |
 
 ---

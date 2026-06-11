@@ -210,7 +210,7 @@ Replace the `## The DRAM Wall` stub with:
 ```markdown
 ## The DRAM Wall
 
-TTNN dispatches each op as a separate kernel. Between every op, tensor data
+TT-NN dispatches each op as a separate kernel. Between every op, tensor data
 lands in DRAM. For a single transformer layer, that's roughly five DRAM
 write/read round-trips — RMSNorm → DRAM → projection → DRAM → attention →
 DRAM → projection → DRAM → FFN → DRAM. At model scale, this is the
@@ -226,7 +226,7 @@ Real measured improvements from production projects:
 
 | Project | What was fused | Improvement |
 |---------|---------------|-------------|
-| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TTNN |
+| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TT-NN |
 | [DFlash speculative decoder](https://github.com/zoecarver/dflash) | RoPE, RMSNorm, SiLU, residuals | 5–6× decode speedup |
 | [DeepSeek Engram module](https://github.com/zoecarver/Engram) | gating + depthwise conv | 2.2× all kernels; 3.4× gating alone |
 | [nanochat fused MLP](https://github.com/zoecarver/nanochat/commit/f849d3f) | 7 dispatches → 1 | +21% tok/s (13.13 → 15.89) |
@@ -270,7 +270,7 @@ ended with custom Tensix kernels running in production or close to it.
 WAN transformer block fused into a single kernel on TT-QuietBox 2 (4-chip Blackhole).
 Five ops collapsed into one: input tiles stream in once, compute flows through
 L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op
-TTNN dispatch at production model dimensions.
+TT-NN dispatch at production model dimensions.
 
 **[WAN Animate 14B](https://github.com/tenstorrent/tt-lang)** — A 40-layer,
 5120-hidden diffusion transformer brought up on a 4-chip TT-QuietBox 2 (2×2 mesh).
@@ -706,7 +706,7 @@ a Tensix kernel for it.
 ```bash
 /ttl-import attention.py
 ```
-Translates CUDA, Triton, PyTorch, or TTNN code to a tt-lang DFB pattern.
+Translates CUDA, Triton, PyTorch, or TT-NN code to a tt-lang DFB pattern.
 Handles the mechanical mapping: ops become compute thread logic, tensor loads
 become DM0 reads, tensor stores become DM1 writes. Output is a runnable `.py`
 file ready for simulation.
@@ -756,7 +756,7 @@ simulator behaves unexpectedly.
 
 | Command | When to reach for it |
 |---------|---------------------|
-| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TTNN |
+| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TT-NN |
 | `/ttl-simulate <file>` | After any change — validate before profiling or hardware |
 | `/ttl-test <file>` | Simulation passes — build a regression suite |
 | `/ttl-profile <file>` | Kernel is correct, want to find the bottleneck |

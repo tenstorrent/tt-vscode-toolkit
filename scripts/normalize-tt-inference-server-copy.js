@@ -56,7 +56,7 @@ function replaceInProse(line) {
   // URLs and registry paths
   s = s.replace(/https?:\/\/[^\s)'"`<>]*tt-inference-server[^\s)'"`<>]*/g, slot);
   s = s.replace(/ghcr\.io\/[^\s`]*tt-inference-server[^\s`]*/g, slot);
-  s = s.replace(/github\.com\/tenstorrent\/tt-inference-server[^\s)`]*/g, slot);
+  s = s.replace(/github\.com\/tenstorrent\/tt-inference-server[^\s)\]\x00]*/g, slot);
 
   // Lesson / walkthrough identifiers
   s = s.replace(/openWalkthrough\(\s*['"]tt-inference-server['"]\s*\)/g, slot);

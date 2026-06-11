@@ -44,18 +44,14 @@ function shouldSkipLine(line, relPath) {
   if (relPath === 'docs/STYLE_GUIDE.md' && line.includes('❌')) {
     return true;
   }
-  if (relPath === 'CHANGELOG.md' && line.includes('`open-source`')) {
-    return true;
-  }
   if (/https?:\/\/[^\s)]*opensource[^\s)]*/i.test(line)) {
     return true;
   }
   return false;
 }
 
-function replaceHyphenated(line) {
-  return line.replace(HYPHEN_RE, (m) => {
-    const upper = m[0] === 'O' || m[0] === 'o' && m === 'Open-source';
+function replaceHyphenated(segment) {
+  return segment.replace(HYPHEN_RE, (m) => {
     if (m === 'Open-source' || m === 'OPEN-SOURCE') {
       return 'Open source';
     }
@@ -64,6 +60,28 @@ function replaceHyphenated(line) {
     }
     return m[0] === 'O' ? 'Open source' : 'open source';
   });
+}
+
+function transformLine(line, relPath) {
+  if (shouldSkipLine(line, relPath)) {
+    return line;
+  }
+
+  const urlSlots = [];
+  const s = line.replace(/\]\([^)]*\)/g, (m) => {
+    urlSlots.push(m);
+    return `\x00U${urlSlots.length - 1}\x00`;
+  });
+
+  const parts = s.split(/(`[^`]*`)/);
+  const out = parts.map((part, i) => {
+    if (i % 2 === 1) {
+      return part;
+    }
+    return replaceHyphenated(part);
+  });
+
+  return out.join('').replace(/\x00U(\d+)\x00/g, (_, idx) => urlSlots[Number(idx)]);
 }
 
 function transformContent(text, relPath) {
@@ -82,7 +100,7 @@ function transformContent(text, relPath) {
       out.push(line);
       continue;
     }
-    out.push(replaceHyphenated(line));
+    out.push(transformLine(line, relPath));
   }
 
   return out.join('\n');

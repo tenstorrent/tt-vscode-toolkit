@@ -104,7 +104,7 @@ The AnimateDiff package is bundled with the extension. This copies it to `~/tt-s
 ~/tt-scratchpad/tt-animatediff/
 ├── animatediff_ttnn/
 │   ├── pipeline.py           # Phase 1: CPU AnimateDiffPipeline wrapper
-│   └── ttnn_pipeline.py      # Phase 2: Blackhole TTNN UNet + PNDM scheduler
+│   └── ttnn_pipeline.py      # Phase 2: Blackhole TT-NN UNet + PNDM scheduler
 ├── examples/
 │   ├── generate_baseline.py  # Phase 1 (CPU, any hardware)
 │   └── generate_blackhole.py # Phase 2 (Blackhole hardware)
@@ -177,7 +177,7 @@ Replaces the PyTorch UNet with the TT-NN UNet from `~/tt-metal/models/demos/worm
 **Expected output** (`output/blackhole.gif`):
 
 ```
-AnimateDiff Phase 2 — Blackhole TTNN UNet
+AnimateDiff Phase 2 — Blackhole TT-NN UNet
   Prompt    : 1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K
   Frames    : 8  Steps: 25
 

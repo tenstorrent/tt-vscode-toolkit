@@ -82,7 +82,7 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 
 **Interpreting results:**
 
-- Prints `✓ TTNN <version>` → **✅ TT-NN ready**, continue to Check 3
+- Prints `✓ TT-NN <version>` → **✅ TT-NN ready**, continue to Check 3
 - `ModuleNotFoundError: No module named 'ttnn'` → TT-NN is not importable in your current
   Python environment. You need one of:
   - **TT-QuietBox 2 / TT-Installer users:** activate the pre-installed container or venv

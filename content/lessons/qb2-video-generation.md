@@ -42,7 +42,7 @@ Your TT-QuietBox 2 can generate original AI video — 5–7 minute clips of cine
 ┌─────────────────────┐
 │  tt-inference-server│  Wan2.2-T2V-A14B-Diffusers, port 8000 (Docker)
 └──────────┬──────────┘
-           │ TTNN dispatch
+           │ TT-NN dispatch
            ▼
 ┌─────────────────────┐
 │  TT-QuietBox 2         │  2x p300, 4x Blackhole, (2,2) mesh, 2654 TFLOPS

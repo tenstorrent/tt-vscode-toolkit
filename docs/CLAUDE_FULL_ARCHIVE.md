@@ -1209,14 +1209,14 @@ The lesson teaches:
 **Required Environment Variables:**
 ```bash
 export TT_METAL_HOME=~/tt-metal                # Point to tt-metal (required by setup-metal.sh)
-export MESH_DEVICE=N150                        # Target N150 hardware
+export MESH_DEVICE=N150                        # Target n150 hardware
 export HF_MODEL=~/models/Llama-3.1-8B-Instruct # Model path
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH   # Critical: Find TTLlamaForCausalLM
 ```
 
 **Required vLLM Flags:**
 ```bash
---max-model-len 65536                # 64K context limit for N150
+--max-model-len 65536                # 64K context limit for n150
 ```
 
 **Why TT_METAL_HOME + PYTHONPATH matter:**

@@ -100,7 +100,7 @@ Output:
 ❌ ttnn is not installed
 
 ============================================================
-⚠️  TTNN NOT FOUND - Installation Required
+⚠️  TT-NN NOT FOUND - Installation Required
 ============================================================
 
 ✅ Found tt-metal at: /home/user/tt-metal
@@ -127,7 +127,7 @@ Output:
 ❌ ttnn is not installed
 
 ============================================================
-⚠️  TTNN NOT FOUND - Installation Required
+⚠️  TT-NN NOT FOUND - Installation Required
 ============================================================
 
 ❌ tt-metal directory not found at: /home/user/tt-metal

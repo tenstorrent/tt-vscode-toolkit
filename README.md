@@ -365,7 +365,7 @@ unset TT_METAL_VERSION
 ### "vLLM won't start"
 ```bash
 echo $TT_METAL_HOME    # Should be ~/tt-metal
-echo $MESH_DEVICE      # Should match your hardware (e.g., N150)
+echo $MESH_DEVICE      # Should match your hardware (e.g., n150)
 ```
 *See [FAQ.md](content/pages/FAQ.md) for systematic vLLM debugging.*
 

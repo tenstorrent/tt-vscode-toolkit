@@ -52,10 +52,10 @@ source ~/tt-forge-venv/bin/activate
 >
 > ```bash
 > # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
-> ln -s /opt/venv-forge ~/TT-Forge<sup>™</sup>-venv
+> ln -s /opt/venv-forge ~/tt-forge-venv
 >
-> # ~/TT-Forge-venv exists but /opt/venv-forge doesn't (needs sudo):
-> sudo ln -s ~/TT-Forge-venv /opt/venv-forge
+> # ~/tt-forge-venv exists but /opt/venv-forge doesn't (needs sudo):
+> sudo ln -s ~/tt-forge-venv /opt/venv-forge
 > ```
 
 > **Note:** The PJRT plugin requires `tt_torch` to be imported before `jax` so the
@@ -67,7 +67,7 @@ source ~/tt-forge-venv/bin/activate
 Expected output:
 
 ```
-TT devices: [TtDevice(id=0)]          # N150 / p300c
+TT devices: [TtDevice(id=0)]          # n150 / p300c
 # or
 TT devices: [TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # TT-QuietBox 2
 ```
@@ -232,7 +232,7 @@ print(output.shape)       # torch.Size([1, 1000])
 ```
 
 > **Note:** torch-xla (without `forge.compile()`) runs models via the XLA JIT path.
-> For the full TT-Forge compiler pipeline with MLIR optimization, see the
+> For the full TT-Forge<sup>™</sup> compiler pipeline with MLIR optimization, see the
 > [TT-Forge Image Classification lesson](command:tenstorrent.showLesson?["forge-image-classification"]).
 
 ---

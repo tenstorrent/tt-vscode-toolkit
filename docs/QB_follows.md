@@ -59,10 +59,10 @@ Follow the VSCode extension walkthrough lessons on a TT-QuietBox Blackhole Tower
 **Result:** All 4 p300c devices detected successfully
 
 ```json
-Device 0: 0000:01:00.0 | P300c | FW 19.4.0.0
-Device 1: 0000:02:00.0 | P300c | FW 19.4.0.0
-Device 2: 0000:03:00.0 | P300c | FW 19.4.0.0
-Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
+Device 0: 0000:01:00.0 | p300c | FW 19.4.0.0
+Device 1: 0000:02:00.0 | p300c | FW 19.4.0.0
+Device 2: 0000:03:00.0 | p300c | FW 19.4.0.0
+Device 3: 0000:04:00.0 | p300c | FW 19.4.0.0
 ```
 
 **Key Observations:**
@@ -461,9 +461,9 @@ huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 
 **⚠️ CRITICAL ISSUE 1: p300c NOT RECOGNIZED**
 ```
-⚠️  Warning: Unknown board type 'P300C'
+⚠️  Warning: Unknown board type 'p300c'
 ```
-- Script only recognized: n150, n300, T3000, p100, p150, GALAXY
+- Script only recognized: n150, n300, T3000, p100, p150, Galaxy
 - p300/p300c not in supported hardware list
 
 **⚠️ CRITICAL ISSUE 2: Module Import Error**
@@ -479,7 +479,7 @@ ERROR: Model architectures ['TTQwen3ForCausalLM'] failed to be inspected
 1. **Added p300/p300c detection:**
 ```python
 elif 'P300' in board_type:
-    # P300/P300C are multi-chip Blackhole systems
+    # P300/p300c are multi-chip Blackhole systems
     # For single-chip lessons, run in p100 mode (single Blackhole chip)
     mesh_device = 'P100'  # P100 = single Blackhole chip
     arch_name = 'blackhole'
@@ -505,7 +505,7 @@ python start-vllm-server.py --model ~/models/Qwen3-0.6B --port 8000 --max-model-
 
 **Startup Output:**
 ```
-✓ Detected P300/P300C multi-chip Blackhole system
+✓ Detected P300/p300c multi-chip Blackhole system
 ✓ Running in single-chip mode (MESH_DEVICE=P100, TT_METAL_ARCH_NAME=blackhole)
 ✓ Auto-detected hardware: P100
 ✓ Auto-set TT_METAL_ARCH_NAME=blackhole
@@ -1334,7 +1334,7 @@ During Particle Life multi-device validation on TT-QuietBox (4x p300c), discover
 #### 1. p300/p300c Missing from Hardware Type System
 
 **Current State:**
-- `HardwareType` enum in `src/types/LessonMetadata.ts` lists: `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`, `simulator`
+- `HardwareType` enum in `src/types/LessonMetadata.ts` lists: `n150`, `n300`, `t3k`, `p100`, `p150`, `Galaxy`, `simulator`
 - **p300/p300c NOT in enum** despite extensive TT-QuietBox testing
 - Extension regex `/([NP]\d+)/` already captures p300 correctly
 - tt-smi reports board type as "p300c" (lowercase)
@@ -1427,7 +1427,7 @@ export type HardwareType =
   | 't3k'     // Wormhole - 8 Chips
   | 'p100'    // Blackhole - Single Chip
   | 'p150'    // Blackhole - Dual Chip
-  | 'galaxy'  // Galaxy configuration
+  | 'Galaxy'  // Galaxy configuration
   | 'simulator'; // Simulator mode
 ```
 
@@ -1440,7 +1440,7 @@ export type HardwareType =
   | 'p100'    // Blackhole - Single Chip
   | 'p150'    // Blackhole - Dual Chip
   | 'p300'    // Blackhole - Single Chip (TT-QuietBox)
-  | 'galaxy'  // Galaxy configuration
+  | 'Galaxy'  // Galaxy configuration
   | 'simulator'; // Simulator mode
 ```
 
@@ -1606,7 +1606,7 @@ tt-smi -s  # Shows all 4 devices
 - Achieves 2x speedup on 4x p300c through workload parallelization
 
 **Troubleshooting:**
-- If script says "Unknown board type 'P300C'": Treat as p100 (single Blackhole)
+- If script says "Unknown board type 'p300c'": Treat as p100 (single Blackhole)
 - Multi-chip mesh initialization: All 4 devices will initialize fabric
 - Device reset: Use `tt-smi -r` carefully (close all processes first)
 ```
@@ -1635,7 +1635,7 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 ## Architecture Families
 
 ### Wormhole Family
-- N150: Single chip...
+- n150: Single chip...
 - n300: Dual chip...
 - T3000: 8-chip mesh...
 - Galaxy: Multi-rack...

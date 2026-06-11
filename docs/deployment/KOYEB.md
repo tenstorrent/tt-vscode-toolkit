@@ -238,7 +238,7 @@ accelerator:
 
 env:
   - key: MESH_DEVICE
-    value: N300
+    value: n300
 ```
 
 Deploy:
@@ -303,8 +303,8 @@ After deployment:
    ```
 4. You should see:
    ```
-   Device 0: N300
-   Device 1: N300
+   Device 0: n300
+   Device 1: n300
    Status: Active
    ```
 

@@ -402,7 +402,7 @@ print(f"TTNN: {elapsed:.3f} seconds")
 ```
 Pure Python:     10.000 seconds  (baseline)
 NumPy:            0.010 seconds  (1000x faster)
-TTNN:             0.001 seconds  (10,000x faster)
+TT-NN:             0.001 seconds  (10,000x faster)
 
 Why the differences?
 
@@ -418,7 +418,7 @@ NumPy:
 - Contiguous memory (cache-friendly)
 - BLAS library (optimized for CPU)
 
-TTNN:
+TT-NN:
 - Parallel execution (176 cores)
 - Near-memory compute (L1 SRAM)
 - Optimized for matrix ops

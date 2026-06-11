@@ -251,7 +251,7 @@ frames = pipeline(
     prompt_2="...",
     prompt_3="...",
     num_frames=16,  # Full animation
-    height=512,  # Conservative resolution for N150
+    height=512,  # Conservative resolution for n150
     width=512,
     seed=42,
 )

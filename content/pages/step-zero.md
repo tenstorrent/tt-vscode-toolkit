@@ -101,7 +101,7 @@ graph TB
     subgraph HighLevel["High-Level APIs"]
         vLLM[vLLM Server]
         PJRT[PJRT Plugin]
-        TTNN[TTNN API]
+        TT-NN[TT-NN API]
     end
 
     subgraph Compiler["Compilers & Runtime"]
@@ -118,11 +118,11 @@ graph TB
 
     JAX --> PJRT
     PyTorch --> vLLM
-    HF --> TTNN
+    HF --> TT-NN
 
     vLLM --> TTMetal
     PJRT --> TTMLIR
-    TTNN --> TTMetal
+    TT-NN --> TTMetal
 
     TTMLIR --> TTMetal
     TTMetal --> n150
@@ -135,7 +135,7 @@ graph TB
     style HF fill:#5347a4,color:#fff
     style vLLM fill:#3293b2,color:#fff
     style PJRT fill:#3293b2,color:#fff
-    style TTNN fill:#3293b2,color:#fff
+    style TT-NN fill:#3293b2,color:#fff
     style TTMLIR fill:#499c8d,color:#fff
     style TTMetal fill:#499c8d,color:#fff
     style n150 fill:#ffb71b,color:#000
@@ -250,7 +250,7 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 #### `MESH_DEVICE`
 **What:** Tells software which hardware configuration you have
-**Possible values:** `n150`, `n300`, `T3000`, `p100`, `p150`, `GALAXY`
+**Possible values:** `n150`, `n300`, `T3000`, `p100`, `p150`, `Galaxy`
 **Why needed:** Model optimizations differ per hardware
 **Set it:**
 ```bash
@@ -365,7 +365,7 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ├── models/                    # Pre-optimized model implementations
 │   ├── demos/                 # Demo scripts
 │   └── tt_transformers/       # Transformer models
-├── ttnn/                      # TTNN Python bindings
+├── ttnn/                      # TT-NN Python bindings
 └── tt_metal/                  # C++ core source
 
 ~/models/                      # Your downloaded HuggingFace models
@@ -514,7 +514,7 @@ Before starting Lesson 1, verify:
 
 ### Hardware Check
 ```bash
-tt-smi -s  # Should show your hardware (N150/N300/etc.)
+tt-smi -s  # Should show your hardware (n150/n300/etc.)
 ```
 
 ### TT-Metalium Check
@@ -529,7 +529,7 @@ python -c "import ttnn; print('✓ TTNN working')"
 ```bash
 echo $TT_METAL_HOME         # Should be ~/tt-metal or /home/user/tt-metal
 echo $LD_LIBRARY_PATH       # Should include /opt/openmpi-v5.0.7-ulfm/lib
-echo $MESH_DEVICE           # Should be N150, N300, T3K, P100, P150, or GALAXY
+echo $MESH_DEVICE           # Should be n150, n300, T3000, p100, p150, or Galaxy
 ```
 
 **If any check fails:** Run the commands shown in the error message.

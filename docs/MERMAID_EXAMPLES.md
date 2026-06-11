@@ -22,16 +22,16 @@ graph TD
 ```mermaid
 graph TB
     App[Your Application]
-    TTNN[TTNN API Layer]
+    TT-NN[TT-NN API Layer]
     TTMetal[TT-Metalium Runtime]
     Hardware[Tenstorrent Hardware]
 
-    App --> TTNN
-    TTNN --> TTMetal
+    App --> TT-NN
+    TT-NN --> TTMetal
     TTMetal --> Hardware
 
     style App fill:#3293b2,color:#fff
-    style TTNN fill:#5347a4,color:#fff
+    style TT-NN fill:#5347a4,color:#fff
     style TTMetal fill:#499c8d,color:#fff
     style Hardware fill:#ffb71b,color:#000
 ```

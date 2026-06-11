@@ -22,7 +22,7 @@ This document provides the authoritative reference for all Tenstorrent hardware 
 | **p100** | Blackhole<sup>®</sup> | 1 | TBD | 64K | Cloud/standalone | `p100` |
 | **p150** | Blackhole | 2 | TBD | 128K | Higher performance | `p150` |
 | **p300/p300c** | Blackhole | 1 | TBD | 64K | TT-QuietBox systems | `p300` |
-| **Galaxy** | Wormhole | 32+ | 2304+ | 128K+ | Multi-rack clusters | `galaxy` |
+| **Galaxy** | Wormhole | 32+ | 2304+ | 128K+ | Multi-rack clusters | `Galaxy` |
 | **Simulator** | Virtual | N/A | N/A | Varies | Development without hardware | `simulator` |
 
 ---

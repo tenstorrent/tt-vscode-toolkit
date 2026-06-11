@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.477] - 2026-05-27
+
+### Changed
+
+- **Prose copyedit pass** — fixed TT-Forge<sup>™</sup> trademark placement in `tt-xla-jax.md`; updated `STYLE_GUIDE.md` hardware casing rules (`n150`/`n300`/`T3000`/`p300c`, capitalized `Galaxy`); normalized hardware IDs and `TTNN`→`TT-NN` in prose and sample output; renamed `TT Metal`→`TT-Metalium` in `tt-inference-server.md`. Extended `normalize-hardware-copy.js` and `normalize-ttnn-copy.js`; added `normalize-tt-metal-copy.js`. Polished `STYLE_GUIDE.md` trademark examples; fixed `normalize-open-source-copy.js` to skip inline code; added `plans/vscode-toolkit-copyedit-pr.md` PR summary.
+
+---
+
 ## [0.0.476] - 2026-05-27
 
 ### Changed
@@ -19,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **TT-Forge<sup>™</sup> trademark** — first prose mention per page now uses `TT-Forge` (trademark, not registered). Updated `scripts/add-tt-product-trademarks.js` and `STYLE_GUIDE.md`; migrated prior `TT-Forge` marks in lessons, pages, and docs.
+- **TT-Forge trademark** — first prose mention per page now uses `TT-Forge` (trademark, not registered). Updated `scripts/add-tt-product-trademarks.js` and `STYLE_GUIDE.md`; migrated prior `TT-Forge` marks in lessons, pages, and docs.
 
 ---
 
@@ -99,7 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Open source wording** — normalized hyphenated `open-source` to two-word `open source` in user-facing lessons, pages, README, and community docs; title-case **Open Source** for headings and labels. Updated `STYLE_GUIDE.md` and Vale `Terminology.yml`.
+- **Open source wording** — normalized hyphenated forms to two-word **open source** in user-facing lessons, pages, README, and community docs; title-case **Open Source** for headings and labels. Updated `STYLE_GUIDE.md` and Vale `Terminology.yml`.
 
 ---
 
@@ -131,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Product naming in user-facing copy** — normalized prose labels `tt-vscode-toolkit` and **TT Developer Toolkit** to **TT-VSCode-Toolkit** across lessons, pages, README, and docs (unchanged: extension ID `Tenstorrent.tt-vscode-toolkit`, repo paths, Docker images, and `package.json` `displayName`).
+- **Product naming in user-facing copy** — normalized prose labels `tt-vscode-toolkit` and **TT-VSCode-Toolkit** to **TT-VSCode-Toolkit** across lessons, pages, README, and docs (unchanged: extension ID `Tenstorrent.tt-vscode-toolkit`, repo paths, Docker images, and `package.json` `displayName`).
 
 ---
 
@@ -171,7 +179,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Hardware naming in user-facing copy** — normalized `P150` → `p150`, `P300` → `p300`, and `P300c`/`P300C` → `p300c` across lessons, pages, README, and docs (unchanged: `MESH_DEVICE=P150`, command IDs, tt-smi device strings, and Python detection code).
+- **Hardware naming in user-facing copy** — normalized `P150` → `p150`, `P300` → `p300`, and `p300c`/`p300c` → `p300c` across lessons, pages, README, and docs (unchanged: `MESH_DEVICE=P150`, command IDs, tt-smi device strings, and Python detection code).
 
 ---
 
@@ -179,7 +187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Hardware naming in user-facing copy** — normalized `N300` to `n300` across lessons, pages, README, and docs (same rules as n150: prose, tables, mermaid, link text; unchanged shell `MESH_DEVICE=N300`, command IDs, and API fields).
+- **Hardware naming in user-facing copy** — normalized `n300` to `n300` across lessons, pages, README, and docs (same rules as n150: prose, tables, mermaid, link text; unchanged shell `MESH_DEVICE=N300`, command IDs, and API fields).
 
 ---
 
@@ -187,7 +195,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Hardware naming in user-facing copy** — normalized `N150` to `n150` across lessons, pages, README, and docs (prose, tables, mermaid labels, and link text). Left unchanged: shell `MESH_DEVICE=N150`, command IDs (`startVllmServerN150`), and API/JSON hardware fields. Updated Vale `ProductNames.yml` and `STYLE_GUIDE.md` to prefer lowercase hardware IDs in prose.
+- **Hardware naming in user-facing copy** — normalized `n150` to `n150` across lessons, pages, README, and docs (prose, tables, mermaid labels, and link text). Left unchanged: shell `MESH_DEVICE=N150`, command IDs (`startVllmServerN150`), and API/JSON hardware fields. Updated Vale `ProductNames.yml` and `STYLE_GUIDE.md` to prefer lowercase hardware IDs in prose.
 
 ---
 
@@ -356,7 +364,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`sceneName` XSS in viz webview** — Scene name was interpolated raw into HTML text content in `vizCommands.ts`; crafted values could inject markup. Added `escapeHtml()` helper (escapes `&`, `<`, `>`) and applied it to `sceneName` before embedding.
 - **Theme applied on first install overwrites explicit user choice** — The previous logic applied Tenstorrent Dark whenever the current theme name didn't include "tenstorrent", which silently overwrote any theme a user had deliberately set. Replaced with `inspect('workbench.colorTheme')` — Tenstorrent Dark is now only written when `globalValue` is `undefined` (i.e. the user has never explicitly set a theme).
-- **`ClusterViz` grid column mismatch** — CSS hardcoded `repeat(8, 1fr)` / `repeat(16, 1fr)` columns regardless of topology; topologies such as `bh-galaxy-sc` (grid `[4,32]`) would wrap incorrectly and break the animation's row/col heat math. Fixed by computing `cols` from `topo.grid[1]` in `_init()` and applying it as an inline `gridTemplateColumns` style. Backported to upstream `tensix-viz` repo (`e1fc798`).
+- **`ClusterViz` grid column mismatch** — CSS hardcoded `repeat(8, 1fr)` / `repeat(16, 1fr)` columns regardless of topology; topologies such as `bh-Galaxy-sc` (grid `[4,32]`) would wrap incorrectly and break the animation's row/col heat math. Fixed by computing `cols` from `topo.grid[1]` in `_init()` and applying it as an inline `gridTemplateColumns` style. Backported to upstream `tensix-viz` repo (`e1fc798`).
 
 ---
 
@@ -996,7 +1004,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.350] - 2026-04-16
 
 ### Added
-- **Cache persistence section in TT-Inference-Server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT Metal kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on TT-QuietBox 2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
+- **Cache persistence section in TT-Inference-Server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT-Metalium kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on TT-QuietBox 2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
 
 ---
 
@@ -1820,7 +1828,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CS Fundamentals modules (01-07) teach computer architecture, memory hierarchy, parallelism, networks, synchronization, abstraction layers, and computational complexity
 - Bounty Program lesson teaches model bring-up contribution process
 - All lessons validated on n150 with TT-Metalium v0.63.0
-- ValidatedOn includes all hardware: ["n150", "n300", "t3k", "p100", "p150", "p300", "galaxy"]
+- ValidatedOn includes all hardware: ["n150", "n300", "t3k", "p100", "p150", "p300", "Galaxy"]
 - Total validated lessons: 28 out of 48 lessons (8 new + 20 previously validated)
 
 ---

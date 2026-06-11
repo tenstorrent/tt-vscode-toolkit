@@ -1021,7 +1021,7 @@ Replace the entire content of `content/projects/animatediff/README.md` with:
 
 Two-phase implementation: **Phase 1** generates real, temporally coherent video
 on CPU using the correct AnimateDiff architecture. **Phase 2** accelerates spatial
-denoising on Blackhole hardware using the TTNN UNet.
+denoising on Blackhole hardware using the TT-NN UNet.
 
 ---
 
@@ -1064,13 +1064,13 @@ Expected output: `output/baseline.gif` — 16 frames of temporally coherent anim
 
 ## Phase 2 — Blackhole-Accelerated Frame Generation
 
-Uses the SD 1.4 TTNN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/` —
+Uses the SD 1.4 TT-NN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/` —
 the same code runs on Blackhole via `TT_METAL_ARCH_NAME=blackhole`. Frames are denoised
 sequentially using `sd_helper_funcs.run()`. Temporal coherence from shared base noise.
 
 **Documented tradeoff:** This is TT-hardware-accelerated spatial denoising for video
 frames, not full AnimateDiff temporal attention. Full integration would require injecting
-`TemporalTransformer` blocks into the TTNN UNet transformer blocks.
+`TemporalTransformer` blocks into the TT-NN UNet transformer blocks.
 
 ### Requirements
 
@@ -1141,7 +1141,7 @@ SD 1.4 UNet WITH MotionAdapter (Phase 1):
                               This is where mm_sd_v15_v2.ckpt weights live
 ```
 
-For full AnimateDiff on Blackhole, the TTNN UNet transformer blocks would need
+For full AnimateDiff on Blackhole, the TT-NN UNet transformer blocks would need
 TemporalTransformer layers inserted — a deeper integration than Phase 2 attempts.
 ```
 
@@ -1175,14 +1175,14 @@ transformer block (320-dim features, matching mm_sd_v15_v2.ckpt). No TT hardware
 
 **Status: ✅ Code complete, hardware validation pending**
 
-TTNN UNet (`UNet2D` from tt-metal SD 1.4 demo) denoises frames sequentially on Blackhole.
+TT-NN UNet (`UNet2D` from tt-metal SD 1.4 demo) denoises frames sequentially on Blackhole.
 Temporal coherence via shared base noise. `TT_METAL_ARCH_NAME=blackhole` required.
 
 **Run:** `python examples/generate_blackhole.py` (requires Blackhole hardware + ~/tt-metal)
 
-**Known tradeoff:** Temporal attention is NOT applied during TTNN denoising. For full
+**Known tradeoff:** Temporal attention is NOT applied during TT-NN denoising. For full
 AnimateDiff on TT hardware, TemporalTransformer blocks would need to be added to the
-TTNN UNet — that is out of scope here and would require modifying tt-metal source.
+TT-NN UNet — that is out of scope here and would require modifying tt-metal source.
 
 ---
 

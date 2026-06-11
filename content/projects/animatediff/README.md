@@ -82,7 +82,7 @@ Expected: `output/blackhole.gif` — 8 frames generated on Blackhole hardware.
 ```
 animatediff_ttnn/
   pipeline.py          Phase 1: thin wrapper around diffusers AnimateDiffPipeline
-  ttnn_pipeline.py     Phase 2: TTNN UNet frame generation on Blackhole
+  ttnn_pipeline.py     Phase 2: TT-NN UNet frame generation on Blackhole
   temporal_module.py   Reference only — temporal attention math (kept for study)
   __init__.py          Exports Phase 1 public API
 

@@ -396,7 +396,7 @@ python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 # Script automatically detects and configures:
 # Hardware Detection:
 #   → Runs tt-smi -s to detect hardware type
-#   → Sets MESH_DEVICE (N150/N300/T3K/P100/P150/GALAXY)
+#   → Sets MESH_DEVICE (n150/n300/T3000/P100/P150/Galaxy)
 #   → Sets TT_METAL_ARCH_NAME=blackhole (for p100/p150)
 #   → Sets TT_METAL_HOME=~/tt-metal (if not already set)
 #
@@ -1037,7 +1037,7 @@ python -m vllm.entrypoints.openai.api_server \
 
 ```bash
 # Control tensor parallelism
-export MESH_DEVICE=T3K  # or N150, N300, etc.
+export MESH_DEVICE=T3K  # or n150, n300, etc.
 
 # Set cache directory
 export HF_HOME=~/hf_cache

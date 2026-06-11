@@ -393,7 +393,7 @@ export PYTHONPATH=~/tt-metal
 ```bash
 # Let tt-metal auto-detect (default behavior)
 # Or explicitly set:
-export MESH_DEVICE=N150  # or N300, T3K, etc.
+export MESH_DEVICE=N150  # or n300, T3000, etc.
 ```
 
 **Out of memory:**

@@ -54,11 +54,11 @@ That's the entire setup. No LLVM build, no Python version juggling, no CMake.
 > one path exists, create the link yourself:
 >
 > ```bash
-> # /opt/venv-forge exists but ~/TT-Forge-venv doesn't:
-> ln -s /opt/venv-forge ~/TT-Forge-venv
+> # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
+> ln -s /opt/venv-forge ~/tt-forge-venv
 >
-> # ~/TT-Forge-venv exists but /opt/venv-forge doesn't (needs sudo):
-> sudo ln -s ~/TT-Forge-venv /opt/venv-forge
+> # ~/tt-forge-venv exists but /opt/venv-forge doesn't (needs sudo):
+> sudo ln -s ~/tt-forge-venv /opt/venv-forge
 > ```
 
 > **n150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
@@ -85,7 +85,7 @@ tt devices: [TtDevice(id=0)]
 
 ---
 
-## What's in venv-forge
+## What's in `venv-forge`
 
 `venv-forge` (Python 3.12) ships the full TT-XLA + Forge stack:
 
@@ -197,7 +197,7 @@ forge.compile()      ← graph capture, operator validation
       │
 MLIR optimizer       ← fusion, layout transforms, op lowering
       │
-TTNN operations      ← TT-Metalium layer
+TT-NN operations      ← TT-Metalium layer
       │
 p300c / n150 / …     ← hardware execution
 ```

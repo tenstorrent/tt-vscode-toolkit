@@ -94,7 +94,7 @@ ls -lh mandelbrot_outputs/
 ❌ ttnn is not installed
 
 ============================================================
-⚠️  TTNN NOT FOUND - Installation Required
+⚠️  TT-NN NOT FOUND - Installation Required
 ============================================================
 
 ✅ Found tt-metal at: /home/user/tt-metal
@@ -119,7 +119,7 @@ ls -lh mandelbrot_outputs/
 ❌ ttnn is not installed
 
 ============================================================
-⚠️  TTNN NOT FOUND - Installation Required
+⚠️  TT-NN NOT FOUND - Installation Required
 ============================================================
 
 ✅ Found tt-metal at: /home/user/tt-metal
@@ -156,7 +156,7 @@ Plus an inline image! 🌀
 📓 mandelbrot_explorer.ipynb    - Jupyter notebook with auto-install
 💾 explorer_save.py              - Batch file renderer
 🔄 explorer.py                   - Dual-mode (interactive or save)
-⚙️ renderer.py                   - Core TTNN renderer
+⚙️ renderer.py                   - Core TT-NN renderer
 📖 README.md                     - Full documentation
 🚀 VSCODE_QUICKSTART.md          - Quick reference
 📋 SETUP_SUMMARY.md              - This file

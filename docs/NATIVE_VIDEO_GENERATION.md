@@ -48,7 +48,7 @@
 @pytest.mark.parametrize(
     "mesh_device, sp_axis, tp_axis, num_links",
     [
-        [(4, 8), 1, 0, 4],  # 4x8 = 32 chips (GALAXY)
+        [(4, 8), 1, 0, 4],  # 4x8 = 32 chips (Galaxy)
     ],
 )
 def test_tt_mochi_pipeline(mesh_device: ttnn.MeshDevice, ...):

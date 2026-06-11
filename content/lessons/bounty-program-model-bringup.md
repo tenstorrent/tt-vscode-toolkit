@@ -148,7 +148,7 @@ tt-smi  # Should detect your TT device
 ```bash
 # Download a working model (e.g., Llama 3.1 8B)
 export HF_MODEL=meta-llama/Llama-3.1-8B-Instruct
-export MESH_DEVICE=N150  # or N300, T3K, etc.
+export MESH_DEVICE=N150  # or n300, T3000, etc.
 
 # Run demo to verify setup
 pytest models/tt_transformers/demo/simple_text_demo.py -k "performance and batch-1"
@@ -339,7 +339,7 @@ else:
 # Add Phi-3 detection
 if "Phi-3" in self.model_name:
     # Set prefill chunk size for long context
-    self.min_prefill_chunk_size = 1024  # Lower for N150
+    self.min_prefill_chunk_size = 1024  # Lower for n150
 ```
 
 **File: `models/tt_transformers/tt/common.py`**

@@ -593,12 +593,12 @@ a 10-minute one.
 ```
 cache_root/
   weights/{model_name}/                              # HF model weights
-  tt_metal_cache/cache_{model_name}/{device_type}/   # compiled TT Metal kernels
+  tt_metal_cache/cache_{model_name}/{device_type}/   # compiled TT-Metalium kernels
   tt_dit_cache/                                      # compiled WAN/Mochi tensor weights
   logs/                                              # vLLM server logs
 ```
 
-- **TT Metal kernels** (`tt_metal_cache/`) — compiled by vLLM on first run.
+- **TT-Metalium kernels** (`tt_metal_cache/`) — compiled by vLLM on first run.
   Subsequent starts load from this cache: ~2–5 min instead of 10–20 min.
 - **Media model tensor weights** (`tt_dit_cache/`) — compiled by video/image
   models (WAN 2.2, Mochi). **Not cached by default** — stored in `/tmp/TT_DIT_CACHE`
@@ -606,9 +606,9 @@ cache_root/
 
 ---
 
-### Docker named volumes (default — TT Metal kernels)
+### Docker named volumes (default — TT-Metalium kernels)
 
-By default `run.py` mounts a Docker named volume at `cache_root`. The TT Metal
+By default `run.py` mounts a Docker named volume at `cache_root`. The TT-Metalium
 kernel cache survives container restarts automatically — no extra flags needed.
 
 You can verify the volume exists after the first run:
