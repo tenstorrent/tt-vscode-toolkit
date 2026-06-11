@@ -15,6 +15,5 @@ swap:
   '\bP300\b': p300
   '\bP300c\b': p300c
   '\bP300C\b': p300c
-  '\bGalaxy\b': galaxy
   # Company name
   '\btenstorrent\b': Tenstorrent

@@ -529,7 +529,7 @@ python -c "import ttnn; print('✓ TTNN working')"
 ```bash
 echo $TT_METAL_HOME         # Should be ~/tt-metal or /home/user/tt-metal
 echo $LD_LIBRARY_PATH       # Should include /opt/openmpi-v5.0.7-ulfm/lib
-echo $MESH_DEVICE           # Should be n150, n300, T3000, p100, p150, or Galaxy
+echo $MESH_DEVICE           # Should be N150, N300, T3K, P100, P150, or GALAXY
 ```
 
 **If any check fails:** Run the commands shown in the error message.

@@ -120,7 +120,7 @@ If you're jumping directly to this lesson, verify your setup:
 tt-smi -s
 
 # tt-metal installed?
-python3 -c "import ttnn; print('✓ TT-Metalium ready')"
+python3 -c "import ttnn; print('✓ tt-metal ready')"
 
 # Model downloaded (Meta format)?
 ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
@@ -228,7 +228,7 @@ cd ~/tt-metal && \
 **What you'll see:**
 
 ```text
-🔄 Importing TT-Metalium libraries (this may take a moment)...
+🔄 Importing tt-metal libraries (this may take a moment)...
 📥 Loading model (this will take 2-5 minutes on first run)...
 ✅ Model loaded and ready!
 
@@ -393,7 +393,7 @@ export PYTHONPATH=~/tt-metal
 ```bash
 # Let tt-metal auto-detect (default behavior)
 # Or explicitly set:
-export MESH_DEVICE=N150  # or n300, T3000, etc.
+export MESH_DEVICE=N150  # or N300, T3K, etc.
 ```
 
 **Out of memory:**

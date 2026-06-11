@@ -142,10 +142,10 @@ All Blackhole cards (p100, p150, p300/p300c) share the same instruction set and 
 **TT-QuietBox Multi-Device Detection:**
 If you have a TT-QuietBox Tower (4x p300c), `tt-smi` will show 4 devices:
 ```
-Device 0: 0000:01:00.0 | p300c | FW 19.4.0.0
-Device 1: 0000:02:00.0 | p300c | FW 19.4.0.0
-Device 2: 0000:03:00.0 | p300c | FW 19.4.0.0
-Device 3: 0000:04:00.0 | p300c | FW 19.4.0.0
+Device 0: 0000:01:00.0 | P300c | FW 19.4.0.0
+Device 1: 0000:02:00.0 | P300c | FW 19.4.0.0
+Device 2: 0000:03:00.0 | P300c | FW 19.4.0.0
+Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
 ```
 
 Each device is a **separate single-chip Blackhole card**. For single-chip lessons, use device 0. For multi-chip lessons, all 4 devices are available for workload distribution.

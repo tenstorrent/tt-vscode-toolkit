@@ -275,7 +275,7 @@ dispatch_core_config = ttnn.DispatchCoreConfig(
     ttnn.DispatchCoreAxis.ROW  # <-- hardcoded axis, breaks on Blackhole
 )
 
-# ✅ Arch-agnostic — auto-detects COL on Blackhole, ROW on Wormhole<sup>™</sup>:
+# ✅ Arch-agnostic — auto-detects COL on Blackhole, ROW on Wormhole:
 dispatch_core_config = ttnn.DispatchCoreConfig(
     ttnn.DispatchCoreType.WORKER
     # No axis argument — Metal picks the correct one for your hardware

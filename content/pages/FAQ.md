@@ -606,7 +606,7 @@ sudo rm -rf /var/lib/dkms/tenstorrent/<broken-version>
 **A:** Run this quick test:
 
 ```bash
-python3 -c "import ttnn; print('✓ TT-Metalium ready')"
+python3 -c "import ttnn; print('✓ tt-metal ready')"
 ```
 
 **If it fails:**
@@ -981,7 +981,7 @@ unset TT_METAL_VERSION
 **1. Check environment variables:**
 ```bash
 echo $TT_METAL_HOME    # Should be ~/tt-metal
-echo $MESH_DEVICE      # Should match your hardware (n150, etc.)
+echo $MESH_DEVICE      # Should match your hardware (N150, etc.)
 echo $PYTHONPATH       # Should include $TT_METAL_HOME
 ```
 

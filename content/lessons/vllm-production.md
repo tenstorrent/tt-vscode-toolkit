@@ -107,7 +107,7 @@ If you're jumping directly to this lesson, verify your setup first:
 tt-smi
 
 # TT-Metalium working?
-python3 -c "import ttnn; print('✓ TT-Metalium ready')"
+python3 -c "import ttnn; print('✓ tt-metal ready')"
 
 # Model downloaded?
 ls ~/models/Llama-3.1-8B-Instruct/config.json
@@ -697,7 +697,7 @@ ModelRegistry.register_model(
 
 ```yaml
 INFO: Loading model meta-llama/Llama-3.1-8B-Instruct
-INFO: Initializing TT-Metalium backend...
+INFO: Initializing TT-Metal backend...
 INFO: Model loaded successfully
 INFO: Started server process
 INFO: Waiting for application startup.
@@ -1037,7 +1037,7 @@ python -m vllm.entrypoints.openai.api_server \
 
 ```bash
 # Control tensor parallelism
-export MESH_DEVICE=T3K  # or n150, n300, etc.
+export MESH_DEVICE=T3K  # or N150, N300, etc.
 
 # Set cache directory
 export HF_HOME=~/hf_cache
