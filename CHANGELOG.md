@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.502] - 2026-06-11
+### Fixed
+- **QB2 → TT-QuietBox 2 in llms.txt** — the LLM context file (consumed by the content website) had 11 prose `QB2` references; all replaced with `TT-QuietBox 2`; URL slugs (`qb2-*`) left untouched.
+
 ## [0.0.501] - 2026-06-11
 ### Fixed
 - **QB2 → TT-QuietBox 2 prose normalization** — replaced all `QB2` shorthand in prose with the full `TT-QuietBox 2` product name across `ttsim-twenty-and-ten.md`, `cookbook-particle-life.md`, and `FAQ.md`; lesson title slugs (`qb2-*`) and command IDs left untouched.
