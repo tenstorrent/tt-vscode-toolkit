@@ -37,7 +37,7 @@ Production servers (TT-Inference-Server, vLLM) and generation (Image, Video)
 Fine-tune models or train from scratch with tt-train and NanoGPT
 
 **🎯 Applications (5 lessons)**
-Coding Assistant, AnimateDiff, QB2 OpenClaw Assistant, QB2 Video, QB2 Local Agents
+Coding Assistant, AnimateDiff, TT-QuietBox 2 OpenClaw Assistant, TT-QuietBox 2 Video, TT-QuietBox 2 Local Agents
 
 **👨‍🍳 Tenstorrent Cookbook (6 lessons)**
 Game of Life, Audio, Mandelbrot, Image Filters, Particle Life + Overview
@@ -113,7 +113,7 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 | vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
 | TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
 
-**QB2 / tt-installer container environments:** These may be pre-activated via `/etc/profile.d/`. Check what's active with `which python3` before activating another venv.
+**TT-QuietBox 2 / tt-installer container environments:** These may be pre-activated via `/etc/profile.d/`. Check what's active with `which python3` before activating another venv.
 
 **Can't find a venv?**
 
@@ -153,7 +153,7 @@ export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
 echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
 ```
 
-**QB2 users:** `~/tt-metal` does not exist on QB2 pre-configured images. Use tt-inference-server or vLLM instead. If you specifically need the Direct API, run [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use tt-inference-server or vLLM instead. If you specifically need the Direct API, run [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 **Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
 
@@ -195,7 +195,7 @@ du -sh ~/models/* 2>/dev/null
 | Version | Status |
 |---------|--------|
 | Ubuntu 22.04 LTS | ✅ Most tested — preferred by Tenstorrent for stability |
-| Ubuntu 24.04 LTS | ✅ Supported — QB2 ships with 24.04 |
+| Ubuntu 24.04 LTS | ✅ Supported — TT-QuietBox 2 ships with 24.04 |
 | Ubuntu 20.04 LTS | ⚠️ Deprecated — Metalium cannot be installed |
 
 Most Docker images in lessons are tagged `ubuntu-22.04-amd64`. They run fine on a 24.04 host — the Ubuntu version in the tag refers to the image, not your host OS.
