@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.500] - 2026-06-11
+
+### Changed
+
+- **Version bump** — increment to 0.0.500 after merging copyedit branch with origin/main; consolidates copyedit normalization (hardware IDs, TT-Metalium™/TT-NN™ trademarks, TT-QuietBox naming) with main's ttsim, AnimateDiff Phase 2.5, and mobile improvements.
+
+---
+
 ## [0.0.477] - 2026-05-27
 
 ### Changed
