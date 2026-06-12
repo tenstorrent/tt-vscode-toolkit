@@ -226,6 +226,145 @@ lsb_release -rs
 
 ---
 
+## Environment Reference
+
+> **Jumped to a lesson directly and a command failed?** This section maps out every path, venv, and environment variable the lessons assume. Bookmark it.
+
+### Q: What is `~/tt-scratchpad` and do I need to create it?
+
+**A:** `~/tt-scratchpad` is a working directory the extension creates when you run commands inside VS Code. If you're following lessons on the web site or running commands manually in a terminal, it won't exist yet. Create it yourself:
+
+```bash
+mkdir -p ~/tt-scratchpad
+```
+
+Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookbook/mandelbrot/`). The `mkdir -p` in each command handles that — so creating the top-level directory is enough.
+
+---
+
+### Q: Which Python virtual environment do I activate for which lesson?
+
+**A:** Three environments exist on a typical tt-installer system. Pick the one that matches what you're doing:
+
+| What you're doing | Activate this |
+|---|---|
+| TTNN / direct API / tt-metal examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
+| vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
+| TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
+
+**QB2 / tt-installer container environments:** These may be pre-activated via `/etc/profile.d/`. Check what's active with `which python3` before activating another venv.
+
+**Can't find a venv?**
+
+```bash
+# Check what exists
+ls ~/tt-metal/python_env/bin/activate 2>/dev/null && echo "✓ tt-metal venv"
+ls ~/tt-metal/build/python_env_vllm/bin/activate 2>/dev/null && echo "✓ vLLM venv"
+ls ~/tt-forge-venv/bin/activate 2>/dev/null && echo "✓ Forge/XLA venv"
+```
+
+If `~/tt-metal/python_env` doesn't exist, you need to build tt-metal first → [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+
+If `~/tt-forge-venv` doesn't exist, check `/opt/venv-forge`:
+
+```bash
+# /opt/venv-forge exists but ~/tt-forge-venv symlink is missing:
+ln -s /opt/venv-forge ~/tt-forge-venv
+```
+
+---
+
+### Q: What is `TT_METAL_HOME` and when do I need it?
+
+**A:** `TT_METAL_HOME` points to your tt-metal source checkout. It is **only needed for the Direct API lessons** (interactive-chat, api-server, custom training, video generation). It is **not needed** for vLLM, tt-inference-server, TT-Forge, or TT-XLA.
+
+Set it once per terminal session:
+
+```bash
+export TT_METAL_HOME=~/tt-metal
+export PYTHONPATH=$TT_METAL_HOME/build_Release:$PYTHONPATH
+export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
+```
+
+**Add to `~/.bashrc`** if you use Direct API regularly:
+
+```bash
+echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
+```
+
+**QB2 users:** `~/tt-metal` does not exist on QB2 pre-configured images. Use tt-inference-server or vLLM instead. If you specifically need the Direct API, run [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+
+**Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
+
+```bash
+unset TT_METAL_HOME
+source ~/tt-forge-venv/bin/activate
+```
+
+---
+
+### Q: Where do models live and why do lessons reference `~/models/`?
+
+**A:** `~/models/` is the conventional location all lessons use. It isn't created automatically — the `hf download --local-dir` flag creates it on first use.
+
+```bash
+# Standard layout assumed by all lessons:
+~/models/
+  Qwen3-0.6B/            # HuggingFace format (for vLLM, tt-inference-server)
+  Qwen3-8B/
+  Llama-3.1-8B-Instruct/ # HuggingFace format (for vLLM, tt-inference-server)
+    original/            # Meta format subdirectory (for Direct API / Generator API lessons)
+```
+
+If your models are somewhere else, substitute your path in any `--model` or `--local-dir` flag. There is nothing special about `~/models/` — it is just a convention.
+
+**Check what you have:**
+
+```bash
+ls ~/models/ 2>/dev/null || echo "No ~/models/ directory yet"
+du -sh ~/models/* 2>/dev/null
+```
+
+---
+
+### Q: What Ubuntu version do I need?
+
+**A:**
+
+| Version | Status |
+|---------|--------|
+| Ubuntu 22.04 LTS | ✅ Most tested — preferred by Tenstorrent for stability |
+| Ubuntu 24.04 LTS | ✅ Supported — QB2 ships with 24.04 |
+| Ubuntu 20.04 LTS | ⚠️ Deprecated — Metalium cannot be installed |
+
+Most Docker images in lessons are tagged `ubuntu-22.04-amd64`. They run fine on a 24.04 host — the Ubuntu version in the tag refers to the image, not your host OS.
+
+**Check your host:**
+
+```bash
+lsb_release -rs
+```
+
+---
+
+### Q: A lesson says "from Lesson N" or "see Lesson 7" — what lesson is that?
+
+**A:** Old numbered references map to these lesson IDs:
+
+| "Lesson N" reference | Lesson ID |
+|---|---|
+| Lesson 1 | hardware-detection |
+| Lesson 2 | verify-installation |
+| Lesson 3 | download-model |
+| Lesson 4 | interactive-chat |
+| Lesson 5 | api-server |
+| Lesson 6 | tt-inference-server |
+| Lesson 7 | vllm-production |
+| Lesson 8 | (VSCode Chat — retired) |
+| Lesson 9 | image-generation |
+
+---
+
 ## Remote Development & SSH
 
 ### Q: Can I use this extension from my Mac/Windows laptop to access remote Tenstorrent hardware?
