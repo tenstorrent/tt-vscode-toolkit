@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.503] - 2026-06-12
+### Fixed
+- **Self-review fixes** — 29 issues confirmed by automated adversarial review: corrected MESH_DEVICE enum values in code-fence comments (T3000→T3K, n150→N150, Galaxy→GALAXY throughout vllm-production, image-generation, bounty-program, version-compatibility, step-zero, README); removed `<sup>™/</sup>` HTML injected into yaml/bash code fences (ct3-configuration-patterns, step-zero); fixed api-server print string back to `tt-metal ready`; corrected `p100`→`P100` in hardware-detection and QB_follows prose; completed T3K→T3000 normalization in ttsim/cookbook-particle-life prose callouts; fixed FAQ duplicate stale QB2 paragraph and TTNN/tt-metal prose table cells; fixed bare `tt-metal` prose in image-generation (→ TT-Metalium); updated link display text in cookbook-overview and tt-inference-server (github URL→ product name); clarified Vale config comments (ProductNames.yml T3000 exception, Terminology.yml link-text caveat).
+
 ## [0.0.502] - 2026-06-11
 ### Fixed
 - **QB2 → TT-QuietBox 2 in llms.txt** — the LLM context file (consumed by the content website) had 11 prose `QB2` references; all replaced with `TT-QuietBox 2`; URL slugs (`qb2-*`) left untouched.

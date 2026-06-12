@@ -1514,7 +1514,7 @@ All Blackhole cards share the same core architecture and instruction set:
 - **p300/p300c** - Single chip (TT-QuietBox variant)
   - Architecture: Blackhole (identical to p100)
   - Common in: Multi-device TT-QuietBox Tower systems
-  - MESH_DEVICE: Use p100 for single-chip lessons
+  - MESH_DEVICE: Use P100 for single-chip lessons
   - Example: 4x p300c = 4 separate single-chip devices
 
 **Blackhole Architecture Equivalence:**

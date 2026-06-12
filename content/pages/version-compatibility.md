@@ -131,7 +131,7 @@ This guide documents validated combinations of hardware, software versions, and 
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
-export MESH_DEVICE=N150  # or n300, T3000, p100, p150, Galaxy
+export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 ```
 
 ### vLLM Production Inference (Lesson 7)
@@ -278,7 +278,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 # Specify hardware type
-export MESH_DEVICE=N150  # or n300, T3000, p100, p150, Galaxy
+export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 ```
 
 ### Hardware-Specific

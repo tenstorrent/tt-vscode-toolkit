@@ -537,7 +537,7 @@ flag — useful for models in development or private repos.
 ### 3. Request official support
 
 Open an issue at
-[github.com/tenstorrent/tt-inference-server](https://github.com/tenstorrent/tt-inference-server/issues)
+[TT-Inference-Server issue tracker](https://github.com/tenstorrent/tt-inference-server/issues)
 to request a new model be added to MODEL_SPECS. Include your hardware type,
 model name, and any performance requirements.
 

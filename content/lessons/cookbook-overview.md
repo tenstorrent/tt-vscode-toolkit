@@ -148,7 +148,7 @@ After completing the cookbook, you'll have:
 ## Resources
 
 - **Discord**: [discord.gg/tvhGzHQwaj](https://discord.gg/tvhGzHQwaj)
-- **GitHub**: [github.com/tenstorrent/tt-metal](https://github.com/tenstorrent/tt-metal)
+- **GitHub**: [TT-Metalium on GitHub](https://github.com/tenstorrent/tt-metal)
 - **Documentation**: [docs.tenstorrent.com](https://docs.tenstorrent.com)
 - **METALIUM_GUIDE.md**: `~/tt-metal/METALIUM_GUIDE.md` - Architecture deep-dive
 - **Tech Reports**: `~/tt-metal/tech_reports/` - Research papers and optimizations

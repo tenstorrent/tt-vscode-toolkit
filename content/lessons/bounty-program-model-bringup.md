@@ -148,7 +148,7 @@ tt-smi  # Should detect your TT device
 ```bash
 # Download a working model (e.g., Llama 3.1 8B)
 export HF_MODEL=meta-llama/Llama-3.1-8B-Instruct
-export MESH_DEVICE=N150  # or n300, T3000, etc.
+export MESH_DEVICE=N150  # or N300, T3K, etc.
 
 # Run demo to verify setup
 pytest models/tt_transformers/demo/simple_text_demo.py -k "performance and batch-1"

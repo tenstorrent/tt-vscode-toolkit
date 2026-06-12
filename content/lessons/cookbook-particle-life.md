@@ -50,7 +50,7 @@ Particle Life is an emergent complexity simulator where different particle speci
 
 > **⚡ Sim-ready (single-chip path):** `particle_life.py` runs on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) — no hardware required.
 > Set `TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` and run `particle_life.py`.
-> The multi-chip `particle_life_multi_device.py` requires a real multi-device system (T3K, TT-QuietBox 2).
+> The multi-chip `particle_life_multi_device.py` requires a real multi-device system (T3000, TT-QuietBox 2).
 
 [📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
 

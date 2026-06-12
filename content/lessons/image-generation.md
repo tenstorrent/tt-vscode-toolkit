@@ -214,7 +214,7 @@ p300c is a single Blackhole chip — identical instruction set to p100.
 Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
 
 **TT-QuietBox 2 note:** TT-QuietBox 2 ships without `~/tt-metal`. You must clone and build
-tt-metal from source before running SDXL. See
+TT-Metalium from source before running SDXL. See
 [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
 
 **⚠️ Note:** Blackhole SDXL support is experimental. Please report any issues!
@@ -236,7 +236,7 @@ Run the Stable Diffusion XL demo with a sample prompt (using the MESH_DEVICE you
 mkdir -p ~/tt-scratchpad
 cd ~/tt-scratchpad
 export PYTHONPATH=~/tt-metal:$PYTHONPATH
-# Use the MESH_DEVICE you set in Step 2 (n150, n300, T3000, or P100)
+# Use the MESH_DEVICE you set in Step 2 (N150, N300, T3K, or P100)
 
 # Run with default prompt
 pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py

@@ -250,11 +250,11 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 #### `MESH_DEVICE`
 **What:** Tells software which hardware configuration you have
-**Possible values:** `n150`, `n300`, `T3000`, `p100`, `p150`, `Galaxy`
+**Possible values:** `N150`, `N300`, `T3K`, `P100`, `P150`, `GALAXY`
 **Why needed:** Model optimizations differ per hardware
 **Set it:**
 ```bash
-export MESH_DEVICE=N150  # For single Wormhole<sup>™</sup> chip
+export MESH_DEVICE=N150  # For single Wormhole chip
 ```
 
 **Auto-detect it:**

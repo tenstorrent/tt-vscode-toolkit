@@ -1,7 +1,9 @@
 # Hardware model IDs in prose use lowercase (matches lesson metadata: n150, n300, …).
-# Uppercase variants in sentences are normalized to lowercase for consistency.
+# Uppercase variants in sentences are normalized. Exception: T3K → T3000 (product name, not a slug).
+# Note: front matter id: fields (e.g. id: tt-installer) may trigger Terminology.yml rules — known
+# limitation of Vale's TokenIgnores; treat those as accepted noise (slugs are not prose).
 extends: substitution
-message: "Hardware model IDs should be lowercase in prose: use '%s' instead of '%s'."
+message: "Hardware model IDs should be lowercase in prose (exception: T3000 is the product name): use '%s' instead of '%s'."
 level: error
 ignorecase: false
 action:

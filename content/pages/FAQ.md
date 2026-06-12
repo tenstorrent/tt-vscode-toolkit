@@ -109,7 +109,7 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 
 | What you're doing | Activate this |
 |---|---|
-| TTNN / direct API / tt-metal examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
+| TT-NN / direct API / TT-Metalium examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
 | vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
 | TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
 
@@ -153,7 +153,7 @@ export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
 echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
 ```
 
-**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use tt-inference-server or vLLM instead. If you specifically need the Direct API, run [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 **Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
 
@@ -248,7 +248,7 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 
 | What you're doing | Activate this |
 |---|---|
-| TTNN / direct API / tt-metal examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
+| TT-NN / direct API / TT-Metalium examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
 | vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
 | TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
 
@@ -292,7 +292,7 @@ export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
 echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
 ```
 
-**QB2 users:** `~/tt-metal` does not exist on QB2 pre-configured images. Use tt-inference-server or vLLM instead. If you specifically need the Direct API, run [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 **Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
 

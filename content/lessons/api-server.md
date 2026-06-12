@@ -82,7 +82,7 @@ This lesson builds on Lesson 4. If you're jumping here directly, verify your set
 tt-smi -s
 
 # TT-Metalium working?
-python3 -c "import ttnn; print('✓ TT-Metalium ready')"
+python3 -c "import ttnn; print('✓ tt-metal ready')"
 
 # Model downloaded (Meta format)?
 ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth

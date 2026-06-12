@@ -396,7 +396,7 @@ python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 # Script automatically detects and configures:
 # Hardware Detection:
 #   → Runs tt-smi -s to detect hardware type
-#   → Sets MESH_DEVICE (n150/n300/T3000/P100/P150/Galaxy)
+#   → Sets MESH_DEVICE (N150/N300/T3K/P100/P150/GALAXY)
 #   → Sets TT_METAL_ARCH_NAME=blackhole (for p100/p150)
 #   → Sets TT_METAL_HOME=~/tt-metal (if not already set)
 #
@@ -682,7 +682,7 @@ ModelRegistry.register_model(
 
 **Environment variables (all hardware types need these):**
 - `TT_METAL_HOME=~/tt-metal` - Points to TT-Metalium installation (required by setup-metal.sh)
-- `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (n150, n300, T3000, p100)
+- `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (N150, N300, T3K, P100)
 - `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (p100)**: Set to `blackhole`. Wormhole chips (n150/n300/T3000) auto-detect but p100 needs explicit specification.
 - `PYTHONPATH=$TT_METAL_HOME` - Required so Python can import TT model classes from tt-metal
 

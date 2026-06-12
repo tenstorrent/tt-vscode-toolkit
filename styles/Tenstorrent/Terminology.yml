@@ -11,7 +11,7 @@ swap:
   '(?i)\bVLLM\b': vLLM
   '\bvllm\b': vLLM
   '\bVllm\b': vLLM
-  # TT-Metalium — platform name in prose (paths/URLs stay tt-metal)
+  # TT-Metalium — platform name in prose (bare hrefs stay tt-metal; link display text IS scanned — use TT-Metalium there too)
   'TT Metal(?!ium)': TT-Metalium
   '\bTTMetal\b': TT-Metalium
   '\bTT-Metal\b': TT-Metalium

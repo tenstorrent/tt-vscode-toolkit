@@ -109,7 +109,7 @@ graph TD
 ### Full Example: `training_n150.yaml`
 
 ```yaml
-# Training Configuration for n150 (Single Wormhole<sup>™</sup> Chip)
+# Training Configuration for n150 (Single Wormhole Chip)
 #
 # Optimized for single-chip development hardware
 # Typical training time: 1-3 hours depending on dataset size
