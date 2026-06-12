@@ -1,12 +1,12 @@
 ---
 id: tt-lang-intro
-title: "Introduction to tt-lang"
+title: "Introduction to TT-Lang"
 description: >-
-  Write your first tt-lang kernel: a concurrent compute + data-movement program
+  Write your first TT-Lang kernel: a concurrent compute + data-movement program
   that runs on the Tensix grid. Try it live in the browser via ttlang-sim-lite.
 category: compilers
 tags:
-  - tt-lang
+  - TT-Lang
   - sim
   - kernels
   - tensix
@@ -24,7 +24,7 @@ estimatedMinutes: 25
 playground: ttlang-sim
 ---
 
-# Introduction to tt-lang
+# Introduction to TT-Lang
 
 If you use Claude Code, Copilot, or any AI coding agent in your daily work,
 you've probably already had a version of this moment: you're moving fast,
@@ -34,7 +34,7 @@ for this attention pattern"* — and suddenly you're in territory where AI
 assistance gets murky. The abstraction gap between "Python-level thinking" and
 "hardware-level implementation" is just too wide for the tools to bridge cleanly.
 
-tt-lang was built specifically to close that gap. And it was designed — from
+TT-Lang was built specifically to close that gap. And it was designed — from
 day one, not as an afterthought — to be used alongside AI coding agents. The
 playground above is running a live kernel in your browser right now, no install
 required. Hit **Run** and watch it go. Then read on.
@@ -44,7 +44,7 @@ required. Hit **Run** and watch it go. Then read on.
 ## The Hardware Behind the Language
 
 Tenstorrent builds AI accelerators with a fundamentally different architecture
-than GPUs. To understand why tt-lang exists, you first need a picture of what
+than GPUs. To understand why TT-Lang exists, you first need a picture of what
 it's running on.
 
 Most AI accelerators — NVIDIA GPUs, Google TPUs — are built around a central
@@ -64,42 +64,42 @@ precise, explicit control.
 The key insight: on Tensix, you decide when data lives in L1 and when it moves
 to DRAM. You decide how compute and data movement overlap. That control — used
 well — is where the performance comes from. And giving you clean Python
-abstractions over that control is exactly what tt-lang does.
+abstractions over that control is exactly what TT-Lang does.
 
 ```tensix_viz arch=blackhole
 []
 ```
 
-*Blackhole chip: 140 Tensix compute cores (teal), DRAM banks (blue edges), ETH links (purple). Wormhole is the same architecture at 80 cores (8×10 grid).*
+*Blackhole<sup>®</sup> chip: 140 Tensix compute cores (teal), DRAM banks (blue edges), ETH links (purple). Wormhole<sup>™</sup> is the same architecture at 80 cores (8×10 grid).*
 
 ---
 
-## Where tt-lang Fits
+## Where TT-Lang Fits
 
-The Tenstorrent software stack has three layers, and tt-lang occupies the
+The Tenstorrent software stack has three layers, and TT-Lang occupies the
 middle — the same position that Triton occupies in the NVIDIA ecosystem:
 
 | Layer | What it is | Analogous to |
 |-------|-----------|--------------|
-| **TTNN** | High-level tensor ops — `ttnn.matmul`, `ttnn.softmax`, ready to use | PyTorch / cuDNN |
-| **tt-lang** | Python DSL for custom fused kernels with explicit data movement | OpenAI Triton |
-| **TT-Metalium** | Full hardware control — every register, every DMA, every semaphore | CUDA C / PTX |
+| **TT-NN<sup>™</sup>** | High-level tensor ops — `ttnn.matmul`, `ttnn.softmax`, ready to use | PyTorch / cuDNN |
+| **TT-Lang** | Python DSL for custom fused kernels with explicit data movement | OpenAI Triton |
+| **TT-Metalium<sup>™</sup>** | Full hardware control — every register, every DMA, every semaphore | CUDA C / PTX |
 
 If you've used PyTorch on a GPU, you've lived at the top layer — calling
 library functions and letting cuDNN figure out the rest. If you've written a
 Triton kernel to fuse ops for performance, you've been in the middle. If you've
 written CUDA C to squeeze every cycle from GPU hardware, you've been at the
-bottom. tt-lang is Tenstorrent's equivalent of that middle layer.
+bottom. TT-Lang is Tenstorrent's equivalent of that middle layer.
 
-The rule of thumb: **start with TTNN**. When TTNN can't express what you need,
+The rule of thumb: **start with TT-NN**. When TT-NN can't express what you need,
 or when you need more performance than pre-built ops can deliver, drop into
-tt-lang. When even tt-lang isn't enough (rare), go to TT-Metalium.
+TT-Lang. When even TT-Lang isn't enough (rare), go to TT-Metalium.
 
 ---
 
 ## Why This Language Exists
 
-The tt-lang README describes the problem that drove its creation:
+The TT-Lang README describes the problem that drove its creation:
 
 > *"Tenstorrent developers today face a choice between TT-NN — which provides
 > high-level operations that are straightforward to use but lack the expressivity
@@ -110,12 +110,12 @@ The tt-lang README describes the problem that drove its creation:
 > expressivity for application-level concerns."*
 
 TT-Metalium is powerful but takes weeks to learn and demands hardware debugging
-expertise. TTNN is approachable but can't express fused custom ops. Engineers
+expertise. TT-NN is approachable but can't express fused custom ops. Engineers
 porting models kept hitting the same wall: they'd need to fuse a sequence of
-TTNN ops for performance, and the only path forward was a full rewrite in
+TT-NN ops for performance, and the only path forward was a full rewrite in
 TT-Metalium. That's a multi-week detour just to get one optimization landed.
 
-tt-lang bridges that gap through **progressive disclosure**: simple kernels
+TT-Lang bridges that gap through **progressive disclosure**: simple kernels
 require minimal specification — the compiler infers NOC addressing, register
 allocation, and memory layout from high-level Python syntax. Complex kernels let
 you open the hood and control every aspect of pipelining and synchronization.
@@ -123,7 +123,7 @@ You write Python. The compiler generates the metal.
 
 ## Designed for AI-Assisted Development
 
-Here's what makes tt-lang different from every other hardware DSL: it was
+Here's what makes TT-Lang different from every other hardware DSL: it was
 explicitly designed to be used with AI coding agents, and the design choices
 reflect that at every level.
 
@@ -142,11 +142,11 @@ Triton kernel, it can draw on years of training data and produce something
 reasonable. When you ask it to write TT-Metalium C++, the abstraction gap is so
 large that the results are usually wrong in subtle ways — wrong memory addresses,
 wrong synchronization primitives, hardware assumptions baked in incorrectly.
-tt-lang narrows that gap dramatically: the concepts map cleanly from Triton or
+TT-Lang narrows that gap dramatically: the concepts map cleanly from Triton or
 CUDA, the functional simulator catches mistakes instantly, and the tooling is
 designed to support an iterative agent-driven workflow.
 
-tt-lang ships `/ttl-*` Claude Code slash commands that embody this workflow:
+TT-Lang ships `/ttl-*` Claude Code slash commands that embody this workflow:
 `/ttl-import` translates an existing kernel from CUDA, Triton, or PyTorch;
 `/ttl-simulate` validates it in the simulator; `/ttl-profile` shows where
 cycles are going; `/ttl-optimize` applies targeted improvements. You can go
@@ -161,9 +161,9 @@ any of this effort is worthwhile.
 ## The DRAM Wall: Why Fusion Matters
 
 This is the concrete performance story. It's worth understanding before you
-write a single line of tt-lang.
+write a single line of TT-Lang.
 
-When TTNN executes a model, it dispatches each operation as a separate kernel.
+When TT-NN executes a model, it dispatches each operation as a separate kernel.
 Between every op, tensor data writes out to DRAM and reads back in. For a
 single transformer layer, that's a chain of round-trips that looks like this:
 
@@ -176,7 +176,7 @@ At model scale, **this memory traffic is the bottleneck, not compute**. The
 chips can calculate faster than they can move data. Every unnecessary DRAM write
 is wasted cycles.
 
-**tt-lang breaks that pattern.** You write the full fused operation as one
+**TT-Lang breaks that pattern.** You write the full fused operation as one
 kernel. Input tiles stream in from DRAM once. They flow through L1 using
 Dataflow Buffers (typed ring buffers shared between threads). Compute happens in
 registers. Results drain to DRAM once. **One read. One write. Everything in
@@ -187,7 +187,7 @@ production projects:
 
 | Project | What was fused | Improvement |
 |---------|---------------|-------------|
-| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TTNN |
+| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TT-NN |
 | [DFlash speculative decoder](https://github.com/zoecarver/dflash) | RoPE, RMSNorm, SiLU, residuals | 5–6× decode speedup |
 | [DeepSeek Engram module](https://github.com/zoecarver/Engram) | gating + depthwise conv | 2.2× all kernels; 3.4× gating alone |
 | [nanochat fused MLP](https://github.com/zoecarver/nanochat/commit/f849d3f) | 7 dispatches → 1 | +21% tok/s (13.13 → 15.89) |
@@ -200,17 +200,17 @@ engineers and contributors pushing production models.
 
 ## What People Have Built
 
-These are real projects built with tt-lang. Each one started as a "what if we
+These are real projects built with TT-Lang. Each one started as a "what if we
 ran this on Tensix?" and ended with working kernels.
 
 **[SkyReels-1.3B](https://github.com/zoecarver/tt-lang-models)** — The full WAN
-video transformer block fused into a single kernel on QB2 (4-chip Blackhole).
+video transformer block fused into a single kernel on TT-QuietBox<sup>®</sup> 2 (4-chip Blackhole).
 Five ops collapsed into one: input tiles stream in once, compute flows through
-L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op TTNN
+L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op TT-NN
 dispatch at production model dimensions.
 
 **[WAN Animate 14B](https://github.com/tenstorrent/tt-lang)** — A 40-layer,
-5120-hidden diffusion transformer brought up on a 4-chip QB2 (2×2 mesh).
+5120-hidden diffusion transformer brought up on a 4-chip TT-QuietBox 2 (2×2 mesh).
 TT-Lang kernels cover 3D RoPE, AdaLN modulation, and attention softcap.
 The bring-up involved debugging seven integration bugs in a single session —
 possible because the functional simulator catches DFB deadlocks before touching
@@ -219,10 +219,10 @@ hardware.
 **[DFlash speculative decoder](https://github.com/zoecarver/dflash)** — A draft
 model that proposes 16 tokens in parallel, verified by Qwen3-30B as the target.
 Draft kernels (RoPE, RMSNorm, SiLU, residuals) run entirely on-device via
-tt-lang. Result: 5–6× decode speedup end-to-end, 93ms draft forward pass with
+TT-Lang. Result: 5–6× decode speedup end-to-end, 93ms draft forward pass with
 caching (vs 887ms without).
 
-**[Freeciv game AI](https://github.com/tenstorrent/tt-lang)** — tt-lang kernels
+**[Freeciv game AI](https://github.com/tenstorrent/tt-lang)** — TT-Lang kernels
 accelerating Freeciv's map generation (Perlin noise terrain) and pathfinding,
 developed and validated entirely in the functional simulator. A game AI that
 went from idea to working Tensix kernels without any hardware.
@@ -270,7 +270,7 @@ Two DFB primitives drive all synchronization:
 - **`wait()`** — consumer role: blocks until a filled slot is ready to read
 - **`reserve()`** — producer role: blocks until an empty slot is available to write
 
-That's it. Two primitives. Everything in tt-lang flows from them.
+That's it. Two primitives. Everything in TT-Lang flows from them.
 
 ---
 
@@ -281,7 +281,7 @@ demonstrates a different concept:
 
 | Kernel | What it teaches |
 |--------|----------------|
-| **Element-wise Add** | Minimal DFB producer/consumer loop — the hello-world of tt-lang |
+| **Element-wise Add** | Minimal DFB producer/consumer loop — the hello-world of TT-Lang |
 | **Fused Multiply-Add** | Three DFBs, zero intermediate DRAM writes — what fusion looks like |
 | **Matmul + Bias + ReLU** | K-reduction accumulator ping-pong; the core matmul pattern on Tensix |
 | **Row-partitioned Matmul** | `ttl.node()` work partitioning across a multi-core grid |
@@ -298,8 +298,8 @@ Run "Element-wise Add" first. You'll see three function definitions inside the
 
 > **Try it now:** select "Element-wise Add" in the playground above.
 
-The simplest possible kernel: add two tensors element-by-element. In TTNN you'd
-call `ttnn.add(a, b)`. In tt-lang, you express the same operation with explicit
+The simplest possible kernel: add two tensors element-by-element. In TT-NN you'd
+call `ttnn.add(a, b)`. In TT-Lang, you express the same operation with explicit
 control over when data moves and where it lives.
 
 ```python
@@ -360,7 +360,7 @@ operation happens entirely in L1.
 > **Try it now:** select "Fused Multiply-Add" in the playground above.
 
 Here's where fusion pays off. Computing `y = a * b + c` naively requires three
-separate TTNN ops — three DRAM round-trips. In tt-lang, you wire three input
+separate TT-NN ops — three DRAM round-trips. In TT-Lang, you wire three input
 DFBs and fuse all the math in a single L1 pass:
 
 ```python
@@ -410,7 +410,7 @@ pass through L1.
 Matrix multiply is the canonical heavy workload. The inner product over K
 requires accumulating partial tile products, and where those partials live
 matters enormously. Naive DRAM accumulation writes each partial product out and
-reads it back — prohibitively slow. tt-lang keeps the running sum in L1 using
+reads it back — prohibitively slow. TT-Lang keeps the running sum in L1 using
 a DFB **ping-pong** pattern:
 
 ```python
@@ -447,13 +447,13 @@ is pushed into slot 1 before slot 0 is released — there is always one valid
 partial sum in L1. No DRAM writes occur until the K-loop finishes. The final
 step fuses the bias addition and ReLU into the same tile write to DRAM.
 
-This ping-pong pattern is the foundation of every matmul in tt-lang. It scales
+This ping-pong pattern is the foundation of every matmul in TT-Lang. It scales
 directly to multi-node grids by wrapping the outer loops with `ttl.node()` work
 partitioning.
 
 ---
 
-## Getting tt-lang
+## Getting TT-Lang
 
 ### Browser (you're already here)
 
@@ -462,7 +462,7 @@ prototype and explore before setting up a local environment.
 
 ### Install via pip
 
-tt-lang is on PyPI. Create an isolated environment and install:
+TT-Lang is on PyPI. Create an isolated environment and install:
 
 ```bash
 python3 -m venv --prompt ttlang ttlang-venv
@@ -480,7 +480,7 @@ python tutorials/elementwise/step_4_multinode_grid_auto.py       # compiles and 
 
 #### Install the Claude Code slash commands
 
-The `/ttl-*` slash commands ship with the tt-lang package. Register them with
+The `/ttl-*` slash commands ship with the TT-Lang package. Register them with
 Claude Code once:
 
 ```bash
@@ -490,7 +490,7 @@ git clone --depth=1 https://github.com/tenstorrent/tt-lang.git /tmp/tt-lang-skil
 
 If you install Claude Code on a new machine later, re-run the installer.
 
-### ttsim — if you already have tt-metal built
+### ttsim — if you already have TT-Metalium built
 
 If `TT_METAL_HOME` is already set from an existing tt-metal build, you can use
 the hardware simulator directly without the pip install. Choose the binary that
@@ -499,11 +499,11 @@ matches your hardware:
 ```bash
 mkdir -p ~/sim && cd ~/sim
 
-# Wormhole (N150, N300, T3K, Galaxy)
+# Wormhole (n150, n300, T3000, Galaxy)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 
-# OR: Blackhole (P100, P150, P300c, QB2)
+# OR: Blackhole (p100, p150, p300c, TT-QuietBox 2)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 ```
@@ -532,7 +532,7 @@ silicon.
 The `/ttl-*` slash commands ship with `pip install tt-lang` and are registered
 with Claude Code via the one-time install step above. They take you from an
 idea — or an existing kernel in another language — to a validated, profiled
-tt-lang kernel in one session.
+TT-Lang kernel in one session.
 
 **Example workflow:** you have a PyTorch multi-head attention function and want
 a fused Tensix kernel.
@@ -541,7 +541,7 @@ a fused Tensix kernel.
 /ttl-import attention.py
 ```
 
-Translates CUDA, Triton, PyTorch, or TTNN code to a tt-lang DFB pattern.
+Translates CUDA, Triton, PyTorch, or TT-NN code to a TT-Lang DFB pattern.
 Handles the mechanical mapping: ops become compute thread logic, tensor loads
 become DM0 reads, tensor stores become DM1 writes. Output is a runnable `.py`
 file ready for simulation.
@@ -558,7 +558,7 @@ here — simulation is fast and catches most correctness issues.
 /ttl-test attention_ttl.py
 ```
 
-Generates a correctness test suite comparing tt-lang output against a NumPy or
+Generates a correctness test suite comparing TT-Lang output against a NumPy or
 PyTorch reference. Covers edge cases: small matrices, non-tile-aligned shapes,
 zero inputs, and the shapes your model actually runs at.
 
@@ -582,8 +582,8 @@ latency. Returns an improved kernel file.
 /ttl-export attention_ttl.py
 ```
 
-Compiles through LLVM → tt-mlir → tt-metal and produces production C++ for use
-in a tt-metal project. Also emits intermediate MLIR at each compiler pass for
+Compiles through LLVM → tt-mlir → TT-Metalium and produces production C++ for use
+in a TT-Metalium project. Also emits intermediate MLIR at each compiler pass for
 debugging.
 
 ```bash
@@ -595,7 +595,7 @@ simulator behaves unexpectedly.
 
 | Command | When to reach for it |
 |---------|---------------------|
-| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TTNN |
+| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TT-NN |
 | `/ttl-simulate <file>` | After any change — validate before profiling or hardware |
 | `/ttl-test <file>` | Simulation passes — build a regression suite |
 | `/ttl-profile <file>` | Kernel is correct, want to find the bottleneck |
@@ -607,7 +607,7 @@ simulator behaves unexpectedly.
 
 ## What's Next
 
-- **[tt-lang on GitHub](https://github.com/tenstorrent/tt-lang)** — source,
+- **[TT-Lang on GitHub](https://github.com/tenstorrent/tt-lang)** — source,
   examples, the full programming guide, and the language specification
 - **[zoecarver/tt-lang-models](https://github.com/zoecarver/tt-lang-models)**
   — reference model implementations: DFlash, Engram, Oasis, nanochat, Gemma4,
@@ -617,7 +617,7 @@ simulator behaves unexpectedly.
 - **[ttsim releases](https://github.com/tenstorrent/ttsim/releases/latest)**
   — latest simulator binaries for Wormhole and Blackhole
 - **[tt-mlir](https://github.com/tenstorrent/tt-mlir)** — the MLIR-based
-  compiler stack that tt-lang targets; useful when debugging compiler output
+  compiler stack that TT-Lang targets; useful when debugging compiler output
   or writing custom compiler passes
 - **[tt-zork-and-more](https://tsingletaryTT.github.io/tt-zork-and-more)** —
   Zork I (and more) running on a Tenstorrent Blackhole accelerator, with an LLM

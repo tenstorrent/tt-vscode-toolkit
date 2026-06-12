@@ -1,6 +1,6 @@
-# Contributing to Tenstorrent VSCode Toolkit
+# Contributing to TT-VSCode-Toolkit
 
-Thank you for your interest in contributing to the Tenstorrent VSCode Toolkit! We welcome contributions from developers of all experience levels.
+Thank you for your interest in contributing to the TT-VSCode-Toolkit! We welcome contributions from developers of all experience levels.
 
 ## Table of Contents
 
@@ -40,7 +40,7 @@ All contributions require:
 
 **Optional:**
 - Tenstorrent hardware (for lesson validation)
-- tt-metal installed (for testing lesson content)
+- TT-Metalium<sup>™</sup> installed (for testing lesson content)
 
 ### Quick Setup
 
@@ -163,6 +163,13 @@ You should see 134+ tests passing. Fix any failures before proceeding.
 2. Press `F5` to launch Extension Development Host
 3. Test your changes in the new VSCode window
 4. Check console for errors: Help → Toggle Developer Tools
+
+**Preview lessons and pages in a browser (GitHub Pages site):**
+```bash
+npm install          # required once — installs marked, mermaid, etc.
+npm run dev:web
+```
+Then open http://127.0.0.1:8000/ (install page) or http://127.0.0.1:8000/lessons/`<lesson-id>`/ (e.g. `animatediff-video-generation`). Saves under `content/lessons/` and `content/pages/` trigger an automatic rebuild; refresh the browser to see updates. Custom port: `npm run dev:web -- --port=3000`. If the script says packages are missing, run `npm install` from the repo root.
 
 **Test packaging (optional):**
 ```bash
@@ -420,7 +427,7 @@ git add content/lessons/17-my-new-lesson.md content/lesson-registry.json
 git commit -m "docs(lessons): add lesson on advanced topic
 
 New lesson covers X, Y, and Z with hands-on examples.
-Validated on N150 and N300 hardware.
+Validated on n150 and n300 hardware.
 
 Closes #456"
 git push origin username/456-new-lesson
@@ -438,11 +445,11 @@ Use the PR template and include:
 **Hardware-specific content:**
 Use markdown sections for variants:
 ```markdown
-### N150 Configuration
-Instructions specific to N150...
+### n150 Configuration
+Instructions specific to n150...
 
-### N300 Configuration
-Instructions specific to N300...
+### n300 Configuration
+Instructions specific to n300...
 ```
 
 **Python templates:**
@@ -519,10 +526,10 @@ Must include SPDX header:
 
 ### Related Projects
 
-* [tt-metal](https://github.com/tenstorrent/tt-metal) - Core runtime and kernels
+* [TT-Metalium](https://github.com/tenstorrent/tt-metal) - Core runtime and kernels
 * [vLLM](https://github.com/tenstorrent/vllm) - High-performance LLM serving
-* [tt-forge](https://github.com/tenstorrent/tt-forge) - MLIR compiler
-* [tt-xla](https://github.com/tenstorrent/tt-xla) - XLA compiler plugin
+* [TT-Forge<sup>™</sup>](https://github.com/tenstorrent/tt-forge) - MLIR compiler
+* [TT-XLA](https://github.com/tenstorrent/tt-xla) - XLA compiler plugin
 
 ---
 
@@ -534,7 +541,7 @@ All source files must include the appropriate SPDX header.
 
 ---
 
-**Thank you for contributing to the Tenstorrent VSCode Toolkit!** 🎉
+**Thank you for contributing to the TT-VSCode-Toolkit!** 🎉
 
 Your efforts help make Tenstorrent hardware more accessible to developers worldwide.
 

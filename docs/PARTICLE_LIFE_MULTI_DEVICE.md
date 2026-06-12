@@ -2,28 +2,28 @@
 
 **Date:** 2026-01-09
 **Author:** Claude Code
-**Hardware:** QuietBox Blackhole Tower (4x P300c)
+**Hardware:** TT-QuietBox Blackhole<sup>®</sup> Tower (4x p300c)
 **Task:** Extend Particle Life cookbook recipe with multi-chip parallelization
 
 ---
 
 ## Executive Summary
 
-Successfully extended the Particle Life emergent complexity simulator to leverage all 4 P300c chips on QuietBox systems, achieving **2x real-world speedup** with 50% parallel efficiency. Created production-ready multi-device implementation with comprehensive benchmarking, documentation, and a beautiful 27MB animation demonstrating emergent patterns.
+Successfully extended the Particle Life emergent complexity simulator to leverage all 4 p300c chips on TT-QuietBox systems, achieving **2x real-world speedup** with 50% parallel efficiency. Created production-ready multi-device implementation with comprehensive benchmarking, documentation, and a beautiful 27MB animation demonstrating emergent patterns.
 
 ---
 
 ## Mission
 
 **User Request:**
-> "I've updated the cookbook lesson to include particle life. Claude made it for a N300. Can you follow the lesson and get it up and running, then bonus points add a new part to the lesson to extend support to using the QB2's full power in the exercise?"
+> "I've updated the cookbook lesson to include particle life. Claude made it for a n300. Can you follow the lesson and get it up and running, then bonus points add a new part to the lesson to extend support to using the TT-QuietBox<sup>®</sup> 2's full power in the exercise?"
 
 **Objectives:**
-1. Get single-device Particle Life running on QuietBox
-2. Extend implementation to use all 4 P300c chips in parallel
+1. Get single-device Particle Life running on TT-QuietBox
+2. Extend implementation to use all 4 p300c chips in parallel
 3. Benchmark single vs multi-device performance
 4. Document results and update lesson content
-5. Add QuietBox-specific optimization guidance
+5. Add TT-QuietBox-specific optimization guidance
 
 ---
 
@@ -81,9 +81,9 @@ history = sim.simulate(num_steps=500)
 
 **File:** `particle_life_multi_device.gif` (27MB, 500 frames)
 
-![Particle Life on QuietBox](../assets/img/samples/particle_life_multi_device.gif)
+![Particle Life on TT-QuietBox](../assets/img/samples/particle_life_multi_device.gif)
 
-*500 frames of emergent patterns running on QuietBox (4x P300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules, demonstrating beautiful emergent complexity from simple physics.*
+*500 frames of emergent patterns running on TT-QuietBox (4x p300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules, demonstrating beautiful emergent complexity from simple physics.*
 
 ---
 
@@ -91,7 +91,7 @@ history = sim.simulate(num_steps=500)
 
 ### Benchmark Configuration
 
-- **Hardware:** QuietBox Blackhole Tower (4x P300c)
+- **Hardware:** TT-QuietBox Blackhole Tower (4x p300c)
 - **Test:** 100 simulation steps
 - **Particles:** 2,048 across 3 species
 - **Total Force Calculations:** 419,430,400 (2,048² × 100)
@@ -179,7 +179,7 @@ This is actually quite good for a first multi-device implementation! Efficiency 
    - Better amortization of overhead
    - Expected: 2.5-3x speedup
 
-2. **On-Device TTNN Operations (→ 3-3.5x):**
+2. **On-Device TT-NN<sup>™</sup> Operations (→ 3-3.5x):**
    ```python
    # Move force calculations to TT hardware
    positions_tt = ttnn.from_torch(positions, device=device, layout=ttnn.TILE_LAYOUT)
@@ -207,16 +207,16 @@ This is actually quite good for a first multi-device implementation! Efficiency 
 
 **Location:** `content/lessons/metalium-cookbook.md:2556`
 
-**Title:** "🚀 Bonus: Multi-Chip Acceleration (QuietBox Systems)"
+**Title:** "🚀 Bonus: Multi-Chip Acceleration (TT-QuietBox Systems)"
 
 **Content (~120 lines):**
 - Multi-device implementation explanation
-- Real benchmark results table (4x P300c)
+- Real benchmark results table (4x p300c)
 - Code examples showing device list usage
 - Commands to run multi-device mode
 - Efficiency analysis (50% explained)
 - Optimization suggestions for 3-4x speedup
-- Advanced techniques (on-device TTNN ops)
+- Advanced techniques (on-device TT-NN ops)
 
 ### Key Code Examples Included
 
@@ -304,13 +304,13 @@ particle_life_multi_device.gif  (27 MB)   - Animation for lesson
 | Performance benchmarking | ✅ Complete | Both modes tested, results documented |
 | Animation generation | ✅ Complete | 27MB GIF created successfully |
 | Documentation | ✅ Complete | Lesson, templates, and reports updated |
-| QuietBox-specific content | ✅ Complete | Multi-chip guidance added |
+| TT-QuietBox-specific content | ✅ Complete | Multi-chip guidance added |
 
 ---
 
 ## User Experience
 
-### What QuietBox Users Get
+### What TT-QuietBox Users Get
 
 1. **Working Multi-Chip Acceleration**
    - Immediate 2x speedup on 4-device systems
@@ -318,7 +318,7 @@ particle_life_multi_device.gif  (27 MB)   - Animation for lesson
    - Backward compatible with single-device
 
 2. **Production-Ready Code**
-   - Thoroughly tested on 4x P300c
+   - Thoroughly tested on 4x p300c
    - Error handling and graceful degradation
    - Clean command-line interface
 
@@ -339,7 +339,7 @@ Users learn:
 - **Performance benchmarking** - Scientific methodology for measuring speedup
 - **Parallel efficiency analysis** - Understanding why 50% is good, how to reach 100%
 - **Optimization strategies** - Concrete steps to improve performance
-- **QuietBox capabilities** - Leveraging multi-chip architecture effectively
+- **TT-QuietBox capabilities** - Leveraging multi-chip architecture effectively
 
 ---
 
@@ -409,7 +409,7 @@ def _calculate_forces_multi_device(self, positions: torch.Tensor) -> torch.Tenso
 ### Qualitative Impact
 
 - **First multi-device cookbook example** in VSCode extension
-- **QuietBox-specific content** validated and documented
+- **TT-QuietBox-specific content** validated and documented
 - **Educational value** - teaches parallel computing concepts
 - **Production-ready** - users can deploy immediately
 - **Optimization roadmap** - clear path to 4x performance
@@ -429,12 +429,12 @@ def _calculate_forces_multi_device(self, positions: torch.Tensor) -> torch.Tenso
 
 1. **Device cleanup errors** on exit (minor, doesn't affect results)
 2. **Small workload granularity** limited efficiency (expected)
-3. **CPU bottleneck** in aggregation (solvable with TTNN)
+3. **CPU bottleneck** in aggregation (solvable with TT-NN)
 
 ### Future Improvements
 
 1. Use `ttnn.CreateDevices()` API for cleaner device management
-2. Implement on-device TTNN operations for 3x speedup
+2. Implement on-device TT-NN operations for 3x speedup
 3. Add device-to-device communication for 4x speedup
 4. Test with larger workloads (8,192+ particles)
 
@@ -444,9 +444,9 @@ def _calculate_forces_multi_device(self, positions: torch.Tensor) -> torch.Tenso
 
 **Mission Accomplished!** 🚀
 
-Successfully extended Particle Life to leverage QuietBox's multi-chip architecture:
+Successfully extended Particle Life to leverage TT-QuietBox's multi-chip architecture:
 
-1. ✅ **Single-device baseline validated** - Working perfectly on P300c
+1. ✅ **Single-device baseline validated** - Working perfectly on p300c
 2. ✅ **Multi-device implementation complete** - 4-chip parallelization working
 3. ✅ **2x speedup achieved** - Real-world performance gain measured
 4. ✅ **Comprehensive documentation** - Lesson updated, templates added
@@ -462,7 +462,7 @@ Successfully extended Particle Life to leverage QuietBox's multi-chip architectu
 **Educational Impact:**
 - First multi-device cookbook example
 - Teaches parallel computing concepts
-- QuietBox-specific guidance
+- TT-QuietBox-specific guidance
 - Real benchmark data from production hardware
 
 **User Experience:**
@@ -471,13 +471,13 @@ Successfully extended Particle Life to leverage QuietBox's multi-chip architectu
 - Clear performance metrics
 - Path to 4x optimization
 
-This work demonstrates that QuietBox users can immediately leverage multi-chip capabilities for significant performance gains, with a clear roadmap to achieve near-linear scaling through further optimization.
+This work demonstrates that TT-QuietBox users can immediately leverage multi-chip capabilities for significant performance gains, with a clear roadmap to achieve near-linear scaling through further optimization.
 
 ---
 
 *Report completed: 2026-01-09 17:45 UTC*
-*Hardware: 4x P300c (Blackhole) QuietBox Tower*
+*Hardware: 4x p300c (Blackhole) TT-QuietBox Tower*
 *Achievement: 2x speedup, 50% parallel efficiency, production-ready multi-device acceleration*
 *Animation: 27MB GIF showcasing emergent complexity on TT hardware*
 
-**"From simple rules, beautiful complexity emerges - on QuietBox, it emerges 2x faster."** 🌌
+**"From simple rules, beautiful complexity emerges - on TT-QuietBox, it emerges 2x faster."** 🌌

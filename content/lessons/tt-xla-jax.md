@@ -35,7 +35,7 @@ validationNotes: Rewritten for pre-installed venv-forge; zero install steps
 The `venv-forge` / `tt-forge-venv` environment ships JAX, torch-xla, and the TT PJRT plugin
 pre-installed. There is no installation step — just activate and start computing.
 
-> **QB2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
+> **TT-QuietBox<sup>®</sup> 2 users:** All four p300c chips appear as TT devices (`jax.devices()` returns
 > four entries). `pmap` distributes work across them automatically.
 
 ---
@@ -67,9 +67,9 @@ source ~/tt-forge-venv/bin/activate
 Expected output:
 
 ```
-TT devices: [TtDevice(id=0)]          # N150 / p300c
+TT devices: [TtDevice(id=0)]          # n150 / p300c
 # or
-TT devices: [TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # QB2
+TT devices: [TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # TT-QuietBox 2
 ```
 
 [▶ Check TT Devices](command:tenstorrent.runHardwareDetection)
@@ -155,10 +155,10 @@ print(out.devices())      # {TtDevice(id=0)}
 
 ---
 
-## Multi-device with pmap (QB2 / N300 / T3K)
+## Multi-device with pmap (TT-QuietBox 2 / n300 / T3000)
 
 `jax.pmap` maps a function over a leading batch dimension, one slice per device.
-On QB2 with four p300c chips this uses all four in parallel:
+On TT-QuietBox 2 with four p300c chips this uses all four in parallel:
 
 ```python
 import jax
@@ -177,7 +177,7 @@ def matmul_per_device(A):
 A = jnp.ones((n, 512, 512))
 result = matmul_per_device(A)
 
-print(result.shape)       # (4, 512, 512) on QB2
+print(result.shape)       # (4, 512, 512) on TT-QuietBox 2
 print(result.sharding)    # shows per-device placement
 ```
 
@@ -232,36 +232,36 @@ print(output.shape)       # torch.Size([1, 1000])
 ```
 
 > **Note:** torch-xla (without `forge.compile()`) runs models via the XLA JIT path.
-> For the full TT-Forge compiler pipeline with MLIR optimization, see the
+> For the full TT-Forge<sup>™</sup> compiler pipeline with MLIR optimization, see the
 > [TT-Forge Image Classification lesson](command:tenstorrent.showLesson?["forge-image-classification"]).
 
 ---
 
 ## Hardware configuration
 
-Wormhole and Blackhole chips are configured identically at the JAX API level.
+Wormhole<sup>™</sup> and Blackhole<sup>®</sup> chips are configured identically at the JAX API level.
 `jax.devices()` returns one entry per chip, regardless of board type.
 
 | Hardware | `jax.devices()` | Notes |
 |----------|-----------------|-------|
-| N150 | `[TtDevice(id=0)]` | Single Wormhole chip |
-| N300 | `[TtDevice(id=0), TtDevice(id=1)]` | Two Wormhole chips |
-| T3K | `[TtDevice(id=0..7)]` | Eight Wormhole chips |
+| n150 | `[TtDevice(id=0)]` | Single Wormhole chip |
+| n300 | `[TtDevice(id=0), TtDevice(id=1)]` | Two Wormhole chips |
+| T3000 | `[TtDevice(id=0..7)]` | Eight Wormhole chips |
 | p300c | `[TtDevice(id=0)]` | Single Blackhole chip |
-| QB2 | `[TtDevice(id=0..3)]` | Four independent p300c chips |
+| TT-QuietBox 2 | `[TtDevice(id=0..3)]` | Four independent p300c chips |
 | Galaxy | `[TtDevice(id=0..31)]` | 32 Wormhole chips |
 
 Set `TT_METAL_ARCH_NAME` before activating the env if it isn't already set:
 
 ```bash
-export TT_METAL_ARCH_NAME=blackhole   # p300c / QB2 / P150
-export TT_METAL_ARCH_NAME=wormhole_b0 # N150 / N300 / T3K / Galaxy
+export TT_METAL_ARCH_NAME=blackhole   # p300c / TT-QuietBox 2 / p150
+export TT_METAL_ARCH_NAME=wormhole_b0 # n150 / n300 / T3000 / Galaxy
 source ~/tt-forge-venv/bin/activate
 ```
 
 ---
 
-## Run the official tt-forge demos
+## Run the official TT-Forge demos
 
 The `tt-forge` repo has validated GPT-2, ALBERT, ResNet, and OPT demos
 using JAX/Flax and PyTorch/XLA:
@@ -317,4 +317,4 @@ No new venv, no pip install, no Python version change, no library compilation.
   models via the full MLIR compiler pipeline
 - [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — LLM serving (Qwen3, Llama)
 - [JAX documentation](https://jax.readthedocs.io/) — comprehensive JAX tutorials
-- [tt-forge demos](https://github.com/tenstorrent/tt-forge/tree/main/demos/tt-xla) — validated JAX and PyTorch/XLA examples
+- [TT-Forge demos](https://github.com/tenstorrent/tt-forge/tree/main/demos/tt-xla) — validated JAX and PyTorch/XLA examples

@@ -20,9 +20,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15
@@ -109,7 +109,7 @@ graph TD
 ### Full Example: `training_n150.yaml`
 
 ```yaml
-# Training Configuration for N150 (Single Wormhole Chip)
+# Training Configuration for n150 (Single Wormhole Chip)
 #
 # Optimized for single-chip development hardware
 # Typical training time: 1-3 hours depending on dataset size
@@ -117,7 +117,7 @@ graph TD
 training_config:
   model_type: "llama"
   seed: 42
-  batch_size: 8                    # N150: Conservative for DRAM limits
+  batch_size: 8                    # n150: Conservative for DRAM limits
   validation_batch_size: 2
   num_epochs: 3                    # Adjust based on dataset size
   max_steps: 5000                  # Maximum training steps
@@ -154,7 +154,7 @@ eval_config:
   top_p: 1.0
 
 device_config:
-  enable_ddp: False                # N150: Single chip, no DDP
+  enable_ddp: False                # n150: Single chip, no DDP
   mesh_shape: [1, 1]               # 1x1 mesh (single device)
 ```
 
@@ -166,7 +166,7 @@ Let's break down each section.
 
 ### Core Hyperparameters
 
-| Parameter | What It Does | Typical Values | Example (N150) |
+| Parameter | What It Does | Typical Values | Example (n150) |
 |-----------|--------------|----------------|----------------|
 | `batch_size` | Examples per training step | 4-32 | **8** (DRAM conservative) |
 | `learning_rate` | How fast model learns | 1e-5 to 1e-4 | **1e-4** (fine-tuning LR) |
@@ -182,7 +182,7 @@ Think of batch size like teaching multiple students at once versus one-on-one tu
 
 **Smaller batches (4-8) are like tutoring individuals.** You show 4 examples, update immediately. The feedback is noisier - each small batch might have quirks that don't represent the full dataset. Progress is slower because you're making more frequent, smaller updates. But here's the win: it works with limited resources.
 
-**On N150, we're memory-constrained** compared to massive GPU clusters with 80GB+ VRAM. The N150's DRAM is fantastic for its purpose, but we're not running H100s here. Batch size 8 is our sweet spot - conservative enough to always work, large enough to make meaningful progress. Got a particularly small model? You might push to 16. But 8 is the safe starting point that won't exhaust your DRAM mid-training.
+**On n150, we're memory-constrained** compared to massive GPU clusters with 80GB+ VRAM. The n150's DRAM is fantastic for its purpose, but we're not running H100s here. Batch size 8 is our sweet spot - conservative enough to always work, large enough to make meaningful progress. Got a particularly small model? You might push to 16. But 8 is the safe starting point that won't exhaust your DRAM mid-training.
 
 **Here's the clever trick:** `effective_batch_size = batch_size × gradient_accumulation_steps`
 
@@ -218,7 +218,7 @@ Think of it like polling a large group before making a decision. You can't fit 3
 
 **Here's how it works:**
 
-You set `batch_size = 8` (fits in N150 DRAM) and `gradient_accumulation_steps = 4`. Now:
+You set `batch_size = 8` (fits in n150 DRAM) and `gradient_accumulation_steps = 4`. Now:
 
 1. **Step 1:** Process batch of 8 examples, compute gradients, but **don't update weights yet** - just save the gradients
 2. **Step 2:** Process another 8 examples, add their gradients to the saved ones
@@ -229,9 +229,9 @@ You set `batch_size = 8` (fits in N150 DRAM) and `gradient_accumulation_steps = 
 
 You get the training stability of a 32-example batch while only needing memory for 8 examples at once. It's like having your cake and eating it too.
 
-**The benefits are clear:** Training becomes more stable (larger effective batch smooths out noise), and you don't run out of memory. The trade-off? Slightly slower training because you're doing 4 forward passes before each backward pass. But on memory-constrained hardware like N150, this trade-off is absolutely worth it.
+**The benefits are clear:** Training becomes more stable (larger effective batch smooths out noise), and you don't run out of memory. The trade-off? Slightly slower training because you're doing 4 forward passes before each backward pass. But on memory-constrained hardware like n150, this trade-off is absolutely worth it.
 
-**On N150, use gradient accumulation always.** Set `gradient_accumulation_steps = 4` as your default. On N300 or T3K with more memory available, you might not need it - you can just use larger actual batches. But even on big hardware, gradient accumulation remains useful when you want to push batch sizes beyond what physically fits in memory.
+**On n150, use gradient accumulation always.** Set `gradient_accumulation_steps = 4` as your default. On n300 or T3000 with more memory available, you might not need it - you can just use larger actual batches. But even on big hardware, gradient accumulation remains useful when you want to push batch sizes beyond what physically fits in memory.
 
 ### Epochs vs Steps
 
@@ -264,7 +264,7 @@ batch_size = 8
 
 ## Section 2: Device Configuration
 
-### Single Device (N150)
+### Single Device (n150)
 
 ```yaml
 device_config:
@@ -273,11 +273,11 @@ device_config:
 ```
 
 **When to use:**
-- N150 (single Wormhole chip)
+- n150 (single Wormhole chip)
 - Development and debugging
 - Small models (1-3B parameters)
 
-### Multi-Device (N300)
+### Multi-Device (n300)
 
 ```yaml
 device_config:
@@ -291,11 +291,11 @@ device_config:
 - ~2x faster training
 
 **When to use:**
-- N300 (dual Wormhole chips)
+- n300 (dual Wormhole chips)
 - Larger models or larger batches
 - Faster iteration for experimentation
 
-### Advanced (T3K, Galaxy)
+### Advanced (T3000, Galaxy)
 
 ```yaml
 device_config:
@@ -304,7 +304,7 @@ device_config:
 ```
 
 **When to use:**
-- T3K (8 chips in mesh)
+- T3000 (8 chips in mesh)
 - Galaxy (32+ chips)
 - Large-scale training or research
 
@@ -482,7 +482,7 @@ eval_config:
 
 ## Hardware-Specific Configurations
 
-### N150: Memory-Constrained
+### n150: Memory-Constrained
 
 ```yaml
 training_config:
@@ -499,7 +499,7 @@ device_config:
 - Lower memory usage
 - Single-device simplicity
 
-### N300: Balanced Performance
+### n300: Balanced Performance
 
 ```yaml
 training_config:
@@ -516,7 +516,7 @@ device_config:
 - Better GPU utilization
 - Minimal code changes
 
-### T3K: High Performance
+### T3000: High Performance
 
 ```yaml
 training_config:
@@ -743,7 +743,7 @@ device_config:
   mesh_shape: [1, 2]
 ```
 
-**Use when:** Iterating on production models, N300+ available.
+**Use when:** Iterating on production models, n300+ available.
 
 ---
 
@@ -766,11 +766,11 @@ training_config:
   log_level: "INFO"                # Local-only logging
 
 device_config:
-  enable_ddp: False                # On-premise N150 only
+  enable_ddp: False                # On-premise n150 only
   mesh_shape: [1, 1]
 ```
 
-**Result:** Production model in 2 hours on N150, deployable with vLLM (**Lesson 7**), fully compliant.
+**Result:** Production model in 2 hours on n150, deployable with vLLM (**Lesson 7**), fully compliant.
 
 **Total time:** One afternoon of fine-tuning, months of value.
 
@@ -778,12 +778,12 @@ device_config:
 
 ### Scenario 2: The Code Translator (Speed Matters)
 
-**Challenge:** PyTorch → TTNN translator for internal dev team. Need fast iteration.
+**Challenge:** PyTorch → TT-NN<sup>™</sup> translator for internal dev team. Need fast iteration.
 
 **Configuration decisions:**
 ```yaml
 training_config:
-  batch_size: 16                   # Larger batch on N300
+  batch_size: 16                   # Larger batch on n300
   learning_rate: 1e-4              # Standard fine-tuning LR
   max_steps: 300                   # Shorter runs for rapid experiments
   checkpoint_frequency: 100        # Less frequent (iterate fast)
@@ -792,7 +792,7 @@ training_config:
   wandb_project: "pytorch-to-ttnn"
 
 device_config:
-  enable_ddp: True                 # N300 for 2x speedup
+  enable_ddp: True                 # n300 for 2x speedup
   mesh_shape: [1, 2]
 ```
 
@@ -809,7 +809,7 @@ device_config:
 **Configuration decisions:**
 ```yaml
 training_config:
-  batch_size: 8                    # Standard for N150
+  batch_size: 8                    # Standard for n150
   learning_rate: 1e-4
   max_steps: 1000                  # Longer run to see convergence
   checkpoint_frequency: 50         # Save often (expensive compute)
@@ -839,7 +839,7 @@ device_config:
 **Configuration decisions:**
 ```yaml
 training_config:
-  batch_size: 32                   # T3K can handle it
+  batch_size: 32                   # T3000 can handle it
   learning_rate: 1e-4
   max_steps: 500
   checkpoint_frequency: 250        # Only keep key checkpoints
@@ -849,13 +849,13 @@ training_config:
   gradient_accumulation_steps: 1   # No accumulation needed
 
 device_config:
-  enable_ddp: True                 # T3K mesh
+  enable_ddp: True                 # T3000 mesh
   mesh_shape: [2, 4]               # 8 devices, 8x speedup
 ```
 
 **Result:** Train multiple models per day. A/B test in production. Iterate based on user feedback.
 
-**Scale:** From prototype (N150) → production (T3K) seamlessly. Same config pattern, different values.
+**Scale:** From prototype (n150) → production (T3000) seamlessly. Same config pattern, different values.
 
 ---
 
@@ -871,19 +871,19 @@ device_config:
 
 ### Your Configuration Journey
 
-**Week 1 (N150, Learning):**
+**Week 1 (n150, Learning):**
 - Use baseline configs from this extension
 - Focus on understanding what each parameter does
 - Experiment with one parameter at a time
 - **Goal:** Build intuition
 
-**Week 2-3 (N150, Iterating):**
+**Week 2-3 (n150, Iterating):**
 - Apply lessons to your domain
 - Create custom configs for your use case
 - Track experiments systematically
 - **Goal:** Find what works for your data
 
-**Month 2+ (N300/T3K, Scaling):**
+**Month 2+ (n300/T3000, Scaling):**
 - Scale successful configs to faster hardware
 - Run multiple experiments in parallel
 - Build a library of proven configs

@@ -1,8 +1,8 @@
 ---
 id: deploy-vscode-to-koyeb
-title: "Deploy tt-vscode-toolkit to Koyeb"
+title: "Deploy TT-VSCode-Toolkit to Koyeb"
 description: >-
-  Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional N300 hardware access.
+  Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional n300 hardware access.
 category: deployment
 tags:
   - deployment
@@ -23,16 +23,16 @@ validatedOn:
 estimatedMinutes: 5
 ---
 
-# Deploy tt-vscode-toolkit to Koyeb
+# Deploy TT-VSCode-Toolkit to Koyeb
 
-Get your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed, running on Koyeb with access to N300 hardware.
+Get your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed, running on Koyeb with access to n300 hardware.
 
 ## What You'll Build
 
 A browser-accessible VSCode environment with:
 - ✅ Tenstorrent extension pre-installed
 - ✅ tt-smi for hardware monitoring
-- ✅ Access to Tenstorrent N300 accelerator hardware
+- ✅ Access to Tenstorrent n300 accelerator hardware
 - ✅ Persistent development environment
 - ✅ Accessible from anywhere via HTTPS
 
@@ -43,8 +43,8 @@ A browser-accessible VSCode environment with:
 
 ## Why Deploy to Koyeb?
 
-Koyeb offers **direct access to Tenstorrent N300 hardware** (`gpu-tenstorrent-n300s` instance type) with:
-- Native N300 support (2 Wormhole chips)
+Koyeb offers **direct access to Tenstorrent n300 hardware** (`gpu-tenstorrent-n300s` instance type) with:
+- Native n300 support (2 Wormhole<sup>™</sup> chips)
 - `/dev/tenstorrent/` device access
 - Dedicated hardware for your workloads
 - HTTPS endpoints with automatic SSL
@@ -105,7 +105,7 @@ koyeb services create vscode \
 
 **What this does:**
 - Pulls pre-built image from GitHub Container Registry
-- Configures N300 hardware access
+- Configures n300 hardware access
 - Sets up HTTPS endpoint
 - Creates your cloud IDE
 
@@ -140,7 +140,7 @@ Access your IDE: `https://vscode-<your-hash>.koyeb.app`
 
 Enter the password you set in Step 3.
 
-✅ **That's it! Your cloud IDE with N300 hardware is ready.**
+✅ **That's it! Your cloud IDE with n300 hardware is ready.**
 
 ---
 
@@ -164,7 +164,7 @@ tt-smi
    ...
 ```
 
-**Note:** N300 reports as 2 devices (2 Wormhole chips on one board) - this is correct!
+**Note:** n300 reports as 2 devices (2 Wormhole chips on one board) - this is correct!
 
 ---
 
@@ -186,25 +186,25 @@ Your cloud IDE includes:
 **Software Stack:**
 - Ubuntu 24.04 (noble)
 - code-server (VSCode in browser)
-- Tenstorrent tools installed via tt-installer (container mode)
+- Tenstorrent tools installed via TT-Installer (container mode)
 - Tenstorrent VSCode extension
 - Git, Python 3, build tools
 
 **Hardware:**
-- Tenstorrent N300 (2x Wormhole chips)
+- Tenstorrent n300 (2x Wormhole chips)
 - Device access via `/dev/tenstorrent/0` and `/dev/tenstorrent/1`
 
-**CLI Tools (via tt-installer):**
+**CLI Tools (via TT-Installer):**
 - `tt-smi` - Tenstorrent hardware monitoring
 - `tt-flash` - Firmware update tool
 - `tt-topology` - Hardware topology detection
-- `tt-inference-server` - Production inference server
+- **TT-Inference-Server** — production inference server
 - `hf` - HuggingFace CLI for downloading models
 - `claude` - Claude Code CLI for AI-assisted development
 - Standard dev tools (git, python3, npm, etc.)
 - Full hardware permissions configured
 
-**Note:** tt-metal can be built via lessons when needed (not pre-installed)
+**Note:** TT-Metalium<sup>™</sup> can be built via lessons when needed (not pre-installed)
 
 **Configuration:**
 - Auto-configured theme (Tenstorrent Dark)
@@ -290,7 +290,7 @@ The extension should auto-install during build. If missing, the container needs 
 
 ## Cost Considerations
 
-**Koyeb N300 pricing:**
+**Koyeb n300 pricing:**
 - Charges while running (compute + hardware)
 - No charge when stopped/paused
 - Pay-as-you-go or reserved instances
@@ -344,7 +344,7 @@ koyeb deploy . tt-vscode-toolkit/vscode \
 ✅ **You now have a cloud VSCode IDE with Tenstorrent hardware!**
 
 **Continue your journey:**
-1. 🎯 [Deploy Your Work to Koyeb](command:tenstorrent.showLesson?["deploy-to-koyeb"]) - Deploy your own apps with N300
+1. 🎯 [Deploy Your Work to Koyeb](command:tenstorrent.showLesson?["deploy-to-koyeb"]) - Deploy your own apps with n300
 2. 🚀 [Your First Inference](command:tenstorrent.showLesson?["download-model"]) - Run your first model
 3. 🏭 [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) - Production model serving
 
@@ -364,12 +364,12 @@ koyeb deploy . tt-vscode-toolkit/vscode \
 
 The published image includes:
 - code-server (VSCode in browser)
-- Tenstorrent tools installed via tt-installer (`tt-smi`, `tt-flash`, etc.)
+- Tenstorrent tools installed via TT-Installer (`tt-smi`, `tt-flash`, etc.)
 - HuggingFace CLI (`hf`)
 - Claude CLI (`claude`)
 - All hardware permissions configured
 - MOTD system for terminal welcome messages
-- tt-metal can be built via lessons when needed (not pre-installed)
+- TT-Metalium can be built via lessons when needed (not pre-installed)
 
 **Build locally and deploy:**
 
@@ -399,7 +399,7 @@ This approach is useful for:
 
 **What you learned:**
 - ✅ Deploy VSCode to cloud in 60 seconds using published images
-- ✅ Access real Tenstorrent N300 hardware remotely
+- ✅ Access real Tenstorrent n300 hardware remotely
 - ✅ Manage cloud deployments with Koyeb CLI
 - ✅ Configure hardware access in containers
 

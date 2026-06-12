@@ -2,7 +2,7 @@
 id: cookbook-overview
 title: Tenstorrent Cookbook Overview
 description: >-
-  Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metal techniques: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, Image Filters, and Particle Life. Each recipe is a standalone lesson with full source code and visual output.
+  Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metalium techniques: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, Image Filters, and Particle Life. Each recipe is a standalone lesson with full source code and visual output.
 category: cookbook
 tags:
   - ttnn
@@ -22,16 +22,16 @@ validatedOn:
   - p300c
 estimatedMinutes: 5
 validationDate: 2026-04-16
-validationNotes: All 5 cookbook recipes validated on P300C (QB2 QuietBox) with Blackhole architecture
+validationNotes: All 5 cookbook recipes validated on p300c (TT-QuietBox 2) with Blackhole architecture
 ---
 
 # Tenstorrent Cookbook: Learn by Building
 
-Welcome to the Tenstorrent Cookbook! This series of hands-on projects teaches you TT-Metal fundamentals through creative, visual applications.
+Welcome to the Tenstorrent Cookbook! This series of hands-on projects teaches you TT-Metalium<sup>™</sup> fundamentals through creative, visual applications.
 
 ## What You'll Build
 
-Each recipe is a complete, working project that demonstrates core TT-Metal techniques:
+Each recipe is a complete, working project that demonstrates core TT-Metalium techniques:
 
 ### 🎮 [Recipe 1: Conway's Game of Life](command:tenstorrent.showLesson?["cookbook-game-of-life"])
 **Learn:** Cellular automata, parallel tile computing, convolution operations
@@ -72,7 +72,7 @@ Build a library of image filters from edge detection to artistic effects. Same t
 ### 🌌 [Recipe 5: Particle Life - Emergent Complexity](command:tenstorrent.showLesson?["cookbook-particle-life"])
 **Learn:** N² algorithms, physics simulation, multi-device parallelization
 
-Simulate emergent patterns from simple particle interactions. Includes multi-chip acceleration bonus for QuietBox systems!
+Simulate emergent patterns from simple particle interactions. Includes multi-chip acceleration bonus for TT-QuietBox systems!
 
 **Time:** 30 minutes | **Difficulty:** Intermediate
 
@@ -119,7 +119,7 @@ These recipes teach fundamental techniques used in production models:
 After completing the cookbook, you'll have:
 
 - ✅ **5 complete, working projects** you built yourself
-- ✅ **Deep understanding of TTNN operations** (convolution, FFT, parallel compute)
+- ✅ **Deep understanding of TT-NN<sup>™</sup> operations** (convolution, FFT, parallel compute)
 - ✅ **Experience with parallel tile computing** optimized for TT hardware
 - ✅ **Foundation for production applications** and model bring-up
 
@@ -148,7 +148,7 @@ After completing the cookbook, you'll have:
 ## Resources
 
 - **Discord**: [discord.gg/tvhGzHQwaj](https://discord.gg/tvhGzHQwaj)
-- **GitHub**: [github.com/tenstorrent/tt-metal](https://github.com/tenstorrent/tt-metal)
+- **GitHub**: [TT-Metalium on GitHub](https://github.com/tenstorrent/tt-metal)
 - **Documentation**: [docs.tenstorrent.com](https://docs.tenstorrent.com)
 - **METALIUM_GUIDE.md**: `~/tt-metal/METALIUM_GUIDE.md` - Architecture deep-dive
 - **Tech Reports**: `~/tt-metal/tech_reports/` - Research papers and optimizations

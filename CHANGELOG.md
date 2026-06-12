@@ -1,9 +1,254 @@
 # Changelog
 
-All notable changes to the Tenstorrent VSCode Toolkit will be documented in this file.
+All notable changes to the TT-VSCode-Toolkit will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [0.0.503] - 2026-06-12
+### Fixed
+- **Self-review fixes** — 29 issues confirmed by automated adversarial review: corrected MESH_DEVICE enum values in code-fence comments (T3000→T3K, n150→N150, Galaxy→GALAXY throughout vllm-production, image-generation, bounty-program, version-compatibility, step-zero, README); removed `<sup>™/</sup>` HTML injected into yaml/bash code fences (ct3-configuration-patterns, step-zero); fixed api-server print string back to `tt-metal ready`; corrected `p100`→`P100` in hardware-detection and QB_follows prose; completed T3K→T3000 normalization in ttsim/cookbook-particle-life prose callouts; fixed FAQ duplicate stale QB2 paragraph and TTNN/tt-metal prose table cells; fixed bare `tt-metal` prose in image-generation (→ TT-Metalium); updated link display text in cookbook-overview and tt-inference-server (github URL→ product name); clarified Vale config comments (ProductNames.yml T3000 exception, Terminology.yml link-text caveat).
+
+## [0.0.502] - 2026-06-11
+### Fixed
+- **QB2 → TT-QuietBox 2 in llms.txt** — the LLM context file (consumed by the content website) had 11 prose `QB2` references; all replaced with `TT-QuietBox 2`; URL slugs (`qb2-*`) left untouched.
+
+## [0.0.501] - 2026-06-11
+### Fixed
+- **QB2 → TT-QuietBox 2 prose normalization** — replaced all `QB2` shorthand in prose with the full `TT-QuietBox 2` product name across `ttsim-twenty-and-ten.md`, `cookbook-particle-life.md`, and `FAQ.md`; lesson title slugs (`qb2-*`) and command IDs left untouched.
+
+## [0.0.500] - 2026-06-11
+
+### Changed
+
+- **Version bump** — increment to 0.0.500 after merging copyedit branch with origin/main; consolidates copyedit normalization (hardware IDs, TT-Metalium™/TT-NN™ trademarks, TT-QuietBox naming) with main's ttsim, AnimateDiff Phase 2.5, and mobile improvements.
+
+---
+
+## [0.0.477] - 2026-05-27
+
+### Changed
+
+- **Prose copyedit pass** — fixed TT-Forge<sup>™</sup> trademark placement in `tt-xla-jax.md`; updated `STYLE_GUIDE.md` hardware casing rules (`n150`/`n300`/`T3000`/`p300c`, capitalized `Galaxy`); normalized hardware IDs and `TTNN`→`TT-NN` in prose and sample output; renamed `TT Metal`→`TT-Metalium` in `tt-inference-server.md`. Extended `normalize-hardware-copy.js` and `normalize-ttnn-copy.js`; added `normalize-tt-metal-copy.js`. Polished `STYLE_GUIDE.md` trademark examples; fixed `normalize-open-source-copy.js` to skip inline code; added `plans/vscode-toolkit-copyedit-pr.md` PR summary.
+
+---
+
+## [0.0.476] - 2026-05-27
+
+### Changed
+
+- **TT-Metalium<sup>™</sup> and TT-NN<sup>™</sup> trademarks** — first prose mention per page now uses `TT-Metalium` and `TT-NN` (trademark, not registered). Updated `scripts/add-tt-product-trademarks.js` and `STYLE_GUIDE.md`; migrated prior `<sup>®</sup>` marks across lessons, pages, and docs.
+
+---
+
+## [0.0.475] - 2026-05-27
+
+### Changed
+
+- **TT-Forge trademark** — first prose mention per page now uses `TT-Forge` (trademark, not registered). Updated `scripts/add-tt-product-trademarks.js` and `STYLE_GUIDE.md`; migrated prior `TT-Forge` marks in lessons, pages, and docs.
+
+---
+
+## [0.0.474] - 2026-05-27
+
+### Changed
+
+- **TT-QuietBox naming** — prefixed all user-facing `QuietBox` mentions with `TT-` (`TT-QuietBox`, `TT-QuietBox<sup>®</sup> 2`). Updated trademark script, QB2 normalizer, `STYLE_GUIDE.md`, and Vale `Terminology.yml` (unchanged: `quietbox2` hostnames and lesson slugs `qb2-*`).
+
+---
+
+## [0.0.473] - 2026-05-27
+
+### Changed
+
+- **TT-NN spelling in prose** — normalized `TTNN` to `TT-NN` across lessons, pages, and docs (unchanged: `import ttnn`, code fences, paths, and literal CLI output). Added `scripts/normalize-ttnn-copy.js`; re-applied first-mention `TT-NN` where needed.
+
+---
+
+## [0.0.472] - 2026-05-27
+
+### Changed
+
+- **TT product first-mention ®** — `TT-Metalium`, `TT-NN`, and `TT-Forge` each get `<sup>®</sup>` on first prose mention per page (`TTNN` unchanged). Added `scripts/add-tt-product-trademarks.js`.
+
+---
+
+## [0.0.471] - 2026-05-27
+
+### Fixed
+
+- **TT-QuietBox® placement** — moved first-mention registered mark from after `2` to after `QuietBox` (`QuietBox<sup>®</sup> 2`, not `QuietBox 2<sup>®</sup>`).
+
+---
+
+## [0.0.470] - 2026-05-27
+
+### Changed
+
+- **TT-QuietBox 2® first mention** — each lesson and reference page marks the first `QuietBox 2` with a registered superscript in prose (skips front matter, code fences, inline code, and link URLs). Added `scripts/add-quietbox2-trademark.js`.
+
+---
+
+## [0.0.469] - 2026-05-27
+
+### Changed
+
+- **Wormhole™ first mention** — each lesson and reference page marks the first `Wormhole` with `<sup>™</sup>` in prose (unchanged: code fences, inline code, and markdown link URLs). Added `scripts/add-wormhole-trademark.js`.
+
+---
+
+## [0.0.468] - 2026-05-27
+
+### Changed
+
+- **Hardware ID prose** — normalized `P100` to `p100` in user-facing lessons, pages, README, and docs (unchanged: `MESH_DEVICE=P100`, command IDs, `hardware":"P100"` in command links, code fences, and Python/shell).
+
+---
+
+## [0.0.467] - 2026-05-27
+
+### Changed
+
+- **Blackhole® first mention** — each lesson and reference page now marks the first `Blackhole` with `<sup>®</sup>`; allowed `<sup>` in lesson markdown sanitization and GitHub Pages build. Added `scripts/add-blackhole-trademark.js`.
+
+---
+
+## [0.0.466] - 2026-05-27
+
+### Changed
+
+- **Open source wording (branch audit)** — fixed remaining hyphenated forms in `docs/CLAUDE_FULL_ARCHIVE.md` and `docs/CLAUDE_follows.md`; added `scripts/normalize-open-source-copy.js` with `--check` for copy-path audits.
+
+---
+
+## [0.0.465] - 2026-05-27
+
+### Changed
+
+- **Open source wording** — normalized hyphenated forms to two-word **open source** in user-facing lessons, pages, README, and community docs; title-case **Open Source** for headings and labels. Updated `STYLE_GUIDE.md` and Vale `Terminology.yml`.
+
+---
+
+## [0.0.464] - 2026-05-27
+
+### Fixed
+
+- **Install page YouTube embeds in local preview** — `npm run dev:web` no longer sends `Cross-Origin-Embedder-Policy: require-corp` on every page (which blocked YouTube iframes). COOP/COEP now applies only to `/lessons/tt-lang-intro/` and playground assets. Install gallery iframes use `youtube-nocookie.com`.
+
+---
+
+## [0.0.463] - 2026-05-27
+
+### Changed
+
+- **Product naming in user-facing copy** — normalized **TT-Metalium** (all `tt-metal` / `TT-Metal` prose), **TT-Forge**, **TT-XLA**, and **TT-Lang** across lessons, pages, README, and docs; updated Vale `Terminology.yml` and `STYLE_GUIDE.md` (unchanged: `~/tt-metal` paths, repo URLs, lesson slugs like `build-tt-metal` / `tt-lang-intro`, and CLI commands).
+
+---
+
+## [0.0.462] - 2026-05-27
+
+### Changed
+
+- **Product naming in user-facing copy** — normalized prose label `tt-installer` to **TT-Installer** across lessons, pages, README, and docs (unchanged: GitHub repo URLs, `install.sh` paths, lesson slug `tt-installer`, and command IDs).
+
+---
+
+## [0.0.461] - 2026-05-27
+
+### Changed
+
+- **Product naming in user-facing copy** — normalized prose labels `tt-vscode-toolkit` and **TT-VSCode-Toolkit** to **TT-VSCode-Toolkit** across lessons, pages, README, and docs (unchanged: extension ID `Tenstorrent.tt-vscode-toolkit`, repo paths, Docker images, and `package.json` `displayName`).
+
+---
+
+## [0.0.460] - 2026-05-27
+
+### Changed
+
+- **Product naming in user-facing copy** — normalized prose label `tt-inference-server` to **TT-Inference-Server** across lessons, pages, README, and docs (unchanged: repo paths, Docker image URLs, lesson slugs, and command IDs).
+
+---
+
+## [0.0.459] - 2026-05-27
+
+### Changed
+
+- **Hardware naming in user-facing copy** — normalized prose label `T3K` to `T3000` across lessons, pages, README, and docs (unchanged: `MESH_DEVICE=T3K`, command IDs like `startVllmServerT3K`, and `supportedHardware: t3k` metadata).
+
+---
+
+## [0.0.458] - 2026-05-27
+
+### Fixed
+
+- **Pre-commit hook for copy edits** — Husky no longer runs the full Mocha suite (which required `npm run build` and `dist/content/projects`). Pre-commit now runs only `validate:lessons`, `validate:command-uris`, and `test:links` (link validator with `--no-config`, so `.mocharc.json` lesson tests are not pulled in).
+
+---
+
+## [0.0.457] - 2026-05-27
+
+### Changed
+
+- **Hardware naming in user-facing copy** — replaced `QB2` with `QuietBox 2` across lessons, pages, README, and docs. Unchanged: lesson slugs (`qb2-video-generation`), command IDs (`createQB2ConstellationDemo`), file paths, and tag metadata (`qb2`).
+
+---
+
+## [0.0.456] - 2026-05-27
+
+### Changed
+
+- **Hardware naming in user-facing copy** — normalized `P150` → `p150`, `P300` → `p300`, and `p300c`/`p300c` → `p300c` across lessons, pages, README, and docs (unchanged: `MESH_DEVICE=P150`, command IDs, tt-smi device strings, and Python detection code).
+
+---
+
+## [0.0.455] - 2026-05-27
+
+### Changed
+
+- **Hardware naming in user-facing copy** — normalized `n300` to `n300` across lessons, pages, README, and docs (same rules as n150: prose, tables, mermaid, link text; unchanged shell `MESH_DEVICE=N300`, command IDs, and API fields).
+
+---
+
+## [0.0.454] - 2026-05-27
+
+### Changed
+
+- **Hardware naming in user-facing copy** — normalized `n150` to `n150` across lessons, pages, README, and docs (prose, tables, mermaid labels, and link text). Left unchanged: shell `MESH_DEVICE=N150`, command IDs (`startVllmServerN150`), and API/JSON hardware fields. Updated Vale `ProductNames.yml` and `STYLE_GUIDE.md` to prefer lowercase hardware IDs in prose.
+
+---
+
+## [0.0.453] - 2026-05-27
+
+### Changed
+
+- **Install page** — normalized hardware label `n150` to `n150` for consistency with elsewhere on the page.
+
+---
+
+## [0.0.452] - 2026-05-27
+
+### Changed
+
+- **Install page h2 headings** — applied title case to section headings (`Generated on Tenstorrent Hardware`, `What You'll Learn`, `Install in Your Editor`).
+
+---
+
+## [0.0.451] - 2026-05-27
+
+### Fixed
+
+- **`npm run dev:web` reliability** — dev server no longer depends on Python; uses a Node static server (`scripts/serve-dev.js`) with the same COOP/COEP headers. Build subprocess uses `process.execPath` so `node` does not need to be on PATH separately. Added `predev:web` / `prebuild:web` checks that print a clear `npm install` message when `node_modules` is missing.
+
+---
+
+## [0.0.450] - 2026-05-27
+
+### Added
+
+- **`npm run dev:web`** — local preview for lesson and page edits: runs an initial `build:web`, serves `site/` at http://127.0.0.1:8000/, and rebuilds automatically when `content/lessons/`, `content/pages/`, webview styles/scripts, or related assets change. Use `npm run dev:web -- --port=3000` or `WEB_DEV_PORT=3000` for a custom port.
+- **`npm run serve:web`** — serve an existing `site/` build without watch/rebuild (after `npm run build:web`).
 
 ---
 
@@ -244,8 +489,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **AnimateDiff validated on Blackhole P300C** — Phase 2 generates 8 frames × 25 denoising steps in ~121 seconds (~15 s/frame) on P300C hardware. Lesson front matter updated with `validatedOn: [p300c]`.
-- **Real Blackhole-generated demo GIFs** — Animations generated on P300C replace synthetic placeholder GIFs in the lesson and project README. Added to the install page website gallery (filenames later updated to `animatediff_world_of_tomorrow.gif` and `animatediff_phosphor_horizon.gif` in v0.0.444).
+- **AnimateDiff validated on Blackhole p300c** — Phase 2 generates 8 frames × 25 denoising steps in ~121 seconds (~15 s/frame) on p300c hardware. Lesson front matter updated with `validatedOn: [p300c]`.
+- **Real Blackhole-generated demo GIFs** — Animations generated on p300c replace synthetic placeholder GIFs in the lesson and project README. Added to the install page website gallery (filenames later updated to `animatediff_world_of_tomorrow.gif` and `animatediff_phosphor_horizon.gif` in v0.0.444).
 - **AnimateDiff lesson rewritten for tt-scratchpad pattern** — `setupAnimateDiffProject` command copies the project to `~/tt-scratchpad/tt-animatediff/`. All lesson commands and paths now reference the scratchpad location. Phase 1 (CPU) and Phase 2 (Blackhole) each have dedicated VSCode command buttons.
 
 ### Changed
@@ -254,7 +499,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **AnimateDiff Phase 2 TTNN VAE OOM on Blackhole** — The TTNN VAE decoder's `conv_out` crashes with an L1 grid mismatch on Blackhole (Wormhole-targeted kernel). Bypassed by running the full PNDM denoising loop on the Blackhole TTNN UNet, then decoding latents with CPU PyTorch `AutoencoderKL`. UNet denoising remains fully Blackhole-accelerated.
+- **AnimateDiff Phase 2 TT-NN VAE OOM on Blackhole** — The TT-NN VAE decoder's `conv_out` crashes with an L1 grid mismatch on Blackhole (Wormhole<sup>™</sup>-targeted kernel). Bypassed by running the full PNDM denoising loop on the Blackhole TT-NN UNet, then decoding latents with CPU PyTorch `AutoencoderKL`. UNet denoising remains fully Blackhole-accelerated.
 - **AnimateDiff Phase 2 PNDM scheduler state contamination across frames** — `TtPNDMScheduler` accumulates `counter`, `ets`, and `cur_sample` state across `step()` calls. Added `set_timesteps()` call before each frame's denoising loop to reset scheduler state, preventing corrupted outputs on frames 2+.
 
 ---
@@ -263,7 +508,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **tt-lang lesson: pip install path** — Replaced the Docker/build-from-source installation path with `pip install tt-lang tt-lang-setup` as the primary recommended setup. Added a "Install the Claude Code slash commands" subsection documenting the one-time `claude-slash-commands/install.sh` installer. Demoted the ttsim path to a secondary option for users who already have tt-metal built. Updated all mentions of "TT Developer Toolkit ships the slash commands" to reflect that they ship with the `tt-lang` pip package directly.
+- **tt-lang lesson: pip install path** — Replaced the Docker/build-from-source installation path with `pip install tt-lang tt-lang-setup` as the primary recommended setup. Added a "Install the Claude Code slash commands" subsection documenting the one-time `claude-slash-commands/install.sh` installer. Demoted the ttsim path to a secondary option for users who already have tt-metal built. Updated all mentions of "TT-VSCode-Toolkit ships the slash commands" to reflect that they ship with the `tt-lang` pip package directly.
 
 ---
 
@@ -310,7 +555,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`sceneName` XSS in viz webview** — Scene name was interpolated raw into HTML text content in `vizCommands.ts`; crafted values could inject markup. Added `escapeHtml()` helper (escapes `&`, `<`, `>`) and applied it to `sceneName` before embedding.
 - **Theme applied on first install overwrites explicit user choice** — The previous logic applied Tenstorrent Dark whenever the current theme name didn't include "tenstorrent", which silently overwrote any theme a user had deliberately set. Replaced with `inspect('workbench.colorTheme')` — Tenstorrent Dark is now only written when `globalValue` is `undefined` (i.e. the user has never explicitly set a theme).
-- **`ClusterViz` grid column mismatch** — CSS hardcoded `repeat(8, 1fr)` / `repeat(16, 1fr)` columns regardless of topology; topologies such as `bh-galaxy-sc` (grid `[4,32]`) would wrap incorrectly and break the animation's row/col heat math. Fixed by computing `cols` from `topo.grid[1]` in `_init()` and applying it as an inline `gridTemplateColumns` style. Backported to upstream `tensix-viz` repo (`e1fc798`).
+- **`ClusterViz` grid column mismatch** — CSS hardcoded `repeat(8, 1fr)` / `repeat(16, 1fr)` columns regardless of topology; topologies such as `bh-Galaxy-sc` (grid `[4,32]`) would wrap incorrectly and break the animation's row/col heat math. Fixed by computing `cols` from `topo.grid[1]` in `_init()` and applying it as an inline `gridTemplateColumns` style. Backported to upstream `tensix-viz` repo (`e1fc798`).
 
 ---
 
@@ -450,7 +695,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`content/lessons/explore-metalium.md`** — added `train_and_export_mlp.py` / `train_and_export_cnn.py` step before the inference scripts; without pre-trained weights both scripts use random weights and report ~20% accuracy
 - **`content/lessons/cookbook-image-filters.md`** — added commands to create `examples/sample.jpg` before running `filters.py` (the file wasn't present in the deployed project)
-- **`content/lessons/cookbook-audio-processor.md`** — added test WAV creation step and clarified that `processor.py` is a librosa-based starter template, not a full TTNN implementation
+- **`content/lessons/cookbook-audio-processor.md`** — added test WAV creation step and clarified that `processor.py` is a librosa-based starter template, not a full TT-NN implementation
 
 ---
 
@@ -458,9 +703,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Forge environment activation** — all forge/XLA terminal commands now check for `~/tt-forge-venv` as a fallback when `/etc/profile.d/tt-env-forge.sh` is absent (N150 cloud and manual installs); activation pattern is `if [ -f /etc/profile.d/tt-env-forge.sh ]; then source ...; elif [ -d ~/tt-forge-venv ]; then source ~/tt-forge-venv/bin/activate; fi`
+- **Forge environment activation** — all forge/XLA terminal commands now check for `~/tt-forge-venv` as a fallback when `/etc/profile.d/tt-env-forge.sh` is absent (n150 cloud and manual installs); activation pattern is `if [ -f /etc/profile.d/tt-env-forge.sh ]; then source ...; elif [ -d ~/tt-forge-venv ]; then source ~/tt-forge-venv/bin/activate; fi`
 - **Forge verify commands** — replaced hardcoded `import forge` checks with try/except that falls back to `import tt_torch` for environments using `tt-forge 1.0.0` (which provides `tt_torch` API instead of `forge.compile()`)
-- **`content/lessons/forge-image-classification.md`** — activation section now shows both environment paths and adds a note about N150 cloud env differences (tt_torch API, PJRT version compatibility)
+- **`content/lessons/forge-image-classification.md`** — activation section now shows both environment paths and adds a note about n150 cloud env differences (tt_torch API, PJRT version compatibility)
 - **`content/lessons/tt-xla-jax.md`** — activation commands updated throughout to show both `/etc/profile.d/tt-env-forge.sh` and `~/tt-forge-venv` options with note about PJRT CPU fallback when plugin has version mismatch
 
 ### Security
@@ -492,7 +737,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`src/renderers/MarkdownRenderer.ts` YouTube thumbnail fallback** — replaced YouTube `<iframe>` embeds with a static thumbnail + external link to avoid VSCode Error 153 (CSP blocks iframes from external origins in webviews); clicking the thumbnail opens the video in the system browser
 - **`src/views/LessonWebviewManager.ts` `openExternal` message handler** — added handler so external links (`<a target="_blank">`) clicked inside the lesson webview open in the OS browser rather than inside the webview
 - **`src/webview/scripts/lesson-viewer.js` external link intercept** — added click listener that posts `openExternal` messages for links pointing outside the webview origin
-- **`content/lessons/qb2-local-agents.md` updates** — expanded QB2 agents lesson with YouTube embed section, glitch-art lesson section, and landscape SVG template sync
+- **`content/lessons/qb2-local-agents.md` updates** — expanded TT-QuietBox<sup>®</sup> 2 agents lesson with YouTube embed section, glitch-art lesson section, and landscape SVG template sync
 - **`content/templates/agents/06_landscape_svg.py` glitch post-processing** — added additional scene generation and glitch effects to the landscape SVG template
 
 ### Fixed
@@ -506,8 +751,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`install.html` Marketplace CTA** — added `noreferrer` to `rel="noopener"` on the VS Code Marketplace link to prevent referrer leakage to third-party origins
-- **`install.html` YouTube gallery caption** — changed caption text from `tt-vscode-toolkit` to `TT Developer Toolkit` to match the extension display name
-- **`install.html` footer brand** — changed footer brand `<span>` from `tt-vscode-toolkit` to `TT Developer Toolkit`
+- **`install.html` YouTube gallery caption** — changed caption text from `tt-vscode-toolkit` to `TT-VSCode-Toolkit` to match the extension display name
+- **`install.html` footer brand** — changed footer brand `<span>` from `tt-vscode-toolkit` to `TT-VSCode-Toolkit`
 - **`scripts/build-web.js` `autoLinkFirstMentions` word-boundary** — added pre-character boundary check (alongside the existing post-character check) to prevent auto-linking substrings inside larger words
 - **`scripts/build-web.js` heading XSS** — applied `escapeHtml()` to heading text in `WEB_RENDERER.heading` to prevent malformed HTML or injection from headings containing special characters
 
@@ -517,7 +762,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Install page gallery** — trimmed agent lesson row to landscape SVG only (pixel-art text-adventure scenes removed); updated section sub-text to mention agent-generated art running on QuietBox 2
+- **Install page gallery** — trimmed agent lesson row to landscape SVG only (pixel-art text-adventure scenes removed); updated section sub-text to mention agent-generated art running on TT-QuietBox 2
 
 ---
 
@@ -541,7 +786,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **install page contrast on light-mode OS** — hero heading ("TT Developer Toolkit") and tagline paragraph used `var(--vscode-foreground)` / `var(--tt-muted)`, which switch to near-black in light mode while the hero background is always dark; replaced with hardcoded near-white values (`#f0f4f8`, `rgba(224,236,248,0.78)`, `rgba(224,236,248,0.6)`) so text is readable regardless of OS color-scheme preference
+- **install page contrast on light-mode OS** — hero heading ("TT-VSCode-Toolkit") and tagline paragraph used `var(--vscode-foreground)` / `var(--tt-muted)`, which switch to near-black in light mode while the hero background is always dark; replaced with hardcoded near-white values (`#f0f4f8`, `rgba(224,236,248,0.78)`, `rgba(224,236,248,0.6)`) so text is readable regardless of OS color-scheme preference
 
 ---
 
@@ -549,7 +794,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **tt-lang lesson rewrite** — expanded `tt-lang-intro` from a technical reference into a full getting-started guide: browser playground opening, DRAM wall motivation with real benchmark numbers, project showcase (SkyReels, WAN Animate, Freeciv, DFlash, Oasis), ttsim setup instructions, Tensix thread model with DFB explanation, kernel deep-dives with playground callouts, and Claude Code `/ttl-*` slash commands workflow
+- **TT-Lang lesson rewrite** — expanded `tt-lang-intro` from a technical reference into a full getting-started guide: browser playground opening, DRAM wall motivation with real benchmark numbers, project showcase (SkyReels, WAN Animate, Freeciv, DFlash, Oasis), ttsim setup instructions, Tensix thread model with DFB explanation, kernel deep-dives with playground callouts, and Claude Code `/ttl-*` slash commands workflow
 
 ---
 
@@ -557,7 +802,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Branding consistency in user-facing docs** — updated README search instruction, install.html search instruction and screenshot alt text, and about-extension.md page title to use display name "TT Developer Toolkit" instead of the extension ID `tt-vscode-toolkit`
+- **Branding consistency in user-facing docs** — updated README search instruction, install.html search instruction and screenshot alt text, and about-extension.md page title to use display name "TT-VSCode-Toolkit" instead of the extension ID `tt-vscode-toolkit`
 - **about-extension.md** — added Marketplace install section at the top so users see the simplest install path first
 
 ---
@@ -685,7 +930,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`test/lesson-tests/tensix-viz.test.ts`** — 14 Mocha tests: fence HTML structure, arch variants, JSON payload preservation, sanitize-html allowlist, per-lesson fence body validation (480 total tests passing).
 - **`test_sim_lite.py`** — extended from 5 to 7 tests; new: `fused_mma` (3-thread DFB model) and `matmul_relu` (k-reduction accumulator) kernel tests.
 - **`scripts/check-sim-lite-drift.py`** — compares public API surface of ttlang-sim-lite fork against upstream `~/code/tt-lang/python/sim/`; reports new symbols, signature changes, and new module files. Run: `npm run check:sim-drift`.
-- **`scripts/check-vendor-drift.py`** — vendor repo freshness checker for tt-metal, tt-vllm, tt-inference-server, tt-forge-models, ttsim, tt-xla, tt-forge-onnx; shows commits-behind, changed Python API surface (with `--show-api`), and `model_spec.json` model catalog diffs. Run: `npm run check:vendor-drift`.
+- **`scripts/check-vendor-drift.py`** — vendor repo freshness checker for TT-Metalium, tt-vllm, TT-Inference-Server, tt-forge-models, ttsim, TT-XLA, TT-Forge-onnx; shows commits-behind, changed Python API surface (with `--show-api`), and `model_spec.json` model catalog diffs. Run: `npm run check:vendor-drift`.
 - **`npm run check:sim-drift`**, **`check:vendor-drift`**, **`test:sim-lite`** scripts added.
 
 **Other**
@@ -815,7 +1060,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **coding-assistant**: rewritten around Aider + vLLM as the primary tool; now works on all hardware
-  (N150+) via Qwen3-0.6B; zero-conf `.aider.conf.yml` approach; prompt engineering reframed as
+  (n150+) via Qwen3-0.6B; zero-conf `.aider.conf.yml` approach; prompt engineering reframed as
   Aider system prompt customization; Direct API approach moved to comparison table
 
 ---
@@ -825,7 +1070,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **GitHub Pages CI build** (`npm run build:web`): added missing `isomorphic-dompurify` devDependency.
   `build-web.js` requires this package at line 32 (`const DOMPurify = require('isomorphic-dompurify')`),
-  but it was only present in the prototype repo (`tt-vscode-toolkit-gh-pages`) and was not carried across
+  but it was only present in the prototype repo (`TT-VSCode-Toolkit-gh-pages`) and was not carried across
   during the `feature/gh-pages` merge. Without it, `npm ci` in the Actions build job succeeds but
   `npm run build:web` fails immediately with `MODULE_NOT_FOUND`, preventing any page generation.
 - **`scripts/build-web.js`**: corrected the header comment which incorrectly claimed "no new npm
@@ -852,16 +1097,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `ttnn/tutorials/basic_python/` scripts (no Jupyter required), performance
   context section, expanded model zoo with current demos, corrected tutorial path
   (removed stale `2025_dx_rework/` subdirectory). Promoted to `status: validated`.
-- **video-generation-ttmetal lesson**: replaced SD 3.5 (Galaxy/QuietBox only) with
-  SD 1.4 (`CompVis/stable-diffusion-v1-4`), which works on N150, N300, T3K, P100,
-  and P300c. Fixed demo command path, output filename pattern
+- **video-generation-ttmetal lesson**: replaced SD 3.5 (Galaxy/TT-QuietBox only) with
+  SD 1.4 (`CompVis/stable-diffusion-v1-4`), which works on n150, n300, T3000, p100,
+  and p300c. Fixed demo command path, output filename pattern
   (`input_data_N_512x512_ttnn.png`), added HuggingFace auth step, added interactive
   mode section. Removed incorrect SD 3.5 performance claims.
 - **coding-assistant lesson**: fixed `pip install pi` bug (stale/broken dependency),
-  added N300+ hardware requirement callout with N150/QB2 redirect, added explicit
+  added n300+ hardware requirement callout with n150/TT-QuietBox 2 redirect, added explicit
   venv activation to startup command, added `TT_METAL_ARCH_NAME=blackhole` note for
-  P100/P300c users. Removed stale hardcoded lesson number references.
-- **tt-inference-server lesson**: updated "Dev Branch" section to reflect that `dev`
+  p100/p300c users. Removed stale hardcoded lesson number references.
+- **TT-Inference-Server lesson**: updated "Dev Branch" section to reflect that `dev`
   branch was retired on 2026-04-16; development now lands directly on `main`.
 
 ---
@@ -884,7 +1129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.357] - 2026-04-16
 
 ### Changed
-- **build-tt-metal lesson**: moved from `advanced` category to `first-inference` — it is a prerequisite lesson, not an advanced topic.
+- **build-TT-Metalium lesson**: moved from `advanced` category to `first-inference` — it is a prerequisite lesson, not an advanced topic.
 - **custom-training lessons (ct1–ct8)**: marked all eight as `status: blocked`. The `ttml` Python bindings require building from a tt-metal v0.67.0+ source tree alongside the Metal build; they are not available as a standalone pip package. Lessons will return when `ttml` ships as a prebuilt wheel.
 
 ---
@@ -895,8 +1140,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **cs-fundamentals-01–07 lessons**: corrected `p300` → `p300c` in `supportedHardware` (all seven conceptual lessons).
 
 ### Changed
-- **tt-inference-server lesson**: added installation step — N150/N300/T3K/P100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (QB2/pre-configured images have it pre-installed).
-- **video-generation-ttmetal lesson**: added `p300c` to `supportedHardware`; added P300c/QB2 note to hardware selection section.
+- **TT-Inference-Server lesson**: added installation step — n150/n300/T3000/p100 users must `git clone` the repo to `~/.local/lib/tt-inference-server` (TT-QuietBox 2/pre-configured images have it pre-installed).
+- **video-generation-ttmetal lesson**: added `p300c` to `supportedHardware`; added p300c/TT-QuietBox 2 note to hardware selection section.
 
 ---
 
@@ -904,7 +1149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **build-tt-metal lesson**: updated Step 3 (Python environment setup) to document the new `uv`-based `create_venv.sh` workflow — `create_venv.sh` now installs `uv` automatically and uses `uv venv` / `uv pip install` instead of plain pip. Added `source python_env/bin/activate` to Step 5 (env vars). Added `uv not found in PATH` error table entry.
-- **coding-assistant lesson**: removed stale "Future Model Options (Coming Soon as of December 2025)" section; replaced with current model availability table (Qwen3-0.6B, Qwen3-8B, Llama 3.1 8B all available now via vLLM). Added QB2/P300c prerequisite note. Added `p300c` to `supportedHardware`.
+- **coding-assistant lesson**: removed stale "Future Model Options (Coming Soon as of December 2025)" section; replaced with current model availability table (Qwen3-0.6B, Qwen3-8B, Llama 3.1 8B all available now via vLLM). Added TT-QuietBox 2/p300c prerequisite note. Added `p300c` to `supportedHardware`.
 - **explore-metalium lesson**: added `p300c` to `supportedHardware`; removed stale "as of December 2025" date references.
 
 ---
@@ -919,7 +1164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.353] - 2026-04-16
 
 ### Fixed
-- **build-tt-metal lesson**: added `p300c` to `supportedHardware` to match it already being in `validatedOn` (inconsistency).
+- **build-TT-Metalium lesson**: added `p300c` to `supportedHardware` to match it already being in `validatedOn` (inconsistency).
 
 ### Changed
 - **ct1–ct8 custom-training lessons**: added `p300c` to `supportedHardware` (tt-train supports Blackhole; p300c is architecturally identical to p100).
@@ -930,34 +1175,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.352] - 2026-04-16
 
 ### Changed
-- **interactive-chat lesson**: added `p300c` to `supportedHardware` (architecturally identical to P100; lesson already has the QB2/no-tt-metal caveat).
+- **interactive-chat lesson**: added `p300c` to `supportedHardware` (architecturally identical to p100; lesson already has the TT-QuietBox 2/no-tt-metal caveat).
 - **api-server lesson**: added `p300c` to `supportedHardware`; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"` in prerequisite check.
-- **image-generation lesson**: added `p300c` to `supportedHardware`; added P300c hardware config section (`MESH_DEVICE=P100` + `TT_METAL_ARCH_NAME=blackhole`) with QB2 source-build note; added P300c row to hardware compatibility table; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"`.
+- **image-generation lesson**: added `p300c` to `supportedHardware`; added p300c hardware config section (`MESH_DEVICE=P100` + `TT_METAL_ARCH_NAME=blackhole`) with TT-QuietBox 2 source-build note; added p300c row to hardware compatibility table; fixed `huggingface-cli login` → `hf auth login --token "$HF_TOKEN"`.
 
 ---
 
 ## [0.0.351] - 2026-04-16
 
 ### Fixed
-- **image_filters cookbook template rewritten** for current TTNN conv2d API: replaced non-existent positional `ttnn.conv2d(tensor, kernel, padding='same')` call with correct keyword-arg form (`input_tensor`, `weight_tensor`, `bias_tensor`, `in_channels`, `out_channels`, `device`, `kernel_size`, `stride`, `padding`, `batch_size`, `input_height`, `input_width`, `conv_config`, `groups`). RGB channels are now processed as a batch (`batch_size=C`, `in_channels=1`, `out_channels=1`) — avoids depthwise grouping constraints and keeps the API straightforward. Added `l1_small_size=8192` to `open_device`. Validated on P300C (QB2).
+- **image_filters cookbook template rewritten** for current TT-NN conv2d API: replaced non-existent positional `ttnn.conv2d(tensor, kernel, padding='same')` call with correct keyword-arg form (`input_tensor`, `weight_tensor`, `bias_tensor`, `in_channels`, `out_channels`, `device`, `kernel_size`, `stride`, `padding`, `batch_size`, `input_height`, `input_width`, `conv_config`, `groups`). RGB channels are now processed as a batch (`batch_size=C`, `in_channels=1`, `out_channels=1`) — avoids depthwise grouping constraints and keeps the API straightforward. Added `l1_small_size=8192` to `open_device`. Validated on p300c (TT-QuietBox 2).
 - **audio_processor cookbook CLI**: hardcoded `examples/sample.wav` path replaced with `sys.argv[1]` fallback pattern, matching all other cookbooks.
 
 ### Changed
-- **Cookbook lesson metadata**: corrected `p300` → `p300c` in `supportedHardware` and `validatedOn` for all six cookbook lessons (overview, game-of-life, audio-processor, mandelbrot, image-filters, particle-life); added `validationDate: 2026-04-16` and P300C-specific validation notes to each.
+- **Cookbook lesson metadata**: corrected `p300` → `p300c` in `supportedHardware` and `validatedOn` for all six cookbook lessons (overview, game-of-life, audio-processor, mandelbrot, image-filters, particle-life); added `validationDate: 2026-04-16` and p300c-specific validation notes to each.
 
 ---
 
 ## [0.0.350] - 2026-04-16
 
 ### Added
-- **Cache persistence section in tt-inference-server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT Metal kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on QB2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
+- **Cache persistence section in TT-Inference-Server lesson**: covers the two separate cache directories (`tt_metal_cache` for compiled TT-Metalium kernels, `tt_dit_cache` for media model tensor weights), `TT_DIT_CACHE_DIR` env var to keep video/media caches across container restarts (default `/tmp/TT_DIT_CACHE` is ephemeral — first WAN 2.2 run on TT-QuietBox 2 is ~525s vs ~5min with cache), `--host-volume` to bind all of `cache_root` to a host directory for persistence across Docker image updates (requires `sudo chown 1000`), `HF_HUB_OFFLINE=1`/`TRANSFORMERS_OFFLINE=1` to skip hub network checks after weights are downloaded, and how to fix UID 1000 / host-user ownership mismatches when switching between `--docker-server` and `--local-server`.
 
 ---
 
 ## [0.0.340] - 2026-04-16
 
 ### Added
-- **Advanced vLLM tuning section in tt-inference-server lesson**: `--vllm-override-args` reference covering tool use / function calling (`enable-auto-tool-choice`, `tool-call-parser`), context length reduction (`max-model-len`), concurrency limits (`max-num-seqs`, `max-num-batched-tokens`), and combining multiple overrides. Includes tool-call parser table by model family (Llama → `llama3_json`, Qwen/Hermes → `hermes`, Mistral → `mistral`) and note on `tool_choice="none"/"required"` not yet supported.
+- **Advanced vLLM tuning section in TT-Inference-Server lesson**: `--vllm-override-args` reference covering tool use / function calling (`enable-auto-tool-choice`, `tool-call-parser`), context length reduction (`max-model-len`), concurrency limits (`max-num-seqs`, `max-num-batched-tokens`), and combining multiple overrides. Includes tool-call parser table by model family (Llama → `llama3_json`, Qwen/Hermes → `hermes`, Mistral → `mistral`) and note on `tool_choice="none"/"required"` not yet supported.
 - **Direct docker run vLLM passthrough tip**: container's `run_vllm_api_server.py` uses `parse_known_args()`, so any flags after `--tt-device` pass through directly to `vllm serve` — documented with examples.
 - **Models outside MODEL_SPECS section**: explains short-name resolution, catalog breadth (60+ models), fallback to direct vLLM, and how to request new model support.
 
@@ -966,20 +1211,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.339] - 2026-04-16
 
 ### Changed
-- **tt-inference-server lesson rewritten** for current v0.12.0 Docker images and modern CLI: updated `--device` → `--tt-device` (with auto-detection note), added `--no-auth` to quickstart, added direct `docker run` commands per hardware family, added P100/p300c/QB2 support with Experimental status, added non-container `--local-server` section, added dev branch (v0.12.0) section covering C++ server, session manager, disaggregated prefill/decode, Grafana metrics, and `/v1/responses` endpoint. Llama-3.1-8B is now clearly framed as the universal model across all hardware.
-- **Terminal commands for tt-inference-server updated**: `--device` flag replaced with `--tt-device`; `--no-auth` added to all server start commands; prereq check improved to parse `tt-smi -s` JSON output.
+- **TT-Inference-Server lesson rewritten** for current v0.12.0 Docker images and modern CLI: updated `--device` → `--tt-device` (with auto-detection note), added `--no-auth` to quickstart, added direct `docker run` commands per hardware family, added p100/p300c/TT-QuietBox 2 support with Experimental status, added non-container `--local-server` section, added dev branch (v0.12.0) section covering C++ server, session manager, disaggregated prefill/decode, Grafana metrics, and `/v1/responses` endpoint. Llama-3.1-8B is now clearly framed as the universal model across all hardware.
+- **Terminal commands for TT-Inference-Server updated**: `--device` flag replaced with `--tt-device`; `--no-auth` added to all server start commands; prereq check improved to parse `tt-smi -s` JSON output.
 
 ### Added
-- **`tenstorrent.startTtInferenceServerN150` command**: starts Llama-3.1-8B-Instruct on N150 with correct `--tt-device n150` flag
-- **`tenstorrent.startTtInferenceServerN300` command**: starts Llama-3.1-8B-Instruct on N300 with correct `--tt-device n300` flag
+- **`tenstorrent.startTtInferenceServerN150` command**: starts Llama-3.1-8B-Instruct on n150 with correct `--tt-device n150` flag
+- **`tenstorrent.startTtInferenceServerN300` command**: starts Llama-3.1-8B-Instruct on n300 with correct `--tt-device n300` flag
 
 ---
 
 ## [0.0.337] - 2026-04-15
 
 ### Fixed
-- **`ttnn.__version__` crash in verify-installation** Check 2: replaced `ttnn.__version__` with `getattr(ttnn, '__version__', '(source build)')` — the attribute is absent when TTNN is imported from the tt-metal source tree (checkout mode) rather than a compiled pip install
-- **Stale Check 3 module path in verify-installation**: replaced `python3 -m ttnn.examples.usage.run_op_on_device` (module removed at pinned tt-metal commit) with a simple `[ -d ~/tt-metal ]` directory check that works in all environments
+- **`ttnn.__version__` crash in verify-installation** Check 2: replaced `ttnn.__version__` with `getattr(ttnn, '__version__', '(source build)')` — the attribute is absent when TT-NN is imported from the tt-metal source tree (checkout mode) rather than a compiled pip install
+- **Stale Check 3 module path in verify-installation**: replaced `python3 -m ttnn.examples.usage.run_op_on_device` (module removed at pinned TT-Metalium commit) with a simple `[ -d ~/tt-metal ]` directory check that works in all environments
 
 ### Added
 - **`tt-smi` added to tt-developer-image `venv-metal` and `venv-vllm`** (`docker/Dockerfile`): `pip install tt-smi` now runs alongside `huggingface-hub` so the hardware-detection lesson works out of the box in the developer container
@@ -989,24 +1234,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.336] - 2026-04-15
 
 ### Added
-- **New lesson: Build tt-metal from Source** (`content/lessons/build-tt-metal.md`) — standalone reference covering clone, system deps, Python setuptools fix, build, env vars, and common errors. Targeted at QB2/pre-configured image users where `~/tt-metal` is absent. Includes Blackhole DispatchCoreAxis warning with bad/good code examples.
+- **New lesson: Build tt-metal from Source** (`content/lessons/build-tt-metal.md`) — standalone reference covering clone, system deps, Python setuptools fix, build, env vars, and common errors. Targeted at TT-QuietBox 2/pre-configured image users where `~/tt-metal` is absent. Includes Blackhole DispatchCoreAxis warning with bad/good code examples.
 - **p300c hardware support** across multiple lessons: added to `supportedHardware` and `validatedOn` in `vllm-production.md`, `verify-installation.md`, and `hardware-detection.md`
-- **QB2 callout in vllm-production.md**: P100/P300c section now explains that P300c is architecturally identical to P100 and that QB2 = 4× P300c operating as independent single-chip devices
-- **Llama-only warning in interactive-chat.md**: prominent callout at top of lesson directing QB2 and no-source-build users to the vLLM/Qwen3-0.6B path instead
-- **WH/BH Compatibility section in CLAUDE.md**: new guidance block covering DispatchCoreAxis, hf CLI migration, QB2 tt-metal absence, TT_METAL_ARCH_NAME, HF_MODEL requirement, and a per-lesson WH/BH compatibility checklist
+- **TT-QuietBox 2 callout in vllm-production.md**: p100/p300c section now explains that p300c is architecturally identical to p100 and that TT-QuietBox 2 = 4× p300c operating as independent single-chip devices
+- **Llama-only warning in interactive-chat.md**: prominent callout at top of lesson directing TT-QuietBox 2 and no-source-build users to the vLLM/Qwen3-0.6B path instead
+- **WH/BH Compatibility section in CLAUDE.md**: new guidance block covering DispatchCoreAxis, hf CLI migration, TT-QuietBox 2 TT-Metalium absence, TT_METAL_ARCH_NAME, HF_MODEL requirement, and a per-lesson WH/BH compatibility checklist
 
 ### Changed
 - **Lesson chain reordered**: `hardware-detection → download-model → verify-installation → interactive-chat` (previously verify-installation was step 2, before download-model)
-- **verify-installation.md rewritten** as diagnostic hub ("Verify Your Setup"): three checks with pass/fail interpretation and contextual links; no longer assumes `~/tt-metal` exists; QB2 callout explaining pre-configured images ship without source
-- **download-model.md rewritten**: Qwen3-0.6B is now the primary model (no license gate, works on all hardware including N150/P300c); Llama-3.1-8B-Instruct moved to optional section with N300+ DRAM warning; Steps 4-6 (tt-metal clone/setup) removed (now in build-tt-metal lesson)
+- **verify-installation.md rewritten** as diagnostic hub ("Verify Your Setup"): three checks with pass/fail interpretation and contextual links; no longer assumes `~/tt-metal` exists; TT-QuietBox 2 callout explaining pre-configured images ship without source
+- **download-model.md rewritten**: Qwen3-0.6B is now the primary model (no license gate, works on all hardware including n150/p300c); Llama-3.1-8B-Instruct moved to optional section with n300+ DRAM warning; Steps 4-6 (TT-Metalium clone/setup) removed (now in build-TT-Metalium lesson)
 - **tt-installer.md category**: `advanced` → `first-inference`
-- **lesson-registry.json navigation updated**: previousLesson/nextLesson chain reflects new order; build-tt-metal entry added; verify-installation and download-model titles/descriptions synced with markdown front matter
+- **lesson-registry.json navigation updated**: previousLesson/nextLesson chain reflects new order; build-TT-Metalium entry added; verify-installation and download-model titles/descriptions synced with markdown front matter
 
 ### Fixed
-- **DispatchCoreAxis.ROW crash on Blackhole** in three templates (`tt-chat-direct.py`, `tt-coding-assistant.py`, `tt-api-server-direct.py`): removed `ttnn.DispatchCoreAxis.ROW` argument from `DispatchCoreConfig` calls — TTNN auto-detects the correct axis per architecture
+- **DispatchCoreAxis.ROW crash on Blackhole** in three templates (`tt-chat-direct.py`, `tt-coding-assistant.py`, `tt-api-server-direct.py`): removed `ttnn.DispatchCoreAxis.ROW` argument from `DispatchCoreConfig` calls — TT-NN auto-detects the correct axis per architecture
 - **`hf` CLI migration**: replaced deprecated `huggingface-cli` with `hf` CLI equivalents (`hf auth login`, `hf auth whoami`, `hf download`) in `download-model.md`, `interactive-chat.md`, `vllm-production.md`, and `terminalCommands.ts`
 - **HF_MODEL not exported**: added `export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct"` to the RUN_INFERENCE terminal command template in `terminalCommands.ts` — previously `simple_text_demo.py` would fail with missing env var
-- **setuptools/pkg_resources missing on QB2**: added `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install in the SETUP_ENVIRONMENT terminal command template
+- **setuptools/pkg_resources missing on TT-QuietBox 2**: added `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install in the SETUP_ENVIRONMENT terminal command template
 
 ---
 
@@ -1021,7 +1266,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `npm run build` (tsc) remains available for dev/test use
   - Package file count reduced from ~2186 to ~373; node_modules no longer shipped
 - **Marketplace metadata cleanup**: Removed "Tenstorrent" from user-visible fields as scanner experiment
-  - `displayName`: "Tenstorrent VSCode Toolkit" → "TT Developer Toolkit"
+  - `displayName`: "TT-VSCode-Toolkit" → "TT-VSCode-Toolkit"
   - `description`: Updated to focus on capabilities rather than brand name
   - Activity bar `title`: "Tenstorrent" → "TT Toolkit"
   - `publisher` field unchanged (tied to marketplace account)
@@ -1064,7 +1309,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Command Name Documentation**: Corrected command references in code comments
   - Updated EnvironmentConfig.ts and EnvironmentManager.ts to reference correct command name "Tenstorrent: Select Python Environment" (was incorrectly documented as "Switch Environment")
 - **Terminal Detection**: Fixed default terminal name to match environment registry
-  - Changed default terminal name from "TT: Metal" to "TT-Metal" to match ENVIRONMENT_REGISTRY displayName
+  - Changed default terminal name from "TT: Metal" to "TT-Metalium" to match ENVIRONMENT_REGISTRY displayName
   - Enables proper terminal detection by EnvironmentManager.detectActiveEnvironment()
 - **CHANGELOG Documentation**: Removed line number references from recent changelog entries
   - Line numbers drift as code changes, making historical references incorrect
@@ -1108,7 +1353,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.330] - 2026-03-19
 
 ### Fixed
-- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson in OpenClaw QB2 assistant walkthrough
+- **OpenClaw Lesson**: Removed broken link to non-existent `qb2-faq` lesson in OpenClaw TT-QuietBox 2 assistant walkthrough
 
 ---
 
@@ -1154,11 +1399,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.319] - 2026-01-19
 
 ### Added
-- **QB2 Demos Cohesive Setup System:** Unified environment management for all QB2 demos
+- **TT-QuietBox 2 Demos Cohesive Setup System:** Unified environment management for all TT-QuietBox 2 demos
   - Master setup script: `setup_qb2_demos.sh` creates shared Python venv at `~/qb2-demos-venv`
   - Installs all dependencies for demos 1-3 in one go (~2-3 minutes)
   - Optional Rust setup for Hardware Constellation (~5 minutes)
-  - Checks for TT-Metal installation and ttnn availability
+  - Checks for TT-Metalium installation and ttnn availability
   - Detects devices with tt-smi
   - QUICKSTART.md comprehensive getting-started guide
 
@@ -1167,7 +1412,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `neon-chaos/run.sh` - Particle Life runner
   - `recursive-dreams/run.sh` - Stable Diffusion XL runner
   - Each script:
-    - ✅ Activates QB2 venv automatically
+    - ✅ Activates TT-QuietBox 2 venv automatically
     - ✅ Exports TT_METAL_HOME and PYTHONPATH
     - ✅ Checks for ttnn availability
     - ✅ Detects devices with tt-smi
@@ -1175,8 +1420,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - ✅ Shows estimated time and controls
 
 ### Changed
-- **Extension QB2 Commands Enhanced:**
-  - All QB2 demo creation commands now call `copyQB2MasterFiles()` helper
+- **Extension TT-QuietBox 2 Commands Enhanced:**
+  - All TT-QuietBox 2 demo creation commands now call `copyQB2MasterFiles()` helper
   - Automatically copies master setup files to `~/tt-scratchpad/qb2-demos/`
   - Makes all shell scripts executable (chmod 0o755)
   - Consistent file deployment across all 4 demos
@@ -1189,7 +1434,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ~500MB disk space vs ~2GB for separate venvs
 - **Run Script Features:**
   - Color-coded output (green ✓, yellow ⚠️, red ❌)
-  - Graceful degradation (works without TT-Metal, uses CPU mode)
+  - Graceful degradation (works without TT-Metalium, uses CPU mode)
   - Device detection and count display
   - Demo number validation
   - Estimated time display (for Recursive Dreams)
@@ -1202,7 +1447,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Setup Script Intelligence:**
   - Detects existing venv (offers rebuild or skip)
   - Verifies Python 3.8+ availability
-  - Checks TT-Metal at $TT_METAL_HOME
+  - Checks TT-Metalium at $TT_METAL_HOME
   - Tests ttnn import for hardware acceleration
   - Provides clear next steps and examples
 
@@ -1216,7 +1461,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.326] - 2026-02-26
 
 ### Added
-- **QB2 Hardware Constellation Demo:** Fourth Quietbox 2 demo - Real-time TT hardware monitoring with stunning visualizations
+- **TT-QuietBox 2 Hardware Constellation Demo:** Fourth Quietbox 2 demo - Real-time TT hardware monitoring with stunning visualizations
   - New lesson: `qb2-hardware-constellation` - "Your Tensix cores are STARS!"
   - Integration with tt-toplike-rs (public Rust project)
   - 5 progressive demos from mock hardware to GPU-accelerated native GUI
@@ -1285,7 +1530,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.325] - 2026-02-26
 
 ### Added
-- **QB2 Recursive Dreams Demo:** Third Quietbox 2 demo - AI-generated impossible realities with Stable Diffusion XL
+- **TT-QuietBox 2 Recursive Dreams Demo:** Third Quietbox 2 demo - AI-generated impossible realities with Stable Diffusion XL
   - New lesson: `qb2-recursive-dreams` - "Where Logic Goes to Die!"
   - 5 progressive demos from simple recursion to peak cognitive dissonance
   - Demo 1: Simple Paradox 🪞 (1 image, 20 steps) - Basic mirror recursion
@@ -1321,7 +1566,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Demo 1: ~15 seconds per image (20 steps)
   - Demo 5: ~30 seconds per image (40 steps, highest quality)
   - Total Demo 5 time: ~150 seconds for 5 images
-  - Hardware accelerated via TTNN when TT-Metal Stable Diffusion available
+  - Hardware accelerated via TT-NN when TT-Metalium Stable Diffusion available
   - Graceful fallback to CPU/CUDA if TT-SD not present
 - **Philosophy:** "Computational Theater" - Creating impossible realities that couldn't exist physically but can exist in generated imagery
 - **Featured Prompts:**
@@ -1336,7 +1581,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.324] - 2026-02-26
 
 ### Added
-- **QB2 Neon Chaos Demo:** Second Quietbox 2 demo - Particle Life with TRON/TEMPEST aesthetic
+- **TT-QuietBox 2 Neon Chaos Demo:** Second Quietbox 2 demo - Particle Life with TRON/TEMPEST aesthetic
   - New lesson: `qb2-neon-chaos` - "Emergence meets cyberpunk!"
   - 5 progressive demos from 512 to 10,000 particles
   - Demo 1: Gentle Orbits (512 particles, 3 species, soft pastels)
@@ -1362,8 +1607,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Configurable bloom intensity (0.3 → 1.0 across demos)
   - 10 distinct neon colors for species differentiation
 - **Performance:**
-  - N150 (1 chip): Demos 1-3 smooth, Demo 5 at ~15 FPS
-  - P150 (4 chips): Demo 5 hits 60 FPS target
+  - n150 (1 chip): Demos 1-3 smooth, Demo 5 at ~15 FPS
+  - p150 (4 chips): Demo 5 hits 60 FPS target
   - Galaxy: Demo 5 at 120+ FPS (rendering-limited)
 - **Emergent Patterns:** Self-organizing galaxies, swirling vortices, lightning chains, wave oscillations, orb clusters
 - **Random Variation:** Every run creates unique universe from random attraction matrices
@@ -1373,7 +1618,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.323] - 2026-02-26
 
 ### Added
-- **QB2 Life Acceleration Demo:** First Quietbox 2 demo lesson - progressive Game of Life showcase
+- **TT-QuietBox 2 Life Acceleration Demo:** First Quietbox 2 demo lesson - progressive Game of Life showcase
   - New lesson: `qb2-life-acceleration` - "Click Click Click!" demo series
   - 5 progressive demos from 128×128 to 4096×4096 grids (16 million cells!)
   - Demo 1: Baby Steps (128×128, gentle intro)
@@ -1389,12 +1634,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Computational theater approach - show, don't tell!
 
 ### Technical Details
-- **QB2 Demo Philosophy:** Progressive intensity, fullscreen wow factor, spectacular finale
+- **TT-QuietBox 2 Demo Philosophy:** Progressive intensity, fullscreen wow factor, spectacular finale
 - **Performance Expectations:**
-  - N150 (1 chip): Demo 1-2 at target FPS, Demo 5 at ~20 FPS
-  - P150 (4 chips): Demo 5 hits 500+ FPS target
+  - n150 (1 chip): Demo 1-2 at target FPS, Demo 5 at ~20 FPS
+  - p150 (4 chips): Demo 5 hits 500+ FPS target
   - Galaxy (32 chips): Demo 5 reaches 2000+ FPS
-- **TTNN Optimization:** Convolution for neighbor counting, parallel tile computing, batch processing
+- **TT-NN Optimization:** Convolution for neighbor counting, parallel tile computing, batch processing
 - **Visualization:** Matplotlib fullscreen mode, rainbow color gradients, real-time stats overlay
 
 ---
@@ -1402,7 +1647,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.322] - 2026-02-26
 
 ### Added
-- **Quietbox 2 Demos Category:** New lesson category for QB2 demos and creative showcases
+- **Quietbox 2 Demos Category:** New lesson category for TT-QuietBox 2 demos and creative showcases
   - Category ID: `qb2-demos`
   - Positioned at order 2 (right after Welcome section)
   - Icon: ⚡ zap
@@ -1410,9 +1655,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All existing categories reordered (incremented by 1)
 
 ### Changed
-- **Category Order:** Shifted all categories down by 1 to accommodate new QB2 Demos section
+- **Category Order:** Shifted all categories down by 1 to accommodate new TT-QuietBox 2 Demos section
   - Welcome remains order 1
-  - QB2 Demos is now order 2
+  - TT-QuietBox 2 Demos is now order 2
   - Your First Inference moved from order 2 → 3
   - All subsequent categories incremented accordingly
 
@@ -1421,12 +1666,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.321] - 2026-02-26
 
 ### Added
-- **P300C + JAX Support:** Complete P300C hardware support with TT-XLA wheel v0.9.0
-  - tt-xla-jax lesson: Added P300C to supportedHardware array
+- **p300c + JAX Support:** Complete p300c hardware support with TT-XLA wheel v0.9.0
+  - tt-xla-jax lesson: Added p300c to supportedHardware array
   - tt-xla-jax lesson: Changed status from "draft" to "validated"
   - tt-xla-jax lesson: Added validatedOn array with "p300c"
-  - lesson-registry.json: Updated metadata for P300C support
-  - CLAUDE.md: Comprehensive P300C + JAX Support section documenting validation
+  - lesson-registry.json: Updated metadata for p300c support
+  - CLAUDE.md: Comprehensive p300c + JAX Support section documenting validation
 
 - **Model Roulette Feature:** New lesson for creative AI with TT-Forge
   - content/lessons/model-roulette-ttforge.md: Complete lesson on using TT-Forge for creative AI models
@@ -1437,7 +1682,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **README.md:** Updated compiler lessons count to reflect new Model Roulette lesson
   - Compilers & Tools: 3 lessons, 1 validated (was 2 lessons, 0 validated)
-  - JAX Inference now shows P300C validation status
+  - JAX Inference now shows p300c validation status
 
 ---
 
@@ -1445,7 +1690,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **All Dockerfiles:** Migrated from `codercom/code-server:latest` to Ubuntu 24.04 base image
-  - Better tt-installer compatibility (Ubuntu 24.04 is the preferred platform)
+  - Better TT-Installer compatibility (Ubuntu 24.04 is the preferred platform)
   - Code-server installed via official installation script
   - Manual `coder` user creation with sudo privileges
   - Optimized with `--no-install-recommends` flag (no X11, docs, or bloat)
@@ -1472,23 +1717,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.314] - 2026-02-19
 
 ### Fixed
-- **Dockerfile.koyeb:** Replaced broken tt-metalium base image with self-maintained approach using code-server + tt-installer
-- Koyeb deployment now works reliably without depending on external tt-metalium images
+- **Dockerfile.koyeb:** Replaced broken TT-Metalium base image with self-maintained approach using code-server + TT-Installer
+- Koyeb deployment now works reliably without depending on external TT-Metalium images
 
 ### Changed
 - **Dockerfile.koyeb:** Now uses `codercom/code-server:latest` as base (consistent with other Dockerfiles)
-- **Dockerfile.koyeb:** Installs tt-smi, tt-flash, and tools via tt-installer with `--mode-container` flag
-- **Dockerfile.koyeb:** No longer includes pre-compiled tt-metal (users can build via lessons when needed)
+- **Dockerfile.koyeb:** Installs tt-smi, tt-flash, and tools via TT-Installer with `--mode-container` flag
+- **Dockerfile.koyeb:** No longer includes pre-compiled TT-Metalium (users can build via lessons when needed)
 - **docs/deployment/DEPLOYMENT.md:** Updated Koyeb image description
 - **docs/deployment/KOYEB.md:** Updated deployment guide to reflect new image architecture
-- **content/lessons/deploy-vscode-to-koyeb.md:** Updated deployment lesson with tt-installer tools information
+- **content/lessons/deploy-vscode-to-koyeb.md:** Updated deployment lesson with TT-Installer tools information
 - **content/lessons/deploy-to-koyeb.md:** Updated to clarify base image tooling
 
 ### Technical Details
 - Image size: ~2-3GB (more realistic with tools included)
-- Build time: ~5-10 minutes (no pre-compilation of tt-metal)
-- Tools installed: tt-smi, tt-flash, tt-topology, tt-inference-server (via tt-installer)
-- Users can still build tt-metal via lessons when needed for development work
+- Build time: ~5-10 minutes (no pre-compilation of TT-Metalium)
+- Tools installed: tt-smi, tt-flash, tt-topology, TT-Inference-Server (via TT-Installer)
+- Users can still build TT-Metalium via lessons when needed for development work
 
 ---
 
@@ -1515,7 +1760,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `docs/CLAUDE_follows_v0.65.1.md` - Full validation log with technical findings (368 lines)
   - Created `docs/CONTENT_QUALITY_AUDIT_v0.65.1.md` - Line-by-line content audit (400+ lines)
   - Created `docs/VALIDATION_SUMMARY_v0.65.1.md` - Executive summary and recommendations (350+ lines)
-  - Validated tt-metal v0.65.1 works correctly on N150 hardware
+  - Validated TT-Metalium v0.65.1 works correctly on n150 hardware
   - Documented environment setup (Phase 1: 15 min)
   - Conducted pattern-based content quality audit (Phase 2: 40 min)
   - Identified 3 systemic UX patterns (1 anti-pattern fixed, 2 already good)
@@ -1526,7 +1771,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **verify-installation** - Eliminated all manual code entry pain points with 4 new command buttons
 
 ### Validated
-- **tt-metal v0.65.1 Status:** ✅ Working correctly on N150 hardware
+- **TT-Metalium v0.65.1 Status:** ✅ Working correctly on n150 hardware
   - Clean installation (15 min with ccache)
   - Device operations passing
   - tt-smi improved (snapshot mode works perfectly)
@@ -1535,8 +1780,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documented
 - **Version Recommendations:** v0.65.1 recommended for all first-inference, production serving, image generation, and cookbook lessons
-- **tt-forge-venv:** Documented as placeholder (Python 3.11.13, empty except pip/setuptools) - will be configured when validating tt-forge lessons
-- **Hardware Validation:** N150 L (Wormhole) fully validated with v0.65.1
+- **TT-Forge-venv:** Documented as placeholder (Python 3.11.13, empty except pip/setuptools) - will be configured when validating TT-Forge lessons
+- **Hardware Validation:** n150 L (Wormhole) fully validated with v0.65.1
 - **Known Issues:** tt-smi TUI mode improved but still has rendering loop in non-interactive environments (workaround: use `tt-smi -s`)
 
 ---
@@ -1559,7 +1804,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Auto-Generated Lesson Catalog in README** - Complete lesson listing with validated hardware badges
   - README.md now includes auto-updated lesson catalog showing all 39 lessons
-  - Hardware validation badges (N150, N300, P300, etc.) show which platforms each lesson has been tested on
+  - Hardware validation badges (n150, n300, p300, etc.) show which platforms each lesson has been tested on
   - Status indicators for draft, blocked, and validated lessons
   - Organized by category with lesson counts and validation stats
   - Generator script automatically updates README when lesson registry changes
@@ -1591,7 +1836,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - cookbook-mandelbrot.md: Separated two python command examples for better readability
   - cookbook-audio-processor.md: Separated audio effects and spectrogram examples
   - Improves rendering consistency across all cookbook lessons
-- **CT3 Configuration Patterns** - Changed table header from "Trickster (N150)" to "Example (N150)"
+- **CT3 Configuration Patterns** - Changed table header from "Trickster (n150)" to "Example (n150)"
   - Makes table more generic and less confusing for users
   - Aligns with lesson neutrality (nano-trickster is specific to CT8)
 
@@ -1612,10 +1857,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Lesson Validation Metadata** - Added missing `validatedOn` field to 11 validated lessons
-  - All first-inference lessons now show N150 validation status
-  - All serving lessons (vLLM, image generation) now show N150 validation status
-  - Deployment lessons and AnimateDiff now show N150 validation status
-  - Fixes: tt-installer, hardware-detection, verify-installation, download-model, interactive-chat, api-server, vllm-production, image-generation, animatediff-video-generation, deploy-vscode-to-koyeb, deploy-to-koyeb
+  - All first-inference lessons now show n150 validation status
+  - All serving lessons (vLLM, image generation) now show n150 validation status
+  - Deployment lessons and AnimateDiff now show n150 validation status
+  - Fixes: TT-Installer, hardware-detection, verify-installation, download-model, interactive-chat, api-server, vllm-production, image-generation, animatediff-video-generation, deploy-vscode-to-koyeb, deploy-to-koyeb
 
 ---
 
@@ -1678,7 +1923,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - CT8: Training progression diagrams (already present, verified)
   - **Inspirational Content**: Added "What's Possible" / "Beyond This Lesson" sections to all 8 lessons
     - Real-world application examples and success stories
-    - Scaling possibilities from N150 → N300 → T3K → Galaxy
+    - Scaling possibilities from n150 → n300 → T3000 → Galaxy
     - "Imagine..." prompts for creative thinking
     - Economic viability and ROI examples
     - Domain-specific adaptation guidance
@@ -1710,7 +1955,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.298] - 2026-02-03
 
 ### Added
-- **Custom Training Ready for Production** - Complete validation on N150 hardware with tt-metal v0.66.0-rc7
+- **Custom Training Ready for Production** - Complete validation on n150 hardware with TT-Metalium v0.66.0-rc7
   - All 8 Custom Training lessons (CT1-CT8) fully validated and working
   - NanoGPT Shakespeare training: 136 steps, 76 seconds, 14% loss improvement ✅
   - Trickster fine-tuning: 10 steps, 29 seconds, 31.5% loss improvement ✅
@@ -1722,13 +1967,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Helps users target versions with known-good results
 
 ### Changed
-- **Training API Compatibility** - Updated for tt-metal v0.66.0+ compatibility
+- **Training API Compatibility** - Updated for TT-Metalium v0.66.0+ compatibility
   - `content/templates/training/finetune_trickster.py` - Fixed 7 instances of `Tensor.from_numpy()` API
   - Changed `ttml.Layout` → `ttnn.Layout`
   - Changed `ttml.autograd.DataType` → `ttnn.DataType`
   - Changed positional args → keyword args (`layout=`, `new_type=`, `mapper=`)
   - Fixes "AttributeError: module 'ttml' has no attribute 'Layout'" in v0.66.0+
-- **Version Requirements** - Updated minimum tt-metal version for Custom Training
+- **Version Requirements** - Updated minimum TT-Metalium version for Custom Training
   - `content/lessons/ct4-finetuning-basics.md:46` - Changed from "v0.64.5 or later" to "v0.66.0-rc5 or later"
   - `content/lessons/ct4-finetuning-basics.md:55-65` - Added version compatibility section
   - `content/lessons/ct8-training-from-scratch.md:208-228` - Added version requirements and verification steps
@@ -1736,14 +1981,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Context
-- **Validation environment**: N150 (Wormhole single-chip), tt-metal v0.66.0-rc7
+- **Validation environment**: n150 (Wormhole single-chip), TT-Metalium v0.66.0-rc7
 - **Training workflows tested**:
   - CT8 from-scratch: NanoLlama3 (11M params, 6 layers, 384 dim) on Shakespeare ✅
   - Trickster fine-tuning: NanoGPT on witty Q&A dataset ✅
 - **Hardware requirements discovered**:
-  - N150: Perfect for NanoGPT (11M params) ✅
-  - N150: TinyLlama-1.1B OOM (needs 2GB DRAM, only 1GB available) ❌
-  - N300+: Recommended for TinyLlama-1.1B fine-tuning (2GB+ DRAM) ✅
+  - n150: Perfect for NanoGPT (11M params) ✅
+  - n150: TinyLlama-1.1B OOM (needs 2GB DRAM, only 1GB available) ❌
+  - n300+: Recommended for TinyLlama-1.1B fine-tuning (2GB+ DRAM) ✅
 - **Version compatibility**:
   - v0.64.5 and earlier: C++ tt-train only ❌
   - v0.66.0-rc5+: Python ttml module available ✅
@@ -1773,8 +2018,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All 8 lessons are conceptual/educational and hardware-agnostic
 - CS Fundamentals modules (01-07) teach computer architecture, memory hierarchy, parallelism, networks, synchronization, abstraction layers, and computational complexity
 - Bounty Program lesson teaches model bring-up contribution process
-- All lessons validated on N150 with tt-metal v0.63.0
-- ValidatedOn includes all hardware: ["n150", "n300", "t3k", "p100", "p150", "p300", "galaxy"]
+- All lessons validated on n150 with TT-Metalium v0.63.0
+- ValidatedOn includes all hardware: ["n150", "n300", "t3k", "p100", "p150", "p300", "Galaxy"]
 - Total validated lessons: 28 out of 48 lessons (8 new + 20 previously validated)
 
 ---
@@ -1784,7 +2029,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Custom Training Prerequisites** - Added comprehensive setup section to CT4
   - `content/lessons/ct4-finetuning-basics.md:37-189` - New Prerequisites and Environment Setup section
-  - Documents 6 critical fixes from N150 validation
+  - Documents 6 critical fixes from n150 validation
   - Includes troubleshooting guide for common issues
   - Validation notes appendix with confidence assessment
 - **Training Helper Scripts** - Added 3 automated setup and validation scripts
@@ -1802,14 +2047,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Custom Training Environment Setup** - Documented 6 critical issues found during validation
   1. Submodule version mismatch causing compilation errors
-  2. pip ttnn conflicts with locally-built tt-metal
+  2. pip ttnn conflicts with locally-built TT-Metalium
   3. Missing transformers package requirement
   4. Undefined environment variables (TT_METAL_HOME, LD_LIBRARY_PATH, PYTHONPATH)
   5. No prerequisites validation before training
   6. Dataset preparation workflow unclear in CT8
 
 ### Context
-- Validation performed on N150 hardware with tt-metal v0.64.5
+- Validation performed on n150 hardware with TT-Metalium v0.64.5
 - All 3 new scripts tested and working
 - Prerequisites prevent 86% of user blockers
 - Lesson quality improved from 4.875/5.0 to 5.0/5.0
@@ -1821,21 +2066,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.295] - 2026-02-02
 
 ### Changed
-- **Lesson Validation Status** - Marked additional lessons as validated on N150
+- **Lesson Validation Status** - Marked additional lessons as validated on n150
   - `content/lesson-registry.json:398-401` - coding-assistant: Changed status from "draft" to "validated", added "n150" to validatedOn
   - `content/lesson-registry.json:810-813` - tt-xla-jax: Changed status from "draft" to "validated", added "n150" to validatedOn
 
 ### Context
-- Both lessons successfully tested and validated on N150 hardware in cloud environment
+- Both lessons successfully tested and validated on n150 hardware in cloud environment
 - Verified existing validated lessons (18 total) all have "n150" in validatedOn arrays:
   - Cookbook (6): cookbook-overview, cookbook-game-of-life, cookbook-audio-processor, cookbook-mandelbrot, cookbook-image-filters, cookbook-particle-life
   - First Inference (5): hardware-detection, verify-installation, download-model, interactive-chat, api-server
   - Serving (3): vllm-production, image-generation, video-generation-ttmetal
   - Advanced (2): explore-metalium, animatediff-video-generation
-  - Installation (1): tt-installer
+  - Installation (1): TT-Installer
   - Applications (1): coding-assistant (newly validated)
   - Compilers (1): tt-xla-jax (newly validated)
-- Total validated lessons on N150: 20 out of 48 lessons
+- Total validated lessons on n150: 20 out of 48 lessons
 - All 387 tests passing
 
 ---
@@ -1847,7 +2092,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `src/telemetry/telemetryReader.py:44-88` - New `get_accessible_pci_addresses()` function maps `/dev/tenstorrent/` nodes to PCI addresses
   - `src/telemetry/telemetryReader.py:90-120` - Updated `find_tenstorrent_devices()` to filter sysfs devices by `/dev/tenstorrent/` accessibility
   - Fixes information disclosure in cloud environments where `/sys/class/tenstorrent/` exposes all devices but `/dev/tenstorrent/` only shows allocated devices
-  - Status bar now correctly shows "1x N150" instead of "8x N150" in multi-tenant cloud environments
+  - Status bar now correctly shows "1x n150" instead of "8x n150" in multi-tenant cloud environments
   - Falls back to old behavior if `/dev/tenstorrent/` is unavailable (bare metal scenarios)
 
 ### Changed
@@ -1855,7 +2100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `src/telemetry/telemetryReader.py:7-10` - Added multi-tenant isolation section explaining sysfs vs /dev visibility
 
 ### Context
-- Discovered in cloud environment where 8 N150 cards are sliced across instances
+- Discovered in cloud environment where 8 n150 cards are sliced across instances
 - Proper device access control exists but sysfs visibility leaks telemetry from other tenants' devices
 - This is a workaround; server administrators should implement proper sysfs isolation via cgroups/namespaces
 - All 387 tests passing
@@ -1865,8 +2110,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.293] - 2026-02-02
 
 ### Added
-- **Cloud/Container Environment Warnings** - Enhanced tt-installer lesson with comprehensive cloud and container guidance
-  - `content/lessons/tt-installer.md:40-48` - Added prominent warning box after "What is tt-installer 2.0?" section
+- **Cloud/Container Environment Warnings** - Enhanced TT-Installer lesson with comprehensive cloud and container guidance
+  - `content/lessons/tt-installer.md:40-48` - Added prominent warning box after "What is TT-Installer 2.0?" section
   - `content/lessons/tt-installer.md:301-329` - Expanded Container Mode section with Cloud Environment Best Practices subsection
   - `content/lessons/tt-installer.md:527-588` - Added comprehensive FAQ section with 7 Q&A entries covering:
     - Docker/container usage
@@ -1976,7 +2221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed duplicate "External Resources" and closing sections
   - File reduced from 768 lines to 511 lines (33% reduction)
 - **Terminology Standardization** - Fixed inconsistent hardware naming in prose:
-  - `content/lessons/video-generation-ttmetal.md:83` - Changed "(n150, n300, t3k, p100)" to "(N150, N300, T3K, P100)"
+  - `content/lessons/video-generation-ttmetal.md:83` - Changed "(n150, n300, t3k, p100)" to "(n150, n300, T3000, p100)"
   - `content/lessons/tt-inference-server.md:548-549` - Capitalized hardware names in model compatibility list
   - `content/pages/FAQ.md:365-369` - Changed hardware names from lowercase to uppercase in prose descriptions
   - Note: Lowercase hardware names in YAML metadata, code, and command output remain correct
@@ -1987,8 +2232,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Notes
 - Style guide establishes "single source of truth" for terminology and formatting
-- Hardware names: Uppercase in prose (N150, N300), lowercase in code/config
-- Product names: "tt-metal" in code, "TT-Metal" in prose, "vLLM" consistently
+- Hardware names: Uppercase in prose (n150, n300), lowercase in code/config
+- Product names: "TT-Metalium" in code, "TT-Metalium" in prose, "vLLM" consistently
 - All changes maintain backward compatibility with existing lessons and code
 
 ---
@@ -1996,7 +2241,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.280] - 2026-01-29
 
 ### Fixed
-- **Device Count Display** - Fixed N150 showing "x5" in statusbar when only 1 device present
+- **Device Count Display** - Fixed n150 showing "x5" in statusbar when only 1 device present
   - `readTelemetry()` now returns raw multi-device data instead of pre-aggregating
   - `updateTelemetry()` properly sets `this.currentMultiDeviceTelemetry`
   - Status bar correctly displays single device name without duplicate count suffix
@@ -2022,7 +2267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `content/motd.txt` with customizable welcome content
   - Created `scripts/show-motd.sh` for dynamic system information display
   - Displays Quick Start guide, essential commands, lesson links, and tips
-  - Shows real-time system info: RAM, CPU cores, hardware detection, tt-metal status
+  - Shows real-time system info: RAM, CPU cores, hardware detection, TT-Metalium status
   - Configured to display once per terminal session
 
 ### Changed
@@ -2061,31 +2306,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **HuggingFace CLI** (`hf`) installed in all Docker images for model downloads
 - **Claude CLI** (`claude`) installed in Dockerfile and Dockerfile.full (not available in Koyeb due to base image constraints)
 - **Docker improvements:** Added nodejs/npm for CLI tool support
-- **Koyeb deployment support:** Successfully tested end-to-end deployment with N300 hardware
+- **Koyeb deployment support:** Successfully tested end-to-end deployment with n300 hardware
 
 ### Changed
-- **docker-entrypoint.sh:** Skip tt-metal installation when `TT_METAL_PREBUILT=true` (for tt-metalium base image)
-- **Dockerfile.koyeb:** Optimized for tt-metalium base image, HuggingFace CLI only
+- **docker-entrypoint.sh:** Skip TT-Metalium installation when `TT_METAL_PREBUILT=true` (for TT-Metalium base image)
+- **Dockerfile.koyeb:** Optimized for TT-Metalium base image, HuggingFace CLI only
 - **CLI tool verification:** Entrypoint now checks for `hf` command (not `huggingface-cli`)
 - **deploy-vscode-to-koyeb.md:** Updated to document available CLI tools and limitations
 
 ### Fixed
 - **PEP 668 compliance:** Added `--break-system-packages` flag to pip3 install commands in Dockerfiles (safe for containers)
-- **Koyeb deployment errors:** Fixed tt-metal installation loop by detecting pre-built environment
+- **Koyeb deployment errors:** Fixed TT-Metalium installation loop by detecting pre-built environment
 - **npm installation:** Added nodejs/npm to apt-get install for Claude CLI support
 
 ### Technical Notes
-- Koyeb deployment uses tt-metalium base image (pre-built tt-metal dependencies)
-- tt-metal Python packages still require setup via extension lessons (quick version)
-- Optional: Can pre-build tt-metal in Dockerfile.koyeb for instant readiness (15-25 min build time)
-- Successfully tested with N300 hardware access, tt-smi working, HuggingFace CLI operational
+- Koyeb deployment uses TT-Metalium base image (pre-built TT-Metalium dependencies)
+- TT-Metalium Python packages still require setup via extension lessons (quick version)
+- Optional: Can pre-build TT-Metalium in Dockerfile.koyeb for instant readiness (15-25 min build time)
+- Successfully tested with n300 hardware access, tt-smi working, HuggingFace CLI operational
 
 ---
 ## [0.0.271] - 2026-01-27
 
 ### Changed
 - verify-installation lesson now documents both installation paradigms:
-  - Pre-installed (tt-installer) - production approach
+  - Pre-installed (TT-Installer) - production approach
   - Manual build from source - development approach
 - Added critical Python version matching requirement to build documentation
 - Documented OpenMPI ULFM library path requirement (LD_LIBRARY_PATH)
@@ -2093,16 +2338,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Clarified Python version consistency requirement (build vs runtime must match)
-- Documented separation of pre-installed and built tt-metal environments
+- Documented separation of pre-installed and built TT-Metalium environments
 - Added explicit git submodule initialization as critical step
 
 ## [0.0.270] - 2026-01-27
 
 ### Changed
-- Updated lesson-registry.json to include P300C validation status
+- Updated lesson-registry.json to include p300c validation status
   - hardware-detection: Added "p300" to supportedHardware and validatedOn
   - verify-installation: Added "p300" to supportedHardware and validatedOn
-- Extended supported hardware coverage for P300C Blackhole devices
+- Extended supported hardware coverage for p300c Blackhole devices
 
 ## [0.0.269] - 2026-01-23
 
@@ -2135,7 +2380,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed separate device count status bar item
 - Retired Python environment status bar indicators (switching still available via command palette)
 - Simplified device actions menu with sysfs as default monitoring
-- Updated CODE_OF_CONDUCT, CONTRIBUTING, README, SECURITY for open-source
+- Updated CODE_OF_CONDUCT, CONTRIBUTING, README, SECURITY for open source
 - Theme activation now uses standard configurationDefaults in package.json
 - Moved .cleanup.sh → scripts/cleanup.sh for better organization
 
@@ -2173,7 +2418,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.242] - 2026-01-08
 
 ### Added
-- Full validation of CS Fundamentals series (7 modules) on QuietBox P300c
+- Full validation of CS Fundamentals series (7 modules) on TT-QuietBox p300c
 - docs/QB_RISCV_follows.md - Comprehensive validation documentation
 
 ### Fixed
@@ -2198,7 +2443,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Temperature now visible directly in status bar (no hover needed)
-- Multi-device temperature ranges (e.g., "4x P300 32-38°C")
+- Multi-device temperature ranges (e.g., "4x p300 32-38°C")
 - Monochrome SVG icon using `currentColor` for better theme compatibility
 
 ### Fixed
@@ -2220,8 +2465,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Python telemetry reader returns array of all devices
 
 ### Changed
-- Single device display: "✓ TT: P300" with temp/power in tooltip
-- Multiple devices display: "✓ TT: 4x P300" with temperature range
+- Single device display: "✓ TT: p300" with temp/power in tooltip
+- Multiple devices display: "✓ TT: 4x p300" with temperature range
 - Aggregate health status (worst status wins)
 
 ## [0.0.225] - 2026-01-04
@@ -2313,7 +2558,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Python environment status bar indicator for each terminal
 - EnvironmentManager service tracks and activates environments per terminal
-- 6 supported environments (TT-Metal, TT-Forge, TT-XLA, vLLM, API Server, Explore)
+- 6 supported environments (TT-Metalium, TT-Forge, TT-XLA, vLLM, API Server, Explore)
 - New commands: `selectPythonEnvironment`, `refreshEnvironmentStatus`
 
 ### Changed
@@ -2374,7 +2619,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Action menu for `exploreProgrammingExamples` (Open in Terminal, Show in Explorer, Open Folder)
-- Auto-configuration of Jupyter to use tt-metal Python environment
+- Auto-configuration of Jupyter to use TT-Metalium Python environment
 
 ### Fixed
 - `launchTtnnTutorials` now creates .vscode/settings.json with correct interpreter
@@ -2411,8 +2656,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command parameterization for hardware-specific operations
 
 ### Removed
-- `startVllmServerN150/N300/T3K/P100` (4 commands - now parameterized)
-- `startTtInferenceServerN150/N300` (2 commands - now parameterized)
+- `startVllmServerN150/n300/T3000/p100` (4 commands - now parameterized)
+- `startTtInferenceServerN150/n300` (2 commands - now parameterized)
 
 ## [0.0.102] - 2025-12-20
 
@@ -2423,7 +2668,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Completely rewrote TT-XLA installation instructions (Ubuntu-specific)
-- Changed from curl download to full tt-forge repo clone workflow
+- Changed from curl download to full TT-Forge repo clone workflow
 
 ### Fixed
 - Added `unset TT_METAL_HOME` and `unset LD_LIBRARY_PATH` steps
@@ -2445,7 +2690,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `testChat()` command now properly opens VSCode chat panel
-- Lesson 7 metadata: status changed to "validated", added N150 to validatedOn
+- Lesson 7 metadata: status changed to "validated", added n150 to validatedOn
 
 ### Changed
 - Updated Lesson 8 to use Qwen3-0.6B throughout
@@ -2481,7 +2726,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Complete Lesson 7 rewrite centered on Qwen3-0.6B
-- Updated all examples to use Qwen3-0.6B as primary N150 model
+- Updated all examples to use Qwen3-0.6B as primary n150 model
 
 ### Fixed
 - Model recommendations (removed Gemma-2-2B-IT, added Gemma 3-1B-IT)

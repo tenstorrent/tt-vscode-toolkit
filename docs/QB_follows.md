@@ -1,25 +1,25 @@
-# Claude Follows Tutorials on QuietBox Blackhole Tower
+# Claude Follows Tutorials on TT-QuietBox Blackhole<sup>®</sup> Tower
 
 **Date:** 2026-01-08
-**Hardware:** 4x P300c (Blackhole) - QuietBox Tower
-**Environment:** Production QuietBox with fresh tt-installer setup
-**Starting State:** tt-metal installed, no models downloaded
+**Hardware:** 4x p300c (Blackhole) - TT-QuietBox Tower
+**Environment:** Production TT-QuietBox with fresh TT-Installer setup
+**Starting State:** TT-Metalium<sup>™</sup> installed, no models downloaded
 
 ---
 
 ## Mission
-Follow the VSCode extension walkthrough lessons on a QuietBox Blackhole Tower, executing commands on real Tenstorrent hardware. Document the QuietBox-specific experience, multi-chip capabilities, and validate that lessons work for production QB deployments.
+Follow the VSCode extension walkthrough lessons on a TT-QuietBox Blackhole Tower, executing commands on real Tenstorrent hardware. Document the TT-QuietBox-specific experience, multi-chip capabilities, and validate that lessons work for production QB deployments.
 
-## Environment Differences vs Cloud N150
+## Environment Differences vs Cloud n150
 
 ### Hardware
 **Original (CLAUDE_follows.md):**
-- **1x N150** (Wormhole, single chip)
+- **1x n150** (Wormhole, single chip)
 - 12GB DRAM
 - PCIe Gen4 x16
 
-**QuietBox BH Tower (this validation):**
-- **4x P300c** (Blackhole, quad chip)
+**TT-QuietBox BH Tower (this validation):**
+- **4x p300c** (Blackhole, quad chip)
 - PCIe: 0000:01-04:00.0
 - Firmware: 19.4.0.0 (0x13040000)
 - Driver: TT-KMD 2.6.0-rc1
@@ -30,23 +30,23 @@ Follow the VSCode extension walkthrough lessons on a QuietBox Blackhole Tower, e
 - Ubuntu 22.04.5 LTS
 - Kernel 5.4.0-216-generic
 - Python 3.10.12
-- tt-metal: Outdated (Oct 2024)
+- TT-Metalium: Outdated (Oct 2024)
 
-**QuietBox:**
+**TT-QuietBox:**
 - **Ubuntu 24.04.3 LTS** (newer LTS)
 - **Kernel 6.14.0-37-generic** (very new)
 - **Python 3.12.3** (bleeding edge)
-- **tt-metal: 44ef32f** (Dec 18, 2025 - fresh!)
+- **TT-Metalium: 44ef32f** (Dec 18, 2025 - fresh!)
 - **tt-smi: 3.0.39** (vs 3.0.27 on cloud)
 
 ### Installation Method
-**Original:** Manual install, outdated tt-metal
+**Original:** Manual install, outdated TT-Metalium
 
-**QuietBox:** **Fresh tt-installer deployment**
+**TT-QuietBox:** **Fresh TT-Installer deployment**
 - OpenMPI: `/opt/openmpi-v5.0.7-ulfm/`
 - Tenstorrent tools: `/opt/tenstorrent/`
 - Managed Python: `~/.tenstorrent-venv` (Python 3.12.3)
-- tt-metal Python: `~/tt-metal/python_env/` (Python 3.12.3)
+- TT-Metalium Python: `~/tt-metal/python_env/` (Python 3.12.3)
 
 ---
 
@@ -56,13 +56,13 @@ Follow the VSCode extension walkthrough lessons on a QuietBox Blackhole Tower, e
 
 **Command:** `tt-smi -s`
 
-**Result:** All 4 P300c devices detected successfully
+**Result:** All 4 p300c devices detected successfully
 
 ```json
-Device 0: 0000:01:00.0 | P300c | FW 19.4.0.0
-Device 1: 0000:02:00.0 | P300c | FW 19.4.0.0
-Device 2: 0000:03:00.0 | P300c | FW 19.4.0.0
-Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
+Device 0: 0000:01:00.0 | p300c | FW 19.4.0.0
+Device 1: 0000:02:00.0 | p300c | FW 19.4.0.0
+Device 2: 0000:03:00.0 | p300c | FW 19.4.0.0
+Device 3: 0000:04:00.0 | p300c | FW 19.4.0.0
 ```
 
 **Key Observations:**
@@ -80,7 +80,7 @@ Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
 
 ### Software Baseline ✅
 
-**tt-metal:**
+**TT-Metalium:**
 - Location: `~/tt-metal/`
 - Commit: `44ef32f` (Dec 18, 2025)
 - Build: Present (`build_Release/`)
@@ -96,20 +96,20 @@ python3 -c "import ttnn; print('✓ ttnn imported')"
 
 **CRITICAL FINDING:** ttnn is in `~/tt-metal/python_env/`, NOT in `~/.tenstorrent-venv`. Lessons must source the correct environment.
 
-### QuietBox-Specific Setup
+### TT-QuietBox-Specific Setup
 
 **Key Differences:**
 1. **Dual Python environments:**
    - `.tenstorrent-venv`: System-managed (Python 3.12.3) - used for tools
-   - `~/tt-metal/python_env/`: tt-metal Python bindings
+   - `~/tt-metal/python_env/`: TT-Metalium Python bindings
 
 2. **OpenMPI pre-installed:**
    - Path: `/opt/openmpi-v5.0.7-ulfm/lib`
    - Already in system configuration
    - No manual LD_LIBRARY_PATH exports needed (unlike cloud)
 
-3. **Fresh tt-metal:**
-   - No "outdated tt-metal" issues
+3. **Fresh TT-Metalium:**
+   - No "outdated TT-Metalium" issues
    - Latest Blackhole optimizations
    - No rebuild needed for lessons
 
@@ -130,7 +130,7 @@ tt-smi      # Interactive TUI
 tt-smi -s   # JSON output
 ```
 
-**Result:** ✅ Perfect - all 4 P300c devices detected
+**Result:** ✅ Perfect - all 4 p300c devices detected
 
 **TUI Output:**
 - Device 0: 0000:01:00.0 | p300c | 0000
@@ -148,10 +148,10 @@ tt-smi -s   # JSON output
 - Driver: TT-KMD 2.6.0-rc1
 
 **Issues Found:**
-1. **DOCUMENTATION GAP:** P300/P300c not documented in lesson's Blackhole section
-   - Lesson lists P100, P150, but not P300/P300c
-   - P300c is a quad-chip variant (4x P300?) - needs clarification
-   - **Recommendation:** Add P300/P300c to Blackhole hardware list with specs
+1. **DOCUMENTATION GAP:** p300/p300c not documented in lesson's Blackhole section
+   - Lesson lists p100, p150, but not p300/p300c
+   - p300c is a quad-chip variant (4x p300?) - needs clarification
+   - **Recommendation:** Add p300/p300c to Blackhole hardware list with specs
 
 2. **MULTI-DEVICE DISPLAY:** tt-smi handles 4 devices beautifully
    - Clean tabular layout
@@ -190,7 +190,7 @@ tensor([[2.1406],
 ```
 
 **Multi-Chip Initialization:**
-- ✅ All 4 P300c chips detected (IDs: 0, 1, 2, 3)
+- ✅ All 4 p300c chips detected (IDs: 0, 1, 2, 3)
 - ✅ PCIe mapping: {0→3, 1→2, 2→1, 3→0}
 - ✅ Auto-discovery mesh graph constructed
 - ✅ IOMMU enabled
@@ -211,8 +211,8 @@ tensor([[2.1406],
    New features may not be supported.
    ```
    - **Impact:** May hit unsupported features, but basic operations work
-   - **QB Note:** QuietBox ships with cutting-edge firmware
-   - **Recommendation:** Update tt-metal to support firmware 19.4.0+
+   - **QB Note:** TT-QuietBox ships with cutting-edge firmware
+   - **Recommendation:** Update TT-Metalium to support firmware 19.4.0+
 
 2. **MMIO SUBSET WARNING:** ⚠️
    ```
@@ -242,7 +242,7 @@ tensor([[2.1406],
 **Time:** 8 minutes (including documentation)
 
 **QB-Specific Notes:**
-- OpenMPI path `/opt/openmpi-v5.0.7-ulfm/lib` pre-configured by tt-installer ✅
+- OpenMPI path `/opt/openmpi-v5.0.7-ulfm/lib` pre-configured by TT-Installer ✅
 - Multi-chip auto-discovery works out of the box
 - Firmware/software version skew expected on fresh QB deployments
 - Performance warnings indicate room for optimization docs
@@ -291,7 +291,7 @@ Running Game of Life simulation...
 
 **QB-Specific Notes:**
 - Cookbook examples work perfectly on QB with Python 3.12
-- Dependencies (matplotlib, numpy) already installed in tt-metal python_env
+- Dependencies (matplotlib, numpy) already installed in TT-Metalium python_env
 - Example completed in ~18 seconds (including 4-chip initialization overhead)
 
 **Time:** 5 minutes
@@ -363,19 +363,19 @@ python3 filters.py /home/ttuser/tt-vscode-toolkit/assets/img/sd35_snowy_cabin.pn
 
 ### Lesson 7: vLLM Production ⏳ IN PROGRESS
 
-**Goal**: Validate vLLM production inference on 4x P300c Blackhole hardware
+**Goal**: Validate vLLM production inference on 4x p300c Blackhole hardware
 
 **Pre-Flight Check:**
-- ✅ Hardware: 4x P300c detected (Blackhole architecture)
-- ✅ tt-metal: ~/tt-metal exists, commit 44ef32f (Dec 18, 2025)
+- ✅ Hardware: 4x p300c detected (Blackhole architecture)
+- ✅ TT-Metalium: ~/tt-metal exists, commit 44ef32f (Dec 18, 2025)
 - ❌ vLLM repo: Not installed
 - ❓ Model: Need to check if Qwen3-0.6B available
 
 **Key Questions:**
-1. Does lesson support P300/P300c hardware? (Lesson mentions P100 but not P300)
-2. Does vLLM auto-detect P300c as Blackhole architecture?
-3. Will MESH_DEVICE configuration work for 4-chip P300c system?
-4. Do models recommended for N150 work on P300c?
+1. Does lesson support p300/p300c hardware? (Lesson mentions p100 but not p300)
+2. Does vLLM auto-detect p300c as Blackhole architecture?
+3. Will MESH_DEVICE configuration work for 4-chip p300c system?
+4. Do models recommended for n150 work on p300c?
 
 **Starting Fresh Install** (User requested: attempt native vLLM install)
 
@@ -459,12 +459,12 @@ huggingface-cli download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 
 **Initial Attempt - FAILED with 2 critical issues:**
 
-**⚠️ CRITICAL ISSUE 1: P300C NOT RECOGNIZED**
+**⚠️ CRITICAL ISSUE 1: p300c NOT RECOGNIZED**
 ```
-⚠️  Warning: Unknown board type 'P300C'
+⚠️  Warning: Unknown board type 'p300c'
 ```
-- Script only recognized: N150, N300, T3K, P100, P150, GALAXY
-- P300/P300c not in supported hardware list
+- Script only recognized: n150, n300, T3000, p100, p150, Galaxy
+- p300/p300c not in supported hardware list
 
 **⚠️ CRITICAL ISSUE 2: Module Import Error**
 ```
@@ -476,15 +476,15 @@ ERROR: Model architectures ['TTQwen3ForCausalLM'] failed to be inspected
 
 **Fixes Applied to start-vllm-server.py:**
 
-1. **Added P300/P300c detection:**
+1. **Added p300/p300c detection:**
 ```python
 elif 'P300' in board_type:
-    # P300/P300C are multi-chip Blackhole systems
-    # For single-chip lessons, run in P100 mode (single Blackhole chip)
+    # P300/p300c are multi-chip Blackhole systems
+    # For single-chip lessons, run in p100 mode (single Blackhole chip)
     mesh_device = 'P100'  # P100 = single Blackhole chip
     arch_name = 'blackhole'
 ```
-**CRITICAL**: Must use MESH_DEVICE=P100 (not N150!) because P300c contains Blackhole chips
+**CRITICAL**: Must use MESH_DEVICE=P100 (not n150!) because p300c contains Blackhole chips
 
 2. **Added PYTHONPATH configuration:**
 ```python
@@ -505,7 +505,7 @@ python start-vllm-server.py --model ~/models/Qwen3-0.6B --port 8000 --max-model-
 
 **Startup Output:**
 ```
-✓ Detected P300/P300C multi-chip Blackhole system
+✓ Detected P300/p300c multi-chip Blackhole system
 ✓ Running in single-chip mode (MESH_DEVICE=P100, TT_METAL_ARCH_NAME=blackhole)
 ✓ Auto-detected hardware: P100
 ✓ Auto-set TT_METAL_ARCH_NAME=blackhole
@@ -540,7 +540,7 @@ curl http://localhost:8000/v1/chat/completions \
 - Prompt tokens: 18
 - Completion tokens: 50
 - Total tokens: 68
-- Inference working perfectly on P300c Blackhole hardware
+- Inference working perfectly on p300c Blackhole hardware
 
 **Time spent on Lesson 7:** ~96 minutes (env setup, troubleshooting, fixes, validation)
 
@@ -548,15 +548,15 @@ curl http://localhost:8000/v1/chat/completions \
 
 ### Lesson 9: Image Generation with SD 3.5 Large ⏳ IN PROGRESS
 
-**Goal**: Validate Stable Diffusion 3.5 Large image generation on P300c Blackhole hardware
+**Goal**: Validate Stable Diffusion 3.5 Large image generation on p300c Blackhole hardware
 
 **Pre-Flight Check:**
-- ✅ Hardware: 4x P300c (Blackhole) running as P100 (single-chip mode)
-- ✅ tt-metal: ~/tt-metal exists, commit 44ef32f
-- ✅ Lesson documentation: P100 (Blackhole) explicitly supported (experimental)
+- ✅ Hardware: 4x p300c (Blackhole) running as p100 (single-chip mode)
+- ✅ TT-Metalium: ~/tt-metal exists, commit 44ef32f
+- ✅ Lesson documentation: p100 (Blackhole) explicitly supported (experimental)
 - ❓ Model access: Need to check Hugging Face access for SD 3.5 Large
 
-**Expected Performance:** ~12-15 seconds per 1024x1024 image on P100
+**Expected Performance:** ~12-15 seconds per 1024x1024 image on p100
 
 **Step 1: Check Model Availability** ⚠️ DISCREPANCY FOUND
 
@@ -567,15 +567,15 @@ Lesson documentation says:
 - Path: `~/tt-metal/models/experimental/stable_diffusion_35_large/demo.py`
 - Description: "MMDiT (Multimodal Diffusion Transformer)"
 
-Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
+Actual TT-Metalium repository (commit 44ef32f, Dec 18 2025):
 - Model: "Stable Diffusion XL Base"
 - Path: `~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py`
 - Directory doesn't contain SD 3.5 Large
 
 **Root Cause Analysis:**
 - Lesson content was updated to reference SD 3.5 Large (newer model)
-- tt-metal repository on QB still contains SDXL Base (older model)
-- This is a version skew between lesson content and tt-metal implementation
+- TT-Metalium repository on QB still contains SDXL Base (older model)
+- This is a version skew between lesson content and TT-Metalium implementation
 
 **Decision:** Proceed with **SDXL Base** (what's actually available) and document the differences
 
@@ -585,11 +585,11 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 
 1. **Lesson Content vs Reality Mismatch:**
    - Lesson 9 references: "Stable Diffusion 3.5 Large"
-   - Actual model in tt-metal: "Stable Diffusion XL Base" (SDXL 1.0)
+   - Actual model in TT-Metalium: "Stable Diffusion XL Base" (SDXL 1.0)
    - Path mismatch: Lesson says `stable_diffusion_35_large/` but repo has `stable_diffusion_xl_base/`
 
 2. **4-Device Configuration Issue:**
-   - P300c has 4 Blackhole chips
+   - p300c has 4 Blackhole chips
    - SDXL conftest has no device name mapping for 4 devices (only 1, 2, 8)
    - Must use all 4 devices (no MESH_DEVICE set) - test requires it
 
@@ -603,7 +603,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
    - Test running for 60+ minutes stuck at "Loading TT components..."
    - Process actively using CPU (300%+) and 19GB RAM - compiling operators
    - First-time Blackhole compilation is taking significantly longer than expected
-   - Likely due to: P300c firmware version 19.4.0 > supported 19.1.0
+   - Likely due to: p300c firmware version 19.4.0 > supported 19.1.0
 
 **Test Status:** ❌ FAILED - SDXL grid size configuration bug
 
@@ -630,10 +630,10 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - Test duration: 6 minutes
 
 **Root Cause Analysis:**
-- **NOT a P300c hardware issue** - Multi-chip fabric works correctly after reboot
+- **NOT a p300c hardware issue** - Multi-chip fabric works correctly after reboot
 - **NOT an ethernet/firmware issue** - Mesh initialization succeeds reliably
 - **Software bug in SDXL grid configuration** affecting Blackhole architecture
-- Grid size calculation incompatible with P300c's core layout
+- Grid size calculation incompatible with p300c's core layout
 - Affects both multi-chip and single-chip modes (conftest forces multi-chip)
 
 **Files with Issues:**
@@ -643,12 +643,12 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 **Time invested:** 320+ minutes total across all lessons
 
 **Recommendation:** Lesson 9 needs:
-- Update content from SD 3.5 Large to SDXL Base (match actual tt-metal implementation)
-- Add P300c/4-device hardware support to conftest.py
-- **CRITICAL**: Document that SDXL is currently broken on P300c (grid size bug)
-- **CRITICAL**: Warn that `tt-smi -r` can leave P300c in bad state requiring reboot
+- Update content from SD 3.5 Large to SDXL Base (match actual TT-Metalium implementation)
+- Add p300c/4-device hardware support to conftest.py
+- **CRITICAL**: Document that SDXL is currently broken on p300c (grid size bug)
+- **CRITICAL**: Warn that `tt-smi -r` can leave p300c in bad state requiring reboot
 - Note TLB allocation conflicts when multiple workloads run simultaneously
-- Add troubleshooting section: "SDXL requires firmware + tt-metal fixes for P300c"
+- Add troubleshooting section: "SDXL requires firmware + TT-Metalium fixes for p300c"
 - **POSITIVE**: Document that ethernet timeout resolved after reboot
 - Add note: "If you see ethernet timeout, try rebooting system"
 
@@ -660,8 +660,8 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 1. ✅ **Lesson 1: Hardware Detection** - Perfect, multi-device works
 2. ✅ **Lesson 2: Verify Installation** - Works with warnings (firmware version skew)
 3. ✅ **Lesson 15: Cookbook** - 3/4 projects work (Image Filters has API compatibility issue)
-4. ✅ **Lesson 7: vLLM Production** - COMPLETE (after fixing P300c detection + PYTHONPATH)
-5. ❌ **Lesson 9: Image Generation** - BLOCKED (SDXL grid size bug on Blackhole P300c)
+4. ✅ **Lesson 7: vLLM Production** - COMPLETE (after fixing p300c detection + PYTHONPATH)
+5. ❌ **Lesson 9: Image Generation** - BLOCKED (SDXL grid size bug on Blackhole p300c)
    - Multi-chip mesh initialization WORKS after reboot
    - SDXL software bug prevents image generation
 
@@ -672,25 +672,25 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 ### Key Findings
 
 #### ✅ What Works Great on QB
-1. **Hardware Detection**: All 4 P300c devices detected flawlessly
+1. **Hardware Detection**: All 4 p300c devices detected flawlessly
 2. **Multi-chip auto-discovery**: Topology mapping works out of the box
 3. **Python 3.12 compatibility**: No issues (newer than original 3.10 validation)
 4. **Ubuntu 24.04 + Kernel 6.14**: Cutting-edge kernel works perfectly
-5. **tt-installer setup**: OpenMPI, drivers, all pre-configured correctly
+5. **TT-Installer setup**: OpenMPI, drivers, all pre-configured correctly
 6. **Cookbook examples**: Run without modification
 
 #### ⚠️ QB-Specific Issues Found
 
-**1. P300/P300c Documentation Gap** (Lesson 1)
-- Hardware Detection lesson lists P100, P150 but not P300/P300c
-- P300c architecture unclear (4x P300 chips? Single quad-chip?)
-- **Fix:** Add P300/P300c to Blackhole hardware section with specs
+**1. p300/p300c Documentation Gap** (Lesson 1)
+- Hardware Detection lesson lists p100, p150 but not p300/p300c
+- p300c architecture unclear (4x p300 chips? Single quad-chip?)
+- **Fix:** Add p300/p300c to Blackhole hardware section with specs
 
 **2. Firmware Version Skew** (Lesson 2)
-- QB ships with firmware 19.4.0, tt-metal supports up to 19.1.0
+- QB ships with firmware 19.4.0, TT-Metalium supports up to 19.1.0
 - Warning: "New features may not be supported"
 - **Impact:** Low - basic operations work, may hit edge cases
-- **Fix:** Update tt-metal to support firmware 19.4.0+, or document known limitations
+- **Fix:** Update TT-Metalium to support firmware 19.4.0+, or document known limitations
 
 **3. No Hugepages** (Lesson 2)
 - Sysmem allocated without hugepages (4x messages)
@@ -713,12 +713,12 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - **Fix:** Update cookbook template to use current ttnn.conv2d API signature
 - **Note:** Demonstrates need for API compatibility testing in cookbook examples
 
-**7. P300/P300c Hardware NOT SUPPORTED** (Lesson 7) ✅ **FIXED**
-- vLLM starter script did not recognize "P300C" board type
-- **Fix APPLIED:** Added P300/P300c detection to start-vllm-server.py
-- **CRITICAL LESSON:** Must use MESH_DEVICE=P100 (Blackhole), not N150 (Wormhole)!
-- **Status:** P300c now auto-detects and configures as P100 (single Blackhole chip)
-- **Note:** P300c still not documented in Lesson 7 content (only mentions P100)
+**7. p300/p300c Hardware NOT SUPPORTED** (Lesson 7) ✅ **FIXED**
+- vLLM starter script did not recognize "p300c" board type
+- **Fix APPLIED:** Added p300/p300c detection to start-vllm-server.py
+- **CRITICAL LESSON:** Must use MESH_DEVICE=P100 (Blackhole), not n150 (Wormhole<sup>™</sup>)!
+- **Status:** p300c now auto-detects and configures as p100 (single Blackhole chip)
+- **Note:** p300c still not documented in Lesson 7 content (only mentions p100)
 
 **8. vLLM Setup Script Outdated** (Lesson 7) ⚠️ **WORKAROUND**
 - Automated setup script expects `tt-vllm/tt_metal/setup-metal.sh`
@@ -746,42 +746,42 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - **Fix:** Document reboot workaround in troubleshooting guide
 
 **12. SDXL Grid Size Configuration Bug** (Lesson 9) ❌ **CRITICAL BLOCKER**
-- SDXL fails on P300c with: `TT_FATAL: NHW cores must match for input and output when overriding the grid size`
+- SDXL fails on p300c with: `TT_FATAL: NHW cores must match for input and output when overriding the grid size`
 - Affects ALL 16 test configurations (all encoder/vae/trace combinations)
 - Affects both multi-chip (default) and single-chip (MESH_DEVICE=P100) modes
-- Grid size calculation incompatible with Blackhole P300c core layout
-- **Impact:** SDXL completely non-functional on P300c hardware
+- Grid size calculation incompatible with Blackhole p300c core layout
+- **Impact:** SDXL completely non-functional on p300c hardware
 - **This is NOT a hardware issue** - mesh fabric works, problem is SDXL software
-- **Workaround:** None - requires tt-metal SDXL code fixes
+- **Workaround:** None - requires TT-Metalium SDXL code fixes
 - **Fix:** Fix grid size logic in SDXL for Blackhole architecture
 
 **13. tt-smi Reset Breaks Device State** (System-wide) ❌ **CRITICAL**
-- `tt-smi -r` (device reset) leaves P300c devices in unusable state
+- `tt-smi -r` (device reset) leaves p300c devices in unusable state
 - All 4 devices fail secondary bus reset
 - Driver can no longer communicate: "ENODEV: No such device"
 - Devices visible on PCI bus but non-functional
 - **Impact:** Cannot recover devices without full system reboot
-- **Fix:** Fix tt-smi reset implementation for P300c, or document reboot requirement
+- **Fix:** Fix tt-smi reset implementation for p300c, or document reboot requirement
 
-#### 🎯 QuietBox Advantages
-1. **Fresh install**: No "outdated tt-metal" issues like cloud validation
-2. **Multi-chip ready**: 4x P300c provides scaling validation immediately
+#### 🎯 TT-QuietBox Advantages
+1. **Fresh install**: No "outdated TT-Metalium" issues like cloud validation
+2. **Multi-chip ready**: 4x p300c provides scaling validation immediately
 3. **Production hardware**: Stable, validated configuration vs dev cloud
 4. **Cutting-edge stack**: Ubuntu 24.04, Python 3.12, Kernel 6.14 all work
 
 #### 📝 Recommended Lesson Updates
 
 **For ALL Lessons:**
-1. Add P300/P300c to supportedHardware metadata
+1. Add p300/p300c to supportedHardware metadata
 2. Add QB-specific notes sidebar:
    - Multi-chip considerations
    - Firmware version requirements
    - Performance optimization tips
 
 **Lesson 1 (Hardware Detection):**
-- Add P300/P300c to Blackhole hardware list
+- Add p300/p300c to Blackhole hardware list
 - Add multi-device display screenshot
-- Document what P300c architecture means
+- Document what p300c architecture means
 
 **Lesson 2 (Verify Installation):**
 - Add firmware version skew troubleshooting
@@ -790,12 +790,12 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - Note that Python 3.12 is validated
 
 **Lesson 7 (vLLM Production):**
-- Add P300-specific configuration (need to validate)
+- Add p300-specific configuration (need to validate)
 - Document multi-chip vLLM setup for QB
 - Add firmware compatibility matrix
 
 **General Improvements:**
-- Add "QuietBox BH Tower" badge/indicator in lessons
+- Add "TT-QuietBox BH Tower" badge/indicator in lessons
 - Template version tracking
 - Multi-chip optimization guide
 
@@ -805,23 +805,23 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 - **Phase 1 (Environment Assessment):** 15 minutes
 - **Phase 2 (Core Foundations - Lessons 1-2):** 11 minutes
 - **Phase 3 (Cookbook Validation - Lesson 15):** 25 minutes (all 4 projects tested)
-- **Phase 4 (vLLM Production - Lesson 7):** 45 minutes (blocked on P300c support)
+- **Phase 4 (vLLM Production - Lesson 7):** 45 minutes (blocked on p300c support)
 - **Total:** 96 minutes (~1.6 hours)
 
-**Status:** Lesson 7 blocked on P300c hardware support. Identified 10 critical issues requiring fixes.
+**Status:** Lesson 7 blocked on p300c hardware support. Identified 10 critical issues requiring fixes.
 
 **Remaining (if continuing):**
-- Lesson 7: Requires P300c support fixes before testing can continue
-- Lesson 9: Image Generation (SD 3.5 on P300) - may have same P300c issues
+- Lesson 7: Requires p300c support fixes before testing can continue
+- Lesson 9: Image Generation (SD 3.5 on p300) - may have same p300c issues
 - Lesson 12: TT-XLA Multi-chip (test scaling across 4 devices)
 - Lesson 13: RISC-V Programming (quick exploration)
 
-**Key Achievement:** Discovered that P300/P300c hardware is **not currently supported** in production lessons despite being Blackhole architecture. This is critical for QuietBox users.
+**Key Achievement:** Discovered that p300/p300c hardware is **not currently supported** in production lessons despite being Blackhole architecture. This is critical for TT-QuietBox users.
 
 ---
 
 ## Notes
-- QuietBox is production hardware - expect stable, validated configuration
+- TT-QuietBox is production hardware - expect stable, validated configuration
 - Multi-chip adds complexity but also opportunity (scale testing)
 - Python 3.12 is newer than original validation (3.10) - may hit compatibility issues
 - Ubuntu 24.04 kernel 6.14 is bleeding edge - document any quirks
@@ -838,7 +838,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 
 **Status:** Starting validation (00:57 UTC)
 
-**Hardware Note:** Lesson lists N150/N300/T3K/Galaxy as supported hardware. P100/P300c (Blackhole) not listed but should work as TT-XLA supports multi-chip.
+**Hardware Note:** Lesson lists n150/n300/T3000/Galaxy as supported hardware. p100/p300c (Blackhole) not listed but should work as TT-XLA supports multi-chip.
 
 ### Step 1: Check Prerequisites
 
@@ -849,7 +849,7 @@ Actual tt-metal repository (commit 44ef32f, Dec 18 2025):
 
 **Goal:** Install TT-XLA PJRT plugin and test JAX inference with multi-chip support
 
-**Hardware Note:** Lesson lists N150/N300/T3K/Galaxy - P300c (Blackhole) NOT listed but should work
+**Hardware Note:** Lesson lists n150/n300/T3000/Galaxy - p300c (Blackhole) NOT listed but should work
 
 ### Step 1: Installation - ✅ SUCCESS (with fixes)
 
@@ -870,7 +870,7 @@ pip install pjrt-plugin-tt --pre --upgrade --extra-index-url https://pypi.eng.aw
 
 ### Step 2: Hardware Detection - ✅ SUCCESS
 
-**Result:** 🎉 All 4 Blackhole P300c devices detected!
+**Result:** 🎉 All 4 Blackhole p300c devices detected!
 
 ```
 Total devices: 4
@@ -921,29 +921,29 @@ result = jnp.dot(x, y)  # = 32.0
 - ❌ Telemetry unavailable on all 4 devices
 - ❌ "Failed to set initial power state: -22" (EINVAL)
 
-**Conclusion:** Kernel module reload does NOT fix P300c after failed reset. Hardware requires full reboot.
+**Conclusion:** Kernel module reload does NOT fix p300c after failed reset. Hardware requires full reboot.
 
 **Time invested:** 60+ minutes for Lesson 12
 
 **Summary:**
-- ✅ TT-XLA installation works on P300c (with Python 3.11 + libnsl2)
+- ✅ TT-XLA installation works on p300c (with Python 3.11 + libnsl2)
 - ✅ All 4 Blackhole devices detected correctly
 - ✅ Single-device JAX computations work
 - ⚠️ Multi-device sharding test hung (needs investigation after reboot)
-- ❌ **CRITICAL BUG CONFIRMED**: `tt-smi -r` breaks P300c hardware (3rd occurrence, 100% reproducible)
+- ❌ **CRITICAL BUG CONFIRMED**: `tt-smi -r` breaks p300c hardware (3rd occurrence, 100% reproducible)
 - ❌ Kernel module reload insufficient - full reboot required
 
 **Issues Found:**
 - **#14**: Python 3.12 incompatible with TT-XLA (requires 3.10-3.11)
 - **#15**: Missing system dependency: libnsl2
-- **#16**: P300c/Blackhole not listed in Lesson 12 hardware support
-- **#13** (reconfirmed): tt-smi -r breaks P300c, kernel module reload doesn't fix it
+- **#16**: p300c/Blackhole not listed in Lesson 12 hardware support
+- **#13** (reconfirmed): tt-smi -r breaks p300c, kernel module reload doesn't fix it
 
 ---
 
 ## System Reboot Required
 
-**Reason:** tt-smi reset left all 4 P300c devices in non-functional state
+**Reason:** tt-smi reset left all 4 p300c devices in non-functional state
 
 **Attempts to recover without reboot:**
 1. ❌ Kernel module reload: `rmmod tenstorrent && modprobe tenstorrent`
@@ -981,7 +981,7 @@ result = jnp.dot(x, y)  # = 32.0
 2. Kill any processes holding devices: `pkill -9 python`
 3. Then run `tt-smi -r`
 
-**Or better:** Don't use `tt-smi -r` on P300c - just reboot.
+**Or better:** Don't use `tt-smi -r` on p300c - just reboot.
 
 
 ---
@@ -993,7 +993,7 @@ result = jnp.dot(x, y)  # = 32.0
 **Status:** All 4 devices back online after reboot
 
 **Multi-device fabric initialization:**
-- ✅ All 4 Blackhole P300c devices detected
+- ✅ All 4 Blackhole p300c devices detected
 - ✅ Fabric initialized: FABRIC_1D configuration
 - ✅ Topology mapping successful: n_log=4, n_phys=4
 - ✅ Mesh devices created successfully
@@ -1010,15 +1010,15 @@ result = jnp.dot(x, y)  # = 32.0
 
 **Time invested:** 90+ minutes total
 
-**Conclusion:** ✅ **Lesson 12 VALIDATED on P300c**
+**Conclusion:** ✅ **Lesson 12 VALIDATED on p300c**
 
-TT-XLA successfully works on P300c (Blackhole) hardware:
+TT-XLA successfully works on p300c (Blackhole) hardware:
 - All 4 devices detected and usable
 - Fabric initialization works
 - Ready for production JAX workloads
 
 **Recommendations for lesson:**
-1. Add P300c/Blackhole to supported hardware list
+1. Add p300c/Blackhole to supported hardware list
 2. Document Python 3.11 requirement (not 3.12!)
 3. Add libnsl2 dependency to installation steps
 4. Note firmware warning 19.4.0 > 19.1.0 is expected but not blocking
@@ -1032,26 +1032,26 @@ TT-XLA successfully works on P300c (Blackhole) hardware:
 
 ### Results by Lesson:
 
-1. ✅ **Lesson 1: Hardware Detection** - Perfect (4x P300c detected)
+1. ✅ **Lesson 1: Hardware Detection** - Perfect (4x p300c detected)
 2. ✅ **Lesson 2: Verify Installation** - Works (firmware warnings expected)
-3. ✅ **Lesson 7: vLLM Production** - COMPLETE (with P300c fixes)
+3. ✅ **Lesson 7: vLLM Production** - COMPLETE (with p300c fixes)
 4. ❌ **Lesson 9: Image Generation** - BLOCKED (SDXL grid size bug)
 5. ✅ **Lesson 12: TT-XLA JAX** - VALIDATED (all devices work)
 6. ✅ **Lesson 15: Cookbook** - 3/4 projects working
 
 ### Critical Issues Documented (16 total):
 
-**P300c Hardware Support Gaps:**
-- #1: P300c not recognized in vLLM scripts (FIXED)
-- #2: P300c not recognized in SDXL scripts
-- #16: P300c/Blackhole not listed in Lesson 12
+**p300c Hardware Support Gaps:**
+- #1: p300c not recognized in vLLM scripts (FIXED)
+- #2: p300c not recognized in SDXL scripts
+- #16: p300c/Blackhole not listed in Lesson 12
 
 **Software Bugs:**
 - #12: SDXL grid size bug on Blackhole (BLOCKING)
 - #8: Image Filters ttnn.conv2d API change
 
 **System Issues:**
-- #13: tt-smi -r breaks P300c (100% reproducible, 3 occurrences)
+- #13: tt-smi -r breaks p300c (100% reproducible, 3 occurrences)
   - Root cause: Reset attempted while devices in use
   - Workaround: Kill processes first with `pkill -9 python`
   - Better: Just reboot instead of using tt-smi -r
@@ -1063,7 +1063,7 @@ TT-XLA successfully works on P300c (Blackhole) hardware:
 ### Key Discoveries:
 
 ✅ **What Works Great:**
-- Hardware detection (4x P300c)
+- Hardware detection (4x p300c)
 - vLLM production inference
 - TT-XLA JAX (all devices detected)
 - Cookbook examples (3/4)
@@ -1072,16 +1072,16 @@ TT-XLA successfully works on P300c (Blackhole) hardware:
 
 🎉 **Major Breakthroughs:**
 - Ethernet timeout FIXED by reboot
-- P300c multi-chip fabric works correctly
+- p300c multi-chip fabric works correctly
 - Identified tt-smi reset root cause (processes holding devices)
 
 ❌ **Blockers:**
-- SDXL completely broken on P300c (software bug, not hardware)
-- tt-smi -r dangerous on P300c (especially with hung processes)
+- SDXL completely broken on p300c (software bug, not hardware)
+- tt-smi -r dangerous on p300c (especially with hung processes)
 
 ### Files Modified:
 
-1. `start-vllm-server.py` - Added P300c detection + PYTHONPATH
+1. `start-vllm-server.py` - Added p300c detection + PYTHONPATH
 2. `QB_follows.md` - 900+ line comprehensive validation report
 
 ### Artifacts Created:
@@ -1096,7 +1096,7 @@ TT-XLA successfully works on P300c (Blackhole) hardware:
 ---
 
 *Validation completed: 2026-01-09*
-*Hardware: QuietBox Blackhole Tower (4x P300c)*
+*Hardware: TT-QuietBox Blackhole Tower (4x p300c)*
 *System: Ubuntu 24.04.3 LTS, Kernel 6.14.0-37-generic*
 
 
@@ -1145,7 +1145,7 @@ The previous failures were caused by **running reset while processes held device
 3. Reset: `tt-smi -r`
 
 **Issue #13 Updated:** 
-- ~~tt-smi -r is dangerous on P300c~~ ❌
+- ~~tt-smi -r is dangerous on p300c~~ ❌
 - tt-smi -r requires clean device state (no processes) ✅
 
 **Recommendation:** Update tt-smi to check for open device files before reset:
@@ -1166,12 +1166,12 @@ if devices_in_use():
 ## Lesson 15: Metalium Cookbook - Particle Life Multi-Device
 
 **Date:** 2026-01-09 17:25 UTC
-**Focus:** Extend Particle Life to use all 4 P300c chips in parallel
-**User Request:** "bonus points add a new part to the lesson to extend support to using the QB2's full power in the exercise"
+**Focus:** Extend Particle Life to use all 4 p300c chips in parallel
+**User Request:** "bonus points add a new part to the lesson to extend support to using the TT-QuietBox<sup>®</sup> 2's full power in the exercise"
 
 ### Starting Point
 
-User updated cookbook lesson to include Particle Life (originally created for N300). Single-device version works:
+User updated cookbook lesson to include Particle Life (originally created for n300). Single-device version works:
 
 ```bash
 cd ~/tt-scratchpad/cookbook/particle_life
@@ -1186,9 +1186,9 @@ python test_particle_life.py  # ✅ Created particle_life.gif (27MB, 500 frames)
 
 **Animation Result:**
 
-![Particle Life on QuietBox](../assets/img/samples/particle_life_multi_device.gif)
+![Particle Life on TT-QuietBox](../assets/img/samples/particle_life_multi_device.gif)
 
-*500 frames of emergent patterns. Red, green, and blue species interact based on randomly generated attraction/repulsion rules. This animation was generated on the QuietBox 4x P300c system and demonstrates the beautiful complexity that emerges from simple physics rules.*
+*500 frames of emergent patterns. Red, green, and blue species interact based on randomly generated attraction/repulsion rules. This animation was generated on the TT-QuietBox 4x p300c system and demonstrates the beautiful complexity that emerges from simple physics rules.*
 
 ### Multi-Device Extension
 
@@ -1218,7 +1218,7 @@ history = sim.simulate(num_steps=100)
 2. Each device computes forces for its subset against ALL particles
 3. Aggregate results on CPU
 
-### Performance Results (4x P300c)
+### Performance Results (4x p300c)
 
 **Benchmark Configuration:**
 - Test: 100 simulation steps
@@ -1251,21 +1251,21 @@ This is actually quite good for a first implementation! Limited by:
 **How to improve toward 3-4x:**
 - Larger workloads (4,096+ particles = 1,024 per device)
 - Longer simulations (amortize setup cost)
-- On-device TTNN operations (eliminate CPU bottleneck)
+- On-device TT-NN<sup>™</sup> operations (eliminate CPU bottleneck)
 - Device-to-device communication (skip CPU aggregation)
 
 ### Lesson Content Updates
 
-**Added new section:** "🚀 Bonus: Multi-Chip Acceleration (QuietBox Systems)"
+**Added new section:** "🚀 Bonus: Multi-Chip Acceleration (TT-QuietBox Systems)"
 
 **Content includes:**
 - Multi-device implementation explanation
-- Real benchmark results table (4x P300c)
+- Real benchmark results table (4x p300c)
 - Code examples showing device list usage
 - Commands to run multi-device mode
 - Efficiency analysis (50% explained)
 - Optimization suggestions for 3-4x speedup
-- Advanced techniques (on-device TTNN ops)
+- Advanced techniques (on-device TT-NN ops)
 
 **Lines added:** ~120 lines at metalium-cookbook.md:2556
 
@@ -1276,7 +1276,7 @@ This is actually quite good for a first implementation! Limited by:
 - ✅ Multi-device version works (2x speedup on 4 chips)
 - ✅ Performance benchmarking complete
 - ✅ Documentation added to lesson
-- ✅ QuietBox-specific content validated
+- ✅ TT-QuietBox-specific content validated
 
 ### Files Created
 
@@ -1298,20 +1298,20 @@ content/lessons/metalium-cookbook.md  (updated)
 
 ### Conclusion
 
-**Mission accomplished!** Extended Particle Life to use QuietBox's full multi-chip power:
+**Mission accomplished!** Extended Particle Life to use TT-QuietBox's full multi-chip power:
 
 1. ✅ Got single-device version running (baseline)
 2. ✅ Created multi-device parallelization
-3. ✅ Achieved 2x speedup on 4 P300c chips
+3. ✅ Achieved 2x speedup on 4 p300c chips
 4. ✅ Added comprehensive lesson documentation
 5. ✅ Provided path to 3-4x optimization
 
-**Demonstrates:** Multi-chip workload distribution, performance benchmarking, scaling efficiency analysis, and QuietBox-specific optimizations for production workloads.
+**Demonstrates:** Multi-chip workload distribution, performance benchmarking, scaling efficiency analysis, and TT-QuietBox-specific optimizations for production workloads.
 
 ---
 
 *Validation completed: 2026-01-09 17:35 UTC*
-*Hardware: 4x P300c (Blackhole) QuietBox Tower*
+*Hardware: 4x p300c (Blackhole) TT-QuietBox Tower*
 *Achievement: 2x speedup, 50% parallel efficiency, foundation for further optimization*
 
 ---
@@ -1319,80 +1319,80 @@ content/lessons/metalium-cookbook.md  (updated)
 ## Hardware Capability Differentiation Recommendations
 
 **Date:** 2026-01-09 18:00 UTC
-**Research Context:** P300/P300c Blackhole QuietBox systems and hardware type system gaps
+**Research Context:** p300/p300c Blackhole TT-QuietBox systems and hardware type system gaps
 
 ### Executive Summary
 
-During Particle Life multi-device validation on QuietBox (4x P300c), discovered that **P300/P300c is completely missing from the extension's hardware type system** despite being Blackhole architecture. This creates lesson filtering issues where QuietBox users don't see relevant Blackhole lessons.
+During Particle Life multi-device validation on TT-QuietBox (4x p300c), discovered that **p300/p300c is completely missing from the extension's hardware type system** despite being Blackhole architecture. This creates lesson filtering issues where TT-QuietBox users don't see relevant Blackhole lessons.
 
-**Core Principle Validated:** "Anything that can run on one Blackhole card should be able to run on any one of Blackhole cards" - P300c runs identically to P100 (single Blackhole chip) with `MESH_DEVICE=P100`.
+**Core Principle Validated:** "Anything that can run on one Blackhole card should be able to run on any one of Blackhole cards" - p300c runs identically to p100 (single Blackhole chip) with `MESH_DEVICE=P100`.
 
 ---
 
 ### Critical Findings
 
-#### 1. P300/P300c Missing from Hardware Type System
+#### 1. p300/p300c Missing from Hardware Type System
 
 **Current State:**
-- `HardwareType` enum in `src/types/LessonMetadata.ts` lists: `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`, `simulator`
-- **P300/P300c NOT in enum** despite extensive QuietBox testing
-- Extension regex `/([NP]\d+)/` already captures P300 correctly
+- `HardwareType` enum in `src/types/LessonMetadata.ts` lists: `n150`, `n300`, `t3k`, `p100`, `p150`, `Galaxy`, `simulator`
+- **p300/p300c NOT in enum** despite extensive TT-QuietBox testing
+- Extension regex `/([NP]\d+)/` already captures p300 correctly
 - tt-smi reports board type as "p300c" (lowercase)
 
 **Impact:**
-- Lessons with `supportedHardware: ["p100"]` don't show for P300c users
-- QuietBox users can't filter relevant lessons
+- Lessons with `supportedHardware: ["p100"]` don't show for p300c users
+- TT-QuietBox users can't filter relevant lessons
 - Hardware detection works but lesson metadata system incomplete
 
 **Evidence:**
-- QB_follows.md documents 4x P300c validation extensively
-- vLLM fix (Lesson 7) uses `MESH_DEVICE=P100` for P300c
-- Error encountered: "Unknown board type 'P300C'" in scripts
-- Workaround: P300/P300c treated as P100 (single Blackhole chip)
+- QB_follows.md documents 4x p300c validation extensively
+- vLLM fix (Lesson 7) uses `MESH_DEVICE=P100` for p300c
+- Error encountered: "Unknown board type 'p300c'" in scripts
+- Workaround: p300/p300c treated as p100 (single Blackhole chip)
 
-#### 2. P300c Architecture Confirmed
+#### 2. p300c Architecture Confirmed
 
 **Research Conclusions:**
-- **P300c = Single Blackhole chip per card** (not quad-chip)
-- QuietBox Tower has **4 separate P300c cards** (4x device enumeration)
-- Each P300c runs in P100 mode (`MESH_DEVICE=P100`)
+- **p300c = Single Blackhole chip per card** (not quad-chip)
+- TT-QuietBox Tower has **4 separate p300c cards** (4x device enumeration)
+- Each p300c runs in p100 mode (`MESH_DEVICE=P100`)
 - tt-smi shows 4 devices: 0000:01-04:00.0, all report as "p300c"
 
 **Naming Convention:**
 - Hardware reports: "p300c" (lowercase)
-- Likely: P300 "compute" variant
-- Document as: "P300/P300c" for clarity
+- Likely: p300 "compute" variant
+- Document as: "p300/p300c" for clarity
 
 #### 3. Documentation Errors in LESSON_METADATA.md
 
 **Found Inconsistency:**
 ```markdown
 LESSON_METADATA.md says:
-- p100 - Blackhole P100 (dual chip)  ← INCORRECT!
-- p150 - Blackhole P150 (single chip)  ← INCORRECT!
+- p100 - Blackhole p100 (dual chip)  ← INCORRECT!
+- p150 - Blackhole p150 (single chip)  ← INCORRECT!
 
 hardware-detection.md says:
 - p100 - Single chip, newer architecture  ← CORRECT
 - p150 - Dual chip  ← CORRECT (implied)
 ```
 
-**Conclusion:** LESSON_METADATA.md has P100/P150 descriptions **backwards**.
+**Conclusion:** LESSON_METADATA.md has p100/p150 descriptions **backwards**.
 
 **Correct Mapping:**
-- **P100**: Single Blackhole chip
-- **P150**: Dual Blackhole chip
-- **P300/P300c**: Single Blackhole chip (QuietBox variant)
+- **p100**: Single Blackhole chip
+- **p150**: Dual Blackhole chip
+- **p300/p300c**: Single Blackhole chip (TT-QuietBox variant)
 
-#### 4. No QuietBox Multi-Device Guidance
+#### 4. No TT-QuietBox Multi-Device Guidance
 
 **Missing Documentation:**
-- No lesson explains multi-device QuietBox detection
+- No lesson explains multi-device TT-QuietBox detection
 - No guidance on MESH_DEVICE for multi-chip systems
-- No explanation of "4x P300c" vs "4-chip P300c" distinction
+- No explanation of "4x p300c" vs "4-chip p300c" distinction
 
 **User Confusion Points:**
-- "I have 4x P300c - is that 4 chips or 16 chips?"
-- "Which MESH_DEVICE should I use for P300c?"
+- "I have 4x p300c - is that 4 chips or 16 chips?"
+- "Which MESH_DEVICE should I use for p300c?"
 - "Why does hardware detection show 4 devices?"
 
 #### 5. Blackhole Family Equivalence Not Documented
@@ -1401,9 +1401,9 @@ hardware-detection.md says:
 > "Anything that can run on one Blackhole card should be able to run on any one of Blackhole cards"
 
 **Reality:**
-- P100, P150, P300c share same Blackhole architecture
+- p100, p150, p300c share same Blackhole architecture
 - Same instruction set and capabilities
-- Lessons supporting P100 **should** support P300
+- Lessons supporting p100 **should** support p300
 - Differences: Packaging, deployment environment, possibly memory/firmware
 
 **Not Documented Anywhere:**
@@ -1415,7 +1415,7 @@ hardware-detection.md says:
 
 ### Proposed Changes
 
-#### Change 1: Add P300 to HardwareType Enum
+#### Change 1: Add p300 to HardwareType Enum
 
 **File:** `src/types/LessonMetadata.ts`
 
@@ -1427,7 +1427,7 @@ export type HardwareType =
   | 't3k'     // Wormhole - 8 Chips
   | 'p100'    // Blackhole - Single Chip
   | 'p150'    // Blackhole - Dual Chip
-  | 'galaxy'  // Galaxy configuration
+  | 'Galaxy'  // Galaxy configuration
   | 'simulator'; // Simulator mode
 ```
 
@@ -1439,15 +1439,15 @@ export type HardwareType =
   | 't3k'     // Wormhole - 8 Chips
   | 'p100'    // Blackhole - Single Chip
   | 'p150'    // Blackhole - Dual Chip
-  | 'p300'    // Blackhole - Single Chip (QuietBox)
-  | 'galaxy'  // Galaxy configuration
+  | 'p300'    // Blackhole - Single Chip (TT-QuietBox)
+  | 'Galaxy'  // Galaxy configuration
   | 'simulator'; // Simulator mode
 ```
 
 **Rationale:**
-- Extension regex already captures P300
-- QuietBox systems extensively tested
-- Enables lesson filtering for P300c users
+- Extension regex already captures p300
+- TT-QuietBox systems extensively tested
+- Enables lesson filtering for p300c users
 
 #### Change 2: Fix LESSON_METADATA.md Documentation
 
@@ -1456,16 +1456,16 @@ export type HardwareType =
 **Current (INCORRECT):**
 ```markdown
 Hardware Values:
-- p100 - Blackhole P100 (dual chip)
-- p150 - Blackhole P150 (single chip)
+- p100 - Blackhole p100 (dual chip)
+- p150 - Blackhole p150 (single chip)
 ```
 
 **Proposed (CORRECT):**
 ```markdown
 Hardware Values:
-- p100 - Blackhole P100 (single chip)
-- p150 - Blackhole P150 (dual chip)
-- p300 - Blackhole P300/P300c (single chip, QuietBox variant)
+- p100 - Blackhole p100 (single chip)
+- p150 - Blackhole p150 (dual chip)
+- p300 - Blackhole p300/p300c (single chip, TT-QuietBox variant)
 ```
 
 **Add New Section:**
@@ -1475,9 +1475,9 @@ Hardware Values:
 All Blackhole cards share the same core architecture and instruction set:
 
 **Blackhole Variants:**
-- **P100**: Single Blackhole chip (cloud/standalone deployments)
-- **P150**: Dual Blackhole chip (higher performance configurations)
-- **P300/P300c**: Single Blackhole chip (QuietBox systems, compute variant)
+- **p100**: Single Blackhole chip (cloud/standalone deployments)
+- **p150**: Dual Blackhole chip (higher performance configurations)
+- **p300/p300c**: Single Blackhole chip (TT-QuietBox systems, compute variant)
 
 **Architecture Principle:**
 > "Anything that can run on one Blackhole card should be able to run on any one of Blackhole cards"
@@ -1486,13 +1486,13 @@ All Blackhole cards share the same core architecture and instruction set:
 - Lessons supporting `p100` should include `p300` in `supportedHardware`
 - All Blackhole variants use `TT_METAL_ARCH_NAME=blackhole`
 - Single-chip lessons: Use `MESH_DEVICE=P100` for all variants
-- Dual-chip lessons: Use `MESH_DEVICE=P150` (P150 only)
+- Dual-chip lessons: Use `MESH_DEVICE=P150` (p150 only)
 
-**Multi-Device QuietBox Systems:**
-- QuietBox Tower (4x P300c) = 4 separate devices, each single-chip
+**Multi-Device TT-QuietBox Systems:**
+- TT-QuietBox Tower (4x p300c) = 4 separate devices, each single-chip
 - For single-chip lessons: Use device 0 only
 - For multi-device lessons: All 4 devices available for parallelization
-- Example: Particle Life multi-device achieves 2x speedup on 4x P300c
+- Example: Particle Life multi-device achieves 2x speedup on 4x p300c
 ```
 
 #### Change 3: Update Hardware Detection Lesson
@@ -1511,22 +1511,22 @@ All Blackhole cards share the same core architecture and instruction set:
 **Blackhole Family (Latest Generation):**
 - **p100** - Single chip (cloud/standalone deployments)
 - **p150** - Dual chip (higher performance)
-- **p300/p300c** - Single chip (QuietBox variant)
-  - Architecture: Blackhole (identical to P100)
-  - Common in: Multi-device QuietBox Tower systems
+- **p300/p300c** - Single chip (TT-QuietBox variant)
+  - Architecture: Blackhole (identical to p100)
+  - Common in: Multi-device TT-QuietBox Tower systems
   - MESH_DEVICE: Use P100 for single-chip lessons
-  - Example: 4x P300c = 4 separate single-chip devices
+  - Example: 4x p300c = 4 separate single-chip devices
 
 **Blackhole Architecture Equivalence:**
-All Blackhole cards (P100, P150, P300/P300c) share the same instruction set and capabilities. Lessons supporting P100 will work on P300/P300c without modification.
+All Blackhole cards (p100, p150, p300/p300c) share the same instruction set and capabilities. Lessons supporting p100 will work on p300/p300c without modification.
 
-**QuietBox Multi-Device Detection:**
-If you have a QuietBox Tower (4x P300c), `tt-smi` will show 4 devices:
+**TT-QuietBox Multi-Device Detection:**
+If you have a TT-QuietBox Tower (4x p300c), `tt-smi` will show 4 devices:
 ```
-Device 0: 0000:01:00.0 | P300c | FW 19.4.0.0
-Device 1: 0000:02:00.0 | P300c | FW 19.4.0.0
-Device 2: 0000:03:00.0 | P300c | FW 19.4.0.0
-Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
+Device 0: 0000:01:00.0 | p300c | FW 19.4.0.0
+Device 1: 0000:02:00.0 | p300c | FW 19.4.0.0
+Device 2: 0000:03:00.0 | p300c | FW 19.4.0.0
+Device 3: 0000:04:00.0 | p300c | FW 19.4.0.0
 ```
 
 Each device is a **separate single-chip Blackhole card**. For single-chip lessons, use device 0. For multi-chip lessons, all 4 devices are available for workload distribution.
@@ -1552,17 +1552,17 @@ Each device is a **separate single-chip Blackhole card**. For single-chip lesson
 ```
 
 **Lessons to Update:**
-- Lesson 7: vLLM Production ✅ (P300c validated in this report)
+- Lesson 7: vLLM Production ✅ (p300c validated in this report)
 - Lesson 9: Image Generation (blocked on SDXL bug, but architecture supports it)
 - Lesson 12: TT-XLA JAX (may need testing)
 - Any other Blackhole-specific lessons
 
 **Validation Status:**
-- Mark `"validatedOn": ["p300"]` only for lessons explicitly tested on P300c
+- Mark `"validatedOn": ["p300"]` only for lessons explicitly tested on p300c
 - Lesson 7 vLLM Production ✅ validated
 - Lesson 15 Cookbook (Particle Life) ✅ validated
 
-#### Change 5: Add QuietBox Guidance Section
+#### Change 5: Add TT-QuietBox Guidance Section
 
 **File:** `content/lessons/hardware-detection.md` (new section at end)
 
@@ -1570,17 +1570,17 @@ Each device is a **separate single-chip Blackhole card**. For single-chip lesson
 ```markdown
 ---
 
-## QuietBox Multi-Device Systems
+## TT-QuietBox Multi-Device Systems
 
-**What is QuietBox?**
-QuietBox is a Tenstorrent multi-chip development system. The QuietBox Blackhole Tower contains **4x P300c cards** (4 separate single-chip Blackhole devices).
+**What is TT-QuietBox?**
+TT-QuietBox is a Tenstorrent multi-chip development system. The TT-QuietBox Blackhole Tower contains **4x p300c cards** (4 separate single-chip Blackhole devices).
 
 **Key Concepts:**
 
-**4x P300c ≠ 4-chip System**
-- **4x P300c** = 4 separate cards, each with 1 Blackhole chip
+**4x p300c ≠ 4-chip System**
+- **4x p300c** = 4 separate cards, each with 1 Blackhole chip
 - Total: 4 devices, each independently addressable
-- Each device runs in P100 mode (single Blackhole chip)
+- Each device runs in p100 mode (single Blackhole chip)
 
 **Device Enumeration:**
 ```bash
@@ -1603,10 +1603,10 @@ tt-smi -s  # Shows all 4 devices
 **Multi-Device Lessons** (Advanced):
 - Use all devices: `TT_METAL_NUM_DEVICES=4`
 - See Lesson 15 (Metalium Cookbook - Particle Life) for multi-device example
-- Achieves 2x speedup on 4x P300c through workload parallelization
+- Achieves 2x speedup on 4x p300c through workload parallelization
 
 **Troubleshooting:**
-- If script says "Unknown board type 'P300C'": Treat as P100 (single Blackhole)
+- If script says "Unknown board type 'p300c'": Treat as p100 (single Blackhole)
 - Multi-chip mesh initialization: All 4 devices will initialize fabric
 - Device reset: Use `tt-smi -r` carefully (close all processes first)
 ```
@@ -1618,8 +1618,8 @@ tt-smi -s  # Shows all 4 devices
 **Purpose:** Comprehensive reference for all hardware types, architecture families, and lesson compatibility.
 
 **Contents:**
-- Wormhole family (N150, N300, T3K, Galaxy)
-- Blackhole family (P100, P150, P300/P300c)
+- Wormhole family (n150, n300, T3000, Galaxy)
+- Blackhole family (p100, p150, p300/p300c)
 - Architecture equivalence principles
 - Multi-device vs multi-chip disambiguation
 - MESH_DEVICE configuration matrix
@@ -1635,15 +1635,15 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 ## Architecture Families
 
 ### Wormhole Family
-- N150: Single chip...
-- N300: Dual chip...
-- T3K: 8-chip mesh...
+- n150: Single chip...
+- n300: Dual chip...
+- T3000: 8-chip mesh...
 - Galaxy: Multi-rack...
 
 ### Blackhole Family
-- P100: Single chip...
-- P150: Dual chip...
-- P300/P300c: Single chip (QuietBox variant)...
+- p100: Single chip...
+- p150: Dual chip...
+- p300/p300c: Single chip (TT-QuietBox variant)...
 
 ## Equivalence Principles
 ...
@@ -1656,8 +1656,8 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 
 ### Benefits of Proposed Changes
 
-**1. QuietBox Users See Relevant Lessons**
-- P300c users can filter lessons by their hardware
+**1. TT-QuietBox Users See Relevant Lessons**
+- p300c users can filter lessons by their hardware
 - Extension sidebar shows compatible lessons
 - No confusion about "why can't I see vLLM lesson?"
 
@@ -1667,9 +1667,9 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 - Lessons designed for family-wide compatibility
 
 **3. Accurate Documentation**
-- P100/P150 chip counts corrected
-- P300/P300c architecture explained
-- Multi-device QuietBox guidance provided
+- p100/p150 chip counts corrected
+- p300/p300c architecture explained
+- Multi-device TT-QuietBox guidance provided
 
 **4. Future-Proof Hardware Support**
 - Pattern established for adding new variants
@@ -1677,7 +1677,7 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 - Clear validation workflow for new hardware
 
 **5. Improved User Experience**
-- Clear guidance for QuietBox configuration
+- Clear guidance for TT-QuietBox configuration
 - No guessing about MESH_DEVICE settings
 - Troubleshooting section for common issues
 
@@ -1687,24 +1687,24 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 
 **Phase 1: Type System Updates**
 - [ ] Add `p300` to `HardwareType` enum in `src/types/LessonMetadata.ts`
-- [ ] Test hardware detection with P300c system
-- [ ] Verify lesson filtering shows P300 lessons
+- [ ] Test hardware detection with p300c system
+- [ ] Verify lesson filtering shows p300 lessons
 
 **Phase 2: Documentation Fixes**
-- [ ] Fix P100/P150 chip counts in `docs/LESSON_METADATA.md`
-- [ ] Add P300 to hardware values list
+- [ ] Fix p100/p150 chip counts in `docs/LESSON_METADATA.md`
+- [ ] Add p300 to hardware values list
 - [ ] Add "Blackhole Family Equivalence" section
 
 **Phase 3: Lesson Content Updates**
-- [ ] Update `content/lessons/hardware-detection.md` with P300/P300c
-- [ ] Add QuietBox multi-device guidance section
-- [ ] Add example tt-smi output for 4x P300c
+- [ ] Update `content/lessons/hardware-detection.md` with p300/p300c
+- [ ] Add TT-QuietBox multi-device guidance section
+- [ ] Add example tt-smi output for 4x p300c
 
 **Phase 4: Lesson Metadata Updates**
 - [ ] Lesson 7 (vLLM): Add `"p300"` to supportedHardware, mark validated
 - [ ] Lesson 9 (Image Gen): Add `"p300"` to supportedHardware (blocked on SDXL bug)
 - [ ] Lesson 12 (TT-XLA): Add `"p300"` to supportedHardware (needs testing)
-- [ ] Lesson 15 (Cookbook): Mark P300 validated (Particle Life multi-device ✅)
+- [ ] Lesson 15 (Cookbook): Mark p300 validated (Particle Life multi-device ✅)
 
 **Phase 5: Reference Documentation**
 - [ ] Create `docs/HARDWARE_ARCHITECTURE.md` comprehensive reference
@@ -1712,10 +1712,10 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 - [ ] Create lesson compatibility matrix
 
 **Phase 6: Testing & Verification**
-- [ ] Validate P300c hardware detection on QuietBox
-- [ ] Test lesson filtering with P300 hardware type
-- [ ] Verify MESH_DEVICE auto-configuration for P300
-- [ ] Test multi-device workflows on 4x P300c
+- [ ] Validate p300c hardware detection on TT-QuietBox
+- [ ] Test lesson filtering with p300 hardware type
+- [ ] Verify MESH_DEVICE auto-configuration for p300
+- [ ] Test multi-device workflows on 4x p300c
 
 ---
 
@@ -1732,39 +1732,39 @@ This document provides a comprehensive reference for all Tenstorrent hardware ty
 - Leads to per-variant documentation duplication
 
 **3. Multi-Device Disambiguation Needed**
-- "4x P300c" vs "4-chip P300c" causes confusion
-- QuietBox = 4 separate cards, not 4 chips on one card
+- "4x p300c" vs "4-chip p300c" causes confusion
+- TT-QuietBox = 4 separate cards, not 4 chips on one card
 - Clear explanation prevents misconfiguration
 
 **4. Documentation Consistency Critical**
-- Conflicting chip counts (P100/P150) found across docs
+- Conflicting chip counts (p100/p150) found across docs
 - Trust lesson content over metadata docs when conflict
 - Regular audits needed to catch discrepancies
 
 **5. Validation Creates Documentation Authority**
-- Extensive P300c testing on QuietBox provides evidence
-- QB_follows.md becomes authoritative source for P300c
+- Extensive p300c testing on TT-QuietBox provides evidence
+- QB_follows.md becomes authoritative source for p300c
 - Validation results drive documentation updates
 
 ---
 
 ### Conclusion
 
-**Mission Accomplished:** Comprehensive research completed on P300/P300c Blackhole QuietBox systems and hardware differentiation requirements.
+**Mission Accomplished:** Comprehensive research completed on p300/p300c Blackhole TT-QuietBox systems and hardware differentiation requirements.
 
-**Key Discovery:** P300/P300c is completely missing from extension's hardware type system despite being Blackhole architecture and extensively tested on QuietBox.
+**Key Discovery:** p300/p300c is completely missing from extension's hardware type system despite being Blackhole architecture and extensively tested on TT-QuietBox.
 
-**Core Principle Validated:** "Anything that can run on one Blackhole card should be able to run on any one of Blackhole cards" - P300c runs identically to P100.
+**Core Principle Validated:** "Anything that can run on one Blackhole card should be able to run on any one of Blackhole cards" - p300c runs identically to p100.
 
-**Recommendations Provided:** 6 specific changes across 8 files to add P300 support, fix documentation errors, and establish Blackhole family equivalence principle.
+**Recommendations Provided:** 6 specific changes across 8 files to add p300 support, fix documentation errors, and establish Blackhole family equivalence principle.
 
-**Impact:** QuietBox users will see relevant lessons, have clear configuration guidance, and benefit from validated multi-device capabilities (2x speedup demonstrated).
+**Impact:** TT-QuietBox users will see relevant lessons, have clear configuration guidance, and benefit from validated multi-device capabilities (2x speedup demonstrated).
 
 **Next Steps:** Implementation of recommendations pending user approval and priority scheduling.
 
 ---
 
 *Research completed: 2026-01-09 18:00 UTC*
-*Hardware: QuietBox Blackhole Tower (4x P300c)*
+*Hardware: TT-QuietBox Blackhole Tower (4x p300c)*
 *Status: Recommendations documented, awaiting implementation approval*
-*Validation: P300c extensively tested across 5 lessons, 2x multi-device speedup achieved*
+*Validation: p300c extensively tested across 5 lessons, 2x multi-device speedup achieved*

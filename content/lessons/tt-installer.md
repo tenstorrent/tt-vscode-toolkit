@@ -1,10 +1,10 @@
 ---
 id: tt-installer
-title: Modern Setup with tt-installer 2.0
+title: Modern Setup with TT-Installer 2.0
 description: >-
-  The fastest way to get started with Tenstorrent! Use tt-installer 2.0 for
+  The fastest way to get started with Tenstorrent! Use TT-Installer 2.0 for
   one-command installation of the full stack including drivers, firmware,
-  tt-metalium containers, and Python environment.
+  TT-Metalium containers, and Python environment.
 category: first-inference
 tags:
   - installation
@@ -24,21 +24,21 @@ validatedOn:
 estimatedMinutes: 15
 ---
 
-# Modern Setup with tt-installer 2.0
+# Modern Setup with TT-Installer 2.0
 
 **Welcome to the fastest way to get started with Tenstorrent!**
 
-tt-installer 2.0 is Tenstorrent's official one-command installation tool that sets up your entire development environment in minutes. It replaces manual installation with an automated, production-tested approach.
+TT-Installer 2.0 is Tenstorrent's official one-command installation tool that sets up your entire development environment in minutes. It replaces manual installation with an automated, production-tested approach.
 
-## What is tt-installer 2.0?
+## What is TT-Installer 2.0?
 
-tt-installer 2.0 is a comprehensive installation script that:
+TT-Installer 2.0 is a comprehensive installation script that:
 
 - ✅ **Installs the full Tenstorrent stack** - Everything you need in one command
-- ✅ **Uses modern containers** - tt-metalium runs in Podman containers (no complex builds)
+- ✅ **Uses modern containers** - TT-Metalium<sup>™</sup> runs in Podman containers (no complex builds)
 - ✅ **Configures your system** - Kernel drivers, HugePages, firmware automatically set up
-- ✅ **Provides production tools** - tt-smi, tt-flash, tt-inference-server included
-- ✅ **Supports multiple hardware** - Works with N150, N300, T3K, Galaxy, P100, P150, P300c, and QB2
+- ✅ **Provides production tools** - tt-smi, tt-flash, TT-Inference-Server included
+- ✅ **Supports multiple hardware** - Works with n150, n300, T3000, Galaxy, p100, p150, p300c, and TT-QuietBox<sup>®</sup> 2
 - ✅ **Offers flexibility** - Interactive or non-interactive modes, customizable options
 
 > **⚠️ IMPORTANT: Cloud and Container Environments**
@@ -51,7 +51,7 @@ tt-installer 2.0 is a comprehensive installation script that:
 >
 > **Rule of thumb**: If you're SSH'd into a cloud instance or running inside a container, use `--mode-container` or `--no-install-kmd --no-update-firmware` flags.
 
-## Why Use tt-installer Instead of Manual Setup?
+## Why Use TT-Installer Instead of Manual Setup?
 
 **Traditional approach (manual):**
 - Install system packages individually
@@ -64,7 +64,7 @@ tt-installer 2.0 is a comprehensive installation script that:
 - Debug dependency issues
 - **Total time:** 1-2 hours (if everything goes right)
 
-**Modern approach (tt-installer 2.0):**
+**Modern approach (TT-Installer 2.0):**
 - Run one command
 - Answer a few prompts
 - Get coffee
@@ -72,7 +72,7 @@ tt-installer 2.0 is a comprehensive installation script that:
 
 ## What Gets Installed
 
-tt-installer 2.0 sets up:
+TT-Installer 2.0 sets up:
 
 1. **System packages** - Build tools, dependencies (via apt/yum)
 2. **Python environment** - Virtual environment with pip/pipx
@@ -80,12 +80,12 @@ tt-installer 2.0 sets up:
 4. **Firmware updater (tt-flash)** - Updates your card's firmware to latest
 5. **HugePages** - Kernel memory configuration for fast hardware access
 6. **System Management Interface (tt-smi)** - Monitor your Tenstorrent devices
-7. **Podman** - Container runtime for tt-metalium
-8. **tt-metalium containers** - Two options:
-   - **Standard container** (1GB) - For TT-NN inference and development
-   - **Model Demos container** (10GB) - Includes full tt-metal build and demos
+7. **Podman** - Container runtime for TT-Metalium
+8. **TT-Metalium containers** - Two options:
+   - **Standard container** (1GB) - For TT-NN<sup>™</sup> inference and development
+   - **Model Demos container** (10GB) - Includes full TT-Metalium build and demos
 
-9. **tt-inference-server** - Production inference serving
+9. **TT-Inference-Server** - Production inference serving
 10. **SFPI** - Scalar Floating Point Interface for kernel development
 
 ## Quick Start: One-Command Installation
@@ -137,7 +137,7 @@ cd ~
 
 **You'll be asked:**
 - **Python environment choice** - Use active venv, create new venv, use system Python, or use pipx
-- **Model Demos container** - Install 10GB container with full tt-metal build? (yes/no)
+- **Model Demos container** - Install 10GB container with full TT-Metalium build? (yes/no)
 - **Reboot** - Reboot now, later, or never (reboot required for kernel driver)
 
 **Recommended choices for most users:**
@@ -180,7 +180,7 @@ tt-smi
 ```
 
 You should see your Tenstorrent device(s) listed with:
-- Board Type (N150, N300, T3K, etc.)
+- Board Type (n150, n300, T3000, etc.)
 - PCI Bus ID
 - Firmware version
 - Temperature
@@ -188,7 +188,7 @@ You should see your Tenstorrent device(s) listed with:
 
 [🔍 Run tt-smi](command:tenstorrent.runHardwareDetection)
 
-### Test tt-metalium Container
+### Test TT-Metalium Container
 
 Run a simple test inside the container:
 
@@ -198,14 +198,14 @@ tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
 
 This verifies:
 - ✅ Container launches successfully
-- ✅ TTNN library is available
+- ✅ TT-NN library is available
 - ✅ Python environment is configured
 
-[🧪 Test tt-metalium](command:tenstorrent.testMetaliumContainer)
+[🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
 
-## Using tt-metalium Containers
+## Using TT-Metalium Containers
 
-tt-installer provides two ways to use tt-metalium:
+TT-Installer provides two ways to use TT-Metalium:
 
 ### Interactive Shell
 
@@ -218,7 +218,7 @@ tt-metalium
 This:
 - Starts a bash shell inside the container
 - Mounts your home directory (access your files)
-- Provides full tt-metal environment
+- Provides full TT-Metalium environment
 - Use `exit` to leave the container
 
 ### Run Commands Directly
@@ -241,7 +241,7 @@ tt-metalium "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
 ### Standard vs Model Demos Container
 
 **Standard container** (1GB) - `tt-metalium`:
-- ✅ TTNN library for inference
+- ✅ TT-NN library for inference
 - ✅ Python 3.10+ environment
 - ✅ Fast to download and update
 - ✅ Best for production inference
@@ -249,7 +249,7 @@ tt-metalium "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
 - ❌ No tt-metal source code
 
 **Model Demos container** (10GB) - `tt-metalium-models`:
-- ✅ Full tt-metal repository with demos
+- ✅ Full TT-Metalium repository with demos
 - ✅ Pre-compiled examples
 - ✅ All model demos (LLMs, vision, audio)
 - ✅ Source code for learning
@@ -311,7 +311,7 @@ This automatically:
    ```bash
    ./install.sh --no-install-kmd --no-update-firmware --no-install-hugepages
    ```
-3. **Container Orchestration (Kubernetes)**: For pods running tt-metalium:
+3. **Container Orchestration (Kubernetes)**: For pods running TT-Metalium:
    ```bash
    ./install.sh --mode-container
    ```
@@ -327,8 +327,8 @@ This automatically:
 - ❌ Any environment where you can't reboot the host
 
 **Safe operations in restricted environments:**
-- ✅ Installing Python packages (tt-smi, tt-inference-server)
-- ✅ Running tt-metalium containers (if host has KMD)
+- ✅ Installing Python packages (tt-smi, TT-Inference-Server)
+- ✅ Running TT-Metalium containers (if host has KMD)
 - ✅ Using tt-smi to monitor devices
 - ✅ Running inference workloads
 
@@ -373,7 +373,7 @@ After installation completes, you're ready to:
    - Generate images with Stable Diffusion (Lesson 8)
    - Create coding assistants (Lesson 9)
    - Use TT-Jukebox for model management (Lesson 10)
-   - Compile models with TT-Forge (Lesson 11)
+   - Compile models with TT-Forge<sup>™</sup> (Lesson 11)
    - Use JAX with TT-XLA (Lesson 12)
 
 2. **Try Model Demos** (if you installed Model Demos container):
@@ -385,8 +385,8 @@ After installation completes, you're ready to:
 
 3. **Read Official Documentation**:
    - [TT-Metalium Docs](https://docs.tenstorrent.com/tt-metal/latest/)
-   - [TTNN Examples](https://docs.tenstorrent.com/tt-metal/latest/ttnn/ttnn/usage.html)
-   - [tt-installer Wiki](https://github.com/tenstorrent/tt-installer/wiki)
+   - [TT-NN Examples](https://docs.tenstorrent.com/tt-metal/latest/ttnn/ttnn/usage.html)
+   - [TT-Installer Wiki](https://github.com/tenstorrent/tt-installer/wiki)
 
 4. **Join the Community**:
    - [Discord](https://discord.gg/tenstorrent)
@@ -501,9 +501,9 @@ You can always add it later:
 
 **Recommended:** Ubuntu 22.04.5 LTS for best compatibility.
 
-## Comparison: tt-installer vs Manual Setup
+## Comparison: TT-Installer vs Manual Setup
 
-| Feature | tt-installer 2.0 | Manual Setup (Old Lessons 1-2) |
+| Feature | TT-Installer 2.0 | Manual Setup (Old Lessons 1-2) |
 |---------|------------------|--------------------------------|
 | **Time** | 5-15 minutes | 1-2 hours |
 | **Complexity** | One command | 15+ manual steps |
@@ -518,25 +518,25 @@ You can always add it later:
 
 ## When to Use Manual Setup Instead
 
-tt-installer is recommended for most users, but manual setup may be preferred if:
+TT-Installer is recommended for most users, but manual setup may be preferred if:
 
 - ❌ You need bleeding-edge unreleased features (build from main branch)
-- ❌ You're developing tt-metal itself (need source code access)
-- ❌ Your OS is unsupported by tt-installer
+- ❌ You're developing TT-Metalium itself (need source code access)
+- ❌ Your OS is unsupported by TT-Installer
 - ❌ You need custom compiler flags or build options
 - ❌ You're debugging kernel driver issues (need to build KMD yourself)
 
-**For 95% of users, tt-installer is the right choice.**
+**For 95% of users, TT-Installer is the right choice.**
 
 ## Frequently Asked Questions
 
-### Q: Can I use tt-installer inside a Docker container?
+### Q: Can I use TT-Installer inside a Docker container?
 
 **A:** Yes, but use `--mode-container` flag:
 ```bash
 ./install.sh --mode-container
 ```
-This skips host-level changes (KMD, firmware, HugePages) that must be done on the host system. The container can still run tt-metalium and use devices if the host has proper drivers installed.
+This skips host-level changes (KMD, firmware, HugePages) that must be done on the host system. The container can still run TT-Metalium and use devices if the host has proper drivers installed.
 
 ### Q: I'm running in AWS/GCP/Azure - should I update firmware?
 
@@ -557,7 +557,7 @@ You can combine flags for fine-grained control:
 ./install.sh --no-install-kmd --no-update-firmware --no-install-hugepages
 ```
 
-### Q: Can I run tt-metalium without KMD installed?
+### Q: Can I run TT-Metalium without KMD installed?
 
 **A:** No. The Tenstorrent kernel driver must be installed on the **host** system for hardware access. Containers can use devices if the host has KMD loaded.
 
@@ -580,7 +580,7 @@ Use `--mode-container` or skip flags in these cases.
 3. Contact cloud provider support for Tenstorrent firmware management
 4. If on bare metal with full control, ensure proper PCIe access
 
-### Q: Can I use tt-installer in Kubernetes?
+### Q: Can I use TT-Installer in Kubernetes?
 
 **A:** Yes, with proper setup:
 - Install KMD and firmware on **host nodes** (outside containers)
@@ -589,15 +589,15 @@ Use `--mode-container` or skip flags in these cases.
 - Mount `/dev/tenstorrent` devices into pods
 - Use privileged security context if needed
 
-See [Using tt-metalium Container](https://github.com/tenstorrent/tt-installer/wiki/Using-the-tt%E2%80%90metalium-container) for Kubernetes examples.
+See [Using TT-Metalium Container](https://github.com/tenstorrent/tt-installer/wiki/Using-the-tt%E2%80%90metalium-container) for Kubernetes examples.
 
 ## Resources
 
 **Official Documentation:**
-- [tt-installer GitHub](https://github.com/tenstorrent/tt-installer)
-- [tt-installer Wiki](https://github.com/tenstorrent/tt-installer/wiki)
+- [TT-Installer GitHub](https://github.com/tenstorrent/tt-installer)
+- [TT-Installer Wiki](https://github.com/tenstorrent/tt-installer/wiki)
 - [Customizing Installation](https://github.com/tenstorrent/tt-installer/wiki/Customizing-your-installation)
-- [Using tt-metalium Container](https://github.com/tenstorrent/tt-installer/wiki/Using-the-tt%E2%80%90metalium-container)
+- [Using TT-Metalium Container](https://github.com/tenstorrent/tt-installer/wiki/Using-the-tt%E2%80%90metalium-container)
 
 **Community:**
 - [Discord](https://discord.gg/tenstorrent)

@@ -3,7 +3,7 @@ id: bounty-program
 title: 'Bounty Program: Model Bring-Up'
 description: >-
   Learn how to contribute to the Tenstorrent Bounty Program by bringing up new
-  models. Master TT-Metal while becoming part of the open-source ecosystem. Uses
+  models. Master TT-Metalium while becoming part of the open source ecosystem. Uses
   the successful Phi-3 contribution as a case study.
 category: advanced
 tags:
@@ -36,9 +36,9 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 
 ### Why Participate?
 
-- ✅ **Master cutting-edge technology** - Deep dive into TT-Metal/TT-NN architecture
+- ✅ **Master cutting-edge technology** - Deep dive into TT-Metalium<sup>™</sup>/TT-NN<sup>™</sup> architecture
 - ✅ **Real-world impact** - Your code ships in production and helps the community
-- ✅ **Build ownership** - Public contributions to an open-source hardware ecosystem
+- ✅ **Build ownership** - Public contributions to an open source hardware ecosystem
 - ✅ **Join the community** - Work alongside Tenstorrent engineers and contributors
 - ✅ **Develop expertise** - Deep learning, hardware acceleration, systems programming
 
@@ -63,9 +63,9 @@ Tenstorrent's bounty program rewards contributors (ranging from $500–$3000) fo
 ## Case Study: Phi-3-mini-128k-instruct (Issue #19416)
 
 - **Model**: microsoft/Phi-3-mini-128k-instruct (3.8B parameters)
-- **Hardware**: N150 / N300 / LoudBox
+- **Hardware**: n150 / n300 / LoudBox
 - **Theoretical Max**: 48 tokens/second/user
-- **Result**: ✅ **Successfully merged to main** - Now part of tt-metal
+- **Result**: ✅ **Successfully merged to main** - Now part of TT-Metalium
 
 ### Timeline
 
@@ -112,14 +112,14 @@ open https://github.com/tenstorrent/tt-metal/labels/bounty
 
 #### 1.2 Set Up Environment
 
-**Clone and build tt-metal:**
+**Clone and build TT-Metalium:**
 ```bash
 cd ~
 git clone https://github.com/tenstorrent/tt-metal.git
 cd tt-metal
 git submodule update --init --recursive
 
-# Build TT-Metal (takes 10-20 minutes)
+# Build TT-Metalium (takes 10-20 minutes)
 ./build_metal.sh
 
 # Set environment variables
@@ -214,11 +214,11 @@ cat ~/models/Phi-3/config.json
 2. **Model dimensions**: hidden_size, num_attention_heads, num_layers
    - Check if tile-aligned (divisible by 32 for TT hardware)
 3. **Special features**: RoPE scaling, sliding window attention, custom tokens?
-4. **Hardware fit**: Will it fit on target device? (N150 = 12GB, N300 = 24GB)
+4. **Hardware fit**: Will it fit on target device? (n150 = 12GB, n300 = 24GB)
 
 **For Phi-3:**
 - Architecture: `Phi3ForCausalLM` ✅ (supported in tt_transformers)
-- Size: 3.8B parameters ✅ (fits on N150)
+- Size: 3.8B parameters ✅ (fits on n150)
 - Context: 128K tokens (requires chunked prefill)
 - Special: SUlongRoPE (long-context scaling) - requires modification
 
@@ -339,7 +339,7 @@ else:
 # Add Phi-3 detection
 if "Phi-3" in self.model_name:
     # Set prefill chunk size for long context
-    self.min_prefill_chunk_size = 1024  # Lower for N150
+    self.min_prefill_chunk_size = 1024  # Lower for n150
 ```
 
 **File: `models/tt_transformers/tt/common.py`**
@@ -448,7 +448,7 @@ pytest models/tt_transformers/demo/simple_text_demo.py \
 - **Throughput**: Tokens per second per user (t/s/u)
 - **Latency**: Average time per token
 
-**For Phi-3 on N150:**
+**For Phi-3 on n150:**
 - Theoretical max: ~48 t/s/u
 - Easy tier: ≥12 t/s/u (25%)
 - Medium tier: ≥24 t/s/u (50%)
@@ -559,8 +559,8 @@ def test_model_demo(model_name):
 
 ## Overview
 - Model: microsoft/Phi-3-mini-128k-instruct (3.8B parameters)
-- Hardware: N150 / N300 / LoudBox
-- Performance: 28 tokens/second/user on N150 (58% of theoretical max)
+- Hardware: n150 / n300 / LoudBox
+- Performance: 28 tokens/second/user on n150 (58% of theoretical max)
 
 ## Installation
 \`\`\`bash
@@ -580,9 +580,9 @@ pytest models/tt_transformers/demo/simple_text_demo.py -k "batch-32"
 ## Performance
 | Hardware | Batch Size | Throughput (t/s/u) | TTFT (ms) |
 |----------|------------|-------------------|-----------|
-| N150     | 1          | 15.2              | 120       |
-| N150     | 32         | 28.4              | 180       |
-| N300     | 32         | 42.1              | 95        |
+| n150     | 1          | 15.2              | 120       |
+| n150     | 32         | 28.4              | 180       |
+| n300     | 32         | 42.1              | 95        |
 
 ## Accuracy
 - Top-1: 84.3%
@@ -594,7 +594,7 @@ pytest models/tt_transformers/demo/simple_text_demo.py -k "batch-32"
 
 **PR checklist:**
 - ✅ All tests pass locally
-- ✅ Code follows tt-metal style (use existing patterns)
+- ✅ Code follows TT-Metalium style (use existing patterns)
 - ✅ No code duplication (reuses tt_transformers framework)
 - ✅ Documentation includes build/run instructions
 - ✅ Performance metrics documented
@@ -626,7 +626,7 @@ PR #3: Phi-3 demo test
 **PR description template:**
 ```markdown
 ## Summary
-Adds support for microsoft/Phi-3-mini-128k-instruct on N150/N300 hardware.
+Adds support for microsoft/Phi-3-mini-128k-instruct on n150/n300 hardware.
 
 Closes #19416 (bounty issue)
 
@@ -638,13 +638,13 @@ Closes #19416 (bounty issue)
 ## Testing
 - [x] Unit tests pass (test_phi3_*.py)
 - [x] Accuracy test passes (84.3% top-1, 96.7% top-5)
-- [x] Performance test passes (28 t/s/u on N150 = 58% theoretical)
+- [x] Performance test passes (28 t/s/u on n150 = 58% theoretical)
 - [x] Demo generates coherent text
 
 ## Performance
 | Device | Throughput | Tier Achieved |
 |--------|-----------|---------------|
-| N150   | 28 t/s/u  | Medium (58% of theoretical) |
+| n150   | 28 t/s/u  | Medium (58% of theoretical) |
 
 ## Accuracy
 - Top-1: 84.3% ✅ (>80% required)
@@ -856,4 +856,4 @@ Ready to make your first contribution? Try the hands-on example:
 
 **Ready to contribute?** 🎯
 
-The Tenstorrent community is welcoming to newcomers. Start with a warmup task, learn the workflow, then scale up to more challenging contributions. Your work will run on cutting-edge AI hardware, become part of the open-source ecosystem, and help advance the field. The real reward is owning and being part of your own open future.
+The Tenstorrent community is welcoming to newcomers. Start with a warmup task, learn the workflow, then scale up to more challenging contributions. Your work will run on cutting-edge AI hardware, become part of the open source ecosystem, and help advance the field. The real reward is owning and being part of your own open future.

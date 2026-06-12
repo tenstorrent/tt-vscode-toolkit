@@ -188,7 +188,7 @@ Your framework hides the hardware... until it doesn't:
 
 ### Meet Your 880 Computers
 
-A Tenstorrent Wormhole chip contains **176 Tensix cores**. Each Tensix contains **5 RISC-V processors**:
+A Tenstorrent Wormhole<sup>™</sup> chip contains **176 Tensix cores**. Each Tensix contains **5 RISC-V processors**:
 
 ```mermaid
 graph TD
@@ -260,7 +260,7 @@ Let's run the canonical first program: **adding two integers**.
 
 ### Step 1: Build Programming Examples
 
-First, build tt-metal with RISC-V programming examples enabled:
+First, build TT-Metalium<sup>™</sup> with RISC-V programming examples enabled:
 
 ```bash
 cd ~/tt-metal && \
@@ -292,7 +292,7 @@ Success: Result is 21
 0:(x=0,y=0):BR: Adding integers: 14 + 7
 ```
 
-**Note:** You'll see device initialization logs and possibly firmware version warnings before the output. These are normal - the system initializes all detected hardware before running your kernel. On multi-device systems (like QuietBox), you'll see initialization for all cards even though only device 0 is used.
+**Note:** You'll see device initialization logs and possibly firmware version warnings before the output. These are normal - the system initializes all detected hardware before running your kernel. On multi-device systems (like TT-QuietBox), you'll see initialization for all cards even though only device 0 is used.
 
 **🎉 Congratulations!** You just ran a program on a RISC-V processor.
 

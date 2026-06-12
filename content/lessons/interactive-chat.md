@@ -1,7 +1,7 @@
 ---
 id: interactive-chat
 title: Interactive Chat with Direct API
-description: Build a custom chat application using tt-metal's Generator API directly.
+description: Build a custom chat application using TT-Metalium's Generator API directly.
 category: first-inference
 tags:
   - chat
@@ -22,11 +22,11 @@ estimatedMinutes: 10
 
 # Interactive Chat with Direct API
 
-Build your own interactive chat application using tt-metal's Generator API directly.
+Build your own interactive chat application using TT-Metalium<sup>™</sup>'s Generator API directly.
 
 > **⚠️ Llama + tt-metal source required.** The Generator API used in this lesson is Llama-specific and requires `~/tt-metal` cloned and built from source. If you:
 > - Haven't accepted [Meta's data terms](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) for Llama access, or
-> - Don't have `~/tt-metal` built (QB2 and pre-configured images don't ship it)
+> - Don't have `~/tt-metal` built (TT-QuietBox<sup>®</sup> 2 and pre-configured images don't ship it)
 >
 > → Use the **[vLLM path with Qwen3-0.6B](command:tenstorrent.showLesson?["vllm-production"])** instead — no source build, no license gate, works on all hardware.
 
@@ -133,7 +133,7 @@ ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
 | Issue | Solution |
 |-------|----------|
 | No hardware detected | [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) |
-| No tt-metal installed | [Verify Installation](command:tenstorrent.showLesson?["verify-installation"]) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
+| No TT-Metalium installed | [Verify Installation](command:tenstorrent.showLesson?["verify-installation"]) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
 | No model downloaded | [Download Model](command:tenstorrent.showLesson?["download-model"]) |
 
 **Quick model download:**
@@ -163,7 +163,7 @@ python3 -c "import pi; print('✓ pi installed')"
 ## Prerequisites
 
 This lesson requires the same setup as Lesson 3. Make sure you have:
-- tt-metal installed and working
+- TT-Metalium installed and working
 - Model downloaded (Llama-3.1-8B-Instruct) in **Meta format** (`original/` subdirectory)
 - `LLAMA_DIR` environment variable pointing to `original/` subdirectory
 - Dependencies: `pi` and `llama-models` packages
@@ -182,7 +182,7 @@ pip install pi && pip install git+https://github.com/tenstorrent/llama-models.gi
 
 **What this installs:**
 - `pi` - Required by Generator API for inference
-- `llama-models` - Tenstorrent's fork with tt-metal support
+- `llama-models` - Tenstorrent's fork with TT-Metalium support
 
 **Already installed?** The command will skip packages that are already present.
 
@@ -427,6 +427,6 @@ Continue to Lesson 5: HTTP API Server!
 
 ## Learn More
 
-- [TT-Metal Generator API](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/generator.py)
+- [TT-Metalium Generator API](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/generator.py)
 - [Model Configuration](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/model_config.py)
 - [Common Utilities](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/common.py)

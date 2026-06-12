@@ -20,9 +20,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15
@@ -98,7 +98,7 @@ So far in this extension, you've learned how to **run** pre-trained models (infe
 
 Tenstorrent's training ecosystem is designed around clarity and modularity. Here's how the pieces fit together:
 
-### tt-metal (Foundation)
+### TT-Metalium<sup>™</sup> (Foundation)
 - **What it is:** Core SDK for Tenstorrent hardware
 - **What it does:** Low-level operations, kernels, device management, memory handling
 - **Why it matters:** This is the foundation everything else builds on
@@ -121,8 +121,8 @@ Tenstorrent's training ecosystem is designed around clarity and modularity. Here
 ```mermaid
 graph TD
     A[Your Training Script] --> B[tt-train API<br/>High-level Training Interface]
-    B --> C[tt-metal SDK<br/>Hardware Operations]
-    C --> D[Tenstorrent Hardware<br/>N150/N300/T3K/P100/Galaxy]
+    B --> C[TT-Metalium SDK<br/>Hardware Operations]
+    C --> D[Tenstorrent Hardware<br/>n150/n300/T3000/p100/Galaxy]
 
     E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
 
@@ -134,7 +134,7 @@ graph TD
 ```
 
 **Think of it like web development:**
-- tt-metal = Browser APIs (low-level)
+- TT-Metalium = Browser APIs (low-level)
 - tt-train = React/Vue (framework)
 - tt-blacksmith = Design patterns & best practices
 - Your script = Your application
@@ -257,25 +257,25 @@ Once training is complete, use your fine-tuned model for inference. Integrate wi
 
 ## Hardware Considerations
 
-### N150 (Single Wormhole Chip)
+### n150 (Single Wormhole<sup>™</sup> Chip)
 - **Perfect for:** Fine-tuning small models (1-3B params)
 - **Batch size:** 4-8 (conservative for DRAM)
 - **Training time:** 1-3 hours typical
 - **What you'll learn:** Core concepts, single-device patterns
 
-### N300 (Dual Wormhole Chips)
+### n300 (Dual Wormhole Chips)
 - **Perfect for:** Larger models, faster training
 - **Batch size:** 16-32 (distributed across chips)
-- **Training time:** 30-60 minutes (2x faster than N150)
+- **Training time:** 30-60 minutes (2x faster than n150)
 - **What you'll learn:** DDP patterns, multi-device coordination
 
-### T3K / Blackhole / Galaxy (Advanced)
+### T3000 / Blackhole<sup>®</sup> / Galaxy (Advanced)
 - **Perfect for:** Large-scale training, experimentation
 - **Batch size:** 32+ (highly parallel)
 - **Training time:** Minutes for small jobs
 - **What you'll learn:** Scaling strategies, tensor parallelism
 
-**For this series:** We'll focus on N150 (everyone can follow) with N300 examples for scaling.
+**For this series:** We'll focus on n150 (everyone can follow) with n300 examples for scaling.
 
 ---
 
@@ -297,7 +297,7 @@ This series uses concrete examples to teach transferable principles:
 - Clear learning progression (simple → complex)
 - Visual results (you can see the model learning)
 - Transferable to any domain
-- Work on all hardware (N150 through Galaxy)
+- Work on all hardware (n150 through Galaxy)
 
 **The goal:** Learn principles you can apply to **your** custom models and domains.
 
@@ -375,8 +375,8 @@ Train from scratch when:
 
 - **TinyLlama:** Apache 2.0 license (commercial-friendly)
 - **Your fine-tuned model:** You own it
-- **Training code:** Check tt-metal and tt-train licenses
-- **Hosting:** Use tt-inference-server or vLLM (Lesson 7)
+- **Training code:** Check TT-Metalium and tt-train licenses
+- **Hosting:** Use TT-Inference-Server or vLLM (Lesson 7)
 
 Always verify licenses for your specific use case.
 
@@ -391,7 +391,7 @@ You're about to learn how to train custom models - but what will you build with 
 **Real-world custom models running on TT hardware:**
 
 🎯 **Domain-Specific Coding Assistants**
-- Python → TTNN translators (convert PyTorch to TT-optimized code)
+- Python → TT-NN<sup>™</sup> translators (convert PyTorch to TT-optimized code)
 - Hardware description language generators (Verilog patterns)
 - Code review bots trained on team style guides
 - API documentation chatbots
@@ -414,22 +414,22 @@ You're about to learn how to train custom models - but what will you build with 
 - Specialized tokenizers (music notation, chemical formulas)
 - Domain-specific embeddings (protein sequences, geographic data)
 
-### Working Within Constraints (N150 Can Do This!)
+### Working Within Constraints (n150 Can Do This!)
 
 **You don't need massive infrastructure to build something meaningful:**
 
-- **Fine-tune 1-3B models in hours** - TinyLlama, Qwen3-0.6B, Gemma-3-1B all work on N150
+- **Fine-tune 1-3B models in hours** - TinyLlama, Qwen3-0.6B, Gemma-3-1B all work on n150
 - **Deploy with vLLM for production inference** - Sub-millisecond latency, thousands of requests/second
 - **Iterate quickly with small datasets** - 100-1000 high-quality examples beat 100,000 mediocre ones
 - **Combine multiple specialized models** - Build an ensemble of experts, each fine-tuned for specific tasks
-- **Scale when needed** - Start on N150, move to N300 for 2x speedup, T3K for 8x, Galaxy for research scale
+- **Scale when needed** - Start on n150, move to n300 for 2x speedup, T3000 for 8x, Galaxy for research scale
 
 **The magic is in the data and the task definition, not the hardware scale.**
 
 ### Imagine: Your Custom Model Journey
 
 **Month 1 (Starting Today):**
-- Learn training fundamentals on N150
+- Learn training fundamentals on n150
 - Build your first domain-specific model
 - Deploy with vLLM for internal use
 - **Outcome:** Working custom model serving real users
@@ -437,7 +437,7 @@ You're about to learn how to train custom models - but what will you build with 
 **Month 2-3:**
 - Experiment with different base models (Qwen, Gemma, Llama)
 - Try multi-task fine-tuning (one model, multiple skills)
-- Scale to N300 for faster iteration
+- Scale to n300 for faster iteration
 - **Outcome:** Production-ready specialized models
 
 **Month 6+:**
@@ -450,7 +450,7 @@ You're about to learn how to train custom models - but what will you build with 
 
 **This series teaches you:**
 - ✅ The techniques (fine-tuning, configuration, multi-device training)
-- ✅ The tools (tt-train, tt-metal, experiment tracking)
+- ✅ The tools (tt-train, TT-Metalium, experiment tracking)
 - ✅ The patterns (tt-blacksmith best practices)
 
 **But more importantly, it empowers you to:**
@@ -475,7 +475,7 @@ You're about to learn how to train custom models - but what will you build with 
 
 ✅ **tt-blacksmith shows the patterns** for organizing training code
 
-✅ **Start with N150**, scale to N300+ when needed
+✅ **Start with n150**, scale to n300+ when needed
 
 ✅ **Focus on data quality** over quantity
 
@@ -501,13 +501,13 @@ Now that you understand the concepts, it's time to get hands-on. In the next les
 ## Additional Resources
 
 ### Official Documentation
-- [tt-metal GitHub](https://github.com/tenstorrent/tt-metal) - Core SDK
+- [TT-Metalium GitHub](https://github.com/tenstorrent/tt-metal) - Core SDK
 - [tt-train Documentation](https://github.com/tenstorrent/tt-metal/tree/main/tt-train) - Training framework
 - [tt-blacksmith Examples](https://github.com/tenstorrent/tt-blacksmith) - Framework patterns
 
 ### Related Lessons
 - **Lesson 7:** vLLM Production (inference with fine-tuned models)
-- **Lesson 11:** TT-Forge (experimental compiler)
+- **Lesson 11:** TT-Forge<sup>™</sup> (experimental compiler)
 - **Lesson 12:** TT-XLA JAX (alternative training framework)
 
 ### Community

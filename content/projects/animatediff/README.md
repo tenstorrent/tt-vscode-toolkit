@@ -2,13 +2,13 @@
 
 Two-phase implementation: **Phase 1** generates real, temporally coherent video
 on CPU using the correct AnimateDiff architecture. **Phase 2** accelerates spatial
-denoising on Blackhole hardware using the TTNN UNet.
+denoising on Blackhole<sup>®</sup> hardware using the TT-NN<sup>™</sup> UNet.
 
 | *"World of Tomorrow"* | *"Phosphor Horizon"* |
 |---|---|
 | ![world of tomorrow](docs/assets/demo_world_of_tomorrow.gif) | ![phosphor horizon](docs/assets/demo_phosphor_horizon.gif) |
 
-Both GIFs generated on **Blackhole (P300C)** — 8 frames × 25 denoising steps, ~15 s/frame.
+Both GIFs generated on **Blackhole (p300c)** — 8 frames × 25 denoising steps, ~15 s/frame.
 
 ---
 
@@ -51,17 +51,17 @@ Expected output: `output/baseline.gif` — 16 frames of temporally coherent anim
 
 ## Phase 2 — Blackhole-Accelerated Frame Generation
 
-Uses the SD 1.4 TTNN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/` —
+Uses the SD 1.4 TT-NN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/` —
 the same code runs on Blackhole via `TT_METAL_ARCH_NAME=blackhole`. Frames are denoised
 sequentially using `sd_helper_funcs.run()`. Temporal coherence from shared base noise.
 
 **Documented tradeoff:** This is TT-hardware-accelerated spatial denoising for video
 frames, not full AnimateDiff temporal attention. Full integration would require injecting
-`TemporalTransformer` blocks into the TTNN UNet transformer blocks.
+`TemporalTransformer` blocks into the TT-NN UNet transformer blocks.
 
 ### Requirements
 
-- Blackhole hardware (P100 or P300c)
+- Blackhole hardware (p100 or p300c)
 - `~/tt-metal` present, environment activated: `source ~/tt-metal/python_env/bin/activate`
 - `hf download CompVis/stable-diffusion-v1-4` (also used by Phase 1; CLIP loads from this model's subfolders)
 
@@ -82,7 +82,7 @@ Expected: `output/blackhole.gif` — 8 frames generated on Blackhole hardware.
 ```
 animatediff_ttnn/
   pipeline.py          Phase 1: thin wrapper around diffusers AnimateDiffPipeline
-  ttnn_pipeline.py     Phase 2: TTNN UNet frame generation on Blackhole
+  ttnn_pipeline.py     Phase 2: TT-NN UNet frame generation on Blackhole
   temporal_module.py   Reference only — temporal attention math (kept for study)
   __init__.py          Exports Phase 1 public API
 
@@ -127,5 +127,5 @@ SD 1.4 UNet WITH MotionAdapter (Phase 1):
                               This is where mm_sd_v15_v2.ckpt weights live
 ```
 
-For full AnimateDiff on Blackhole, the TTNN UNet transformer blocks would need
+For full AnimateDiff on Blackhole, the TT-NN UNet transformer blocks would need
 TemporalTransformer layers inserted — a deeper integration than Phase 2 attempts.

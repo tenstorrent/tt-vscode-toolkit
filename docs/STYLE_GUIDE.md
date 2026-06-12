@@ -1,6 +1,6 @@
 # Style Guide
 
-This style guide ensures consistency across all lessons, documentation, and code in the Tenstorrent VSCode Toolkit.
+This style guide ensures consistency across all lessons, documentation, and code in the TT-VSCode-Toolkit.
 
 ## Table of Contents
 
@@ -23,40 +23,54 @@ This style guide ensures consistency across all lessons, documentation, and code
 - ❌ `TensTorrent`, `tensTorrent`, `TENSTORRENT`
 
 **Software Projects:**
-- ✅ `tt-metal` (lowercase, hyphenated) in code/commands
-- ✅ `TT-Metal` (title case, hyphenated) in prose and documentation
-- ❌ `TT Metal`, `tt metal`, `TTMetal`, `ttmetal`
+- ✅ `tt-metal` (lowercase, hyphenated) in code/commands, paths (`~/tt-metal`), and repo URLs
+- ✅ **TT-Metalium<sup>™</sup>** in prose and documentation (replaces legacy **TT-Metalium**)
+- ❌ `TT Metal`, `tt metal`, `TTMetal`, `ttmetal`, `TT-Metal`
 
-- ✅ `tt-forge` (lowercase, hyphenated) in code/commands
-- ✅ `TT-Forge` (title case, hyphenated) in prose and documentation
+- ✅ `tt-forge` / `tt-forge-fe` (lowercase) in code/commands and paths
+- ✅ **TT-Forge<sup>™</sup>** in prose and documentation
 - ❌ `TT Forge`, `tt forge`, `TTForge`, `ttforge`
 
-- ✅ `tt-xla` (lowercase, hyphenated) in code/commands
-- ✅ `TT-XLA` (all caps for XLA) in prose and documentation
+- ✅ `tt-xla` / `tt-xla-venv` (lowercase) in code/commands and paths
+- ✅ **TT-XLA** in prose and documentation
 - ❌ `TT XLA`, `tt xla`, `TTXLA`
+
+- ✅ `tt-lang` (lowercase) in code/commands and lesson slug `tt-lang-intro`
+- ✅ **TT-Lang** in prose and documentation
+- ❌ `TTLang`, `tt lang`
 
 - ✅ `vLLM` (camelCase with lowercase v)
 - ❌ `VLLM`, `vllm`, `Vllm`, `VLlm`
 
-- ✅ `tt-inference-server` (lowercase, hyphenated)
+- ✅ **TT-Installer** in prose (repo paths and install script URLs stay `tt-installer`)
+- ✅ **TT-Inference-Server** in prose (repo paths and `MESH_DEVICE` values stay lowercase hyphenated)
 - ✅ `TT Inference Server` (title case) in prose only when clarity demands
 - ❌ `TTInferenceServer`, `tt_inference_server`
 
 **VSCode Extension:**
 - ✅ `tt-vscode-toolkit` (lowercase, hyphenated) in code/repo names
-- ✅ `Tenstorrent VSCode Toolkit` (title case) in prose and UI
+- ✅ `TT-VSCode-Toolkit` (title case) in prose and UI
 - ❌ `tt_vscode_toolkit`, `TTVSCodeToolkit`
+
+**Open source:**
+- ✅ `open source` (two words, lowercase) in running prose
+- ✅ `Open Source` in headings, table cells, and emphasized labels (e.g. **Open Source**)
+- ❌ `open-source`, `Open-source`, `opensource`
 
 ### Hardware Product Names
 
-**Always use uppercase for model numbers in prose:**
-- ✅ `N150`, `N300`, `T3K`, `P100`, `P150`, `Galaxy`
-- ❌ `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy` (only use lowercase in code)
+**Use lowercase hardware IDs in prose and sample output** (matches lesson metadata and the hardware filter):
+- ✅ `n150`, `n300`, `T3000`, `p100`, `p150`, `p300c` — always lowercase in prose and sample output
+- ✅ `Galaxy` — always capitalized in prose and sample output (metadata IDs stay `galaxy`)
+- ❌ `N150`, `N300`, `T3K`, `P300C` in running text (keep uppercase only in shell env vars like `MESH_DEVICE=N150` and command IDs — see below)
 
 **Hardware architecture names:**
 - ✅ `Grayskull` (capital G)
-- ✅ `Wormhole` (capital W)
-- ✅ `Blackhole` (capital B)
+- ✅ `Blackhole` (capital B); first mention per page: `Blackhole<sup>®</sup>`
+- ✅ `Wormhole` (capital W); first mention per page: `Wormhole<sup>™</sup>`
+- ✅ `TT-QuietBox 2` in prose (not `QB2` or bare `QuietBox`); first mention per page: `TT-QuietBox<sup>®</sup> 2`
+- ✅ `TT-NN` in prose (not `TTNN`); first mention per page gets `<sup>™</sup>`
+- ✅ `TT-Metalium`, `TT-Forge` — first mention per page gets `<sup>™</sup>`
 - ❌ `grayskull`, `wormhole`, `blackhole` (except in code/environment variables)
 
 **In code and configuration:**
@@ -68,7 +82,7 @@ mesh_device: n300
 
 **In prose:**
 ```markdown
-The N150 uses the Wormhole architecture with 8 Tensix cores.
+The n150 uses the Wormhole architecture with 8 Tensix cores.
 ```
 
 ### Commands and Tools
@@ -177,7 +191,7 @@ Let's spin up a vLLM server! It's gonna be super easy and quick! 😎
 
 ✅ Good:
 ```markdown
-# Introduction to TT-Metal
+# Introduction to TT-Metalium
 ## Setting Up Your Environment
 ### Install dependencies
 ```
@@ -252,7 +266,7 @@ See [Testing Guide](docs/TESTING.md) for details.
 
 **External links:**
 ```markdown
-Read the [TT-Metal documentation](https://docs.tenstorrent.com/tt-metal) for more information.
+Read the [TT-Metalium documentation](https://docs.tenstorrent.com/tt-metal) for more information.
 ```
 
 **Reference-style links for repeated URLs:**
@@ -267,7 +281,7 @@ Check [GitHub][repo] for updates.
 **Bold for important terms and UI elements:**
 ```markdown
 Click the **Run** button in VSCode.
-The **N150** hardware uses Wormhole architecture.
+The **n150** hardware uses Wormhole architecture.
 ```
 
 **Italic for emphasis or introducing new terms:**
@@ -323,7 +337,7 @@ estimatedMinutes: 30
 - `estimatedMinutes` - Time to complete (realistic estimate)
 
 **Optional fields:**
-- `minTTMetalVersion` - Minimum tt-metal version required (e.g., "v0.51.0")
+- `minTTMetalVersion` - Minimum TT-Metalium version required (e.g., "v0.51.0")
 - `validationDate` - ISO date when validated (e.g., "2026-01-30")
 - `validationNotes` - Multi-line notes about validation testing
 
@@ -343,12 +357,12 @@ estimatedMinutes: 30
 ### Hardware Values
 
 **Use lowercase in code:**
-- `n150` - N150 (Wormhole single chip)
-- `n300` - N300 (Wormhole 2-chip)
-- `t3k` - T3000 (Wormhole 8-chip)
-- `p100` - P100 (Blackhole single chip)
-- `p150` - P150 (Blackhole 2-chip)
-- `galaxy` - Galaxy (Wormhole large-scale)
+- `n150` — Wormhole single chip
+- `n300` — Wormhole 2-chip
+- `t3k` — Wormhole 8-chip (prose: **T3000**)
+- `p100` - p100 (Blackhole<sup>®</sup> single chip)
+- `p150` - p150 (Blackhole 2-chip)
+- `Galaxy` - Galaxy (Wormhole large-scale)
 - `simulator` - Software simulator (no hardware)
 
 ### Registry Sync Workflow
@@ -435,8 +449,8 @@ Button Text in Title Case
 - ❌ "vLLM Server Starting"
 
 **Be specific:**
-- ✅ "Detect N150 Hardware"
-- ✅ "Install tt-metal v0.51.0"
+- ✅ "Detect n150 Hardware"
+- ✅ "Install TT-Metalium v0.51.0"
 - ❌ "Detect Hardware"
 - ❌ "Install Software"
 
@@ -456,7 +470,7 @@ command:tenstorrent.installDependencies
 Install Dependencies
 
 command:tenstorrent.buildMetal
-Build TT-Metal
+Build TT-Metalium
 
 command:tenstorrent.verifyInstallation
 Verify Installation
@@ -559,7 +573,7 @@ $ ./build_metal.sh
 **Show expected output:**
 ```bash
 $ tt-smi
-Board 0: N150 (Wormhole) - OK
+Board 0: n150 (Wormhole) - OK
   Status: Ready
   Temperature: 45°C
 ```
@@ -592,8 +606,8 @@ Board 0: N150 (Wormhole) - OK
 ```mermaid
 graph TD
     A[Start] --> B{Check Hardware}
-    B -->|N150| C[Single Device]
-    B -->|N300| D[Multi-Device]
+    B -->|n150| C[Single Device]
+    B -->|n300| D[Multi-Device]
     C --> E[Run Model]
     D --> E
 ```
@@ -710,4 +724,4 @@ For questions about this style guide:
 
 **Version:** 1.0.0
 **Last Updated:** 2026-01-30
-**Maintainers:** Tenstorrent VSCode Toolkit Team
+**Maintainers:** TT-VSCode-Toolkit Team

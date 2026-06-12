@@ -1,9 +1,9 @@
 ---
 id: tt-inference-server
-title: Production Inference with tt-inference-server
+title: Production Inference with TT-Inference-Server
 description: >-
-  Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — N150, N300, T3K,
-  P100, p300c, or QB2. tt-inference-server automates Docker image selection,
+  Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000,
+  p100, p300c, or TT-QuietBox 2. TT-Inference-Server automates Docker image selection,
   model download, and server startup with a single command. OpenAI-compatible
   API ready immediately.
 category: serving
@@ -31,30 +31,30 @@ recommended_metal_version: v0.65.1
 validationDate: 2026-04-15
 validationNotes: >-
   Rewritten for v0.12.0 Docker images; --tt-device auto-detection; Llama-3.1-8B
-  validated Complete on WH (N150/N300/T3K) and Experimental on BH (P100/p300c).
+  validated Complete on WH (n150/n300/T3000) and Experimental on BH (p100/p300c).
 ---
 
-# Production Inference with tt-inference-server
+# Production Inference with TT-Inference-Server
 
-[tt-inference-server](https://github.com/tenstorrent/tt-inference-server) is
+[TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server) is
 Tenstorrent's official workflow automation tool. Give it a model name and your
 hardware type and it handles everything: pulls the right Docker image (pre-built
-tt-metal + vLLM), downloads model weights, and starts an OpenAI-compatible
+TT-Metalium<sup>™</sup> + vLLM), downloads model weights, and starts an OpenAI-compatible
 inference server.
 
-> **QB2 / p300c users:** Llama-3.1-8B is supported on P100/P150 hardware
-> (🛠️ Experimental status). Use `--tt-device p100` for p300c or QB2.
+> **TT-QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware
+> (🛠️ Experimental status). Use `--tt-device p100` for p300c or TT-QuietBox 2.
 
 ---
 
 ## Prerequisites
 
-### Install tt-inference-server
+### Install TT-Inference-Server
 
-**QB2 / pre-configured images:** tt-inference-server is pre-installed at
+**TT-QuietBox 2 / pre-configured images:** TT-Inference-Server is pre-installed at
 `~/.local/lib/tt-inference-server`. Skip to the next section.
 
-**All other hardware (N150/N300/T3K/P100/P150):** Clone it:
+**All other hardware (n150/n300/T3000/p100/p150):** Clone it:
 
 ```bash
 git clone https://github.com/tenstorrent/tt-inference-server.git \
@@ -88,16 +88,16 @@ ls ~/.local/lib/tt-inference-server/run.py
 
 ## The Model: Llama-3.1-8B
 
-Llama-3.1-8B is the widest-coverage model in tt-inference-server — it runs on
+Llama-3.1-8B is the widest-coverage model in TT-Inference-Server — it runs on
 every current Tenstorrent board:
 
 | Hardware | Device flag | Status | Max context |
 |----------|-------------|--------|-------------|
-| N150 | `--tt-device n150` | 🟢 Complete | 64 K |
-| N300 | `--tt-device n300` | 🟢 Complete | 128 K |
-| T3K (WH QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
-| P100 / p300c / QB2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
-| P150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
+| n150 | `--tt-device n150` | 🟢 Complete | 64 K |
+| n300 | `--tt-device n300` | 🟢 Complete | 128 K |
+| T3000 (WH TT-QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
+| p100 / p300c / TT-QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| p150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
 | Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
 
 Two weight variants are available via MODEL_SPECS:
@@ -132,7 +132,7 @@ Add `--tt-device <device>` if auto-detection doesn't match your hardware.
 
 ### Hardware-specific commands
 
-#### N150 (Wormhole — single chip, 64 K context)
+#### n150 (Wormhole<sup>™</sup> — single chip, 64 K context)
 
 ```bash
 python3 run.py \
@@ -143,11 +143,11 @@ python3 run.py \
   --no-auth
 ```
 
-[▶ Start Server (N150)](command:tenstorrent.startTtInferenceServerN150)
+[▶ Start Server (n150)](command:tenstorrent.startTtInferenceServerN150)
 
 ---
 
-#### N300 (Wormhole — dual chip, 128 K context)
+#### n300 (Wormhole — dual chip, 128 K context)
 
 ```bash
 python3 run.py \
@@ -158,11 +158,11 @@ python3 run.py \
   --no-auth
 ```
 
-[▶ Start Server (N300)](command:tenstorrent.startTtInferenceServerN300)
+[▶ Start Server (n300)](command:tenstorrent.startTtInferenceServerN300)
 
 ---
 
-#### T3K — WH QuietBox / LoudBox (8 chips, 128 K context)
+#### T3000 — WH TT-QuietBox / LoudBox (8 chips, 128 K context)
 
 ```bash
 python3 run.py \
@@ -175,7 +175,7 @@ python3 run.py \
 
 ---
 
-#### P100 / p300c / QB2 (Blackhole — 64 K context, Experimental)
+#### p100 / p300c / TT-QuietBox 2 (Blackhole<sup>®</sup> — 64 K context, Experimental)
 
 ```bash
 python3 run.py \
@@ -186,8 +186,8 @@ python3 run.py \
   --no-auth
 ```
 
-> QB2 exposes each p300c chip as an independent `p100` device. Run one server
-> per chip, each on a different `--service-port`, or use the T3K-class
+> TT-QuietBox 2 exposes each p300c chip as an independent `p100` device. Run one server
+> per chip, each on a different `--service-port`, or use the T3000-class
 > configurations when available on future firmware.
 
 ---
@@ -198,7 +198,7 @@ For full transparency, or when you want to run without `run.py`, use the
 container directly. Pass `--model` and `--tt-device` as container args; the
 container resolves the config from its bundled model spec catalog.
 
-**Wormhole (N150 / N300 / T3K):**
+**Wormhole (n150 / n300 / T3000):**
 
 ```bash
 docker run \
@@ -215,7 +215,7 @@ docker run \
 
 Change `--tt-device` to `n300` or `t3k` for those boards — same image.
 
-**Blackhole (P100 / p300c / QB2):**
+**Blackhole (p100 / p300c / TT-QuietBox 2):**
 
 ```bash
 docker run \
@@ -361,7 +361,7 @@ Results land in `~/.local/lib/tt-inference-server/workflow_logs/`.
 
 ## Tuning vLLM Arguments
 
-tt-inference-server's model specs set reasonable defaults for each model/device
+TT-Inference-Server's model specs set reasonable defaults for each model/device
 pair (block size 64, full context window, 32 concurrent sequences). Override
 any of them without rebuilding the container.
 
@@ -437,7 +437,7 @@ print(response.choices[0].message.tool_calls)
 ### Reducing Context Length
 
 By default the server uses the full context window supported by the hardware
-(64 K on N150/P100, 128 K on N300/T3K). Reducing it lowers DRAM usage and
+(64 K on n150/p100, 128 K on n300/T3000). Reducing it lowers DRAM usage and
 can speed up model load:
 
 ```bash
@@ -469,12 +469,12 @@ peak memory or raise them when throughput matters more than latency:
 # Reduce to 8 concurrent users (lower memory, lower throughput)
 --vllm-override-args '{"max-num-seqs": 8}'
 
-# Increase for high-throughput batch workloads (N300/T3K only — needs headroom)
+# Increase for high-throughput batch workloads (n300/T3000 only — needs headroom)
 --vllm-override-args '{"max-num-seqs": 64, "max-num-batched-tokens": 65536}'
 ```
 
 Defaults for Llama-3.1-8B: `max-num-seqs=32`, `max-num-batched-tokens=65536`
-(N150) / `131072` (N300/T3K).
+(n150) / `131072` (n300/T3000).
 
 ---
 
@@ -530,14 +530,14 @@ Stable Diffusion, FLUX, Mochi video, and more — see
 ### 2. Run vLLM directly (no MODEL_SPECS constraint)
 
 The [vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"])
-shows how to run vLLM directly on the host without tt-inference-server. This
+shows how to run vLLM directly on the host without TT-Inference-Server. This
 accepts any model path or HF repo and gives you full control over every vLLM
 flag — useful for models in development or private repos.
 
 ### 3. Request official support
 
 Open an issue at
-[github.com/tenstorrent/tt-inference-server](https://github.com/tenstorrent/tt-inference-server/issues)
+[TT-Inference-Server issue tracker](https://github.com/tenstorrent/tt-inference-server/issues)
 to request a new model be added to MODEL_SPECS. Include your hardware type,
 model name, and any performance requirements.
 
@@ -545,7 +545,7 @@ model name, and any performance requirements.
 
 ## Non-Container Deployment (--local-server)
 
-If you have a built tt-metal checkout (e.g. via the Build tt-metal lesson),
+If you have a built TT-Metalium checkout (e.g. via the Build TT-Metalium lesson),
 you can run vLLM directly on the host — no Docker required:
 
 ```bash
@@ -584,7 +584,7 @@ python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
 
 ## Cache Persistence
 
-tt-inference-server uses two separate cache directories inside the container —
+TT-Inference-Server uses two separate cache directories inside the container —
 knowing how each is stored makes the difference between a 2-minute startup and
 a 10-minute one.
 
@@ -593,12 +593,12 @@ a 10-minute one.
 ```
 cache_root/
   weights/{model_name}/                              # HF model weights
-  tt_metal_cache/cache_{model_name}/{device_type}/   # compiled TT Metal kernels
+  tt_metal_cache/cache_{model_name}/{device_type}/   # compiled TT-Metalium kernels
   tt_dit_cache/                                      # compiled WAN/Mochi tensor weights
   logs/                                              # vLLM server logs
 ```
 
-- **TT Metal kernels** (`tt_metal_cache/`) — compiled by vLLM on first run.
+- **TT-Metalium kernels** (`tt_metal_cache/`) — compiled by vLLM on first run.
   Subsequent starts load from this cache: ~2–5 min instead of 10–20 min.
 - **Media model tensor weights** (`tt_dit_cache/`) — compiled by video/image
   models (WAN 2.2, Mochi). **Not cached by default** — stored in `/tmp/TT_DIT_CACHE`
@@ -606,9 +606,9 @@ cache_root/
 
 ---
 
-### Docker named volumes (default — TT Metal kernels)
+### Docker named volumes (default — TT-Metalium kernels)
 
-By default `run.py` mounts a Docker named volume at `cache_root`. The TT Metal
+By default `run.py` mounts a Docker named volume at `cache_root`. The TT-Metalium
 kernel cache survives container restarts automatically — no extra flags needed.
 
 You can verify the volume exists after the first run:
@@ -625,7 +625,7 @@ For video and image models (WAN 2.2, Mochi, FLUX) the container compiles tensor
 weights at startup and stores them in `TT_DIT_CACHE_DIR`. The default is
 `/tmp/TT_DIT_CACHE`, which is lost when the container stops.
 
-**First run without cache:** ~525 seconds (WAN 2.2 on QB2)
+**First run without cache:** ~525 seconds (WAN 2.2 on TT-QuietBox 2)
 **Subsequent runs with cache:** ~5 minutes
 
 Move the cache under `cache_root` so it lives in the persistent Docker volume:
@@ -799,4 +799,4 @@ high-speed fabric.
 
 - [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — run vLLM directly without the workflow wrapper
 - [VSCode Chat →](command:tenstorrent.showLesson?["vscode-chat"]) — connect the inference server to the VSCode @tenstorrent chat participant
-- [tt-inference-server docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/workflows_user_guide.md) — full CLI reference
+- [TT-Inference-Server docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/workflows_user_guide.md) — full CLI reference

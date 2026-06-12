@@ -27,17 +27,17 @@ estimatedMinutes: 10
 minTTMetalVersion: v0.65.1
 recommended_metal_version: v0.65.1
 validationDate: 2026-04-15
-validationNotes: Rewritten for pre-installed venv-forge; forge.compile() via tt-forge-onnx
+validationNotes: Rewritten for pre-installed venv-forge; forge.compile() via TT-Forge-onnx
 ---
 
-# Image Classification with TT-Forge
+# Image Classification with TT-Forge<sup>™</sup>
 
 TT-Forge compiles PyTorch models directly for Tenstorrent hardware. The `venv-forge`
 environment is **pre-installed** in this developer image — one command to activate,
 then `forge.compile()` handles the rest.
 
-> **QB2 users:** Works on all four p300c chips. Each chip is an independent
-> Blackhole device; `tt-smi -s` will show four boards.
+> **TT-QuietBox<sup>®</sup> 2 users:** Works on all four p300c chips. Each chip is an independent
+> Blackhole<sup>®</sup> device; `tt-smi -s` will show four boards.
 
 ---
 
@@ -61,12 +61,12 @@ That's the entire setup. No LLVM build, no Python version juggling, no CMake.
 > sudo ln -s ~/tt-forge-venv /opt/venv-forge
 > ```
 
-> **N150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
+> **n150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
 > which provides the `tt_torch` API (`torch.compile(model, backend='tt')`) rather than
 > `forge.compile()`. JAX and the PJRT plugin work correctly when `tt_torch` is imported
 > first (which pre-loads the TT shared libraries). The verify command handles this
 > automatically. The Python compilation script above uses `forge.compile()` — on
-> N150 cloud, you would use `torch.compile(model, backend='tt')` instead.
+> n150 cloud, you would use `torch.compile(model, backend='tt')` instead.
 
 [▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
 
@@ -85,7 +85,7 @@ tt devices: [TtDevice(id=0)]
 
 ---
 
-## What's in venv-forge
+## What's in `venv-forge`
 
 `venv-forge` (Python 3.12) ships the full TT-XLA + Forge stack:
 
@@ -96,7 +96,7 @@ tt devices: [TtDevice(id=0)]
 | `torch-xla` 2.9.0 | PyTorch/XLA backend with TT plugin |
 | `tt-forge-onnx` | `forge.compile()` — PyTorch/ONNX → TT compiler |
 
-Switch back to the tt-metal or vLLM envs at any time:
+Switch back to the TT-Metalium<sup>™</sup> or vLLM envs at any time:
 
 ```bash
 deactivate && source /etc/profile.d/tt-env-metal.sh   # tt-metal / TTNN
@@ -197,12 +197,12 @@ forge.compile()      ← graph capture, operator validation
       │
 MLIR optimizer       ← fusion, layout transforms, op lowering
       │
-TTNN operations      ← TT-Metal layer
+TT-NN operations      ← TT-Metalium layer
       │
-p300c / N150 / …     ← hardware execution
+p300c / n150 / …     ← hardware execution
 ```
 
-**What compiles reliably** — compilation times measured on QB2 (p300c):
+**What compiles reliably** — compilation times measured on TT-QuietBox 2 (p300c):
 
 | Architecture | Compile time | Params | Status |
 |---|---|---|---|
@@ -225,7 +225,7 @@ p300c / N150 / …     ← hardware execution
 Full list: [tt-forge-models](https://github.com/tenstorrent/tt-forge-models) (169 validated architectures).
 
 > **Bulk compilation testing:** [`tt-forge-compiletron`](https://github.com/tenstorrent/tt-forge-compiletron)
-> runs 108 models across all four QB2 chips in parallel and reports per-model compile
+> runs 108 models across all four TT-QuietBox 2 chips in parallel and reports per-model compile
 > times and success rates. The timing data above comes from that sweep (94.4% success
 > rate, 108 models).
 
@@ -281,7 +281,7 @@ That's the point of TT-Forge.
 ## Next steps
 
 - [JAX Inference with TT-XLA →](command:tenstorrent.showLesson?["tt-xla-jax"]) — use JAX and pmap for
-  multi-device workloads on QB2's four chips
+  multi-device workloads on TT-QuietBox 2's four chips
 - [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — serving Qwen3 and Llama
   at scale
 - [tt-forge-models](https://github.com/tenstorrent/tt-forge-models) — 169 validated

@@ -1,9 +1,9 @@
 # Particle Life Multi-Device Performance Results
 
-## QuietBox Blackhole Tower (4x P300c) Benchmark
+## TT-QuietBox Blackhole<sup>®</sup> Tower (4x p300c) Benchmark
 
 **Test Configuration:**
-- Hardware: 4x P300c (Blackhole) chips
+- Hardware: 4x p300c (Blackhole) chips
 - Particles: 2,048 across 3 species
 - Simulation steps: 100 steps
 - Total force calculations: 419,430,400 (2,048² × 100)
@@ -44,7 +44,7 @@ This is actually quite good for a first multi-device implementation! The efficie
 1. **Larger workloads**: Test with 4,096+ particles (1,024 per device)
 2. **More simulation steps**: Amortize setup cost over longer runs
 3. **Optimize data movement**: Use device-to-device communication instead of CPU aggregation
-4. **TTNN on-device operations**: Move more computation to TT hardware
+4. **TT-NN<sup>™</sup> on-device operations**: Move more computation to TT hardware
 
 ## Conclusions
 

@@ -28,11 +28,11 @@ estimatedMinutes: 15
 
 ## Overview
 
-[Aider](https://aider.chat/) is an open-source AI pair programming tool that runs in
+[Aider](https://aider.chat/) is an open source AI pair programming tool that runs in
 your terminal. It reads your codebase, edits files, and auto-commits changes — and it
 speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM server.
 
-**Works on all hardware** — N150/N300/T3K/P100/P300c/Galaxy. No `~/tt-metal` required.
+**Works on all hardware** — n150/n300/T3000/p100/p300c/Galaxy. No `~/tt-metal` required.
 
 > **Prerequisites:**
 > Your vLLM server must be running before launching Aider.
@@ -46,7 +46,7 @@ speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM ser
 pip install aider-chat
 ```
 
-That's the only install. Aider is a self-contained Python package with no tt-metal
+That's the only install. Aider is a self-contained Python package with no TT-Metalium<sup>™</sup>
 dependencies. Install it in any environment — your system Python, a separate venv,
 or even `pipx`:
 
@@ -203,7 +203,7 @@ cat suspicious_code.py | aider --message "Review this for security issues" -
 | Approach | When to Use |
 |----------|-------------|
 | **Aider + vLLM (this lesson)** | Day-to-day coding; editing actual project files |
-| **Direct API (Lessons 4–5)** | Learning tt-metal internals; building custom tools |
+| **Direct API (Lessons 4–5)** | Learning TT-Metalium internals; building custom tools |
 | **vLLM chat interface** | Quick Q&A; no file editing needed |
 
 **Key insight:** Aider's system prompt + your local Tenstorrent LLM gives you ~80–90% of
@@ -230,8 +230,8 @@ stays private, and you can swap models in seconds.
 - Use `--dry-run` to preview changes without applying them
 - All edits are git commits — `git log` and `git diff HEAD~1` let you review everything
 
-**N150 / QB2 model recommendation:**
-- Use `Qwen3-0.6B` — it's fast, reasoning-capable, and fits comfortably in N150 DRAM
+**n150 / TT-QuietBox<sup>®</sup> 2 model recommendation:**
+- Use `Qwen3-0.6B` — it's fast, reasoning-capable, and fits comfortably in n150 DRAM
 - The prompting techniques here work identically regardless of model size
 
 ---
@@ -247,4 +247,4 @@ stays private, and you can swap models in seconds.
 
 ✅ **Persistent config** — `.aider.conf.yml` in your repo makes it permanent
 
-✅ **All hardware supported** — Qwen3-0.6B via vLLM works on N150, N300, P300c, and above
+✅ **All hardware supported** — Qwen3-0.6B via vLLM works on n150, n300, p300c, and above

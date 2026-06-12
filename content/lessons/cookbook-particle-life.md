@@ -2,7 +2,7 @@
 id: cookbook-particle-life
 title: "Recipe 5: Particle Life Simulator"
 description: >-
-  Simulate emergent complexity from simple particle interactions! Features N² force calculations, multi-species dynamics, and multi-device acceleration for QuietBox systems. Beautiful chaos from simple physics!
+  Simulate emergent complexity from simple particle interactions! Features N² force calculations, multi-species dynamics, and multi-device acceleration for TT-QuietBox systems. Beautiful chaos from simple physics!
 category: cookbook
 tags:
   - ttnn
@@ -22,7 +22,7 @@ validatedOn:
   - p300c
 estimatedMinutes: 30
 validationDate: 2026-04-16
-validationNotes: Validated on P300C (QB2 QuietBox) — particle force calculations via ttnn.matmul confirmed working on Blackhole; multi-device path also available for 4x P300C systems
+validationNotes: Validated on p300c (TT-QuietBox 2) — particle force calculations via ttnn.matmul confirmed working on Blackhole; multi-device path also available for 4x p300c systems
 ---
 
 ## Overview
@@ -50,7 +50,7 @@ Particle Life is an emergent complexity simulator where different particle speci
 
 > **⚡ Sim-ready (single-chip path):** `particle_life.py` runs on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) — no hardware required.
 > Set `TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` and run `particle_life.py`.
-> The multi-chip `particle_life_multi_device.py` requires a real multi-device system (T3K, QB2).
+> The multi-chip `particle_life_multi_device.py` requires a real multi-device system (T3000, TT-QuietBox 2).
 
 [📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
 
@@ -62,7 +62,7 @@ This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 
 [![Particle Life Simulation](/assets/img/samples/particle_life_multi_device_preview.png)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/samples/particle_life_multi_device.gif)
 
-*500 frames of emergent patterns running on QuietBox (4x P300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules. Order emerges from chaos, then dissolves back into chaos. No two runs are ever the same.*
+*500 frames of emergent patterns running on TT-QuietBox (4x p300c). Red, green, and blue species interact based on randomly generated attraction/repulsion rules. Order emerges from chaos, then dissolves back into chaos. No two runs are ever the same.*
 
 [View full animation →](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/samples/particle_life_multi_device.gif)
 
@@ -199,14 +199,14 @@ positions_3d = np.random.rand(num_particles, 3)
 
 ---
 
-## 🚀 Bonus: Multi-Chip Acceleration (QuietBox Systems)
+## 🚀 Bonus: Multi-Chip Acceleration (TT-QuietBox Systems)
 
-> **Hardware required:** This section needs a real multi-device system (T3K, QB2 / 4× P300c, etc.).
+> **Hardware required:** This section needs a real multi-device system (T3000, TT-QuietBox 2 / 4× p300c, etc.).
 > The single-device `particle_life.py` above is sim-compatible; this section is not.
 
-**Unlock the full power of QuietBox with multi-device parallelization!**
+**Unlock the full power of TT-QuietBox with multi-device parallelization!**
 
-If you're running on a QuietBox system with multiple chips (4x P300c, 8x P150, etc.), you can accelerate the simulation by distributing the N² force calculations across all available devices.
+If you're running on a TT-QuietBox system with multiple chips (4x p300c, 8x p150, etc.), you can accelerate the simulation by distributing the N² force calculations across all available devices.
 
 ### The Multi-Device Implementation
 
@@ -236,9 +236,9 @@ sim = ParticleLifeMultiDevice(
 history = sim.simulate(num_steps=500)
 ```
 
-### Benchmark Results (4x P300c QuietBox)
+### Benchmark Results (4x p300c TT-QuietBox)
 
-Real-world performance on QuietBox Blackhole Tower:
+Real-world performance on TT-QuietBox Blackhole<sup>®</sup> Tower:
 
 | Mode | Runtime | Performance | Speedup |
 |------|---------|-------------|---------|
@@ -284,7 +284,7 @@ python particle_life_multi_device.py --multi-device --num-steps 1000
 
 ### Advanced: On-Device Force Calculations
 
-For maximum performance, move force calculations entirely to TT hardware using TTNN operations:
+For maximum performance, move force calculations entirely to TT hardware using TT-NN<sup>™</sup> operations:
 
 ```python
 # Convert positions to TTNN tensors on device

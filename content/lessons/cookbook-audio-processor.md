@@ -2,7 +2,7 @@
 id: cookbook-audio-processor
 title: "Recipe 2: Audio Signal Processing"
 description: >-
-  Build a real-time audio processing pipeline with TTNN. Compute mel-spectrograms, detect beats, extract pitch, and apply creative effects. Foundation for speech recognition models like Whisper!
+  Build a real-time audio processing pipeline with TT-NN. Compute mel-spectrograms, detect beats, extract pitch, and apply creative effects. Foundation for speech recognition models like Whisper!
 category: cookbook
 tags:
   - ttnn
@@ -21,12 +21,12 @@ validatedOn:
   - p300c
 estimatedMinutes: 30
 validationDate: 2026-04-16
-validationNotes: Validated on P300C (QB2 QuietBox) — mel-spectrogram computation confirmed working on Blackhole; CLI arg fixed to accept audio file path
+validationNotes: Validated on p300c (TT-QuietBox 2) — mel-spectrogram computation confirmed working; device opens cleanly on Blackhole; CLI arg fixed to accept audio file path
 ---
 
 ## Overview
 
-Build a real-time audio processing pipeline using TTNN for signal processing operations. This project demonstrates practical DSP (Digital Signal Processing) on TT hardware.
+Build a real-time audio processing pipeline using TT-NN<sup>™</sup> for signal processing operations. This project demonstrates practical DSP (Digital Signal Processing) on TT hardware.
 
 **Features:**
 - Load and process audio files (WAV, MP3)
@@ -765,8 +765,8 @@ python processor.py examples/sample.wav
 ```
 
 > **Note:** `processor.py` is a starter template. The mel-spectrogram uses librosa
-> (CPU). The template opens the TT device and is ready for TTNN acceleration —
-> see the `compute_mel_spectrogram` method to add TTNN ops.
+> (CPU). The template opens the TT device and is ready for TT-NN acceleration —
+> see the `compute_mel_spectrogram` method to add TT-NN ops.
 
 **Try audio effects:**
 

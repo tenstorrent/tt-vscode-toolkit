@@ -1,6 +1,6 @@
 # Koyeb Deployment Guide
 
-Deploy the Tenstorrent VSCode Toolkit to Koyeb cloud platform with optional N300 hardware acceleration.
+Deploy the TT-VSCode-Toolkit to Koyeb cloud platform with optional n300 hardware acceleration.
 
 ## 🚀 Quick Deploy Buttons
 
@@ -197,7 +197,7 @@ koyeb service create tt-vscode \
 |----------|----------|---------|-------------|
 | `PASSWORD` | Yes | `changeme` | Password for accessing IDE |
 | `SUDO_PASSWORD` | No | Same as PASSWORD | Sudo password inside container |
-| `MESH_DEVICE` | No | - | Hardware type (N300, T3K, etc.) |
+| `MESH_DEVICE` | No | - | Hardware type (n300, T3000, etc.) |
 | `TT_METAL_HOME` | No | `/home/coder/tt-metal` | Path to tt-metal |
 
 **⚠️ IMPORTANT:** Always set a custom password for production!
@@ -221,15 +221,15 @@ Choose a region close to you:
 - `fra` - Frankfurt (Europe)
 - `sin` - Singapore (Asia)
 
-## Hardware Acceleration (N300)
+## Hardware Acceleration (n300)
 
-**🎉 Koyeb provides Tenstorrent N300 accelerators!**
+**🎉 Koyeb provides Tenstorrent n300 accelerators!**
 
 ### Requesting Hardware
 
 #### Using koyeb.yaml
 
-The `koyeb.yaml` file is pre-configured for N300:
+The `koyeb.yaml` file is pre-configured for n300:
 
 ```yaml
 accelerator:
@@ -238,7 +238,7 @@ accelerator:
 
 env:
   - key: MESH_DEVICE
-    value: N300
+    value: n300
 ```
 
 Deploy:
@@ -269,8 +269,8 @@ koyeb service create tt-vscode \
 You'll be asked:
 ```
 Add Tenstorrent hardware accelerator?
-  1) Yes - Single N300 (2 chips, recommended)
-  2) Yes - 3x N300 (6 chips total)
+  1) Yes - Single n300 (2 chips, recommended)
+  2) Yes - 3x n300 (6 chips total)
   3) No - Software only (learning mode)
 Choice [1]:
 ```
@@ -279,13 +279,13 @@ Choice [1]:
 
 | Hardware | Chips | Use Case |
 |----------|-------|----------|
-| **Single N300** | 2 chips (Wormhole) | Development, testing, single models |
-| **3x N300** | 6 chips total | Production, multi-model serving |
+| **Single n300** | 2 chips (Wormhole<sup>™</sup>) | Development, testing, single models |
+| **3x n300** | 6 chips total | Production, multi-model serving |
 
 ### What Works with Hardware
 
 ✅ **All 16 lessons fully functional**
-✅ **Hardware detection** (sees real N300)
+✅ **Hardware detection** (sees real n300)
 ✅ **Model inference** (Llama, Qwen, etc.)
 ✅ **vLLM production serving**
 ✅ **Image generation** (Stable Diffusion)
@@ -303,8 +303,8 @@ After deployment:
    ```
 4. You should see:
    ```
-   Device 0: N300
-   Device 1: N300
+   Device 0: n300
+   Device 1: n300
    Status: Active
    ```
 
@@ -335,7 +335,7 @@ When your container starts, you'll see:
 
   ✅ VSCode in your browser (code-server)
   ✅ Tenstorrent extension pre-installed
-  ✅ Tenstorrent tools (tt-smi, tt-flash, via tt-installer)
+  ✅ Tenstorrent tools (tt-smi, tt-flash, via TT-Installer)
   ✅ 16 interactive hardware lessons
   ✅ Production deployment guides
   ✅ Template scripts and examples
@@ -504,7 +504,7 @@ koyeb service redeploy tt-vscode
 1. Use `nano` or `micro` for testing
 2. Delete service when not in use
 3. Use hardware only when needed
-4. Start with single N300, scale to 3x only if needed
+4. Start with single n300, scale to 3x only if needed
 
 ## Persistent Storage
 
@@ -562,7 +562,7 @@ koyeb services delete vscode
 ## Summary
 
 ✅ **Quick deploy buttons** - One-click deployment
-✅ **Hardware acceleration** - Real N300 chips available
+✅ **Hardware acceleration** - Real n300 chips available
 ✅ **Multiple methods** - Direct, registry, or UI deploy
 ✅ **Clear logs** - Helpful startup messages guide you
 ✅ **Pre-installed extension** - Ready to use immediately

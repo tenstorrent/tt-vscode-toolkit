@@ -42,47 +42,47 @@ graph TD
 Choose your path:
 
 ### Path A: "I just want to run HuggingFace models on Tenstorrent hardware"
-→ **Start with Lessons 1-5** (Direct tt-metal API)
-- ✅ Works great on N150 (single chip)
+→ **Start with Lessons 1-5** (Direct TT-Metalium<sup>™</sup> API)
+- ✅ Works great on n150 (single chip)
 - ✅ Easiest path, fewest dependencies
 - ✅ 30 minutes to first inference
 - **You'll learn:** How to run Llama, Qwen, Gemma models from HuggingFace
 - **Hardware:** Works on any Tenstorrent hardware
 
 ### Path B: "I want production inference with vLLM"
-→ **Use tt-inference-server Docker image** (recommended) or **Lesson 7** (advanced)
-- ⚠️ Native installation on N150 has version compatibility challenges
+→ **Use TT-Inference-Server Docker image** (recommended) or **Lesson 7** (advanced)
+- ⚠️ Native installation on n150 has version compatibility challenges
 - ✅ Docker image is validated and production-ready
 - ✅ OpenAI-compatible API
 - **You'll learn:** Production deployment, batching, scaling
-- **Hardware:** N150/N300/T3K/P100 with appropriate model sizes
+- **Hardware:** n150/n300/T3000/p100 with appropriate model sizes
 
 ### Path C: "I want to bring my own model to Tenstorrent hardware"
 → **Start with Lessons 1-5, then Lesson 13** (Bounty Program)
 - 🎓 Educational path, learn the architecture
 - 💰 Earn $500-$3000 for successful contributions
 - **You'll learn:** Model architecture, optimization, testing
-- **Hardware:** Start with N150, scale to multi-chip later
+- **Hardware:** Start with n150, scale to multi-chip later
 
 ### Path D: "I want to explore different compilers (XLA, Forge)"
-→ **Lesson 12 (TT-XLA)** for production JAX, **Lesson 11 (TT-Forge)** for experimental MLIR
+→ **Lesson 12 (TT-XLA)** for production JAX, **Lesson 11 (TT-Forge<sup>™</sup>)** for experimental MLIR
 - ⚙️ Advanced users comfortable with build systems
 - **TT-XLA:** Production-ready, wheel install, multi-chip support
 - **TT-Forge:** Experimental, 56-minute build, cutting-edge
-- **Hardware:** N150+ for XLA, N150 only for Forge
+- **Hardware:** n150+ for XLA, n150 only for Forge
 
 ### Path E: "I want to generate images, not just text"
 → **Lesson 9** (Stable Diffusion 3.5)
 - 🎨 1024x1024 image generation
-- ✅ Works perfectly on N150
+- ✅ Works perfectly on n150
 - 2-3 minutes per image (first run)
-- **Hardware:** N150/N300/T3K/P100
+- **Hardware:** n150/n300/T3000/p100
 
 ### Path F: "I want to learn low-level programming on Tensix cores"
 → **Lesson 15** (TT-Metalium Cookbook) then **Lesson 14** (RISC-V)
 - 🧠 Deep understanding of hardware
 - Parallel computing, N² algorithms, physics simulation
-- **Hardware:** N150 is perfect for learning
+- **Hardware:** n150 is perfect for learning
 
 ---
 
@@ -101,52 +101,52 @@ graph TB
     subgraph HighLevel["High-Level APIs"]
         vLLM[vLLM Server]
         PJRT[PJRT Plugin]
-        TTNN[TTNN API]
+        TT-NN[TT-NN API]
     end
 
     subgraph Compiler["Compilers & Runtime"]
         TTMLIR[TT-MLIR]
-        TTMetal[TT-Metal Runtime]
+        TTMetal[TT-Metalium Runtime]
     end
 
     subgraph Hardware["Hardware"]
-        N150[N150]
-        N300[N300]
-        T3K[T3K]
-        P100[P100/P150]
+        n150[n150]
+        n300[n300]
+        T3000[T3000]
+        p100[p100/p150]
     end
 
     JAX --> PJRT
     PyTorch --> vLLM
-    HF --> TTNN
+    HF --> TT-NN
 
     vLLM --> TTMetal
     PJRT --> TTMLIR
-    TTNN --> TTMetal
+    TT-NN --> TTMetal
 
     TTMLIR --> TTMetal
-    TTMetal --> N150
-    TTMetal --> N300
-    TTMetal --> T3K
-    TTMetal --> P100
+    TTMetal --> n150
+    TTMetal --> n300
+    TTMetal --> T3000
+    TTMetal --> p100
 
     style JAX fill:#5347a4,color:#fff
     style PyTorch fill:#5347a4,color:#fff
     style HF fill:#5347a4,color:#fff
     style vLLM fill:#3293b2,color:#fff
     style PJRT fill:#3293b2,color:#fff
-    style TTNN fill:#3293b2,color:#fff
+    style TT-NN fill:#3293b2,color:#fff
     style TTMLIR fill:#499c8d,color:#fff
     style TTMetal fill:#499c8d,color:#fff
-    style N150 fill:#ffb71b,color:#000
-    style N300 fill:#ffb71b,color:#000
-    style T3K fill:#ffb71b,color:#000
-    style P100 fill:#ffb71b,color:#000
+    style n150 fill:#ffb71b,color:#000
+    style n300 fill:#ffb71b,color:#000
+    style T3000 fill:#ffb71b,color:#000
+    style p100 fill:#ffb71b,color:#000
 ```
 
 ### Core Components
 
-#### 1. **tt-metal** (The Foundation)
+#### 1. **TT-Metalium** (The Foundation)
 **What it is:** Low-level API for programming Tenstorrent accelerators
 - C++ core with Python bindings
 - Direct access to Tensix cores, NoC (Network on Chip), DRAM
@@ -155,7 +155,7 @@ graph TB
 **Where it lives:** `~/tt-metal/`
 
 **What you'll use:**
-- **TTNN** (TT Neural Network library) - High-level ops for ML
+- **TT-NN<sup>™</sup>** (TT Neural Network library) - High-level ops for ML
 - **tt_lib** - Lower-level tensor operations
 - **Model implementations** - Pre-optimized models in `models/`
 
@@ -171,7 +171,7 @@ source python_env/bin/activate  # Activates Python environment
 **What they are:** Isolated Python installations with specific package versions
 
 **Why they matter:** Different compilers need different package versions
-- **tt-metal:** Python 3.10, uses `~/tt-metal/python_env/`
+- **TT-Metalium:** Python 3.10, uses `~/tt-metal/python_env/`
 - **TT-XLA:** Python 3.11, uses `~/tt-xla-venv/`
 - **TT-Forge:** Python 3.11, uses `~/tt-forge-fe/env/`
 
@@ -179,10 +179,10 @@ source python_env/bin/activate  # Activates Python environment
 
 **Key command:**
 ```bash
-source ~/tt-metal/python_env/bin/activate  # Use tt-metal environment
+source ~/tt-metal/python_env/bin/activate  # Use TT-Metalium environment
 ```
 
-#### 3. **TTNN** (TT Neural Network Library)
+#### 3. **TT-NN** (TT Neural Network Library)
 **What it is:** High-level API for ML operations on Tenstorrent hardware
 - Import with `import ttnn`
 - Like PyTorch ops, but runs on Tensix cores
@@ -200,8 +200,8 @@ ttnn.close_device(device)
 
 #### 4. **OpenMPI** (Multi-chip Communication)
 **What it is:** Message Passing Interface library for distributed computing
-- Required even for single-chip (N150) operation
-- Enables multi-chip scaling (N300, T3K, Galaxy)
+- Required even for single-chip (n150) operation
+- Enables multi-chip scaling (n300, T3000, Galaxy)
 
 **Where it lives:** `/opt/openmpi-v5.0.7-ulfm/`
 
@@ -210,7 +210,7 @@ ttnn.close_device(device)
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 ```
 
-**You DON'T need to understand MPI programming** - tt-metal handles it internally.
+**You DON'T need to understand MPI programming** - TT-Metalium handles it internally.
 
 ---
 
@@ -221,7 +221,7 @@ Environment variables tell programs where to find things. Here are the ones that
 ### Core Variables (Lessons 1-10)
 
 #### `TT_METAL_HOME`
-**What:** Path to tt-metal installation
+**What:** Path to TT-Metalium installation
 **Typical value:** `~/tt-metal` or `/home/user/tt-metal`
 **Why needed:** Python imports, model loading, kernel compilation
 **Set it:**
@@ -231,7 +231,7 @@ export TT_METAL_HOME=~/tt-metal
 
 #### `PYTHONPATH`
 **What:** Where Python looks for importable modules
-**Typical value:** `$TT_METAL_HOME:$PYTHONPATH` (adds tt-metal to search path)
+**Typical value:** `$TT_METAL_HOME:$PYTHONPATH` (adds TT-Metalium to search path)
 **Why needed:** Allows `from models.tt_transformers import ...` to work
 **Set it:**
 ```bash
@@ -241,7 +241,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 #### `LD_LIBRARY_PATH`
 **What:** Where Linux looks for shared libraries (.so files)
 **Typical value:** `/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH`
-**Why needed:** TTNN depends on OpenMPI libraries
+**Why needed:** TT-NN depends on OpenMPI libraries
 **Set it:**
 ```bash
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
@@ -272,18 +272,18 @@ tt-smi -s | grep board_type  # Shows your hardware
 export VLLM_TARGET_DEVICE=tt
 ```
 
-#### `TT_METAL_ARCH_NAME` (Blackhole chips only)
-**What:** Architecture name for Blackhole chips (P100/P150)
-**Value:** `blackhole` (if you have P100/P150)
+#### `TT_METAL_ARCH_NAME` (Blackhole<sup>®</sup> chips only)
+**What:** Architecture name for Blackhole chips (p100/p150)
+**Value:** `blackhole` (if you have p100/p150)
 **Why needed:** Blackhole uses different instruction set than Wormhole
 **Set it:**
 ```bash
-export TT_METAL_ARCH_NAME=blackhole  # Only for P100/P150
+export TT_METAL_ARCH_NAME=blackhole  # Only for p100/p150
 ```
 
 ### TT-Forge Variables (Lesson 11)
 
-**IMPORTANT:** TT-Forge **unsets** tt-metal variables to avoid conflicts!
+**IMPORTANT:** TT-Forge **unsets** TT-Metalium variables to avoid conflicts!
 
 ```bash
 unset TT_METAL_HOME
@@ -296,7 +296,7 @@ export CXX=/usr/bin/clang++-17
 
 ### TT-XLA Variables (Lesson 12)
 
-**IMPORTANT:** TT-XLA also unsets tt-metal variables!
+**IMPORTANT:** TT-XLA also unsets TT-Metalium variables!
 
 ```bash
 unset TT_METAL_HOME
@@ -317,20 +317,20 @@ export PYTHONPATH=~/tt-forge:$PYTHONPATH  # For imports
 - Installed to `/opt/openmpi-v5.0.7-ulfm/`
 
 #### **Rust** (Programming language)
-- Used for some tt-metal build tools
+- Used for some TT-Metalium build tools
 - Installed via rustup
 
 #### **Build tools** (gcc, g++, make, cmake)
 - C++ compilation infrastructure
-- You don't write C++, but tt-metal builds need it
+- You don't write C++, but TT-Metalium builds need it
 
 #### **Python 3.10** (System Python)
 - Ubuntu 22.04 comes with Python 3.10.12
-- Used by tt-metal
+- Used by TT-Metalium
 
 ### Python Packages (Installed automatically)
 
-**tt-metal environment** (`~/tt-metal/python_env/`):
+**TT-Metalium environment** (`~/tt-metal/python_env/`):
 - `torch` (PyTorch) - ML framework
 - `transformers` (HuggingFace) - Model loading
 - `ttnn` - Tenstorrent neural network ops
@@ -359,13 +359,13 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ### Where Everything Lives
 
 ```
-~/tt-metal/                    # Core tt-metal installation
+~/tt-metal/                    # Core TT-Metalium installation
 ├── build/                     # Compiled C++ libraries
 ├── python_env/                # Python virtual environment
 ├── models/                    # Pre-optimized model implementations
 │   ├── demos/                 # Demo scripts
 │   └── tt_transformers/       # Transformer models
-├── ttnn/                      # TTNN Python bindings
+├── ttnn/                      # TT-NN Python bindings
 └── tt_metal/                  # C++ core source
 
 ~/models/                      # Your downloaded HuggingFace models
@@ -392,30 +392,30 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 
 ## 🎓 Common Beginner Questions
 
-### Q: What's the difference between tt-metal, TTNN, and tt_lib?
+### Q: What's the difference between TT-Metalium, TT-NN, and tt_lib?
 **A:**
-- **tt-metal** = The whole platform (like "CUDA Toolkit")
-- **TTNN** = High-level neural network ops (like "cuDNN")
+- **TT-Metalium** = The whole platform (like "CUDA Toolkit")
+- **TT-NN** = High-level neural network ops (like "cuDNN")
 - **tt_lib** = Lower-level tensor ops (like "CUDA runtime")
 
-**Use TTNN** for ML work (it's easiest). That's what lessons 1-10 use.
+**Use TT-NN** for ML work (it's easiest). That's what lessons 1-10 use.
 
 ### Q: Do I need to learn C++?
 **A:** No! Python API covers everything. C++ is only for:
-- Contributing to tt-metal core (advanced)
+- Contributing to TT-Metalium core (advanced)
 - Custom kernel development (advanced)
 - RISC-V programming (Lesson 14, advanced)
 
 ### Q: What models can I run?
 **A:** Any HuggingFace model with Llama-compatible architecture:
 - ✅ Llama (all versions)
-- ✅ Qwen (all versions) ⭐ **Start with Qwen3-0.6B on N150**
+- ✅ Qwen (all versions) ⭐ **Start with Qwen3-0.6B on n150**
 - ✅ Gemma 3 (1B, 4B variants)
 - ✅ Mistral family
 - ✅ CodeLlama, DeepSeek-Coder
 - ⚠️ Other architectures need custom implementations
 
-**Recommendation for N150:** Start with **Qwen3-0.6B**
+**Recommendation for n150:** Start with **Qwen3-0.6B**
 - Only 1.5GB (downloads in seconds)
 - No HuggingFace token needed
 - 0.6B parameters = fast on single chip
@@ -439,36 +439,36 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 tt-smi -s | grep -i dram
 ```
 
-**Wormhole Architecture (N150/N300/T3K/QuietBox):**
-- N150: 12GB DRAM per chip (single chip)
-- N300: 24GB total (2 chips)
-- T3K: 96GB total (8 chips)
-- **QuietBox:** Wormhole-based system (production-validated for vLLM)
+**Wormhole Architecture (n150/n300/T3000/TT-QuietBox):**
+- n150: 12GB DRAM per chip (single chip)
+- n300: 24GB total (2 chips)
+- T3000: 96GB total (8 chips)
+- **TT-QuietBox:** Wormhole-based system (production-validated for vLLM)
 - **Tensix cores:** 8x10 grid (80 cores per chip)
 - **Ethernet:** 16 cores with 256KB L1
 
-**Blackhole Architecture (P100/P150):**
-- P100: ~32GB DRAM (single chip)
-- P150: ~32GB per chip (configurable as 1, 2, 4, or 8 chips)
-  - P150 x1: ~32GB (single chip)
-  - P150 x2: ~64GB (2 chips)
-  - P150 x4: ~128GB (4 chips)
-  - P150 x8: ~256GB (8 chips)
+**Blackhole Architecture (p100/p150):**
+- p100: ~32GB DRAM (single chip)
+- p150: ~32GB per chip (configurable as 1, 2, 4, or 8 chips)
+  - p150 x1: ~32GB (single chip)
+  - p150 x2: ~64GB (2 chips)
+  - p150 x4: ~128GB (4 chips)
+  - p150 x8: ~256GB (8 chips)
 - **Tensix cores:** 14x10 grid (140 cores per chip, 13x10 available for compute)
 - **Enhanced NoC:** 64B reads (vs 32B on Wormhole), rectangular/strided/L-shaped multicast
 - **L1 data cache:** 1464 KB with 4x16B cachelines (write-through)
 - **Ethernet:** 14 cores with 512KB L1, 2x RISC-V per core
 - **DRAM:** 8 banks with programmable 1x RISC-V, 128KB L1 per bank
 
-**🔧 Important:** Blackhole chips (P100/P150) require:
+**🔧 Important:** Blackhole chips (p100/p150) require:
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 ```
 
 **Model sizing:**
-- Qwen3-0.6B: ~1.5GB (fits easily on N150 or P100)
-- Llama-3.1-8B: ~16GB (tight on N150, comfortable on P100/N300+)
-- Llama-3.1-70B: ~140GB (requires T3K or P150 x4+)
+- Qwen3-0.6B: ~1.5GB (fits easily on n150 or p100)
+- Llama-3.1-8B: ~16GB (tight on n150, comfortable on p100/n300+)
+- Llama-3.1-70B: ~140GB (requires T3000 or p150 x4+)
 
 The two chips have different grid shapes — Wormhole (above) has 80 Tensix compute cores, Blackhole (below) has 140:
 
@@ -481,7 +481,7 @@ The two chips have different grid shapes — Wormhole (above) has 80 Tensix comp
 ```
 
 ### Q: What if I get "ImportError: cannot import name 'ttnn'"?
-**A:** You're not in the tt-metal Python environment.
+**A:** You're not in the TT-Metalium Python environment.
 
 **Fix:**
 ```bash
@@ -500,11 +500,11 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 **A:**
 - **Lessons 1-6, 8-15:** No Docker needed ✅
 - **Lesson 7 (vLLM production):** Docker recommended but not required
-  - Native install on N150 has version challenges
+  - Native install on n150 has version challenges
   - Docker image is validated and works reliably
 
 ### Q: Can I use this in Jupyter notebooks?
-**A:** Yes! The extension configures Jupyter to use tt-metal environment automatically.
+**A:** Yes! The extension configures Jupyter to use TT-Metalium environment automatically.
 
 ---
 
@@ -514,10 +514,10 @@ Before starting Lesson 1, verify:
 
 ### Hardware Check
 ```bash
-tt-smi -s  # Should show your hardware (N150/N300/etc.)
+tt-smi -s  # Should show your hardware (n150/n300/etc.)
 ```
 
-### tt-metal Check
+### TT-Metalium Check
 ```bash
 cd ~/tt-metal
 ls build/  # Should exist (if not, run ./build_metal.sh)
@@ -560,7 +560,7 @@ df -h ~  # Need at least 30GB free for models
 
 ### Production Deployment
 1. Lessons 1-5 (understand the stack)
-2. **Lesson 6:** tt-inference-server (automated deployment)
+2. **Lesson 6:** TT-Inference-Server (automated deployment)
 3. **Lesson 7:** vLLM (OpenAI-compatible API)
 4. **Lesson 8:** VSCode Chat (integrated experience)
 
@@ -588,7 +588,7 @@ df -h ~  # Need at least 30GB free for models
 ### Common Fixes
 ```bash
 # "Command not found: tt-smi"
-# → tt-metal not installed correctly, reinstall
+# → TT-Metalium not installed correctly, reinstall
 
 # "ImportError: cannot import ttnn"
 source ~/tt-metal/python_env/bin/activate
@@ -623,10 +623,10 @@ Beyond the lessons, the Tenstorrent ecosystem has tools worth knowing about:
 **You're ready!** Choose your path from the top of this guide, then:
 
 1. **Run Lesson 1** to detect your hardware
-2. **Run Lesson 2** to verify tt-metal installation
+2. **Run Lesson 2** to verify TT-Metalium installation
 3. **Pick your path** based on your goals
 
-**Remember:** Start with Qwen3-0.6B on N150. It's small, fast, and works perfectly. Llama-3.1-8B comes later when you understand memory management.
+**Remember:** Start with Qwen3-0.6B on n150. It's small, fast, and works perfectly. Llama-3.1-8B comes later when you understand memory management.
 
 **Good luck, and welcome to Tenstorrent! 🚀**
 

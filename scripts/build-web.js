@@ -672,7 +672,7 @@ function renderLesson(markdownPath) {
   });
 
   html = DOMPurify.sanitize(html, {
-    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
+    ADD_TAGS: ['button', 'div', 'pre', 'span', 'sup', 'details', 'summary',
                'figure', 'figcaption', 'video', 'source', 'iframe'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
                'data-arch', 'data-script',
@@ -799,14 +799,14 @@ function buildSidebar(activeLessonId, activePageSlug = null) {
  * ------------------------------------------------------------------ */
 
 const HW_LABELS = {
-  n150:      'N150',
-  n300:      'N300',
-  t3k:       'T3K',
-  p100:      'P100',
-  p150:      'P150',
-  p300:      'P300',
-  p300c:     'P300C',
-  p300x2:    'P300×2',
+  n150:      'n150',
+  n300:      'n300',
+  t3k:       'T3000',
+  p100:      'p100',
+  p150:      'p150',
+  p300:      'p300',
+  p300c:     'p300c',
+  p300x2:    'p300×2',
   galaxy:    'Galaxy',
   simulator: 'Sim',   // ttsim — outline pill via chip-sim class
 };
@@ -2259,7 +2259,7 @@ function renderMarkdownPage(filePath) {
     return `<pre class="mermaid">${MERMAID_PH}${mermaidBlocks.length - 1}</pre>`;
   });
   html = DOMPurify.sanitize(html, {
-    ADD_TAGS: ['button', 'div', 'pre', 'span', 'details', 'summary',
+    ADD_TAGS: ['button', 'div', 'pre', 'span', 'sup', 'details', 'summary',
                'figure', 'figcaption', 'video', 'source', 'iframe'],
     ADD_ATTR: ['data-command', 'class', 'data-args', 'data-hw',
                'data-arch', 'data-script',

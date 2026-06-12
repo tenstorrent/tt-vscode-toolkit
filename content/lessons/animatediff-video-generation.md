@@ -2,9 +2,9 @@
 id: animatediff-video-generation
 title: Native Video Animation with AnimateDiff
 description: >-
-  Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TTNN UNet.
+  Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet.
   Learn the complete model bring-up workflow — from research to a standalone package
-  that accelerates SD frame generation at 15 seconds per frame on P300C/QB2.
+  that accelerates SD frame generation at 15 seconds per frame on p300c/TT-QuietBox 2.
 category: applications
 tags:
   - animation
@@ -27,19 +27,19 @@ estimatedMinutes: 60
 
 # Native Video Animation with AnimateDiff
 
-**Run SD 1.4 video generation on Blackhole — 15 seconds per frame, real images, no CPU fallback on the UNet.**
+**Run SD 1.4 video generation on Blackhole<sup>®</sup> — 15 seconds per frame, real images, no CPU fallback on the UNet.**
 
 This lesson walks through three paths to animated video, escalating from CPU baseline to full Blackhole hardware acceleration with cross-frame temporal attention:
 
 - **Phase 1 (any hardware)** — `diffusers` `AnimateDiffPipeline` on CPU, full AnimateDiff temporal attention via MotionAdapter, ~2 min/frame
-- **Phase 2 (Blackhole)** — TTNN UNet on Blackhole, ~15 s/frame
+- **Phase 2 (Blackhole)** — TT-NN<sup>™</sup> UNet on Blackhole, ~15 s/frame
 - **Phase 2.5 (Blackhole + temporal attention)** — cross-frame self-attention at every denoising step, the canonical production path
 
-Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metal without modifying the core repository.
+Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metalium<sup>™</sup> without modifying the core repository.
 
 ## What you'll build
 
-These were generated on a single Blackhole P300C — 8 frames × 25 steps each:
+These were generated on a single Blackhole p300c — 8 frames × 25 steps each:
 
 | *"World's Fair 2099"* | *"Phosphor Horizon"* | *"Nebula"* | *"Mayan Temple"* |
 |---|---|---|---|
@@ -96,7 +96,7 @@ python3 -m pip install -e ".[dev]"
 tt-animatediff/
 ├── animatediff_ttnn/
 │   ├── pipeline.py            # Phase 1: CPU AnimateDiffPipeline wrapper
-│   ├── ttnn_pipeline.py       # Phase 2/2.5: Blackhole TTNN UNet + PNDM scheduler
+│   ├── ttnn_pipeline.py       # Phase 2/2.5: Blackhole TT-NN UNet + PNDM scheduler
 │   ├── temporal_attention.py  # Phase 2.5: cross-frame self-attention
 │   └── temporal_module.py     # Reference — temporal attention math
 ├── examples/
@@ -158,9 +158,9 @@ frames = result.frames[0]  # List of PIL Images
 
 ## Step 4: Phase 2.5 — Blackhole + temporal attention (canonical)
 
-Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal`, running natively on Blackhole silicon. Cross-frame self-attention is applied at each PNDM step across all N frame latents simultaneously — giving genuine temporal coherence at hardware speed.
+Replaces the PyTorch UNet with the TT-NN UNet from `~/tt-metal`, running natively on Blackhole silicon. Cross-frame self-attention is applied at each PNDM step across all N frame latents simultaneously — giving genuine temporal coherence at hardware speed.
 
-**Requires:** Blackhole hardware (P100/P150/P300C/QB2) and `~/tt-metal` built.
+**Requires:** Blackhole hardware (p100/p150/p300c/TT-QuietBox<sup>®</sup> 2) and `~/tt-metal` built.
 
 [⚡ Run Phase 2.5 (Blackhole)](command:tenstorrent.runAnimateDiff16Frame)
 
@@ -370,11 +370,11 @@ What this project demonstrates is **the complete workflow for integrating any ne
 ### Phase 2: Design (30–60 min)
 1. **Standalone package over monorepo modification** — your code, your ownership
 2. Define the API surface: what does a caller need to pass in?
-3. Identify the TT-Metal integration boundary: which ops stay PyTorch, which go TTNN?
+3. Identify the TT-Metalium integration boundary: which ops stay PyTorch, which go TT-NN?
 
 ### Phase 3: Implementation (2–4 hours)
 1. Start with PyTorch — easier to debug, matches reference
-2. Build the TTNN path after PyTorch is validated
+2. Build the TT-NN path after PyTorch is validated
 3. Keep the CPU path alive as a regression check
 
 ### Phase 4: Packaging (1 hour)
@@ -395,10 +395,10 @@ What this project demonstrates is **the complete workflow for integrating any ne
 
 | Issue | Status |
 |---|---|
-| TTNN VAE OOMs on Blackhole `conv_out` | Workaround: CPU PyTorch VAE decode |
-| No TemporalTransformer blocks in TTNN UNet | Phase 2.5 adds CPU cross-frame attention as a bridge |
+| TT-NN VAE OOMs on Blackhole `conv_out` | Workaround: CPU PyTorch VAE decode |
+| No TemporalTransformer blocks in TT-NN UNet | Phase 2.5 adds CPU cross-frame attention as a bridge |
 | Single-chip only (multi-chip crashes on `to_torch()`) | Use `device_ids=[0]` until Phase 3 |
-| tt-metal SD path changed in firmware 19.8.0 | See `docs/HARDWARE_COMPAT.md` |
+| TT-Metalium SD path changed in firmware 19.8.0 | See `docs/HARDWARE_COMPAT.md` |
 | First run 2–3 min kernel compilation | Expected; cached after first run |
 
 ---
@@ -419,9 +419,9 @@ See `docs/SIMULATOR.md` in the repo for full setup.
 
 ## What's next
 
-### Add TemporalTransformer blocks to the TTNN UNet
+### Add TemporalTransformer blocks to the TT-NN UNet
 
-Full Phase 3 would inject `TemporalTransformer` blocks into the TTNN UNet's `BasicTransformerBlock` instances — native TTNN temporal attention, eliminating the CPU bounce in Phase 2.5.
+Full Phase 3 would inject `TemporalTransformer` blocks into the TT-NN UNet's `BasicTransformerBlock` instances — native TT-NN temporal attention, eliminating the CPU bounce in Phase 2.5.
 
 ### Apply this pattern to other models
 
@@ -429,7 +429,7 @@ The standalone package pattern works for any model:
 - **ControlNet** — conditioning inputs for SD 1.4
 - **LoRA** — weight delta injection into the SD UNet
 - **IP-Adapter** — image-conditioned generation
-- **Any PyTorch model** — wrap it, validate on CPU, port to TTNN
+- **Any PyTorch model** — wrap it, validate on CPU, port to TT-NN
 
 ---
 

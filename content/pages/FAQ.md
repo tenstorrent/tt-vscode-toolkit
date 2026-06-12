@@ -31,19 +31,19 @@
 tt-installer → Hardware Detection → Verify Installation → Download Model → Interactive Chat → API Server → Build tt-metal
 
 **🏭 Serving Models (4 lessons)**
-Production servers (tt-inference-server, vLLM) and generation (Image, Video)
+Production servers (TT-Inference-Server, vLLM) and generation (Image, Video)
 
 **🎓 Custom Training (8 lessons)**
 Fine-tune models or train from scratch with tt-train and NanoGPT
 
 **🎯 Applications (5 lessons)**
-Coding Assistant, AnimateDiff, QB2 OpenClaw Assistant, QB2 Video, QB2 Local Agents
+Coding Assistant, AnimateDiff, TT-QuietBox 2 OpenClaw Assistant, TT-QuietBox 2 Video, TT-QuietBox 2 Local Agents
 
 **👨‍🍳 Tenstorrent Cookbook (6 lessons)**
 Game of Life, Audio, Mandelbrot, Image Filters, Particle Life + Overview
 
 **🔧 Compilers & Tools (3 lessons)**
-TT-Forge, TT-XLA, tt-lang
+TT-Forge<sup>™</sup>, TT-XLA, TT-Lang
 
 **🧠 CS Fundamentals (7 lessons)**
 Computer Architecture, Memory, Parallelism, Networks, Synchronization, Abstraction, Complexity
@@ -74,7 +74,7 @@ Deploy to Koyeb, Deploy VSCode to Koyeb
 
 | Tool | Purpose | When to Use | Maturity |
 |------|---------|-------------|----------|
-| **tt-metal** | Low-level framework | Custom kernels, maximum control | Stable |
+| **TT-Metalium<sup>™</sup>** | Low-level framework | Custom kernels, maximum control | Stable |
 | **vLLM** | LLM serving | Production LLM deployment | Production |
 | **TT-Forge** | MLIR compiler | PyTorch models (experimental) | Beta |
 | **TT-XLA** | XLA compiler | JAX/PyTorch (production) | Production |
@@ -83,7 +83,7 @@ Deploy to Koyeb, Deploy VSCode to Koyeb
 - Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])**
 - Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.showLesson?["forge-image-classification"])**
 - Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])**
-- Building custom kernels? → **tt-metal** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
+- Building custom kernels? → **TT-Metalium** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
 
 ---
 
@@ -109,7 +109,146 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 
 | What you're doing | Activate this |
 |---|---|
-| TTNN / direct API / tt-metal examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
+| TT-NN / direct API / TT-Metalium examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
+| vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
+| TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
+
+**TT-QuietBox 2 / tt-installer container environments:** These may be pre-activated via `/etc/profile.d/`. Check what's active with `which python3` before activating another venv.
+
+**Can't find a venv?**
+
+```bash
+# Check what exists
+ls ~/tt-metal/python_env/bin/activate 2>/dev/null && echo "✓ tt-metal venv"
+ls ~/tt-metal/build/python_env_vllm/bin/activate 2>/dev/null && echo "✓ vLLM venv"
+ls ~/tt-forge-venv/bin/activate 2>/dev/null && echo "✓ Forge/XLA venv"
+```
+
+If `~/tt-metal/python_env` doesn't exist, you need to build tt-metal first → [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+
+If `~/tt-forge-venv` doesn't exist, check `/opt/venv-forge`:
+
+```bash
+# /opt/venv-forge exists but ~/tt-forge-venv symlink is missing:
+ln -s /opt/venv-forge ~/tt-forge-venv
+```
+
+---
+
+### Q: What is `TT_METAL_HOME` and when do I need it?
+
+**A:** `TT_METAL_HOME` points to your tt-metal source checkout. It is **only needed for the Direct API lessons** (interactive-chat, api-server, custom training, video generation). It is **not needed** for vLLM, tt-inference-server, TT-Forge, or TT-XLA.
+
+Set it once per terminal session:
+
+```bash
+export TT_METAL_HOME=~/tt-metal
+export PYTHONPATH=$TT_METAL_HOME/build_Release:$PYTHONPATH
+export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
+```
+
+**Add to `~/.bashrc`** if you use Direct API regularly:
+
+```bash
+echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
+```
+
+**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+
+**Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
+
+```bash
+unset TT_METAL_HOME
+source ~/tt-forge-venv/bin/activate
+```
+
+---
+
+### Q: Where do models live and why do lessons reference `~/models/`?
+
+**A:** `~/models/` is the conventional location all lessons use. It isn't created automatically — the `hf download --local-dir` flag creates it on first use.
+
+```bash
+# Standard layout assumed by all lessons:
+~/models/
+  Qwen3-0.6B/            # HuggingFace format (for vLLM, tt-inference-server)
+  Qwen3-8B/
+  Llama-3.1-8B-Instruct/ # HuggingFace format (for vLLM, tt-inference-server)
+    original/            # Meta format subdirectory (for Direct API / Generator API lessons)
+```
+
+If your models are somewhere else, substitute your path in any `--model` or `--local-dir` flag. There is nothing special about `~/models/` — it is just a convention.
+
+**Check what you have:**
+
+```bash
+ls ~/models/ 2>/dev/null || echo "No ~/models/ directory yet"
+du -sh ~/models/* 2>/dev/null
+```
+
+---
+
+### Q: What Ubuntu version do I need?
+
+**A:**
+
+| Version | Status |
+|---------|--------|
+| Ubuntu 22.04 LTS | ✅ Most tested — preferred by Tenstorrent for stability |
+| Ubuntu 24.04 LTS | ✅ Supported — TT-QuietBox 2 ships with 24.04 |
+| Ubuntu 20.04 LTS | ⚠️ Deprecated — Metalium cannot be installed |
+
+Most Docker images in lessons are tagged `ubuntu-22.04-amd64`. They run fine on a 24.04 host — the Ubuntu version in the tag refers to the image, not your host OS.
+
+**Check your host:**
+
+```bash
+lsb_release -rs
+```
+
+---
+
+### Q: A lesson says "from Lesson N" or "see Lesson 7" — what lesson is that?
+
+**A:** Old numbered references map to these lesson IDs:
+
+| "Lesson N" reference | Lesson ID |
+|---|---|
+| Lesson 1 | hardware-detection |
+| Lesson 2 | verify-installation |
+| Lesson 3 | download-model |
+| Lesson 4 | interactive-chat |
+| Lesson 5 | api-server |
+| Lesson 6 | tt-inference-server |
+| Lesson 7 | vllm-production |
+| Lesson 8 | (VSCode Chat — retired) |
+| Lesson 9 | image-generation |
+
+---
+
+## Environment Reference
+
+> **Jumped to a lesson directly and a command failed?** This section maps out every path, venv, and environment variable the lessons assume. Bookmark it.
+
+### Q: What is `~/tt-scratchpad` and do I need to create it?
+
+**A:** `~/tt-scratchpad` is a working directory the extension creates when you run commands inside VS Code. If you're following lessons on the web site or running commands manually in a terminal, it won't exist yet. Create it yourself:
+
+```bash
+mkdir -p ~/tt-scratchpad
+```
+
+Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookbook/mandelbrot/`). The `mkdir -p` in each command handles that — so creating the top-level directory is enough.
+
+---
+
+### Q: Which Python virtual environment do I activate for which lesson?
+
+**A:** Three environments exist on a typical tt-installer system. Pick the one that matches what you're doing:
+
+| What you're doing | Activate this |
+|---|---|
+| TT-NN / direct API / TT-Metalium examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
 | vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
 | TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
 
@@ -153,7 +292,7 @@ export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
 echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
 ```
 
-**QB2 users:** `~/tt-metal` does not exist on QB2 pre-configured images. Use tt-inference-server or vLLM instead. If you specifically need the Direct API, run [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
 
 **Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
 
@@ -375,7 +514,7 @@ curl http://localhost:8002/...  # User 2
 5. Start developing!
 
 **Cloud benefits:**
-- ✅ Pre-installed tt-metal and drivers
+- ✅ Pre-installed TT-Metalium and drivers
 - ✅ Pre-configured environment
 - ✅ No hardware setup needed
 - ✅ Access from anywhere
@@ -447,7 +586,7 @@ docker stop <container-id>   # Stop servers
 **A:** **Yes!** Use **ttsim** - Tenstorrent's full-system simulator.
 
 **What is ttsim:**
-- Virtual Wormhole or Blackhole device that runs on any Linux/x86_64 system
+- Virtual Wormhole<sup>™</sup> or Blackhole<sup>®</sup> device that runs on any Linux/x86_64 system
 - No physical hardware needed
 - Slower than silicon but fast enough for learning and experimentation
 - Perfect for exploring before purchasing hardware
@@ -475,10 +614,10 @@ cd $TT_METAL_HOME
 ```
 
 **What you CAN do with ttsim:**
-- ✅ Learn TT-Metal programming model
+- ✅ Learn TT-Metalium programming model
 - ✅ Run programming examples and tests
 - ✅ Develop and debug kernels
-- ✅ Test TTNN operations
+- ✅ Test TT-NN<sup>™</sup> operations
 - ✅ Explore Tenstorrent architecture
 
 **What you CAN'T do (too slow):**
@@ -509,11 +648,11 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 ```
 
 **Output tells you:**
-- **N150** - Single Wormhole chip (development, 64K context)
-- **N300** - Dual Wormhole chips (128K context, TP=2)
-- **T3K** - Eight Wormhole chips (large models, TP=8)
-- **P100** - Single Blackhole chip (newer architecture)
-- **P150** - Dual Blackhole chips (TP=2)
+- **n150** - Single Wormhole chip (development, 64K context)
+- **n300** - Dual Wormhole chips (128K context, TP=2)
+- **T3000** - Eight Wormhole chips (large models, TP=8)
+- **p100** - Single Blackhole chip (newer architecture)
+- **p150** - Dual Blackhole chips (TP=2)
 
 ### Q: tt-smi says "No devices found" - what do I do?
 
@@ -549,10 +688,10 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 ### Q: What's the difference between Wormhole and Blackhole?
 
 **A:**
-- **Wormhole (N150, N300, T3K)** - 2nd generation, well-validated, most models tested
-- **Blackhole (P100, P150)** - Latest generation, newer architecture, some experimental models
+- **Wormhole (n150, n300, T3000)** - 2nd generation, well-validated, most models tested
+- **Blackhole (p100, p150)** - Latest generation, newer architecture, some experimental models
 
-**For production:** Stick with Wormhole (N150/N300/T3K) - more models validated.
+**For production:** Stick with Wormhole (n150/n300/T3000) - more models validated.
 
 **For experimentation:** Blackhole offers newer features but check model compatibility.
 
@@ -562,15 +701,15 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
 
 | Hardware | Max Model Size | Max Context | Multi-chip | Best For |
 |----------|---------------|-------------|------------|----------|
-| N150, P100 | 8B | 64K | No (TP=1) | Development, prototyping |
-| N300, P150 | 13B | 128K | Yes (TP=2) | Medium models, multi-user |
-| T3K | 70B+ | 128K | Yes (TP=8) | Large models, production |
+| n150, p100 | 8B | 64K | No (TP=1) | Development, prototyping |
+| n300, p150 | 13B | 128K | Yes (TP=2) | Medium models, multi-user |
+| T3000 | 70B+ | 128K | Yes (TP=8) | Large models, production |
 
 ### Q: What happens to running jobs and hardware utilization when a system suspends?
 
 **A:** When the system goes into suspend, all running jobs on Tenstorrent hardware are interrupted and effectively terminated, and hardware utilization drops to zero. On resume, the driver re-initializes the device (similar to a reset), so any workloads must be restarted. In normal cases you don't need a full reboot; if the device doesn't come back cleanly, run `tt-smi -r` (reset) or reboot the host.
 
-### Q: After a Linux kernel update, my Tenstorrent device is not detected or tt-inference-server reports a pre-release driver version.
+### Q: After a Linux kernel update, my Tenstorrent device is not detected or TT-Inference-Server reports a pre-release driver version.
 
 **A:** The kernel module driver (tt-kmd) must be compiled specifically for each kernel version. This normally happens automatically via DKMS when a new kernel is installed, but can silently fail if there are orphaned DKMS entries left behind from old driver versions.
 
@@ -601,7 +740,7 @@ sudo rm -rf /var/lib/dkms/tenstorrent/<broken-version>
 
 ## Installation & Setup
 
-### Q: How do I verify tt-metal is working?
+### Q: How do I verify TT-Metalium is working?
 
 **A:** Run this quick test:
 
@@ -610,8 +749,8 @@ python3 -c "import ttnn; print('✓ tt-metal ready')"
 ```
 
 **If it fails:**
-- Check `PYTHONPATH` includes tt-metal directory
-- Verify tt-metal is built: `ls ~/tt-metal/build/lib`
+- Check `PYTHONPATH` includes TT-Metalium directory
+- Verify TT-Metalium is built: `ls ~/tt-metal/build/lib`
 - Rebuild if needed: `cd ~/tt-metal && ./build_metal.sh`
 
 ### Q: Which Python version do I need?
@@ -645,7 +784,7 @@ python3 --version
 ### Q: How much disk space do I need?
 
 **A:** Plan for:
-- **tt-metal:** ~5GB (source + build artifacts)
+- **TT-Metalium:** ~5GB (source + build artifacts)
 - **vLLM:** ~20GB (including dependencies)
 - **Per model:**
   - Small models (1-3B): 10-15GB
@@ -666,7 +805,7 @@ python3 --version
 hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 ```
 
-**For N300 / P100 / T3K / QB2 (more DRAM):** Llama-3.1-8B-Instruct is a good next step (requires HuggingFace account and license acceptance):
+**For n300 / p100 / T3000 / TT-QuietBox 2 (more DRAM):** Llama-3.1-8B-Instruct is a good next step (requires HuggingFace account and license acceptance):
 
 ```bash
 hf download meta-llama/Llama-3.1-8B-Instruct \
@@ -744,7 +883,7 @@ login(token="your_token_from_huggingface")
 
 **A:** Model initialization involves:
 1. Loading weights from disk (~16GB for Llama-8B)
-2. Converting to TT-Metal format
+2. Converting to TT-Metalium format
 3. Distributing to hardware cores
 4. JIT compilation of kernels
 
@@ -759,7 +898,7 @@ login(token="your_token_from_huggingface")
 **Workarounds:**
 - Use model switching (stop one, start another)
 - Use multiple hardware devices
-- Use different hardware for different models (N150 for model A, N300 for model B)
+- Use different hardware for different models (n150 for model A, n300 for model B)
 
 ### Q: What does "context length" mean and why does it matter?
 
@@ -768,8 +907,8 @@ login(token="your_token_from_huggingface")
 - Includes both input (prompt) + output (response)
 
 **Hardware limits:**
-- N150/P100: 64K tokens (~48K words)
-- N300/T3K: 128K tokens (~96K words)
+- n150/p100: 64K tokens (~48K words)
+- n300/T3000: 128K tokens (~96K words)
 
 **Exceeding context?**
 ```
@@ -811,7 +950,7 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 # Should print: PyTorch version: 2.5.0+cpu
 ```
 
-**Why the specific version?** TT-Metal hardware drivers are built against PyTorch 2.5.0+cpu APIs. Other versions have incompatible dataclass implementations.
+**Why the specific version?** TT-Metalium hardware drivers are built against PyTorch 2.5.0+cpu APIs. Other versions have incompatible dataclass implementations.
 
 ---
 
@@ -822,28 +961,28 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 **A:** Yes! The extension now includes 8 complete Custom Training lessons (CT1-CT8) that are fully validated on hardware.
 
 **What's working:**
-- ✅ **From-scratch training:** NanoGPT (11M params) - 136 steps in 76 seconds on N150
+- ✅ **From-scratch training:** NanoGPT (11M params) - 136 steps in 76 seconds on n150
 - ✅ **Fine-tuning:** Train custom models on your own datasets
 - ✅ **Complete toolkit:** Setup scripts, validation, and tested templates
 - ✅ **Production-ready:** Both training workflows validated end-to-end
 
-**Recommended version:** tt-metal v0.66.0-rc7 (fully tested)
+**Recommended version:** TT-Metalium v0.66.0-rc7 (fully tested)
 
 ### Q: What hardware do I need for training?
 
 **A:** Training requirements depend on model size:
 
-**N150 (Wormhole single-chip):**
+**n150 (Wormhole single-chip):**
 - ✅ Perfect for NanoGPT (11M params, 6 layers, 384 dim)
 - ✅ From-scratch training on Shakespeare, custom datasets
 - ❌ TinyLlama-1.1B OOM (needs 2GB DRAM, only 1GB available)
 
-**N300+ (Wormhole dual-chip or higher):**
-- ✅ Everything N150 can do
+**n300+ (Wormhole dual-chip or higher):**
+- ✅ Everything n150 can do
 - ✅ TinyLlama-1.1B fine-tuning (2GB+ DRAM available)
 - ✅ Larger models and batch sizes
 
-**Recommendation:** Start with N150 and NanoGPT to learn the workflow!
+**Recommendation:** Start with n150 and NanoGPT to learn the workflow!
 
 ### Q: What's the difference between fine-tuning and training from scratch?
 
@@ -863,9 +1002,9 @@ python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 - Slower (hours to days)
 - Good for: Understanding training deeply, custom architectures
 
-**Which should I start with?** CT8 (from-scratch) - it's faster on N150 with NanoGPT and teaches fundamentals!
+**Which should I start with?** CT8 (from-scratch) - it's faster on n150 with NanoGPT and teaches fundamentals!
 
-### Q: What tt-metal version do I need for training?
+### Q: What TT-Metalium version do I need for training?
 
 **A:** Training requires **v0.66.0-rc5 or later**
 
@@ -941,7 +1080,7 @@ cd $TT_METAL_HOME && git describe --tags
 **For vLLM:**
 - Llama family well-supported (2, 3, 3.1, 3.2)
 - Mistral supported
-- Qwen supported (needs N300+ for larger models)
+- Qwen supported (needs n300+ for larger models)
 - Check documentation for your specific model
 
 **For TT-XLA:**
@@ -967,7 +1106,7 @@ unset TT_METAL_VERSION
 **Make permanent:**
 Add to `~/.bashrc`:
 ```bash
-# Prevent TT-Metal environment pollution
+# Prevent TT-Metalium environment pollution
 unset TT_METAL_HOME
 unset TT_METAL_VERSION
 ```
@@ -1046,7 +1185,7 @@ tt-smi -r
 
 **A:**
 
-**tt-metal build issues:**
+**TT-Metalium build issues:**
 ```bash
 cd ~/tt-metal
 ./build_metal.sh 2>&1 | tee build.log
@@ -1064,17 +1203,17 @@ cd ~/tt-metal
 - **clang-17 required:** `sudo apt-get install clang-17`
 - **Environment variables:** Must unset TT_METAL_HOME first
 
-### Q: TTNN import errors or symbol undefined errors in cloud environments - how do I fix them?
+### Q: TT-NN import errors or symbol undefined errors in cloud environments - how do I fix them?
 
-**A:** After rolling back or updating tt-metal versions, TTNN bindings may become incompatible.
+**A:** After rolling back or updating TT-Metalium versions, TT-NN bindings may become incompatible.
 
 **Symptoms:**
 - `ImportError: undefined symbol: _ZN2tt9tt_fabric15SetFabricConfigENS0...`
 - `ImportError: undefined symbol: MPIX_Comm_revoke`
-- TTNN examples that previously worked now fail
+- TT-NN examples that previously worked now fail
 
 **Common Cause:**
-Rolling back or updating tt-metal versions (for example, to match specific vLLM compatibility) can break TTNN bindings.
+Rolling back or updating TT-Metalium versions (for example, to match specific vLLM compatibility) can break TT-NN bindings.
 
 **Solution - Clean Rebuild to Known-Good Version:**
 
@@ -1105,7 +1244,7 @@ Rolling back or updating tt-metal versions (for example, to match specific vLLM 
    ./build_metal.sh
    ```
 
-4. **Test TTNN:**
+4. **Test TT-NN:**
    ```bash
    source ~/tt-metal/python_env/bin/activate
    export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
@@ -1114,13 +1253,13 @@ Rolling back or updating tt-metal versions (for example, to match specific vLLM 
    ```
 
 **Important Notes:**
-- The original/untouched tt-metal version is often the most stable
+- The original/untouched TT-Metalium version is often the most stable
 - Rolling back to older commits can create incompatible bindings
 - Always do a **complete clean rebuild** after changing commits
 - OpenMPI library path is required: `/opt/openmpi-v5.0.7-ulfm/lib`
 
 **Known-Good Commit (as of Dec 2024):**
-- `5143b856eb` (Oct 28, 2024) - Stable TTNN, validated on N150
+- `5143b856eb` (Oct 28, 2024) - Stable TT-NN, validated on n150
 
 ### Q: Getting OpenMPI errors - how do I fix them?
 
@@ -1200,20 +1339,20 @@ export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
 **For lower latency:**
 - Reduce `max_tokens` parameter (shorter responses = faster)
 - Use smaller model (8B → 3B)
-- Consider hardware upgrade (N150 → N300)
+- Consider hardware upgrade (n150 → n300)
 
 ### Q: What are good vLLM server parameters?
 
 **A:** Recommended by hardware:
 
-**N150 (single chip):**
+**n150 (single chip):**
 ```bash
 --max-model-len 65536   # Full 64K context
 --max-num-seqs 16       # Moderate batching
 --block-size 64         # Standard
 ```
 
-**N300 (dual chip):**
+**n300 (dual chip):**
 ```bash
 --max-model-len 131072  # Full 128K context
 --max-num-seqs 32       # Higher batching
@@ -1221,7 +1360,7 @@ export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
 --tensor-parallel-size 2  # Use both chips
 ```
 
-**T3K (8 chips):**
+**T3000 (8 chips):**
 ```bash
 --max-model-len 131072
 --max-num-seqs 64       # High batching
@@ -1291,7 +1430,7 @@ tt-toplike
 
 **3. [ttnn-visualizer](https://github.com/tenstorrent/ttnn-visualizer) — model execution analysis**
 
-A web-based tool that loads a tt-metal performance trace and renders interactive graphs: operation timelines, memory usage over time, tensor shapes, buffer allocation maps, and the full operation flow graph. Run after a profiled inference pass to understand exactly where time is spent.
+A web-based tool that loads a TT-Metalium performance trace and renders interactive graphs: operation timelines, memory usage over time, tensor shapes, buffer allocation maps, and the full operation flow graph. Run after a profiled inference pass to understand exactly where time is spent.
 
 **4. tensix-viz — chip topology education**
 
@@ -1320,13 +1459,13 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 **Official channels:**
 - **Discord:** https://discord.gg/tenstorrent (most active)
 - **GitHub Issues:**
-  - tt-metal: https://github.com/tenstorrent/tt-metal/issues
+  - TT-Metalium: https://github.com/tenstorrent/tt-metal/issues
   - vLLM: https://github.com/tenstorrent/vllm/issues
   - TT-Forge: https://github.com/tenstorrent/tt-forge/issues
 - **Documentation:** https://docs.tenstorrent.com
 
 **When asking for help, include:**
-1. Hardware type (N150/N300/T3K/P100)
+1. Hardware type (n150/n300/T3000/p100)
 2. Error message (full text)
 3. Command you ran
 4. Output of `tt-smi`
@@ -1340,13 +1479,13 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 1. Search existing issues on GitHub
 2. Verify hardware works (`tt-smi`)
 3. Try reset (`tt-smi -r`)
-4. Check you're on latest tt-metal/vLLM
+4. Check you're on latest TT-Metalium/vLLM
 
 **When reporting, include:**
 ```
-Hardware: N150
+Hardware: n150
 OS: Ubuntu 22.04
-tt-metal version: [git rev-parse HEAD output]
+TT-Metalium version: [git rev-parse HEAD output]
 vLLM version: [pip show vllm]
 Error: [paste full error]
 Steps to reproduce: [numbered list]
@@ -1383,7 +1522,7 @@ Steps to reproduce: [numbered list]
 **A:** Depends on component:
 
 **Production-ready (✅):**
-- **tt-metal** - Stable, tested
+- **TT-Metalium** - Stable, tested
 - **vLLM** - Production-grade serving
 - **TT-XLA** - Production compiler
 
@@ -1413,7 +1552,7 @@ ls ~/models/                            # List installed models
 du -sh ~/models/*                       # Check model sizes
 
 # Environment
-python3 -c "import ttnn; print('✓')"   # Test tt-metal
+python3 -c "import ttnn; print('✓')"   # Test TT-Metalium
 hf --version                            # Check HF CLI
 
 # vLLM
@@ -1438,7 +1577,7 @@ echo ""
 echo "Hardware:"
 tt-smi -s 2>&1 | grep -o '"board_type": "[^"]*"' || echo "❌ No hardware detected"
 echo ""
-echo "tt-metal:"
+echo "TT-Metalium:"
 python3 -c "import ttnn; print('✓ Working')" 2>&1 || echo "❌ Not working"
 echo ""
 echo "Models:"
@@ -1470,7 +1609,7 @@ With 176 Tensix cores on Wormhole, that's **880 RISC-V cores** you can program d
 - ✅ Von Neumann architecture & fetch-decode-execute cycle
 - ✅ RISC-V ISA fundamentals
 - ✅ Hands-on example: Add two integers in RISC-V assembly
-- ✅ Build and run tt-metal programming examples
+- ✅ Build and run TT-Metalium programming examples
 - ✅ Explore kernel source code
 - ✅ Comprehensive exploration guide (60+ pages)
 

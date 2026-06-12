@@ -1,4 +1,4 @@
-# Tenstorrent VSCode Toolkit
+# TT-VSCode-Toolkit
 
 **Interactive learning and development tools for Tenstorrent AI accelerators**
 
@@ -8,20 +8,20 @@
 
 Learn Tenstorrent hardware and software through 48 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference and **custom training** pipelines.
 
-![Screen capture of tt-vscode-toolkit in action](assets/img/screenshot.png)
+![Screen capture of TT-VSCode-Toolkit in action](assets/img/screenshot.png)
 
 ---
 
 ## Overview
 
-The Tenstorrent VSCode Toolkit is an educational extension that provides:
+The TT-VSCode-Toolkit is an educational extension that provides:
 
 - ✅ **48 Interactive Lessons** - From hardware detection to custom training, organized by skill level
 - ✅ **Custom Training Ready** - Train models from scratch or fine-tune existing ones (validated on hardware!)
 - ✅ **Click-to-Run Commands** - Execute lessons step-by-step without copy-pasting commands
 - ✅ **Hardware Auto-Detection** - Automatically detects your Tenstorrent device and provides tailored guidance
 - ✅ **Production Templates** - Real, tested code you can customize for your projects
-- ✅ **Multi-Framework Support** - Learn vLLM, TT-Forge, TT-XLA, and TT-Metal
+- ✅ **Multi-Framework Support** - Learn vLLM, TT-Forge<sup>™</sup>, TT-XLA, and TT-Metalium<sup>™</sup>
 - ✅ **Live Device Monitoring** - Real-time temperature, power, and health status in the status bar
 
 **Target Audience:**
@@ -48,7 +48,7 @@ Access at: http://localhost:8080 (password: `demo`)
 
 ### Deploy to Cloud with Real Hardware
 
-→ See the [Deploy to Koyeb lesson](./content/lessons/deploy-vscode-to-koyeb.md) for step-by-step instructions deploying to Tenstorrent N300 hardware on Koyeb.
+→ See the [Deploy to Koyeb lesson](./content/lessons/deploy-vscode-to-koyeb.md) for step-by-step instructions deploying to Tenstorrent n300 hardware on Koyeb.
 
 ---
 
@@ -57,7 +57,7 @@ Access at: http://localhost:8080 (password: `demo`)
 ### Prerequisites
 
 **Hardware:**
-- Tenstorrent accelerator (N150, N300, T3K, P100, P150, or Galaxy)
+- Tenstorrent accelerator (n150, n300, T3000, p100, p150, or Galaxy)
 - 32GB+ RAM recommended (16GB minimum)
 - 100GB+ free disk space for models
 
@@ -65,13 +65,13 @@ Access at: http://localhost:8080 (password: `demo`)
 - Linux (Ubuntu 20.04+, RHEL 8+, or compatible)
 - Python 3.10+ (3.11 for TT-XLA)
 - VSCode 1.93+
-- tt-metal installed and configured
+- TT-Metalium installed and configured
 
 **Verify your environment:**
 ```bash
 tt-smi                                           # Hardware detected?
 python3 --version                                # Python 3.10+?
-python3 -c "import ttnn; print('✓ Ready')"       # tt-metal working?
+python3 -c "import ttnn; print('✓ Ready')"       # TT-Metalium working?
 ```
 
 ### Installation
@@ -82,7 +82,7 @@ python3 -c "import ttnn; print('✓ Ready')"       # tt-metal working?
 code --install-extension Tenstorrent.tt-vscode-toolkit
 ```
 
-Or search **"TT Developer Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`) (`tt-vscode-toolkit`).
+Or search **"TT-VSCode-Toolkit"** in the VSCode Extensions panel (`Ctrl+Shift+X`).
 
 → [Open in VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Tenstorrent.tt-vscode-toolkit)
 
@@ -135,7 +135,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 
 ```
 1. Hardware Detection      (5 min)  → Verify your hardware setup
-2. Verify Installation     (5 min)  → Test tt-metal installation
+2. Verify Installation     (5 min)  → Test TT-Metalium installation
 3. Download Model          (30 min) → Get Llama-3.1-8B or Qwen3-0.6B
 4. vLLM Production         (20 min) → Launch production server
 ```
@@ -184,72 +184,72 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🚀 Your First Inference
 *7 lessons, 7 validated*
 
-- **Modern Setup with tt-installer 2.0** — `N150` `P300C`
-- **Hardware Detection** — `N150` `P300C`
-- **Verify Your Setup** — `N150` `P300C`
-- **Download Model and Run Inference** — `N150` `P300C`
-- **Interactive Chat with Direct API** — `N150`
-- **HTTP API Server with Direct API** — `N150`
-- **Build tt-metal from Source** — `N150` `P300C`
+- **Modern Setup with TT-Installer 2.0** — `n150` `p300c`
+- **Hardware Detection** — `n150` `p300c`
+- **Verify Your Setup** — `n150` `p300c`
+- **Download Model and Run Inference** — `n150` `p300c`
+- **Interactive Chat with Direct API** — `n150`
+- **HTTP API Server with Direct API** — `n150`
+- **Build TT-Metalium from Source** — `n150` `p300c`
 
 ### 🏭 Serving Models
 *4 lessons, 3 validated*
 
-- **Production Inference with tt-inference-server** — `N150` `P100`
-- **Production Inference with vLLM** — `N150` `P300C`
-- **Image Generation with Stable Diffusion XL** — `N150`
+- **Production Inference with TT-Inference-Server** — `n150` `p100`
+- **Production Inference with vLLM** — `n150` `p300c`
+- **Image Generation with Stable Diffusion XL** — `n150`
 - **Video Generation via Frame-by-Frame Diffusion** — *draft*
 
 ### 🔧 Compilers & Tools
 *3 lessons, 0 validated*
 
-- **Image Classification with TT-Forge** — `P300C`
-- **JAX and PyTorch/XLA on Tenstorrent** — `P300C`
-- **Introduction to tt-lang** — *draft*
+- **Image Classification with TT-Forge** — `p300c`
+- **JAX and PyTorch/XLA on Tenstorrent** — `p300c`
+- **Introduction to TT-Lang** — *draft*
 
 ### 🎯 Applications
 *5 lessons, 4 validated*
 
 - **Coding Assistant with Aider** — *draft*
-- **Native Video Animation with AnimateDiff** — `P300C`
-- **OpenClaw AI Assistant on QuietBox 2** — `P300X2`
-- **Generating Video on QuietBox 2** — `P300X2`
-- **Local AI Agents on QuietBox 2** — `P300X2`
+- **Native Video Animation with AnimateDiff** — `p300c`
+- **OpenClaw AI Assistant on TT-QuietBox<sup>®</sup> 2** — `P300X2`
+- **Generating Video on TT-QuietBox 2** — `P300X2`
+- **Local AI Agents on TT-QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
 *3 lessons, 1 validated*
 
 - **Bounty Program: Model Bring-Up** — *draft*
-- **Exploring TT-Metalium** — `N150` `P300C`
+- **Exploring TT-Metalium** — `n150` `p300c`
 - **Twenty-and-Ten Things You Can Do with ttsim** — *draft*
 
 ### 🎓 Custom Training
 *8 lessons, 0 validated*
 
-- **Understanding Custom Training** — `N150`
-- **Dataset Fundamentals** — `N150`
-- **Configuration Patterns** — `N150`
-- **Fine-tuning Basics** — `N150`
-- **Multi-Device Training** — `N150`
-- **Experiment Tracking** — `N150`
-- **Model Architecture Basics** — `N150`
-- **Training from Scratch** — `N150`
+- **Understanding Custom Training** — `n150`
+- **Dataset Fundamentals** — `n150`
+- **Configuration Patterns** — `n150`
+- **Fine-tuning Basics** — `n150`
+- **Multi-Device Training** — `n150`
+- **Experiment Tracking** — `n150`
+- **Model Architecture Basics** — `n150`
+- **Training from Scratch** — `n150`
 
 ### ☁️ Deployment
 *2 lessons, 2 validated*
 
-- **Deploy tt-vscode-toolkit to Koyeb** — `N150`
-- **Deploy Your Work to Koyeb** — `N150`
+- **Deploy TT-VSCode-Toolkit to Koyeb** — `n150`
+- **Deploy Your Work to Koyeb** — `n150`
 
 ### 👨‍🍳 Tenstorrent Cookbook
 *6 lessons, 6 validated*
 
-- **Tenstorrent Cookbook Overview** — `N150` `P300C`
-- **Recipe 1: Conway's Game of Life** — `N150` `P300C`
-- **Recipe 2: Audio Signal Processing** — `N150` `P300C`
-- **Recipe 3: Mandelbrot Fractal Explorer** — `N150` `P300C`
-- **Recipe 4: Custom Image Filters** — `N150` `P300C`
-- **Recipe 5: Particle Life Simulator** — `N150` `P300C`
+- **Tenstorrent Cookbook Overview** — `n150` `p300c`
+- **Recipe 1: Conway's Game of Life** — `n150` `p300c`
+- **Recipe 2: Audio Signal Processing** — `n150` `p300c`
+- **Recipe 3: Mandelbrot Fractal Explorer** — `n150` `p300c`
+- **Recipe 4: Custom Image Filters** — `n150` `p300c`
+- **Recipe 5: Particle Life Simulator** — `n150` `p300c`
 
 ### 🧠 CS Fundamentals
 *7 lessons, 0 validated*
@@ -269,7 +269,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ## Key Features
 
 ### Intelligent Hardware Detection
-- Auto-detects device type (N150, N300, T3K, P100, P150, Galaxy)
+- Auto-detects device type (n150, n300, T3000, p100, p150, Galaxy)
 - Provides hardware-specific commands and configurations
 - Real-time telemetry monitoring (temperature, power, clock speed)
 - Multi-device support with aggregate health status
@@ -292,7 +292,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 | **vLLM** | Production LLM serving | OpenAI-compatible API, high throughput |
 | **TT-Forge** | PyTorch compilation | MLIR-based experimental compiler |
 | **TT-XLA** | JAX/PyTorch XLA | Production compiler for JAX workflows |
-| **TT-Metal** | Low-level kernels | Custom ops and hardware programming |
+| **TT-Metalium** | Low-level kernels | Custom ops and hardware programming |
 
 ### Hands-On Cookbook Projects
 
@@ -302,7 +302,7 @@ The Cookbook (Lesson 16) includes 5 interactive projects that run directly on Te
 <tr>
 <td width="50%">
 <a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif"><img src="assets/img/game_of_life_preview.png" alt="Conway's Game of Life running on Tenstorrent hardware" /></a>
-<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN acceleration<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif">View full animation →</a></sup></p>
+<p align="center"><b>Game of Life</b> - Classic cellular automaton with TT-NN<sup>™</sup> acceleration<br/><sup><a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/game_of_life.gif">View full animation →</a></sup></p>
 </td>
 <td width="50%">
 <a href="https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/particle_life.gif"><img src="assets/img/particle_life_preview.png" alt="Particle Life simulation on Tenstorrent" /></a>
@@ -399,12 +399,12 @@ We welcome contributions! Here's how to get involved:
 ### Latest Release: v0.0.401 (2026-04-23)
 
 **Highlights:**
-- ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole/Blackhole chip grids
-- 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the tt-lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
+- ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole<sup>™</sup>/Blackhole<sup>®</sup> chip grids
+- 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the TT-Lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
 - 🎮 **Browser playground** — write and run TT-Lang kernels client-side with Pyodide; kernels: eltwise_add, fused_mma, matmul_relu, matmul_1d
 - 🔬 **Dev Container** — `devcontainer.json` for simulator-only development; extension detects context and routes commands accordingly
 - ☁️ **Cloud simulator API skeleton** — FastAPI + WebSocket execution server with `/sim-test` PR comment trigger
-- 🔍 **Drift detection scripts** — `check-sim-lite-drift.py` (fork vs upstream), `check-vendor-drift.py` (all vendor repos: tt-metal, tt-vllm, tt-inference-server, tt-forge-models, ttsim)
+- 🔍 **Drift detection scripts** — `check-sim-lite-drift.py` (fork vs upstream), `check-vendor-drift.py` (all vendor repos: TT-Metalium, tt-vllm, TT-Inference-Server, tt-forge-models, ttsim)
 
 ### Previous Release: v0.0.400 (2026-04-21)
 
@@ -431,7 +431,7 @@ This software assists in programming Tenstorrent products. However, making, usin
 
 ### Third-Party Licenses
 
-This extension depends on several open-source projects:
+This extension depends on several open source projects:
 - **marked** (MIT) - Markdown parsing
 - **sanitize-html** (MIT) - HTML sanitization
 - **mermaid** (MIT) - Diagram rendering
@@ -444,7 +444,7 @@ Run `npm list --prod` to see all production dependencies.
 
 Built by the Tenstorrent community with contributions from:
 - Tenstorrent Developer Relations and Engineering teams
-- Open-source contributors worldwide
+- Open source contributors worldwide
 - Community members providing feedback and hardware validation
 
 **Special thanks to:**
@@ -458,11 +458,11 @@ Built by the Tenstorrent community with contributions from:
 ## Related Projects
 
 **Tenstorrent Ecosystem:**
-- **[tt-metal](https://github.com/tenstorrent/tt-metal)** - Core runtime and kernel library
+- **[TT-Metalium](https://github.com/tenstorrent/tt-metal)** - Core runtime and kernel library
 - **[vLLM](https://github.com/tenstorrent/vllm)** - High-performance LLM serving (TT fork)
-- **[tt-forge](https://github.com/tenstorrent/tt-forge)** - MLIR-based compiler for PyTorch
-- **[tt-xla](https://github.com/tenstorrent/tt-xla)** - XLA compiler plugin for JAX
-- **[tt-inference-server](https://github.com/tenstorrent/tt-inference-server)** - Production inference automation
+- **[TT-Forge](https://github.com/tenstorrent/tt-forge)** - MLIR-based compiler for PyTorch
+- **[TT-XLA](https://github.com/tenstorrent/tt-xla)** - XLA compiler plugin for JAX
+- **[TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server)** - Production inference automation
 
 ---
 

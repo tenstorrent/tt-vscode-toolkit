@@ -20,9 +20,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15
@@ -828,9 +828,9 @@ You've learned the mechanics of creating datasets - but what makes a dataset tru
 ### Domain-Specific Excellence
 
 **Code & Technical Writing:**
-- **"Python to TTNN Translator"** - 500 examples of PyTorch patterns → TTNN equivalents
+- **"Python to TT-NN<sup>™</sup> Translator"** - 500 examples of PyTorch patterns → TT-NN equivalents
   - Why it works: Narrow domain, clear input/output pairs
-  - Impact: Speeds up TT-Metal development for entire teams
+  - Impact: Speeds up TT-Metalium<sup>™</sup> development for entire teams
 - **"API Documentation Q&A"** - Company-specific API questions with accurate answers
   - Why it works: Internal knowledge that base models don't have
   - Impact: Reduces developer support burden by 60%
@@ -872,22 +872,22 @@ You've learned the mechanics of creating datasets - but what makes a dataset tru
 
 **The pattern:** Small, high-quality datasets outperform large, mediocre ones for specialized tasks.
 
-### Datasets That Scale From N150 to Production
+### Datasets That Scale From n150 to Production
 
 **Start small, validate fast:**
 
-1. **Week 1 (N150):** Create 50-100 examples, fine-tune in 1-2 hours
-2. **Week 2 (N150):** Test with real users, gather feedback, refine dataset
-3. **Week 3 (N150 or N300):** Expand to 200-500 examples based on feedback
-4. **Month 2 (N300/T3K):** Scale to 1000+ examples, multi-task fine-tuning
+1. **Week 1 (n150):** Create 50-100 examples, fine-tune in 1-2 hours
+2. **Week 2 (n150):** Test with real users, gather feedback, refine dataset
+3. **Week 3 (n150 or n300):** Expand to 200-500 examples based on feedback
+4. **Month 2 (n300/T3000):** Scale to 1000+ examples, multi-task fine-tuning
 5. **Production:** Deploy with vLLM (**Lesson 7**), serve thousands of requests/day
 
 **Real example from the wild:**
 - Started: 60 examples of code explanations (3 hours of work)
-- Validated: On N150, fine-tuned TinyLlama in 90 minutes
+- Validated: On n150, fine-tuned TinyLlama in 90 minutes
 - Deployed: With vLLM, serving company's internal dev team
 - Impact: 200+ queries/day, developers love it
-- Cost: Minimal compute (N150 for training, inference scales efficiently)
+- Cost: Minimal compute (n150 for training, inference scales efficiently)
 
 ### Your Dataset Idea Generator
 
@@ -901,7 +901,7 @@ You've learned the mechanics of creating datasets - but what makes a dataset tru
 
 **Imagine: The 100-Example Challenge**
 
-Pick a task you know well. Spend 3-4 hours creating 100 prompt/response pairs. Fine-tune on N150 (1-2 hours). Deploy with vLLM. You now have a specialized AI assistant for that task.
+Pick a task you know well. Spend 3-4 hours creating 100 prompt/response pairs. Fine-tune on n150 (1-2 hours). Deploy with vLLM. You now have a specialized AI assistant for that task.
 
 **Total time investment:** One afternoon.
 **Potential impact:** Hundreds of hours saved over a year.
@@ -935,7 +935,7 @@ Pick a task you know well. Spend 3-4 hours creating 100 prompt/response pairs. F
 You have your dataset! Next, you'll learn how to configure training using YAML files:
 
 1. Understand training configuration structure
-2. Set up device configuration (N150/N300)
+2. Set up device configuration (n150/n300)
 3. Configure logging and checkpointing
 4. Create hardware-specific configs
 

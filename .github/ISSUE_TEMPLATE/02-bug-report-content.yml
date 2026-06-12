@@ -28,7 +28,7 @@ body:
         - "Lesson 3: Download Model"
         - "Lesson 4: First Inference"
         - "Lesson 5: Interactive Chat"
-        - "Lesson 6: Production Serving (tt-inference-server)"
+        - "Lesson 6: Production Serving (TT-Inference-Server)"
         - "Lesson 7: vLLM Production"
         - "Lesson 8: VSCode Chat Integration"
         - "Lesson 9: Image Generation"
@@ -69,7 +69,7 @@ body:
     attributes:
       label: Hardware Configuration (if relevant)
       description: Is this issue specific to certain hardware?
-      placeholder: "N150, N300, T3K, P100, etc."
+      placeholder: "n150, n300, T3000, p100, etc."
     validations:
       required: false
 

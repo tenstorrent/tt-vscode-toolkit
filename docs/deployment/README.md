@@ -1,6 +1,6 @@
 # Deployment Documentation
 
-Simple deployment guides for the Tenstorrent VSCode Toolkit.
+Simple deployment guides for the TT-VSCode-Toolkit.
 
 ## 📚 Documentation Files
 
@@ -15,7 +15,7 @@ General deployment guide covering:
 ### [KOYEB.md](./KOYEB.md)
 Koyeb-specific deployment guide covering:
 - One-click deploy buttons
-- Hardware acceleration (N300)
+- Hardware acceleration (n300)
 - Multiple deployment methods
 - Koyeb configuration
 - Cloud-specific troubleshooting

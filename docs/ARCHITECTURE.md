@@ -1,6 +1,6 @@
 # Extension Architecture
 
-This document provides detailed technical architecture for contributors to the Tenstorrent VSCode Toolkit.
+This document provides detailed technical architecture for contributors to the TT-VSCode-Toolkit.
 
 ## Table of Contents
 
@@ -137,7 +137,7 @@ vLLM repository (cloned by lessons):
 
 ### ~/tt-metal/
 
-TT-Metal repository (cloned by lessons):
+TT-Metalium<sup>™</sup> repository (cloned by lessons):
 
 ```
 ~/tt-metal/
@@ -220,7 +220,7 @@ TT-Metal repository (cloned by lessons):
 
 **Implementation:**
 - `tt-smi -s` JSON output parsed for hardware type
-- Commands adapt to N150, N300, T3K, P100, P150, Galaxy
+- Commands adapt to n150, n300, T3000, p100, p150, Galaxy
 - Lessons show hardware compatibility in metadata
 - Filter tree view by detected hardware (optional)
 
@@ -472,7 +472,7 @@ export class LessonRegistry {
 2. Execute 'tt-smi -s' command
 3. Parse JSON output
 4. Extract: board_type, coords, arch, telemetry_device
-5. Map to user-friendly names (N150, N300, T3K, etc.)
+5. Map to user-friendly names (n150, n300, T3000, etc.)
 6. Update statusbar item
 7. Update device context for filtering
 ```

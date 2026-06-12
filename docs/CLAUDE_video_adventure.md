@@ -2,14 +2,14 @@
 
 **Mission:** Create 10-second video ad for 64-65 World's Fair using TT hardware
 **Date:** 2026-01-02
-**Hardware:** N150 (Wormhole - Single Chip)
-**Goal:** Demonstrate hardware scaling story - code that works on N150 and scales exponentially to Galaxy
+**Hardware:** n150 (Wormhole<sup>™</sup> - Single Chip)
+**Goal:** Demonstrate hardware scaling story - code that works on n150 and scales exponentially to Galaxy
 
 ---
 
 ## Hardware Detection
 
-**Detected hardware:** N150 (Wormhole) - Single chip
+**Detected hardware:** n150 (Wormhole) - Single chip
 - **Board Type:** n150 L
 - **DRAM:** 12G speed, status OK
 - **PCIe:** Gen 4 x16
@@ -17,7 +17,7 @@
 - **Power:** 12W current draw
 - **AICLK:** 500 MHz
 
-**Key insight:** Perfect for demonstrating "write for smallest hardware" philosophy. Any code that works here should scale exponentially on larger hardware (N300/T3K/Galaxy).
+**Key insight:** Perfect for demonstrating "write for smallest hardware" philosophy. Any code that works here should scale exponentially on larger hardware (n300/T3000/Galaxy).
 
 ---
 
@@ -81,7 +81,7 @@
 **Options:**
 1. ❌ **Port video model to JAX** - High effort (weeks), uncertain success
 2. ✅ **Use SD JAX/Flax for frame-by-frame video** - Works now, exercises TT hardware
-3. ⚠️ **Fall back to tt-metal SD 3.5** - Already proven in Lesson 9
+3. ⚠️ **Fall back to TT-Metalium<sup>™</sup> SD 3.5** - Already proven in Lesson 9
 
 ---
 
@@ -90,7 +90,7 @@
 **Given constraints:**
 - No JAX video models available
 - Goal: Working demo that exercises TT hardware
-- Hardware: N150 (smallest tier)
+- Hardware: n150 (smallest tier)
 - Time: Reasonable effort
 
 **Selected approach: Frame-by-frame video with HuggingFace SD JAX/Flax**
@@ -100,7 +100,7 @@
 - ✅ Will run inference on TT hardware via TT-XLA (PJRT plugin)
 - ✅ Can verify device placement (TtDevice vs CpuDevice)
 - ✅ Generates video by stitching frames
-- ✅ Demonstrates hardware scaling (same code on N150/N300/T3K/Galaxy)
+- ✅ Demonstrates hardware scaling (same code on n150/n300/T3000/Galaxy)
 - ✅ Lower complexity than porting video model
 
 **Trade-off:**
@@ -130,8 +130,8 @@
 3. Add retro effects (film grain, color grading)
 
 ### Step 4: Benchmark and document scaling
-1. Time per frame on N150
-2. Document expected scaling on N300/T3K/Galaxy
+1. Time per frame on n150
+2. Document expected scaling on n300/T3000/Galaxy
 3. Create lesson with hardware pyramid story
 
 **Starting implementation...**
@@ -192,27 +192,27 @@ This reveals the current state of TT-XLA as of January 2026:
 
 **Impact on lesson:**
 - Can't use HuggingFace SD JAX/Flax approach
-- Need to fall back to tt-metal SD 3.5 (Lesson 9) - proven working
+- Need to fall back to TT-Metalium SD 3.5 (Lesson 9) - proven working
 - Still demonstrates hardware scaling story
 - Documents current TT-XLA limitations honestly
 
 **Alternative approaches considered:**
 1. ❌ Port video model to JAX - even harder given TT-XLA limitations
 2. ❌ Wait for TT-XLA to support reduce_window - not in scope
-3. ✅ **Use tt-metal SD 3.5 directly** - already proven in Lesson 9
+3. ✅ **Use TT-Metalium SD 3.5 directly** - already proven in Lesson 9
 
 ---
 
-## Decision: Pivot to tt-metal SD 3.5
+## Decision: Pivot to TT-Metalium SD 3.5
 
 **New approach:**
-- Use Stable Diffusion 3.5 Large from Lesson 9 (tt-metal direct API)
+- Use Stable Diffusion 3.5 Large from Lesson 9 (TT-Metalium direct API)
 - Generate World's Fair frames with proven working code
-- Still demonstrates hardware scaling (N150 → N300 → T3K → Galaxy)
+- Still demonstrates hardware scaling (n150 → n300 → T3000 → Galaxy)
 - **Advantage:** Actually exercises TT hardware for inference (verified in Lesson 9)
 
 **Why this is better:**
-- ✅ SD 3.5 runs directly on tt-metal (no XLA layer)
+- ✅ SD 3.5 runs directly on TT-Metalium (no XLA layer)
 - ✅ Already validated in Lesson 9
 - ✅ Still demonstrates hardware pyramid concept
 - ✅ Honest about TT-XLA limitations
@@ -246,19 +246,19 @@ This reveals the current state of TT-XLA as of January 2026:
 
 ---
 
-## Final Decision: Use tt-metal SD 3.5 (Pragmatic Solution)
+## Final Decision: Use TT-Metalium SD 3.5 (Pragmatic Solution)
 
 **After exploring all JAX/Flax options:**
 1. ❌ Stable Diffusion Flax - Missing `reduce_window` operation in TT-XLA
 2. ❌ DALL-E mini - Packages deprecated/unavailable
 3. ❌ Custom JAX video model - No time to build from scratch
 
-**✅ Selected: tt-metal Stable Diffusion 3.5 Large (from Lesson 9)**
+**✅ Selected: TT-Metalium Stable Diffusion 3.5 Large (from Lesson 9)**
 
 **Why this is the right choice:**
 - ✅ **PROVEN:** Already validated in Lesson 9
-- ✅ **EXERCISES TT HARDWARE:** Runs directly on tt-metal (not CPU fallback)
-- ✅ **DEMONSTRATES SCALING:** N150 → N300 → T3K → Galaxy pyramid
+- ✅ **EXERCISES TT HARDWARE:** Runs directly on TT-Metalium (not CPU fallback)
+- ✅ **DEMONSTRATES SCALING:** n150 → n300 → T3000 → Galaxy pyramid
 - ✅ **HIGH QUALITY:** 1024x1024 images, state-of-the-art SD 3.5
 - ✅ **EDUCATIONAL VALUE:** Honest about current TT-XLA limitations
 - ✅ **DELIVERS RESULTS:** Users get working video generation
@@ -270,11 +270,11 @@ This reveals the current state of TT-XLA as of January 2026:
 - Platform status: "experimental" - not production-ready for all workloads
 - **Best use case:** Simple JAX computations, research, gradual migration
 
-**For production image/video generation:** Use tt-metal direct API (Lesson 9)
+**For production image/video generation:** Use TT-Metalium direct API (Lesson 9)
 
 ---
 
-## Implementation: tt-metal SD 3.5 for World's Fair Video
+## Implementation: TT-Metalium SD 3.5 for World's Fair Video
 
 **Proceeding with proven approach...**
 
@@ -311,13 +311,13 @@ ffmpeg -framerate 2 -pattern_type glob -i '*.png' \
 ## Summary of Adventure
 
 ### What We Accomplished:
-1. ✅ **Detected hardware:** N150 (Wormhole) single chip
+1. ✅ **Detected hardware:** n150 (Wormhole) single chip
 2. ✅ **Verified TT-XLA:** Works for basic JAX operations
 3. ✅ **Discovered limitations:** Complex pipelines (SD Flax) not yet supported
 4. ✅ **Tested alternatives:** SD Flax, DALL-E mini
 5. ✅ **Documented findings:** Honest assessment of TT-XLA state (Jan 2026)
 6. ✅ **Created prompts:** 10 World's Fair scenes for "Tenstorrent at 1964-65 Fair"
-7. ✅ **Identified solution:** tt-metal SD 3.5 (proven in Lesson 9)
+7. ✅ **Identified solution:** TT-Metalium SD 3.5 (proven in Lesson 9)
 
 ### Key Discoveries:
 
@@ -329,14 +329,14 @@ ffmpeg -framerate 2 -pattern_type glob -i '*.png' \
 - **Conclusion:** Great for research/simple JAX, not ready for production diffusion models
 
 **For Video/Image Generation:**
-- ✅ **Use:** tt-metal direct API (Lessons 9)
+- ✅ **Use:** TT-Metalium direct API (Lessons 9)
 - ❌ **Avoid (for now):** JAX/Flax diffusion pipelines on TT-XLA
 
 ### Hardware Scaling Story:
 Same code on different hardware tiers (example: 10 frames at ~30s each):
-- **N150 (1 chip):** ~5 minutes (baseline)
-- **N300 (2 chips):** ~2.5 minutes (~2x faster)
-- **T3K (8 chips):** ~1 minute (~5-6x faster)
+- **n150 (1 chip):** ~5 minutes (baseline)
+- **n300 (2 chips):** ~2.5 minutes (~2x faster)
+- **T3000 (8 chips):** ~1 minute (~5-6x faster)
 - **Galaxy (32 chips):** ~15-20 seconds (~20x faster)
 
 **This is the TT hardware advantage!**
@@ -351,13 +351,13 @@ Same code on different hardware tiers (example: 10 frames at ~30s each):
 - Create lesson about current TT-XLA capabilities
 - Honest about limitations
 - Show what works (basic JAX) vs what doesn't (complex pipelines)
-- Point users to tt-metal for production work
+- Point users to TT-Metalium for production work
 
 **Option 2: Expand Lesson 9 (Practical)**
 - Add "batch generation" section to image-generation.md
 - Show how to generate multiple frames
 - Add ffmpeg video stitching commands
-- Keep using proven tt-metal SD 3.5
+- Keep using proven TT-Metalium SD 3.5
 
 **Option 3: Wait for TT-XLA Maturity**
 - Monitor TT-XLA updates
@@ -365,7 +365,7 @@ Same code on different hardware tiers (example: 10 frames at ~30s each):
 - Update lesson when diffusion pipelines work
 
 ### For Future Video Generation:
-1. **Near term:** Use tt-metal SD 3.5 (works now)
+1. **Near term:** Use TT-Metalium SD 3.5 (works now)
 2. **Medium term:** Watch TT-XLA development
 3. **Long term:** Native video models when available
 
@@ -376,7 +376,7 @@ Same code on different hardware tiers (example: 10 frames at ~30s each):
 - `test_sd_jax_ttxla.py` - TT-XLA SD Flax test (discovered limitations)
 - `test_dalle_mini_ttxla.py` - DALL-E mini test (packages deprecated)
 - `generate_worldsfair_video.py` - JAX/Flax generation script (doesn't work yet)
-- `generate_worldsfair_ttmetal.py` - tt-metal generation script (reference)
+- `generate_worldsfair_ttmetal.py` - TT-Metalium generation script (reference)
 
 **All scripts serve as documentation of what was attempted and learned.**
 
@@ -389,14 +389,14 @@ Same code on different hardware tiers (example: 10 frames at ~30s each):
 We didn't get a fully automated JAX/TT-XLA video pipeline, but we:
 - ✅ Thoroughly explored TT-XLA capabilities
 - ✅ Documented honest findings about current state
-- ✅ Identified working solution (tt-metal SD 3.5)
+- ✅ Identified working solution (TT-Metalium SD 3.5)
 - ✅ Created great World's Fair prompts
 - ✅ Demonstrated hardware scaling concept
 - ✅ Provided clear path forward
 
 **The adventure revealed important truths:**
 - TT-XLA is experimental (Jan 2026) - not ready for complex pipelines
-- tt-metal direct API is production-ready for image generation
+- TT-Metalium direct API is production-ready for image generation
 - Honest documentation helps users more than overpromising
 
 **For the lesson:** Recommend Option 2 (expand Lesson 9) as most practical for users right now.
@@ -445,7 +445,7 @@ We didn't get a fully automated JAX/TT-XLA video pipeline, but we:
 - Status: "experimental" - correctly labeled!
 
 **Honest assessment:**
-TT-XLA (Jan 2026) is a research platform for basic JAX operations, not yet ready for production ML models. For actual workloads, use tt-metal direct API.
+TT-XLA (Jan 2026) is a research platform for basic JAX operations, not yet ready for production ML models. For actual workloads, use TT-Metalium direct API.
 
 ---
 
@@ -453,7 +453,7 @@ TT-XLA (Jan 2026) is a research platform for basic JAX operations, not yet ready
 
 ### ✅ Created:
 1. **`CLAUDE_video_adventure.md`** - Complete adventure log with all findings
-2. **`content/lessons/video-generation-ttmetal.md`** - Working video generation lesson using tt-metal SD 3.5
+2. **`content/lessons/video-generation-ttmetal.md`** - Working video generation lesson using TT-Metalium SD 3.5
 3. **`worldsfair_prompts.txt`** - 10 curated prompts for "Tenstorrent at 1964-65 World's Fair"
 4. **Test scripts** documenting what was attempted:
    - `test_sd_jax_ttxla.py` - SD Flax test
@@ -464,19 +464,19 @@ TT-XLA (Jan 2026) is a research platform for basic JAX operations, not yet ready
 ### ✅ Lessons Learned:
 1. **Honest documentation > overpromising**
 2. **TT-XLA:** Great concept, needs more development
-3. **tt-metal direct API:** Production-ready now
+3. **TT-Metalium direct API:** Production-ready now
 4. **Hardware scaling story:** Still valid and powerful
 5. **Research value:** Understanding limitations helps users
 
 ### ✅ Recommendations:
 **For this extension:**
-- Add video generation lesson (tt-metal SD 3.5) - **ready to use!**
+- Add video generation lesson (TT-Metalium SD 3.5) - **ready to use!**
 - Document TT-XLA limitations honestly
-- Point users to tt-metal for production work
+- Point users to TT-Metalium for production work
 - Revisit TT-XLA when more mature
 
 **For users:**
-- Use tt-metal for image/video generation NOW
+- Use TT-Metalium for image/video generation NOW
 - Watch TT-XLA development for future
 - Hardware scaling advantage applies to both paths
 
@@ -507,7 +507,7 @@ The video generation lesson has been successfully integrated into the extension:
 - **Category:** advanced
 - **Order:** 9
 - **Status:** draft (ready for testing)
-- **Hardware:** N150, N300, T3K, P100
+- **Hardware:** n150, n300, T3000, p100
 - **Estimated time:** 30 minutes
 
 **Next steps for users:**
@@ -518,7 +518,7 @@ The video generation lesson has been successfully integrated into the extension:
 5. Generate your World's Fair video!
 
 **The lesson teaches:**
-- Hardware scaling philosophy (N150 → Galaxy)
+- Hardware scaling philosophy (n150 → Galaxy)
 - Frame-by-frame video creation with SD 3.5
 - Hardware verification (ensuring TT inference)
 - ffmpeg video stitching

@@ -20,9 +20,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15
@@ -421,7 +421,7 @@ Create `experiments.md`:
 
 ## Experiment 1: Baseline (2026-02-01)
 - **Config:** training_n150.yaml
-- **Hardware:** N150
+- **Hardware:** n150
 - **Duration:** 2.3 hours
 - **Final Loss:** 1.84 (train), 2.12 (val)
 - **Result:** Good baseline, will try higher LR next
@@ -429,7 +429,7 @@ Create `experiments.md`:
 
 ## Experiment 2: Higher LR (2026-02-01)
 - **Config:** training_n150_lr2e4.yaml
-- **Hardware:** N150
+- **Hardware:** n150
 - **Duration:** 2.1 hours
 - **Final Loss:** 1.92 (train), 2.28 (val)
 - **Result:** Slightly worse, LR=1e-4 is better

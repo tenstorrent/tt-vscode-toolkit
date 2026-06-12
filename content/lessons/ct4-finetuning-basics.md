@@ -21,16 +21,16 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 25
 minTTMetalVersion: v0.67.0
 validationDate: 2026-02-04
 validationNotes: >-
-  All 4 progressive training stages validated on N150 with v0.67.0-dev20260203. Stage 4 (20k steps) reveals model plateau (loss 1.66 → 1.70), demonstrating architectural capacity limits - important teaching moment for students. IMPORTANT: Python ttml module required for training does not exist in v0.65.1 (only C++ tt-train). Developers on v0.65.1 must upgrade to v0.67.0+ to use training lessons.
+  All 4 progressive training stages validated on n150 with v0.67.0-dev20260203. Stage 4 (20k steps) reveals model plateau (loss 1.66 → 1.70), demonstrating architectural capacity limits - important teaching moment for students. IMPORTANT: Python ttml module required for training does not exist in v0.65.1 (only C++ tt-train). Developers on v0.65.1 must upgrade to v0.67.0+ to use training lessons.
 ---
 
 # Fine-tuning Basics
@@ -152,9 +152,9 @@ It is the east, and Juliet is the sun.
 
 ### System Requirements
 
-- **tt-metal:** v0.67.0 or later (including latest RC) - required for proper inference
-- **Hardware:** N150, N300, T3K, P100, P150, P300C, or Galaxy
-- **Disk space:** 5GB free (for tt-metal build and checkpoints)
+- **TT-Metalium<sup>™</sup>:** v0.67.0 or later (including latest RC) - required for proper inference
+- **Hardware:** n150, n300, T3000, p100, p150, p300c, or Galaxy
+- **Disk space:** 5GB free (for TT-Metalium build and checkpoints)
 - **Python:** 3.10+
 
 ### Critical Setup Steps
@@ -174,11 +174,11 @@ The Python `ttml` training module with inference fixes is required for these les
 cd $TT_METAL_HOME && git describe --tags
 ```
 
-#### 1. Update tt-metal Submodules (CRITICAL!)
+#### 1. Update TT-Metalium Submodules (CRITICAL!)
 
 **Why:** Mismatched submodule versions cause compilation errors.
 
-**If you cloned tt-metal previously:**
+**If you cloned TT-Metalium previously:**
 
 ```bash
 cd $TT_METAL_HOME
@@ -194,7 +194,7 @@ error: unknown type name 'ChipId'
 
 #### 2. Remove Conflicting pip Packages
 
-**Why:** pip-installed `ttnn` conflicts with the locally-built tt-metal version.
+**Why:** pip-installed `ttnn` conflicts with the locally-built TT-Metalium version.
 
 **Check and remove:**
 
@@ -338,12 +338,12 @@ It seems she hangs upon the cheek of night
 
 ## Step 1: Install tt-train
 
-tt-train is TT-Metal's Python training framework. Install it first.
+tt-train is TT-Metalium's Python training framework. Install it first.
 
 [📦 Install tt-train](command:tenstorrent.installTtTrain)
 
 **What this does:**
-1. Verifies tt-metal is installed
+1. Verifies TT-Metalium is installed
 2. Navigates to `$TT_METAL_HOME/tt-train`
 3. Installs Python package: `pip install -e .`
 
@@ -1123,11 +1123,11 @@ python train_nanogpt.py \
 ### Batch Size Optimization
 
 **Default:** `--batch_size 4`
-- Works reliably on N150
+- Works reliably on n150
 - Training time: ~20-30 minutes for 200 epochs
 
 **Faster training:** `--batch_size 8`
-- May work on N150 depending on DRAM usage
+- May work on n150 depending on DRAM usage
 - Training time: ~10-15 minutes for 200 epochs
 - Watch for OOM errors
 
@@ -1156,7 +1156,7 @@ python train_nanogpt.py \
 
 This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all Tenstorrent hardware. Here's what to expect on each platform:
 
-### N150 (Wormhole - Single Chip)
+### n150 (Wormhole<sup>™</sup> - Single Chip)
 
 **Specifications:**
 - Single Wormhole chip
@@ -1174,7 +1174,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Character-level language models
 - Small-to-medium datasets (<10MB)
 
-### N300 (Wormhole - Dual Chip)
+### n300 (Wormhole - Dual Chip)
 
 **Specifications:**
 - Two Wormhole chips in mesh configuration
@@ -1182,7 +1182,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Can run data-parallel training
 
 **Performance (Shakespeare 200 epochs):**
-- **Single chip mode:** Same as N150
+- **Single chip mode:** Same as n150
 - **DDP mode (future):** ~2x faster with multi-device training
 - **Memory:** Ample headroom for larger models
 
@@ -1192,7 +1192,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Multi-device training experiments
 - Scaling to production workloads
 
-### T3K (Wormhole - 8 Chips)
+### T3000 (Wormhole - 8 Chips)
 
 **Specifications:**
 - 8 Wormhole chips in 2x4 mesh
@@ -1200,7 +1200,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Research and production cluster
 
 **Performance (Shakespeare 200 epochs):**
-- **Single chip mode:** Same as N150
+- **Single chip mode:** Same as n150
 - **Multi-device mode:** ~4-8x faster (with proper parallelization)
 - **Memory:** Can train much larger models
 
@@ -1210,7 +1210,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Production training pipelines
 - Scaling experiments
 
-### P100 (Blackhole - Single Chip)
+### p100 (Blackhole<sup>®</sup> - Single Chip)
 
 **Specifications:**
 - Single Blackhole chip (next-gen architecture)
@@ -1218,7 +1218,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Improved compute density
 
 **Performance (Shakespeare 200 epochs):**
-- **Expected:** Similar or faster than N150
+- **Expected:** Similar or faster than n150
 - **Memory:** Similar capacity, better bandwidth
 - **Note:** May need `export TT_METAL_ARCH_NAME=blackhole`
 
@@ -1227,7 +1227,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Performance benchmarking
 - Production deployments (when available)
 
-### P150 (Blackhole - Dual Chip)
+### p150 (Blackhole - Dual Chip)
 
 **Specifications:**
 - Two Blackhole chips
@@ -1235,7 +1235,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Enhanced interconnect
 
 **Performance (Shakespeare 200 epochs):**
-- **Expected:** Similar to N300, potentially faster
+- **Expected:** Similar to n300, potentially faster
 - **Multi-device:** Better chip-to-chip communication
 - **Memory:** Ample for larger models
 
@@ -1244,7 +1244,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Production workloads
 - Advanced parallelization experiments
 
-### P300C (Blackhole Cloud Configuration)
+### p300c (Blackhole Cloud Configuration)
 
 **Specifications:**
 - Cloud-optimized Blackhole deployment
@@ -1270,7 +1270,7 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 - Research supercomputer cluster
 
 **Performance (Shakespeare 200 epochs):**
-- **Single chip mode:** Same as N150
+- **Single chip mode:** Same as n150
 - **Full cluster mode:** Massively parallel training
 - **Use cases:** LLM pre-training, not needed for NanoGPT
 
@@ -1284,18 +1284,18 @@ This lesson uses NanoGPT (6 layers, 384 dim, ~10M parameters) which works on all
 
 | Hardware | NanoGPT Training Time | Sweet Spot Use Case |
 |----------|----------------------|---------------------|
-| **N150** | 20-30 min | Learning, experimentation, small models |
-| **N300** | 10-20 min | Faster iteration, larger batches |
-| **T3K** | 5-10 min (multi-device) | Production training, scaling |
-| **P100** | 15-25 min | Next-gen testing, production |
-| **P150** | 8-15 min | Next-gen multi-device |
-| **P300C** | Scales with chips | Cloud production |
+| **n150** | 20-30 min | Learning, experimentation, small models |
+| **n300** | 10-20 min | Faster iteration, larger batches |
+| **T3000** | 5-10 min (multi-device) | Production training, scaling |
+| **p100** | 15-25 min | Next-gen testing, production |
+| **p150** | 8-15 min | Next-gen multi-device |
+| **p300c** | Scales with chips | Cloud production |
 | **Galaxy** | <5 min (full cluster) | LLM pre-training, research |
 
 **For this lesson (NanoGPT on Shakespeare):**
-- ✅ **N150 is perfect** - Small model, learning focus, quick iterations
+- ✅ **n150 is perfect** - Small model, learning focus, quick iterations
 - ✅ **All hardware works** - NanoGPT is intentionally small
-- 📈 **Larger hardware** gives faster training, but N150 is plenty fast
+- 📈 **Larger hardware** gives faster training, but n150 is plenty fast
 - 🚀 **Production:** Any hardware works; choose based on scale needs
 
 ---
@@ -1342,11 +1342,11 @@ python train_nanogpt.py \
 
 ### Option 3: Break Through the Plateau with Larger Models
 
-The Stage 4 plateau (loss 1.66 → 1.70) shows this 6-layer model reached its capacity. **Good news**: Your N150 hardware can handle much larger models!
+The Stage 4 plateau (loss 1.66 → 1.70) shows this 6-layer model reached its capacity. **Good news**: Your n150 hardware can handle much larger models!
 
 **Current model (plateaus at ~1.7):**
 - 6 layers, 384 embedding → ~10M parameters
-- Uses ~20% of N150's 12GB DRAM
+- Uses ~20% of n150's 12GB DRAM
 
 **To achieve fluent Shakespeare (loss <1.0), try a larger model:**
 
@@ -1372,8 +1372,8 @@ python train_nanogpt.py \
 ```
 
 **Expected results:**
-- **Time**: ~15-20 minutes on N150 (3-4x slower due to 4x more parameters)
-- **Memory**: Still comfortable fit in N150's DRAM
+- **Time**: ~15-20 minutes on n150 (3-4x slower due to 4x more parameters)
+- **Memory**: Still comfortable fit in n150's DRAM
 - **Loss**: ~0.7-0.9 (significantly better than 1.7!)
 - **Quality**: Fluent, grammatically correct Shakespeare
 
@@ -1466,21 +1466,21 @@ You've seen how NanoGPT learns Shakespeare in stages. But this isn't just about 
    - Stage 3 (loss ~1.2) often sufficient for production
    - Stage 4 (loss <1.0) for high-quality generation
 
-### Scaling Your Shakespeare: From N150 to Production
+### Scaling Your Shakespeare: From n150 to Production
 
-**What you learned on N150:**
+**What you learned on n150:**
 - Hierarchical learning (structure → vocabulary → fluency)
 - Loss curve interpretation (4.6 → <1.0)
 - Temperature effects (0.3 = conservative, 0.8 = balanced, 1.2 = creative)
 - Checkpoint strategy (save progressive stages)
 
-**What N300 unlocks (2x faster):**
+**What n300 unlocks (2x faster):**
 - Train multiple domain models in parallel
 - Larger vocabularies (10k+ unique characters/tokens)
 - Faster iteration on new datasets
 - **Same technique, 2x throughput**
 
-**What T3K enables (8x faster):**
+**What T3000 enables (8x faster):**
 - Train production models in minutes, not hours
 - Experiment with larger transformer architectures
 - Multi-task models (multiple domains simultaneously)
@@ -1549,7 +1549,7 @@ You've seen how NanoGPT learns Shakespeare in stages. But this isn't just about 
 
 **Lesson CT-5: Multi-Device Training** (Coming Soon)
 - Data Parallel training (DDP)
-- Scaling to N300, T3K, Galaxy
+- Scaling to n300, T3000, Galaxy
 - Performance optimization
 
 **Lesson CT-6: Experiment Tracking** (Coming Soon)
@@ -1590,14 +1590,14 @@ You've seen how NanoGPT learns Shakespeare in stages. But this isn't just about 
 ### Documentation
 
 - [tt-train API](https://github.com/tenstorrent/tt-metal/tree/main/tt-train) - Training framework docs
-- [tt-metal GitHub](https://github.com/tenstorrent/tt-metal) - Main repository
+- [TT-Metalium GitHub](https://github.com/tenstorrent/tt-metal) - Main repository
 - [NanoGPT (Karpathy)](https://github.com/karpathy/nanoGPT) - Original inspiration
 - [Attention is All You Need](https://arxiv.org/abs/1706.03762) - Transformer paper
 
 ### Community
 
 - Share your trained models in Discord!
-- Ask questions in #tt-metal-training
+- Ask questions in #TT-Metalium-training
 - Show off creative datasets and results
 - Contribute improvements to tt-train
 
@@ -1611,17 +1611,17 @@ You've seen firsthand how models learn hierarchically, and you understand the co
 
 ## Appendix: Lesson Validation
 
-**Status:** ✅ **Validated on N150 Hardware** (v0.67.0-dev20260203, 2026-02-04)
+**Status:** ✅ **Validated on n150 Hardware** (v0.67.0-dev20260203, 2026-02-04)
 
 **Tested Environment:**
-- **Hardware:** Wormhole N150 (single-chip)
+- **Hardware:** Wormhole n150 (single-chip)
 - **Python:** 3.10
-- **tt-metal:** v0.67.0-dev20260203
+- **TT-Metalium:** v0.67.0-dev20260203
 - **PYTHONPATH:** $TT_METAL_HOME/build_Release
 
 ---
 
-## What You Can Expect on N150
+## What You Can Expect on n150
 
 ### Training Times (Shakespeare, batch_size=4)
 
@@ -1669,7 +1669,7 @@ You've seen firsthand how models learn hierarchically, and you understand the co
 
 ### Memory and Storage (Validated)
 
-- **DRAM usage:** Comfortable fit in N150's 12GB
+- **DRAM usage:** Comfortable fit in n150's 12GB
 - **Checkpoint size:** ~40MB per stage checkpoint
 - **Total storage:** <200MB for Stage 2-3 checkpoints + 1.1MB dataset
 - **Batch size 4:** No memory pressure, very stable
@@ -1720,7 +1720,7 @@ When you complete this lesson, you'll have:
 
 ### Validation Summary
 
-**Fully Validated on N150 (2026-02-04):**
+**Fully Validated on n150 (2026-02-04):**
 - ✅ Stage 1 (10 epochs): Tested in previous session
 - ✅ **Stage 2 (30 epochs):** Fully validated - Structure emerges! Loss 1.6-1.8
 - ✅ **Stage 3 (50 epochs, 5000 steps):** Fully validated - Real words dominate! Loss 1.66

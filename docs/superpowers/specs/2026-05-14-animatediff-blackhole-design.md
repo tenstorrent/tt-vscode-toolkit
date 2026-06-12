@@ -1,4 +1,4 @@
-# AnimateDiff on Blackhole — Design Spec
+# AnimateDiff on Blackhole<sup>®</sup> — Design Spec
 
 **Date:** 2026-05-14
 **Status:** Approved
@@ -35,18 +35,18 @@ Uses the diffusers `AnimateDiffPipeline` with `MotionAdapter`. No TT hardware re
 
 ### Phase 2 — Blackhole-Accelerated Spatial Diffusion
 
-Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/unet_2d_condition_model.py`. The same TTNN UNet code runs on Blackhole (confirmed: `models/demos/blackhole/stable_diffusion/` imports it directly). Frames are denoised sequentially using `sd_helper_funcs.run()`.
+Replaces the PyTorch UNet with the TT-NN<sup>™</sup> UNet from `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/unet_2d_condition_model.py`. The same TT-NN UNet code runs on Blackhole (confirmed: `models/demos/blackhole/stable_diffusion/` imports it directly). Frames are denoised sequentially using `sd_helper_funcs.run()`.
 
 **Temporal coherence mechanism:** Shared base noise initialization across frames. Each frame's latent is the base noise plus a small per-frame perturbation. This is a documented simplification — not full AnimateDiff temporal attention.
 
-**Documented scope boundary:** Full AnimateDiff motion module integration on TT hardware would require injecting `TemporalTransformer` blocks into the TTNN UNet transformer blocks, modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`. That is out of scope for this lesson. Phase 2 is "TT-accelerated video frame generation" — the lesson calls this out explicitly.
+**Documented scope boundary:** Full AnimateDiff motion module integration on TT hardware would require injecting `TemporalTransformer` blocks into the TT-NN UNet transformer blocks, modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`. That is out of scope for this lesson. Phase 2 is "TT-accelerated video frame generation" — the lesson calls this out explicitly.
 
-**Hardware:** Blackhole (P100/P300c), `TT_METAL_ARCH_NAME=blackhole`, `l1_small_size=SD_L1_SMALL_SIZE`.
+**Hardware:** Blackhole (p100/p300c), `TT_METAL_ARCH_NAME=blackhole`, `l1_small_size=SD_L1_SMALL_SIZE`.
 
 **Key implementation detail for `sd_helper_funcs.run()`:**
 - Takes `input_latents` as 4-channel 64×64 tensor
 - Internally concatenates `[latents, latents]` for CFG (batch=2)
-- Runs full denoising loop with TTNN scheduler
+- Runs full denoising loop with TT-NN scheduler
 - VAE-decodes output, returns 3-channel image tensor
 - Called once per frame
 
@@ -65,7 +65,7 @@ Replaces the PyTorch UNet with the TTNN UNet from `~/tt-metal/models/demos/wormh
 - `content/projects/animatediff/docs/MODEL_BRINGUP_TUTORIAL.md` — `hf` CLI, correct model paths
 
 ### New
-- `content/projects/animatediff/animatediff_ttnn/ttnn_pipeline.py` — Phase 2: Blackhole TTNN pipeline
+- `content/projects/animatediff/animatediff_ttnn/ttnn_pipeline.py` — Phase 2: Blackhole TT-NN pipeline
 - `content/projects/animatediff/examples/generate_blackhole.py` — Phase 2 end-to-end example
 
 ### Update
@@ -116,7 +116,7 @@ import os
 import torch
 import ttnn
 from models.demos.wormhole.stable_diffusion.common import SD_L1_SMALL_SIZE
-# SD_L1_SMALL_SIZE = 21056 on Blackhole, 20928 on Wormhole (auto-detected)
+# SD_L1_SMALL_SIZE = 21056 on Blackhole, 20928 on Wormhole<sup>™</sup> (auto-detected)
 from models.demos.wormhole.stable_diffusion.sd_helper_funcs import run, constant_prop_time_embeddings
 from models.demos.wormhole.stable_diffusion.tt.unet_2d_condition_model import UNet2DConditionModel
 
@@ -193,7 +193,7 @@ Both are open-weight (no gated access). SD 1.4 is ~4GB; motion adapter is ~700MB
 | Phase | Hardware | Setup |
 |-------|----------|-------|
 | Phase 1 | Any CPU (no TT hardware) | `pip install -r requirements.txt` |
-| Phase 2 | Blackhole (P100 or P300c) | `TT_METAL_ARCH_NAME=blackhole` + tt-metal activated |
+| Phase 2 | Blackhole (p100 or p300c) | `TT_METAL_ARCH_NAME=blackhole` + TT-Metalium<sup>™</sup> activated |
 
 Phase 2 requires `~/tt-metal` present and the metal environment activated.
 
@@ -205,16 +205,16 @@ The rewritten `README.md` will:
 
 1. **Lead with Phase 1** — run this first, no hardware needed, see real AnimateDiff output
 2. **Explain what AnimateDiff actually does** — MotionAdapter injects temporal attention at the right place (UNet transformer blocks, not post-processing)
-3. **Explain what Phase 2 does and doesn't do** — TTNN UNet accelerates spatial denoising; temporal coherence from shared noise, not motion adapter weights; explicit callout: "full integration would require modifying TTNN UNet transformer blocks"
+3. **Explain what Phase 2 does and doesn't do** — TT-NN UNet accelerates spatial denoising; temporal coherence from shared noise, not motion adapter weights; explicit callout: "full integration would require modifying TT-NN UNet transformer blocks"
 4. **All `hf` CLI** — `hf download`, `hf auth login`, `hf auth whoami` throughout
 
 ---
 
 ## Out of Scope
 
-- Injecting `TemporalTransformer` blocks into the TTNN UNet (would require modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`)
-- Multi-chip (T3K, Galaxy) distribution of the animation pipeline
-- SD 3.5 / DiT-based video generation (separate model family — see WAN2.2 for production video on QB2)
+- Injecting `TemporalTransformer` blocks into the TT-NN UNet (would require modifying `~/tt-metal/models/demos/wormhole/stable_diffusion/tt/`)
+- Multi-chip (T3000, Galaxy) distribution of the animation pipeline
+- SD 3.5 / DiT-based video generation (separate model family — see WAN2.2 for production video on TT-QuietBox<sup>®</sup> 2)
 - ControlNet or IP-Adapter combination
 
 ---

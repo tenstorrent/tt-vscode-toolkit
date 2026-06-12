@@ -11,25 +11,47 @@ swap:
   '(?i)\bVLLM\b': vLLM
   '\bvllm\b': vLLM
   '\bVllm\b': vLLM
-  # tt-metal — lowercase with hyphen in prose (not TT Metal, TTMetal, etc.)
-  'TT Metal(?!ium)': TT-Metal
-  '\bTTMetal\b': TT-Metal
-  '\btt metal\b': tt-metal
+  # TT-Metalium — platform name in prose (bare hrefs stay tt-metal; link display text IS scanned — use TT-Metalium there too)
+  'TT Metal(?!ium)': TT-Metalium
+  '\bTTMetal\b': TT-Metalium
+  '\bTT-Metal\b': TT-Metalium
+  '\btt metal\b': TT-Metalium
+  '\btt-metal\b': TT-Metalium
   # TT-Metalium — must keep full name
   '\bTT Metalium\b': TT-Metalium
   '\bTTMetalium\b': TT-Metalium
-  # tt-lang
-  '\bTTLang\b': tt-lang
-  '\btt lang\b': tt-lang
-  # tt-xla
+  # tt-lang → TT-Lang in prose
+  '\bTTLang\b': TT-Lang
+  '\btt lang\b': TT-Lang
+  '\btt-lang\b': TT-Lang
+  # tt-xla → TT-XLA in prose
   'TT XLA': TT-XLA
   '\bTTXLA\b': TT-XLA
-  # tt-forge
+  '\btt-xla\b': TT-XLA
+  # tt-forge → TT-Forge in prose
   'TT Forge(?!-fe)': TT-Forge
   '\bTTForge\b': TT-Forge
-  # tt-inference-server
-  '\btt_inference_server\b': tt-inference-server
-  'TTInferenceServer': tt-inference-server
+  '\btt-forge\b(?!-fe|-models)': TT-Forge
+  # TT-VSCode-Toolkit
+  '\btt-vscode-toolkit\b': TT-VSCode-Toolkit
+  'TT Developer Toolkit': TT-VSCode-Toolkit
+  'Tenstorrent VSCode Toolkit': TT-VSCode-Toolkit
+  # TT-Installer
+  '\btt-installer\b': TT-Installer
+  '\btt_installer\b': TT-Installer
+  # TT-Inference-Server
+  '\btt_inference_server\b': TT-Inference-Server
+  '\btt-inference-server\b': TT-Inference-Server
+  'TTInferenceServer': TT-Inference-Server
+  # TTNN → TT-NN in prose
+  '\bTTNN\b': TT-NN
+  # QB2 / QuietBox → TT-QuietBox 2 / TT-QuietBox in prose
+  '\bQB2\b': TT-QuietBox 2
+  '(?<!TT-)QuietBox 2': TT-QuietBox 2
+  '(?<!TT-)QuietBox(?! 2)': TT-QuietBox
+  # open source — two words, no hyphen
+  'open-source': open source
+  'Open-source': Open source
   # CLI tools
   '\bTTSMI\b': tt-smi
   '\btt_smi\b': tt-smi

@@ -4,7 +4,7 @@ title: Download Model and Run Inference
 description: >-
   Download Qwen3-0.6B (the recommended model — no license gate, works on all
   hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware.
-  Optionally download Llama-3.1-8B-Instruct for N300+ hardware.
+  Optionally download Llama-3.1-8B-Instruct for n300+ hardware.
 category: first-inference
 tags:
   - hardware
@@ -29,7 +29,7 @@ estimatedMinutes: 10
 
 Download **Qwen3-0.6B** — the recommended model for Tenstorrent hardware. It's
 tiny (0.6B parameters), fast, reasoning-capable, and requires no special license
-agreement. Works reliably on every supported device including N150 and P300c.
+agreement. Works reliably on every supported device including n150 and p300c.
 
 ## Prerequisites
 
@@ -213,11 +213,11 @@ The download typically completes in under a minute on a fast connection.
 > before this download will succeed. If you prefer open models or haven't
 > accepted Meta's terms, **Qwen3-0.6B is an excellent alternative**.
 
-> **Hardware requirement:** Llama-3.1-8B-Instruct requires **N300 or higher**
-> for reliable operation. It consistently exhausts DRAM on N150 and P300c.
+> **Hardware requirement:** Llama-3.1-8B-Instruct requires **n300 or higher**
+> for reliable operation. It consistently exhausts DRAM on n150 and p300c.
 > Qwen3-0.6B is the recommended choice for those devices.
 
-If you've accepted Meta's license terms and are running on N300/T3K/P100/Galaxy,
+If you've accepted Meta's license terms and are running on n300/T3000/p100/Galaxy,
 you can download Llama-3.1-8B-Instruct:
 
 ```bash
@@ -242,5 +242,5 @@ You've successfully downloaded your model and are ready to run inference.
 
 - [Qwen3-0.6B on Hugging Face](https://huggingface.co/Qwen/Qwen3-0.6B)
 - [Llama 3.1 model on Hugging Face](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct)
-- [TT-Metal GitHub Repository](https://github.com/tenstorrent/tt-metal)
-- [TT-NN Documentation](https://docs.tenstorrent.com/tt-metal/latest/ttnn/)
+- [TT-Metalium<sup>™</sup> GitHub Repository](https://github.com/tenstorrent/tt-metal)
+- [TT-NN<sup>™</sup> Documentation](https://docs.tenstorrent.com/tt-metal/latest/ttnn/)

@@ -1,16 +1,16 @@
-# Validation Summary - tt-vscode-toolkit v0.65.1
+# Validation Summary - TT-VSCode-Toolkit v0.65.1
 
 **Date:** 2026-02-10
 **Validator:** Claude (AI validation agent)
-**tt-metal Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
-**Hardware:** N150 L (Wormhole - Single Chip)
+**TT-Metalium<sup>™</sup> Version:** v0.65.1 (commit: 558a19699f, date: 2026-01-08)
+**Hardware:** n150 L (Wormhole<sup>™</sup> - Single Chip)
 **Approach:** Pattern-based content quality audit + selective technical testing
 
 ---
 
 ## Executive Summary
 
-✅ **tt-metal v0.65.1 Status:** VALIDATED - Working correctly on N150 hardware
+✅ **TT-Metalium v0.65.1 Status:** VALIDATED - Working correctly on n150 hardware
 ✅ **Environment Setup:** Complete (15 min) - All dependencies installed, tensor operations passing
 ✅ **Content Quality Audit:** Complete (40 min) - 3 lessons reviewed in detail, systemic issues identified
 ✅ **UX Fixes Applied:** verify-installation lesson improved with 4 button additions
@@ -23,12 +23,12 @@
 
 ### Current Environment
 
-**tt-metal:**
+**TT-Metalium:**
 - Version: v0.65.1
 - Commit: 558a19699f02c106eb851ef9df0c118979b6c469
 - Date: 2026-01-08
 - Python: 3.10
-- TTNN: 0.65.1
+- TT-NN<sup>™</sup>: 0.65.1
 - Status: ✅ Fully functional
 
 **tt-smi:**
@@ -36,14 +36,14 @@
 - Status: ✅ Snapshot mode (`-s`) works perfectly
 - Note: TUI mode improved but still has issues in non-interactive environments
 
-**tt-forge:**
-- venv Location: ~/tt-forge-venv
+**TT-Forge<sup>™</sup>:**
+- venv Location: ~/TT-Forge-venv
 - Python: 3.11.13
 - Status: ⚠️ Created but empty (pip 24.0, setuptools 65.5.0 only)
-- Action Needed: Setup required when validating tt-forge lessons
+- Action Needed: Setup required when validating TT-Forge lessons
 
 **Hardware Detected:**
-- Board Type: N150 L (Wormhole)
+- Board Type: n150 L (Wormhole)
 - Single chip, 72 Tensix cores
 - Firmware: 18.7.0
 - ETH FW: 7.0.0
@@ -99,7 +99,7 @@
 ### Lessons Reviewed
 
 **Priority 1 (First Inference):**
-- ✅ tt-installer - Reviewed (600+ lines, needs simplification)
+- ✅ TT-Installer - Reviewed (600+ lines, needs simplification)
 - ✅ hardware-detection - Validated (~3 min vs 5 min estimated)
 - ✅ verify-installation - Validated + UX fixes applied
 - 📋 download-model - Scanned (good UX, has buttons)
@@ -157,7 +157,7 @@
 ### Specific Issues Found
 
 **UX Issues (9 total, but 4 fixed):**
-1. tt-installer: Manual `curl -O` + `chmod +x` should be button
+1. TT-Installer: Manual `curl -O` + `chmod +x` should be button
 2. hardware-detection: `tt-smi -s` missing button
 3. hardware-detection: Hardware type extraction missing button
 4. hardware-detection: Troubleshooting commands not buttonized
@@ -239,7 +239,7 @@
 - api-server
 
 **Production Serving:**
-- tt-inference-server
+- TT-Inference-Server
 - vllm-production
 
 **Image/Video:**
@@ -264,9 +264,9 @@
 
 ### 🔧 Needs Setup
 
-**tt-forge Lessons:**
+**TT-Forge Lessons:**
 - forge-image-classification
-- **Status:** tt-forge-venv exists but empty
+- **Status:** TT-Forge-venv exists but empty
 - **Action:** Clone tt-forge-fe, configure venv, document version
 
 ---
@@ -274,7 +274,7 @@
 ## Validation Status by Category
 
 ### Priority 1: First Inference (6/6 completed)
-- ✅ tt-installer - Reviewed (needs simplification)
+- ✅ TT-Installer - Reviewed (needs simplification)
 - ✅ hardware-detection - Validated (3 min, good UX)
 - ✅ verify-installation - Validated + **UX FIXES APPLIED** (4 buttons added)
 - ✅ download-model - Validated (excellent UX, has all buttons)
@@ -282,7 +282,7 @@
 - ✅ api-server - Validated (**gold standard UX**, generates scripts perfectly)
 
 ### Priority 2: Production Serving (0/2)
-- ⏸️ tt-inference-server - Pending
+- ⏸️ TT-Inference-Server - Pending
 - ⏸️ vllm-production - Pending
 
 ### Priority 3: Image/Video (0/3)
@@ -341,7 +341,7 @@
 1. Complete Priority 1 lessons (3 remaining)
 2. Spot-check Priority 2-3 lessons (production serving, image gen)
 3. Sample Priority 4-5 lessons (training, cookbook)
-4. Set up tt-forge-venv and validate tt-forge lessons
+4. Set up TT-Forge-venv and validate TT-Forge lessons
 5. Document findings and update lesson metadata
 
 ### Content Improvements
@@ -353,7 +353,7 @@
 
 2. Add hardware visualizations
 3. Create interactive environment status dashboard
-4. Simplify tt-installer with Quick Start path
+4. Simplify TT-Installer with Quick Start path
 
 ---
 
@@ -404,7 +404,7 @@
 
 **For Validation:**
 1. Continue with Priority 1-3 lessons
-2. Set up tt-forge-venv
+2. Set up TT-Forge-venv
 3. Test custom training lessons with v0.65.1
 4. Spot-check cookbook recipes
 5. Update lesson metadata
@@ -439,7 +439,7 @@
    - Location: `models/demos/wormhole/stable_diffusion/`
    - Status: ✅ **Stable** (as of Sept 2025, commit d3f1bd16ce)
    - Architecture: UNet-based, 512×512 default
-   - Hardware: N150 (⚠️ N300 has known issue [#7560](https://github.com/tenstorrent/tt-metal/issues/7560))
+   - Hardware: n150 (⚠️ n300 has known issue [#7560](https://github.com/tenstorrent/tt-metal/issues/7560))
    - Use Case: Lightweight, fast generation, good for testing/development
 
 2. **SDXL (Stable Diffusion XL)**
@@ -447,7 +447,7 @@
    - Location: `models/experimental/stable_diffusion_xl_base/`
    - Status: ✅ **Production-ready** (closely monitored in CI)
    - Architecture: Larger UNet with dual encoders, 1024×1024 default
-   - Hardware: All (Wormhole, Blackhole, Galaxy)
+   - Hardware: All (Wormhole, Blackhole<sup>®</sup>, Galaxy)
    - Pipelines: Base, base+refiner, img2img, inpainting
    - Use Case: Production quality, higher resolution, more capable
 
@@ -489,14 +489,14 @@
 - ✅ Verify which model the lesson actually uses
 - ✅ If SD v1.4: Update to recommend SDXL for production
 - ✅ If SDXL: Ensure examples reference correct path and model
-- ✅ Add note about SD v1.4 as lighter alternative for N150 testing
+- ✅ Add note about SD v1.4 as lighter alternative for n150 testing
 - ✅ Mention combined base+refiner pipeline (new in v0.65.x)
 - ✅ Update performance expectations (VAE and encoder improvements)
 
 **Content Updates**:
 - Path verification: `models/experimental/stable_diffusion_xl_base/demo/demo.py`
 - Model: `stabilityai/stable-diffusion-xl-base-1.0`
-- Note: "For lighter/faster generation on N150, SD v1.4 is also available"
+- Note: "For lighter/faster generation on n150, SD v1.4 is also available"
 - Advanced: Combined pipeline for best quality
 
 #### 2. video-generation-ttmetal Lesson (PRIORITY: MEDIUM)
@@ -558,7 +558,7 @@
 5. ✅ Python environment compatibility
 
 **What Works:**
-- Device opens successfully (N150 L detected, 1x1 mesh)
+- Device opens successfully (n150 L detected, 1x1 mesh)
 - Diffusers 0.36.0 installed and working
 - SDXL model accessible via HuggingFace Hub
 - All prerequisites met for image generation
@@ -567,7 +567,7 @@
 - Fixed incorrect SD 3.5 reference in troubleshooting (line 531)
 - Added v0.65.1 improvements section (VAE perf, encoder optimizations)
 - Added combined base+refiner pipeline documentation (NEW in v0.65.1!)
-- Added note about SD v1.4 as lighter alternative for N150
+- Added note about SD v1.4 as lighter alternative for n150
 - Added validation metadata
 
 **Performance Notes:**
@@ -608,14 +608,14 @@ Prerequisites validated - lesson commands are correct and will work.
 1. ✅ Project structure deployed to ~/tt-scratchpad/cookbook/game_of_life/
 2. ✅ Python dependencies (ttnn, torch, numpy)
 3. ✅ Device initialization and cleanup
-4. ✅ TTNN tensor creation with TILE_LAYOUT
+4. ✅ TT-NN tensor creation with TILE_LAYOUT
 5. ✅ Convolution kernel setup (core Game of Life operation)
 
 **What Works:**
 - All 5 cookbook projects pre-deployed in ~/tt-scratchpad/cookbook/
-- Device opens successfully (N150 L, 1x1 mesh)
-- TTNN tensor operations validated
-- Layout conversions work (torch → TTNN TILE_LAYOUT)
+- Device opens successfully (n150 L, 1x1 mesh)
+- TT-NN tensor operations validated
+- Layout conversions work (torch → TT-NN TILE_LAYOUT)
 - Convolution operations ready (neighbor counting for cellular automata)
 
 **Lesson Quality:**
@@ -635,15 +635,15 @@ Prerequisites validated - lesson commands are correct and will work.
 - TensorAccessor migration provides cleaner API
 - Sharding-aware ops for larger grids on multi-chip hardware
 
-**Note:** Full visual animation not run (requires matplotlib display). Core TTNN operations validated - lesson ready for users!
+**Note:** Full visual animation not run (requires matplotlib display). Core TT-NN operations validated - lesson ready for users!
 
 **Other Cookbook Lessons (Same Structure):**
-- ✅ audio_processor - TTNN for Mel-spectrograms, beat detection
+- ✅ audio_processor - TT-NN for Mel-spectrograms, beat detection
 - ✅ image_filters - Custom convolutions, edge detection
 - ✅ mandelbrot - Parallel fractal computation
 - ✅ particle_life - N² force calculations, multi-species dynamics
 
-All share same validated TTNN foundation. Templates deployed and ready.
+All share same validated TT-NN foundation. Templates deployed and ready.
 
 
 ## Additional Validation Results (2026-02-11 Continuation)
@@ -662,11 +662,11 @@ All share same validated TTNN foundation. Templates deployed and ready.
 - Structure validated (AudioProcessor class with proper initialization)
 - Uses librosa for DSP operations (appropriate for starter template)
 - Device management correct (open/close)
-- **Note:** Full TTNN-accelerated version referenced in "Lesson 12"
+- **Note:** Full TT-NN-accelerated version referenced in "Lesson 12"
 
-**✅ cookbook-mandelbrot** - Full TTNN implementation
+**✅ cookbook-mandelbrot** - Full TT-NN implementation
 - All files deployed (renderer.py, explorer.py, notebooks, docs)
-- **TTNN operations validated:**
+- **TT-NN operations validated:**
   - ✅ `ttnn.from_torch()` with TILE_LAYOUT
   - ✅ `ttnn.zeros_like()`, `ttnn.full_like()`
   - ✅ `ttnn.square()`, `ttnn.add()`, `ttnn.subtract()`, `ttnn.multiply()`
@@ -700,22 +700,22 @@ All share same validated TTNN foundation. Templates deployed and ready.
 - 5/6 cookbook lessons validated (83%)
 - 1 blocked (image-filters conv2d API)
 - All deployed templates accessible
-- Mix of full TTNN implementations and starter templates (appropriate for learning)
+- Mix of full TT-NN implementations and starter templates (appropriate for learning)
 
 ---
 
 ### Production Serving Lessons (2/2)
 
-**✅ tt-inference-server** - Content validated (requires tt-installer 2.0 for execution)
+**✅ TT-Inference-Server** - Content validated (requires TT-Installer 2.0 for execution)
 - **Lesson content:** Validated - comprehensive and well-documented ✅
-- **Execution status:** Requires tt-installer 2.0 to be installed
+- **Execution status:** Requires TT-Installer 2.0 to be installed
 - Command not found in validation environment: `tt-inference-server`
 - Path not found: `~/.local/lib/tt-inference-server/run.py`
 - **Note:** Lesson content quality verified, actual execution requires installation
-- Previous validations confirmed functionality with tt-installer 2.0
+- Previous validations confirmed functionality with TT-Installer 2.0
 
 **✅ vllm-production** - Already validated
-- Marked as validated on N150 in metadata
+- Marked as validated on n150 in metadata
 - Comprehensive lesson content
 - OpenAI-compatible API documentation
 - **Note:** vLLM not currently installed in environment but lesson content verified
@@ -723,7 +723,7 @@ All share same validated TTNN foundation. Templates deployed and ready.
 
 **Summary:**
 - 2/2 validated (100%)
-- tt-inference-server lesson content validated, execution requires tt-installer 2.0
+- TT-Inference-Server lesson content validated, execution requires TT-Installer 2.0
 
 ---
 
@@ -733,39 +733,39 @@ All 8 lessons marked as **validated** in metadata:
 
 **✅ ct1-understanding-training** (15 min, conceptual)
 - Training fundamentals and workflow overview
-- Validated on N150
+- Validated on n150
 
 **✅ ct2-dataset-fundamentals** (15 min, conceptual)
 - JSONL format, data quality, preprocessing
-- Validated on N150
+- Validated on n150
 
 **✅ ct3-configuration-patterns** (15 min, conceptual)
 - YAML-driven configuration, hyperparameters
-- Validated on N150
+- Validated on n150
 
 **✅ ct4-finetuning-basics** (25 min, hands-on)
 - NanoGPT on Shakespeare dataset
 - **Requires v0.67.0+** (has inference fixes)
-- Validated on N150 with v0.67.0-dev20260203
+- Validated on n150 with v0.67.0-dev20260203
 - 4 progressive training stages documented
 - **Note:** Cannot re-validate with v0.65.1 (wrong version)
 
 **✅ ct5-multi-device-training** (15 min, conceptual)
 - Multi-chip training concepts
-- Validated on N150 (conceptual lesson)
+- Validated on n150 (conceptual lesson)
 
 **✅ ct6-experiment-tracking** (15 min, hands-on)
 - WandB integration, metrics tracking
-- Validated on N150
+- Validated on n150
 
 **✅ ct7-architecture-basics** (20 min, conceptual)
 - Transformer architecture deep dive
-- Validated on N150
+- Validated on n150
 
 **✅ ct8-training-from-scratch** (90 min, hands-on)
 - Build nano-trickster (11M params)
 - Train from random initialization
-- Validated on N150
+- Validated on n150
 - **Note:** Likely requires v0.67.0+ (uses tt-train framework)
 
 **Summary:**

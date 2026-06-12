@@ -13,26 +13,26 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
-## Hardware Compatibility Goal: Wormhole + Blackhole (QB2 Readiness, Apr 2026)
+## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
-All lessons and templates must work on both **Wormhole** (N150/N300/T3K/Galaxy) and
-**Blackhole** (P100/P150/P300c/QB2) hardware. Key constraints:
+All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy) and
+**Blackhole** (p100/p150/p300c/TT-QuietBox 2) hardware. Key constraints:
 
-- **P300c = P100 mode**: P300c is a single Blackhole chip; QB2 = 4× P300c operating
-  as 4 independent single-chip devices (not a mesh). Treat P300c exactly like P100.
-- **QB2 ships without `~/tt-metal`**: Pre-configured QB2 images have TTNN and vLLM
+- **p300c = p100 mode**: p300c is a single Blackhole chip; TT-QuietBox 2 = 4× p300c operating
+  as 4 independent single-chip devices (not a mesh). Treat p300c exactly like p100.
+- **TT-QuietBox 2 ships without `~/tt-metal`**: Pre-configured TT-QuietBox 2 images have TT-NN<sup>™</sup> and vLLM
   pre-installed but do not include the tt-metal source tree. Lessons must not assume
   `~/tt-metal` exists — link to `build-tt-metal` lesson for users who need it.
 - **`hf` CLI, not `huggingface-cli`**: All lessons and templates must use the new
   `hf` CLI commands: `hf auth login`, `hf auth whoami`, `hf download`.
 - **`DispatchCoreAxis.ROW` crashes on Blackhole**: Never use
   `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER, ttnn.DispatchCoreAxis.ROW)`.
-  Use `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` — TTNN auto-detects
+  Use `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` — TT-NN auto-detects
   the correct axis (COL on Blackhole, ROW on Wormhole).
 - **`TT_METAL_ARCH_NAME`**: Must be `blackhole` for P-series, `wormhole_b0` for N-series.
   Use `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` pattern to honour user-supplied values.
-- **Qwen3-0.6B first**: N150 and P300c reliably run Qwen3-0.6B. Llama-3.1-8B-Instruct
-  exhausts N150 DRAM and requires N300+ or P-series hardware. Lead with Qwen.
+- **Qwen3-0.6B first**: n150 and p300c reliably run Qwen3-0.6B. Llama-3.1-8B-Instruct
+  exhausts n150 DRAM and requires n300+ or P-series hardware. Lead with Qwen.
 
 ### WH/BH Compatibility Checklist
 
@@ -40,16 +40,16 @@ When authoring or reviewing a lesson or template, verify:
 
 - [ ] `hf` CLI used throughout (not `huggingface-cli`)
 - [ ] `DispatchCoreAxis.ROW` not present in any template
-- [ ] `~/tt-metal` existence not assumed without fallback / link to build-tt-metal
+- [ ] `~/tt-metal` existence not assumed without fallback / link to build-TT-Metalium<sup>™</sup>
 - [ ] `p300c` added to `supportedHardware` and `validatedOn` in front matter where applicable
-- [ ] QB2 callout or note added for lessons that behave differently on QB2
+- [ ] TT-QuietBox 2 callout or note added for lessons that behave differently on TT-QuietBox 2
 - [ ] `HF_MODEL` exported before any inference command that requires it
 - [ ] `pip install --upgrade pip setuptools wheel` before `requirements-dev.txt` install
-  (fixes `pkg_resources` missing on fresh QB2 environments)
+  (fixes `pkg_resources` missing on fresh TT-QuietBox 2 environments)
 
 ## 🔧 Recent Multi-Device API Update (Jan 2026)
 
-**IMPORTANT:** Multi-device TTNN code must now use `CreateDevices`/`CloseDevices` API.
+**IMPORTANT:** Multi-device TT-NN code must now use `CreateDevices`/`CloseDevices` API.
 
 **Problem:** Opening/closing devices individually causes dispatch core errors:
 ```python
@@ -83,7 +83,7 @@ See `MULTI_DEVICE_FIX.md` for full details.
 **v0.0.98+ (Current)**: Lesson 7 uses clean markdown headers for better walkthrough rendering:
 
 ```markdown
-### N150 (Wormhole - Single Chip) - Most common for development
+### n150 (Wormhole - Single Chip) - Most common for development
 
 **✅ Recommended: Qwen3-0.6B** - Tiny, fast, reasoning-capable!
 
@@ -120,8 +120,8 @@ npm run package       # Create .vsix (auto-adds -dev suffix for non-main branche
 ```
 
 **Packaging Behavior:**
-- **main/master branch:** `tt-vscode-toolkit-X.Y.Z.vsix` (production)
-- **Other branches:** `tt-vscode-toolkit-X.Y.Z-dev.vsix` (development)
+- **main/master branch:** `TT-VSCode-Toolkit-X.Y.Z.vsix` (production)
+- **Other branches:** `TT-VSCode-Toolkit-X.Y.Z-dev.vsix` (development)
 - Implemented in `scripts/package-extension.js` for easy identification of dev builds
 
 ## Bundling (webpack)
@@ -183,12 +183,12 @@ package.json      # Extension manifest + walkthrough definitions
 **Generated:** `~/tt-scratchpad/` - Extension-created scripts
 
 **⚠️ Important:** The `vendor/` directory contains reference repositories for lesson authoring:
-- **tt-metal** - Primary reference: demos, APIs, examples, model implementations
+- **TT-Metalium** - Primary reference: demos, APIs, examples, model implementations
 - **vllm** - Production inference patterns, server examples
-- **tt-xla** - JAX/TT-XLA examples, demos, compiler documentation
-- **tt-forge-fe** - TT-Forge examples, experimental compiler reference
-- **tt-inference-server** - Production deployment automation, MODEL_SPECS
-- **tt-installer** - Installation workflows, setup patterns
+- **TT-XLA** - JAX/TT-XLA examples, demos, compiler documentation
+- **tt-forge-fe** - TT-Forge<sup>™</sup> examples, experimental compiler reference
+- **TT-Inference-Server** - Production deployment automation, MODEL_SPECS
+- **TT-Installer** - Installation workflows, setup patterns
 - **ttsim** - Simulator reference for testing without hardware
 
 These repos are **NOT deployed** with the extension - they're local references only for development and lesson authoring. Always verify commands, paths, and API examples against these repos before publishing lessons.
@@ -234,7 +234,7 @@ See `LESSON_METADATA.md` for complete documentation.
 }
 ```
 
-**Hardware values:** `n150`, `n300`, `t3k`, `p100`, `p150`, `galaxy`, `sim`
+**Hardware values:** `n150`, `n300`, `t3k`, `p100`, `p150`, `Galaxy`, `sim`
 
 **Status values:**
 - `validated` - Tested and ready for production release
@@ -424,7 +424,7 @@ The JSON file includes a warning header:
 
 ## Critical Patterns
 
-**tt-metal builds:**
+**TT-Metalium builds:**
 ```bash
 ./install_dependencies.sh  # ALWAYS run first
 ./build_metal.sh --clean   # Troubleshooting
@@ -432,20 +432,20 @@ The JSON file includes a warning header:
 ```
 
 **vLLM commands (Lesson 7):**
-- Hardware-specific Llama: `startVllmServerN150/N300/T3K/P100()`
+- Hardware-specific Llama: `startVllmServerN150/n300/T3000/p100()`
 - Hardware-specific Qwen: `startVllmServerN150Qwen/N300Qwen/T3KQwen/P100Qwen()` (v0.0.89+)
 - Helper: `startVllmServerForHardware(hardware, config)` - accepts optional `modelPath` parameter
 - All use `'server'` terminal type
 
 **Model Support (updated v0.0.97):**
-- **Qwen3-0.6B** - Ultra-lightweight (0.6B params), dual thinking modes, reasoning excellence ✅ **PRIMARY RECOMMENDATION for N150**
+- **Qwen3-0.6B** - Ultra-lightweight (0.6B params), dual thinking modes, reasoning excellence ✅ **PRIMARY RECOMMENDATION for n150**
   - MMLU-Redux: 55.6, MATH-500: 77.6 (impressive for 0.6B!)
   - Sub-millisecond inference, 10,000+ QPS capable
   - Multilingual, 32K context
   - **Perfect for development and many production use cases**
-- **Gemma 3-1B-IT** - Small (1B params), multilingual (140+ langs), 32K context ✅ **Good for N150**
-- **Llama-3.1-8B-Instruct** - General-purpose chat (8B params, gated) ⚠️ **Requires N300/T3K/P100**
-- **Qwen3-8B** - Multilingual coding/math (8B params) ⚠️ **Requires N300+ for reliable operation**
+- **Gemma 3-1B-IT** - Small (1B params), multilingual (140+ langs), 32K context ✅ **Good for n150**
+- **Llama-3.1-8B-Instruct** - General-purpose chat (8B params, gated) ⚠️ **Requires n300/T3000/p100**
+- **Qwen3-8B** - Multilingual coding/math (8B params) ⚠️ **Requires n300+ for reliable operation**
 
 **🔑 HF_MODEL Auto-Detection (v0.0.97):**
 - `start-vllm-server.py` now auto-detects and sets `HF_MODEL` from `--model` path
@@ -454,8 +454,8 @@ The JSON file includes a warning header:
 - Llama models: No HF_MODEL needed (auto-detects correctly)
 - **Users no longer need to manually export HF_MODEL** - script handles it automatically!
 
-**⚠️ N150 DRAM Reality:**
-- Llama-3.1-8B-Instruct consistently exhausts DRAM on N150
+**⚠️ n150 DRAM Reality:**
+- Llama-3.1-8B-Instruct consistently exhausts DRAM on n150
 - **Solution**: Start with Qwen3-0.6B (13x smaller, reasoning-capable, production-ready)
 - Lesson 7 completely rewritten around Qwen3-0.6B as the hero model (v0.0.97)
 
@@ -500,18 +500,18 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 | Lesson | Focus | Hardware Variants |
 |--------|-------|-------------------|
 | 1-5 | Setup, Direct API | Generic |
-| 6-7 | Production (tt-inference-server, vLLM) | ✅ N150/N300/T3K/P100 |
+| 6-7 | Production (TT-Inference-Server, vLLM) | ✅ n150/n300/T3000/p100 |
 | 8 | VSCode Chat | Generic |
-| 9 | Image Generation (SD 3.5) | ✅ N150/N300/T3K/P100 |
+| 9 | Image Generation (SD 3.5) | ✅ n150/n300/T3000/p100 |
 | 10 | Coding Assistant | Generic |
-| 11 | TT-Forge (experimental) | N150 only |
-| 12 | TT-XLA JAX | ✅ N150/N300/T3K/Galaxy |
+| 11 | TT-Forge (experimental) | n150 only |
+| 12 | TT-XLA JAX | ✅ n150/n300/T3000/Galaxy |
 
 ## Troubleshooting
 
 **Environment variables matter:**
 - vLLM: `TT_METAL_HOME`, `MESH_DEVICE`, `PYTHONPATH`
-- Blackhole (P100): Also needs `TT_METAL_ARCH_NAME=blackhole`
+- Blackhole (p100): Also needs `TT_METAL_ARCH_NAME=blackhole`
 - TT-Forge: `unset TT_METAL_HOME TT_METAL_VERSION`
 
 **Model paths:**
@@ -532,10 +532,10 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 | Lesson Type | Primary Reference | Secondary References |
 |-------------|-------------------|---------------------|
-| Setup/Installation | `tt-installer/` | `tt-metal/` |
-| Direct API (tt-metal) | `tt-metal/models/` | `tt-metal/demos/` |
-| vLLM Production | `vllm/tt_metal/` | `tt-inference-server/` |
-| tt-inference-server | `tt-inference-server/` | `vllm/` |
+| Setup/Installation | `TT-Installer/` | `tt-metal/` |
+| Direct API (TT-Metalium) | `tt-metal/models/` | `tt-metal/demos/` |
+| vLLM Production | `vllm/tt_metal/` | `TT-Inference-Server/` |
+| TT-Inference-Server | `TT-Inference-Server/` | `vllm/` |
 | Image Generation | `tt-metal/models/experimental/` | - |
 | TT-Forge | `tt-forge-fe/` | `tt-metal/` |
 | TT-XLA/JAX | `tt-xla/demos/` | `tt-xla/` |
@@ -600,7 +600,7 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 
 **Good examples:**
 - ✅ "Fixed terminal accumulation in API test commands by adding reusable terminal helper"
-- ✅ "Removed broken FAQ link from OpenClaw QB2 assistant walkthrough"
+- ✅ "Removed broken FAQ link from OpenClaw TT-QuietBox 2 assistant walkthrough"
 - ✅ "Updated default terminal name to match environment registry for proper detection"
 
 **Bad examples:**

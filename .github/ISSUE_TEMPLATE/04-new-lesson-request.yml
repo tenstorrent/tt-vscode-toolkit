@@ -15,7 +15,7 @@ body:
     attributes:
       label: Proposed Lesson Title
       description: What would you call this lesson?
-      placeholder: "Building a Custom Model with TT-Metal"
+      placeholder: "Building a Custom Model with TT-Metalium"
     validations:
       required: true
 
@@ -90,11 +90,11 @@ body:
       description: What hardware would be needed for this lesson?
       multiple: true
       options:
-        - "N150"
-        - "N300"
-        - "T3K"
-        - "P100"
-        - "P150"
+        - "n150"
+        - "n300"
+        - "T3000"
+        - "p100"
+        - "p150"
         - "Galaxy"
         - "Any hardware"
         - "No hardware needed (simulator or conceptual)"
@@ -107,7 +107,7 @@ body:
       label: Tools and Frameworks
       description: What tools, frameworks, or libraries would this lesson use?
       placeholder: |
-        - tt-metal
+        - TT-Metalium
         - vLLM
         - TT-Forge
         - PyTorch

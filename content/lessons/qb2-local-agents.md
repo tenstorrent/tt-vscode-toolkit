@@ -1,7 +1,7 @@
 ---
 id: qb2-local-agents
-title: Local AI Agents on QuietBox 2
-description: Build real AI agents in pure Python — web research, codebase navigation, multi-agent pipelines, and stateful text adventures — all running locally on your QB2's 32B/70B models
+title: Local AI Agents on TT-QuietBox 2
+description: Build real AI agents in pure Python — web research, codebase navigation, multi-agent pipelines, and stateful text adventures — all running locally on your TT-QuietBox 2's 32B/70B models
 category: applications
 tags:
   - qb2
@@ -22,18 +22,18 @@ validatedOn:
 estimatedMinutes: 60
 ---
 
-# Local AI Agents on QuietBox 2
+# Local AI Agents on TT-QuietBox<sup>®</sup> 2
 
-> **QB2-only lesson.** Everything here requires a 32B or 70B model. The agent reliability gap between 7B and 32B+ is large enough that 7B is not a supported path — the demos will fail or loop indefinitely at smaller scales.
+> **TT-QuietBox 2-only lesson.** Everything here requires a 32B or 70B model. The agent reliability gap between 7B and 32B+ is large enough that 7B is not a supported path — the demos will fail or loop indefinitely at smaller scales.
 
-You have a QuietBox 2. You're probably using it to chat with a 70B model and thinking "this is fast." That's true. But that's not the interesting part.
+You have a TT-QuietBox 2. You're probably using it to chat with a 70B model and thinking "this is fast." That's true. But that's not the interesting part.
 
 The interesting part is that you now have the hardware to run **AI agents that actually work** — systems that search the web, read files, hand tasks between specialized roles, and maintain state across a full session. These patterns fall apart at 7B. They come together at 32B. They shine at 70B.
 
 This lesson is the raw-Python antidote to the OpenClaw lesson. No frameworks to configure, no services to restart, no JSON files to edit. Seven scripts. `pip install`. `python3 run.py`. You see every tool call, every step, every decision the model makes.
 
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:6px;margin:24px 0;">
-  <iframe src="https://www.youtube-nocookie.com/embed/WcTe_TejcVs" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Local AI Agents on QuietBox 2"></iframe>
+  <iframe src="https://www.youtube-nocookie.com/embed/WcTe_TejcVs" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Local AI Agents on TT-QuietBox 2"></iframe>
 </div>
 
 ---
@@ -74,7 +74,7 @@ Each decision is a place to fail. The math compounds:
 | 3-step ReAct loop | ~52% | ~78% | ~88% |
 | Multi-agent pipeline | ~30% | ~70% | ~82% |
 
-A 3-step loop with 7B succeeds barely half the time. The same loop with 32B works 3 out of 4 times. Your QB2 runs Qwen3-32B at ~8 seconds per response and Llama-3.3-70B-Instruct at ~14 seconds. Both are genuinely usable. Neither requires a cloud subscription or an NVIDIA GPU.
+A 3-step loop with 7B succeeds barely half the time. The same loop with 32B works 3 out of 4 times. Your TT-QuietBox 2 runs Qwen3-32B at ~8 seconds per response and Llama-3.3-70B-Instruct at ~14 seconds. Both are genuinely usable. Neither requires a cloud subscription or an NVIDIA GPU.
 
 ---
 
@@ -95,12 +95,12 @@ A 3-step loop with 7B succeeds barely half the time. The same loop with 32B work
 
 ## Prerequisites
 
-- QB2 hardware healthy: `tt-smi -s` shows 4 chips
+- TT-QuietBox 2 hardware healthy: `tt-smi -s` shows 4 chips
 - `~/code/tt-inference-server` cloned and working
 - Docker running
 - Internet access (for the web-search demo and model downloads)
 
-**Verify your QB2:**
+**Verify your TT-QuietBox 2:**
 
 ```bash
 tt-smi -s | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'{len(d[\"device_info\"])} chips detected')"
@@ -301,7 +301,7 @@ Model:    Qwen/Qwen3-32B
 Endpoint: http://localhost:8000/v1
 
 Query:
-  Research the current state of open-source AI inference hardware...
+  Research the current state of open source AI inference hardware...
 ----------------------------------------------------------------------
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 1 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -324,15 +324,15 @@ Query:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 5 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ─ Executing this code:
-    final_answer("Open-source AI inference hardware has matured significantly...")
+    final_answer("Open source AI inference hardware has matured significantly...")
 
 ======================================================================
 FINAL RESULT:
 ======================================================================
-Open-source AI inference hardware has matured significantly heading into 2026.
+Open source AI inference hardware has matured significantly heading into 2026.
 Three companies have moved beyond vaporware into shipping products:
 
-**Tenstorrent (QuietBox 2 / Blackhole):** The QB2 runs Qwen3-32B at ~8 s/response
+**Tenstorrent (TT-QuietBox 2 / Blackhole<sup>®</sup>):** TT-QuietBox 2 runs Qwen3-32B at ~8 s/response
 and Llama-3.3-70B-Instruct at ~14 s/response on 4× Blackhole ASICs...
 
 ✓ Completed in 5 steps
@@ -509,7 +509,7 @@ python3 ~/code/tt-agents/02_code_explorer.py \
     --query "I'm reviewing a PR that changes authentication. Explain the current auth flow in detail so I can spot regressions."
 ```
 
-**Exploring your QB2's inference server config:**
+**Exploring your TT-QuietBox 2's inference server config:**
 ```bash
 python3 ~/code/tt-agents/02_code_explorer.py \
     --dir ~/code/tt-inference-server \
@@ -602,7 +602,7 @@ Each step is an opportunity to hallucinate an argument, call the wrong tool, or
 lose track of the goal. Smaller models accumulate these errors; larger ones
 mostly don't.
 
-Tenstorrent's QuietBox 2 runs Qwen3-32B at roughly eight seconds per response
+Tenstorrent's TT-QuietBox 2 runs Qwen3-32B at roughly eight seconds per response
 on four Blackhole ASICs...
 
 ✓ Pipeline complete
@@ -903,7 +903,7 @@ The Dungeon Master is the smallest possible version of all of these. Once you un
 
 [Run Storyboard Pipeline](command:tenstorrent.runStoryboardPipeline)
 
-> The VSCode button runs with `--simulate` so it works even when your QB2 is busy. Remove that flag when you want to see the full server lifecycle.
+> The VSCode button runs with `--simulate` so it works even when your TT-QuietBox 2 is busy. Remove that flag when you want to see the full server lifecycle.
 
 This demo shows what none of the others do: **the multi-model lifecycle**. Different tasks benefit from different model sizes. The storyboard stage needs the 70B's narrative creativity — it's inventing visual language, palette, and scene-by-scene descriptions from scratch. The prompt engineering stage needs precise, structured output (JSON tool calls against a known schema) — the 32B handles that reliably and twice as fast.
 
@@ -1047,7 +1047,7 @@ The `--simulate` flag prints all three commands without executing them — so yo
 
 ### Dual-Server Mode
 
-With four chips (QB2 = two P300 cards), you can run both models simultaneously:
+With four chips (TT-QuietBox 2 = two p300 cards), you can run both models simultaneously:
 
 ```python
 # chips 0,1 → Llama-3.3-70B on port 8000
@@ -1287,7 +1287,7 @@ def my_tool(arg: str) -> str:
     """What this tool does — the model reads this docstring."""
     return do_real_work(arg)
 
-# 2. Connect to your QB2's inference endpoint
+# 2. Connect to your TT-QuietBox 2's inference endpoint
 model = OpenAIServerModel(
     model_id="Qwen/Qwen3-32B",
     api_base="http://localhost:8000/v1",
@@ -1367,7 +1367,7 @@ python3 ~/code/tt-agents/00_verify_tools.py
 
 ### Research agent loops indefinitely or gives up after 2 steps
 
-**Cause:** 7B-class reasoning behavior at tool call boundaries (but you're on QB2 with 32B — check model actually loaded).
+**Cause:** 7B-class reasoning behavior at tool call boundaries (but you're on TT-QuietBox 2 with 32B — check model actually loaded).
 
 ```bash
 # Confirm which model is actually running
@@ -1455,7 +1455,7 @@ which tt-smi && tt-smi -s   # tt-smi must be on PATH
 
 ## What You've Built
 
-You've run seven different patterns against your QB2's local inference endpoint:
+You've run seven different patterns against your TT-QuietBox 2's local inference endpoint:
 
 - ✅ **Research synthesis** — multi-hop web search with cited output (smolagents CodeAgent)
 - ✅ **Codebase Q&A** — file navigation and code comprehension (OpenAI Agents SDK)
@@ -1479,13 +1479,13 @@ The scripts are short on purpose. Each one is a skeleton you can grow. The code 
 
 **See how OpenClaw packages these patterns into a production service:**
 
-[OpenClaw AI Assistant on QuietBox 2](command:tenstorrent.showLesson?["qb2-openclaw-assistant"])
+[OpenClaw AI Assistant on TT-QuietBox 2](command:tenstorrent.showLesson?["qb2-openclaw-assistant"])
 
 OpenClaw is what you'd build if you took the dungeon master pattern seriously: persistent memory, multi-agent routing, a WebSocket API, and a terminal UI. Now that you've seen the raw version, the architecture makes more sense.
 
-**Generate video on your QB2:**
+**Generate video on your TT-QuietBox 2:**
 
-[Generating Video on QuietBox 2](command:tenstorrent.showLesson?["qb2-video-generation"])
+[Generating Video on TT-QuietBox 2](command:tenstorrent.showLesson?["qb2-video-generation"])
 
 **Explore the framework comparison** (included in the tt-agents repo):
 
@@ -1498,5 +1498,5 @@ cat ~/code/tt-agents/framework_comparison.md
 - [smolagents docs](https://huggingface.co/docs/smolagents)
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/)
 - [CrewAI docs](https://docs.crewai.com)
-- [tt-inference-server](https://github.com/tenstorrent/tt-inference-server)
+- [TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server)
 - [Tenstorrent Discord](https://discord.gg/tenstorrent)

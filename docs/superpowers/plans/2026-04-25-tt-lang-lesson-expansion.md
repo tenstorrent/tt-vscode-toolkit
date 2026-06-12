@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rewrite `content/lessons/tt-lang-intro.md` into a comprehensive lesson that hooks with the browser playground, motivates tt-lang with real project numbers, covers ttsim setup, documents the Claude Code `/ttl-*` slash commands, and showcases real projects (SkyReels, WAN Animate, Freeciv, zoecarver's work).
+**Goal:** Rewrite `content/lessons/tt-lang-intro.md` into a comprehensive lesson that hooks with the browser playground, motivates TT-Lang with real project numbers, covers ttsim setup, documents the Claude Code `/ttl-*` slash commands, and showcases real projects (SkyReels, WAN Animate, Freeciv, zoecarver's work).
 
 **Architecture:** Single file replacement — `content/lessons/tt-lang-intro.md` is fully rewritten. Front matter is unchanged (same id, title, hardware support, `playground: ttlang-sim`). No registry changes, no new commands, no package.json changes.
 
@@ -66,12 +66,12 @@ playground: ttlang-sim
 ```
 
 **ttsim release info (verified at plan-writing time, v1.5.4):**
-- Wormhole: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so`
-- Blackhole: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so`
+- Wormhole<sup>™</sup>: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so`
+- Blackhole<sup>®</sup>: `https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so`
 - Use `https://github.com/tenstorrent/ttsim/releases/latest` as the releases page link so it stays current.
 
 **Key external URLs:**
-- tt-lang: `https://github.com/tenstorrent/tt-lang`
+- TT-Lang: `https://github.com/tenstorrent/tt-lang`
 - ttsim releases: `https://github.com/tenstorrent/ttsim/releases/latest`
 - tt-mlir: `https://github.com/tenstorrent/tt-mlir`
 - zoecarver/tt-lang-models: `https://github.com/zoecarver/tt-lang-models`
@@ -210,7 +210,7 @@ Replace the `## The DRAM Wall` stub with:
 ```markdown
 ## The DRAM Wall
 
-TTNN dispatches each op as a separate kernel. Between every op, tensor data
+TT-NN dispatches each op as a separate kernel. Between every op, tensor data
 lands in DRAM. For a single transformer layer, that's roughly five DRAM
 write/read round-trips — RMSNorm → DRAM → projection → DRAM → attention →
 DRAM → projection → DRAM → FFN → DRAM. At model scale, this is the
@@ -226,7 +226,7 @@ Real measured improvements from production projects:
 
 | Project | What was fused | Improvement |
 |---------|---------------|-------------|
-| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TTNN |
+| [SkyReels-1.3B transformer block](https://github.com/zoecarver/tt-lang-models) | 5 ops → 1 kernel | 3–5× vs TT-NN |
 | [DFlash speculative decoder](https://github.com/zoecarver/dflash) | RoPE, RMSNorm, SiLU, residuals | 5–6× decode speedup |
 | [DeepSeek Engram module](https://github.com/zoecarver/Engram) | gating + depthwise conv | 2.2× all kernels; 3.4× gating alone |
 | [nanochat fused MLP](https://github.com/zoecarver/nanochat/commit/f849d3f) | 7 dispatches → 1 | +21% tok/s (13.13 → 15.89) |
@@ -267,13 +267,13 @@ These are real projects built with tt-lang — each started as a "what if" and
 ended with custom Tensix kernels running in production or close to it.
 
 **[SkyReels-1.3B](https://github.com/zoecarver/tt-lang-models)** — The full
-WAN transformer block fused into a single kernel on QB2 (4-chip Blackhole).
+WAN transformer block fused into a single kernel on TT-QuietBox 2 (4-chip Blackhole).
 Five ops collapsed into one: input tiles stream in once, compute flows through
 L1, results drain to DRAM once. 3–5× throughput improvement over op-by-op
-TTNN dispatch at production model dimensions.
+TT-NN dispatch at production model dimensions.
 
 **[WAN Animate 14B](https://github.com/tenstorrent/tt-lang)** — A 40-layer,
-5120-hidden diffusion transformer brought up on a 4-chip QB2 (2×2 mesh).
+5120-hidden diffusion transformer brought up on a 4-chip TT-QuietBox 2 (2×2 mesh).
 TT-Lang kernels cover 3D RoPE, AdaLN modulation, and attention softcap.
 The bring-up involved debugging seven integration bugs across the pipeline in
 a single session — possible because the functional simulator catches DFB
@@ -318,7 +318,7 @@ git commit -m "docs(tt-lang): add real project showcase section"
 
 ---
 
-## Task 5: Write the Getting tt-lang section
+## Task 5: Write the Getting TT-Lang section
 
 **Files:**
 - Modify: `content/lessons/tt-lang-intro.md`
@@ -349,11 +349,11 @@ See the [Build tt-metal lesson](command:tenstorrent.showLesson?["build-tt-metal"
 # Download the simulator binary — choose Wormhole or Blackhole
 mkdir -p ~/sim && cd ~/sim
 
-# Wormhole (N150, N300, T3K, Galaxy)
+# Wormhole (n150, n300, T3000, Galaxy)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 
-# OR: Blackhole (P100, P150, P300c, QB2)
+# OR: Blackhole (p100, p150, p300c, TT-QuietBox<sup>®</sup> 2)
 wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 ```
@@ -374,9 +374,9 @@ Check [ttsim releases](https://github.com/tenstorrent/ttsim/releases/latest) for
 
 ```bash
 git clone https://github.com/tenstorrent/tt-lang.git
-cd tt-lang
+cd TT-Lang
 # Follow docs/sphinx/build.md for CMake options and build modes
-source build/env/activate   # required before running any tt-lang command
+source build/env/activate   # required before running any TT-Lang command
 python examples/eltwise_add.py
 ```
 
@@ -391,7 +391,7 @@ If you have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
 
 - [ ] **Step 2: Verify the command link in the lesson is valid**
 
-The `command:tt-vscode-toolkit.openLesson?%22build-tt-metal%22` link references the build-tt-metal lesson. Confirm it exists:
+The `command:TT-VSCode-Toolkit.openLesson?%22build-tt-metal%22` link references the build-TT-Metalium<sup>™</sup> lesson. Confirm it exists:
 
 ```bash
 grep -r "build-tt-metal" /home/ttuser/code/tt-vscode-toolkit/content/lesson-registry.json | head -3
@@ -696,7 +696,7 @@ Replace the stub with:
 ```markdown
 ## Claude Code Slash Commands
 
-The TT Developer Toolkit installs a set of `/ttl-*` slash commands for Claude
+The TT-VSCode-Toolkit installs a set of `/ttl-*` slash commands for Claude
 Code that take you from an idea — or an existing kernel in another language —
 to a validated, profiled tt-lang kernel in one session.
 
@@ -706,7 +706,7 @@ a Tensix kernel for it.
 ```bash
 /ttl-import attention.py
 ```
-Translates CUDA, Triton, PyTorch, or TTNN code to a tt-lang DFB pattern.
+Translates CUDA, Triton, PyTorch, or TT-NN code to a tt-lang DFB pattern.
 Handles the mechanical mapping: ops become compute thread logic, tensor loads
 become DM0 reads, tensor stores become DM1 writes. Output is a runnable `.py`
 file ready for simulation.
@@ -756,7 +756,7 @@ simulator behaves unexpectedly.
 
 | Command | When to reach for it |
 |---------|---------------------|
-| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TTNN |
+| `/ttl-import <file>` | You have an existing kernel in CUDA, Triton, PyTorch, or TT-NN |
 | `/ttl-simulate <file>` | After any change — validate before profiling or hardware |
 | `/ttl-test <file>` | Simulation passes — build a regression suite |
 | `/ttl-profile <file>` | Kernel is correct, want to find the bottleneck |

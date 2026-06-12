@@ -7,7 +7,7 @@ Your Mandelbrot explorer now works perfectly in VSCode with automatic dependency
 ### 🎯 Jupyter Notebook (mandelbrot_explorer.ipynb)
 **Added comprehensive dependency checking and installation:**
 - ✅ Checks if numpy/matplotlib are installed
-- ✅ Checks if ttnn (from TT-Metal) is available
+- ✅ Checks if ttnn (from TT-Metalium<sup>™</sup>) is available
 - ✅ Automatically installs numpy/matplotlib from requirements.txt if needed
 - ✅ Attempts to auto-install ttnn from ~/tt-metal if found
 - ✅ Provides clear installation instructions if auto-install fails
@@ -94,7 +94,7 @@ ls -lh mandelbrot_outputs/
 ❌ ttnn is not installed
 
 ============================================================
-⚠️  TTNN NOT FOUND - Installation Required
+⚠️  TT-NN NOT FOUND - Installation Required
 ============================================================
 
 ✅ Found tt-metal at: /home/user/tt-metal
@@ -119,7 +119,7 @@ ls -lh mandelbrot_outputs/
 ❌ ttnn is not installed
 
 ============================================================
-⚠️  TTNN NOT FOUND - Installation Required
+⚠️  TT-NN NOT FOUND - Installation Required
 ============================================================
 
 ✅ Found tt-metal at: /home/user/tt-metal
@@ -156,7 +156,7 @@ Plus an inline image! 🌀
 📓 mandelbrot_explorer.ipynb    - Jupyter notebook with auto-install
 💾 explorer_save.py              - Batch file renderer
 🔄 explorer.py                   - Dual-mode (interactive or save)
-⚙️ renderer.py                   - Core TTNN renderer
+⚙️ renderer.py                   - Core TT-NN renderer
 📖 README.md                     - Full documentation
 🚀 VSCODE_QUICKSTART.md          - Quick reference
 📋 SETUP_SUMMARY.md              - This file

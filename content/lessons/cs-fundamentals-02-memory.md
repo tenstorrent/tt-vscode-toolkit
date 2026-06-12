@@ -260,7 +260,7 @@ int x = *(int*)l1_addr;  // Fast (1 cycle)
 **Advantage:** Complete control, predictable performance
 **Disadvantage:** More code, more responsibility
 
-Here's what that explicit memory movement looks like on an actual Blackhole chip — DRAM banks along the top and bottom edges, data flowing into the compute grid's L1, then writing back:
+Here's what that explicit memory movement looks like on an actual Blackhole<sup>®</sup> chip — DRAM banks along the top and bottom edges, data flowing into the compute grid's L1, then writing back:
 
 ```tensix_viz arch=blackhole
 [

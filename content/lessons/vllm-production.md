@@ -31,7 +31,7 @@ Take your AI deployment to the next level with vLLM - a production-grade inferen
 
 ## What is vLLM?
 
-**vLLM** is an open-source LLM serving library designed for high-throughput, low-latency inference. Tenstorrent maintains a fork that brings vLLM's advanced features to Tenstorrent hardware.
+**vLLM** is an open source LLM serving library designed for high-throughput, low-latency inference. Tenstorrent maintains a fork that brings vLLM's advanced features to Tenstorrent hardware.
 
 **Why vLLM?**
 - 🚀 **OpenAI-compatible API** - drop-in replacement for OpenAI's API
@@ -72,7 +72,7 @@ graph TB
     subgraph vLLM["vLLM Server"]
         API[OpenAI-Compatible API]
         Batch[Continuous Batch Engine]
-        Backend[TT-Metal Backend]
+        Backend[TT-Metalium Backend]
 
         API --> Batch
         Batch --> Backend
@@ -92,7 +92,7 @@ graph TB
 
 ## Prerequisites
 
-- tt-metal installed and working (latest main branch - see Step 0 below if you need to update)
+- TT-Metalium<sup>™</sup> installed and working (latest main branch - see Step 0 below if you need to update)
 - Model downloaded (Llama-3.1-8B-Instruct)
 - Python 3.10+ recommended
 - ~20GB disk space for vLLM installation
@@ -106,7 +106,7 @@ If you're jumping directly to this lesson, verify your setup first:
 # Hardware detected?
 tt-smi
 
-# tt-metal working?
+# TT-Metalium working?
 python3 -c "import ttnn; print('✓ tt-metal ready')"
 
 # Model downloaded?
@@ -119,7 +119,7 @@ python3 --version  # Need 3.10+
 **If any checks fail:**
 
 - **No hardware?** → See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])
-- **No tt-metal?** → See [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
+- **No TT-Metalium?** → See [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
 - **No model?** → See [Download Model](command:tenstorrent.showLesson?["download-model"]) or download now:
 
   ```bash
@@ -141,7 +141,7 @@ You don't need 8B parameters for production AI. Qwen3-0.6B is a **game-changer**
 - ✅ **Ultra-Lightweight** - 0.6B params (13x smaller than 8B models)
 - ✅ **Blazing Fast** - Sub-millisecond inference, 10,000+ QPS capable
 - ✅ **Multilingual** - Strong performance across many languages
-- ✅ **N150-Perfect** - Guaranteed to work on DRAM-constrained systems
+- ✅ **n150-Perfect** - Guaranteed to work on DRAM-constrained systems
 - ✅ **32K Context** - Long conversations, document analysis
 - ✅ **Cost-Effective** - Minimal compute requirements
 
@@ -164,9 +164,9 @@ hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 - ✅ **Code-Specialized Training** - Trained specifically on code datasets (Python, JavaScript, C++, etc.)
 - ✅ **Excellent Code Completion** - Better code suggestions than general-purpose models
 - ✅ **Strong Code Understanding** - Understands code structure, APIs, and patterns
-- ✅ **1.5B params** - Small enough for N150, large enough for quality results
+- ✅ **1.5B params** - Small enough for n150, large enough for quality results
 - ✅ **Fast Iteration** - Quick responses for coding workflows
-- ✅ **N150-Perfect** - Fits comfortably on single-chip hardware
+- ✅ **n150-Perfect** - Fits comfortably on single-chip hardware
 - ✅ **No Token Required** - Open weights, freely available
 
 **Download Qwen2.5-Coder-1.5B-Instruct:**
@@ -182,7 +182,7 @@ hf download Qwen/Qwen2.5-Coder-1.5B-Instruct --local-dir ~/models/Qwen2.5-Coder-
 - Bug fixing and refactoring
 - Learning programming with AI
 
-**Need even more code power?** Try **Qwen2.5-Coder-7B-Instruct** (requires N300+):
+**Need even more code power?** Try **Qwen2.5-Coder-7B-Instruct** (requires n300+):
 
 ```bash
 hf download Qwen/Qwen2.5-Coder-7B-Instruct --local-dir ~/models/Qwen2.5-Coder-7B-Instruct
@@ -201,11 +201,11 @@ hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 - **1B params** (8x smaller than 8B)
 - **140+ languages** supported
 - **32K context** window
-- Good for N150, works on N300
+- Good for n150, works on n300
 
 ---
 
-**📥 Llama-3.1-8B-Instruct** - For N300/T3K/P100 only
+**📥 Llama-3.1-8B-Instruct** - For n300/T3000/p100 only
 
 ```bash
 hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
@@ -213,14 +213,14 @@ hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-I
 
 **Requirements:**
 - HuggingFace token (gated model)
-- N300/T3K/P100 hardware (NOT recommended for N150)
+- n300/T3000/p100 hardware (NOT recommended for n150)
 - Higher DRAM usage
 
 ---
 
-## Step 0: Update and Build TT-Metal (If Needed)
+## Step 0: Update and Build TT-Metalium (If Needed)
 
-**⚠️ Important:** vLLM dev branch requires the latest tt-metal. If you get an `InputRegistry` error or "sfpi not found" error, update and rebuild tt-metal:
+**⚠️ Important:** vLLM dev branch requires the latest TT-Metalium. If you get an `InputRegistry` error or "sfpi not found" error, update and rebuild TT-Metalium:
 
 ```bash
 cd ~/tt-metal && \
@@ -231,25 +231,25 @@ cd ~/tt-metal && \
   ./build_metal.sh
 ```
 
-[🔧 Update and Build TT-Metal](command:tenstorrent.updateTTMetal)
+[🔧 Update and Build TT-Metalium](command:tenstorrent.updateTTMetal)
 
 **What this does:**
-- Updates tt-metal to latest main branch
+- Updates TT-Metalium to latest main branch
 - Updates all submodules (including SFPI libraries)
 - **Installs/updates system dependencies** (libraries, drivers, build tools)
-- Rebuilds tt-metal with latest changes
+- Rebuilds TT-Metalium with latest changes
 - Takes ~5-15 minutes depending on hardware and system state
 
 **When to do this:**
 - First time setting up vLLM
-- After updating tt-metal with `git pull`
+- After updating TT-Metalium with `git pull`
 - If you see "sfpi not found" errors
 - If you see "InputRegistry" or other API compatibility errors
 - After system updates or fresh installations
 
-**Why install_dependencies.sh?** tt-metal requires specific system libraries, kernel modules, and build tools. This script ensures all dependencies are installed before building. Skipping this step can cause build failures or runtime errors.
+**Why install_dependencies.sh?** TT-Metalium requires specific system libraries, kernel modules, and build tools. This script ensures all dependencies are installed before building. Skipping this step can cause build failures or runtime errors.
 
-**Why rebuild?** tt-metal includes compiled components (like SFPI) that must be built after code updates. The `build_metal.sh` script handles all necessary compilation steps.
+**Why rebuild?** TT-Metalium includes compiled components (like SFPI) that must be built after code updates. The `build_metal.sh` script handles all necessary compilation steps.
 
 ---
 
@@ -307,7 +307,7 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
 **What this script does:**
-1. ✅ Validates prerequisites (tt-metal installed, paths correct)
+1. ✅ Validates prerequisites (TT-Metalium installed, paths correct)
 2. ✅ Creates Python venv at the CORRECT location (`${TT_METAL_HOME}/build/python_env_vllm`)
 3. ✅ Installs PyTorch 2.5.0+cpu (exact version required for TT hardware)
 4. ✅ Builds vLLM from source with TT hardware support
@@ -328,7 +328,7 @@ source ~/activate-vllm-env.sh
 
 **Common issue:** vLLM on TT hardware requires:
 - **PyTorch 2.5.0+cpu** (not 2.7.1, not 2.4.x)
-- Environment integrated with tt-metal (not standalone venv)
+- Environment integrated with TT-Metalium (not standalone venv)
 - Exact versions from `requirements/tt.txt`
 
 **Without the correct environment, you'll see:**
@@ -397,7 +397,7 @@ python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 # Hardware Detection:
 #   → Runs tt-smi -s to detect hardware type
 #   → Sets MESH_DEVICE (N150/N300/T3K/P100/P150/GALAXY)
-#   → Sets TT_METAL_ARCH_NAME=blackhole (for P100/P150)
+#   → Sets TT_METAL_ARCH_NAME=blackhole (for p100/p150)
 #   → Sets TT_METAL_HOME=~/tt-metal (if not already set)
 #
 # Model Configuration:
@@ -422,7 +422,7 @@ python ~/tt-scratchpad/start-vllm-server.py \
 
 **What the script does automatically:**
 
-1. **Detects hardware** - Runs tt-smi to identify N150/N300/T3K/P100/P150
+1. **Detects hardware** - Runs tt-smi to identify n150/n300/T3000/p100/p150
 2. **Sets environment variables** - MESH_DEVICE, TT_METAL_ARCH_NAME, TT_METAL_HOME
 3. **Registers TT-optimized models** - TTLlamaForCausalLM for hardware acceleration
 4. **Sets HF_MODEL** - Auto-detects org prefix (Qwen/, google/, meta-llama/)
@@ -471,9 +471,9 @@ source ~/activate-vllm-env.sh && \
 ```
 
 **That's literally it!** The activation script sets up the environment and the starter script auto-detects and configures:
-- ✅ **Hardware type** (N150/N300/T3K/P100/P150) via tt-smi
+- ✅ **Hardware type** (n150/n300/T3000/p100/p150) via tt-smi
 - ✅ **MESH_DEVICE** environment variable
-- ✅ **TT_METAL_ARCH_NAME** (blackhole for P100/P150)
+- ✅ **TT_METAL_ARCH_NAME** (blackhole for p100/p150)
 - ✅ **TT_METAL_HOME** (defaults to ~/tt-metal)
 - ✅ **Served model name** (`Qwen/Qwen3-0.6B`)
 - ✅ **Sensible defaults** (2048 context, 16 seqs, 64 block size)
@@ -488,13 +488,13 @@ Model served as `Qwen/Qwen3-0.6B` with sensible defaults. Works on any hardware!
 
 Now start vLLM with your chosen model and hardware configuration. These commands show all parameters explicitly for learning purposes, but remember - you can use the minimal command above and override only what you need!
 
-**✅ Start here:** Qwen3-0.6B is the **recommended** model for N150 - tiny, fast, and smart!
+**✅ Start here:** Qwen3-0.6B is the **recommended** model for n150 - tiny, fast, and smart!
 
 **Choose your hardware:**
 
 ---
 
-### N150 (Wormhole - Single Chip) - Most common for development
+### n150 (Wormhole<sup>™</sup> - Single Chip) - Most common for development
 
 **✅ Recommended: Qwen3-0.6B** - Tiny, fast, reasoning-capable!
 
@@ -516,7 +516,7 @@ source ~/activate-vllm-env.sh && \
 - **~16 concurrent users** with 2K context each
 - **Sub-second inference** - perfect for development
 - **Reasoning capabilities** - dual thinking modes
-- **Zero DRAM issues** - guaranteed to work on N150
+- **Zero DRAM issues** - guaranteed to work on n150
 - **Clean model name**: `Qwen/Qwen3-0.6B` (not `/home/user/models/...`)
 
 **Note:** HF_MODEL is auto-detected! The script automatically sets `HF_MODEL=Qwen/Qwen3-0.6B` from your --model path.
@@ -539,11 +539,11 @@ source ~/activate-vllm-env.sh && \
 
 ---
 
-**⚠️ Not recommended for N150: Llama-3.1-8B**
+**⚠️ Not recommended for n150: Llama-3.1-8B**
 
-Llama-3.1-8B typically exhausts DRAM on N150. Use Qwen3-0.6B or Gemma 3-1B-IT instead for reliable operation.
+Llama-3.1-8B typically exhausts DRAM on n150. Use Qwen3-0.6B or Gemma 3-1B-IT instead for reliable operation.
 
-If you must try Llama on N150:
+If you must try Llama on n150:
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -557,13 +557,13 @@ source ~/activate-vllm-env.sh && \
     --block-size 64
 ```
 
-[🚀 Start vLLM with Llama (N150 - Not Recommended)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N150"}])
+[🚀 Start vLLM with Llama (n150 - Not Recommended)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N150"}])
 
 **Warning:** Expect DRAM exhaustion errors. Qwen3-0.6B is 13x smaller and works reliably.
 
 ---
 
-### N300 (Wormhole - Dual Chip)
+### n300 (Wormhole - Dual Chip)
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -578,11 +578,11 @@ source ~/activate-vllm-env.sh && \
     --tensor-parallel-size 2
 ```
 
-[🚀 Start vLLM Server (N300)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
+[🚀 Start vLLM Server (n300)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
 
 ---
 
-### T3K (Wormhole - 8 Chips)
+### T3000 (Wormhole - 8 Chips)
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -597,15 +597,15 @@ source ~/activate-vllm-env.sh && \
     --tensor-parallel-size 8
 ```
 
-[🚀 Start vLLM Server (T3K)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
+[🚀 Start vLLM Server (T3000)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
 
 **Note:** This uses the 70B model. Make sure you've downloaded it first.
 
 ---
 
-### P100 / P300c (Blackhole - Single Chip)
+### p100 / p300c (Blackhole<sup>®</sup> - Single Chip)
 
-> **QB2 / QuietBox users:** P300c is architecturally identical to P100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A QuietBox 2 with 4× P300c = 4 independent single-chip devices; for most lessons use device 0 only.
+> **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** p300c is architecturally identical to p100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A TT-QuietBox 2 with 4× p300c = 4 independent single-chip devices; for most lessons use device 0 only.
 
 ```bash
 source ~/activate-vllm-env.sh && \
@@ -619,9 +619,9 @@ source ~/activate-vllm-env.sh && \
     --block-size 64
 ```
 
-[🚀 Start vLLM Server (P100)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
+[🚀 Start vLLM Server (p100)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
 
-**⚠️ Remember:** P100/P300c requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
+**⚠️ Remember:** p100/p300c requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
 
 **💡 Memory Tip:** These settings use 8K context to avoid OOM errors. For longer context (16K), use `--max-model-len 16384 --max-num-seqs 1`.
 
@@ -681,9 +681,9 @@ ModelRegistry.register_model(
 ### Understanding the Configuration
 
 **Environment variables (all hardware types need these):**
-- `TT_METAL_HOME=~/tt-metal` - Points to tt-metal installation (required by setup-metal.sh)
+- `TT_METAL_HOME=~/tt-metal` - Points to TT-Metalium installation (required by setup-metal.sh)
 - `MESH_DEVICE=<your-hardware>` - Targets your specific hardware (N150, N300, T3K, P100)
-- `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (P100)**: Set to `blackhole`. Wormhole chips (N150/N300/T3K) auto-detect but P100 needs explicit specification.
+- `TT_METAL_ARCH_NAME=<architecture>` - **Required for Blackhole (p100)**: Set to `blackhole`. Wormhole chips (n150/n300/T3000) auto-detect but p100 needs explicit specification.
 - `PYTHONPATH=$TT_METAL_HOME` - Required so Python can import TT model classes from tt-metal
 
 **vLLM flags (vary by hardware):**
@@ -713,7 +713,7 @@ INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 
 **Want to try a different model?** It's easy! Just change the `--model` path in the command.
 
-**Example: Switch from Llama to Qwen on N150:**
+**Example: Switch from Llama to Qwen on n150:**
 
 ```bash
 # Stop the current server (Ctrl+C in the server terminal)
@@ -1189,16 +1189,16 @@ These usually mean the environment wasn't set up correctly. Best solution: recre
 bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
-**Out of Memory / DRAM Exhausted (N150 Users):**
-If larger models (8B params) exhaust your DRAM on N150, use smaller models:
+**Out of Memory / DRAM Exhausted (n150 Users):**
+If larger models (8B params) exhaust your DRAM on n150, use smaller models:
 
 **Recommended small models:**
-- **Qwen3-0.6B** - 0.6B params (13x smaller than 8B) ✅ **Best for N150**
+- **Qwen3-0.6B** - 0.6B params (13x smaller than 8B) ✅ **Best for n150**
   ```bash
   # Download and run Qwen3-0.6B
   hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 
-  # Start server (use N150 command from Step 4 above)
+  # Start server (use n150 command from Step 4 above)
   python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B ...
 ```
 
@@ -1207,19 +1207,19 @@ If larger models (8B params) exhaust your DRAM on N150, use smaller models:
   # Download and run Gemma 3-1B-IT
   hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 
-  # Start server (use N150 command from Step 4 above)
+  # Start server (use n150 command from Step 4 above)
   python ~/tt-scratchpad/start-vllm-server.py --model ~/models/gemma-3-1b-it ...
 ```
 
-**Why small models work better on N150:**
-- **Minimal DRAM usage** - Fits comfortably in N150's memory
+**Why small models work better on n150:**
+- **Minimal DRAM usage** - Fits comfortably in n150's memory
 - **Faster inference** - Smaller model = faster generation
 - **Same API** - Works with all the same commands
 - **Perfect for development** - Ideal for testing and iteration
 
 **AttributeError: 'InputRegistry' object has no attribute 'register_input_processor':**
 **Error: sfpi not found at /home/user/tt-metal/runtime/sfpi:**
-These errors indicate tt-metal needs to be updated and rebuilt. Solution:
+These errors indicate TT-Metalium needs to be updated and rebuilt. Solution:
 ```bash
 # Update and rebuild tt-metal (Step 0)
 cd ~/tt-metal
@@ -1228,7 +1228,7 @@ git checkout main
 git pull origin main
 git submodule update --init --recursive
 sudo ./install_dependencies.sh      # Install/update system dependencies
-./build_metal.sh               # Build tt-metal
+./build_metal.sh               # Build TT-Metalium
 
 # Then recreate vLLM environment with updated ttnn
 bash ~/tt-scratchpad/setup-vllm-env.sh
@@ -1238,10 +1238,10 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 
 **Why install_dependencies.sh?** Ensures all system libraries, kernel modules, and build tools are installed before building. Prevents build failures and runtime errors.
 
-**Why rebuild?** tt-metal includes compiled components (SFPI libraries, kernels) that must be built after code updates. The vLLM dev branch expects the latest tt-metal APIs.
+**Why rebuild?** TT-Metalium includes compiled components (SFPI libraries, kernels) that must be built after code updates. The vLLM dev branch expects the latest TT-Metalium APIs.
 
-**RuntimeError: Failed to infer device type (Blackhole P100):**
-The `start-vllm-server.py` script now auto-detects P100 and sets `TT_METAL_ARCH_NAME=blackhole` automatically!
+**RuntimeError: Failed to infer device type (Blackhole p100):**
+The `start-vllm-server.py` script now auto-detects p100 and sets `TT_METAL_ARCH_NAME=blackhole` automatically!
 
 **If auto-detection fails, you can override:**
 ```bash
@@ -1252,7 +1252,7 @@ source ~/activate-vllm-env.sh && \
     --model ~/models/Llama-3.1-8B-Instruct
 ```
 
-**Why this happens:** Blackhole hardware (P100) requires explicit architecture specification. The starter script detects this via tt-smi and sets it automatically. If detection fails, set manually as shown above.
+**Why this happens:** Blackhole hardware (p100) requires explicit architecture specification. The starter script detects this via tt-smi and sets it automatically. If detection fails, set manually as shown above.
 
 **ValidationError: Cannot find model module 'TTLlamaForCausalLM':**
 This error means vLLM cannot find the TT model implementation. Solution:
@@ -1279,7 +1279,7 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 
 This ensures:
 - ✅ Correct PyTorch version (2.5.0+cpu)
-- ✅ Correct environment location (integrated with tt-metal)
+- ✅ Correct environment location (integrated with TT-Metalium)
 - ✅ All dependencies installed properly
 - ✅ Environment validated before completion
 
@@ -1794,12 +1794,12 @@ python --version
 - **TT vLLM Fork:** [github.com/tenstorrent/vllm](https://github.com/tenstorrent/vllm/tree/dev)
 - **vLLM Docs:** [docs.vllm.ai](https://docs.vllm.ai/en/latest/)
 - **OpenAI API Reference:** [platform.openai.com/docs](https://platform.openai.com/docs/api-reference)
-- **TT-Metal Docs:** [docs.tenstorrent.com](https://docs.tenstorrent.com/)
+- **TT-Metalium Docs:** [docs.tenstorrent.com](https://docs.tenstorrent.com/)
 
 ## Community & Support
 
 - **GitHub Issues:** Report bugs and request features
 - **Discord:** Join the Tenstorrent community
-- **Documentation:** Check the tt-metal README
+- **Documentation:** Check the TT-Metalium README
 
 **Thank you for completing this walkthrough!** You now have the knowledge to build, deploy, and scale AI applications on Tenstorrent hardware. 🚀

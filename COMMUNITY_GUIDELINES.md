@@ -1,6 +1,6 @@
 # Community Guidelines
 
-Welcome to the Tenstorrent VSCode Toolkit community! These guidelines help ensure a positive and productive environment for all contributors.
+Welcome to the TT-VSCode-Toolkit community! These guidelines help ensure a positive and productive environment for all contributors.
 
 ## Code of Conduct
 
@@ -105,7 +105,7 @@ Use our [issue templates](.github/ISSUE_TEMPLATE/):
 - **Feature requests:** Triaged within 2 weeks
 - **Discord questions:** Often answered within hours (community-driven)
 
-**Note:** Response times are best-effort. This is an open-source project maintained by volunteers and Tenstorrent staff.
+**Note:** Response times are best-effort. This is an open source project maintained by volunteers and Tenstorrent staff.
 
 ---
 

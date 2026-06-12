@@ -22,12 +22,12 @@ validatedOn:
 estimatedMinutes: 30
 validationDate: 2026-04-16
 validationNotes: >-
-  Rewritten to use ttnn.conv2d with correct keyword-arg API (input_tensor, weight_tensor, bias_tensor, in_channels, out_channels, device, kernel_size, stride, padding, batch_size, input_height, input_width, conv_config, groups). Each RGB channel is processed as a batch element (batch_size=C, in_channels=1, out_channels=1) to avoid depthwise grouping constraints. Requires l1_small_size=8192 on open_device. Validated on P300C (QB2 QuietBox) with all five filter types confirmed working.
+  Rewritten to use ttnn.conv2d with correct keyword-arg API (input_tensor, weight_tensor, bias_tensor, in_channels, out_channels, device, kernel_size, stride, padding, batch_size, input_height, input_width, conv_config, groups). Each RGB channel is processed as a batch element (batch_size=C, in_channels=1, out_channels=1) to avoid depthwise grouping constraints. Requires l1_small_size=8192 on open_device. Validated on p300c (TT-QuietBox 2) with all five filter types confirmed working.
 ---
 
 ## Overview
 
-Build a library of creative image filters and effects using TTNN convolution operations. From classic edge detection to artistic stylization.
+Build a library of creative image filters and effects using TT-NN<sup>™</sup> convolution operations. From classic edge detection to artistic stylization.
 
 **Features:**
 - Classic filters (blur, sharpen, edge detect)
@@ -354,7 +354,7 @@ while True:
 ```
 
 ### 2. Neural Style Transfer
-Use pre-trained VGG features + TTNN for fast style transfer.
+Use pre-trained VGG features + TT-NN for fast style transfer.
 
 ### 3. Seam Carving (Content-Aware Resize)
 Find and remove low-energy seams.

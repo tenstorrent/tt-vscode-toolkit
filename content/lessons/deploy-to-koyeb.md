@@ -2,7 +2,7 @@
 id: deploy-to-koyeb
 title: "Deploy Your Work to Koyeb"
 description: >-
-  Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.
+  Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.
 category: deployment
 tags:
   - deployment
@@ -23,11 +23,11 @@ estimatedMinutes: 10
 
 # Deploy Your Work to Koyeb
 
-Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. We'll use vLLM as the primary example, then show how to adapt for any application.
+Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. We'll use vLLM as the primary example, then show how to adapt for any application.
 
 ## What You'll Learn
 
-- Deploy vLLM to production with N300 hardware
+- Deploy vLLM to production with n300 hardware
 - Containerize Python applications for Tenstorrent
 - Configure hardware access and permissions
 - Production deployment best practices
@@ -35,7 +35,7 @@ Deploy any Python application to Koyeb with Tenstorrent N300 hardware access. We
 
 ## Prerequisites
 
-- Completed [Deploy tt-vscode-toolkit to Koyeb](command:tenstorrent.showLesson?["deploy-vscode-to-koyeb"]) (recommended)
+- Completed [Deploy TT-VSCode-Toolkit to Koyeb](command:tenstorrent.showLesson?["deploy-vscode-to-koyeb"]) (recommended)
 - Koyeb CLI installed and authenticated
 - Docker or Podman installed locally
 - Completed [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) lesson (for Part 1)
@@ -55,7 +55,7 @@ python -m vllm.entrypoints.openai.api_server \
   --port 8000
 ```
 
-Now we'll deploy this to Koyeb with N300 hardware.
+Now we'll deploy this to Koyeb with n300 hardware.
 
 ---
 
@@ -104,7 +104,7 @@ CMD ["/bin/bash", "-c", "source vllm/vllm-env/bin/activate && python -m vllm.ent
 - ✅ 50% fewer lines (was ~60, now ~30)
 - ✅ No need to set up base system (Ubuntu, apt repos, users, permissions)
 - ✅ HuggingFace CLI (`hf`) pre-installed
-- ✅ Tenstorrent tools pre-installed (via tt-installer: `tt-smi`, `tt-flash`, etc.)
+- ✅ Tenstorrent tools pre-installed (via TT-Installer: `tt-smi`, `tt-flash`, etc.)
 - ✅ All hardware permissions configured
 - ✅ Just add your app!
 
@@ -522,7 +522,7 @@ koyeb services create vllm-prod \
 ## Summary
 
 **What you learned:**
-- ✅ Deploy vLLM to production with N300 hardware
+- ✅ Deploy vLLM to production with n300 hardware
 - ✅ Containerize any Python app for Tenstorrent by extending our base image
 - ✅ Simplify Dockerfiles from 80 lines to 15 lines
 - ✅ Set up monitoring and health checks

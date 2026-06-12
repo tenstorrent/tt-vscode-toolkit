@@ -1,6 +1,6 @@
 # Audio Processor & Visualizer
 
-Real-time audio signal processing using TTNN for DSP operations.
+Real-time audio signal processing using TT-NN<sup>™</sup> for DSP operations.
 
 ## Features
 

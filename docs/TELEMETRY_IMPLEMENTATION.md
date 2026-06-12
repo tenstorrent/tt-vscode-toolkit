@@ -102,7 +102,7 @@ voltage = float(voltage_raw) / 1000.0
 ```
 Tenstorrent Hardware Status
 
-Board: N150
+Board: n150
 ASIC Temperature: 45.3°C
 Board Temperature: 45.3°C
 AI Clock: 1000 MHz

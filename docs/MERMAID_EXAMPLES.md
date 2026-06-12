@@ -18,20 +18,20 @@ graph TD
 
 ## Example Diagrams
 
-### Flowchart - TT-Metal Stack
+### Flowchart - TT-Metalium<sup>™</sup> Stack
 ```mermaid
 graph TB
     App[Your Application]
-    TTNN[TTNN API Layer]
-    TTMetal[TT-Metal Runtime]
+    TT-NN[TT-NN API Layer]
+    TTMetal[TT-Metalium Runtime]
     Hardware[Tenstorrent Hardware]
 
-    App --> TTNN
-    TTNN --> TTMetal
+    App --> TT-NN
+    TT-NN --> TTMetal
     TTMetal --> Hardware
 
     style App fill:#3293b2,color:#fff
-    style TTNN fill:#5347a4,color:#fff
+    style TT-NN fill:#5347a4,color:#fff
     style TTMetal fill:#499c8d,color:#fff
     style Hardware fill:#ffb71b,color:#000
 ```
@@ -55,7 +55,7 @@ sequenceDiagram
 ### Architecture Diagram
 ```mermaid
 graph LR
-    subgraph N150 Chip
+    subgraph n150 Chip
         A[DRAM] --> B[NoC]
         B --> C[Tensix Core 1]
         B --> D[Tensix Core 2]

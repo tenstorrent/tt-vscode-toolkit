@@ -535,7 +535,7 @@ identical to single-device dispatch — the API scales, and so does the program.
 ```
 
 > **ttsim note:** Requires an 8-device MeshShape `[2, 4]` — ttsim simulates one chip only.
-> This example requires a multi-device system (T3K, Galaxy, QB2, or equivalent).
+> This example requires a multi-device system (T3000, Galaxy, TT-QuietBox 2, or equivalent).
 
 ---
 
@@ -549,7 +549,7 @@ model does this operation millions of times per inference.
 ```
 
 > **ttsim note:** Requires an 8-device mesh — ttsim simulates one chip only.
-> Run on a multi-device system (T3K, Galaxy, QB2) to execute this example.
+> Run on a multi-device system (T3000, Galaxy, TT-QuietBox 2) to execute this example.
 
 ---
 
@@ -569,7 +569,7 @@ Distributed elementwise add verification: 1024 / 1024
 ```
 
 > **ttsim note:** Requires an 8-device mesh — ttsim simulates one chip only.
-> Run on a multi-device system (T3K, Galaxy, QB2) to execute this example.
+> Run on a multi-device system (T3000, Galaxy, TT-QuietBox 2) to execute this example.
 
 ---
 
@@ -589,7 +589,7 @@ Running EltwiseBinary MeshTraces on 2 MeshCQs Passed!
 ```
 
 > **ttsim note:** Requires an 8-device mesh — ttsim simulates one chip only.
-> Run on a multi-device system (T3K, Galaxy, QB2) to execute this example.
+> Run on a multi-device system (T3000, Galaxy, TT-QuietBox 2) to execute this example.
 
 ---
 

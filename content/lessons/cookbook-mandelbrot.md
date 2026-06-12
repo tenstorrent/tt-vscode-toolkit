@@ -21,7 +21,7 @@ validatedOn:
   - p300c
 estimatedMinutes: 30
 validationDate: 2026-04-16
-validationNotes: Validated on P300C (QB2 QuietBox) — ttnn elementwise ops for complex iteration confirmed working on Blackhole
+validationNotes: Validated on p300c (TT-QuietBox 2) — ttnn elementwise ops for complex iteration confirmed working on Blackhole
 ---
 
 ## Overview

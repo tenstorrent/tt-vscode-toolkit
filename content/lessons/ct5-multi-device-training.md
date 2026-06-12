@@ -2,7 +2,7 @@
 id: ct5-multi-device-training
 title: Multi-Device Training
 description: >-
-  Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on N300, T3K, and Galaxy systems.
+  Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on n300, T3000, and Galaxy systems.
 category: custom-training
 tags:
   - multi-device
@@ -19,9 +19,9 @@ supportedHardware:
   - galaxy
 status: blocked
 blockReason: >-
-  ttml Python bindings require building from a tt-metal v0.67.0+ source tree.
+  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
   Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (tt-inference-server) for model serving.
+  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
 validatedOn:
   - n150
 estimatedMinutes: 15
@@ -34,7 +34,7 @@ Scale your training to multiple Tenstorrent chips using Data Parallel (DDP) patt
 ## What You'll Learn
 
 - Data Parallel (DDP) training fundamentals
-- Scaling from N150 to N300, T3K, and beyond
+- Scaling from n150 to n300, T3000, and beyond
 - Device mesh configuration
 - Performance optimization
 - Multi-device debugging
@@ -45,16 +45,16 @@ Scale your training to multiple Tenstorrent chips using Data Parallel (DDP) patt
 
 ## Why Multi-Device Training?
 
-### Single Device (N150) Limitations
+### Single Device (n150) Limitations
 
 - ✅ Simple, easy to debug
 - ⚠️ Slower training (1-3 hours)
 - ⚠️ Smaller batch sizes (memory-limited)
 
-### Multi-Device (N300+) Benefits
+### Multi-Device (n300+) Benefits
 
-- ✅ ~2x faster on N300 (30-60 minutes)
-- ✅ ~8x faster on T3K (8 chips)
+- ✅ ~2x faster on n300 (30-60 minutes)
+- ✅ ~8x faster on T3000 (8 chips)
 - ✅ Larger effective batch sizes
 - ✅ Better hardware utilization
 - ⚠️ Slightly more complex setup
@@ -104,7 +104,7 @@ graph TD
 
 **Single vs Multi-Device comparison:**
 
-| Step | Single Device (N150) | Multi-Device DDP (N300) |
+| Step | Single Device (n150) | Multi-Device DDP (n300) |
 |------|---------------------|------------------------|
 | **Input** | Batch of 8 | Batch of 16 (split 8+8) |
 | **Forward** | Device 0 processes all | Both devices in parallel |
@@ -125,12 +125,12 @@ graph TD
 ### When to Use DDP
 
 **Use DDP when:**
-- ✅ You have N300 (2 chips) or T3K (8 chips)
+- ✅ You have n300 (2 chips) or T3000 (8 chips)
 - ✅ You want faster iteration
 - ✅ Your model fits on one device (we're not doing model parallelism)
 
 **Skip DDP when:**
-- ⚠️ You only have N150 (single chip)
+- ⚠️ You only have n150 (single chip)
 - ⚠️ Debugging training issues (simpler to debug on 1 device)
 - ⚠️ Very small datasets (overhead not worth it)
 
@@ -138,7 +138,7 @@ graph TD
 
 ## Configuration Changes for DDP
 
-### N150 (Single Device) - Baseline
+### n150 (Single Device) - Baseline
 
 ```yaml
 training_config:
@@ -151,13 +151,13 @@ device_config:
   mesh_shape: [1, 1]               # 1 device
 ```
 
-### N300 (Dual Chips) - DDP Enabled
+### n300 (Dual Chips) - DDP Enabled
 
 ```yaml
 training_config:
   batch_size: 16                   # 2x larger (split across devices)
   gradient_accumulation_steps: 2   # Reduced (same effective batch)
-  # Effective batch: 16 × 2 = 32 (same as N150!)
+  # Effective batch: 16 × 2 = 32 (same as n150!)
 
 device_config:
   enable_ddp: True                 # Enable DDP
@@ -174,7 +174,7 @@ device_config:
 
 ---
 
-## Training on N300 with DDP
+## Training on n300 with DDP
 
 ### Step 1: Verify Hardware
 
@@ -186,8 +186,8 @@ tt-smi
 
 **Expected output:**
 ```
-Device 0: Wormhole (N300)
-Device 1: Wormhole (N300)
+Device 0: Wormhole<sup>™</sup> (n300)
+Device 1: Wormhole (n300)
 ```
 
 ### Step 2: Launch Training
@@ -230,7 +230,7 @@ Training configuration:
 Training:  20%|████▌                   | 100/500 [00:08<00:32, 3.1 it/s, loss=2.12]
 ```
 
-**Notice:** `3.1 it/s` (iterations per second) should be ~2x higher than N150.
+**Notice:** `3.1 it/s` (iterations per second) should be ~2x higher than n150.
 
 ---
 
@@ -240,22 +240,22 @@ Training:  20%|████▌                   | 100/500 [00:08<00:32, 3.1 it/
 
 | Hardware | Devices | Batch Size | Training Time | Speedup |
 |----------|---------|------------|---------------|---------|
-| N150     | 1       | 8          | 1.5-3 hours   | 1x (baseline) |
-| N300     | 2       | 16         | 45-90 min     | ~2x |
-| T3K      | 8       | 64         | 15-30 min     | ~6-8x |
+| n150     | 1       | 8          | 1.5-3 hours   | 1x (baseline) |
+| n300     | 2       | 16         | 45-90 min     | ~2x |
+| T3000      | 8       | 64         | 15-30 min     | ~6-8x |
 
 **Why not perfect linear scaling?**
 - Communication overhead (gradient synchronization)
 - Batch size scaling (larger batches → fewer steps → less benefit)
 - Hardware utilization (not all operations parallelize perfectly)
 
-**Real-world:** Expect 1.8-2.0x speedup on N300, 6-7x on T3K.
+**Real-world:** Expect 1.8-2.0x speedup on n300, 6-7x on T3000.
 
 ---
 
-## Advanced: T3K and Galaxy
+## Advanced: T3000 and Galaxy
 
-### T3K Configuration (8 Devices)
+### T3000 Configuration (8 Devices)
 
 ```yaml
 training_config:
@@ -272,15 +272,15 @@ device_config:
 
 ```mermaid
 graph TD
-    subgraph N150["N150 (Single Chip)"]
+    subgraph n150["n150 (Single Chip)"]
         A1[Device 0]
     end
 
-    subgraph N300["N300 (Dual Chip)"]
+    subgraph n300["n300 (Dual Chip)"]
         B1[Device 0] --- B2[Device 1]
     end
 
-    subgraph T3K["T3K (8 Chips, 2x4 Mesh)"]
+    subgraph T3000["T3000 (8 Chips, 2x4 Mesh)"]
         C1[Dev 0] --- C2[Dev 1] --- C3[Dev 2] --- C4[Dev 3]
         C5[Dev 4] --- C6[Dev 5] --- C7[Dev 6] --- C8[Dev 7]
         C1 --- C5
@@ -308,9 +308,9 @@ graph TD
 ```
 
 **Mesh shape explained:**
-- **[1, 1]** = 1 row × 1 column = 1 device (N150)
-- **[1, 2]** = 1 row × 2 columns = 2 devices (N300)
-- **[2, 4]** = 2 rows × 4 columns = 8 devices (T3K)
+- **[1, 1]** = 1 row × 1 column = 1 device (n150)
+- **[1, 2]** = 1 row × 2 columns = 2 devices (n300)
+- **[2, 4]** = 2 rows × 4 columns = 8 devices (T3000)
 - **[4, 8]** = 4 rows × 8 columns = 32 devices (Galaxy)
 
 **Trade-offs:**
@@ -371,7 +371,7 @@ Device 1 not found
 ### Issue 3: Performance Not Scaling
 
 **Symptoms:**
-- N300 training is only 1.2x faster (not 2x)
+- n300 training is only 1.2x faster (not 2x)
 - Low device utilization
 
 **Possible causes:**
@@ -412,10 +412,10 @@ effective_batch = batch_size × gradient_accumulation_steps × num_devices
 
 **Example:**
 ```
-N150: 8 × 4 × 1 = 32
-N300: 16 × 2 × 2 = 64  # Oops, doubled effective batch!
+n150: 8 × 4 × 1 = 32
+n300: 16 × 2 × 2 = 64  # Oops, doubled effective batch!
 
-Better N300: 8 × 2 × 2 = 32  # Same effective batch
+Better n300: 8 × 2 × 2 = 32  # Same effective batch
 ```
 
 ### 2. Validate Results Match
@@ -445,9 +445,9 @@ Use logging to track:
 ### 4. Start Small, Scale Up
 
 **Recommended progression:**
-1. Debug on N150 (single device)
-2. Validate on N300 (2 devices)
-3. Scale to T3K (8 devices) when ready
+1. Debug on n150 (single device)
+2. Validate on n300 (2 devices)
+3. Scale to T3000 (8 devices) when ready
 4. Consider Galaxy for production
 
 **Why:** Easier to debug on fewer devices, then scale with confidence.
@@ -501,19 +501,19 @@ You've learned the mechanics of multi-device training. But what does scaling rea
 
 ### The Scaling Journey
 
-**Week 1: Prototype on N150**
+**Week 1: Prototype on n150**
 - Build your model concept
 - Validate with 50-200 training examples
 - Training time: 1-3 hours per experiment
 - **Goal:** Prove the concept works
 
-**Week 2: Iterate on N300**
+**Week 2: Iterate on n300**
 - 2x faster iteration (30-90 min per experiment)
 - Run 3-5 experiments per day instead of 1-2
 - Test multiple hyperparameter configurations
 - **Goal:** Find optimal configuration
 
-**Month 2: Scale on T3K**
+**Month 2: Scale on T3000**
 - 6-8x faster training (10-20 min per experiment)
 - Train on larger datasets (1000+ examples)
 - Multi-task learning (multiple skills in one model)
@@ -528,30 +528,30 @@ You've learned the mechanics of multi-device training. But what does scaling rea
 ### Real-World Scaling Success Stories
 
 🚀 **"Code Review Bot" (Startup → Enterprise)**
-- **N150 phase:** Trained on 100 team PRs, 2-hour iterations
-- **N300 phase:** Expanded to 500 PRs, tested 10 prompt variations in a day
-- **T3K phase:** Full company history (5000+ PRs), multi-task (style + security + performance)
+- **n150 phase:** Trained on 100 team PRs, 2-hour iterations
+- **n300 phase:** Expanded to 500 PRs, tested 10 prompt variations in a day
+- **T3000 phase:** Full company history (5000+ PRs), multi-task (style + security + performance)
 - **Impact:** From team tool (10 devs) → company standard (200+ devs)
 - **Training time:** 3 hours → 90 min → 15 min per full model
 
 💼 **"Legal Document Generator" (Consulting → SaaS)**
-- **N150 phase:** 50 contract templates, proved concept
-- **N300 phase:** 200 templates across 3 practice areas, found winning config
-- **T3K phase:** 1000+ examples, 10 specialized models (corporate, IP, employment, etc.)
+- **n150 phase:** 50 contract templates, proved concept
+- **n300 phase:** 200 templates across 3 practice areas, found winning config
+- **T3000 phase:** 1000+ examples, 10 specialized models (corporate, IP, employment, etc.)
 - **Impact:** Consultancy internal tool → multi-tenant SaaS product
 - **Revenue:** $0 → $50k MRR from faster iteration
 
 🎮 **"Game NPC Dialogue" (Indie → AAA)**
-- **N150 phase:** Single character archetype (100 dialogue lines)
-- **N300 phase:** 5 character types, varied personalities
-- **T3K phase:** 50+ unique NPCs, context-aware responses
+- **n150 phase:** Single character archetype (100 dialogue lines)
+- **n300 phase:** 5 character types, varied personalities
+- **T3000 phase:** 50+ unique NPCs, context-aware responses
 - **Impact:** Hand-written dialogues → AI-augmented content at scale
 - **Cost savings:** $100k+ in writing/voice acting budget
 
 🏥 **"Medical Report Assistant" (Research → Clinical)**
-- **N150 phase:** Single specialty (dermatology), 100 report examples
-- **N300 phase:** 3 specialties, validation by clinicians
-- **T3K phase:** 10+ specialties, multi-lingual support
+- **n150 phase:** Single specialty (dermatology), 100 report examples
+- **n300 phase:** 3 specialties, validation by clinicians
+- **T3000 phase:** 10+ specialties, multi-lingual support
 - **Impact:** Research project → deployed in 20+ hospitals
 - **Time saved:** 30 min/report → 5 min/report (doctors can see more patients)
 
@@ -560,48 +560,48 @@ You've learned the mechanics of multi-device training. But what does scaling rea
 **It's not just about speed. It's about:**
 
 ✨ **Experimentation velocity**
-- N150: Try 1-2 ideas per day
-- N300: Try 5-10 ideas per day
-- T3K: Try 20-30 ideas per day
+- n150: Try 1-2 ideas per day
+- n300: Try 5-10 ideas per day
+- T3000: Try 20-30 ideas per day
 - **Result:** Find winning approaches 10x faster
 
 🎯 **Dataset scale**
-- N150: Validate with 50-200 examples
-- N300: Train on 500-1000 examples
-- T3K: Handle 10,000+ examples
+- n150: Validate with 50-200 examples
+- n300: Train on 500-1000 examples
+- T3000: Handle 10,000+ examples
 - **Result:** Better models from more data
 
 🚀 **Model complexity**
-- N150: Single-task models
-- N300: Multi-task learning
-- T3K: Ensemble of specialists
+- n150: Single-task models
+- n300: Multi-task learning
+- T3000: Ensemble of specialists
 - **Result:** More capable, versatile models
 
 💰 **Economic viability**
-- Prototype on N150: Low upfront cost
+- Prototype on n150: Low upfront cost
 - Prove value before scaling: Validate before investing
-- Scale to T3K when revenue justifies: Grow hardware with business
+- Scale to T3000 when revenue justifies: Grow hardware with business
 - **Result:** Sustainable business model
 
 ### Your Multi-Device Roadmap
 
-**Month 1 (N150 - Learning):**
+**Month 1 (n150 - Learning):**
 - Master single-device training
 - Build intuition for hyperparameters
 - Create baseline model
-- **Investment:** N150 hardware, your time
+- **Investment:** n150 hardware, your time
 
-**Month 2 (N300 - Optimizing):**
+**Month 2 (n300 - Optimizing):**
 - 2x faster iteration unlocks experimentation
 - Test architectural variations
 - Expand dataset strategically
-- **Investment:** N300 hardware (~2x N150 cost)
+- **Investment:** n300 hardware (~2x n150 cost)
 
-**Month 3+ (T3K - Scaling):**
+**Month 3+ (T3000 - Scaling):**
 - Production-quality models in hours
 - Multiple models for different use cases
 - Continuous improvement pipeline
-- **Investment:** T3K hardware, justified by production value
+- **Investment:** T3000 hardware, justified by production value
 
 **Production (Right-sized hardware):**
 - Training pipeline optimized for your scale
@@ -613,9 +613,9 @@ You've learned the mechanics of multi-device training. But what does scaling rea
 
 **Here's what most developers don't realize:**
 
-- **1x hardware (N150)** = Good for learning and prototypes
-- **2x hardware (N300)** = 4x more experiments (because iteration is faster, you try more)
-- **8x hardware (T3K)** = 30x more experiments (speed enables entirely different workflows)
+- **1x hardware (n150)** = Good for learning and prototypes
+- **2x hardware (n300)** = 4x more experiments (because iteration is faster, you try more)
+- **8x hardware (T3000)** = 30x more experiments (speed enables entirely different workflows)
 
 **Why the multiplier effect?**
 - Faster training → More courage to experiment
@@ -629,7 +629,7 @@ You've learned the mechanics of multi-device training. But what does scaling rea
 
 **You now understand:**
 - ✅ How DDP works (gradient synchronization, device meshes)
-- ✅ How to configure for different hardware (N150 → N300 → T3K → Galaxy)
+- ✅ How to configure for different hardware (n150 → n300 → T3000 → Galaxy)
 - ✅ How to debug multi-device issues (synchronization, performance, memory)
 - ✅ How scaling enables exponentially more experimentation
 
@@ -637,9 +637,9 @@ You've learned the mechanics of multi-device training. But what does scaling rea
 
 **The question is "How fast do I want to iterate and learn?"**
 
-- **N150:** Learn fundamentals, prove concepts (essential first step)
-- **N300:** Iterate 2x faster, find winning approaches (when you're serious)
-- **T3K:** Move at production speed, build real products (when you're committed)
+- **n150:** Learn fundamentals, prove concepts (essential first step)
+- **n300:** Iterate 2x faster, find winning approaches (when you're serious)
+- **T3000:** Move at production speed, build real products (when you're committed)
 - **Galaxy:** Research-scale innovation, push boundaries (when you're leading)
 
 **Start where you are. Scale when you're ready. The path is clear.**
@@ -650,7 +650,7 @@ You've learned the mechanics of multi-device training. But what does scaling rea
 
 ✅ **DDP scales training to multiple devices efficiently**
 
-✅ **N300 provides ~2x speedup over N150**
+✅ **n300 provides ~2x speedup over n150**
 
 ✅ **Keep effective batch size constant for fair comparison**
 
@@ -693,7 +693,7 @@ Understand transformer components before training from scratch.
 
 ### Configuration Examples
 - **tt-train examples:** Check `tt-metal/tt-train/sources/examples/` for multi-device configs
-- **DDP patterns:** Reference tt-metal documentation for device mesh configuration
+- **DDP patterns:** Reference TT-Metalium<sup>™</sup> documentation for device mesh configuration
 
 ### Profiling Tools
 - `tt-smi` - Device monitoring

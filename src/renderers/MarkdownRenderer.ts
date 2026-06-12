@@ -265,7 +265,7 @@ export class MarkdownRenderer {
       // Sanitize everything else using sanitize-html (pure JS, no DOM/jsdom dependency)
       html = sanitizeHtml(html, {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat([
-          'button', 'pre', 'div', 'span', 'details', 'summary',
+          'button', 'pre', 'div', 'span', 'sup', 'details', 'summary',
           'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img',
           'canvas',  // tensix-viz grid
           'iframe',  // YouTube embeds (hostname-restricted below)

@@ -6,7 +6,7 @@
 ## What Was Accomplished
 
 ### 1. Full Video Generation ✅
-- Generated 10 frames (1024x1024) with Stable Diffusion 3.5 Large on N150
+- Generated 10 frames (1024x1024) with Stable Diffusion 3.5 Large on n150
 - Created 5-second video: `tenstorrent_worldsfair_1964.mp4`
 - All frames and video copied to `assets/img/samples/`
 
@@ -24,7 +24,7 @@ Fixed 5 critical API compatibility issues:
 - `docs/CLAUDE_follows.md` - Complete validation documentation
 
 ### 4. Performance Measured ✅
-**N150 (Wormhole) Performance:**
+**n150 (Wormhole<sup>™</sup>) Performance:**
 - First frame: ~2:17 (includes compilation)
 - Subsequent frames: ~1:30 each (optimized)
 - Total for 10 frames: ~14 minutes
@@ -101,7 +101,7 @@ assets/img/samples/
 1. **Consider lesson reorganization** (Option A recommended)
 2. **Add device reset troubleshooting** section
 3. **Update lesson-registry.json** if reorganized
-4. **Test on other hardware** (N300/T3K/P100) to validate scaling claims
+4. **Test on other hardware** (n300/T3000/p100) to validate scaling claims
 
 ---
 

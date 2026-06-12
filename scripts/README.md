@@ -1,6 +1,6 @@
 # Deployment Scripts
 
-This directory contains scripts for building and deploying the tt-vscode-toolkit extension.
+This directory contains scripts for building and deploying the TT-VSCode-Toolkit extension.
 
 ## Docker Build Scripts
 
@@ -12,8 +12,8 @@ This directory contains scripts for building and deploying the tt-vscode-toolkit
 - **koyeb-deploy-direct.sh** - One-command deployment to Koyeb (recommended)
   - Builds extension locally
   - Uploads archive to Koyeb
-  - Deploys with N300 hardware support
-  - Used in: [Deploy tt-vscode-toolkit to Koyeb](../content/lessons/deploy-vscode-to-koyeb.md) lesson
+  - Deploys with n300 hardware support
+  - Used in: [Deploy TT-VSCode-Toolkit to Koyeb](../content/lessons/deploy-vscode-to-koyeb.md) lesson
 
 - **deploy-to-koyeb.sh** - Alternative deployment script with registry push
 - **quick-deploy-koyeb.sh** - Quick deployment helper

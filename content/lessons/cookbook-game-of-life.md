@@ -2,7 +2,7 @@
 id: cookbook-game-of-life
 title: "Recipe 1: Conway's Game of Life"
 description: >-
-  Build Conway's Game of Life using TTNN parallel tile computing. Learn convolution operations, cellular automata, and visual output generation. Includes classic patterns: gliders, blinkers, and the famous Gosper Glider Gun!
+  Build Conway's Game of Life using TT-NN parallel tile computing. Learn convolution operations, cellular automata, and visual output generation. Includes classic patterns: gliders, blinkers, and the famous Gosper Glider Gun!
 category: cookbook
 tags:
   - ttnn
@@ -24,7 +24,7 @@ validatedOn:
   - p300c
 estimatedMinutes: 30
 validationDate: 2026-04-16
-validationNotes: "Neighbour counting rewritten as two circulant-matrix ttnn.matmuls (Matrix Engine). Conway rules applied in PyTorch on CPU. Sim path uses torch.mm; hardware path uses ttnn.matmul. Validated on P300C (QB2 QuietBox). ttsim: confirmed passing (20 generations, 64×64)."
+validationNotes: "Neighbour counting rewritten as two circulant-matrix ttnn.matmuls (Matrix Engine). Conway rules applied in PyTorch on CPU. Sim path uses torch.mm; hardware path uses ttnn.matmul. Validated on p300c (TT-QuietBox 2). ttsim: confirmed passing (20 generations, 64×64)."
 ---
 
 # Recipe 1: Conway's Game of Life 🎮
@@ -74,7 +74,7 @@ This creates the project in `~/tt-scratchpad/cookbook/game_of_life/`.
 
 ```text
 ~/tt-scratchpad/cookbook/game_of_life/
-├── game_of_life.py       # Core TTNN implementation
+├── game_of_life.py       # Core TT-NN implementation
 ├── visualizer.py          # Matplotlib animation
 ├── patterns.py            # Glider, blinker, Gosper gun, etc.
 ├── requirements.txt

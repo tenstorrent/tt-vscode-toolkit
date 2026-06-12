@@ -1,7 +1,7 @@
 ---
 id: qb2-openclaw-assistant
-title: OpenClaw AI Assistant on QuietBox 2
-description: Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your QB2 hardware
+title: OpenClaw AI Assistant on TT-QuietBox 2
+description: Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your TT-QuietBox 2 hardware
 category: applications
 tags:
   - qb2
@@ -20,13 +20,13 @@ validatedOn:
 estimatedMinutes: 45
 ---
 
-# OpenClaw AI Assistant on QuietBox 2
+# OpenClaw AI Assistant on TT-QuietBox<sup>®</sup> 2
 
-Transform your QuietBox 2 into an expert AI assistant that knows everything about Tenstorrent hardware, deployment, and programming - with citations from 45+ interactive lessons and official documentation.
+Transform your TT-QuietBox 2 into an expert AI assistant that knows everything about Tenstorrent hardware, deployment, and programming - with citations from 45+ interactive lessons and official documentation.
 
 ## What You'll Build
 
-**OpenClaw** is an enterprise-grade AI agent framework that runs entirely on your QB2. Once configured, you get:
+**OpenClaw** is an enterprise-grade AI agent framework that runs entirely on your TT-QuietBox 2. Once configured, you get:
 
 - 🧠 **TT Expert Mode**: Ask questions about hardware, deployment, lessons - get detailed answers with citations
 - 📚 **Memory Search**: Automatically searches 45+ lessons + official TT docs (1,200+ knowledge chunks)
@@ -36,15 +36,15 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 
 **What makes this special:**
 - **Runs locally** - Your data never leaves your machine
-- **Hardware-accelerated** - 70B model on your QB2's 4x Blackhole chips
-- **Self-documenting** - Knows all tt-vscode-toolkit lessons by heart
+- **Hardware-accelerated** - 70B model on your TT-QuietBox 2's 4x Blackhole<sup>®</sup> chips
+- **Self-documenting** - Knows all TT-VSCode-Toolkit lessons by heart
 - **Production-ready** - Used for booth demos and development
 
 ## Architecture
 
 ```
 ┌─────────────┐
-│  User (TUI) │ Ask: "What is QB2?"
+│  User (TUI) │ Ask: "What is TT-QuietBox 2?"
 └──────┬──────┘
        │ WebSocket to ws://127.0.0.1:18789
        ▼
@@ -57,15 +57,15 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 │ vLLM :8000       │ Llama-3.3-70B-Instruct with tool calling
 │ (Docker)         │ (accepts all OpenClaw API fields natively)
 └────────┬─────────┘
-         │ Inference with TT-Metal + vLLM optimizations
+         │ Inference with TT-Metalium + vLLM optimizations
          ▼
 ┌──────────────────┐
-│ 4x P300C Chips   │ 480 Tensix cores, 2,654 TFLOPS, 128K context
+│ 4x p300c Chips   │ 480 Tensix cores, 2,654 TFLOPS, 128K context
 │ (Blackhole)      │
 └──────────────────┘
 ```
 
-**Performance on QB2 (70B model):**
+**Performance on TT-QuietBox 2 (70B model):**
 - First response: ~14 seconds (includes memory search)
 - Follow-ups: ~8-10 seconds
 - Context window: 131,072 tokens (128K)
@@ -78,14 +78,14 @@ Transform your QuietBox 2 into an expert AI assistant that knows everything abou
 
 ### Hardware Requirements
 
-**For QB2 (P300X2) - 70B Model:**
-- 4x Blackhole ASICs (P300C boards)
+**For TT-QuietBox 2 (P300X2) - 70B Model:**
+- 4x Blackhole ASICs (p300c boards)
 - 236 GB RAM (175 GB required for 70B)
 - 2.3 TB disk space (160 GB required)
 - Firmware: 19.4.2.0+
 - KMD: 2.7.0+
 
-**Verify your QB2:**
+**Verify your TT-QuietBox 2:**
 
 ```bash
 # Check hardware detection
@@ -97,11 +97,11 @@ free -h
 # Should show: ~236 GB total
 ```
 
-**🔍 Check QB2 Hardware**
+**🔍 Check TT-QuietBox 2 Hardware**
 
 ### Software Requirements
 
-- **tt-inference-server**: `~/code/tt-inference-server` (cloned and working)
+- **TT-Inference-Server**: `~/code/tt-inference-server` (cloned and working)
 - **OpenClaw**: v2026.3.2+ installed
 - **Python**: 3.8+ with venv support
 - **Docker**: For containerized vLLM deployment
@@ -109,7 +109,7 @@ free -h
 **Quick verification:**
 
 ```bash
-# tt-inference-server available?
+# TT-Inference-Server available?
 ls ~/code/tt-inference-server/run.py
 
 # OpenClaw installed?
@@ -123,14 +123,14 @@ docker --version
 
 ## Step 1: Deploy vLLM with 70B Model
 
-The first step is getting Llama-3.3-70B-Instruct running on your QB2 with tool calling support (required for OpenClaw agents).
+The first step is getting Llama-3.3-70B-Instruct running on your TT-QuietBox 2 with tool calling support (required for OpenClaw agents).
 
 ### Understanding the Deployment
 
 **What happens during deployment:**
 1. **Environment preparation** (30 seconds) - Reset hardware, stop existing containers
 2. **Model download** (10-30 minutes, one-time) - Downloads 140 GB from HuggingFace
-3. **Docker startup** (2 minutes) - Initializes container with TT-Metal environment
+3. **Docker startup** (2 minutes) - Initializes container with TT-Metalium<sup>™</sup> environment
 4. **Model loading** (10-20 minutes) - Loads weights to TT hardware (silent phase)
 5. **Warmup** (5 minutes) - Compiles kernels for P300X2 configuration
 6. **Ready** - Health endpoint responds, ready for inference
@@ -354,10 +354,10 @@ ls ~/code/tt-inference-server/README.md
    - Hardware detection and setup
    - Model deployment and optimization
    - Cookbook examples (Game of Life, Mandelbrot, audio)
-   - TT-Forge, TT-XLA, TT-Metal frameworks
+   - TT-Forge<sup>™</sup>, TT-XLA, TT-Metalium frameworks
    - API servers, chat interfaces
 
-2. **TT-Metal Documentation**
+2. **TT-Metalium Documentation**
    - METALIUM_GUIDE.md - Core framework documentation
    - Release notes and version history
    - Contributing and development guides
@@ -463,16 +463,16 @@ Try these queries to verify everything works:
 
 **You ask:**
 ```
-What is QB2?
+What is TT-QuietBox 2?
 ```
 
 **Expected response (with citations):**
 ```
-QuietBox 2 (QB2) is TT-QuietBox™ 2, a liquid-cooled, desk-friendly AI
+TT-QuietBox™ 2 is a liquid-cooled, desk-friendly AI
 workstation that runs models up to 120 billion parameters locally with a
-fully open-source software stack. It features:
+fully open source software stack. It features:
 
-- 4x Blackhole ASICs (P300C boards)
+- 4x Blackhole ASICs (p300c boards)
 - 480 Tensix cores (120 cores per chip)
 - 2,654 TFLOPS of compute (663 TFLOPS per chip)
 - 200 GB/s memory bandwidth per chip
@@ -496,7 +496,7 @@ How do I deploy vLLM on Tenstorrent?
 ```
 To deploy vLLM on Tenstorrent hardware:
 
-1. Ensure tt-inference-server is installed:
+1. Ensure TT-Inference-Server is installed:
    cd ~/code/tt-inference-server
 
 2. Run the deployment script with your model and device:
@@ -515,7 +515,7 @@ To deploy vLLM on Tenstorrent hardware:
 For larger models (70B) on P300X2, add tool calling support:
    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
 
-The deployment process handles Docker containerization, TT-Metal
+The deployment process handles Docker containerization, TT-Metalium
 environment setup, and hardware initialization automatically.
 
 Source: ../../code/tt-vscode-toolkit/content/lessons/api-server.md#L102-L125
@@ -525,12 +525,12 @@ Source: ../../code/tt-vscode-toolkit/content/lessons/api-server.md#L102-L125
 
 **You ask:**
 ```
-What cookbook examples can I run on my QB2?
+What cookbook examples can I run on my TT-QuietBox 2?
 ```
 
 **Expected response:**
 ```
-The tt-vscode-toolkit includes several cookbook examples you can run:
+The TT-VSCode-Toolkit includes several cookbook examples you can run:
 
 1. **Game of Life** - Conway's cellular automaton on TT hardware
    - Demonstrates matrix operations on Tensix cores
@@ -541,7 +541,7 @@ The tt-vscode-toolkit includes several cookbook examples you can run:
    - Achieves significant speedup over CPU
 
 3. **Audio Processing** - Real-time audio filtering and effects
-   - Uses TT-Metal for low-latency DSP operations
+   - Uses TT-Metalium for low-latency DSP operations
    - Examples: reverb, EQ, compression
 
 4. **Image Filters** - Convolution and image transformations
@@ -560,20 +560,20 @@ Source: ../../code/tt-vscode-toolkit/content/lessons/cookbook-overview.md#L28-L8
 
 ---
 
-## Alternative: N150 with 8B Model
+## Alternative: n150 with 8B Model
 
-If you have an N150 (single chip) instead of QB2, you can run OpenClaw with a smaller model.
+If you have an n150 (single chip) instead of TT-QuietBox 2, you can run OpenClaw with a smaller model.
 
-### N150 Specifications
+### n150 Specifications
 
 - **Chip**: Single Blackhole ASIC
 - **Compute**: 663 TFLOPS
 - **Memory**: 8 GB GDDR6
 - **Model size**: Up to 8B parameters
 - **Context**: 8,192 tokens
-- **Power**: ~75W (vs ~300W for QB2)
+- **Power**: ~75W (vs ~300W for TT-QuietBox 2)
 
-### Deployment for N150
+### Deployment for n150
 
 ```bash
 # Same process, different model and device
@@ -621,12 +621,12 @@ Edit `~/tt-claw/runtime/openclaw.json`:
 
 ### Performance Comparison: 70B vs 8B
 
-| Feature              | QB2 (70B)          | N150 (8B)         |
+| Feature              | TT-QuietBox 2 (70B)          | n150 (8B)         |
 |----------------------|--------------------|-------------------|
 | Response time        | 14+ seconds        | 2-3 seconds       |
 | Context window       | 131K tokens        | 8K tokens         |
 | Reasoning depth      | Excellent          | Good              |
-| Hardware required    | 4x P300C           | 1x N150           |
+| Hardware required    | 4x p300c           | 1x n150           |
 | Power consumption    | ~300W              | ~75W              |
 | Model loading time   | 10-20 minutes      | 2-5 minutes       |
 | Best for             | Complex reasoning  | Fast responses    |
@@ -822,7 +822,7 @@ LLM Inference Layer:
   └─ Model: Llama-3.3-70B-Instruct (128K context, tool calling)
 
 Hardware Layer:
-  ├─ TT-Metal Framework (kernel compilation, device management)
+  ├─ TT-Metalium Framework (kernel compilation, device management)
   ├─ Firmware (19.4.2.0+ on each chip)
   └─ 4x Blackhole ASICs (480 Tensix cores, 2,654 TFLOPS)
 ```
@@ -850,7 +850,7 @@ Hardware Layer:
 ### Key Features
 
 - ✅ **Fully Local** - No data leaves your machine
-- ✅ **Hardware Accelerated** - 70B model on QB2's Blackhole chips
+- ✅ **Hardware Accelerated** - 70B model on TT-QuietBox 2's Blackhole chips
 - ✅ **Self-Documenting** - Knows all 45+ lessons by heart
 - ✅ **Extensible** - Build custom agents and skills
 - ✅ **Production Ready** - Used for real demos and development
@@ -899,7 +899,7 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 ### Optimize Performance
 
 **For faster responses:**
-- Use 8B model on N150 (2-3 seconds vs 14+ seconds)
+- Use 8B model on n150 (2-3 seconds vs 14+ seconds)
 - Reduce max_tokens for shorter outputs
 - Pre-warm specific query patterns
 - Use batching for multiple requests
@@ -922,7 +922,7 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 
 **Community:**
 - Tenstorrent Discord: https://discord.gg/tenstorrent
-- tt-inference-server: https://github.com/tenstorrent/tt-inference-server
+- TT-Inference-Server: https://github.com/tenstorrent/tt-inference-server
 - OpenClaw GitHub: https://github.com/OpenClawIO/openclaw
 
 **Support:**
@@ -933,7 +933,7 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 
 ## Summary
 
-You've deployed a complete AI assistant on your QuietBox 2:
+You've deployed a complete AI assistant on your TT-QuietBox 2:
 
 - ✅ **70B model running** on 4x Blackhole chips with tool calling
 - ✅ **Memory search** indexing 45+ lessons and TT documentation
@@ -946,6 +946,6 @@ You've deployed a complete AI assistant on your QuietBox 2:
 cd ~/openclaw && ./openclaw.sh tui
 ```
 
-Ask: "What is QB2?" or "How do I deploy vLLM?" and watch it respond with citations!
+Ask: "What is TT-QuietBox 2?" or "How do I deploy vLLM?" and watch it respond with citations!
 
-Your QuietBox 2 is now an expert on Tenstorrent hardware, deployment, and programming. 🎉
+Your TT-QuietBox 2 is now an expert on Tenstorrent hardware, deployment, and programming. 🎉
