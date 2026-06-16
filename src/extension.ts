@@ -3860,6 +3860,246 @@ async function runTtsimAttention(): Promise<void> {
 }
 
 // ============================================================================
+// ttsim QEMU Bridge
+// ============================================================================
+
+/**
+ * Checks whether qemu-system-x86_64 is installed on the host.
+ */
+function isQemuInstalled(): boolean {
+  try {
+    require('child_process').execSync('which qemu-system-x86_64', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Returns free disk space in GB at the given path, or -1 on error.
+ */
+function freeDiskGb(dirPath: string): number {
+  try {
+    const out = require('child_process')
+      .execSync(`df -BG "${dirPath}" | awk 'NR==2{print $4}'`)
+      .toString()
+      .trim()
+      .replace('G', '');
+    return parseInt(out, 10);
+  } catch {
+    return -1;
+  }
+}
+
+/**
+ * Returns free RAM in GB, or -1 on error.
+ */
+function freeRamGb(): number {
+  try {
+    const out = require('child_process')
+      .execSync(`free -g | awk '/^Mem:/{print $7}'`)
+      .toString()
+      .trim();
+    return parseInt(out, 10);
+  } catch {
+    return -1;
+  }
+}
+
+/**
+ * Returns true if the QEMU VM process from the PID file is alive.
+ */
+function isQemuVmRunning(): boolean {
+  const os = require('os');
+  const fs = require('fs');
+  const pidFile = require('path').join(os.homedir(), 'sim', 'ttsim-qemu', 'vm.pid');
+  if (!fs.existsSync(pidFile)) {
+    return false;
+  }
+  try {
+    const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+    require('child_process').execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Command: tenstorrent.ttsim.launchQemu
+ *
+ * State machine:
+ *   NO_RELEASE       → show info + link to releases page
+ *   RELEASE, NO_IMG  → requirements check → offer download
+ *   RELEASE, VM_OFF  → boot QEMU → poll SSH → open terminal
+ *   RELEASE, VM_ON   → skip boot → open terminal
+ */
+async function launchTtsimQemu(): Promise<void> {
+  const { TTSIM_QEMU_RELEASE } = require('./commands/terminalCommands');
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+
+  // Gate: no release yet
+  if (!TTSIM_QEMU_RELEASE) {
+    const action = await vscode.window.showInformationMessage(
+      'ttsim QEMU Bridge releases are not yet available. Watch the releases page for announcements.',
+      'Watch for Releases'
+    );
+    if (action === 'Watch for Releases') {
+      vscode.env.openExternal(
+        vscode.Uri.parse('https://github.com/tenstorrent/ttsim-qemu/releases')
+      );
+    }
+    return;
+  }
+
+  const simDir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
+  const imagePath = path.join(simDir, 'ttsim.qcow2');
+
+  // Gate: image not downloaded
+  if (!fs.existsSync(imagePath)) {
+    // Requirements check
+    if (!isQemuInstalled()) {
+      vscode.window.showErrorMessage(
+        'QEMU is not installed. Install it with: sudo apt install qemu-system-x86'
+      );
+      return;
+    }
+    const ram = freeRamGb();
+    if (ram >= 0 && ram < 8) {
+      vscode.window.showErrorMessage(
+        `QEMU Bridge requires 8 GB free RAM. Currently available: ${ram} GB. Close other applications and try again.`
+      );
+      return;
+    }
+    const disk = freeDiskGb(os.homedir());
+    if (disk >= 0 && disk < 20) {
+      vscode.window.showErrorMessage(
+        `QEMU Bridge requires 20 GB free disk at ~/sim/. Currently available: ${disk} GB. Free space and try again.`
+      );
+      return;
+    }
+    const action = await vscode.window.showInformationMessage(
+      `ttsim QEMU Bridge image not found. Download it now? (~20 GB, downloads to ~/sim/ttsim-qemu/)`,
+      'Download'
+    );
+    if (action === 'Download') {
+      await setupTtsimQemu();
+    }
+    return;
+  }
+
+  // VM already running — just attach
+  if (isQemuVmRunning()) {
+    vscode.window.showInformationMessage('Attaching to running ttsim QEMU Bridge...');
+    const terminal = vscode.window.createTerminal({ name: 'ttsim QEMU Bridge' });
+    runInTerminal(terminal, TERMINAL_COMMANDS.LAUNCH_TTSIM_QEMU.template);
+    return;
+  }
+
+  // Boot the VM
+  fs.mkdirSync(simDir, { recursive: true });
+  const pidFile = path.join(simDir, 'vm.pid');
+  const workspaceDir = os.homedir().includes('/home/')
+    ? path.join(os.homedir(), 'code')
+    : os.homedir();
+  const bootCmd = [
+    'qemu-system-x86_64',
+    '-m 8G -smp 4',
+    `-drive file=${imagePath},if=virtio`,
+    `-virtfs local,path=${workspaceDir},mount_tag=workspace,security_model=passthrough`,
+    '-netdev user,id=net0,hostfwd=tcp::2222-:22',
+    '-device virtio-net-pci,netdev=net0',
+    '-nographic -daemonize',
+    `-pidfile ${pidFile}`,
+  ].join(' \\\n  ');
+
+  vscode.window.showInformationMessage('Booting ttsim QEMU Bridge... (takes ~30 seconds)');
+  const bootTerminal = getOrCreateSimpleTerminal();
+  runInTerminal(bootTerminal, bootCmd);
+
+  // Poll for SSH readiness (max 90s)
+  const pollIntervalMs = 3000;
+  const maxAttempts = 30;
+  let attempts = 0;
+  const poll = setInterval(async () => {
+    attempts++;
+    try {
+      require('child_process').execSync(
+        'ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=2 -o BatchMode=yes tt@localhost exit',
+        { stdio: 'ignore' }
+      );
+      clearInterval(poll);
+      const terminal = vscode.window.createTerminal({ name: 'ttsim QEMU Bridge' });
+      runInTerminal(terminal, TERMINAL_COMMANDS.LAUNCH_TTSIM_QEMU.template);
+    } catch {
+      if (attempts >= maxAttempts) {
+        clearInterval(poll);
+        vscode.window.showErrorMessage(
+          'ttsim QEMU Bridge did not become ready in 90 seconds. Check the terminal for boot errors.'
+        );
+      }
+    }
+  }, pollIntervalMs);
+}
+
+/**
+ * Command: tenstorrent.ttsim.stopQemu
+ * Sends ACPI shutdown to the running QEMU VM via its PID file.
+ */
+async function stopTtsimQemu(): Promise<void> {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const pidFile = path.join(os.homedir(), 'sim', 'ttsim-qemu', 'vm.pid');
+
+  if (!isQemuVmRunning()) {
+    vscode.window.showInformationMessage('ttsim QEMU Bridge is not running.');
+    return;
+  }
+
+  const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+  try {
+    // SIGTERM triggers ACPI shutdown on QEMU when -nographic is used
+    require('child_process').execSync(`kill -TERM ${pid}`);
+    vscode.window.showInformationMessage('ttsim QEMU Bridge is shutting down.');
+  } catch {
+    vscode.window.showErrorMessage('Failed to stop ttsim QEMU Bridge. PID: ' + pid);
+  }
+}
+
+/**
+ * Command: tenstorrent.ttsim.setupQemu
+ * Downloads the ttsim QEMU image when a release is available.
+ */
+async function setupTtsimQemu(): Promise<void> {
+  const { TTSIM_QEMU_RELEASE } = require('./commands/terminalCommands');
+  const os = require('os');
+
+  if (!TTSIM_QEMU_RELEASE) {
+    vscode.window.showInformationMessage(
+      'ttsim QEMU Bridge releases are not yet available.'
+    );
+    return;
+  }
+
+  const simDir = `${os.homedir()}/sim/ttsim-qemu`;
+  const imageUrl = `https://github.com/tenstorrent/ttsim-qemu/releases/download/${TTSIM_QEMU_RELEASE}/ttsim.qcow2`;
+  const downloadCmd = [
+    `mkdir -p ${simDir}`,
+    `wget -q --show-progress "${imageUrl}" -O ${simDir}/ttsim.qcow2 || { echo "ERROR: download failed"; exit 1; }`,
+    `echo "ttsim QEMU Bridge image ready at ${simDir}/ttsim.qcow2"`,
+  ].join('\n');
+
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, downloadCmd);
+  vscode.window.showInformationMessage(
+    `Downloading ttsim QEMU Bridge image. Check the terminal for progress.`
+  );
+}
+
+// ============================================================================
 // Lesson 17: Native Video Animation with AnimateDiff
 // ============================================================================
 
@@ -5164,6 +5404,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // ttsim: Twenty-and-Ten Lesson
     vscode.commands.registerCommand('tenstorrent.setupTtsim', setupTtsim),
     vscode.commands.registerCommand('tenstorrent.runTtsimAttention', runTtsimAttention),
+
+    // ttsim QEMU Bridge
+    vscode.commands.registerCommand('tenstorrent.ttsim.launchQemu', launchTtsimQemu),
+    vscode.commands.registerCommand('tenstorrent.ttsim.stopQemu', stopTtsimQemu),
+    vscode.commands.registerCommand('tenstorrent.ttsim.setupQemu', setupTtsimQemu),
 
     // Lesson 17 - Native Video Animation with AnimateDiff
     vscode.commands.registerCommand('tenstorrent.setupAnimateDiffProject', setupAnimateDiffProject),
