@@ -133,9 +133,9 @@ qemu-img snapshot -a before-experiment ~/sim/ttsim-qemu/ttsim.qcow2
 
 [■ Stop ttsim QEMU Bridge](command:tenstorrent.ttsim.stopQemu)
 
-Sends an ACPI shutdown signal — clean OS shutdown, not a kill. Running processes
-inside the VM have time to flush and exit. Wait ~10 seconds after clicking before
-relaunching.
+Sends a SIGTERM to the QEMU process. The VM stops immediately — save your work inside
+the VM before clicking. Persistent changes (files you wrote, packages you installed)
+are preserved in the qcow2 layer and will be there on next launch.
 
 ---
 
