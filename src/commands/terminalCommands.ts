@@ -76,6 +76,13 @@ const JAX_DEVICE_CHECK_PY =
   "print('TT devices:', jax.devices())";
 
 /**
+ * ttsim QEMU Bridge release gate.
+ * Set to a version string (e.g. 'v1.0.0') when the first ttsim-qemu release ships.
+ * When null, all QEMU Bridge commands show a "coming soon" message instead of executing.
+ */
+export const TTSIM_QEMU_RELEASE: string | null = null;
+
+/**
  * All terminal commands used in the walkthrough
  */
 export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
@@ -864,17 +871,19 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     id: 'setup-ttsim',
     name: 'Set Up ttsim Simulator',
     template: `mkdir -p ~/sim
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so || { echo "ERROR: failed to download libttsim_wh_x2.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so || { echo "ERROR: failed to download libttsim_wh_x2.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_bh_x2.so -O ~/sim/libttsim_bh_x2.so || { echo "ERROR: failed to download libttsim_bh_x2.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh_x8.so -O ~/sim/libttsim_wh_x8.so || { echo "ERROR: failed to download libttsim_wh_x8.so"; exit 1; }
 if [ -n "$TT_METAL_HOME" ]; then
   cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || { echo "ERROR: failed to copy SOC descriptor"; exit 1; }
   cp $TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml ~/sim/n300_cluster_desc.yaml || { echo "WARNING: n300 cluster desc copy skipped (optional for N300 sim)"; }
 else
   echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
 fi
-echo "ttsim v1.8.0 ready (wh + bh + wh_x2 for N300 multichip)"`,
-    description: 'Downloads ttsim v1.8.0 Wormhole, Blackhole, and N300 (wh_x2) binaries and copies SOC descriptors',
+echo "ttsim v1.8.4 ready (wh + bh + wh_x2 + bh_x2 + wh_x8)"`,
+    description: 'Downloads ttsim v1.8.4 Wormhole, Blackhole, N300 (wh_x2), BH-x2, and WH-x8 binaries and copies SOC descriptors',
   },
 
   RUN_TTSIM_ATTENTION: {
@@ -885,6 +894,17 @@ export TT_METAL_SLOW_DISPATCH_MODE=1
 export TT_METAL_DISABLE_SFPLOADMACRO=1
 python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
     description: 'Runs a transformer attention layer forward pass on the ttsim Wormhole simulator',
+  },
+
+  // ========================================
+  // ttsim QEMU Bridge
+  // ========================================
+
+  LAUNCH_TTSIM_QEMU: {
+    id: 'launch-ttsim-qemu',
+    name: 'Launch ttsim QEMU Bridge',
+    template: `ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=30 tt@localhost`,
+    description: 'Opens an SSH terminal session inside the running ttsim QEMU Bridge VM',
   },
 };
 
