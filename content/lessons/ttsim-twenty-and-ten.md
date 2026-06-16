@@ -2,10 +2,11 @@
 id: ttsim-twenty-and-ten
 title: "Twenty-and-Ten Things You Can Do with ttsim"
 description: >-
-  31 things you can do with the ttsim hardware simulator — no Tenstorrent
+  32 things you can do with the ttsim hardware simulator — no Tenstorrent
   device required. Runs on any Linux machine, including WSL2 on Windows.
-  Includes N300 two-chip mesh simulation (v1.8.0+). Escalates from first
-  kernel to DSP prototyping to a cliffhanger only real hardware can resolve.
+  Includes N300 and Blackhole two-chip mesh simulation (v1.8.4). Escalates
+  from first kernel to DSP prototyping to a cliffhanger only real hardware
+  can resolve.
 category: advanced
 tags:
   - ttsim
@@ -38,11 +39,15 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 > **Have hardware?** The simulator is still useful for debugging, architecture
 > exploration, and running experiments without tying up a device.
 
-[![ttsim highlight reel — 6 of 31 entries running against ttsim v1.8.0](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
+[![ttsim highlight reel — 6 of 31 entries running against ttsim v1.8.4](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
 
 ---
 
 ## Setup
+
+> **No hardware and don't want to build tt-metal?** The
+> [ttsim QEMU Bridge](command:tenstorrent.showLesson?["ttsim-qemu-bridge"])
+> is a complete pre-built environment — zero setup, boots in ~30 seconds.
 
 [⚙ Set Up ttsim](command:tenstorrent.setupTtsim)
 
@@ -50,20 +55,29 @@ Or manually:
 
 ```bash
 mkdir -p ~/sim
-TTSIM_VERSION=v1.8.0
+TTSIM_VERSION=v1.8.4
 
-# Download Wormhole, Blackhole, and N300 (2-chip Wormhole mesh) simulators
+# Wormhole, Blackhole, and mesh variants
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so \
      -O ~/sim/libttsim_wh.so
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh.so \
      -O ~/sim/libttsim_bh.so
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh_x2.so \
      -O ~/sim/libttsim_wh_x2.so
+wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh_x2.so \
+     -O ~/sim/libttsim_bh_x2.so
+wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh_x8.so \
+     -O ~/sim/libttsim_wh_x8.so
+
+# libttsim_qsr.so — QuietBox simulation topology (4-chip Blackhole layout)
+# Download if targeting TT-QuietBox 2 specifically
+# wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_qsr.so \
+#      -O ~/sim/libttsim_qsr.so
 
 # Copy the SOC descriptor for Wormhole (switch for Blackhole in entries 3 and 27)
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 
-# Copy the N300 cluster descriptor (used for multichip simulation — entry 31)
+# Copy the N300 cluster descriptor (used for multichip simulation — entries 31, 32)
 cp $TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml \
    ~/sim/n300_cluster_desc.yaml
 
@@ -72,6 +86,9 @@ export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so
 export TT_METAL_SLOW_DISPATCH_MODE=1
 export TT_METAL_DISABLE_SFPLOADMACRO=1
 ```
+
+> **ARM host?** aarch64 variants are available — replace filenames with `libttsim_wh_aarch64.so`,
+> `libttsim_bh_aarch64.so`, etc. Same download URL, different filename suffix.
 
 **Prerequisite:** tt-metal must be installed and built.
 If you haven't done that yet, start with the
@@ -863,7 +880,7 @@ does not exist in this machine.
 
 ### 31. One more thing
 
-v1.8.0 ships `libttsim_wh_x2.so`: a virtual N300 that gives you **two Wormhole chips
+v1.8.4 ships `libttsim_wh_x2.so`: a virtual N300 that gives you **two Wormhole chips
 connected by simulated Ethernet**. Open a `MeshDevice(1, 2)`, shard a tensor across both
 chips with `ShardTensorToMesh`, run an op — it dispatches to both chips simultaneously.
 Same TTNN API you'd use on a real N300.
@@ -944,6 +961,56 @@ The simulator gave you the model. Hardware gives you the thing.
 
 ---
 
+### 32. Two Blackhole chips — the BH mesh
+
+`libttsim_bh_x2.so` gives you a virtual **2-chip Blackhole system** — the same
+`MeshDevice(1, 2)` API as the N300 WH mesh in entry 31, now on Blackhole.
+
+```bash
+export TT_METAL_SIMULATOR=~/sim/libttsim_bh_x2.so
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+```
+
+```python
+import torch, ttnn
+
+mesh = ttnn.open_mesh_device(ttnn.MeshShape(1, 2))
+print(mesh)  # MeshDevice(1x2 grid, 2 devices) — Blackhole topology
+
+a = torch.randn(64, 64, dtype=torch.bfloat16)
+b = torch.randn(64, 64, dtype=torch.bfloat16)
+
+a_mesh = ttnn.from_torch(a, layout=ttnn.TILE_LAYOUT, device=mesh,
+                          mesh_mapper=ttnn.ShardTensorToMesh(mesh, dim=0))
+b_mesh = ttnn.from_torch(b, layout=ttnn.TILE_LAYOUT, device=mesh,
+                          mesh_mapper=ttnn.ShardTensorToMesh(mesh, dim=0))
+
+c_mesh = ttnn.add(a_mesh, b_mesh)
+c = ttnn.to_torch(c_mesh, mesh_composer=ttnn.ConcatMeshToTensor(mesh, dim=0))
+ttnn.close_mesh_device(mesh)
+print("Max error vs reference:", (c - (a + b)).abs().max().item())
+```
+
+```text
+MeshDevice(1x2 grid, 2 devices)
+Max error vs reference: 0.03125
+```
+
+The Blackhole NOC differs from Wormhole in die area and core layout. The API is
+identical. The same `ShardTensorToMesh` + `ConcatMeshToTensor` pattern that runs a
+Wormhole N300 runs a 2-chip Blackhole system without a code change.
+
+> To return to single-chip Wormhole: `export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so`
+> and `unset TT_METAL_MOCK_CLUSTER_DESC_PATH`.
+
+Want to run a full 4-chip Blackhole topology (TT-QuietBox 2)?
+Use `libttsim_qsr.so` with its cluster descriptor, or skip straight to
+[ttsim QEMU Bridge](command:tenstorrent.showLesson?["ttsim-qemu-bridge"]) — the image
+includes a pre-configured QuietBox 2 topology.
+
+---
+
 ## What You Learned
 
 - ✅ **ttsim setup**: Wormhole, Blackhole, and N300 (wh_x2) simulators on any Linux machine
@@ -951,7 +1018,7 @@ The simulator gave you the model. Hardware gives you the thing.
 - ✅ **SFPU operations**: native transcendental functions, custom SFPI assembly, DSP use
 - ✅ **Memory hierarchy**: L1 reuse, DRAM sharding, NoC tile transfer
 - ✅ **Multi-core patterns**: grid dispatch, multicast, distributed mesh
-- ✅ **Multi-chip simulation**: N300 1×2 MeshDevice with ShardTensorToMesh (v1.8.0+)
+- ✅ **Multi-chip simulation**: N300 WH 1×2 and Blackhole 1×2 MeshDevice with ShardTensorToMesh (v1.8.4)
 - ✅ **Simulator strictness**: named error categories, race detection, bit-exact NaN
 - ✅ **Architecture exploration**: Wormhole vs Blackhole vs N300 without owning any of them
 
