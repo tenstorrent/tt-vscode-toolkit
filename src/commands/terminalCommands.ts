@@ -76,11 +76,14 @@ const JAX_DEVICE_CHECK_PY =
   "print('TT devices:', jax.devices())";
 
 /**
- * ttsim QEMU Bridge release gate.
- * Set to a version string (e.g. 'v1.0.0') when the first ttsim-qemu release ships.
- * When null, all QEMU Bridge commands show a "coming soon" message instead of executing.
+ * ttsim QEMU Bridge architecture:
+ * ttsim-qemu is a QEMU fork (github.com/tenstorrent/ttsim-qemu) that adds a
+ * `ttsim` PCI device (vendor 0x1e52) to any Linux VM. The user brings their own
+ * base image (Ubuntu 24.04 cloud image); libttsim_wh.so runs on the host and is
+ * bridged to the guest via the PCI device. Inside the VM, TT-Metal sees real
+ * Wormhole hardware — no TT_METAL_SIMULATOR env var needed.
+ * Constraint: slow dispatch only (TT_METAL_SLOW_DISPATCH_MODE=1).
  */
-export const TTSIM_QEMU_RELEASE: string | null = null;
 
 /**
  * All terminal commands used in the walkthrough
@@ -900,10 +903,23 @@ python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
   // ttsim QEMU Bridge
   // ========================================
 
-  LAUNCH_TTSIM_QEMU: {
-    id: 'launch-ttsim-qemu',
-    name: 'Launch ttsim QEMU Bridge',
-    template: `ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=30 tt@localhost`,
+  // Boot command for ttsim-qemu VM.
+  // Requires qemu-system-x86_64 built from tenstorrent/ttsim-qemu fork (system
+  // QEMU lacks -netdev user and the ttsim device). Template vars:
+  //   {{IMAGE_PATH}} — path to .qcow2 VM image
+  //   {{LIB_PATH}}   — path to libttsim_wh.so or libttsim_bh.so
+  //   {{PID_FILE}}   — path for the QEMU PID file
+  BOOT_TTSIM_QEMU: {
+    id: 'boot-ttsim-qemu',
+    name: 'Boot ttsim QEMU Bridge',
+    template: `qemu-system-x86_64 \\\n  -m 8G -smp 4 \\\n  -drive file="{{IMAGE_PATH}}",if=virtio,snapshot=on \\\n  -device ttsim,lib="{{LIB_PATH}}" \\\n  -netdev user,id=net0,hostfwd=tcp::2222-:22 \\\n  -device virtio-net-pci,netdev=net0 \\\n  -serial file:/tmp/ttsim-qemu-serial.log \\\n  -chardev socket,id=mon,path=/tmp/ttsim-mon.sock,server=on,wait=off \\\n  -mon chardev=mon,mode=readline \\\n  -display none \\\n  -daemonize \\\n  -pidfile "{{PID_FILE}}"`,
+    description: 'Boots an Ubuntu VM with the ttsim Wormhole PCI device attached',
+  },
+
+  SSH_TTSIM_QEMU: {
+    id: 'ssh-ttsim-qemu',
+    name: 'SSH into ttsim QEMU Bridge',
+    template: `ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ubuntu@localhost`,
     description: 'Opens an SSH terminal session inside the running ttsim QEMU Bridge VM',
   },
 };

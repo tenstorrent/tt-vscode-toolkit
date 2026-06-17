@@ -16,7 +16,7 @@
  */
 
 import * as vscode from 'vscode';
-import { TERMINAL_COMMANDS, replaceVariables, TTSIM_QEMU_RELEASE } from './commands/terminalCommands';
+import { TERMINAL_COMMANDS, replaceVariables } from './commands/terminalCommands';
 import { registerVizCommands } from './commands/vizCommands';
 
 // Configuration imports
@@ -3866,13 +3866,41 @@ async function runTtsimAttention(): Promise<void> {
 /**
  * Checks whether qemu-system-x86_64 is installed on the host.
  */
-function isQemuInstalled(): boolean {
+// Returns true only if the ttsim-qemu fork build is on PATH (system QEMU lacks the ttsim device).
+function isTtsimQemuInstalled(): boolean {
   try {
-    require('child_process').execSync('which qemu-system-x86_64', { stdio: 'ignore' });
+    require('child_process').execSync(
+      'qemu-system-x86_64 -device help 2>&1 | grep -q ttsim',
+      { stdio: 'ignore', shell: true }
+    );
     return true;
   } catch {
     return false;
   }
+}
+
+// Returns the path of the first *.qcow2 image found in ~/sim/ttsim-qemu/, or null.
+function findQemuImage(): string | null {
+  const path = require('path');
+  const fs = require('fs');
+  const os = require('os');
+  const dir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
+  if (!fs.existsSync(dir)) { return null; }
+  const imgs = fs.readdirSync(dir).filter((f: string) => f.endsWith('.qcow2'));
+  return imgs.length > 0 ? path.join(dir, imgs[0]) : null;
+}
+
+// Returns the path of the preferred libttsim .so (wh > bh), or null if neither found.
+function findTtsimLib(): string | null {
+  const path = require('path');
+  const fs = require('fs');
+  const os = require('os');
+  const simDir = path.join(os.homedir(), 'sim');
+  for (const name of ['libttsim_wh.so', 'libttsim_bh.so']) {
+    const p = path.join(simDir, name);
+    if (fs.existsSync(p)) { return p; }
+  }
+  return null;
 }
 
 /**
@@ -3936,58 +3964,55 @@ function getOrCreateQemuBridgeTerminal(): vscode.Terminal {
  * Command: tenstorrent.ttsim.launchQemu
  *
  * State machine:
- *   NO_RELEASE       → show info + link to releases page
- *   RELEASE, NO_IMG  → requirements check → offer download
- *   RELEASE, VM_OFF  → boot QEMU → poll SSH → open terminal
- *   RELEASE, VM_ON   → skip boot → open terminal
+ *   NO_FORK_QEMU → error: build ttsim-qemu from source
+ *   NO_LIB       → error: run Setup ttsim first
+ *   NO_IMG       → offer to download Ubuntu 24.04 cloud image
+ *   VM_ON        → skip boot, attach terminal
+ *   VM_BOOTING   → already-booting guard
+ *   VM_OFF       → boot with ttsim PCI device → poll SSH → open terminal
  */
 async function launchTtsimQemu(): Promise<void> {
   const os = require('os');
   const fs = require('fs');
   const path = require('path');
 
-  // Gate: no release yet
-  if (!TTSIM_QEMU_RELEASE) {
-    const action = await vscode.window.showInformationMessage(
-      'ttsim QEMU Bridge releases are not yet available. Watch the releases page for announcements.',
-      'Watch for Releases'
+  if (!isTtsimQemuInstalled()) {
+    const action = await vscode.window.showErrorMessage(
+      'ttsim QEMU Bridge requires qemu-system-x86_64 built from the tenstorrent/ttsim-qemu fork. The system QEMU does not have the ttsim PCI device.',
+      'View Build Instructions'
     );
-    if (action === 'Watch for Releases') {
-      vscode.env.openExternal(
-        vscode.Uri.parse('https://github.com/tenstorrent/ttsim-qemu/releases')
-      );
+    if (action === 'View Build Instructions') {
+      vscode.env.openExternal(vscode.Uri.parse('https://github.com/tenstorrent/ttsim-qemu'));
     }
     return;
   }
 
-  const simDir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
-  const imagePath = path.join(simDir, 'ttsim.qcow2');
+  const libPath = findTtsimLib();
+  if (!libPath) {
+    vscode.window.showErrorMessage(
+      'libttsim_wh.so not found in ~/sim/. Run "Setup ttsim" first to download the simulator library.'
+    );
+    return;
+  }
 
-  // Gate: image not downloaded
-  if (!fs.existsSync(imagePath)) {
-    // Requirements check
-    if (!isQemuInstalled()) {
-      vscode.window.showErrorMessage(
-        'QEMU is not installed. Install it with: sudo apt install qemu-system-x86'
-      );
-      return;
-    }
+  const imagePath = findQemuImage();
+  if (!imagePath) {
     const ram = freeRamGb();
     if (ram >= 0 && ram < 8) {
       vscode.window.showErrorMessage(
-        `QEMU Bridge requires 8 GB free RAM. Currently available: ${ram} GB. Close other applications and try again.`
+        `QEMU Bridge requires 8 GB free RAM. Currently available: ${ram} GB.`
       );
       return;
     }
     const disk = freeDiskGb(os.homedir());
-    if (disk >= 0 && disk < 20) {
+    if (disk >= 0 && disk < 2) {
       vscode.window.showErrorMessage(
-        `QEMU Bridge requires 20 GB free disk at ~/sim/. Currently available: ${disk} GB. Free space and try again.`
+        `Less than 2 GB free disk. Free space and try again.`
       );
       return;
     }
     const action = await vscode.window.showInformationMessage(
-      `ttsim QEMU Bridge image not found. Download it now? (~20 GB, downloads to ~/sim/ttsim-qemu/)`,
+      'No VM image found in ~/sim/ttsim-qemu/. Download Ubuntu 24.04 minimal cloud image (~600 MB)?',
       'Download'
     );
     if (action === 'Download') {
@@ -3996,11 +4021,11 @@ async function launchTtsimQemu(): Promise<void> {
     return;
   }
 
-  // VM already running — just attach
+  // VM already running — attach
   if (isQemuVmRunning()) {
     vscode.window.showInformationMessage('Attaching to running ttsim QEMU Bridge...');
     const terminal = getOrCreateQemuBridgeTerminal();
-    runInTerminal(terminal, TERMINAL_COMMANDS.LAUNCH_TTSIM_QEMU.template);
+    runInTerminal(terminal, TERMINAL_COMMANDS.SSH_TTSIM_QEMU.template);
     return;
   }
 
@@ -4009,28 +4034,21 @@ async function launchTtsimQemu(): Promise<void> {
     return;
   }
 
-  // Boot the VM
+  // Boot the VM with the ttsim PCI device
+  const simDir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
   fs.mkdirSync(simDir, { recursive: true });
   const pidFile = path.join(simDir, 'vm.pid');
-  const workspaceDir = os.homedir().includes('/home/')
-    ? path.join(os.homedir(), 'code')
-    : os.homedir();
-  const bootCmd = [
-    'qemu-system-x86_64',
-    '-m 8G -smp 4',
-    `-drive file="${imagePath}",if=virtio`,
-    `-virtfs local,path="${workspaceDir}",mount_tag=workspace,security_model=passthrough`,
-    '-netdev user,id=net0,hostfwd=tcp::2222-:22',
-    '-device virtio-net-pci,netdev=net0',
-    '-nographic -daemonize',
-    `-pidfile "${pidFile}"`,
-  ].join(' \\\n  ');
+  const bootCmd = replaceVariables(TERMINAL_COMMANDS.BOOT_TTSIM_QEMU.template, {
+    IMAGE_PATH: imagePath,
+    LIB_PATH: libPath,
+    PID_FILE: pidFile,
+  });
 
-  vscode.window.showInformationMessage('Booting ttsim QEMU Bridge... (takes ~30 seconds)');
+  vscode.window.showInformationMessage('Booting ttsim QEMU Bridge... (takes ~30-60 seconds)');
   const bootTerminal = getOrCreateSimpleTerminal();
   runInTerminal(bootTerminal, bootCmd);
 
-  // Poll for SSH readiness (max 90s)
+  // Poll SSH on port 2222 until ready (max 90s)
   const pollIntervalMs = 3000;
   const maxAttempts = 30;
   let attempts = 0;
@@ -4038,13 +4056,13 @@ async function launchTtsimQemu(): Promise<void> {
     attempts++;
     try {
       require('child_process').execSync(
-        'ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=2 -o BatchMode=yes tt@localhost exit',
+        'ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=2 -o BatchMode=yes ubuntu@localhost exit',
         { stdio: 'ignore' }
       );
       clearInterval(qemuBootPollHandle!);
       qemuBootPollHandle = null;
       const terminal = getOrCreateQemuBridgeTerminal();
-      runInTerminal(terminal, TERMINAL_COMMANDS.LAUNCH_TTSIM_QEMU.template);
+      runInTerminal(terminal, TERMINAL_COMMANDS.SSH_TTSIM_QEMU.template);
     } catch {
       if (attempts >= maxAttempts) {
         clearInterval(qemuBootPollHandle!);
@@ -4059,7 +4077,9 @@ async function launchTtsimQemu(): Promise<void> {
 
 /**
  * Command: tenstorrent.ttsim.stopQemu
- * Sends SIGTERM to the running QEMU VM via its PID file.
+ *
+ * Prefers a clean shutdown via the QEMU monitor socket at /tmp/ttsim-mon.sock.
+ * Falls back to SIGTERM if socat is not available.
  */
 async function stopTtsimQemu(): Promise<void> {
   const os = require('os');
@@ -4073,42 +4093,44 @@ async function stopTtsimQemu(): Promise<void> {
   }
 
   try {
-    const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
-    // SIGTERM kills the QEMU process immediately; without a monitor socket there is no
-    // way to send a graceful ACPI power-down, so the guest OS may not flush cleanly.
-    require('child_process').execSync(`kill -TERM ${pid}`);
+    // Prefer graceful QEMU shutdown via monitor socket (requires socat)
+    require('child_process').execSync(
+      'echo "quit" | socat - UNIX-CONNECT:/tmp/ttsim-mon.sock',
+      { stdio: 'ignore', shell: true }
+    );
     vscode.window.showInformationMessage('ttsim QEMU Bridge is shutting down.');
   } catch {
-    vscode.window.showErrorMessage('Failed to stop ttsim QEMU Bridge. The process may have already exited.');
+    // Fall back to SIGTERM — kills QEMU immediately; guest may not flush cleanly
+    try {
+      const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+      require('child_process').execSync(`kill -TERM ${pid}`);
+      vscode.window.showInformationMessage('ttsim QEMU Bridge is shutting down.');
+    } catch {
+      vscode.window.showErrorMessage('Failed to stop ttsim QEMU Bridge. The process may have already exited.');
+    }
   }
 }
 
 /**
  * Command: tenstorrent.ttsim.setupQemu
- * Downloads the ttsim QEMU image when a release is available.
+ *
+ * Downloads an Ubuntu 24.04 minimal cloud image (~600 MB) for use as the VM base image.
+ * The image is saved as ~/sim/ttsim-qemu/ubuntu.qcow2.
  */
 async function setupTtsimQemu(): Promise<void> {
   const os = require('os');
-
-  if (!TTSIM_QEMU_RELEASE) {
-    vscode.window.showInformationMessage(
-      'ttsim QEMU Bridge releases are not yet available.'
-    );
-    return;
-  }
-
   const simDir = `${os.homedir()}/sim/ttsim-qemu`;
-  const imageUrl = `https://github.com/tenstorrent/ttsim-qemu/releases/download/${TTSIM_QEMU_RELEASE}/ttsim.qcow2`;
+  const imageUrl = 'https://cloud-images.ubuntu.com/minimal/releases/24.04/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
   const downloadCmd = [
     `mkdir -p "${simDir}"`,
-    `wget -q --show-progress "${imageUrl}" -O "${simDir}/ttsim.qcow2" || { echo "ERROR: download failed"; exit 1; }`,
-    `echo "ttsim QEMU Bridge image ready at ${simDir}/ttsim.qcow2"`,
+    `wget -q --show-progress "${imageUrl}" -O "${simDir}/ubuntu.qcow2" || { echo "ERROR: download failed"; exit 1; }`,
+    `echo "Ubuntu 24.04 cloud image ready at ${simDir}/ubuntu.qcow2"`,
   ].join('\n');
 
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, downloadCmd);
   vscode.window.showInformationMessage(
-    `Downloading ttsim QEMU Bridge image. Check the terminal for progress.`
+    'Downloading Ubuntu 24.04 cloud image (~600 MB). Check the terminal for progress.'
   );
 }
 

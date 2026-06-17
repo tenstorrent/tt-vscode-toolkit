@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.505] - 2026-06-16
+### Fixed
+- **ttsim QEMU Bridge architecture correction** — rewrote `ttsim-qemu-bridge.md` and updated `ttsim-twenty-and-ten.md` cross-references to reflect actual ttsim-qemu architecture: QEMU fork adding a virtual Tenstorrent PCI device (vendor 0x1e52), not a pre-built image provider; removed phantom release gate (`TTSIM_QEMU_RELEASE`) from `terminalCommands.ts`; rewrote `launchTtsimQemu()`, `stopTtsimQemu()`, and `setupTtsimQemu()` in `extension.ts` to match real workflow (build from source, bring own Ubuntu image, `pip install ttnn`).
+### Changed
+- **ttsim-qemu-bridge lesson** — updated "First steps inside the VM" section to document `tt-kmd` driver requirement and version-matching constraint between ttnn wheels and kernel driver ABI; added note that `TT_METAL_SIMULATOR` host path is the validated alternative.
+
 ## [0.0.503] - 2026-06-12
 ### Fixed
 - **Self-review fixes** — 29 issues confirmed by automated adversarial review: corrected MESH_DEVICE enum values in code-fence comments (T3000→T3K, n150→N150, Galaxy→GALAXY throughout vllm-production, image-generation, bounty-program, version-compatibility, step-zero, README); removed `<sup>™/</sup>` HTML injected into yaml/bash code fences (ct3-configuration-patterns, step-zero); fixed api-server print string back to `tt-metal ready`; corrected `p100`→`P100` in hardware-detection and QB_follows prose; completed T3K→T3000 normalization in ttsim/cookbook-particle-life prose callouts; fixed FAQ duplicate stale QB2 paragraph and TTNN/tt-metal prose table cells; fixed bare `tt-metal` prose in image-generation (→ TT-Metalium); updated link display text in cookbook-overview and tt-inference-server (github URL→ product name); clarified Vale config comments (ProductNames.yml T3000 exception, Terminology.yml link-text caveat).

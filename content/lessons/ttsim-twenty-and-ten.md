@@ -45,9 +45,10 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 
 ## Setup
 
-> **No hardware and don't want to build tt-metal?** The
+> **No hardware?** The
 > [ttsim QEMU Bridge](command:tenstorrent.showLesson?["ttsim-qemu-bridge"])
-> is a complete pre-built environment — zero setup, boots in ~30 seconds.
+> boots a Linux VM with a virtual Tenstorrent PCI device — bring your own Ubuntu image,
+> `pip install ttnn` inside the VM, and TT-Metal runs as if on real hardware.
 
 [⚙ Set Up ttsim](command:tenstorrent.setupTtsim)
 
@@ -1005,9 +1006,8 @@ Wormhole N300 runs a 2-chip Blackhole system without a code change.
 > and `unset TT_METAL_MOCK_CLUSTER_DESC_PATH`.
 
 Want to run a full 4-chip Blackhole topology (TT-QuietBox 2)?
-Use `libttsim_qsr.so` with its cluster descriptor, or skip straight to
-[ttsim QEMU Bridge](command:tenstorrent.showLesson?["ttsim-qemu-bridge"]) — the image
-includes a pre-configured QuietBox 2 topology.
+Use `libttsim_qsr.so` with its cluster descriptor on the host — see the commented-out
+download in the Setup section above.
 
 ---
 

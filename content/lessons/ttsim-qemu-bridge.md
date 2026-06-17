@@ -2,9 +2,9 @@
 id: ttsim-qemu-bridge
 title: "ttsim QEMU Bridge: Full-System Simulation"
 description: >-
-  A complete pre-built TT-Metalium + ttsim environment in a QEMU virtual machine.
-  One click to boot. Zero setup. Runs on any Linux x86_64 host or WSL2.
-  Mount your local workspace and develop for Tenstorrent hardware without owning any.
+  Run TT-Metalium kernels on a virtual Tenstorrent PCI device inside a QEMU VM.
+  The VM sees real Wormhole hardware — no TT_METAL_SIMULATOR env var needed.
+  Bring your own Ubuntu image, boot with one command, develop with pip install ttnn.
 category: advanced
 tags:
   - ttsim
@@ -15,40 +15,73 @@ tags:
 supportedHardware:
   - simulator
 status: draft
-estimatedMinutes: 15
+estimatedMinutes: 20
 ---
 
 # ttsim QEMU Bridge: Full-System Simulation
 
-The [ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) simulator works by
-plugging a `.so` shared library into your existing TT-Metalium install. That is fast and
-flexible, but it requires you to build tt-metal first.
+The [ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) simulator ships as
+a `.so` shared library that TT-Metalium loads on the host when you set
+`TT_METAL_SIMULATOR`. That requires a working TT-Metalium install on your machine.
 
-The ttsim QEMU Bridge takes a different approach: it ships a complete Linux virtual
-machine image with TT-Metalium pre-built, ttsim binaries staged, and all required
-environment variables pre-configured. You download it once, boot it with one command,
-and a terminal opens inside a fully operational simulated Tenstorrent environment.
+The ttsim QEMU Bridge is different: it adds a virtual Tenstorrent PCI device to any
+Linux VM. The guest OS sees vendor `0x1e52` — a real Wormhole chip from its perspective.
+TT-Metalium inside the VM talks to it exactly as it would talk to silicon. No
+`TT_METAL_SIMULATOR` env var. No special paths. Just `pip install ttnn` and go.
 
-The bridge is a development environment, not a demo. It is persistent — changes you
-make inside the VM (pip installs, build artifacts, experiment outputs) survive stop
-and restart. Your local workspace is mounted inside the VM so you can edit files in
-VSCode on your host and run them on the simulated hardware without copying anything.
+`libttsim_wh.so` runs on the host. QEMU bridges it to the guest via the PCI device at
+boot time (`-device ttsim,lib=...`). The split is clean: QEMU handles the translation;
+the guest is none the wiser.
 
-> **Have hardware?** The bridge is still useful — isolated experiments, clean
-> reproducible environments, or testing on a chip topology you don't own (e.g.,
-> a Blackhole QuietBox 2 mesh when you only have a Wormhole card).
+> **ttsim-qemu** is a [QEMU fork](https://github.com/tenstorrent/ttsim-qemu) — a single
+> patch on top of upstream QEMU `stable-11.0`. The system QEMU does not have the
+> `ttsim` device. You must build or install the fork.
+
+---
+
+## Important constraint: slow dispatch only
+
+`libttsim` does not yet implement fast dispatch. Inside the VM you must set:
+
+```bash
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+```
+
+This makes the VM a **kernel development and learning environment** — not a production
+inference environment. LLM serving, training runs, and image generation are too slow
+to be practical. What works well:
+
+- TTNN operations and kernel authoring
+- All entries in [Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
+- The [CS Fundamentals](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"]) series
+- Cookbook examples: [Game of Life](command:tenstorrent.showLesson?["cookbook-game-of-life"]),
+  [Particle Life](command:tenstorrent.showLesson?["cookbook-particle-life"])
 
 ---
 
 ## Prerequisites
 
-- **Linux x86_64 host** (or WSL2 on Windows)
-- **QEMU installed:**
+- **ttsim-qemu fork built from source:**
   ```bash
-  sudo apt install qemu-system-x86 qemu-utils
+  git clone -b stable-11.0-ttsim --depth=1 https://github.com/tenstorrent/ttsim-qemu
+  cd ttsim-qemu
+  mkdir build && cd build
+  ../configure --target-list=x86_64-softmmu --prefix=$HOME/.local --disable-docs
+  ninja -j$(nproc)
+  ninja install
   ```
-- **8 GB free RAM** (VM is allocated 8 GB)
-- **20 GB free disk** at `~/sim/` (for the VM image)
+  Adds `qemu-system-x86_64` with the `ttsim` device to `~/.local/bin/`.
+
+- **libttsim_wh.so** in `~/sim/` (run Setup ttsim from the
+  [ttsim lesson](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) first):
+
+  [▶ Setup ttsim](command:tenstorrent.setupTtsim)
+
+- **Ubuntu 24.04 minimal cloud image** (~600 MB) — the Launch command offers to
+  download it automatically.
+
+- **8 GB free RAM**, **2 GB free disk** at `~/sim/`
 
 ---
 
@@ -56,75 +89,132 @@ VSCode on your host and run them on the simulated hardware without copying anyth
 
 [▶ Launch ttsim QEMU Bridge](command:tenstorrent.ttsim.launchQemu)
 
-What happens on first launch:
+What happens:
 
-1. Extension checks that QEMU is installed and requirements are met
-2. Offers to download the VM image (~20 GB, one-time)
-3. Boots the VM with `qemu-system-x86_64` in headless mode
-4. Polls until SSH is ready (~30 seconds from cold boot)
-5. Opens a terminal inside the VM — you're in
+1. Checks that the ttsim-qemu fork is on PATH and `libttsim_wh.so` exists
+2. If no VM image found, offers to download Ubuntu 24.04 (~600 MB, one-time)
+3. Boots the VM with `-device ttsim,lib=~/sim/libttsim_wh.so`
+4. Polls until SSH is ready on port 2222 (~30–60 seconds)
+5. Opens a terminal inside the VM via SSH — you're in
 
-On subsequent launches, if the VM is already running, the extension attaches directly
-(no re-boot).
+To boot manually (e.g. to customise RAM/CPU):
+
+```bash
+qemu-system-x86_64 \
+  -m 8G -smp 4 \
+  -drive file="$HOME/sim/ttsim-qemu/ubuntu.qcow2",if=virtio,snapshot=on \
+  -device ttsim,lib="$HOME/sim/libttsim_wh.so" \
+  -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+  -device virtio-net-pci,netdev=net0 \
+  -serial file:/tmp/ttsim-qemu-serial.log \
+  -chardev socket,id=mon,path=/tmp/ttsim-mon.sock,server=on,wait=off \
+  -mon chardev=mon,mode=readline \
+  -display none -daemonize \
+  -pidfile "$HOME/sim/ttsim-qemu/vm.pid"
+```
+
+Then SSH in: `ssh -p 2222 -o StrictHostKeyChecking=no ubuntu@localhost`
 
 ---
 
-## First kernel (under 2 minutes from cold boot)
+## First steps inside the VM
 
-Once the terminal opens inside the bridge, run this — no setup, no env var exports,
-no SOC descriptor copy:
+> **TT-Metal version matching required.** The `pip install ttnn` pre-built wheels are
+> built against specific UMD versions. If the wheel version doesn't match the `tt-kmd`
+> driver ABI, `open_device()` may crash with SIGILL during topology discovery. To avoid
+> this, build tt-metal from source inside the VM against the same kernel driver, or use
+> the same ttnn wheel version that was validated with your `tt-kmd` build.
+>
+> The alternative is the host `TT_METAL_SIMULATOR` path — set
+> `TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` on the host and run tt-metal there. All
+> ttsim-twenty-and-ten entries work this way without the QEMU VM.
 
 ```bash
-./build/programming_examples/metal_example_add_2_integers_in_riscv
+# Install the Tenstorrent kernel driver (must match ttnn wheel ABI)
+sudo apt-get install -y linux-headers-$(uname -r)
+# Build and load tt-kmd from source (see ttstorrent/tt-kmd on GitHub)
+# Or use DKMS if your distribution packages it
+
+# Confirm the device node is present
+ls /dev/tenstorrent/
+
+# Set required env vars
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+```
+
+Verify the PCI device is recognised by the driver:
+
+```bash
+lspci -k | grep -A2 Tenstorrent
+# 00:03.0 Processing accelerators: Tenstorrent Inc Wormhole (rev 01)
+#         Kernel driver in use: tenstorrent
+```
+
+Run a sanity check once tt-metal is installed inside the VM:
+
+```python
+import ttnn
+device = ttnn.open_device(device_id=0)
+print(device)
+ttnn.close_device(device)
 ```
 
 ```text
-Success: Result is 21
+MeshDevice(1x1 grid, 1 devices)
 ```
 
-A RISC-V kernel dispatched through TT-Metalium, on a simulated Tensix core, inside
-a VM, on your laptop. The result is bit-exact to what silicon produces.
-
-Everything else in [Twenty-and-Ten](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
-works the same way — all 32 entries, no additional setup.
+The device is the virtual Wormhole PCI card (0x1e52:0x401e).
 
 ---
 
-## Your workspace inside the bridge
+## Verify the PCI device
 
-Your `~/code` directory on the host is mounted read-only at `/mnt/workspace` inside
-the VM. The workflow:
-
-1. Edit or write files in VSCode on your host machine (they live in `~/code/`)
-2. Run them inside the bridge at `/mnt/workspace/`
+Inside the VM:
 
 ```bash
-# Inside the bridge VM:
-python3 /mnt/workspace/my-experiment/kernel.py
+lspci | grep -i tenstorrent
+# 00:04.0 Class 4608: 1e52:401e
 ```
 
-The mount is read-only from the VM's perspective — you cannot accidentally delete
-local files from inside the VM.
+Three BARs are mapped (512 MB registers, 1 MB config space, 32 GB DRAM window) — the
+same layout as physical Wormhole silicon.
+
+---
+
+## Your local files inside the VM
+
+Pass `~/code` as a virtfs mount to access your host workspace read-only inside the VM:
+
+```bash
+# Add to the boot command above:
+-virtfs local,path="$HOME/code",mount_tag=workspace,security_model=passthrough
+```
+
+Inside the VM:
+
+```bash
+sudo mkdir -p /mnt/workspace
+sudo mount -t 9p -o trans=virtio,version=9p2000.L workspace /mnt/workspace
+```
+
+Edit in VSCode on the host, run at `/mnt/workspace/` inside the VM.
 
 ---
 
 ## The VM is persistent
 
-The image uses a QEMU copy-on-write (qcow2) layer. Changes you make inside the VM —
-`pip install`, build outputs, saved checkpoints, created files — survive `stopQemu`
-and re-launch. The base image is never modified.
+Boot with `snapshot=on` (shown above) for ephemeral sessions — the image is never
+modified and boots clean every time. Remove `snapshot=on` to persist changes across
+reboots (pip installs, built artifacts, etc.).
 
-To snapshot the current VM state before a risky experiment:
-
-```bash
-# On the host (not inside the VM):
-qemu-img snapshot -c before-experiment ~/sim/ttsim-qemu/ttsim.qcow2
-```
-
-To restore:
+To snapshot a persistent image before a risky experiment:
 
 ```bash
-qemu-img snapshot -a before-experiment ~/sim/ttsim-qemu/ttsim.qcow2
+# On the host:
+qemu-img snapshot -c before-experiment ~/sim/ttsim-qemu/ubuntu.qcow2
+# Restore:
+qemu-img snapshot -a before-experiment ~/sim/ttsim-qemu/ubuntu.qcow2
 ```
 
 ---
@@ -133,30 +223,19 @@ qemu-img snapshot -a before-experiment ~/sim/ttsim-qemu/ttsim.qcow2
 
 [■ Stop ttsim QEMU Bridge](command:tenstorrent.ttsim.stopQemu)
 
-Sends a SIGTERM to the QEMU process. The VM stops immediately — save your work inside
-the VM before clicking. Persistent changes (files you wrote, packages you installed)
-are preserved in the qcow2 layer and will be there on next launch.
-
----
-
-## What's pre-installed
-
-Inside the VM:
-
-- **TT-Metalium** — built and ready at `$TT_METAL_HOME`
-- **ttsim** — `libttsim_wh.so`, `libttsim_bh.so`, `libttsim_wh_x2.so`,
-  `libttsim_bh_x2.so` staged at `~/sim/`
-- **Python environment** — `ttnn` and dependencies installed
-- **Environment variables** — `TT_METAL_HOME`, `TT_METAL_SIMULATOR`,
-  `TT_METAL_SLOW_DISPATCH_MODE`, `TT_METAL_DISABLE_SFPLOADMACRO` set in `.bashrc`
-- **Scratch directory** — `~/tt-scratchpad/ttsim/` pre-created
-
-Not inside: your local files (use `/mnt/workspace`).
+Sends a clean shutdown via the QEMU monitor socket. Save work inside the VM first —
+any in-progress writes may not flush if the process exits abruptly.
 
 ---
 
 ## Go deeper
 
-All 32 entries in [Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
-run inside the bridge without any additional setup. The bridge is the
-fastest path to the most advanced entries.
+All single-chip Wormhole entries in
+[Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
+run inside this VM without any additional setup beyond `pip install ttnn`. That's
+entries 1–17 and 22–30 — matrix ops, data types, convolutions, reductions, multi-core
+dispatch, NoC transfers, and more.
+
+The [CS Fundamentals](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"]) series
+walks through computer architecture concepts directly on simulated Tensix cores —
+the QEMU VM makes a clean isolated environment for those experiments.

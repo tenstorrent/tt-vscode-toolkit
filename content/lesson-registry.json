@@ -1490,7 +1490,7 @@
     {
       "id": "ttsim-qemu-bridge",
       "title": "ttsim QEMU Bridge: Full-System Simulation",
-      "description": "A complete pre-built TT-Metalium + ttsim environment in a QEMU virtual machine. One click to boot. Zero setup. Runs on any Linux x86_64 host or WSL2. Mount your local workspace and develop for Tenstorrent hardware without owning any.",
+      "description": "Run TT-Metalium kernels on a virtual Tenstorrent PCI device inside a QEMU VM. The VM sees real Wormhole hardware — no TT_METAL_SIMULATOR env var needed. Bring your own Ubuntu image, boot with one command, develop with pip install ttnn.",
       "category": "advanced",
       "tags": [
         "ttsim",
@@ -1503,7 +1503,7 @@
         "simulator"
       ],
       "status": "draft",
-      "estimatedMinutes": 15,
+      "estimatedMinutes": 20,
       "order": 100,
       "previousLesson": "ttsim-twenty-and-ten",
       "nextLesson": null,
