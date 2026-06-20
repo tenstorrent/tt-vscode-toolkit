@@ -904,8 +904,9 @@ python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
   // ========================================
 
   // Boot command for ttsim-qemu VM.
-  // Requires qemu-system-x86_64 built from tenstorrent/ttsim-qemu fork (system
-  // QEMU lacks -netdev user and the ttsim device). Template vars:
+  // Requires qemu-system-x86_64 built from tenstorrent/ttsim-qemu fork — the
+  // fork adds the -device ttsim option; -netdev user is standard upstream QEMU.
+  // Template vars:
   //   {{IMAGE_PATH}} — path to .qcow2 VM image
   //   {{LIB_PATH}}   — path to libttsim_wh.so or libttsim_bh.so
   //   {{PID_FILE}}   — path for the QEMU PID file

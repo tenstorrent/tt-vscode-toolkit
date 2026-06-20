@@ -3990,7 +3990,7 @@ async function launchTtsimQemu(): Promise<void> {
   const libPath = findTtsimLib();
   if (!libPath) {
     vscode.window.showErrorMessage(
-      'libttsim_wh.so not found in ~/sim/. Run "Setup ttsim" first to download the simulator library.'
+      'libttsim_wh.so or libttsim_bh.so not found in ~/sim/. Run "Setup ttsim" first to download the simulator library.'
     );
     return;
   }
@@ -4038,11 +4038,15 @@ async function launchTtsimQemu(): Promise<void> {
   const simDir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
   fs.mkdirSync(simDir, { recursive: true });
   const pidFile = path.join(simDir, 'vm.pid');
+  const seedIso = path.join(simDir, 'seed.iso');
+  const seedArg = fs.existsSync(seedIso)
+    ? ` \\\n  -drive file="${seedIso}",if=virtio,format=raw,readonly=on`
+    : '';
   const bootCmd = replaceVariables(TERMINAL_COMMANDS.BOOT_TTSIM_QEMU.template, {
     IMAGE_PATH: imagePath,
     LIB_PATH: libPath,
     PID_FILE: pidFile,
-  });
+  }) + seedArg;
 
   vscode.window.showInformationMessage('Booting ttsim QEMU Bridge... (takes ~30-60 seconds)');
   const bootTerminal = getOrCreateSimpleTerminal();
@@ -4093,9 +4097,9 @@ async function stopTtsimQemu(): Promise<void> {
   }
 
   try {
-    // Prefer graceful QEMU shutdown via monitor socket (requires socat)
+    // Request ACPI power-down via QEMU monitor — guest OS receives a clean shutdown event
     require('child_process').execSync(
-      'echo "quit" | socat - UNIX-CONNECT:/tmp/ttsim-mon.sock',
+      'echo "system_powerdown" | socat - UNIX-CONNECT:/tmp/ttsim-mon.sock',
       { stdio: 'ignore', shell: true }
     );
     vscode.window.showInformationMessage('ttsim QEMU Bridge is shutting down.');
@@ -4121,16 +4125,43 @@ async function setupTtsimQemu(): Promise<void> {
   const os = require('os');
   const simDir = `${os.homedir()}/sim/ttsim-qemu`;
   const imageUrl = 'https://cloud-images.ubuntu.com/minimal/releases/24.04/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+  // After downloading the stock cloud image, create a cloud-init seed ISO that
+  // injects the user's SSH public key into the ubuntu user's authorized_keys.
+  // Without this the ubuntu user has no credentials and SSH polling will always fail.
   const downloadCmd = [
     `mkdir -p "${simDir}"`,
     `wget -q --show-progress "${imageUrl}" -O "${simDir}/ubuntu.qcow2" || { echo "ERROR: download failed"; exit 1; }`,
+    // Grow image to 10 GB to leave room for packages installed inside the VM
+    `qemu-img resize "${simDir}/ubuntu.qcow2" 10G`,
+    // Create cloud-init user-data with the host SSH public key
+    `SSH_KEY=$(cat ~/.ssh/id_ed25519.pub 2>/dev/null || cat ~/.ssh/id_rsa.pub 2>/dev/null || echo "")`,
+    `cat > "${simDir}/user-data" << 'CLOUDINIT'`,
+    `#cloud-config`,
+    `users:`,
+    `  - name: ubuntu`,
+    `    sudo: ALL=(ALL) NOPASSWD:ALL`,
+    `    ssh_authorized_keys:`,
+    `      - PLACEHOLDER_KEY`,
+    `CLOUDINIT`,
+    // Replace placeholder with actual key (avoids heredoc quoting issues)
+    `if [ -n "$SSH_KEY" ]; then sed -i "s|PLACEHOLDER_KEY|$SSH_KEY|" "${simDir}/user-data"; fi`,
+    `echo "" > "${simDir}/meta-data"`,
+    // Generate seed ISO (requires cloud-image-utils)
+    `if command -v cloud-localds &>/dev/null; then`,
+    `  cloud-localds "${simDir}/seed.iso" "${simDir}/user-data" "${simDir}/meta-data"`,
+    `  echo "cloud-init seed created at ${simDir}/seed.iso"`,
+    `else`,
+    `  echo "WARNING: cloud-localds not found. Install cloud-image-utils then run:"`,
+    `  echo "  cloud-localds ${simDir}/seed.iso ${simDir}/user-data ${simDir}/meta-data"`,
+    `  echo "Without a seed ISO, SSH login to the VM will fail."`,
+    `fi`,
     `echo "Ubuntu 24.04 cloud image ready at ${simDir}/ubuntu.qcow2"`,
   ].join('\n');
 
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, downloadCmd);
   vscode.window.showInformationMessage(
-    'Downloading Ubuntu 24.04 cloud image (~600 MB). Check the terminal for progress.'
+    'Downloading Ubuntu 24.04 cloud image (~600 MB) and creating cloud-init seed. Check the terminal for progress.'
   );
 }
 

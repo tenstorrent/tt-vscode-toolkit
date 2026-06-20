@@ -100,9 +100,19 @@ What happens:
 To boot manually (e.g. to customise RAM/CPU):
 
 ```bash
+# Create a cloud-init seed ISO first (once) to inject your SSH key:
+cloud-localds "$HOME/sim/ttsim-qemu/seed.iso" \
+  <(echo "#cloud-config
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - $(cat ~/.ssh/id_ed25519.pub 2>/dev/null || cat ~/.ssh/id_rsa.pub)")
+
 qemu-system-x86_64 \
   -m 8G -smp 4 \
   -drive file="$HOME/sim/ttsim-qemu/ubuntu.qcow2",if=virtio,snapshot=on \
+  -drive file="$HOME/sim/ttsim-qemu/seed.iso",if=virtio,format=raw,readonly=on \
   -device ttsim,lib="$HOME/sim/libttsim_wh.so" \
   -netdev user,id=net0,hostfwd=tcp::2222-:22 \
   -device virtio-net-pci,netdev=net0 \
@@ -132,7 +142,7 @@ Then SSH in: `ssh -p 2222 -o StrictHostKeyChecking=no ubuntu@localhost`
 ```bash
 # Install the Tenstorrent kernel driver (must match ttnn wheel ABI)
 sudo apt-get install -y linux-headers-$(uname -r)
-# Build and load tt-kmd from source (see ttstorrent/tt-kmd on GitHub)
+# Build and load tt-kmd from source (see tenstorrent/tt-kmd on GitHub)
 # Or use DKMS if your distribution packages it
 
 # Confirm the device node is present

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.506] - 2026-06-20
+### Fixed
+- **PR review fixes (ttsim QEMU Bridge)** — 7 Copilot comments addressed: corrected misleading comment that `-netdev user` requires the fork (it's standard upstream QEMU; only `-device ttsim` is fork-specific); updated `findTtsimLib()` error message to mention both WH and BH library names; changed QEMU monitor shutdown from `quit` (immediate process kill) to `system_powerdown` (sends ACPI event for clean guest OS shutdown); `setupTtsimQemu()` now creates a cloud-init seed ISO after download (injects host SSH public key into ubuntu user's `authorized_keys`) and grows image to 10 GB — without this the SSH polling loop always times out on a stock cloud image; manual boot command in `ttsim-qemu-bridge.md` updated with seed ISO flag; fixed typo `ttstorrent/tt-kmd` → `tenstorrent/tt-kmd`; updated GIF caption from "6 of 31 entries" to "6 of 32 entries"; added `tt-kmd` driver caveat to QEMU Bridge callout in `ttsim-twenty-and-ten.md`.
+
 ## [0.0.505] - 2026-06-16
 ### Fixed
 - **ttsim QEMU Bridge architecture correction** — rewrote `ttsim-qemu-bridge.md` and updated `ttsim-twenty-and-ten.md` cross-references to reflect actual ttsim-qemu architecture: QEMU fork adding a virtual Tenstorrent PCI device (vendor 0x1e52), not a pre-built image provider; removed phantom release gate (`TTSIM_QEMU_RELEASE`) from `terminalCommands.ts`; rewrote `launchTtsimQemu()`, `stopTtsimQemu()`, and `setupTtsimQemu()` in `extension.ts` to match real workflow (build from source, bring own Ubuntu image, `pip install ttnn`).

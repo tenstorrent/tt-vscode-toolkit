@@ -39,7 +39,7 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 > **Have hardware?** The simulator is still useful for debugging, architecture
 > exploration, and running experiments without tying up a device.
 
-[![ttsim highlight reel — 6 of 31 entries running against ttsim v1.8.4](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
+[![ttsim highlight reel — 6 of 32 entries running against ttsim v1.8.4](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
 
 ---
 
@@ -47,8 +47,9 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 
 > **No hardware?** The
 > [ttsim QEMU Bridge](command:tenstorrent.showLesson?["ttsim-qemu-bridge"])
-> boots a Linux VM with a virtual Tenstorrent PCI device — bring your own Ubuntu image,
-> `pip install ttnn` inside the VM, and TT-Metal runs as if on real hardware.
+> boots a Linux VM with a virtual Tenstorrent PCI device. Bring your own Ubuntu image,
+> build and load `tt-kmd` inside the VM, install a matching ttnn wheel, and TT-Metal
+> runs as if on real hardware. See the QEMU Bridge lesson for driver requirements.
 
 [⚙ Set Up ttsim](command:tenstorrent.setupTtsim)
 
