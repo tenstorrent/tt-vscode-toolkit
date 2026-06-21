@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.507] - 2026-06-20
+### Fixed
+- **ttsim QEMU Bridge compatibility findings** — updated `ttsim-qemu-bridge.md` with accurate status for ttsim v1.9.1 + ttnn 0.72.0: documented two blocking compatibility gaps (tt-kmd ≥ 2.4.0 probes `ARC_MSG_QCB_PTR` which ttsim doesn't implement; ttnn ≥ 0.69.0 UMD reads ARC tile `0x10000108` via TLB window during topology discovery, also unimplemented). Corrected boot command: `-cpu max` (not `-cpu host`), `bar4-size=32M` for Wormhole, no `-enable-kvm` (TCG mode required — KVM MMIO emulator can't handle 16-byte SSE loads from WC-mapped TLB pages). Added version pin for tt-kmd (use ≤ ttkmd-2.3.0). The PCI device enumerates correctly in the guest; the gap is in ttsim's ARC tile register coverage for UMD topology discovery.
+### Changed
+- **Version bump to 0.0.507** — increment after ttsim QEMU Bridge investigation and lesson update.
+
 ## [0.0.506] - 2026-06-20
 ### Fixed
 - **PR review fixes (ttsim QEMU Bridge)** — 7 Copilot comments addressed: corrected misleading comment that `-netdev user` requires the fork (it's standard upstream QEMU; only `-device ttsim` is fork-specific); updated `findTtsimLib()` error message to mention both WH and BH library names; changed QEMU monitor shutdown from `quit` (immediate process kill) to `system_powerdown` (sends ACPI event for clean guest OS shutdown); `setupTtsimQemu()` now creates a cloud-init seed ISO after download (injects host SSH public key into ubuntu user's `authorized_keys`) and grows image to 10 GB — without this the SSH polling loop always times out on a stock cloud image; manual boot command in `ttsim-qemu-bridge.md` updated with seed ISO flag; fixed typo `ttstorrent/tt-kmd` → `tenstorrent/tt-kmd`; updated GIF caption from "6 of 31 entries" to "6 of 32 entries"; added `tt-kmd` driver caveat to QEMU Bridge callout in `ttsim-twenty-and-ten.md`.

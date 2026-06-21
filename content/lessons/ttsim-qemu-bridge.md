@@ -39,6 +39,36 @@ the guest is none the wiser.
 
 ---
 
+## Current status: QEMU PCI path requires matching ttsim + tt-kmd versions
+
+> **⚠️ Note (as of ttsim v1.9.1 + ttnn 0.72.0):** The QEMU PCI device path is
+> architecture-validated but the full `ttnn.open_device()` flow is not yet working
+> end-to-end. Two compatibility constraints apply:
+>
+> - **tt-kmd version:** Use `ttkmd-2.3.0` or earlier. Versions ≥ 2.4.0 probe the
+>   `ARC_MSG_QCB_PTR` register (`RESET_UNIT + 0x1D8`) during `insmod`. ttsim v1.9.1
+>   does not implement this reset unit register and aborts with
+>   `UnimplementedFunctionality: arc_reset_unit_rd32: offset=0x1d8`.
+>
+> - **UMD/ttnn ARC tile reads:** ttnn ≥ 0.69.0 UMD reads the ARC tile register at
+>   NOC address `0x10000108` (via TLB window) during topology discovery. ttsim does
+>   not yet implement this register, causing a hard abort with
+>   `UnimplementedFunctionality: arc_tile_rd_bytes: arc: addr=0x10000108`.
+>
+> Until ttsim adds these register stubs, the recommended path for development and
+> learning remains the host `TT_METAL_SIMULATOR` approach — which works completely
+> with ttsim v1.9.1 and ttnn 0.72.0.
+>
+> The QEMU PCI device itself enumerates correctly: the guest kernel detects
+> `Tenstorrent Inc Wormhole (rev 01)` at `00:03.0`. The gap is in ttsim's ARC tile
+> register coverage for UMD topology discovery.
+
+For a fully working simulator path today, use the host
+[TT_METAL_SIMULATOR approach](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
+and all entries in ttsim-twenty-and-ten will work without any VM setup.
+
+---
+
 ## Important constraint: slow dispatch only
 
 `libttsim` does not yet implement fast dispatch. Inside the VM you must set:
@@ -93,11 +123,11 @@ What happens:
 
 1. Checks that the ttsim-qemu fork is on PATH and `libttsim_wh.so` exists
 2. If no VM image found, offers to download Ubuntu 24.04 (~600 MB, one-time)
-3. Boots the VM with `-device ttsim,lib=~/sim/libttsim_wh.so`
-4. Polls until SSH is ready on port 2222 (~30–60 seconds)
+3. Boots the VM with the correct flags (see below)
+4. Polls until SSH is ready on port 2222 (~30–60 seconds in TCG mode)
 5. Opens a terminal inside the VM via SSH — you're in
 
-To boot manually (e.g. to customise RAM/CPU):
+To boot manually:
 
 ```bash
 # Create a cloud-init seed ISO first (once) to inject your SSH key:
@@ -109,11 +139,17 @@ users:
     ssh_authorized_keys:
       - $(cat ~/.ssh/id_ed25519.pub 2>/dev/null || cat ~/.ssh/id_rsa.pub)")
 
+# Boot in TCG (software emulation) mode — required for ttsim
+# -cpu max: enable all CPU features without KVM
+# bar4-size=32M: correct for Wormhole (Blackhole uses bar4-size=32G)
+# No -enable-kvm: KVM intercepts MMIO at the EPT level and cannot emulate
+#   16-byte SSE/AVX loads from WC-mapped TLB window pages.
 qemu-system-x86_64 \
   -m 8G -smp 4 \
+  -cpu max \
   -drive file="$HOME/sim/ttsim-qemu/ubuntu.qcow2",if=virtio,snapshot=on \
   -drive file="$HOME/sim/ttsim-qemu/seed.iso",if=virtio,format=raw,readonly=on \
-  -device ttsim,lib="$HOME/sim/libttsim_wh.so" \
+  -device ttsim,lib="$HOME/sim/libttsim_wh.so",bar4-size=32M \
   -netdev user,id=net0,hostfwd=tcp::2222-:22 \
   -device virtio-net-pci,netdev=net0 \
   -serial file:/tmp/ttsim-qemu-serial.log \
@@ -123,34 +159,45 @@ qemu-system-x86_64 \
   -pidfile "$HOME/sim/ttsim-qemu/vm.pid"
 ```
 
+> **Why TCG (no `-enable-kvm`)?** KVM intercepts MMIO at the x86 EPT level. The
+> UMD allocates TLB windows as WC (write-combining) mapped memory and reads from
+> them using SSE/AVX instructions (`vmovups` — 16 bytes). KVM's MMIO emulator only
+> handles 1–8 byte accesses; a 16-byte MMIO load causes a SIGILL. QEMU's TCG mode
+> emulates every instruction in software, routes MMIO through its `MemoryRegionOps`
+> (which respects `max_access_size=8` and splits naturally), and avoids this entirely.
+>
+> Boot time in TCG mode is ~30–60 seconds. Python execution inside the VM is slower
+> than native — typically 3–5× — but adequate for kernel development and short
+> experiments.
+
 Then SSH in: `ssh -p 2222 -o StrictHostKeyChecking=no ubuntu@localhost`
 
 ---
 
 ## First steps inside the VM
 
-> **TT-Metal version matching required.** The `pip install ttnn` pre-built wheels are
-> built against specific UMD versions. If the wheel version doesn't match the `tt-kmd`
-> driver ABI, `open_device()` may crash with SIGILL during topology discovery. To avoid
-> this, build tt-metal from source inside the VM against the same kernel driver, or use
-> the same ttnn wheel version that was validated with your `tt-kmd` build.
->
-> The alternative is the host `TT_METAL_SIMULATOR` path — set
-> `TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` on the host and run tt-metal there. All
-> ttsim-twenty-and-ten entries work this way without the QEMU VM.
+### Kernel driver (tt-kmd)
+
+The ttsim PCI device shows up as a standard PCIe device. You need the Tenstorrent
+kernel driver to surface it as `/dev/tenstorrent/0`.
+
+> **Version constraint:** Use tt-kmd ≤ v2.3.0. Newer versions probe `ARC_MSG_QCB_PTR`
+> during `insmod`, which ttsim does not yet implement. tt-kmd v2.3.0 only reads
+> `ARC_TELEMETRY_PTR` and `ARC_TELEMETRY_DATA` from the reset unit; ttsim handles
+> those (returning 0, logging a telemetry timeout warning that is harmless).
 
 ```bash
-# Install the Tenstorrent kernel driver (must match ttnn wheel ABI)
-sudo apt-get install -y linux-headers-$(uname -r)
-# Build and load tt-kmd from source (see tenstorrent/tt-kmd on GitHub)
-# Or use DKMS if your distribution packages it
+# Install build dependencies
+sudo apt-get install -y linux-headers-$(uname -r) build-essential git
 
-# Confirm the device node is present
-ls /dev/tenstorrent/
+# Build and load tt-kmd v2.3.0
+git clone --depth=1 --branch ttkmd-2.3.0 https://github.com/tenstorrent/tt-kmd.git
+cd tt-kmd
+make -j$(nproc)
+sudo insmod tenstorrent.ko
 
-# Set required env vars
-export TT_METAL_SLOW_DISPATCH_MODE=1
-export TT_METAL_DISABLE_SFPLOADMACRO=1
+# Grant access
+sudo chmod a+rw /dev/tenstorrent/0
 ```
 
 Verify the PCI device is recognised by the driver:
@@ -161,7 +208,28 @@ lspci -k | grep -A2 Tenstorrent
 #         Kernel driver in use: tenstorrent
 ```
 
-Run a sanity check once tt-metal is installed inside the VM:
+### Python environment and ttnn
+
+```bash
+python3 -m venv ~/venv
+~/venv/bin/pip install ttnn
+
+# Required env vars
+export TT_METAL_SLOW_DISPATCH_MODE=1
+export TT_METAL_DISABLE_SFPLOADMACRO=1
+```
+
+### Sanity check
+
+> **Note (as of ttnn 0.72.0 / ttsim v1.9.1):** `open_device()` will fail during
+> topology discovery because UMD reads ARC tile register `0x10000108` (NOC_NODE_ID
+> via TLB window) — a register not yet implemented in ttsim. Track
+> [tenstorrent/ttsim](https://github.com/tenstorrent/ttsim) for updates.
+>
+> The PCI device enumerates correctly (`lspci` shows it, `insmod` succeeds) — the
+> gap is in ARC tile register coverage inside ttsim for UMD topology discovery.
+
+Once ttsim implements the missing ARC tile register stubs, this will work:
 
 ```python
 import ttnn
@@ -174,21 +242,19 @@ ttnn.close_device(device)
 MeshDevice(1x1 grid, 1 devices)
 ```
 
-The device is the virtual Wormhole PCI card (0x1e52:0x401e).
-
 ---
 
 ## Verify the PCI device
 
-Inside the VM:
+Inside the VM (works today, no ttsim update needed):
 
 ```bash
 lspci | grep -i tenstorrent
-# 00:04.0 Class 4608: 1e52:401e
+# 00:03.0 Class 1200: 1e52:401e
 ```
 
-Three BARs are mapped (512 MB registers, 1 MB config space, 32 GB DRAM window) — the
-same layout as physical Wormhole silicon.
+Three BARs are mapped (512 MB registers, 1 MB config space, 32 MB DRAM window for
+Wormhole) — the same layout as physical Wormhole silicon.
 
 ---
 
@@ -242,10 +308,13 @@ any in-progress writes may not flush if the process exits abruptly.
 
 All single-chip Wormhole entries in
 [Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
-run inside this VM without any additional setup beyond `pip install ttnn`. That's
-entries 1–17 and 22–30 — matrix ops, data types, convolutions, reductions, multi-core
-dispatch, NoC transfers, and more.
+run on the **host simulator path** (`TT_METAL_SIMULATOR=~/sim/libttsim_wh.so`)
+without any QEMU VM — entries 1–17 and 22–30. That path works completely today
+with ttsim v1.9.1 and ttnn 0.72.0.
+
+The QEMU VM path will unlock when ttsim implements the remaining ARC tile registers
+needed by UMD topology discovery. Watch
+[tenstorrent/ttsim releases](https://github.com/tenstorrent/ttsim/releases) for updates.
 
 The [CS Fundamentals](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"]) series
-walks through computer architecture concepts directly on simulated Tensix cores —
-the QEMU VM makes a clean isolated environment for those experiments.
+walks through computer architecture concepts directly on simulated Tensix cores.
