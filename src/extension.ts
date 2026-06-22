@@ -5597,19 +5597,35 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Mark as seen first to avoid reopening if command fails
     context.globalState.update('hasSeenWelcome', true);
 
-    // Apply Tenstorrent Dark theme on first install — but ONLY if the user
-    // has not explicitly set a global theme. inspect() returns the layered
-    // configuration values; globalValue is undefined when no explicit user
-    // choice exists, which is the safe window for writing our default.
-    // This avoids overwriting a theme the user consciously selected.
+    // Apply Tenstorrent Dark theme on first install — but ONLY when the user
+    // is still on a VS Code / code-server built-in default theme.  We treat
+    // the built-in themes as "no real choice made yet"; any third-party or
+    // custom theme is a deliberate selection we must not overwrite.
+    //
+    // Strategy: if globalValue is undefined the user never touched the setting.
+    // If globalValue IS set but matches a VS Code built-in theme name we still
+    // consider them on a default (they may have reset to default explicitly, or
+    // code-server wrote it during setup).  Any other value = user has a custom
+    // theme → leave it alone.
+    const VSCODE_BUILTIN_THEMES = new Set([
+      'Default Dark Modern',
+      'Default Dark+',
+      'Default Light Modern',
+      'Default Light+',
+      'Default High Contrast',
+      'Default High Contrast Light',
+      'Visual Studio Dark',
+      'Visual Studio Light',
+    ]);
     const themeInspect = vscode.workspace.getConfiguration().inspect<string>('workbench.colorTheme');
-    // Treat any explicit value at global, workspace, or workspace-folder scope as
-    // a deliberate user choice and leave it alone.
-    const userHasExplicitTheme =
-      themeInspect?.globalValue          !== undefined ||
+    const globalTheme = themeInspect?.globalValue;
+    const onDefaultTheme =
+      globalTheme === undefined || VSCODE_BUILTIN_THEMES.has(globalTheme);
+    // Workspace-level overrides always win regardless of global setting.
+    const hasWorkspaceTheme =
       themeInspect?.workspaceValue       !== undefined ||
       themeInspect?.workspaceFolderValue !== undefined;
-    if (!userHasExplicitTheme) {
+    if (onDefaultTheme && !hasWorkspaceTheme) {
       try {
         await vscode.workspace.getConfiguration().update(
           'workbench.colorTheme',

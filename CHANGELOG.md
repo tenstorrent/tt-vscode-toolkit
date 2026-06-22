@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.508] - 2026-06-22
+### Fixed
+- **Theme auto-apply respects non-default themes** — on first install, the extension now skips applying the Tenstorrent Dark theme if the user already has any non-built-in theme active globally. Previously the guard only checked whether `workbench.colorTheme` was explicitly set; now it also allows applying over VS Code's own built-in defaults (`Default Dark Modern`, `Default Dark+`, `Default Light Modern`, etc.) since those represent "no real choice made yet." Any third-party or custom theme is treated as a deliberate selection and left untouched.
+
 ## [0.0.507] - 2026-06-20
 ### Fixed
 - **ttsim QEMU Bridge compatibility findings** — updated `ttsim-qemu-bridge.md` with accurate status for ttsim v1.9.1 + ttnn 0.72.0: documented two blocking compatibility gaps (tt-kmd ≥ 2.4.0 probes `ARC_MSG_QCB_PTR` which ttsim doesn't implement; ttnn ≥ 0.69.0 UMD reads ARC tile `0x10000108` via TLB window during topology discovery, also unimplemented). Corrected boot command: `-cpu max` (not `-cpu host`), `bar4-size=32M` for Wormhole, no `-enable-kvm` (TCG mode required — KVM MMIO emulator can't handle 16-byte SSE loads from WC-mapped TLB pages). Added version pin for tt-kmd (use ≤ ttkmd-2.3.0). The PCI device enumerates correctly in the guest; the gap is in ttsim's ARC tile register coverage for UMD topology discovery.
