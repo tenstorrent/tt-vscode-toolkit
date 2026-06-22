@@ -3864,9 +3864,10 @@ async function runTtsimAttention(): Promise<void> {
 // ============================================================================
 
 /**
- * Checks whether qemu-system-x86_64 is installed on the host.
+ * Returns true only if the ttsim-qemu fork build is on PATH.
+ * Detects the fork by checking for the custom `-device ttsim` option,
+ * which upstream QEMU does not provide.
  */
-// Returns true only if the ttsim-qemu fork build is on PATH (system QEMU lacks the ttsim device).
 function isTtsimQemuInstalled(): boolean {
   try {
     require('child_process').execSync(
@@ -3879,15 +3880,21 @@ function isTtsimQemuInstalled(): boolean {
   }
 }
 
-// Returns the path of the first *.qcow2 image found in ~/sim/ttsim-qemu/, or null.
+// Returns the path of the preferred *.qcow2 image in ~/sim/ttsim-qemu/.
+// Prefers ubuntu.qcow2 (the name written by setupTtsimQemu); falls back to
+// the first alphabetically-sorted name so the result is deterministic.
 function findQemuImage(): string | null {
   const path = require('path');
   const fs = require('fs');
   const os = require('os');
   const dir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
   if (!fs.existsSync(dir)) { return null; }
-  const imgs = fs.readdirSync(dir).filter((f: string) => f.endsWith('.qcow2'));
-  return imgs.length > 0 ? path.join(dir, imgs[0]) : null;
+  const imgs = fs.readdirSync(dir)
+    .filter((f: string) => f.endsWith('.qcow2'))
+    .sort() as string[];
+  if (imgs.length === 0) { return null; }
+  const preferred = imgs.includes('ubuntu.qcow2') ? 'ubuntu.qcow2' : imgs[0];
+  return path.join(dir, preferred);
 }
 
 // Returns the path of the preferred libttsim .so (wh > bh), or null if neither found.
@@ -3990,7 +3997,7 @@ async function launchTtsimQemu(): Promise<void> {
   const libPath = findTtsimLib();
   if (!libPath) {
     vscode.window.showErrorMessage(
-      'libttsim_wh.so or libttsim_bh.so not found in ~/sim/. Run "Setup ttsim" first to download the simulator library.'
+      'libttsim_wh.so (Wormhole) or libttsim_bh.so (Blackhole) not found in ~/sim/. Run "Setup ttsim" first to download the simulator library.'
     );
     return;
   }
@@ -4133,8 +4140,14 @@ async function setupTtsimQemu(): Promise<void> {
     `wget -q --show-progress "${imageUrl}" -O "${simDir}/ubuntu.qcow2" || { echo "ERROR: download failed"; exit 1; }`,
     // Grow image to 10 GB to leave room for packages installed inside the VM
     `qemu-img resize "${simDir}/ubuntu.qcow2" 10G`,
-    // Create cloud-init user-data with the host SSH public key
+    // Create cloud-init user-data with the host SSH public key.
+    // Fail fast if no key is found — SSH polling will never succeed without one.
     `SSH_KEY=$(cat ~/.ssh/id_ed25519.pub 2>/dev/null || cat ~/.ssh/id_rsa.pub 2>/dev/null || echo "")`,
+    `if [ -z "$SSH_KEY" ]; then`,
+    `  echo "ERROR: No SSH public key found at ~/.ssh/id_ed25519.pub or ~/.ssh/id_rsa.pub."`,
+    `  echo "  Generate one with: ssh-keygen -t ed25519"`,
+    `  exit 1`,
+    `fi`,
     `cat > "${simDir}/user-data" << 'CLOUDINIT'`,
     `#cloud-config`,
     `users:`,
@@ -4144,7 +4157,7 @@ async function setupTtsimQemu(): Promise<void> {
     `      - PLACEHOLDER_KEY`,
     `CLOUDINIT`,
     // Replace placeholder with actual key (avoids heredoc quoting issues)
-    `if [ -n "$SSH_KEY" ]; then sed -i "s|PLACEHOLDER_KEY|$SSH_KEY|" "${simDir}/user-data"; fi`,
+    `sed -i "s|PLACEHOLDER_KEY|$SSH_KEY|" "${simDir}/user-data"`,
     `echo "" > "${simDir}/meta-data"`,
     // Generate seed ISO (requires cloud-image-utils)
     `if command -v cloud-localds &>/dev/null; then`,
@@ -5597,43 +5610,55 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Mark as seen first to avoid reopening if command fails
     context.globalState.update('hasSeenWelcome', true);
 
-    // Apply Tenstorrent Dark theme on first install — but ONLY when the user
-    // is still on a VS Code / code-server built-in default theme.  We treat
-    // the built-in themes as "no real choice made yet"; any third-party or
-    // custom theme is a deliberate selection we must not overwrite.
+    // Theme application on first install.
     //
-    // Strategy: if globalValue is undefined the user never touched the setting.
-    // If globalValue IS set but matches a VS Code built-in theme name we still
-    // consider them on a default (they may have reset to default explicitly, or
-    // code-server wrote it during setup).  Any other value = user has a custom
-    // theme → leave it alone.
-    const VSCODE_BUILTIN_THEMES = new Set([
-      'Default Dark Modern',
-      'Default Dark+',
-      'Default Light Modern',
-      'Default Light+',
-      'Default High Contrast',
-      'Default High Contrast Light',
-      'Visual Studio Dark',
-      'Visual Studio Light',
-    ]);
+    // In code-server (VS Code in the browser) the user is typically on a
+    // fresh instance with no theme preference — apply Tenstorrent Dark
+    // automatically when no theme has been explicitly set.
+    //
+    // In desktop VS Code the user likely has an existing preference, even if
+    // they haven't explicitly changed it (they may have chosen the built-in
+    // default deliberately).  Here we ask instead of applying silently.
+    //
+    // Either way, never touch the theme if the user has a non-default value set
+    // at global, workspace, or workspace-folder scope.
     const themeInspect = vscode.workspace.getConfiguration().inspect<string>('workbench.colorTheme');
-    const globalTheme = themeInspect?.globalValue;
-    const onDefaultTheme =
-      globalTheme === undefined || VSCODE_BUILTIN_THEMES.has(globalTheme);
-    // Workspace-level overrides always win regardless of global setting.
     const hasWorkspaceTheme =
       themeInspect?.workspaceValue       !== undefined ||
       themeInspect?.workspaceFolderValue !== undefined;
-    if (onDefaultTheme && !hasWorkspaceTheme) {
-      try {
-        await vscode.workspace.getConfiguration().update(
-          'workbench.colorTheme',
-          'Tenstorrent Dark',
-          vscode.ConfigurationTarget.Global
+    const hasGlobalTheme = themeInspect?.globalValue !== undefined;
+    const isCodeServer = vscode.env.appName.toLowerCase().includes('code-server');
+
+    if (!hasWorkspaceTheme && !hasGlobalTheme) {
+      if (isCodeServer) {
+        // Fresh code-server instance — apply silently.
+        try {
+          await vscode.workspace.getConfiguration().update(
+            'workbench.colorTheme',
+            'Tenstorrent Dark',
+            vscode.ConfigurationTarget.Global
+          );
+        } catch (_err) {
+          // Non-fatal: settings may be read-only in some restricted environments.
+        }
+      } else {
+        // Desktop VS Code — ask first.
+        const pick = await vscode.window.showInformationMessage(
+          'Would you like to try the Tenstorrent Dark theme?',
+          'Apply Theme',
+          'Keep Current'
         );
-      } catch (_err) {
-        // Non-fatal: settings may be read-only in some restricted environments.
+        if (pick === 'Apply Theme') {
+          try {
+            await vscode.workspace.getConfiguration().update(
+              'workbench.colorTheme',
+              'Tenstorrent Dark',
+              vscode.ConfigurationTarget.Global
+            );
+          } catch (_err) {
+            // Non-fatal.
+          }
+        }
       }
     }
 

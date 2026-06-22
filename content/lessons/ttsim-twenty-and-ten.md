@@ -47,9 +47,10 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 
 > **No hardware?** The
 > [ttsim QEMU Bridge](command:tenstorrent.showLesson?["ttsim-qemu-bridge"])
-> boots a Linux VM with a virtual Tenstorrent PCI device. Bring your own Ubuntu image,
-> build and load `tt-kmd` inside the VM, install a matching ttnn wheel, and TT-Metal
-> runs as if on real hardware. See the QEMU Bridge lesson for driver requirements.
+> boots a Linux VM with a virtual Tenstorrent PCI device. Prerequisites: `libttsim_wh.so`
+> on the host (from the Setup step above), an Ubuntu 24.04 cloud image, and `tt-kmd`
+> built and loaded inside the VM. See the QEMU Bridge lesson for current status and
+> driver version requirements — this path is still in active development.
 
 [⚙ Set Up ttsim](command:tenstorrent.setupTtsim)
 

@@ -278,7 +278,7 @@ Edit in VSCode on the host, run at `/mnt/workspace/` inside the VM.
 
 ---
 
-## The VM is persistent
+## Ephemeral vs. persistent sessions
 
 Boot with `snapshot=on` (shown above) for ephemeral sessions — the image is never
 modified and boots clean every time. Remove `snapshot=on` to persist changes across

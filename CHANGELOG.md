@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.510] - 2026-06-22
+### Fixed
+- **Theme prompt respects context** — in code-server (VS Code in the browser) the Tenstorrent Dark theme is applied automatically on first install when no theme is set, matching the expectation of a fresh browser-based instance. In desktop VS Code, a prompt is shown instead ("Apply Theme" / "Keep Current"), leaving the choice to the user. In both cases, any existing explicit theme value is left untouched.
+- **`isTtsimQemuInstalled` JSDoc corrected** — the function checks for the ttsim-qemu fork specifically (by detecting the `-device ttsim` option), not just any qemu-system-x86_64 install. The old JSDoc implied it checked for the upstream binary.
+- **`findQemuImage` returns a deterministic result** — now prefers `ubuntu.qcow2` (the filename written by `setupTtsimQemu`), then falls back to the first alphabetically-sorted `.qcow2` in the directory. Previously the sort was nondeterministic.
+- **`findTtsimLib` error message names both libraries** — the error now says "libttsim_wh.so (Wormhole) or libttsim_bh.so (Blackhole)" so users with only a Blackhole library aren't confused.
+- **SSH key check fails fast** — `setupTtsimQemu` now exits immediately with a clear diagnostic if no SSH public key is found, rather than leaving `PLACEHOLDER_KEY` in the cloud-init user-data and causing silent SSH polling timeout later.
+- **Lesson heading clarified** — "The VM is persistent" renamed to "Ephemeral vs. persistent sessions" to match the content, which describes both modes.
+- **QEMU Bridge callout in ttsim-twenty-and-ten updated** — now explicitly mentions that `libttsim_wh.so` must be present on the host and that the feature is still in active development, preventing users from expecting the VM path to work without the library.
+
 ## [0.0.509] - 2026-06-22
 ### Fixed
 - **`BOOT_TTSIM_QEMU` template aligned with lesson docs** — added missing `-cpu max` (required in TCG mode for full x86 feature set) and `bar4-size=32M` (correct Wormhole BAR4 window size) to the boot command template used by the Launch button. These flags are documented as required in the lesson and now match what the extension actually runs.
