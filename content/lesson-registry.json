@@ -1490,7 +1490,7 @@
     {
       "id": "ttsim-qemu-bridge",
       "title": "ttsim QEMU Bridge: Full-System Simulation",
-      "description": "Run TT-Metalium kernels on a virtual Tenstorrent PCI device inside a QEMU VM. The VM sees real Wormhole hardware — no TT_METAL_SIMULATOR env var needed. Bring your own Ubuntu image, boot with one command, develop with pip install ttnn.",
+      "description": "Architecture guide for the ttsim QEMU Bridge — a QEMU fork that presents a virtual Tenstorrent Wormhole PCI device to a Linux VM. Currently draft: two ttsim register stubs are missing before end-to-end ttnn.open_device() works via this path.",
       "category": "advanced",
       "tags": [
         "ttsim",

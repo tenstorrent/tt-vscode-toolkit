@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.509] - 2026-06-22
+### Fixed
+- **`BOOT_TTSIM_QEMU` template aligned with lesson docs** — added missing `-cpu max` (required in TCG mode for full x86 feature set) and `bar4-size=32M` (correct Wormhole BAR4 window size) to the boot command template used by the Launch button. These flags are documented as required in the lesson and now match what the extension actually runs.
+- **ttsim QEMU Bridge lesson description corrected** — front matter description now accurately states the lesson is an architecture guide for a currently-draft feature with two blocking ttsim implementation gaps, rather than describing the end goal as if it already works.
+
 ## [0.0.508] - 2026-06-22
 ### Fixed
 - **Theme auto-apply respects non-default themes** — on first install, the extension now skips applying the Tenstorrent Dark theme if the user already has any non-built-in theme active globally. Previously the guard only checked whether `workbench.colorTheme` was explicitly set; now it also allows applying over VS Code's own built-in defaults (`Default Dark Modern`, `Default Dark+`, `Default Light Modern`, etc.) since those represent "no real choice made yet." Any third-party or custom theme is treated as a deliberate selection and left untouched.

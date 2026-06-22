@@ -913,7 +913,10 @@ python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
   BOOT_TTSIM_QEMU: {
     id: 'boot-ttsim-qemu',
     name: 'Boot ttsim QEMU Bridge',
-    template: `qemu-system-x86_64 \\\n  -m 8G -smp 4 \\\n  -drive file="{{IMAGE_PATH}}",if=virtio,snapshot=on \\\n  -device ttsim,lib="{{LIB_PATH}}" \\\n  -netdev user,id=net0,hostfwd=tcp::2222-:22 \\\n  -device virtio-net-pci,netdev=net0 \\\n  -serial file:/tmp/ttsim-qemu-serial.log \\\n  -chardev socket,id=mon,path=/tmp/ttsim-mon.sock,server=on,wait=off \\\n  -mon chardev=mon,mode=readline \\\n  -display none \\\n  -daemonize \\\n  -pidfile "{{PID_FILE}}"`,
+    // -cpu max: required in TCG mode to expose full x86 feature set (vmovups etc.)
+    // bar4-size=32M: correct BAR4 window size for Wormhole (Blackhole needs 32G)
+    // No -enable-kvm: KVM MMIO emulator can't handle 16-byte WC-mapped TLB reads
+    template: `qemu-system-x86_64 \\\n  -m 8G -smp 4 \\\n  -cpu max \\\n  -drive file="{{IMAGE_PATH}}",if=virtio,snapshot=on \\\n  -device ttsim,lib="{{LIB_PATH}}",bar4-size=32M \\\n  -netdev user,id=net0,hostfwd=tcp::2222-:22 \\\n  -device virtio-net-pci,netdev=net0 \\\n  -serial file:/tmp/ttsim-qemu-serial.log \\\n  -chardev socket,id=mon,path=/tmp/ttsim-mon.sock,server=on,wait=off \\\n  -mon chardev=mon,mode=readline \\\n  -display none \\\n  -daemonize \\\n  -pidfile "{{PID_FILE}}"`,
     description: 'Boots an Ubuntu VM with the ttsim Wormhole PCI device attached',
   },
 
