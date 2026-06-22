@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.511] - 2026-06-22
+### Changed
+- **AnimateDiff lesson updated to v0.9.0** — complete rewrite to match the latest tt-animatediff release. Added: Phase 3 (full `AnimateDiffTransformer3D` injected at 7 UNet points, ~52 s/frame), fast Phase 3 path (`--motion-adapter-skip up1 up2`, **~7.7 s/frame**, faster than Phase 2.5), Lightning mode on Blackhole (Euler scheduler, CFG=7.5, ~12.0 s/frame), Gradio UI (`app.py`, local + HF Spaces), TTNN VAE on Blackhole (no more CPU decode fallback), updated perf table across all modes, Phase 3 speedup breakdown (batched D→H, 1.94× over naive per-frame), `--device-id` flag, TT-Lang temporal kernel status. Pin updated from v0.1.0 → v0.9.0. "What's next" section updated: Phase 3 shipped; next is TT-Lang kernel integration.
+
 ## [0.0.510] - 2026-06-22
 ### Fixed
 - **Theme prompt respects context** — in code-server (VS Code in the browser) the Tenstorrent Dark theme is applied automatically on first install when no theme is set, matching the expectation of a fresh browser-based instance. In desktop VS Code, a prompt is shown instead ("Apply Theme" / "Keep Current"), leaving the choice to the user. In both cases, any existing explicit theme value is left untouched.

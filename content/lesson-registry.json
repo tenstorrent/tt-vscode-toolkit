@@ -1248,7 +1248,7 @@
     {
       "id": "animatediff-video-generation",
       "title": "Native Video Animation with AnimateDiff",
-      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet. Learn the complete model bring-up workflow — from research to a standalone package that accelerates SD frame generation at 15 seconds per frame on p300c/TT-QuietBox 2.",
+      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet. Phase 3 injects the full AnimateDiff MotionAdapter at 7 UNet points — no distillation, weights loaded straight from HuggingFace. Fast path: 7.7 s/frame on p300c/TT-QuietBox 2.",
       "category": "applications",
       "tags": [
         "animation",
