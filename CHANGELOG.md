@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **QB2 / Ubuntu 24.04 compatibility audit across cookbook and deployment lessons** — comprehensive pass to ensure all lessons work on tt-developer-image, QB2 pre-installed images, and cloud/custom installs:
   - `python` → `python3` throughout (`cookbook-game-of-life`, `cookbook-audio-processor`, `cookbook-mandelbrot`, `cookbook-image-filters`, `cookbook-particle-life`, `deploy-to-koyeb`, `vllm-production`). Ubuntu 24.04 and tt-developer-image have no `python` symlink.
-  - Venv activation blocks updated to dual-path pattern showing `tt-metal` shell switcher (tt-developer-image/Docker), `~/.tenstorrent-venv` (QB2 pre-installed), and `/opt/venv-metal` (cloud/custom) in all affected cookbook lessons.
+  - Venv activation blocks updated to three-path pattern showing `tt-metal` shell switcher (tt-developer-image/Docker), `~/.tenstorrent-venv` (QB2 pre-installed), and `/opt/venv-metal` (cloud/custom) in all affected cookbook lessons.
   - `vllm-production`: replaced broken `~/tt-metal/build/python_env_vllm` verify block with `python3 -c "import vllm"`; all 12 server launch blocks updated to use `tt-vllm` / `~/.tenstorrent-venv` / `~/activate-vllm-env.sh` / `/opt/venv-vllm` multi-path pattern; all `source ~/activate-vllm-env.sh &&` prefixes removed from run commands.
   - `cookbook-particle-life`: fixed multi-device "Key Code Pattern" from broken per-chip `open_device` loop (causes dispatch core errors on teardown) to `ttnn.CreateDevices` / `ttnn.CloseDevices` coordinated API.
   - `deploy-to-koyeb`: `python -m vllm` → `python3 -m vllm` in review block and all Dockerfile CMD entries.

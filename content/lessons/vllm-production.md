@@ -262,7 +262,7 @@ Before proceeding, let's check what you already have installed:
 [ -d ~/tt-vllm ] && echo "✓ vLLM repo found" || echo "✗ vLLM repo missing"
 
 # Check if vLLM is importable from the active venv
-python3 -c "import vllm; print('✓ vLLM importable, version:', vllm.__version__)" 2>/dev/null \
+python3 -c "import vllm; print('✓ vLLM importable, version:', getattr(vllm, '__version__', '(unknown)'))" 2>/dev/null \
   || echo "✗ vLLM not importable — activate the vLLM venv first (see below)"
 
 # Check if server script exists
@@ -323,7 +323,7 @@ tt-vllm
 # source ~/.tenstorrent-venv/bin/activate
 # custom setup (script generated above):
 # source ~/activate-vllm-env.sh
-# or directly:
+# cloud / custom install:
 # source /opt/venv-vllm/bin/activate
 ```
 

@@ -233,7 +233,7 @@ devices = ttnn.CreateDevices(list(range(num_devices)))
 try:
     # Create multi-device simulation
     sim = ParticleLifeMultiDevice(
-        devices=devices,  # Dict of device_id → device handle
+        devices=devices,  # list of device handles from CreateDevices
         num_particles=2048,
         num_species=3
     )
