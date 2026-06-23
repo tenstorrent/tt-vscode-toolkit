@@ -48,8 +48,10 @@ If you have TT-Metalium built and your venv activated, you can be running real T
 60 seconds. No Jupyter, no setup — just Python:
 
 ```bash
-# Activate the tt-metal Python environment
-source ~/tt-metal/python_env/bin/activate
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 
@@ -104,8 +106,11 @@ Every TT-NN concept has a runnable Python script. These are the best starting po
 because they don't require Jupyter and have clear, commented code:
 
 ```bash
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-metal
-source python_env/bin/activate
 
 # Tensor basics: create, fill, add on device
 python3 ttnn/tutorials/basic_python/ttnn_add_tensors.py
