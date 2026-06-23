@@ -404,17 +404,22 @@ def compare_patterns(patterns_dict):
 ```bash
 cd ~/tt-scratchpad/cookbook/game_of_life
 
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
+
 # Install dependencies
 pip install -r requirements.txt
 
 # Run with random initial state
-python game_of_life.py
+python3 game_of_life.py
 ```
 
 **Run with specific pattern:**
 
 ```bash
-python -c "
+python3 -c "
 from game_of_life import GameOfLife
 from visualizer import animate_game_of_life
 import ttnn

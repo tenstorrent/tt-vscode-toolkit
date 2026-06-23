@@ -261,11 +261,9 @@ Before proceeding, let's check what you already have installed:
 # Check if vLLM is cloned
 [ -d ~/tt-vllm ] && echo "✓ vLLM repo found" || echo "✗ vLLM repo missing"
 
-# Check if venv exists (correct location integrated with tt-metal)
-[ -d ~/tt-metal/build/python_env_vllm ] && echo "✓ vLLM venv found" || echo "✗ vLLM venv missing"
-
-# Check if activation script exists
-[ -f ~/activate-vllm-env.sh ] && echo "✓ Activation script found" || echo "✗ Activation script missing"
+# Check if vLLM is importable from the active venv
+python3 -c "import vllm; print('✓ vLLM importable, version:', vllm.__version__)" 2>/dev/null \
+  || echo "✗ vLLM not importable — activate the vLLM venv first (see below)"
 
 # Check if server script exists
 [ -f ~/tt-scratchpad/start-vllm-server.py ] && echo "✓ Server script found" || echo "✗ Server script missing"
@@ -317,9 +315,16 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 
 **Time:** ~5-10 minutes (downloads + compilation)
 
-**After completion:**
+**After completion — activate the vLLM environment:**
 ```bash
-source ~/activate-vllm-env.sh
+# tt-developer-image / Docker:
+tt-vllm
+# QB2 pre-installed image:
+# source ~/.tenstorrent-venv/bin/activate
+# custom setup (script generated above):
+# source ~/activate-vllm-env.sh
+# or directly:
+# source /opt/venv-vllm/bin/activate
 ```
 
 ---
@@ -391,7 +396,7 @@ Just specify the model - everything else is auto-configured:
 
 ```bash
 # Minimal command (recommended):
-python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
+python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 
 # Script automatically detects and configures:
 # Hardware Detection:
@@ -412,10 +417,10 @@ python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 ```bash
 # Override hardware detection:
 export MESH_DEVICE=N300
-python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
+python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 
 # Override defaults:
-python ~/tt-scratchpad/start-vllm-server.py \
+python3 ~/tt-scratchpad/start-vllm-server.py \
   --model ~/models/Qwen3-0.6B \
   --max-model-len 8192
 ```
@@ -466,8 +471,8 @@ Before starting the server, create the script that registers TT models with vLLM
 **✨ New in v0.0.101:** Ultra-simple one-command start with full hardware auto-detection!
 
 ```bash
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 ```
 
 **That's literally it!** The activation script sets up the environment and the starter script auto-detects and configures:
@@ -501,8 +506,8 @@ Now start vLLM with your chosen model and hardware configuration. These commands
 **Command (tested and working):**
 
 ```bash
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-0.6B \
     --served-model-name Qwen/Qwen3-0.6B \
     --host 0.0.0.0 \
@@ -526,8 +531,8 @@ source ~/activate-vllm-env.sh && \
 **Alternative: Gemma 3-1B-IT** (slightly larger, 32K context)
 
 ```bash
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/gemma-3-1b-it \
     --served-model-name google/gemma-3-1b-it \
     --host 0.0.0.0 \
@@ -546,8 +551,8 @@ Llama-3.1-8B typically exhausts DRAM on n150. Use Qwen3-0.6B or Gemma 3-1B-IT in
 If you must try Llama on n150:
 
 ```bash
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
     --host 0.0.0.0 \
@@ -566,8 +571,8 @@ source ~/activate-vllm-env.sh && \
 ### n300 (Wormhole - Dual Chip)
 
 ```bash
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
     --host 0.0.0.0 \
@@ -585,8 +590,8 @@ source ~/activate-vllm-env.sh && \
 ### T3000 (Wormhole - 8 Chips)
 
 ```bash
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-70B-Instruct \
     --served-model-name meta-llama/Llama-3.1-70B-Instruct \
     --host 0.0.0.0 \
@@ -608,8 +613,8 @@ source ~/activate-vllm-env.sh && \
 > **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** p300c is architecturally identical to p100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A TT-QuietBox 2 with 4× p300c = 4 independent single-chip devices; for most lessons use device 0 only.
 
 ```bash
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
     --host 0.0.0.0 \
@@ -719,8 +724,8 @@ INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 # Stop the current server (Ctrl+C in the server terminal)
 
 # Start with Qwen instead
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-8B \
     --host 0.0.0.0 \
     --port 8000 \
@@ -1023,7 +1028,7 @@ This is why Qwen3-0.6B punches way above its weight class!
 ### Custom Parameters
 
 ```bash
-python -m vllm.entrypoints.openai.api_server \
+python3 -m vllm.entrypoints.openai.api_server \
   --model meta-llama/Llama-3.1-8B-Instruct \
   --host 0.0.0.0 \
   --port 8000 \
@@ -1053,7 +1058,7 @@ export VLLM_LOGGING_LEVEL=DEBUG
 Simple deployment for moderate load:
 
 ```bash
-python -m vllm.entrypoints.openai.api_server \
+python3 -m vllm.entrypoints.openai.api_server \
   --model $HF_MODEL \
   --host 0.0.0.0 \
   --port 8000
@@ -1070,7 +1075,7 @@ FROM tenstorrent/tt-metal:latest
 
 RUN pip install vllm
 
-CMD python -m vllm.entrypoints.openai.api_server \
+CMD python3 -m vllm.entrypoints.openai.api_server \
     --model meta-llama/Llama-3.1-8B-Instruct \
     --host 0.0.0.0 \
     --port 8000
@@ -1159,8 +1164,11 @@ Don't worry if you hit issues - they're usually straightforward to fix. Here are
 
 **Check your environment:**
 ```bash
-# Activate environment
-source ~/activate-vllm-env.sh
+# Activate vLLM environment (choose for your setup):
+tt-vllm                                           # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source ~/activate-vllm-env.sh                   # custom script-based setup
+# source /opt/venv-vllm/bin/activate              # cloud / custom install
 
 # Verify model path
 ls ~/models/Llama-3.1-8B-Instruct/config.json
@@ -1170,8 +1178,7 @@ ls ~/models/Llama-3.1-8B-Instruct/config.json
 This is the most common environment issue - wrong PyTorch version!
 
 ```bash
-# Check your PyTorch version
-source ~/activate-vllm-env.sh
+# Check your PyTorch version (activate vLLM env first — see above)
 python3 -c "import torch; print('PyTorch version:', torch.__version__)"
 ```
 
@@ -1199,7 +1206,7 @@ If larger models (8B params) exhaust your DRAM on n150, use smaller models:
   hf download Qwen/Qwen3-0.6B --local-dir ~/models/Qwen3-0.6B
 
   # Start server (use n150 command from Step 4 above)
-  python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B ...
+  python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B ...
 ```
 
 - **Gemma 3-1B-IT** - 1B params (8x smaller than 8B)
@@ -1208,7 +1215,7 @@ If larger models (8B params) exhaust your DRAM on n150, use smaller models:
   hf download google/gemma-3-1b-it --local-dir ~/models/gemma-3-1b-it
 
   # Start server (use n150 command from Step 4 above)
-  python ~/tt-scratchpad/start-vllm-server.py --model ~/models/gemma-3-1b-it ...
+  python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/gemma-3-1b-it ...
 ```
 
 **Why small models work better on n150:**
@@ -1247,8 +1254,8 @@ The `start-vllm-server.py` script now auto-detects p100 and sets `TT_METAL_ARCH_
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 export MESH_DEVICE=P100
-source ~/activate-vllm-env.sh && \
-  python ~/tt-scratchpad/start-vllm-server.py \
+# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct
 ```
 
@@ -1258,7 +1265,7 @@ source ~/activate-vllm-env.sh && \
 This error means vLLM cannot find the TT model implementation. Solution:
 ```bash
 # Use the starter script (Step 4) which registers TT models
-python ~/tt-scratchpad/start-vllm-server.py --model ~/models/Llama-3.1-8B-Instruct
+python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/Llama-3.1-8B-Instruct
 ```
 
 **Why this happens:** vLLM needs to explicitly register TT models using `ModelRegistry.register_model()` before starting. The starter script does this automatically. Do NOT call `python -m vllm.entrypoints.openai.api_server` directly - it will fail because TT models aren't registered.
@@ -1623,8 +1630,8 @@ aider --model openai/meta-llama/Llama-3.2-3B-Instruct \
 pip install -r requirements.txt
 
 # Run the app
-python weather.py "San Francisco"
-python weather.py "Tokyo"
+python3 weather.py "San Francisco"
+python3 weather.py "Tokyo"
 ```
 
 ### Best Practices for AI-Assisted Coding
@@ -1723,7 +1730,7 @@ source ~/aider-venv/bin/activate
 pip install --upgrade aider-chat
 
 # Check Python version (must be 3.9+)
-python --version
+python3 --version
 ```
 
 ### Example Projects to Try

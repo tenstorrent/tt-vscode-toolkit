@@ -315,6 +315,11 @@ if __name__ == "__main__":
 ```bash
 cd ~/tt-scratchpad/cookbook/image_filters
 
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
+
 # Install dependencies
 pip install -r requirements.txt
 
@@ -325,7 +330,7 @@ from PIL import Image; import numpy as np
 Image.fromarray(np.random.randint(0,255,(256,256,3), dtype=np.uint8)).save('examples/sample.jpg')
 print('Created examples/sample.jpg')
 "
-python filters.py examples/sample.jpg
+python3 filters.py examples/sample.jpg
 ```
 
 > The script uses `examples/sample.jpg` by default. In a headless environment
