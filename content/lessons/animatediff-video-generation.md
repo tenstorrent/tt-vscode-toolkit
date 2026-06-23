@@ -160,7 +160,10 @@ Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole sil
 [⚡ Run Phase 2.5 (Blackhole)](command:tenstorrent.runAnimateDiff16Frame)
 
 ```bash
-source ~/tt-metal/python_env/bin/activate
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-projects/tt-animatediff
 
 python3 examples/generate.py \
@@ -249,8 +252,10 @@ A point-and-click interface for all modes. Models stay loaded between generation
 ```bash
 pip install -e ".[ui]"
 
-# Blackhole hardware
-source ~/tt-metal/python_env/bin/activate
+# Blackhole hardware — activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
 python3 app.py
 # Open http://localhost:7860
 

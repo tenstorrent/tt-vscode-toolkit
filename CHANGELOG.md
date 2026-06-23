@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.513] - 2026-06-23
+### Fixed
+- **QB2 compatibility audit: `python` → `python3` across all remaining lessons** — fixed bare `python` invocations in `bounty-program-model-bringup` (validate_reference.py, generate_reference_hf.py) and `tt-xla-jax` (gpt_demo.py). Ubuntu 24.04 / tt-developer-image have no `python` symlink; `python3` is required everywhere.
+- **QB2 compatibility audit: venv activation paths updated to dual-path pattern** — replaced hardcoded `source ~/tt-metal/python_env/bin/activate` and `source ~/tt-forge-venv/bin/activate` in `explore-metalium`, `video-generation-ttmetal`, `tt-xla-jax`, and `animatediff-video-generation`. Each activation block now shows three options: `tt-metal`/`tt-forge` shell switcher (tt-developer-image/Docker), `~/.tenstorrent-venv/bin/activate` (QB2 pre-installed image), and `/opt/venv-metal/bin/activate` or `/opt/venv-forge/bin/activate` (cloud/custom install).
+- **QB2 compatibility audit: hardcoded `/home/ttuser/` paths removed** — replaced with `$HOME/...` or `~/...` in `qb2-openclaw-assistant` (memory search config), `qb2-video-generation` (`TT_DIT_CACHE_DIR`), and `qb2-local-agents` (directory and troubleshooting path examples). These lessons must work for any user account, not just the development machine's `ttuser`.
+
 ## [0.0.512] - 2026-06-23
 ### Fixed
 - **AnimateDiff lesson uses `python3` throughout** — replaced all bare `python` invocations in the lesson's code blocks with `python3`. Ubuntu 24.04 (and many other Linux distributions) do not install a `python` symlink by default; `python3` is the correct command for out-of-the-box compatibility.
