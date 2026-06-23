@@ -184,72 +184,73 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🚀 Your First Inference
 *7 lessons, 7 validated*
 
-- **Modern Setup with TT-Installer 2.0** — `n150` `p300c`
-- **Hardware Detection** — `n150` `p300c`
-- **Verify Your Setup** — `n150` `p300c`
-- **Download Model and Run Inference** — `n150` `p300c`
-- **Interactive Chat with Direct API** — `n150`
-- **HTTP API Server with Direct API** — `n150`
-- **Build TT-Metalium from Source** — `n150` `p300c`
+- **Modern Setup with TT-Installer 2.0** — `N150` `P300C`
+- **Hardware Detection** — `N150` `P300C`
+- **Verify Your Setup** — `N150` `P300C`
+- **Download Model and Run Inference** — `N150` `P300C`
+- **Interactive Chat with Direct API** — `N150`
+- **HTTP API Server with Direct API** — `N150`
+- **Build TT-Metalium from Source** — `N150` `P300C`
 
 ### 🏭 Serving Models
 *4 lessons, 3 validated*
 
-- **Production Inference with TT-Inference-Server** — `n150` `p100`
-- **Production Inference with vLLM** — `n150` `p300c`
-- **Image Generation with Stable Diffusion XL** — `n150`
+- **Production Inference with TT-Inference-Server** — `N150` `P100`
+- **Production Inference with vLLM** — `N150` `P300C`
+- **Image Generation with Stable Diffusion XL** — `N150`
 - **Video Generation via Frame-by-Frame Diffusion** — *draft*
 
 ### 🔧 Compilers & Tools
 *3 lessons, 0 validated*
 
-- **Image Classification with TT-Forge** — `p300c`
-- **JAX and PyTorch/XLA on Tenstorrent** — `p300c`
+- **Image Classification with TT-Forge** — `P300C`
+- **JAX and PyTorch/XLA on Tenstorrent** — `P300C`
 - **Introduction to TT-Lang** — *draft*
 
 ### 🎯 Applications
 *5 lessons, 4 validated*
 
 - **Coding Assistant with Aider** — *draft*
-- **Native Video Animation with AnimateDiff** — `p300c`
-- **OpenClaw AI Assistant on TT-QuietBox<sup>®</sup> 2** — `P300X2`
+- **Native Video Animation with AnimateDiff** — `P300C`
+- **OpenClaw AI Assistant on TT-QuietBox 2** — `P300X2`
 - **Generating Video on TT-QuietBox 2** — `P300X2`
 - **Local AI Agents on TT-QuietBox 2** — `P300X2`
 
 ### 🎓 Advanced Topics
-*3 lessons, 1 validated*
+*4 lessons, 1 validated*
 
 - **Bounty Program: Model Bring-Up** — *draft*
-- **Exploring TT-Metalium** — `n150` `p300c`
+- **Exploring TT-Metalium** — `N150` `P300C`
 - **Twenty-and-Ten Things You Can Do with ttsim** — *draft*
+- **ttsim QEMU Bridge: Full-System Simulation** — *draft*
 
 ### 🎓 Custom Training
 *8 lessons, 0 validated*
 
-- **Understanding Custom Training** — `n150`
-- **Dataset Fundamentals** — `n150`
-- **Configuration Patterns** — `n150`
-- **Fine-tuning Basics** — `n150`
-- **Multi-Device Training** — `n150`
-- **Experiment Tracking** — `n150`
-- **Model Architecture Basics** — `n150`
-- **Training from Scratch** — `n150`
+- **Understanding Custom Training** — `N150`
+- **Dataset Fundamentals** — `N150`
+- **Configuration Patterns** — `N150`
+- **Fine-tuning Basics** — `N150`
+- **Multi-Device Training** — `N150`
+- **Experiment Tracking** — `N150`
+- **Model Architecture Basics** — `N150`
+- **Training from Scratch** — `N150`
 
 ### ☁️ Deployment
 *2 lessons, 2 validated*
 
-- **Deploy TT-VSCode-Toolkit to Koyeb** — `n150`
-- **Deploy Your Work to Koyeb** — `n150`
+- **Deploy TT-VSCode-Toolkit to Koyeb** — `N150`
+- **Deploy Your Work to Koyeb** — `N150`
 
 ### 👨‍🍳 Tenstorrent Cookbook
 *6 lessons, 6 validated*
 
-- **Tenstorrent Cookbook Overview** — `n150` `p300c`
-- **Recipe 1: Conway's Game of Life** — `n150` `p300c`
-- **Recipe 2: Audio Signal Processing** — `n150` `p300c`
-- **Recipe 3: Mandelbrot Fractal Explorer** — `n150` `p300c`
-- **Recipe 4: Custom Image Filters** — `n150` `p300c`
-- **Recipe 5: Particle Life Simulator** — `n150` `p300c`
+- **Tenstorrent Cookbook Overview** — `N150` `P300C`
+- **Recipe 1: Conway's Game of Life** — `N150` `P300C`
+- **Recipe 2: Audio Signal Processing** — `N150` `P300C`
+- **Recipe 3: Mandelbrot Fractal Explorer** — `N150` `P300C`
+- **Recipe 4: Custom Image Filters** — `N150` `P300C`
+- **Recipe 5: Particle Life Simulator** — `N150` `P300C`
 
 ### 🧠 CS Fundamentals
 *7 lessons, 0 validated*

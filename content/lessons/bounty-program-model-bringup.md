@@ -197,7 +197,7 @@ torch.save(outputs, "reference_outputs.pt")
 
 **Run validation:**
 ```bash
-python validate_reference.py
+python3 validate_reference.py
 ```
 
 #### 2.2 Analyze Model Architecture
@@ -526,7 +526,7 @@ pytest models/tt_transformers/demo/simple_text_demo.py -k "phi3"
 **For CI accuracy validation:**
 ```bash
 # Generate reference outputs for CI
-python models/tt_transformers/tests/generate_reference_hf.py \
+python3 models/tt_transformers/tests/generate_reference_hf.py \
   --model microsoft/Phi-3-mini-128k-instruct \
   --output reference_outputs/Phi-3-mini-128k-instruct.refpt
 ```

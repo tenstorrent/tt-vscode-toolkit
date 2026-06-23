@@ -3,8 +3,8 @@ id: animatediff-video-generation
 title: Native Video Animation with AnimateDiff
 description: >-
   Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet.
-  Learn the complete model bring-up workflow — from research to a standalone package
-  that accelerates SD frame generation at 15 seconds per frame on p300c/TT-QuietBox 2.
+  Phase 3 injects the full AnimateDiff MotionAdapter at 7 UNet points — no distillation,
+  weights loaded straight from HuggingFace. Fast path: 7.7 s/frame on p300c/TT-QuietBox 2.
 category: applications
 tags:
   - animation
@@ -27,27 +27,28 @@ estimatedMinutes: 60
 
 # Native Video Animation with AnimateDiff
 
-**Run SD 1.4 video generation on Blackhole<sup>®</sup> — 15 seconds per frame, real images, no CPU fallback on the UNet.**
+**Run SD 1.4 video generation on Blackhole<sup>®</sup> — down to 7.7 s/frame with the full AnimateDiff MotionAdapter, no distillation required.**
 
-This lesson walks through three paths to animated video, escalating from CPU baseline to full Blackhole hardware acceleration with cross-frame temporal attention:
+This lesson walks through four paths to animated video, from CPU baseline to full Blackhole hardware acceleration with native MotionAdapter temporal attention:
 
-- **Phase 1 (any hardware)** — `diffusers` `AnimateDiffPipeline` on CPU, full AnimateDiff temporal attention via MotionAdapter, ~2 min/frame
-- **Phase 2 (Blackhole)** — TT-NN<sup>™</sup> UNet on Blackhole, ~15 s/frame
-- **Phase 2.5 (Blackhole + temporal attention)** — cross-frame self-attention at every denoising step, the canonical production path
+- **Phase 1 (any hardware)** — `diffusers` `AnimateDiffPipeline` on CPU, full AnimateDiff via MotionAdapter, ~2 min/frame
+- **Phase 2.5 (Blackhole)** — TT-NN<sup>™</sup> UNet on Blackhole + cross-frame attention blend, ~12.5 s/frame
+- **Lightning (Blackhole)** — Euler scheduler (`CFG=7.5`, any step count), ~12.0 s/frame
+- **Phase 3 (Blackhole)** — full `AnimateDiffTransformer3D` injected at 7 UNet points; fast path (`--motion-adapter-skip up1 up2`) **~7.7 s/frame** — faster than Phase 2.5
 
 Along the way you'll learn the **model bring-up methodology**: how to create standalone packages that integrate with TT-Metalium<sup>™</sup> without modifying the core repository.
 
 ## What you'll build
 
-These were generated on a single Blackhole p300c — 8 frames × 25 steps each:
+Generated on a single Blackhole p300c — 8 frames × 25 steps each:
 
-| *"World's Fair 2099"* | *"Phosphor Horizon"* | *"Nebula"* | *"Mayan Temple"* |
-|---|---|---|---|
-| ![world of tomorrow](/assets/img/animatediff_world_of_tomorrow.gif) | ![phosphor horizon](/assets/img/animatediff_phosphor_horizon.gif) | ![nebula](/assets/img/animatediff_nebula.gif) | ![mayan temple](/assets/img/animatediff_mayan_temple.gif) |
+| *"World of Tomorrow"* | *"Phosphor Horizon"* | *"Mayan Temple"* |
+|---|---|---|
+| ![world of tomorrow](/assets/img/animatediff_world_of_tomorrow.gif) | ![phosphor horizon](/assets/img/animatediff_phosphor_horizon.gif) | ![mayan temple](/assets/img/animatediff_mayan_temple.gif) |
 
-And a full 35-GIF cosmic study across the chip's 11×10 Tensix grid — see the [live showcase](https://tenstorrent.github.io/tt-animatediff/).
+Full Lightning mode gallery and benchmark page at the [live showcase](https://tenstorrent.github.io/tt-animatediff/).
 
-[![Chip grid — 35 GIFs across 110 Tensix nodes](/assets/img/animatediff_chip_grid.png)](https://tenstorrent.github.io/tt-animatediff/)
+[![Chip grid — Tensix nodes showcase](/assets/img/animatediff_chip_grid.png)](https://tenstorrent.github.io/tt-animatediff/)
 
 ---
 
@@ -75,18 +76,16 @@ SD 1.4 UNet WITH MotionAdapter (Phase 1):
 
 ## Step 1: Get the project
 
-The `tt-animatediff` repo is public. Clone it directly — you own your copy:
-
 ```bash
-git clone --depth 1 --branch v0.1.0 \
+git clone --depth 1 --branch v0.9.0 \
     https://github.com/tenstorrent/tt-animatediff.git \
     ~/tt-projects/tt-animatediff
 
 cd ~/tt-projects/tt-animatediff
-python3 -m pip install -e ".[dev]"
+pip install -e ".[dev]"
 ```
 
-**Or use the button above** — it runs the same clone + install steps automatically:
+**Or use the button:**
 
 [📦 Setup AnimateDiff Project](command:tenstorrent.setupAnimateDiffProject)
 
@@ -95,21 +94,20 @@ python3 -m pip install -e ".[dev]"
 ```
 tt-animatediff/
 ├── animatediff_ttnn/
-│   ├── pipeline.py            # Phase 1: CPU AnimateDiffPipeline wrapper
-│   ├── ttnn_pipeline.py       # Phase 2/2.5: Blackhole TT-NN UNet + PNDM scheduler
-│   ├── temporal_attention.py  # Phase 2.5: cross-frame self-attention
-│   └── temporal_module.py     # Reference — temporal attention math
+│   ├── pipeline.py               Phase 1: CPU AnimateDiffPipeline wrapper
+│   ├── ttnn_pipeline.py          Phase 2/2.5: Blackhole TT-NN UNet + PNDM
+│   ├── temporal_attention.py     Phase 2.5/3: cross-frame blend + generate_frames_motion()
+│   ├── tt_euler_scheduler.py     Lightning: TtEulerScheduler (Euler on Blackhole)
+│   ├── generation_helpers.py     Shared load_sd14_ttnn / encode_prompt
+│   ├── motion_weights.py         Phase 3: load MotionAdapter weights
+│   ├── ttnn_motion_pipeline.py   Phase 3: _apply_temporal() + forward_unet_staged()
+│   ├── temporal_module.py        Reference — temporal attention math
+│   └── ttlang/                   TT-Lang sim kernel track (QKV, SDPA, out proj)
 ├── examples/
-│   ├── generate.py            # Unified entry point (--mode cpu|blackhole|sim)
-│   ├── generate_baseline.py   # Phase 1 CPU shim
-│   └── generate_sim.py        # Phase 2.5 on ttsim simulator shim
-├── scripts/
-│   └── generate_study.py      # Batch generation (35-GIF cosmic study)
-├── docs/
-│   ├── INTEGRATION_GUIDE.md
-│   ├── SIMULATOR.md
-│   └── HARDWARE_COMPAT.md
-└── tests/                     # 16 CPU/mock tests, no hardware required
+│   └── generate.py               Unified entry point (all modes and flags)
+├── app.py                        Gradio UI (local + HuggingFace Spaces)
+├── spaces/                       HF Spaces deployment files
+└── tests/                        Unit tests, no hardware required
 ```
 
 ---
@@ -120,141 +118,193 @@ tt-animatediff/
 # SD 1.4 — required for all phases
 hf download CompVis/stable-diffusion-v1-4
 
-# AnimateDiff motion adapter — Phase 1 only
+# AnimateDiff MotionAdapter — Phase 1 and Phase 3
 hf download guoyww/animatediff-motion-adapter-v1-5-2
+
+# CPU Lightning (optional) — 4-step distilled adapter
+# hf download ByteDance/AnimateDiff-Lightning
 ```
 
 ---
 
 ## Step 3: Phase 1 — CPU AnimateDiffPipeline
 
-The `diffusers` `AnimateDiffPipeline` loads SD 1.4, injects the MotionAdapter at every transformer block, and denoises all frames simultaneously with temporal attention. This is the **reference implementation** — correct output to compare against.
+The `diffusers` `AnimateDiffPipeline` loads SD 1.4, injects the MotionAdapter at every transformer block, and denoises all frames simultaneously with temporal attention. This is the **reference implementation** — correct output to compare against hardware results.
 
 [🎬 Run Phase 1 (CPU)](command:tenstorrent.runAnimateDiff2Frame)
 
 ```bash
 cd ~/tt-projects/tt-animatediff
+
+# Standard — full AnimateDiff, ~2 min/frame
 python3 examples/generate.py --mode cpu \
     --prompt "aurora borealis over arctic ice, green and violet ribbons, cinematic" \
     --frames 8 --steps 25 --output output/phase1.gif
+
+# Lightning — distilled 4-step adapter, ~20 s/frame
+python3 examples/generate.py --mode cpu --lightning --lightning-steps 4 \
+    --prompt "crackling campfire at night, ember glow, cinematic" \
+    --frames 8 --output output/phase1_lightning.gif
 ```
 
-**Expected:** ~2 min/frame on CPU. `output/phase1.gif` — 8 frames of temporally coherent animation.
-
-**What happens inside:**
-
-```python
-from diffusers import AnimateDiffPipeline, MotionAdapter
-
-adapter = MotionAdapter.from_pretrained("guoyww/animatediff-motion-adapter-v1-5-2")
-pipe = AnimateDiffPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", motion_adapter=adapter)
-
-# All 8 frames denoised together — temporal attention at every step
-result = pipe(prompt=prompt, num_frames=8, num_inference_steps=25)
-frames = result.frames[0]  # List of PIL Images
-```
+**Expected:** 8 frames of temporally coherent animation. CPU Lightning (`--lightning`) uses the real `ByteDance/AnimateDiff-Lightning` distilled adapter (CFG=1.0 baked in, 4-step default).
 
 ---
 
-## Step 4: Phase 2.5 — Blackhole + temporal attention (canonical)
+## Step 4: Phase 2.5 — Blackhole + temporal attention
 
-Replaces the PyTorch UNet with the TT-NN UNet from `~/tt-metal`, running natively on Blackhole silicon. Cross-frame self-attention is applied at each PNDM step across all N frame latents simultaneously — giving genuine temporal coherence at hardware speed.
+Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole silicon. Cross-frame self-attention blends noise predictions at each PNDM step for temporal coherence.
 
 **Requires:** Blackhole hardware (p100/p150/p300c/TT-QuietBox<sup>®</sup> 2) and `~/tt-metal` built.
 
 [⚡ Run Phase 2.5 (Blackhole)](command:tenstorrent.runAnimateDiff16Frame)
 
 ```bash
-source ~/tt-metal/python_env/bin/activate
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-projects/tt-animatediff
 
-python3 examples/generate.py --mode blackhole \
+python3 examples/generate.py \
     --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" \
     --frames 8 --steps 25 --temporal-alpha 0.35 \
     --output output/blackhole.gif
 ```
 
-**Expected output:**
+**Expected:**
 
 ```
-AnimateDiff — Blackhole hardware (TTNN UNet + cross-frame temporal attention)
-  Frames : 8  Steps: 25  Temporal alpha: 0.35
-
 Opening Blackhole device...
-Loading SD 1.4 models...
   Building TTNN UNet (~2-3 min first run, cached after)...
   Loaded in 7.3s
 
 Generating 8 frame(s)...
-  Done in 121.4s (15.2s/frame)
+  Done in 100.1s (12.5s/frame)
 
 Saved 8 frame(s) → output/blackhole.gif
 ```
 
-**Performance on P300C:** 7s model load + ~15s/frame. Kernel compilation ~2–3 min on first run, cached after.
+---
+
+## Step 5: Lightning mode — Euler scheduler on Blackhole
+
+`--lightning` on Blackhole uses `EulerDiscreteScheduler` (trailing, linear) with the base SD 1.4 TTNN UNet. CFG=7.5 is retained — this is a different solver trajectory, not fewer steps, not a distilled model. Any step count works.
+
+```bash
+python3 examples/generate.py --lightning \
+    --prompt "aurora borealis over a frozen lake, cinematic 4K" \
+    --frames 8 --steps 25 --output output/lightning.gif
+```
+
+**Expected:** ~12.0 s/frame. Similar quality to PNDM at the same step count — use when you want to compare solver trajectories or prefer Euler's smoother noise schedule.
+
+See the [full 10-prompt comparison gallery](https://tenstorrent.github.io/tt-animatediff/gallery.html) for PNDM vs Lightning side-by-side.
 
 ---
 
-## What we built — the improvements
+## Step 6: Phase 3 — Full MotionAdapter on Blackhole
 
-The `tt-animatediff` repo went through several rounds of bring-up work to get to this state. Here's what was added beyond the basic TTNN UNet port:
+Phase 3 injects the full `AnimateDiffTransformer3D` at 7 points (down0/1/2, mid, up0/1/2) in the SD 1.4 TTNN UNet via CPU round-trip — no tt-metal source modifications. Weights loaded straight from `guoyww/animatediff-motion-adapter-v1-5-2`.
 
-### Cross-frame temporal attention (Phase 2.5)
-
-The original Phase 2 denoised each frame independently with only shared base noise for coherence. Phase 2.5 adds a CPU cross-frame self-attention pass at each denoising step:
-
-```
-For step t in [T → 0]:
-    For frame i in [0, N]:
-        noise_pred[i] = TTNN_UNet(latent[i], t)   # Blackhole hardware
-    noise_preds = cross_frame_attention(stack)      # CPU, ~0ms for N=8
-    For frame i in [0, N]:
-        latent[i] = scheduler.step(noise_pred[i])
-```
-
-The cross-frame attention (`animatediff_ttnn/temporal_attention.py`) reshapes the stacked noise predictions so frames attend to each other, then blends the result back via `--temporal-alpha`:
-
-```python
-def cross_frame_attention(x: torch.Tensor, alpha: float = 0.35) -> torch.Tensor:
-    # x: (N, C, H, W) — one noise prediction per frame
-    N, C, H, W = x.shape
-    flat = x.view(N, C, H*W).permute(2, 0, 1)  # (H*W, N, C)
-    attn_out = F.scaled_dot_product_attention(flat, flat, flat)
-    attn_out = attn_out.permute(1, 2, 0).view(N, C, H, W)
-    return (1 - alpha) * x + alpha * attn_out
-```
-
-### Hardware resilience
-
-`setup_blackhole()` reads hwmon sentinel values before opening the device. If a chip shows a dead-ARC temperature (> 1,000,000 millidegrees in `temp1_input`), a warning is emitted. If you see `Timed out while waiting for active ethernet core`, run:
+### Full Phase 3 (~52 s/frame)
 
 ```bash
-tt-smi -r 0 1 2 3 && sleep 8
+python3 examples/generate.py --motion-adapter \
+    --prompt "ancient Mayan temple under shifting cosmos, starfield, cinematic 4K" \
+    --frames 8 --steps 25 --output output/phase3_full.gif
 ```
 
-Then retry — this clears hung ethernet cores from prior incomplete teardowns.
+### Fast Phase 3 — skip up1+up2 (~7.7 s/frame)
 
-### Unified entry point
-
-All three modes are one script with a `--mode` flag:
+The two decoder injection points (up1: 32×32 C=1280, up2: 64×64 C=640) account for ~80% of the CPU transformer cost. Skipping them retains all encoder and mid-block temporal attention:
 
 ```bash
-python3 examples/generate.py --mode cpu        # any machine, ~2 min/frame
-python3 examples/generate.py --mode blackhole  # Blackhole hardware, ~15 s/frame
-python3 examples/generate.py --mode sim        # no hardware, ttsim virtual device
+python3 examples/generate.py --motion-adapter --motion-adapter-skip up1 up2 \
+    --prompt "ancient Mayan temple under shifting cosmos, starfield, cinematic 4K" \
+    --frames 8 --steps 25 --output output/phase3_fast.gif
 ```
 
-### tt-metal path tracking
+**Expected:** ~7.7 s/frame — faster than Phase 2.5 (12.5 s/frame) with full MotionAdapter temporal coherence in the encoder and mid-block. Minor reduction in decoder-side coherence vs full Phase 3.
 
-Between firmware 19.5.0 and 19.8.0, the SD 1.4 demo moved from `models.demos.wormhole.stable_diffusion` to `models.demos.vision.generative.stable_diffusion.wormhole`. See `docs/HARDWARE_COMPAT.md` for recovery steps.
+---
+
+## Modes at a glance
+
+| Mode | Command | Speed (8 fr, 512²) | Temporal attention |
+|---|---|---|---|
+| CPU standard | `--mode cpu` | ~2 min/frame | Full MotionAdapter ✓ |
+| CPU Lightning | `--mode cpu --lightning` | ~20 s/frame | Full MotionAdapter ✓ |
+| Blackhole standard | *(default)* | **~12.5 s/frame** | Cross-frame blend |
+| Blackhole Lightning | `--lightning` | **~12.0 s/frame** | Cross-frame blend |
+| Phase 3 full | `--motion-adapter` | ~52 s/frame | Full MotionAdapter ✓ |
+| Phase 3 fast | `--motion-adapter --motion-adapter-skip up1 up2` | **~7.7 s/frame** | Full MotionAdapter (encoder+mid) ✓ |
+| Simulator | `--mode sim` | ~10–100× slower | Cross-frame blend |
+
+*All timings: QB2, 8 frames at 512×512, warm model (TTNN JIT already compiled).*
+
+---
+
+## Gradio UI
+
+A point-and-click interface for all modes. Models stay loaded between generations — only the first run pays the ~7 s load cost and ~2–3 min kernel compilation.
+
+```bash
+pip install -e ".[ui]"
+
+# Blackhole hardware — activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
+python3 app.py
+# Open http://localhost:7860
+
+# CPU only
+python3 app.py  # switch mode to "cpu" in the dropdown
+
+# ttsim simulator (no hardware)
+python3 app.py  # switch mode to "sim"
+```
+
+**UI parameters:**
+
+| Parameter | Range | Default | Notes |
+|---|---|---|---|
+| Mode | cpu / blackhole / sim | blackhole | sim for HF Spaces |
+| Frames | 2–24 | 8 | 2–4 recommended for sim |
+| Steps | 4–50 | 25 | 4 for CPU Lightning |
+| Temporal alpha | 0.0–1.0 | 0.35 | Blackhole/sim only |
+| Lightning | checkbox | off | Euler solver (Blackhole/sim) or distilled adapter (CPU) |
+| MotionAdapter Phase 3 | checkbox | off | Full AnimateDiff on Blackhole/sim |
+
+**HuggingFace Spaces:** The `spaces/` directory contains deployment files for hosting on HF Spaces (ttsim mode, no hardware required).
+
+---
+
+## No hardware? Use the simulator
+
+[ttsim](https://github.com/tenstorrent/ttsim) is a bit-exact Blackhole simulator that runs on any Linux/x86_64 machine.
+
+```bash
+# Quick smoke test — 2 frames, 4 steps
+python3 examples/generate.py --mode sim \
+    --frames 2 --steps 4 --output output/sim_test.gif
+
+# With explicit sim binary path
+python3 examples/generate.py --mode sim \
+    --sim ~/sim/libttsim_bh.so --frames 2 --steps 4
+
+# Simulator via Gradio UI
+python3 app.py  # switch mode to "sim"
+```
+
+See `docs/SIMULATOR.md` in the repo for full setup including the ttsim download.
 
 ---
 
 ## Prompt guide
 
-SD 1.4 at 512×512 with the TTNN UNet has a distinct personality. Knowing it gets you better results.
-
-### What it does well
+### What SD 1.4 does well
 
 | Category | Examples |
 |---|---|
@@ -269,49 +319,43 @@ SD 1.4 at 512×512 with the TTNN UNet has a distinct personality. Knowing it get
 
 - **Photorealistic faces** — anatomy drifts frame-to-frame
 - **Text in the image** — SD 1.4 cannot render legible text
-- **Specific named real places** — results are impressionistic
 - **Very long prompts** — CLIP truncates at 77 tokens (~60 words max)
 
 ### Prompt patterns that work
 
 ```
-# Style before subject — model weights the style heavily
+# Style before subject — weights the style heavily
 "watercolor painting of ancient ruins at sunset, soft brushstrokes, muted palette"
 
 # Cinematic lighting descriptors unlock quality
 "cinematic 4K, dramatic side lighting, volumetric fog, depth of field"
-
-# Cosmic + architecture is the sweet spot for this model
-"Mayan pyramid under a swirling nebula, starfield, bioluminescent jungle, cinematic 4K"
 
 # Motion-friendly subjects produce the best animation
 "crackling campfire"   "ocean waves"   "swirling clouds"   "aurora borealis"
 "shifting cosmos"      "flowing lava"  "drifting smoke"    "mandala blooming"
 ```
 
-### `--temporal-alpha` tuning
+### `--temporal-alpha` tuning (Blackhole/sim, Phase 2.5 / Lightning)
 
 | Value | Effect |
 |---|---|
-| `0.0` | No cross-frame mixing — shared noise only |
-| `0.2–0.3` | Subtle coherence, natural variation |
-| **`0.35`** | **Default — good for most subjects** |
-| `0.5–0.7` | Strong coherence, background stabilises |
-| `1.0` | Maximum blending, very low motion |
+| `0.0` | No cross-frame mixing — frames denoised independently |
+| `0.2–0.3` | Subtle coherence, natural variation frame-to-frame |
+| **`0.35`** | **Default** — good balance for most subjects |
+| `0.5–0.7` | Strong coherence; background stabilises, detail may flatten |
+| `1.0` | Maximum blending — frames very similar, low motion |
 
 Fast motion (fire, water): 0.2–0.35 · Slow drift (cosmos, aurora): 0.4–0.6
 
-### Gallery — cosmic sweet spot
+### Gallery
 
 | Sacred geometry | Circuit as nature | Chip as cosmos |
 |---|---|---|
 | ![mandala](/assets/img/animatediff_mandala.gif) | ![circuit moss](/assets/img/animatediff_circuit_moss.gif) | ![chip cosmos](/assets/img/animatediff_chip_cosmos.gif) |
-| `sacred mandala blooming from starfield` | `circuit board growing like moss` | `Blackhole chip glowing with embedded cosmos` |
 
 | Aurora | Mayan temple | Nebula |
 |---|---|---|
 | ![aurora](/assets/img/animatediff_aurora.gif) | ![mayan temple](/assets/img/animatediff_mayan_temple.gif) | ![nebula](/assets/img/animatediff_nebula.gif) |
-| `aurora borealis over arctic ice` | `ancient Mayan temple under shifting cosmos` | `swirling nebula in deep space` |
 
 ---
 
@@ -320,13 +364,10 @@ Fast motion (fire, water): 0.2–0.35 · Slow drift (cosmos, aurora): 0.4–0.6
 **`animatediff_ttnn/ttnn_pipeline.py`** — the Blackhole denoising loop:
 
 ```python
-def generate_frames_temporal(device, ttnn_model, torch_vae, config,
+def generate_frames_temporal(device, ttnn_model, ttnn_vae, config,
                               torch_time_proj, text_embeddings,
                               num_frames, num_steps, seed, temporal_alpha):
-    generator = torch.Generator().manual_seed(seed)
     base_noise = torch.randn((1, 4, 64, 64), generator=generator)
-
-    # Per-frame seeded perturbation for variation
     frame_latents = [
         base_noise + 0.05 * torch.randn((1,4,64,64), generator=generator)
         for _ in range(num_frames)
@@ -334,32 +375,42 @@ def generate_frames_temporal(device, ttnn_model, torch_vae, config,
 
     for step_idx, t in enumerate(timesteps):
         # TTNN UNet forward pass per frame on Blackhole
-        noise_preds = []
-        for i in range(num_frames):
-            lat = to_device(frame_latents[i], device, ...)
-            ttnn_out = ttnn_model(lat, timestep=_tlist[step_idx], ...)
-            noise_preds.append(from_device(tt_guide(ttnn_out, guidance_scale), device))
-
+        noise_preds = [
+            from_device(ttnn_model(to_device(lat, device), timestep=t, ...), device)
+            for lat in frame_latents
+        ]
         # Cross-frame attention on CPU — frames agree on structure
         noise_preds = cross_frame_attention(torch.stack(noise_preds), alpha=temporal_alpha)
-
-        # Scheduler step
         for i in range(num_frames):
             frame_latents[i] = pndm_step(noise_preds[i], t, frame_latents[i])
 
-    # VAE decode on CPU — TTNN VAE conv_out OOMs on Blackhole's L1 grid
-    return [vae_decode(torch_vae, lat) for lat in frame_latents]
+    # TTNN VAE decode on Blackhole
+    return [ttnn_vae_decode(ttnn_vae, device, lat) for lat in frame_latents]
 ```
 
 **CLIP encoding** uses the text encoder bundled inside SD 1.4 — no separate download. Tokens are padded 77 → 96 to match the TTNN UNet's expected sequence length.
 
-**MeshDevice:** `setup_blackhole()` opens a `MeshDevice(1,1)` on a single chip. The SD 1.4 TTNN UNet uses `ttnn.to_torch()` without a mesh composer, which crashes on multi-chip tensors — single-chip until Phase 3 ships `ShardTensorToMesh` batched dispatch.
+**MeshDevice:** `setup_blackhole()` opens a `MeshDevice(1,1)` on a single chip. Use `--device-id INT` to pin to a specific chip for multi-process parallel dispatch across chips.
+
+---
+
+## How Phase 3 works
+
+`forward_unet_staged()` in `ttnn_motion_pipeline.py` replicates the TTNN UNet orchestration in-repo, inserting `_apply_temporal()` hooks between blocks. After each TTNN cross-attention block, hidden states are round-tripped to CPU, passed through `AnimateDiffTransformer3D.forward()`, then returned to Blackhole.
+
+**Batched D→H transfer:** All N frame tensors are pulled from device in a single `ttnn.concat → ttnn.to_torch` call (1.94× speedup over naive per-frame). H→D stays per-frame — `ttnn.split` produces parent-buffer views incompatible with the downstream resnet reshard kernel.
+
+**`--motion-adapter-skip` speed table (QB2, 8 frames, 25 steps):**
+
+| Configuration | s/frame | Notes |
+|---|---|---|
+| Baseline (per-frame D→H, pre-v0.9.0) | ~101 | Original implementation |
+| Batched D→H (current default) | ~52 | 1.94× speedup |
+| Skip up1+up2 (`--motion-adapter-skip up1 up2`) | **~7.7** | 6.75× vs full; faster than Phase 2.5 |
 
 ---
 
 ## The model bring-up methodology
-
-What this project demonstrates is **the complete workflow for integrating any new model**:
 
 ### Phase 1: Research (1–2 hours)
 1. Clone the reference implementation
@@ -380,7 +431,7 @@ What this project demonstrates is **the complete workflow for integrating any ne
 ### Phase 4: Packaging (1 hour)
 - `setup.py` + `requirements.txt` makes it `pip install -e .`-able
 - Single unified entry point (`generate.py --mode cpu|blackhole|sim`)
-- `docs/HARDWARE_COMPAT.md` documents version-specific gotchas
+- Flags for every variant; no separate scripts
 
 ### Phase 5: Validate on hardware (1–2 hours)
 1. First run: expect kernel compilation ~2–3 min — normal, cached after
@@ -395,33 +446,17 @@ What this project demonstrates is **the complete workflow for integrating any ne
 
 | Issue | Status |
 |---|---|
-| TT-NN VAE OOMs on Blackhole `conv_out` | Workaround: CPU PyTorch VAE decode |
-| No TemporalTransformer blocks in TT-NN UNet | Phase 2.5 adds CPU cross-frame attention as a bridge |
-| Single-chip only (multi-chip crashes on `to_torch()`) | Use `device_ids=[0]` until Phase 3 |
-| TT-Metalium SD path changed in firmware 19.8.0 | See `docs/HARDWARE_COMPAT.md` |
 | First run 2–3 min kernel compilation | Expected; cached after first run |
-
----
-
-## No hardware? Use the simulator
-
-[ttsim](https://github.com/tenstorrent/ttsim) is a bit-exact Blackhole simulator that runs on any Linux/x86_64 machine — same TTNN dispatch path as real hardware.
-
-```bash
-python3 examples/generate.py --mode sim \
-    --sim ~/sim/libttsim_bh.so \
-    --frames 2 --steps 4 --output output/sim_test.gif
-```
-
-See `docs/SIMULATOR.md` in the repo for full setup.
+| Phase 3 Lightning (`--motion-adapter --lightning`) | ~50.6 s/frame — no benefit; CPU bridge calls dominate, not step count |
+| TT-Metalium SD path changed in firmware 19.8.0 | See `docs/HARDWARE_COMPAT.md` for recovery steps |
 
 ---
 
 ## What's next
 
-### Add TemporalTransformer blocks to the TT-NN UNet
+### TT-Lang native temporal attention kernels
 
-Full Phase 3 would inject `TemporalTransformer` blocks into the TT-NN UNet's `BasicTransformerBlock` instances — native TT-NN temporal attention, eliminating the CPU bounce in Phase 2.5.
+`animatediff_ttnn/ttlang/` implements QKV projection, SDPA, and output projection as TT-Lang DSL kernels verified in the functional simulator (9 tests, PCC > 0.999). Hardware smoke test on dual P300c: PCC > 0.99 at all dims. The next step is integrating these kernels directly into the TTNN UNet denoising loop, eliminating the CPU round-trip entirely.
 
 ### Apply this pattern to other models
 
@@ -437,6 +472,7 @@ The standalone package pattern works for any model:
 
 - **Repo:** [github.com/tenstorrent/tt-animatediff](https://github.com/tenstorrent/tt-animatediff)
 - **Showcase:** [tenstorrent.github.io/tt-animatediff](https://tenstorrent.github.io/tt-animatediff/)
-- **AnimateDiff paper:** [arxiv 2307.04725](https://arxiv.org/abs/2307.04725) — Guo, Zheng, Hu et al.
-- **SD 1.4:** [CompVis/stable-diffusion](https://github.com/CompVis/stable-diffusion) — Rombach, Blattmann et al.
-- **Hardware compat:** `docs/HARDWARE_COMPAT.md` in the repo
+- **Benchmark page:** [tenstorrent.github.io/tt-animatediff/benchmarks.html](https://tenstorrent.github.io/tt-animatediff/benchmarks.html)
+- **Gallery (PNDM vs Lightning):** [tenstorrent.github.io/tt-animatediff/gallery.html](https://tenstorrent.github.io/tt-animatediff/gallery.html)
+- **AnimateDiff paper:** [arxiv 2307.04725](https://arxiv.org/abs/2307.04725)
+- **SD 1.4:** [CompVis/stable-diffusion](https://github.com/CompVis/stable-diffusion)

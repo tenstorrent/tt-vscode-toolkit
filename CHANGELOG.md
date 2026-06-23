@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.0.504] - 2026-06-23
+## [0.0.515] - 2026-06-23
 ### Fixed
 - **QB2 / Ubuntu 24.04 compatibility audit across cookbook and deployment lessons** — comprehensive pass to ensure all lessons work on tt-developer-image, QB2 pre-installed images, and cloud/custom installs:
   - `python` → `python3` throughout (`cookbook-game-of-life`, `cookbook-audio-processor`, `cookbook-mandelbrot`, `cookbook-image-filters`, `cookbook-particle-life`, `deploy-to-koyeb`, `vllm-production`). Ubuntu 24.04 and tt-developer-image have no `python` symlink.
@@ -16,6 +16,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `cookbook-particle-life`: fixed multi-device "Key Code Pattern" from broken per-chip `open_device` loop (causes dispatch core errors on teardown) to `ttnn.CreateDevices` / `ttnn.CloseDevices` coordinated API.
   - `deploy-to-koyeb`: `python -m vllm` → `python3 -m vllm` in review block and all Dockerfile CMD entries.
 
+## [0.0.514] - 2026-06-23
+### Fixed
+- **`isTtsimQemuInstalled` avoids `grep` subprocess** — replaced `shell: true` + `grep -q` with a pure-Node stdout/stderr substring check. No longer depends on `grep` being on PATH; more portable and easier to debug.
+- **Disk space check uses correct mount point** — `freeDiskGb` is now called with `~/sim/ttsim-qemu` (the target directory) instead of `$HOME`, so the check is accurate when `~/sim` is on a separate partition or bind mount. Threshold raised to 12 GB (image is resized to 10 GB on download).
+- **ttsim-qemu-bridge lesson: "pip install ttnn and go" wording clarified** — reworded to make clear this is the design goal / intended end state, not the current working status. Directs users to the status block for what is and isn't working yet.
+
+## [0.0.513] - 2026-06-23
+### Fixed
+- **QB2 compatibility audit: `python` → `python3` across all remaining lessons** — fixed bare `python` invocations in `bounty-program-model-bringup` (validate_reference.py, generate_reference_hf.py) and `tt-xla-jax` (gpt_demo.py). Ubuntu 24.04 / tt-developer-image have no `python` symlink; `python3` is required everywhere.
+- **QB2 compatibility audit: venv activation paths updated to dual-path pattern** — replaced hardcoded `source ~/tt-metal/python_env/bin/activate` and `source ~/tt-forge-venv/bin/activate` in `explore-metalium`, `video-generation-ttmetal`, `tt-xla-jax`, and `animatediff-video-generation`. Each activation block now shows three options: `tt-metal`/`tt-forge` shell switcher (tt-developer-image/Docker), `~/.tenstorrent-venv/bin/activate` (QB2 pre-installed image), and `/opt/venv-metal/bin/activate` or `/opt/venv-forge/bin/activate` (cloud/custom install).
+- **QB2 compatibility audit: hardcoded `/home/ttuser/` paths removed** — replaced with `$HOME/...` or `~/...` in `qb2-openclaw-assistant` (memory search config), `qb2-video-generation` (`TT_DIT_CACHE_DIR`), and `qb2-local-agents` (directory and troubleshooting path examples). These lessons must work for any user account, not just the development machine's `ttuser`.
+
+## [0.0.512] - 2026-06-23
+### Fixed
+- **AnimateDiff lesson uses `python3` throughout** — replaced all bare `python` invocations in the lesson's code blocks with `python3`. Ubuntu 24.04 (and many other Linux distributions) do not install a `python` symlink by default; `python3` is the correct command for out-of-the-box compatibility.
+
+## [0.0.511] - 2026-06-22
+### Changed
+- **AnimateDiff lesson updated to v0.9.0** — complete rewrite to match the latest tt-animatediff release. Added: Phase 3 (full `AnimateDiffTransformer3D` injected at 7 UNet points, ~52 s/frame), fast Phase 3 path (`--motion-adapter-skip up1 up2`, **~7.7 s/frame**, faster than Phase 2.5), Lightning mode on Blackhole (Euler scheduler, CFG=7.5, ~12.0 s/frame), Gradio UI (`app.py`, local + HF Spaces), TTNN VAE on Blackhole (no more CPU decode fallback), updated perf table across all modes, Phase 3 speedup breakdown (batched D→H, 1.94× over naive per-frame), `--device-id` flag, TT-Lang temporal kernel status. Pin updated from v0.1.0 → v0.9.0. "What's next" section updated: Phase 3 shipped; next is TT-Lang kernel integration.
+
+## [0.0.510] - 2026-06-22
+### Fixed
+- **Theme prompt respects context** — in code-server (VS Code in the browser) the Tenstorrent Dark theme is applied automatically on first install when no theme is set, matching the expectation of a fresh browser-based instance. In desktop VS Code, a prompt is shown instead ("Apply Theme" / "Keep Current"), leaving the choice to the user. In both cases, any existing explicit theme value is left untouched.
+- **`isTtsimQemuInstalled` JSDoc corrected** — the function checks for the ttsim-qemu fork specifically (by detecting the `-device ttsim` option), not just any qemu-system-x86_64 install. The old JSDoc implied it checked for the upstream binary.
+- **`findQemuImage` returns a deterministic result** — now prefers `ubuntu.qcow2` (the filename written by `setupTtsimQemu`), then falls back to the first alphabetically-sorted `.qcow2` in the directory. Previously the sort was nondeterministic.
+- **`findTtsimLib` error message names both libraries** — the error now says "libttsim_wh.so (Wormhole) or libttsim_bh.so (Blackhole)" so users with only a Blackhole library aren't confused.
+- **SSH key check fails fast** — `setupTtsimQemu` now exits immediately with a clear diagnostic if no SSH public key is found, rather than leaving `PLACEHOLDER_KEY` in the cloud-init user-data and causing silent SSH polling timeout later.
+- **Lesson heading clarified** — "The VM is persistent" renamed to "Ephemeral vs. persistent sessions" to match the content, which describes both modes.
+- **QEMU Bridge callout in ttsim-twenty-and-ten updated** — now explicitly mentions that `libttsim_wh.so` must be present on the host and that the feature is still in active development, preventing users from expecting the VM path to work without the library.
+
+## [0.0.509] - 2026-06-22
+### Fixed
+- **`BOOT_TTSIM_QEMU` template aligned with lesson docs** — added missing `-cpu max` (required in TCG mode for full x86 feature set) and `bar4-size=32M` (correct Wormhole BAR4 window size) to the boot command template used by the Launch button. These flags are documented as required in the lesson and now match what the extension actually runs.
+- **ttsim QEMU Bridge lesson description corrected** — front matter description now accurately states the lesson is an architecture guide for a currently-draft feature with two blocking ttsim implementation gaps, rather than describing the end goal as if it already works.
+
+## [0.0.508] - 2026-06-22
+### Fixed
+- **Theme auto-apply respects non-default themes** — on first install, the extension now skips applying the Tenstorrent Dark theme if the user already has any non-built-in theme active globally. Previously the guard only checked whether `workbench.colorTheme` was explicitly set; now it also allows applying over VS Code's own built-in defaults (`Default Dark Modern`, `Default Dark+`, `Default Light Modern`, etc.) since those represent "no real choice made yet." Any third-party or custom theme is treated as a deliberate selection and left untouched.
+
+## [0.0.507] - 2026-06-20
+### Fixed
+- **ttsim QEMU Bridge compatibility findings** — updated `ttsim-qemu-bridge.md` with accurate status for ttsim v1.9.1 + ttnn 0.72.0: documented two blocking compatibility gaps (tt-kmd ≥ 2.4.0 probes `ARC_MSG_QCB_PTR` which ttsim doesn't implement; ttnn ≥ 0.69.0 UMD reads ARC tile `0x10000108` via TLB window during topology discovery, also unimplemented). Corrected boot command: `-cpu max` (not `-cpu host`), `bar4-size=32M` for Wormhole, no `-enable-kvm` (TCG mode required — KVM MMIO emulator can't handle 16-byte SSE loads from WC-mapped TLB pages). Added version pin for tt-kmd (use ≤ ttkmd-2.3.0). The PCI device enumerates correctly in the guest; the gap is in ttsim's ARC tile register coverage for UMD topology discovery.
+### Changed
+- **Version bump to 0.0.507** — increment after ttsim QEMU Bridge investigation and lesson update.
+
+## [0.0.506] - 2026-06-20
+### Fixed
+- **PR review fixes (ttsim QEMU Bridge)** — 7 Copilot comments addressed: corrected misleading comment that `-netdev user` requires the fork (it's standard upstream QEMU; only `-device ttsim` is fork-specific); updated `findTtsimLib()` error message to mention both WH and BH library names; changed QEMU monitor shutdown from `quit` (immediate process kill) to `system_powerdown` (sends ACPI event for clean guest OS shutdown); `setupTtsimQemu()` now creates a cloud-init seed ISO after download (injects host SSH public key into ubuntu user's `authorized_keys`) and grows image to 10 GB — without this the SSH polling loop always times out on a stock cloud image; manual boot command in `ttsim-qemu-bridge.md` updated with seed ISO flag; fixed typo `ttstorrent/tt-kmd` → `tenstorrent/tt-kmd`; updated GIF caption from "6 of 31 entries" to "6 of 32 entries"; added `tt-kmd` driver caveat to QEMU Bridge callout in `ttsim-twenty-and-ten.md`.
+
+## [0.0.505] - 2026-06-16
+### Fixed
+- **ttsim QEMU Bridge architecture correction** — rewrote `ttsim-qemu-bridge.md` and updated `ttsim-twenty-and-ten.md` cross-references to reflect actual ttsim-qemu architecture: QEMU fork adding a virtual Tenstorrent PCI device (vendor 0x1e52), not a pre-built image provider; removed phantom release gate (`TTSIM_QEMU_RELEASE`) from `terminalCommands.ts`; rewrote `launchTtsimQemu()`, `stopTtsimQemu()`, and `setupTtsimQemu()` in `extension.ts` to match real workflow (build from source, bring own Ubuntu image, `pip install ttnn`).
+### Changed
+- **ttsim-qemu-bridge lesson** — updated "First steps inside the VM" section to document `tt-kmd` driver requirement and version-matching constraint between ttnn wheels and kernel driver ABI; added note that `TT_METAL_SIMULATOR` host path is the validated alternative.
 ## [0.0.503] - 2026-06-12
 ### Fixed
 - **Self-review fixes** — 29 issues confirmed by automated adversarial review: corrected MESH_DEVICE enum values in code-fence comments (T3000→T3K, n150→N150, Galaxy→GALAXY throughout vllm-production, image-generation, bounty-program, version-compatibility, step-zero, README); removed `<sup>™/</sup>` HTML injected into yaml/bash code fences (ct3-configuration-patterns, step-zero); fixed api-server print string back to `tt-metal ready`; corrected `p100`→`P100` in hardware-detection and QB_follows prose; completed T3K→T3000 normalization in ttsim/cookbook-particle-life prose callouts; fixed FAQ duplicate stale QB2 paragraph and TTNN/tt-metal prose table cells; fixed bare `tt-metal` prose in image-generation (→ TT-Metalium); updated link display text in cookbook-overview and tt-inference-server (github URL→ product name); clarified Vale config comments (ProductNames.yml T3000 exception, Terminology.yml link-text caveat).

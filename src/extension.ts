@@ -3860,6 +3860,334 @@ async function runTtsimAttention(): Promise<void> {
 }
 
 // ============================================================================
+// ttsim QEMU Bridge
+// ============================================================================
+
+/**
+ * Returns true only if the ttsim-qemu fork build is on PATH.
+ * Detects the fork by checking for the custom `-device ttsim` option,
+ * which upstream QEMU does not provide.
+ */
+function isTtsimQemuInstalled(): boolean {
+  try {
+    const out = require('child_process').execSync(
+      'qemu-system-x86_64 -device help',
+      { stdio: ['ignore', 'pipe', 'pipe'] }
+    ).toString();
+    return out.includes('ttsim');
+  } catch (e: any) {
+    // execSync throws when exit code != 0; stderr may contain the device list
+    return String(e?.stderr ?? e?.stdout ?? '').includes('ttsim');
+  }
+}
+
+// Returns the path of the preferred *.qcow2 image in ~/sim/ttsim-qemu/.
+// Prefers ubuntu.qcow2 (the name written by setupTtsimQemu); falls back to
+// the first alphabetically-sorted name so the result is deterministic.
+function findQemuImage(): string | null {
+  const path = require('path');
+  const fs = require('fs');
+  const os = require('os');
+  const dir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
+  if (!fs.existsSync(dir)) { return null; }
+  const imgs = fs.readdirSync(dir)
+    .filter((f: string) => f.endsWith('.qcow2'))
+    .sort() as string[];
+  if (imgs.length === 0) { return null; }
+  const preferred = imgs.includes('ubuntu.qcow2') ? 'ubuntu.qcow2' : imgs[0];
+  return path.join(dir, preferred);
+}
+
+// Returns the path of the preferred libttsim .so (wh > bh), or null if neither found.
+function findTtsimLib(): string | null {
+  const path = require('path');
+  const fs = require('fs');
+  const os = require('os');
+  const simDir = path.join(os.homedir(), 'sim');
+  for (const name of ['libttsim_wh.so', 'libttsim_bh.so']) {
+    const p = path.join(simDir, name);
+    if (fs.existsSync(p)) { return p; }
+  }
+  return null;
+}
+
+/**
+ * Returns free disk space in GB at the given path, or -1 on error.
+ */
+function freeDiskGb(dirPath: string): number {
+  try {
+    const out = require('child_process')
+      .execSync(`df -BG "${dirPath}" | awk 'NR==2{print $4}'`)
+      .toString()
+      .trim()
+      .replace('G', '');
+    return parseInt(out, 10);
+  } catch {
+    return -1;
+  }
+}
+
+/**
+ * Returns free RAM in GB, or -1 on error.
+ */
+function freeRamGb(): number {
+  try {
+    const out = require('child_process')
+      .execSync(`free -g | awk '/^Mem:/{print $7}'`)
+      .toString()
+      .trim();
+    return parseInt(out, 10);
+  } catch {
+    return -1;
+  }
+}
+
+/**
+ * Returns true if the QEMU VM process from the PID file is alive.
+ */
+function isQemuVmRunning(): boolean {
+  const os = require('os');
+  const fs = require('fs');
+  const pidFile = require('path').join(os.homedir(), 'sim', 'ttsim-qemu', 'vm.pid');
+  if (!fs.existsSync(pidFile)) {
+    return false;
+  }
+  try {
+    const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+    require('child_process').execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+let qemuBootPollHandle: ReturnType<typeof setInterval> | null = null;
+
+function getOrCreateQemuBridgeTerminal(): vscode.Terminal {
+  const existing = vscode.window.terminals.find(t => t.name === 'ttsim QEMU Bridge');
+  return existing ?? vscode.window.createTerminal({ name: 'ttsim QEMU Bridge' });
+}
+
+/**
+ * Command: tenstorrent.ttsim.launchQemu
+ *
+ * State machine:
+ *   NO_FORK_QEMU → error: build ttsim-qemu from source
+ *   NO_LIB       → error: run Setup ttsim first
+ *   NO_IMG       → offer to download Ubuntu 24.04 cloud image
+ *   VM_ON        → skip boot, attach terminal
+ *   VM_BOOTING   → already-booting guard
+ *   VM_OFF       → boot with ttsim PCI device → poll SSH → open terminal
+ */
+async function launchTtsimQemu(): Promise<void> {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+
+  if (!isTtsimQemuInstalled()) {
+    const action = await vscode.window.showErrorMessage(
+      'ttsim QEMU Bridge requires qemu-system-x86_64 built from the tenstorrent/ttsim-qemu fork. The system QEMU does not have the ttsim PCI device.',
+      'View Build Instructions'
+    );
+    if (action === 'View Build Instructions') {
+      vscode.env.openExternal(vscode.Uri.parse('https://github.com/tenstorrent/ttsim-qemu'));
+    }
+    return;
+  }
+
+  const libPath = findTtsimLib();
+  if (!libPath) {
+    vscode.window.showErrorMessage(
+      'libttsim_wh.so (Wormhole) or libttsim_bh.so (Blackhole) not found in ~/sim/. Run "Setup ttsim" first to download the simulator library.'
+    );
+    return;
+  }
+
+  const imagePath = findQemuImage();
+  if (!imagePath) {
+    const ram = freeRamGb();
+    if (ram >= 0 && ram < 8) {
+      vscode.window.showErrorMessage(
+        `QEMU Bridge requires 8 GB free RAM. Currently available: ${ram} GB.`
+      );
+      return;
+    }
+    // Check free space on the filesystem that will hold the image (~600 MB + 10 GB resized).
+    // Use simDir (~/sim/ttsim-qemu) so the check targets the right mount point
+    // if ~/sim lives on a separate partition or bind mount.
+    const simDirForDisk = path.join(os.homedir(), 'sim', 'ttsim-qemu');
+    fs.mkdirSync(simDirForDisk, { recursive: true });
+    const disk = freeDiskGb(simDirForDisk);
+    if (disk >= 0 && disk < 12) {
+      vscode.window.showErrorMessage(
+        `Less than 12 GB free disk at ~/sim/ttsim-qemu (need ~10 GB for VM image). Free space and try again.`
+      );
+      return;
+    }
+    const action = await vscode.window.showInformationMessage(
+      'No VM image found in ~/sim/ttsim-qemu/. Download Ubuntu 24.04 minimal cloud image (~600 MB)?',
+      'Download'
+    );
+    if (action === 'Download') {
+      await setupTtsimQemu();
+    }
+    return;
+  }
+
+  // VM already running — attach
+  if (isQemuVmRunning()) {
+    vscode.window.showInformationMessage('Attaching to running ttsim QEMU Bridge...');
+    const terminal = getOrCreateQemuBridgeTerminal();
+    runInTerminal(terminal, TERMINAL_COMMANDS.SSH_TTSIM_QEMU.template);
+    return;
+  }
+
+  if (qemuBootPollHandle) {
+    vscode.window.showInformationMessage('ttsim QEMU Bridge is already booting. Please wait...');
+    return;
+  }
+
+  // Boot the VM with the ttsim PCI device
+  const simDir = path.join(os.homedir(), 'sim', 'ttsim-qemu');
+  fs.mkdirSync(simDir, { recursive: true });
+  const pidFile = path.join(simDir, 'vm.pid');
+  const seedIso = path.join(simDir, 'seed.iso');
+  const seedArg = fs.existsSync(seedIso)
+    ? ` \\\n  -drive file="${seedIso}",if=virtio,format=raw,readonly=on`
+    : '';
+  // bar4-size differs by architecture: Wormhole = 32M, Blackhole = 32G
+  const bar4Size = libPath.includes('libttsim_bh') ? '32G' : '32M';
+  const bootCmd = replaceVariables(TERMINAL_COMMANDS.BOOT_TTSIM_QEMU.template, {
+    IMAGE_PATH: imagePath,
+    LIB_PATH: libPath,
+    BAR4_SIZE: bar4Size,
+    PID_FILE: pidFile,
+  }) + seedArg;
+
+  vscode.window.showInformationMessage('Booting ttsim QEMU Bridge... (takes ~30-60 seconds)');
+  const bootTerminal = getOrCreateSimpleTerminal();
+  runInTerminal(bootTerminal, bootCmd);
+
+  // Poll SSH on port 2222 until ready (max 90s)
+  const pollIntervalMs = 3000;
+  const maxAttempts = 30;
+  let attempts = 0;
+  qemuBootPollHandle = setInterval(async () => {
+    attempts++;
+    try {
+      require('child_process').execSync(
+        'ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o GlobalKnownHostsFile=/dev/null -o ConnectTimeout=2 -o BatchMode=yes ubuntu@localhost exit',
+        { stdio: 'ignore' }
+      );
+      clearInterval(qemuBootPollHandle!);
+      qemuBootPollHandle = null;
+      const terminal = getOrCreateQemuBridgeTerminal();
+      runInTerminal(terminal, TERMINAL_COMMANDS.SSH_TTSIM_QEMU.template);
+    } catch {
+      if (attempts >= maxAttempts) {
+        clearInterval(qemuBootPollHandle!);
+        qemuBootPollHandle = null;
+        vscode.window.showErrorMessage(
+          'ttsim QEMU Bridge did not become ready in 90 seconds. Check the terminal for boot errors.'
+        );
+      }
+    }
+  }, pollIntervalMs);
+}
+
+/**
+ * Command: tenstorrent.ttsim.stopQemu
+ *
+ * Prefers a clean shutdown via the QEMU monitor socket at /tmp/ttsim-mon.sock.
+ * Falls back to SIGTERM if socat is not available.
+ */
+async function stopTtsimQemu(): Promise<void> {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const pidFile = path.join(os.homedir(), 'sim', 'ttsim-qemu', 'vm.pid');
+
+  if (!isQemuVmRunning()) {
+    vscode.window.showInformationMessage('ttsim QEMU Bridge is not running.');
+    return;
+  }
+
+  try {
+    // Request ACPI power-down via QEMU monitor — guest OS receives a clean shutdown event
+    require('child_process').execSync(
+      'echo "system_powerdown" | socat - UNIX-CONNECT:/tmp/ttsim-mon.sock',
+      { stdio: 'ignore', shell: true }
+    );
+    vscode.window.showInformationMessage('ttsim QEMU Bridge is shutting down.');
+  } catch {
+    // Fall back to SIGTERM — kills QEMU immediately; guest may not flush cleanly
+    try {
+      const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+      require('child_process').execSync(`kill -TERM ${pid}`);
+      vscode.window.showInformationMessage('ttsim QEMU Bridge is shutting down.');
+    } catch {
+      vscode.window.showErrorMessage('Failed to stop ttsim QEMU Bridge. The process may have already exited.');
+    }
+  }
+}
+
+/**
+ * Command: tenstorrent.ttsim.setupQemu
+ *
+ * Downloads an Ubuntu 24.04 minimal cloud image (~600 MB) for use as the VM base image.
+ * The image is saved as ~/sim/ttsim-qemu/ubuntu.qcow2.
+ */
+async function setupTtsimQemu(): Promise<void> {
+  const os = require('os');
+  const simDir = `${os.homedir()}/sim/ttsim-qemu`;
+  const imageUrl = 'https://cloud-images.ubuntu.com/minimal/releases/24.04/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+  // After downloading the stock cloud image, create a cloud-init seed ISO that
+  // injects the user's SSH public key into the ubuntu user's authorized_keys.
+  // Without this the ubuntu user has no credentials and SSH polling will always fail.
+  const downloadCmd = [
+    `mkdir -p "${simDir}"`,
+    `wget -q --show-progress "${imageUrl}" -O "${simDir}/ubuntu.qcow2" || { echo "ERROR: download failed"; exit 1; }`,
+    // Grow image to 10 GB to leave room for packages installed inside the VM
+    `qemu-img resize "${simDir}/ubuntu.qcow2" 10G`,
+    // Create cloud-init user-data with the host SSH public key.
+    // Fail fast if no key is found — SSH polling will never succeed without one.
+    `SSH_KEY=$(cat ~/.ssh/id_ed25519.pub 2>/dev/null || cat ~/.ssh/id_rsa.pub 2>/dev/null || echo "")`,
+    `if [ -z "$SSH_KEY" ]; then`,
+    `  echo "ERROR: No SSH public key found at ~/.ssh/id_ed25519.pub or ~/.ssh/id_rsa.pub."`,
+    `  echo "  Generate one with: ssh-keygen -t ed25519"`,
+    `  exit 1`,
+    `fi`,
+    `cat > "${simDir}/user-data" << 'CLOUDINIT'`,
+    `#cloud-config`,
+    `users:`,
+    `  - name: ubuntu`,
+    `    sudo: ALL=(ALL) NOPASSWD:ALL`,
+    `    ssh_authorized_keys:`,
+    `      - PLACEHOLDER_KEY`,
+    `CLOUDINIT`,
+    // Replace placeholder with actual key (avoids heredoc quoting issues)
+    `sed -i "s|PLACEHOLDER_KEY|$SSH_KEY|" "${simDir}/user-data"`,
+    `echo "" > "${simDir}/meta-data"`,
+    // Generate seed ISO (requires cloud-image-utils)
+    `if command -v cloud-localds &>/dev/null; then`,
+    `  cloud-localds "${simDir}/seed.iso" "${simDir}/user-data" "${simDir}/meta-data"`,
+    `  echo "cloud-init seed created at ${simDir}/seed.iso"`,
+    `else`,
+    `  echo "WARNING: cloud-localds not found. Install cloud-image-utils then run:"`,
+    `  echo "  cloud-localds ${simDir}/seed.iso ${simDir}/user-data ${simDir}/meta-data"`,
+    `  echo "Without a seed ISO, SSH login to the VM will fail."`,
+    `fi`,
+    `echo "Ubuntu 24.04 cloud image ready at ${simDir}/ubuntu.qcow2"`,
+  ].join('\n');
+
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, downloadCmd);
+  vscode.window.showInformationMessage(
+    'Downloading Ubuntu 24.04 cloud image (~600 MB) and creating cloud-init seed. Check the terminal for progress.'
+  );
+}
+
+// ============================================================================
 // Lesson 17: Native Video Animation with AnimateDiff
 // ============================================================================
 
@@ -5165,6 +5493,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.setupTtsim', setupTtsim),
     vscode.commands.registerCommand('tenstorrent.runTtsimAttention', runTtsimAttention),
 
+    // ttsim QEMU Bridge
+    vscode.commands.registerCommand('tenstorrent.ttsim.launchQemu', launchTtsimQemu),
+    vscode.commands.registerCommand('tenstorrent.ttsim.stopQemu', stopTtsimQemu),
+    vscode.commands.registerCommand('tenstorrent.ttsim.setupQemu', setupTtsimQemu),
+
     // Lesson 17 - Native Video Animation with AnimateDiff
     vscode.commands.registerCommand('tenstorrent.setupAnimateDiffProject', setupAnimateDiffProject),
     vscode.commands.registerCommand('tenstorrent.installAnimateDiff', installAnimateDiff),
@@ -5286,27 +5619,57 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Mark as seen first to avoid reopening if command fails
     context.globalState.update('hasSeenWelcome', true);
 
-    // Apply Tenstorrent Dark theme on first install — but ONLY if the user
-    // has not explicitly set a global theme. inspect() returns the layered
-    // configuration values; globalValue is undefined when no explicit user
-    // choice exists, which is the safe window for writing our default.
-    // This avoids overwriting a theme the user consciously selected.
+    // Theme application on first install.
+    //
+    // In code-server (VS Code in the browser) the user is typically on a
+    // fresh instance with no theme preference — apply Tenstorrent Dark
+    // automatically when no theme has been explicitly set.
+    //
+    // In desktop VS Code the user likely has an existing preference, even if
+    // they haven't explicitly changed it (they may have chosen the built-in
+    // default deliberately).  Here we ask instead of applying silently.
+    //
+    // Either way, never touch the theme if the user has a non-default value set
+    // at global, workspace, or workspace-folder scope.
     const themeInspect = vscode.workspace.getConfiguration().inspect<string>('workbench.colorTheme');
-    // Treat any explicit value at global, workspace, or workspace-folder scope as
-    // a deliberate user choice and leave it alone.
-    const userHasExplicitTheme =
-      themeInspect?.globalValue          !== undefined ||
+    const hasWorkspaceTheme =
       themeInspect?.workspaceValue       !== undefined ||
       themeInspect?.workspaceFolderValue !== undefined;
-    if (!userHasExplicitTheme) {
-      try {
-        await vscode.workspace.getConfiguration().update(
-          'workbench.colorTheme',
-          'Tenstorrent Dark',
-          vscode.ConfigurationTarget.Global
+    const hasGlobalTheme = themeInspect?.globalValue !== undefined;
+    // uiKind === Web reliably identifies browser-based hosts (code-server, vscode.dev,
+    // Codespaces web UI) where a fresh instance with no theme set is the common case.
+    const isCodeServer = vscode.env.uiKind === vscode.UIKind.Web;
+
+    if (!hasWorkspaceTheme && !hasGlobalTheme) {
+      if (isCodeServer) {
+        // Fresh code-server instance — apply silently.
+        try {
+          await vscode.workspace.getConfiguration().update(
+            'workbench.colorTheme',
+            'Tenstorrent Dark',
+            vscode.ConfigurationTarget.Global
+          );
+        } catch (_err) {
+          // Non-fatal: settings may be read-only in some restricted environments.
+        }
+      } else {
+        // Desktop VS Code — ask first.
+        const pick = await vscode.window.showInformationMessage(
+          'Would you like to try the Tenstorrent Dark theme?',
+          'Apply Theme',
+          'Keep Current'
         );
-      } catch (_err) {
-        // Non-fatal: settings may be read-only in some restricted environments.
+        if (pick === 'Apply Theme') {
+          try {
+            await vscode.workspace.getConfiguration().update(
+              'workbench.colorTheme',
+              'Tenstorrent Dark',
+              vscode.ConfigurationTarget.Global
+            );
+          } catch (_err) {
+            // Non-fatal.
+          }
+        }
       }
     }
 

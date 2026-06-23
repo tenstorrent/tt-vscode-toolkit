@@ -381,11 +381,11 @@ ls ~/code/tt-inference-server/README.md
     "defaults": {
       "memorySearch": {
         "extraPaths": [
-          "/home/ttuser/code/tt-vscode-toolkit/content/lessons",
-          "/home/ttuser/tt-metal/METALIUM_GUIDE.md",
-          "/home/ttuser/tt-metal/releases",
-          "/home/ttuser/code/tt-inference-server/docs",
-          "/home/ttuser/tt-claw/CLAUDE.md"
+          "$HOME/code/tt-vscode-toolkit/content/lessons",
+          "$HOME/tt-metal/METALIUM_GUIDE.md",
+          "$HOME/tt-metal/releases",
+          "$HOME/code/tt-inference-server/docs",
+          "$HOME/tt-claw/CLAUDE.md"
         ],
         "provider": "local",
         "fallback": "none"

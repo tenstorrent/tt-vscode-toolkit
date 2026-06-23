@@ -1248,7 +1248,7 @@
     {
       "id": "animatediff-video-generation",
       "title": "Native Video Animation with AnimateDiff",
-      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet. Learn the complete model bring-up workflow — from research to a standalone package that accelerates SD frame generation at 15 seconds per frame on p300c/TT-QuietBox 2.",
+      "description": "Run Stable Diffusion 1.4 video generation on Blackhole hardware using the TT-NN UNet. Phase 3 injects the full AnimateDiff MotionAdapter at 7 UNet points — no distillation, weights loaded straight from HuggingFace. Fast path: 7.7 s/frame on p300c/TT-QuietBox 2.",
       "category": "applications",
       "tags": [
         "animation",
@@ -1460,7 +1460,7 @@
     {
       "id": "ttsim-twenty-and-ten",
       "title": "Twenty-and-Ten Things You Can Do with ttsim",
-      "description": "31 things you can do with the ttsim hardware simulator — no Tenstorrent device required. Runs on any Linux machine, including WSL2 on Windows. Includes N300 two-chip mesh simulation (v1.8.0+). Escalates from first kernel to DSP prototyping to a cliffhanger only real hardware can resolve.",
+      "description": "32 things you can do with the ttsim hardware simulator — no Tenstorrent device required. Runs on any Linux machine, including WSL2 on Windows. Includes N300 and Blackhole two-chip mesh simulation (v1.8.4). Escalates from first kernel to DSP prototyping to a cliffhanger only real hardware can resolve.",
       "category": "advanced",
       "tags": [
         "ttsim",
@@ -1486,6 +1486,28 @@
       "nextLesson": null,
       "completionEvents": [],
       "markdownFile": "content/lessons/ttsim-twenty-and-ten.md"
+    },
+    {
+      "id": "ttsim-qemu-bridge",
+      "title": "ttsim QEMU Bridge: Full-System Simulation",
+      "description": "Architecture guide for the ttsim QEMU Bridge — a QEMU fork that presents a virtual Tenstorrent Wormhole PCI device to a Linux VM. Currently draft: two ttsim register stubs are missing before end-to-end ttnn.open_device() works via this path.",
+      "category": "advanced",
+      "tags": [
+        "ttsim",
+        "simulator",
+        "qemu",
+        "metalium",
+        "kernels"
+      ],
+      "supportedHardware": [
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 20,
+      "order": 100,
+      "previousLesson": "ttsim-twenty-and-ten",
+      "nextLesson": null,
+      "markdownFile": "content/lessons/ttsim-qemu-bridge.md"
     }
   ]
 }

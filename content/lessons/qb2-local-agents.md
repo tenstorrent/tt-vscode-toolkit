@@ -420,7 +420,7 @@ python3 ~/code/tt-agents/02_code_explorer.py \
 tt-agents Proof 2: Codebase Explorer (OpenAI Agents SDK)
 ======================================================================
 Endpoint: http://localhost:8000/v1
-Directory: /home/ttuser/code/tt-agents
+Directory: ~/code/tt-agents
 
 Query:
   Summarize this codebase, how it is organized, and which files
@@ -1383,7 +1383,7 @@ curl http://localhost:8000/v1/models
 ```bash
 # Always expand ~ before passing to the script
 python3 ~/code/tt-agents/02_code_explorer.py \
-    --dir /home/ttuser/code/my-project \
+    --dir ~/code/my-project \
     --query "..."
 ```
 

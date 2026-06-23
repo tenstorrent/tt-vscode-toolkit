@@ -76,6 +76,16 @@ const JAX_DEVICE_CHECK_PY =
   "print('TT devices:', jax.devices())";
 
 /**
+ * ttsim QEMU Bridge architecture:
+ * ttsim-qemu is a QEMU fork (github.com/tenstorrent/ttsim-qemu) that adds a
+ * `ttsim` PCI device (vendor 0x1e52) to any Linux VM. The user brings their own
+ * base image (Ubuntu 24.04 cloud image); libttsim_wh.so runs on the host and is
+ * bridged to the guest via the PCI device. Inside the VM, TT-Metal sees real
+ * Wormhole hardware — no TT_METAL_SIMULATOR env var needed.
+ * Constraint: slow dispatch only (TT_METAL_SLOW_DISPATCH_MODE=1).
+ */
+
+/**
  * All terminal commands used in the walkthrough
  */
 export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
@@ -864,17 +874,19 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     id: 'setup-ttsim',
     name: 'Set Up ttsim Simulator',
     template: `mkdir -p ~/sim
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.0/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so || { echo "ERROR: failed to download libttsim_wh_x2.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so || { echo "ERROR: failed to download libttsim_wh_x2.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_bh_x2.so -O ~/sim/libttsim_bh_x2.so || { echo "ERROR: failed to download libttsim_bh_x2.so"; exit 1; }
+wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh_x8.so -O ~/sim/libttsim_wh_x8.so || { echo "ERROR: failed to download libttsim_wh_x8.so"; exit 1; }
 if [ -n "$TT_METAL_HOME" ]; then
   cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || { echo "ERROR: failed to copy SOC descriptor"; exit 1; }
   cp $TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml ~/sim/n300_cluster_desc.yaml || { echo "WARNING: n300 cluster desc copy skipped (optional for N300 sim)"; }
 else
   echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
 fi
-echo "ttsim v1.8.0 ready (wh + bh + wh_x2 for N300 multichip)"`,
-    description: 'Downloads ttsim v1.8.0 Wormhole, Blackhole, and N300 (wh_x2) binaries and copies SOC descriptors',
+echo "ttsim v1.8.4 ready (wh + bh + wh_x2 + bh_x2 + wh_x8)"`,
+    description: 'Downloads ttsim v1.8.4 Wormhole, Blackhole, N300 (wh_x2), BH-x2, and WH-x8 binaries and copies SOC descriptors',
   },
 
   RUN_TTSIM_ATTENTION: {
@@ -885,6 +897,37 @@ export TT_METAL_SLOW_DISPATCH_MODE=1
 export TT_METAL_DISABLE_SFPLOADMACRO=1
 python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
     description: 'Runs a transformer attention layer forward pass on the ttsim Wormhole simulator',
+  },
+
+  // ========================================
+  // ttsim QEMU Bridge
+  // ========================================
+
+  // Boot command for ttsim-qemu VM.
+  // Requires qemu-system-x86_64 built from tenstorrent/ttsim-qemu fork — the
+  // fork adds the -device ttsim option; -netdev user is standard upstream QEMU.
+  // Template vars:
+  //   {{IMAGE_PATH}} — path to .qcow2 VM image
+  //   {{LIB_PATH}}   — path to libttsim_wh.so or libttsim_bh.so
+  //   {{PID_FILE}}   — path for the QEMU PID file
+  BOOT_TTSIM_QEMU: {
+    id: 'boot-ttsim-qemu',
+    name: 'Boot ttsim QEMU Bridge',
+    // -cpu max: required in TCG mode to expose full x86 feature set (vmovups etc.)
+    // bar4-size: Wormhole = 32M, Blackhole = 32G — filled via {{BAR4_SIZE}} at boot time
+    // No -enable-kvm: KVM MMIO emulator can't handle 16-byte WC-mapped TLB reads
+    template: `qemu-system-x86_64 \\\n  -m 8G -smp 4 \\\n  -cpu max \\\n  -drive file="{{IMAGE_PATH}}",if=virtio,snapshot=on \\\n  -device ttsim,lib="{{LIB_PATH}}",bar4-size={{BAR4_SIZE}} \\\n  -netdev user,id=net0,hostfwd=tcp::2222-:22 \\\n  -device virtio-net-pci,netdev=net0 \\\n  -serial file:/tmp/ttsim-qemu-serial.log \\\n  -chardev socket,id=mon,path=/tmp/ttsim-mon.sock,server=on,wait=off \\\n  -mon chardev=mon,mode=readline \\\n  -display none \\\n  -daemonize \\\n  -pidfile "{{PID_FILE}}"`,
+    description: 'Boots an Ubuntu VM with the ttsim PCI device attached (WH: bar4-size=32M, BH: bar4-size=32G)',
+  },
+
+  SSH_TTSIM_QEMU: {
+    id: 'ssh-ttsim-qemu',
+    name: 'SSH into ttsim QEMU Bridge',
+    // UserKnownHostsFile=/dev/null: snapshot=on regenerates host keys on each boot;
+    // without this, known_hosts mismatches cause "REMOTE HOST IDENTIFICATION HAS CHANGED"
+    // even with StrictHostKeyChecking=no.
+    template: `ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o GlobalKnownHostsFile=/dev/null -o ConnectTimeout=30 ubuntu@localhost`,
+    description: 'Opens an SSH terminal session inside the running ttsim QEMU Bridge VM',
   },
 };
 

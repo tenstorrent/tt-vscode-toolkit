@@ -71,7 +71,10 @@ sudo apt-get install -y ffmpeg
 ## Step 1: Set Up Environment
 
 ```bash
-source ~/tt-metal/python_env/bin/activate
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 cd ~/tt-metal
@@ -282,7 +285,7 @@ Replace the prompts JSON with any theme. Some ideas:
 
 Likely running on CPU, not TT hardware:
 1. Check `TT_METAL_HOME` is set: `echo $TT_METAL_HOME`
-2. Verify venv is activated: `which python3` should show `tt-metal/python_env/`
+2. Verify venv is activated: `which python3` should show the active venv `bin/python3`
 3. Check device: `tt-smi -s | grep board_type`
 
 **"Device in bad state after a killed process"**
@@ -294,7 +297,10 @@ tt-smi -r   # Reset device
 
 **"Module not found" errors**
 ```bash
-source ~/tt-metal/python_env/bin/activate
+# Re-activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 ```
 

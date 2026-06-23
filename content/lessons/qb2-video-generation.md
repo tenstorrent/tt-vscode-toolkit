@@ -243,7 +243,7 @@ Set or confirm these values:
 
 ```bash
 # TT-QuietBox 2-specific: cache compiled TT weights across container restarts (~66 GB after first run)
-TT_DIT_CACHE_DIR=/home/ttuser/.cache/tt_dit_cache
+TT_DIT_CACHE_DIR=$HOME/.cache/tt_dit_cache
 
 # Keep HF offline after download (prevents startup delays)
 HF_HUB_OFFLINE=1

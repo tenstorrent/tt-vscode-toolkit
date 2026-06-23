@@ -43,20 +43,11 @@ pre-installed. There is no installation step — just activate and start computi
 ## Activate the environment
 
 ```bash
-source ~/tt-forge-venv/bin/activate
+# Activate TT-Forge environment (choose for your setup):
+tt-forge                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-forge/bin/activate             # cloud / custom install
 ```
-
-> **Can't find `~/tt-forge-venv`?** Developer images put the forge env at `/opt/venv-forge`
-> and symlink it to `~/tt-forge-venv` automatically. If you're on a system where only
-> one path exists, create the link yourself:
->
-> ```bash
-> # /opt/venv-forge exists but ~/tt-forge-venv doesn't:
-> ln -s /opt/venv-forge ~/tt-forge-venv
->
-> # ~/tt-forge-venv exists but /opt/venv-forge doesn't (needs sudo):
-> sudo ln -s ~/tt-forge-venv /opt/venv-forge
-> ```
 
 > **Note:** The PJRT plugin requires `tt_torch` to be imported before `jax` so the
 > TT shared libraries are loaded first. The verify command handles this automatically.
@@ -256,7 +247,10 @@ Set `TT_METAL_ARCH_NAME` before activating the env if it isn't already set:
 ```bash
 export TT_METAL_ARCH_NAME=blackhole   # p300c / TT-QuietBox 2 / p150
 export TT_METAL_ARCH_NAME=wormhole_b0 # n150 / n300 / T3000 / Galaxy
-source ~/tt-forge-venv/bin/activate
+# Activate TT-Forge environment (choose for your setup):
+tt-forge                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-forge/bin/activate             # cloud / custom install
 ```
 
 ---
@@ -269,9 +263,12 @@ using JAX/Flax and PyTorch/XLA:
 ```bash
 git clone https://github.com/tenstorrent/tt-forge.git ~/tt-forge
 cd ~/tt-forge/demos/tt-xla/nlp/jax
-source ~/tt-forge-venv/bin/activate
+# Activate TT-Forge environment (choose for your setup):
+tt-forge                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-forge/bin/activate             # cloud / custom install
 pip install -r requirements.txt
-python gpt_demo.py
+python3 gpt_demo.py
 ```
 
 Expected output:
