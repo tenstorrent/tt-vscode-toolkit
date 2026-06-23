@@ -914,16 +914,19 @@ python3 ~/tt-scratchpad/ttsim/ttsim_attention.py`,
     id: 'boot-ttsim-qemu',
     name: 'Boot ttsim QEMU Bridge',
     // -cpu max: required in TCG mode to expose full x86 feature set (vmovups etc.)
-    // bar4-size=32M: correct BAR4 window size for Wormhole (Blackhole needs 32G)
+    // bar4-size: Wormhole = 32M, Blackhole = 32G — filled via {{BAR4_SIZE}} at boot time
     // No -enable-kvm: KVM MMIO emulator can't handle 16-byte WC-mapped TLB reads
-    template: `qemu-system-x86_64 \\\n  -m 8G -smp 4 \\\n  -cpu max \\\n  -drive file="{{IMAGE_PATH}}",if=virtio,snapshot=on \\\n  -device ttsim,lib="{{LIB_PATH}}",bar4-size=32M \\\n  -netdev user,id=net0,hostfwd=tcp::2222-:22 \\\n  -device virtio-net-pci,netdev=net0 \\\n  -serial file:/tmp/ttsim-qemu-serial.log \\\n  -chardev socket,id=mon,path=/tmp/ttsim-mon.sock,server=on,wait=off \\\n  -mon chardev=mon,mode=readline \\\n  -display none \\\n  -daemonize \\\n  -pidfile "{{PID_FILE}}"`,
-    description: 'Boots an Ubuntu VM with the ttsim Wormhole PCI device attached',
+    template: `qemu-system-x86_64 \\\n  -m 8G -smp 4 \\\n  -cpu max \\\n  -drive file="{{IMAGE_PATH}}",if=virtio,snapshot=on \\\n  -device ttsim,lib="{{LIB_PATH}}",bar4-size={{BAR4_SIZE}} \\\n  -netdev user,id=net0,hostfwd=tcp::2222-:22 \\\n  -device virtio-net-pci,netdev=net0 \\\n  -serial file:/tmp/ttsim-qemu-serial.log \\\n  -chardev socket,id=mon,path=/tmp/ttsim-mon.sock,server=on,wait=off \\\n  -mon chardev=mon,mode=readline \\\n  -display none \\\n  -daemonize \\\n  -pidfile "{{PID_FILE}}"`,
+    description: 'Boots an Ubuntu VM with the ttsim PCI device attached (WH: bar4-size=32M, BH: bar4-size=32G)',
   },
 
   SSH_TTSIM_QEMU: {
     id: 'ssh-ttsim-qemu',
     name: 'SSH into ttsim QEMU Bridge',
-    template: `ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ubuntu@localhost`,
+    // UserKnownHostsFile=/dev/null: snapshot=on regenerates host keys on each boot;
+    // without this, known_hosts mismatches cause "REMOTE HOST IDENTIFICATION HAS CHANGED"
+    // even with StrictHostKeyChecking=no.
+    template: `ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o GlobalKnownHostsFile=/dev/null -o ConnectTimeout=30 ubuntu@localhost`,
     description: 'Opens an SSH terminal session inside the running ttsim QEMU Bridge VM',
   },
 };

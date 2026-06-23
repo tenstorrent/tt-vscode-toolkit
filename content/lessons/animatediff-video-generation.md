@@ -137,12 +137,12 @@ The `diffusers` `AnimateDiffPipeline` loads SD 1.4, injects the MotionAdapter at
 cd ~/tt-projects/tt-animatediff
 
 # Standard — full AnimateDiff, ~2 min/frame
-python examples/generate.py --mode cpu \
+python3 examples/generate.py --mode cpu \
     --prompt "aurora borealis over arctic ice, green and violet ribbons, cinematic" \
     --frames 8 --steps 25 --output output/phase1.gif
 
 # Lightning — distilled 4-step adapter, ~20 s/frame
-python examples/generate.py --mode cpu --lightning --lightning-steps 4 \
+python3 examples/generate.py --mode cpu --lightning --lightning-steps 4 \
     --prompt "crackling campfire at night, ember glow, cinematic" \
     --frames 8 --output output/phase1_lightning.gif
 ```
@@ -163,7 +163,7 @@ Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole sil
 source ~/tt-metal/python_env/bin/activate
 cd ~/tt-projects/tt-animatediff
 
-python examples/generate.py \
+python3 examples/generate.py \
     --prompt "1939 World's Fair imagined from the year 2099, art deco spires at golden dusk, retro-futurist optimism, cinematic 4K" \
     --frames 8 --steps 25 --temporal-alpha 0.35 \
     --output output/blackhole.gif
@@ -189,7 +189,7 @@ Saved 8 frame(s) → output/blackhole.gif
 `--lightning` on Blackhole uses `EulerDiscreteScheduler` (trailing, linear) with the base SD 1.4 TTNN UNet. CFG=7.5 is retained — this is a different solver trajectory, not fewer steps, not a distilled model. Any step count works.
 
 ```bash
-python examples/generate.py --lightning \
+python3 examples/generate.py --lightning \
     --prompt "aurora borealis over a frozen lake, cinematic 4K" \
     --frames 8 --steps 25 --output output/lightning.gif
 ```
@@ -207,7 +207,7 @@ Phase 3 injects the full `AnimateDiffTransformer3D` at 7 points (down0/1/2, mid,
 ### Full Phase 3 (~52 s/frame)
 
 ```bash
-python examples/generate.py --motion-adapter \
+python3 examples/generate.py --motion-adapter \
     --prompt "ancient Mayan temple under shifting cosmos, starfield, cinematic 4K" \
     --frames 8 --steps 25 --output output/phase3_full.gif
 ```
@@ -217,7 +217,7 @@ python examples/generate.py --motion-adapter \
 The two decoder injection points (up1: 32×32 C=1280, up2: 64×64 C=640) account for ~80% of the CPU transformer cost. Skipping them retains all encoder and mid-block temporal attention:
 
 ```bash
-python examples/generate.py --motion-adapter --motion-adapter-skip up1 up2 \
+python3 examples/generate.py --motion-adapter --motion-adapter-skip up1 up2 \
     --prompt "ancient Mayan temple under shifting cosmos, starfield, cinematic 4K" \
     --frames 8 --steps 25 --output output/phase3_fast.gif
 ```
@@ -251,14 +251,14 @@ pip install -e ".[ui]"
 
 # Blackhole hardware
 source ~/tt-metal/python_env/bin/activate
-python app.py
+python3 app.py
 # Open http://localhost:7860
 
 # CPU only
-python app.py  # switch mode to "cpu" in the dropdown
+python3 app.py  # switch mode to "cpu" in the dropdown
 
 # ttsim simulator (no hardware)
-python app.py  # switch mode to "sim"
+python3 app.py  # switch mode to "sim"
 ```
 
 **UI parameters:**
@@ -282,15 +282,15 @@ python app.py  # switch mode to "sim"
 
 ```bash
 # Quick smoke test — 2 frames, 4 steps
-python examples/generate.py --mode sim \
+python3 examples/generate.py --mode sim \
     --frames 2 --steps 4 --output output/sim_test.gif
 
 # With explicit sim binary path
-python examples/generate.py --mode sim \
+python3 examples/generate.py --mode sim \
     --sim ~/sim/libttsim_bh.so --frames 2 --steps 4
 
 # Simulator via Gradio UI
-python app.py  # switch mode to "sim"
+python3 app.py  # switch mode to "sim"
 ```
 
 See `docs/SIMULATOR.md` in the repo for full setup including the ttsim download.

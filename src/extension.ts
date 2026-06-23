@@ -4049,9 +4049,12 @@ async function launchTtsimQemu(): Promise<void> {
   const seedArg = fs.existsSync(seedIso)
     ? ` \\\n  -drive file="${seedIso}",if=virtio,format=raw,readonly=on`
     : '';
+  // bar4-size differs by architecture: Wormhole = 32M, Blackhole = 32G
+  const bar4Size = libPath.includes('libttsim_bh') ? '32G' : '32M';
   const bootCmd = replaceVariables(TERMINAL_COMMANDS.BOOT_TTSIM_QEMU.template, {
     IMAGE_PATH: imagePath,
     LIB_PATH: libPath,
+    BAR4_SIZE: bar4Size,
     PID_FILE: pidFile,
   }) + seedArg;
 
@@ -4067,7 +4070,7 @@ async function launchTtsimQemu(): Promise<void> {
     attempts++;
     try {
       require('child_process').execSync(
-        'ssh -p 2222 -o StrictHostKeyChecking=no -o ConnectTimeout=2 -o BatchMode=yes ubuntu@localhost exit',
+        'ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o GlobalKnownHostsFile=/dev/null -o ConnectTimeout=2 -o BatchMode=yes ubuntu@localhost exit',
         { stdio: 'ignore' }
       );
       clearInterval(qemuBootPollHandle!);
@@ -5627,7 +5630,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       themeInspect?.workspaceValue       !== undefined ||
       themeInspect?.workspaceFolderValue !== undefined;
     const hasGlobalTheme = themeInspect?.globalValue !== undefined;
-    const isCodeServer = vscode.env.appName.toLowerCase().includes('code-server');
+    // uiKind === Web reliably identifies browser-based hosts (code-server, vscode.dev,
+    // Codespaces web UI) where a fresh instance with no theme set is the common case.
+    const isCodeServer = vscode.env.uiKind === vscode.UIKind.Web;
 
     if (!hasWorkspaceTheme && !hasGlobalTheme) {
       if (isCodeServer) {

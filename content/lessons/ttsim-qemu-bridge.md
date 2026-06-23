@@ -26,8 +26,9 @@ a `.so` shared library that TT-Metalium loads on the host when you set
 
 The ttsim QEMU Bridge is different: it adds a virtual Tenstorrent PCI device to any
 Linux VM. The guest OS sees vendor `0x1e52` — a real Wormhole chip from its perspective.
-TT-Metalium inside the VM talks to it exactly as it would talk to silicon. No
-`TT_METAL_SIMULATOR` env var. No special paths. Just `pip install ttnn` and go.
+The design goal: TT-Metalium inside the VM talks to it exactly as it would talk to silicon — no
+`TT_METAL_SIMULATOR` env var, no special paths, just `pip install ttnn` and go.
+See the status block below for what is currently working and what is still pending.
 
 `libttsim_wh.so` runs on the host. QEMU bridges it to the guest via the PCI device at
 boot time (`-device ttsim,lib=...`). The split is clean: QEMU handles the translation;
