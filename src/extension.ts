@@ -3870,13 +3870,14 @@ async function runTtsimAttention(): Promise<void> {
  */
 function isTtsimQemuInstalled(): boolean {
   try {
-    require('child_process').execSync(
-      'qemu-system-x86_64 -device help 2>&1 | grep -q ttsim',
-      { stdio: 'ignore', shell: true }
-    );
-    return true;
-  } catch {
-    return false;
+    const out = require('child_process').execSync(
+      'qemu-system-x86_64 -device help',
+      { stdio: ['ignore', 'pipe', 'pipe'] }
+    ).toString();
+    return out.includes('ttsim');
+  } catch (e: any) {
+    // execSync throws when exit code != 0; stderr may contain the device list
+    return String(e?.stderr ?? e?.stdout ?? '').includes('ttsim');
   }
 }
 
@@ -4011,10 +4012,15 @@ async function launchTtsimQemu(): Promise<void> {
       );
       return;
     }
-    const disk = freeDiskGb(os.homedir());
-    if (disk >= 0 && disk < 2) {
+    // Check free space on the filesystem that will hold the image (~600 MB + 10 GB resized).
+    // Use simDir (~/sim/ttsim-qemu) so the check targets the right mount point
+    // if ~/sim lives on a separate partition or bind mount.
+    const simDirForDisk = path.join(os.homedir(), 'sim', 'ttsim-qemu');
+    fs.mkdirSync(simDirForDisk, { recursive: true });
+    const disk = freeDiskGb(simDirForDisk);
+    if (disk >= 0 && disk < 12) {
       vscode.window.showErrorMessage(
-        `Less than 2 GB free disk. Free space and try again.`
+        `Less than 12 GB free disk at ~/sim/ttsim-qemu (need ~10 GB for VM image). Free space and try again.`
       );
       return;
     }

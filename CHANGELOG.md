@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.514] - 2026-06-23
+### Fixed
+- **`isTtsimQemuInstalled` avoids `grep` subprocess** — replaced `shell: true` + `grep -q` with a pure-Node stdout/stderr substring check. No longer depends on `grep` being on PATH; more portable and easier to debug.
+- **Disk space check uses correct mount point** — `freeDiskGb` is now called with `~/sim/ttsim-qemu` (the target directory) instead of `$HOME`, so the check is accurate when `~/sim` is on a separate partition or bind mount. Threshold raised to 12 GB (image is resized to 10 GB on download).
+- **ttsim-qemu-bridge lesson: "pip install ttnn and go" wording clarified** — reworded to make clear this is the design goal / intended end state, not the current working status. Directs users to the status block for what is and isn't working yet.
+
 ## [0.0.513] - 2026-06-23
 ### Fixed
 - **QB2 compatibility audit: `python` → `python3` across all remaining lessons** — fixed bare `python` invocations in `bounty-program-model-bringup` (validate_reference.py, generate_reference_hf.py) and `tt-xla-jax` (gpt_demo.py). Ubuntu 24.04 / tt-developer-image have no `python` symlink; `python3` is required everywhere.
