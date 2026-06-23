@@ -86,11 +86,16 @@ This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 ```bash
 cd ~/tt-scratchpad/cookbook/particle_life
 
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
+
 # Run simulation (creates particle_life.gif)
-python test_particle_life.py
+python3 test_particle_life.py
 
 # Or run directly with custom parameters
-python particle_life.py --num-particles 2048 --num-steps 500 --species 3
+python3 particle_life.py --num-particles 2048 --num-steps 500 --species 3
 ```
 
 **What you'll see:**
@@ -220,20 +225,23 @@ The `particle_life_multi_device.py` script extends the original implementation w
 **Key Code Pattern:**
 
 ```python
-# Open all available devices
-devices = []
-for device_id in range(num_devices):
-    devices.append(ttnn.open_device(device_id=device_id))
+# Open all available devices — use CreateDevices (not open_device in a loop,
+# which causes dispatch core errors on multi-device teardown)
+num_devices = ttnn.GetNumAvailableDevices()
+devices = ttnn.CreateDevices(list(range(num_devices)))
 
-# Create multi-device simulation
-sim = ParticleLifeMultiDevice(
-    devices=devices,  # List of device handles
-    num_particles=2048,
-    num_species=3
-)
+try:
+    # Create multi-device simulation
+    sim = ParticleLifeMultiDevice(
+        devices=devices,  # list of device handles from CreateDevices
+        num_particles=2048,
+        num_species=3
+    )
 
-# Run with automatic parallelization
-history = sim.simulate(num_steps=500)
+    # Run with automatic parallelization
+    history = sim.simulate(num_steps=500)
+finally:
+    ttnn.CloseDevices(devices)
 ```
 
 ### Benchmark Results (4x p300c TT-QuietBox)
@@ -253,10 +261,10 @@ Real-world performance on TT-QuietBox Blackhole<sup>®</sup> Tower:
 cd ~/tt-scratchpad/cookbook/particle_life
 
 # Benchmark: Compare single vs multi-device
-python test_multi_device.py
+python3 test_multi_device.py
 
 # Direct multi-device run
-python particle_life_multi_device.py --multi-device
+python3 particle_life_multi_device.py --multi-device
 ```
 
 ### Why 50% Efficiency?
@@ -273,13 +281,13 @@ Try these experiments to push toward 3-4x speedup:
 
 ```bash
 # Larger workload (more particles per device)
-python particle_life_multi_device.py --multi-device --num-particles 4096 --num-steps 300
+python3 particle_life_multi_device.py --multi-device --num-particles 4096 --num-steps 300
 
 # More species (more complex interactions)
-python particle_life_multi_device.py --multi-device --species 7
+python3 particle_life_multi_device.py --multi-device --species 7
 
 # Longer simulation (amortize setup cost)
-python particle_life_multi_device.py --multi-device --num-steps 1000
+python3 particle_life_multi_device.py --multi-device --num-steps 1000
 ```
 
 ### Advanced: On-Device Force Calculations

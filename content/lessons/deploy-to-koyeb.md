@@ -49,7 +49,7 @@ Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. We
 From Lesson 7 (vLLM Production), you learned to run:
 
 ```bash
-python -m vllm.entrypoints.openai.api_server \
+python3 -m vllm.entrypoints.openai.api_server \
   --model ~/models/Qwen3-0.6B \
   --served-model-name Qwen/Qwen3-0.6B \
   --port 8000
@@ -97,7 +97,7 @@ ENV MODEL_PATH=/home/coder/models/Qwen3-0.6B
 EXPOSE 8000
 
 # Run your app
-CMD ["/bin/bash", "-c", "source vllm/vllm-env/bin/activate && python -m vllm.entrypoints.openai.api_server --model ${MODEL_PATH} --served-model-name Qwen/Qwen3-0.6B --port 8000 --host 0.0.0.0"]
+CMD ["/bin/bash", "-c", "source vllm/vllm-env/bin/activate && python3 -m vllm.entrypoints.openai.api_server --model ${MODEL_PATH} --served-model-name Qwen/Qwen3-0.6B --port 8000 --host 0.0.0.0"]
 ```
 
 **Benefits:**
@@ -238,7 +238,7 @@ RUN cd app && \
 EXPOSE 5000
 
 # Run your app
-CMD ["/bin/bash", "-c", "cd app && source venv/bin/activate && python server.py"]
+CMD ["/bin/bash", "-c", "cd app && source venv/bin/activate && python3 server.py"]
 ```
 
 **Much simpler!** From 80 lines to 15 lines.
@@ -281,7 +281,7 @@ RUN python3 -m venv venv && \
     pip install torch ttnn numpy
 
 # Run processing script
-CMD ["/bin/bash", "-c", "source venv/bin/activate && python process.py"]
+CMD ["/bin/bash", "-c", "source venv/bin/activate && python3 process.py"]
 ```
 
 **Even simpler!** Just 13 lines total.

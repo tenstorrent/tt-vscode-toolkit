@@ -507,14 +507,19 @@ class MandelbrotVisualizer:
 ```bash
 cd ~/tt-scratchpad/cookbook/mandelbrot
 
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
+
 # Basic render
-python renderer.py
+python3 renderer.py
 ```
 
 **Interactive explorer:**
 
 ```bash
-python -c "
+python3 -c "
 from renderer import MandelbrotRenderer
 from explorer import MandelbrotVisualizer
 import ttnn
@@ -533,7 +538,7 @@ ttnn.close_device(device)
 **Compare Julia sets:**
 
 ```bash
-python -c "
+python3 -c "
 from renderer import MandelbrotRenderer
 from explorer import MandelbrotVisualizer
 import ttnn

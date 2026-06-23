@@ -748,6 +748,11 @@ class SpectrogramVisualizer:
 ```bash
 cd ~/tt-scratchpad/cookbook/audio_processor
 
+# Activate TT environment (choose for your setup):
+tt-metal                                          # tt-developer-image / Docker
+# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# source /opt/venv-metal/bin/activate             # cloud / custom install
+
 # Install dependencies
 pip install -r requirements.txt
 
@@ -761,7 +766,7 @@ print('Created examples/sample.wav')
 "
 
 # Process an audio file
-python processor.py examples/sample.wav
+python3 processor.py examples/sample.wav
 ```
 
 > **Note:** `processor.py` is a starter template. The mel-spectrogram uses librosa
@@ -771,7 +776,7 @@ python processor.py examples/sample.wav
 **Try audio effects:**
 
 ```bash
-python -c "
+python3 -c "
 from processor import AudioProcessor
 from effects import AudioEffects
 import ttnn
@@ -803,7 +808,7 @@ ttnn.close_device(device)
 **Real-time spectrogram from microphone:**
 
 ```bash
-python -c "
+python3 -c "
 from processor import AudioProcessor
 from visualizer import SpectrogramVisualizer
 import ttnn
