@@ -152,6 +152,47 @@ Metalium vs Golden -- PCC = ...
 Test Passed
 ```
 
+### Code walkthrough: exact host program path
+
+Source file:
+
+- `tt_metal/programming_examples/matmul/matmul_single_core/matmul_single_core.cpp`
+
+```cpp
+uint32_t Mt = M / TILE_HEIGHT;
+uint32_t Kt = K / TILE_WIDTH;
+uint32_t Nt = N / TILE_WIDTH;
+
+auto reader_id = tt_metal::CreateKernel(
+    program,
+    "matmul/matmul_single_core/kernels/dataflow/reader_single_core_mm.cpp",
+    core,
+    tt_metal::DataMovementConfig{...});
+
+auto writer_id = tt_metal::CreateKernel(
+    program,
+    "matmul/matmul_single_core/kernels/dataflow/writer_single_core_mm.cpp",
+    core,
+    tt_metal::DataMovementConfig{...});
+
+tt_metal::CreateKernel(
+    program,
+    "matmul/matmul_single_core/kernels/compute/mm.cpp",
+    core,
+    tt_metal::ComputeConfig{.math_fidelity = math_fidelity, .compile_args = {Mt, Kt, Nt}});
+
+tt_metal::SetRuntimeArgs(program, reader_id, core, {src0_addr, src1_addr, Mt, Kt, Nt});
+tt_metal::SetRuntimeArgs(program, writer_id, core, {dst_addr, Mt, Kt, Nt});
+```
+
+Read this snippet line-by-line (iota-by-iota):
+
+1. `Mt/Kt/Nt` converts element dimensions into tile dimensions.
+2. Reader/writer kernels are distinct dataflow kernels.
+3. Compute kernel receives tile-shape constants at compile time (`{Mt, Kt, Nt}`).
+4. Reader runtime args bind input addresses + tile extents for this launch.
+5. Writer runtime args bind output address + tile extents for this launch.
+
 ### What to inspect while reading Lab 1 code
 
 - Tile dimensions and how matrix dimensions map to tile counts
@@ -194,6 +235,40 @@ cd ~/tt-metal
 ### Core idea
 
 `split_work_to_cores(...)` (or equivalent decomposition logic) partitions output tiles so each core receives a contiguous share of the output space.
+
+### Code walkthrough: work split + per-core args
+
+Source file:
+
+- `tt_metal/programming_examples/matmul/matmul_multi_core/matmul_multi_core.cpp`
+
+```cpp
+auto [num_cores, all_cores, core_group_1, core_group_2, work_per_core1, work_per_core2] =
+    split_work_to_cores(core_grid, num_output_tiles_total);
+
+for (const auto& [ranges, work_per_core] : work_groups) {
+    for (const auto& range : ranges.ranges()) {
+        for (const auto& core : range) {
+            tt_metal::SetRuntimeArgs(program, reader_id, core, {
+                src0_dram_buffer->address(), src1_dram_buffer->address(),
+                Mt, Kt, Nt, work_offset, work_per_core});
+            tt_metal::SetRuntimeArgs(program, writer_id, core, {
+                dst_dram_buffer->address(), work_per_core, work_offset});
+            tt_metal::SetRuntimeArgs(program, compute_kernel_id, core, {
+                work_per_core, Kt});
+            work_offset += work_per_core;
+        }
+    }
+}
+```
+
+Read this snippet line-by-line (iota-by-iota):
+
+1. `split_work_to_cores` forms two groups when work is uneven.
+2. The host loops every core in both groups and writes core-specific runtime args.
+3. `work_offset` is the start tile index for that core's output region.
+4. `work_per_core` is the tile count assigned to that core.
+5. Reader + writer + compute all consume the same partition contract.
 
 ### What to inspect in Lab 2
 
@@ -245,6 +320,36 @@ else
   echo "multicast example not found yet. Rebuild with ./build_metal.sh --build-programming-examples and follow Lab 3 source walkthrough."
 fi
 ```
+
+### Code walkthrough: sender/receiver synchronization
+
+Source file:
+
+- `ttnn/examples/lab_multicast/lab_multicast.cpp`
+
+```cpp
+CoreCoord sender_core_device = prog_state.mesh_device->worker_core_from_logical_core(sender_core_logical);
+uint32_t receivers_ready_semaphore = CreateSemaphore(prog_state.program, all_cores_logical, 0);
+uint32_t tile_sent_semaphore = CreateSemaphore(prog_state.program, all_cores_logical, INVALID);
+
+SetRuntimeArgs(
+    prog_state.program, mcast_sender_id, sender_core_logical,
+    {receiver_cores_device.start_coord.x, receiver_cores_device.start_coord.y,
+     receiver_cores_device.end_coord.x, receiver_cores_device.end_coord.y,
+     receivers_ready_semaphore, tile_sent_semaphore, src_mesh_buffer.address(), n_tiles, num_dests});
+
+SetRuntimeArgs(
+    prog_state.program, mcast_receiver_id, receiver_cores_logical,
+    {sender_core_device.x, sender_core_device.y, receivers_ready_semaphore, tile_sent_semaphore, n_tiles});
+```
+
+Read this snippet line-by-line (iota-by-iota):
+
+1. Host converts logical → device coords before NoC-facing runtime args.
+2. Two semaphores coordinate readiness and "tile sent" signaling.
+3. Sender runtime args include the multicast destination rectangle.
+4. Receiver runtime args include sender device coordinates + semaphore IDs.
+5. Same semaphore IDs are shared across sender/receiver kernels for handshake correctness.
 
 ### What to inspect in Lab 3
 
@@ -305,6 +410,20 @@ That is expected with `TT_METAL_SLOW_DISPATCH_MODE=1`. Use it for understanding 
 - `TT_METAL_SLOW_DISPATCH_MODE=1` for simulator
 - Programming examples freshly built
 - Expected `Test Passed` / positive PCC signal observed
+
+### Upstream drift check (tt-metal main)
+
+Use this test to detect drift between this lesson's tracked matmul upstream sources and `tenstorrent/tt-metal` `main`:
+
+```bash
+npm run check:matmul-lesson-drift
+```
+
+This reports:
+
+- per-file SHA match/mismatch
+- drift percentage (`changed_files / tracked_files`)
+- non-zero exit code if any tracked source changed upstream
 
 ---
 

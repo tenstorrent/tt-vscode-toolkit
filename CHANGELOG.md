@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.518] - 2026-06-26
+### Added
+- **Code-first walkthrough depth in CS Fundamentals Module 8** — added direct host-code excerpts for single-core matmul, multi-core work partitioning, and multicast sender/receiver setup with stepwise “iota-by-iota” explanation blocks tied to the real upstream source files.
+- **Matmul upstream drift check** — added `scripts/check-matmul-lesson-drift.py` and `npm run check:matmul-lesson-drift` to report per-file SHA drift and drift percentage against tracked `tenstorrent/tt-metal` `main` matmul lesson/example files.
+
 ## [0.0.517] - 2026-06-26
 ### Changed
 - **Expanded CS Fundamentals Module 8 into full interactive lab format** — `cs-fundamentals-08-matmul-labs.md` now mirrors the longer lesson style with a complete Lab 1/2/3 learning arc: concept primer, deep-dive sections per lab, guided RST-to-interactive study plan, checkpoint questions, troubleshooting guidance, and mastery checklist for single-core, multi-core, and multicast matmul workflows.
