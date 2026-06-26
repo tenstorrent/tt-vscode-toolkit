@@ -9,20 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.518] - 2026-06-26
 ### Added
-- **Code-first walkthrough depth in CS Fundamentals Module 8** — added direct host-code excerpts for single-core matmul, multi-core work partitioning, and multicast sender/receiver setup with stepwise “iota-by-iota” explanation blocks tied to the real upstream source files.
-- **Matmul upstream drift check** — added `scripts/check-matmul-lesson-drift.py` and `npm run check:matmul-lesson-drift` to report per-file SHA drift and drift percentage against tracked `tenstorrent/tt-metal` `main` matmul lesson/example files.
-
-## [0.0.517] - 2026-06-26
-### Changed
-- **Expanded CS Fundamentals Module 8 into full interactive lab format** — `cs-fundamentals-08-matmul-labs.md` now mirrors the longer lesson style with a complete Lab 1/2/3 learning arc: concept primer, deep-dive sections per lab, guided RST-to-interactive study plan, checkpoint questions, troubleshooting guidance, and mastery checklist for single-core, multi-core, and multicast matmul workflows.
-
-## [0.0.516] - 2026-06-26
-### Added
-- **New CS Fundamentals lesson: Matrix Math and Matmul Labs** — added `cs-fundamentals-08-matmul-labs.md` to pull in the official TT-Metalium matmul Lab 1/2/3 flow (single-core, multi-core, multicast reuse) with interactive run commands and direct links to upstream lab docs.
-- **Simulator-friendly path for matmul labs** — the new module includes a ttsim setup path (`TT_METAL_SIMULATOR` + slow dispatch) and links to the ttsim lesson for hardware-free execution.
-
-### Changed
-- **CS Fundamentals navigation extended to Module 8** — `cs-fundamentals-07-complexity.md` and `lesson-registry.json` now flow into the new matmul module, with registry ordering and metadata updated for `cs-fundamentals`.
+- **CS Fundamentals Module 8 matmul labs expansion** — consolidated this PR’s Module 8 work into one release item: new long-form interactive Lab 1/2/3 lesson content (`content/lessons/cs-fundamentals-08-matmul-labs.md`), simulator-friendly execution guidance, CS Fundamentals navigation/registry wiring, code-first host excerpts with stepwise explanations, and upstream drift detection via `scripts/check-matmul-lesson-drift.py` (`npm run check:matmul-lesson-drift`).
 
 ## [0.0.515] - 2026-06-23
 ### Fixed
