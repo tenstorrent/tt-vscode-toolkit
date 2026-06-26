@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.516] - 2026-06-26
+### Added
+- **New CS Fundamentals lesson: Matrix Math and Matmul Labs** — added `cs-fundamentals-08-matmul-labs.md` to pull in the official TT-Metalium matmul Lab 1/2/3 flow (single-core, multi-core, multicast reuse) with interactive run commands and direct links to upstream lab docs.
+- **Simulator-friendly path for matmul labs** — the new module includes a ttsim setup path (`TT_METAL_SIMULATOR` + slow dispatch) and links to the ttsim lesson for hardware-free execution.
+
+### Changed
+- **CS Fundamentals navigation extended to Module 8** — `cs-fundamentals-07-complexity.md` and `lesson-registry.json` now flow into the new matmul module, with registry ordering and metadata updated for `cs-fundamentals`.
+
 ## [0.0.515] - 2026-06-23
 ### Fixed
 - **QB2 / Ubuntu 24.04 compatibility audit across cookbook and deployment lessons** — comprehensive pass to ensure all lessons work on tt-developer-image, QB2 pre-installed images, and cloud/custom installs:
