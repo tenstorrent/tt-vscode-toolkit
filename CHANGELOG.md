@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.517] - 2026-06-26
+### Changed
+- **Expanded CS Fundamentals Module 8 into full interactive lab format** — `cs-fundamentals-08-matmul-labs.md` now mirrors the longer lesson style with a complete Lab 1/2/3 learning arc: concept primer, deep-dive sections per lab, guided RST-to-interactive study plan, checkpoint questions, troubleshooting guidance, and mastery checklist for single-core, multi-core, and multicast matmul workflows.
+
 ## [0.0.516] - 2026-06-26
 ### Added
 - **New CS Fundamentals lesson: Matrix Math and Matmul Labs** — added `cs-fundamentals-08-matmul-labs.md` to pull in the official TT-Metalium matmul Lab 1/2/3 flow (single-core, multi-core, multicast reuse) with interactive run commands and direct links to upstream lab docs.
