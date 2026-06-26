@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.518] - 2026-06-26
 ### Added
-- **CS Fundamentals Module 8 matmul labs expansion** — consolidated this PR’s Module 8 work into one release item: new long-form interactive Lab 1/2/3 lesson content (`content/lessons/cs-fundamentals-08-matmul-labs.md`), simulator-friendly execution guidance, CS Fundamentals navigation/registry wiring, code-first host excerpts with stepwise explanations, and upstream drift detection via `scripts/check-matmul-lesson-drift.py` (`npm run check:matmul-lesson-drift`).
+- **CS Fundamentals Module 8 matmul labs expansion** — consolidated this PR’s Module 8 work into one release item: long-form interactive Lab 1/2/3 lesson content, simulator-friendly execution guidance, CS Fundamentals navigation wiring, code-first host excerpts with stepwise explanations, and upstream matmul lesson drift detection tooling.
 
 ## [0.0.515] - 2026-06-23
 ### Fixed
