@@ -1150,11 +1150,41 @@
       "estimatedMinutes": 30,
       "order": 7,
       "previousLesson": "cs-fundamentals-06-abstraction",
-      "nextLesson": "bounty-program",
+      "nextLesson": "cs-fundamentals-08-matmul-labs",
       "completionEvents": [
         "onCommand:tenstorrent.runComplexityExample"
       ],
       "markdownFile": "content/lessons/cs-fundamentals-07-complexity.md"
+    },
+    {
+      "id": "cs-fundamentals-08-matmul-labs",
+      "title": "Module 8: Matrix Math and Matmul Labs",
+      "description": "Learn matrix math on Tenstorrent by walking Lab 1/2/3 matmul progression: single-core tiles, multi-core work split, and multicast data reuse.",
+      "category": "cs-fundamentals",
+      "tags": [
+        "matmul",
+        "matrix-math",
+        "metalium"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 45,
+      "order": 8,
+      "previousLesson": "cs-fundamentals-07-complexity",
+      "nextLesson": "bounty-program",
+      "completionEvents": [
+        "onCommand:tenstorrent.buildProgrammingExamples"
+      ],
+      "markdownFile": "content/lessons/cs-fundamentals-08-matmul-labs.md"
     },
     {
       "id": "build-tt-metal",

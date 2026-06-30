@@ -1022,3 +1022,5 @@ You've completed the CS Fundamentals series. You now have:
 - Multi-chip RISC-V coordination (Galaxy scale)
 
 **The foundation is RISC-V. The sky is the limit.** 🚀
+
+[→ Continue to Module 8: Matrix Math and Matmul Labs](command:tenstorrent.showLesson?["cs-fundamentals-08-matmul-labs"])

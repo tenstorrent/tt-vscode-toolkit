@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.0.518] - 2026-06-26
+### Added
+- **CS Fundamentals Module 8 matmul labs expansion** — consolidated this PR’s Module 8 work into one release item: long-form interactive Lab 1/2/3 lesson content, simulator-friendly execution guidance, CS Fundamentals navigation wiring, code-first host excerpts with stepwise explanations, and upstream matmul lesson drift detection tooling.
+
 ## [0.0.515] - 2026-06-23
 ### Fixed
 - **QB2 / Ubuntu 24.04 compatibility audit across cookbook and deployment lessons** — comprehensive pass to ensure all lessons work on tt-developer-image, QB2 pre-installed images, and cloud/custom installs:
