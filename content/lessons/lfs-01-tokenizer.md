@@ -167,7 +167,7 @@ and the merge budget do.
 
 ---
 
-## The honest two-tier tokenizer story
+## The honest three-tier tokenizer story
 
 Here's the part that's easy to gloss over, and this lesson won't: **the
 nano model this arc actually trains on Blackhole<sup>®</sup> in Lab 5 does not use the
@@ -202,10 +202,51 @@ No merges, no training loop — just every distinct character in the corpus
 assigned an integer. That's genuinely all `ttml`'s from-scratch training run
 needs at nano scale (`vocab≈96` on tiny Shakespeare), and it's simple enough
 that the data pipeline stays the star of the show rather than the
-tokenizer. **Both tokenizers are real and both are used honestly in this
-arc** — BPE is what you'd reach for at TinyStories/~80M scale (and what
-this section builds), `CharTokenizer` is what actually runs, live, on
-Blackhole hardware in Lab 5. Neither is a placeholder for the other.
+tokenizer. **All three tokenizers in this arc are real, and each is used
+honestly for what it's good at — none is a placeholder for another:**
+
+1. **Char-level** (`CharTokenizer`, `vocab≈96`) — what actually runs, live,
+   on Blackhole hardware in Lab 5. Simplest possible, zero training cost,
+   keeps the data pipeline the star of that lab instead of the tokenizer.
+2. **From-scratch byte-BPE** (`vocab=306` on the Shakespeare excerpt above,
+   thousands at TinyStories/~80M scale) — what *this* section builds, to
+   make the merge-learning mechanism concrete and inspectable.
+3. **SentencePiece BPE @ 32K** — what production models and Mini-LLM
+   actually ship with, covered next.
+
+---
+
+## What production LLMs use: SentencePiece BPE @ 32K
+
+Neither tokenizer above is what a real production model reaches for. Llama
+3, and [Mini-LLM](https://github.com/Ashx098/Mini-LLM) — the
+~80M-parameter, TinyStories-scale build this arc's hero run is patterned
+after — both tokenize with **SentencePiece BPE trained to a ~32,000-token
+vocabulary** over a large corpus, orders of magnitude bigger than the
+306-token vocab this lab trains on a Shakespeare excerpt.
+
+SentencePiece is the same BPE *idea* explained above — merges learned
+bottom-up from pair frequency — productionized: a mature, widely-used
+library, a subword-regularization option for training-time robustness, and
+a vocabulary budget large enough that whole common words end up as single
+tokens instead of the two- and three-character fragments a 300-token vocab
+tops out at. The four-step algorithm at the top of this lesson (start from
+raw units, count pairs, merge the most frequent, repeat) is exactly what
+SentencePiece's BPE mode does internally; it just runs that loop against a
+corpus of billions of characters instead of one paragraph of Shakespeare,
+and stops at 32,000 merges instead of 50.
+
+That's the honest arithmetic behind the three tiers above: this lesson
+builds the *mechanism* at a scale small enough to run and inspect in
+seconds, and production systems buy the same mechanism — matured, and
+scaled up roughly 100x in vocabulary — off the shelf. A trained
+SentencePiece vocabulary is normally distributed as a `.model` artifact
+rather than something you regenerate from source each run; if one is hosted
+on the Hugging Face Hub, you'd pull it the same way as any other model
+asset in this arc, with `hf download`, not `huggingface-cli`. This lesson
+doesn't add a runnable SentencePiece example, though — it's an external
+dependency, and the from-scratch tokenizer above stays the hands-on,
+byte-for-byte-inspectable artifact for this lab.
 
 ---
 
