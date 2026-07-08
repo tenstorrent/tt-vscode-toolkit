@@ -1608,11 +1608,11 @@
     {
       "id": "lfs-02-embeddings",
       "title": "Embeddings & the Residual Stream",
-      "description": "Build token and positional embeddings, meet the residual stream, and write your first TT-Lang inception kernel live in the browser playground.",
+      "description": "Build token embeddings and RoPE (rotary position embeddings), meet the residual stream, and write your first TT-Lang inception kernel live in the browser playground.",
       "category": "llm-from-scratch",
       "tags": [
         "embeddings",
-        "positional",
+        "rope",
         "residual",
         "tt-lang",
         "playground"
@@ -1638,13 +1638,13 @@
     {
       "id": "lfs-03-attention",
       "title": "Attention from Scratch",
-      "description": "Build multi-head self-attention from scratch and author the TT-Lang attention/softmax inception kernel — the reader→compute→writer payoff.",
+      "description": "Build grouped-query attention (GQA) with RoPE'd queries and keys, and author the TT-Lang attention/softmax inception kernel — the reader→compute→writer payoff.",
       "category": "llm-from-scratch",
       "tags": [
         "attention",
-        "softmax",
+        "gqa",
+        "rope",
         "tt-lang",
-        "flashattention",
         "inception"
       ],
       "supportedHardware": [
@@ -1668,11 +1668,11 @@
     {
       "id": "lfs-04-block-and-model",
       "title": "The Transformer Block & the Model",
-      "description": "Assemble MLP, RMSNorm, and residuals into a full transformer block, stack it into a nano GPT, and see TT-Lang kernels drop in as ttnn ops. Scale to 80M.",
+      "description": "Assemble SwiGLU, RMSNorm, and residuals into a full Llama-style transformer block, stack it into a nano model, and see TT-Lang kernels drop in as ttnn ops. Scale to 80M.",
       "category": "llm-from-scratch",
       "tags": [
         "transformer",
-        "mlp",
+        "swiglu",
         "rmsnorm",
         "matmul",
         "tt-lang"
