@@ -36,7 +36,7 @@ cudaMemcpy(d_tokens, h_tokens, size, cudaMemcpyHostToDevice);   // H2D
 cudaMemcpy(h_logits, d_logits, size, cudaMemcpyDeviceToHost);   // D2H
 ```
 
-TT-NN's equivalent is a pair of Python calls, not a driver-level copy:
+TT-NN<sup>™</sup>'s equivalent is a pair of Python calls, not a driver-level copy:
 
 ```python
 tt_tokens = ttnn.from_torch(torch_tokens, device=device)   # H2D
@@ -170,7 +170,7 @@ and the merge budget do.
 ## The honest two-tier tokenizer story
 
 Here's the part that's easy to gloss over, and this lesson won't: **the
-nano model this arc actually trains on Blackhole in Lab 5 does not use the
+nano model this arc actually trains on Blackhole<sup>®</sup> in Lab 5 does not use the
 BPE tokenizer above.** It uses something simpler — `CharTokenizer`, already
 sitting in `reference_gpt.py`:
 
@@ -232,7 +232,7 @@ def get_batch(token_ids: list[int], batch_size: int, block_size: int):
 
 `x` is the model's input; `y` is `x` shifted one token to the right — at
 every position, the target is simply "the next token." This is the exact
-`[batch, seq]` shape (`batch_size=2, block_size=32` at nano scale) that
+`[batch, seq]` shape (`batch=2, seq=32` at nano scale) that
 `reference_gpt.py`'s `smoke()` function feeds into the model, and the shape
 every downstream lab builds on. Nothing about batching is TT-specific —
 this step is identical whether the next stop is `ttnn` or plain PyTorch.
