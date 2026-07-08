@@ -3628,6 +3628,109 @@ python test_particle_life.py</pre>
 }
 
 /**
+ * Command: tenstorrent.createLlmFromScratchProject
+ *
+ * Deploys the "Build an LLM from Scratch" reference templates to
+ * ~/tt-scratchpad/llm-from-scratch/ so a developer can follow the lesson
+ * arc hands-on in their own workspace. Mirrors createCookbookProjects()
+ * (same dist-vs-source template lookup, recursive copy, and folder-open
+ * behavior) but stays focused on copying the tree - no .env file or
+ * Jupyter-specific extras.
+ */
+async function createLlmFromScratchProject(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const homeDir = os.homedir();
+  const scratchpadPath = path.join(homeDir, 'tt-scratchpad', 'llm-from-scratch');
+
+  // Get extension's template directory
+  const extensionPath = extensionContext.extensionPath;
+
+  // Try dist/ first (production), then content/ (development)
+  let templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'llm-from-scratch');
+  if (!fs.existsSync(templatePath)) {
+    templatePath = path.join(extensionPath, 'content', 'templates', 'llm-from-scratch');
+  }
+
+  // Check if templates exist
+  if (!fs.existsSync(templatePath)) {
+    vscode.window.showErrorMessage(
+      `LLM-from-Scratch templates not found. Checked:\n- ${path.join(extensionPath, 'dist', 'content', 'templates', 'llm-from-scratch')}\n- ${path.join(extensionPath, 'content', 'templates', 'llm-from-scratch')}`
+    );
+    return;
+  }
+
+  // Check if destination already exists
+  if (fs.existsSync(scratchpadPath)) {
+    const choice = await vscode.window.showWarningMessage(
+      `LLM-from-Scratch directory already exists at ${scratchpadPath}. Overwrite?`,
+      'Overwrite',
+      'Cancel'
+    );
+
+    if (choice !== 'Overwrite') {
+      return;
+    }
+
+    // Remove existing directory
+    fs.rmSync(scratchpadPath, { recursive: true, force: true });
+  }
+
+  // Create llm-from-scratch directory
+  fs.mkdirSync(scratchpadPath, { recursive: true });
+
+  // Copy all templates recursively
+  function copyDir(src: string, dest: string) {
+    fs.mkdirSync(dest, { recursive: true });
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+
+      if (entry.isDirectory()) {
+        copyDir(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
+  try {
+    copyDir(templatePath, scratchpadPath);
+
+    // Count copied files (recursively) for the success message
+    function countFiles(dir: string): number {
+      let count = 0;
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          count += countFiles(entryPath);
+        } else {
+          count += 1;
+        }
+      }
+      return count;
+    }
+    const fileCount = countFiles(scratchpadPath);
+
+    vscode.window.showInformationMessage(
+      `✓ Created LLM-from-Scratch project with ${fileCount} files in ${scratchpadPath}.`
+    );
+
+    // Open the llm-from-scratch folder in explorer
+    const uri = vscode.Uri.file(scratchpadPath);
+    await vscode.commands.executeCommand('revealInExplorer', uri);
+  } catch (error) {
+    vscode.window.showErrorMessage(
+      `Failed to create LLM-from-Scratch project: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
+/**
  * Command: tenstorrent.runGameOfLife
  * Runs Conway's Game of Life with random initial state
  */
@@ -4782,6 +4885,7 @@ async function showCommandMenu(): Promise<void> {
     { label: '$(library) Browse Model Zoo', description: 'Explore validated models', command: 'tenstorrent.browseModelZoo' },
     { label: '$(code) Programming Examples', description: 'Sample code and patterns', command: 'tenstorrent.exploreProgrammingExamples' },
     { label: '$(book) Create Cookbook Projects', description: 'Deploy 4 complete recipes', command: 'tenstorrent.createCookbookProjects' },
+    { label: '$(beaker) Create LLM-from-Scratch Project', description: 'Copy the arc templates to ~/tt-scratchpad', command: 'tenstorrent.createLlmFromScratchProject' },
   ];
 
   const selected = await vscode.window.showQuickPick(items, {
@@ -5479,6 +5583,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // Lesson 12 - TT-Metalium Cookbook
     vscode.commands.registerCommand('tenstorrent.createCookbookProjects', createCookbookProjects),
+    vscode.commands.registerCommand('tenstorrent.createLlmFromScratchProject', createLlmFromScratchProject),
     vscode.commands.registerCommand('tenstorrent.runGameOfLife', runGameOfLife),
     vscode.commands.registerCommand('tenstorrent.runGameOfLifeGlider', runGameOfLifeGlider),
     vscode.commands.registerCommand('tenstorrent.runGameOfLifeGliderGun', runGameOfLifeGliderGun),
