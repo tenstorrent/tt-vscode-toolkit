@@ -29,8 +29,8 @@ estimatedMinutes: 20
 
 ## Thanks, first
 
-Two things sparked this arc, and both deserve a real thank-you before anything
-else.
+Three things sparked this arc, and all three deserve a real thank-you before
+anything else.
 
 The first is a post on **r/LocalLLaMA**: someone [built an ~80M-parameter LLM
 from scratch](https://www.reddit.com/r/LocalLLaMA/comments/1qq5zdr/i_built_an_80m_parameter_llm_from_scratch_using/)
@@ -43,7 +43,18 @@ open, at a size a single person can reason about end to end, is the whole
 premise of this arc. Thank you to that author, and to everyone in
 r/LocalLLaMA who posts working code instead of just talking about it.
 
-The second is the **"Coming From CUDA"** chapter of Tenstorrent's internal
+Since then, the JS challenge cleared, and the repo behind that post turned
+out to be **[Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM)** — an
+~80M-parameter model trained on 361M tokens in ~5 hours on a single A100,
+final loss ~3.25. Its component choices are exactly what a from-scratch build
+should look like in 2026: **RoPE** instead of learned positional embeddings,
+**RMSNorm**, **SwiGLU**, **grouped-query attention (GQA)**, and a
+**SentencePiece BPE 32K** tokenizer. This arc follows that lead — every
+architectural choice from here on matches Mini-LLM's, re-expressed
+TT-native. Thank you to Ashx098 for building it, and for making the modern
+recipe legible enough to learn from.
+
+The third is the **"Coming From CUDA"** chapter of Tenstorrent's internal
 TT-QuietBox<sup>®</sup> 2 guide. It's the clearest short explanation we've seen of how
 CUDA mental models map onto Tensix, and three of its ideas are load-bearing
 for this entire arc: the "pick your altitude" ladder, the CUDA→Tensix concept
@@ -58,32 +69,35 @@ in this adaptation are ours.
 
 ## What we're building
 
-A small GPT-style language model, **from scratch**, expressed **TT-native
-from the first line of code** — not a PyTorch model you later port, but a
-model whose forward pass, attention, and normalization are written directly
-against `ttnn.Tensor` and, for the hot inner loops, hand-authored in
-TT-Lang. Five labs after this one:
+A small **Llama-style** language model, **from scratch**, expressed
+**TT-native from the first line of code** — not a PyTorch model you later
+port, but a model whose forward pass, attention, and normalization are
+written directly against `ttnn.Tensor` and, for the hot inner loops,
+hand-authored in TT-Lang. Five labs after this one:
 
 1. **lfs-01 — Tokenizer & Data.** A BPE tokenizer from scratch, encode/decode,
    batching — the raw material every model needs.
-2. **lfs-02 — Embeddings & the Residual Stream.** Token + positional
-   embeddings, and your first TT-native kernel: elementwise add.
-3. **lfs-03 — Attention from Scratch.** Multi-head self-attention, written out
-   fully — Q·Kᵀ, scale, mask, softmax, ·V — and re-expressed as a TT-Lang
-   kernel.
-4. **lfs-04 — The Block & the Model.** MLP, RMSNorm, residuals, and the full
-   transformer block stacked into a model you can actually run.
+2. **lfs-02 — Embeddings & the Residual Stream.** Token embeddings and
+   **RoPE** (rotary positional embeddings — no learned position table), plus
+   your first TT-native kernel: elementwise add.
+3. **lfs-03 — Attention from Scratch.** Multi-head self-attention extended to
+   **grouped-query attention (GQA)**, written out fully — Q·Kᵀ, scale, mask,
+   softmax, ·V, KV-head sharing — and re-expressed as a TT-Lang kernel.
+4. **lfs-04 — The Block & the Model.** **SwiGLU** MLP, RMSNorm, residuals, and
+   the full transformer block stacked into a model you can actually run.
 5. **lfs-05 — Train It & Run for Real.** A from-scratch training loop —
    cross-entropy, AdamW, backprop — that we ran for real on Blackhole<sup>®</sup>
    hardware.
 
 **The promise is two-tier, and both tiers are honest.** Every lab builds and
-runs a **nano** configuration live — 6 layers, 6 heads, 384-dim embeddings,
-a small character-level vocabulary (`n_layer=6, n_head=6, n_embd=384,
-vocab≈96, block_size=256`, ~10.8M parameters). That model is small enough to
-train on a laptop CPU in the reference implementation and to run through
-`ttnn`/TT-Lang op-by-op without waiting around. It converges — you'll watch
-the loss drop.
+runs a **nano Llama** configuration live — 6 transformer blocks, 6 attention
+heads sharing down to **3 KV groups (grouped-query attention)**, 384-dim
+embeddings, RoPE with θ=500000, and a small character-level vocabulary
+(`num_heads=6, num_groups=3, embedding_dim=384, num_blocks=6, theta=500000,
+vocab≈96, max_sequence_length=256`, ~9.8M parameters — this is `ttml`'s own
+`nanollama3` config). That model is small enough to train on a laptop CPU in
+the reference implementation and to run through `ttnn`/TT-Lang op-by-op
+without waiting around. It converges — you'll watch the loss drop.
 
 The **~80M-parameter** number — the scale of the project that inspired this
 arc — is the framed *target*. It's the same code, the same architecture, with
@@ -227,10 +241,10 @@ wrong expectations. Here's exactly what runs where:
 | Lab | What you build | Runs on |
 |---|---|---|
 | **lfs-01** — Tokenizer & Data | BPE tokenizer, batching | Pure Python, anywhere — no device, no simulator |
-| **lfs-02** — Embeddings & the Residual Stream | PyTorch reference + first TT-Lang inception kernel (elementwise add) | Functional simulator + the browser-based TT-Lang playground |
-| **lfs-03** — Attention from Scratch | PyTorch reference + TT-Lang attention/softmax kernel | Kernel is **authored and verified against the PyTorch reference**, not sim-run — the functional simulator can't execute attention's softmax reduction yet |
-| **lfs-04** — The Block & the Model | PyTorch reference + TT-Lang RMSNorm/matmul kernels, wired in as drop-in `ttnn.Tensor` ops | Matmul kernel is sim-validated; RMSNorm hits the same sim gap as attention — authored and torch-verified |
-| **lfs-05** — Train It & Run for Real | A real from-scratch training loop (cross-entropy, AdamW, backprop) | **Real hardware.** `ttml` built from source, run on a Blackhole p300c — loss dropped monotonically from ~4.7 to ~3.3 over 10 steps, on-device, exit 0 |
+| **lfs-02** — Embeddings & the Residual Stream | PyTorch **RoPE** reference + first TT-Lang inception kernel (elementwise add) | Functional simulator + the browser-based TT-Lang playground |
+| **lfs-03** — Attention from Scratch | PyTorch reference (**GQA** — KV-head sharing) + TT-Lang attention/softmax kernel | Kernel is **authored and verified against the PyTorch reference**, not sim-run — the functional simulator can't execute attention's softmax reduction yet |
+| **lfs-04** — The Block & the Model | PyTorch reference (**SwiGLU**) + TT-Lang RMSNorm/matmul kernels, wired in as drop-in `ttnn.Tensor` ops | Matmul kernel is sim-validated; RMSNorm hits the same sim gap as attention — authored and torch-verified |
+| **lfs-05** — Train It & Run for Real | A real from-scratch training loop for the nano Llama model (RoPE, RMSNorm, SwiGLU, GQA) — cross-entropy, AdamW, backprop | **Real hardware.** `ttml` built from source, `train_nanogpt.py` (llama path) run on a Blackhole p300c — loss dropped monotonically from **4.69 to 3.23** over 20 steps, ~65 ms/step, 16.5 TFLOPS, on-device, exit 0 |
 
 The lfs-03/lfs-04 gap has one honest cause: **the functional simulator runs
 ahead of the hardware compiler.** Some kernel patterns — attention's softmax
