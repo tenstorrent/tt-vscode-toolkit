@@ -236,6 +236,16 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Model Architecture Basics** — `N150`
 - **Training from Scratch** — `N150`
 
+### 🔬 Build an LLM from Scratch
+*6 lessons, 0 validated*
+
+- **Build an LLM from Scratch — Pick Your Altitude** — *draft*
+- **Tokenizer & Data from Scratch** — *draft*
+- **Embeddings & the Residual Stream** — *draft*
+- **Attention from Scratch** — *draft*
+- **The Transformer Block & the Model** — *draft*
+- **Train It & Run for Real** — `P300C`
+
 ### ☁️ Deployment
 *2 lessons, 2 validated*
 
@@ -253,7 +263,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Recipe 5: Particle Life Simulator** — `N150` `P300C`
 
 ### 🧠 CS Fundamentals
-*7 lessons, 0 validated*
+*8 lessons, 0 validated*
 
 - **Module 1: RISC-V & Computer Architecture** — *draft*
 - **Module 2: The Memory Hierarchy** — *draft*
@@ -262,6 +272,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Module 5: Synchronization** — *draft*
 - **Module 6: Abstraction Layers** — *draft*
 - **Module 7: Computational Complexity in Practice** — *draft*
+- **Module 8: Matrix Math and Matmul Labs** — *draft*
 
 <!-- LESSON_CATALOG_END -->
 
