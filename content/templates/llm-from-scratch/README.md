@@ -103,11 +103,13 @@ python content/templates/llm-from-scratch/train_nano_from_scratch.py \
     --data_path /home/ttuser/tt-metal/tt-train/data/shakespeare.txt
 ```
 
-The launcher sets `TT_METAL_HOME`, `TT_METAL_RUNTIME_ROOT`,
-`TT_METAL_ARCH_NAME=blackhole`, and `TT_LOGGER_LEVEL=FATAL` for you (honouring
-anything you already exported). Pass `--arch wormhole_b0` on N-series. Use
-`--dry_run` to see the exact command without launching. If the board errors at
-device open, `tt-smi -r` once and retry.
+The launcher sets `TT_METAL_HOME`, `TT_METAL_RUNTIME_ROOT`, and
+`TT_LOGGER_LEVEL=FATAL` for you, filling gaps only. For `TT_METAL_ARCH_NAME`:
+an explicit `--arch` always wins; otherwise it honours an already-exported
+`TT_METAL_ARCH_NAME`; otherwise it defaults to `blackhole`. Pass
+`--arch wormhole_b0` on N-series (or `export TT_METAL_ARCH_NAME=wormhole_b0`
+beforehand). Use `--dry_run` to see the exact command without launching. If
+the board errors at device open, `tt-smi -r` once and retry.
 
 **Why a launcher, not a primitives script:** unlike GPT-2 (which has a
 single-file `nanogpt_primitives_example.py`), there is **no** single-file Llama

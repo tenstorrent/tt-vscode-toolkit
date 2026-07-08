@@ -43,8 +43,10 @@
 #     python content/templates/llm-from-scratch/train_nano_from_scratch.py \
 #         --max_steps 20 --data_path /home/ttuser/tt-metal/tt-train/data/shakespeare.txt
 #
-# (The runner sets TT_METAL_ARCH_NAME=blackhole by default here; pass
-#  --arch wormhole_b0 on N-series.)
+# (Arch resolution: an explicit --arch always wins; otherwise the runner
+#  honours an already-exported TT_METAL_ARCH_NAME; otherwise it defaults to
+#  blackhole. Pass --arch wormhole_b0 on N-series, or export
+#  TT_METAL_ARCH_NAME=wormhole_b0 before running.)
 # ============================================================================
 """Thin launcher for the verified nanollama3 from-scratch training run."""
 
@@ -64,19 +66,26 @@ def _default_tt_metal_home() -> str:
     return os.environ.get("TT_METAL_HOME", "/home/ttuser/tt-metal")
 
 
-def _build_env(tt_metal_home: str, arch: str) -> dict:
+def _build_env(tt_metal_home: str, arch: str | None) -> dict:
     """Return an environment dict with the vars ttml/ttnn need.
 
     - TT_METAL_HOME / TT_METAL_RUNTIME_ROOT: train_nanogpt.py aborts immediately
       without TT_METAL_RUNTIME_ROOT (it needs it to find runtime kernels).
     - TT_METAL_ARCH_NAME: `blackhole` for P-series, `wormhole_b0` for N-series.
+      An explicit --arch (arch is not None) always wins. Otherwise we honour
+      an already-exported TT_METAL_ARCH_NAME. Otherwise we default to
+      `blackhole`, mirroring the repo's
+      `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` guard pattern (default-if-unset).
     - TT_LOGGER_LEVEL=FATAL: keep the on-device log quiet.
     We honour anything the caller already exported and only fill in gaps.
     """
     env = dict(os.environ)
     env.setdefault("TT_METAL_HOME", tt_metal_home)
     env.setdefault("TT_METAL_RUNTIME_ROOT", tt_metal_home)
-    env["TT_METAL_ARCH_NAME"] = arch
+    if arch is not None:
+        env["TT_METAL_ARCH_NAME"] = arch  # explicit --arch overrides everything
+    else:
+        env.setdefault("TT_METAL_ARCH_NAME", "blackhole")  # honour export, else default
     env.setdefault("TT_LOGGER_LEVEL", "FATAL")
     return env
 
@@ -92,9 +101,11 @@ def main() -> int:
     parser.add_argument("--max_steps", type=int, default=20,
                         help="Number of optimizer steps (default: 20, the "
                              "verified hero-run length).")
-    parser.add_argument("--arch", type=str, default="blackhole",
+    parser.add_argument("--arch", type=str, default=None,
                         choices=["blackhole", "wormhole_b0"],
-                        help="TT_METAL_ARCH_NAME (default: blackhole for p300c).")
+                        help="TT_METAL_ARCH_NAME. If omitted, honours an "
+                             "already-exported TT_METAL_ARCH_NAME, else "
+                             "defaults to blackhole (for p300c).")
     parser.add_argument("--tt_metal_home", type=str, default=_default_tt_metal_home())
     parser.add_argument("--dry_run", action="store_true",
                         help="Print the command and environment, then exit "
