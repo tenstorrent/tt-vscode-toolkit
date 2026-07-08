@@ -50,10 +50,15 @@ Verified against `vendor/tt-metal`, `vendor/tt-lang`, GitHub releases, and PyPI 
   accurate. Canonical from-scratch reference: **`nano_gpt/nanogpt_primitives_example.py`**
   (builds NanoGPT from `ttml.ops` + ttnn primitives; the removed `train_nanogpt.py` is NOT
   canonical).
-- ⚠️ **Blackhole training-op gap:** tt-train's `softmax`, `cross_entropy` (fwd+bwd),
-  `rmsnorm`, and `sdpa` tests are **`GTEST_SKIP`-ped on P100/P150**. Training from scratch
-  on Blackhole is therefore **not validated** — the lesson must NOT claim it. Forward /
-  inference is the safe Blackhole path.
+- **Blackhole training — EMPIRICALLY VALIDATED (2026-07-08 on this p300c).** Upstream CI
+  `GTEST_SKIP`s tt-train's `softmax`, `cross_entropy` (fwd+bwd), `rmsnorm`, and `sdpa`
+  tests on P100/P150, so upstream makes no Blackhole-training guarantee. **However, we built
+  `ttml` against `~/tt-metal` v0.73 and actually ran `nanogpt_primitives_example.py` on the
+  p300c: a real forward+backward+AdamW loop trained on-device, loss dropping monotonically
+  4.59 → 3.28 over 10 steps (exit 0). Those "skipped" ops all executed correctly.** So the
+  lesson CAN claim from-scratch training works on Blackhole p300c — framed honestly as
+  "upstream doesn't CI this on BH; we verified it at v0.73, pin your version and reset the
+  board if needed." See the "ttml build recipe & verification" section below.
 - **TT-Lang** is v1.0.0. From-scratch authoring is first-class (the "inception" angle is
   legitimate). Kernel model = one `@ttl.operation` with **three concurrent threads**
   (`@ttl.compute` + two `@ttl.datamovement`) coordinated through typed L1 ring buffers
@@ -113,7 +118,7 @@ style. Reconcile hardware numbers against source when authoring (the guide round
 | **lfs-02 — Embeddings & the Residual Stream** | Token + positional embeddings; residual stream | **First inception kernel:** elementwise-add TT-Lang kernel (from `eltwise_add.py`) live in **browser playground**; CUDA callout: shared memory→L1, three explicit threads vs warp scheduler | functional sim + playground |
 | **lfs-03 — Attention from Scratch (centerpiece)** | Multi-head self-attention + softmax (PyTorch ref: Q·Kᵀ, scale, mask, softmax, ·V) | **TT-Lang attention/softmax inception kernel** (from `test_transformer_block.py`), sim-validated vs PyTorch; CUDA callout: FlashAttention↔reader/compute/writer; **agentic shortcut** shown concretely; honest sim-vs-compiler flag | functional sim |
 | **lfs-04 — The Block & the Model** | MLP (GELU/relu²) + RMSNorm + residuals → full block → stack into nano model | **TT-Lang RMSNorm + matmul inception kernels** (`test_transformer_block.py`/`matmul.py`); kernels as drop-in `ttnn.Tensor` ops; **nano↔80M config table** + params/DRAM math; CUDA callout: kernel fusion transfers | sim + ttnn |
-| **lfs-05 — Train It & Run for Real** | Training loop from scratch: cross-entropy, AdamW, backprop (mirrors `nanogpt_primitives_example.py`) | Layered "run for real": (a) **ttnn forward inference on Blackhole** — validated (`mesh [1,1]`, `TT_METAL_ARCH_NAME=blackhole`, no `DispatchCoreAxis.ROW`); (b) **ttml training** graduation path — source-build-only + ⚠️ BH op-skip caveat, links to `ct8`/`build-tt-metal`; (c) **80M scaling** math | ttnn forward on BH (real) + ttml documented |
+| **lfs-05 — Train It & Run for Real** | Training loop from scratch: cross-entropy, AdamW, backprop (mirrors `nanogpt_primitives_example.py`) | **Real, verified from-scratch training on Blackhole p300c** (loss 4.59→3.28 in 10 steps, exit 0) via `ttml` built from source; the exact build recipe + the `std::bad_cast` ABI fix + board-reset/env-var gotchas; honest "upstream doesn't CI training on BH, pin your version" note; **80M scaling** math; links to `ct8`/`build-tt-metal` | **ttml training on BH (real, validated)** + ttnn forward |
 
 ## Runtime & accuracy mechanics (Section 3)
 
@@ -144,13 +149,64 @@ style. Reconcile hardware numbers against source when authoring (the guide round
   per maintainer preference) and add a CHANGELOG.md entry (no line numbers).
 - **Gates:** `npm run validate:lessons` and `npm run build` must pass (build runs validation).
 
+## ttml build recipe & verification (verified 2026-07-08 on p300c, tt-metal v0.73)
+
+This is the reusable artifact for Lab 5 (and it retires the ct7/ct8 "no way to get ttml"
+blocker for anyone willing to build from source). Verified end-to-end on this machine.
+
+**Recipe** (against an existing tt-metal source+build tree; `~/tt-metal` here):
+```bash
+export TT_METAL_HOME=/home/ttuser/tt-metal
+export CMAKE_POLICY_VERSION_MINIMUM=3.5          # precaution for cmake 4.x
+cd $TT_METAL_HOME
+./build_metal.sh --build-tt-train --configure-only
+cmake --build build_Release --target _ttml       # ~4 min warm ccache
+# *** REQUIRED: rebuild ttnn's nanobind so its ABI matches ttml ***
+ninja -C build_Release ttnn/_ttnn.so
+cp -a build_Release/ttnn/_ttnn.so ttnn/ttnn/_ttnn.so
+# wire ttml onto the venv (see INSTALLING_TTML.md; it says py3.10, this box is 3.12)
+printf '%s\n%s\n' \
+  $TT_METAL_HOME/tt-train/sources/ttml \
+  $TT_METAL_HOME/build/tt-train/sources/ttml \
+  > <venv>/lib/python3.12/site-packages/ttml-custom.pth
+```
+- **There is NO `tt-train/pyproject.toml`** in this tree — the `pip install .` path does not
+  apply. tt-train builds as a tt-metal subproject; ttml is wired via a `.pth`.
+- **Headline pitfall — `std::bad_cast` on `import ttml`:** happens whenever `ttnn` was built
+  *before* tt-train was enabled (i.e. every pre-built tt-metal image, including TT-QuietBox 2).
+  Cause: nanobind STABLE_ABI tag mismatch between the old `_ttnn.so` and the new `_ttml`, so
+  ttml can't see ttnn's `Layout`/`DataType` enum registry. Fix = rebuild `_ttnn.so` (as above)
+  so both share the stable ABI, or do a single clean `build_metal.sh --build-tt-train` pass.
+  A partial `--target _ttml` build alone is NOT enough. (`import ttnn` re-verified afterward.)
+
+**Run (verified on p300c):**
+```bash
+cd $TT_METAL_HOME/tt-train/sources/examples/nano_gpt
+TT_METAL_HOME=$TT_METAL_HOME TT_METAL_RUNTIME_ROOT=$TT_METAL_HOME \
+TT_METAL_ARCH_NAME=blackhole TT_LOGGER_LEVEL=FATAL \
+python nanogpt_primitives_example.py --data_path <shakespeare.txt> --max_steps 10 --batch_size 2
+# Step 0 Loss 4.59 (compile) → Step 10 Loss 3.28, exit 0
+```
+- **Extra env vars beyond the usual:** `TT_METAL_RUNTIME_ROOT` (in addition to `TT_METAL_HOME`)
+  — the example aborts immediately without it — and `TT_METAL_ARCH_NAME=blackhole`.
+- **Needs training text** via `--data_path` (no bundled `data/`); it char-tokenizes a plain file.
+- **Board may need `tt-smi -r` first** — first run hit an ethernet-core timeout at device open;
+  a reset cleared it. Worth a note for p300c / QuietBox 2 users.
+- **Let ttml close the device** — malformed/partial scripts that touch the device without a
+  clean close trigger a benign teardown abort in `MetalContext::destroy_all_instances`.
+- ttml submodules confirmed importable: `autograd`, `ops` (loss, attention, layernorm, linear,
+  embedding, unary, binary, dropout, multi_head_utils, reshape), `optimizers`, `models`,
+  `modules`, `core`, `init`, `fsdp`, `Mesh`.
+
 ## Metadata policy
 
 - `supportedHardware`: full WH + BH set incl. `p300c` (+ `sim` where the playground/functional
   sim is the runtime).
-- `status`: `draft` for training-dependent content (Lab 5 ttml path); `validated` only for what
-  is actually run and confirmed (sim/playground labs, ttnn forward). No BH-training claims.
-- `validatedOn`: only hardware/sim actually exercised.
+- `status`: `validated` for Lab 5's ttml BH-training path (verified on p300c at v0.73) and the
+  sim/playground labs; `draft` for anything not yet actually run. Pin `minTTMetalVersion` and
+  state "verified on p300c v0.73; upstream doesn't CI BH training."
+- `validatedOn`: include `p300c` for Lab 5 (empirically confirmed) and `sim` where the
+  playground/functional sim is the runtime; only list what was actually exercised.
 
 ## Non-goals (YAGNI)
 
@@ -163,7 +219,12 @@ style. Reconcile hardware numbers against source when authoring (the guide round
 
 1. Capture the canonical Reddit URL + author repo for the acknowledgment.
 2. Confirm exact nano config (embed dim / heads / blocks / vocab / seq) and the 80M config,
-   and the params/DRAM math, against a real `TransformerConfig`.
+   and the params/DRAM math, against a real `TransformerConfig` — use the verified
+   `nanogpt_primitives_example.py` config as the nano baseline.
 3. Decide whether Lab 3 gets a browser-playground kernel or stays functional-sim-only.
 4. Reconcile L1 size / core-count numbers against `vendor/tt-lang` spec + tt-metal.
-5. Final version-bump policy (MINOR vs PATCH) with maintainer convention.
+5. Version bump: **MINOR `0.0.518 → 0.1.0`** (approved — new track).
+
+**RESOLVED by the 2026-07-08 build:** ttml IS buildable + importable, and from-scratch
+training IS verified on p300c Blackhole. Lab 5 is a real on-hardware training lab, not a
+documented-only path. The build recipe + `std::bad_cast` fix are captured above.
