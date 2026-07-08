@@ -52,6 +52,13 @@
       "icon": "graduation-cap"
     },
     {
+      "id": "llm-from-scratch",
+      "title": "🔬 Build an LLM from Scratch",
+      "description": "Build a small GPT from scratch, TT-native from line one — with TT-Lang for inception",
+      "order": 11,
+      "icon": "beaker"
+    },
+    {
       "id": "deployment",
       "title": "☁️ Deployment",
       "description": "Deploy your applications to cloud platforms",
@@ -1538,6 +1545,187 @@
       "previousLesson": "ttsim-twenty-and-ten",
       "nextLesson": null,
       "markdownFile": "content/lessons/ttsim-qemu-bridge.md"
+    },
+    {
+      "id": "lfs-00-intro",
+      "title": "Build an LLM from Scratch — Pick Your Altitude",
+      "description": "Start an LLM from scratch, TT-native from line one. Meet the 32×32 tile, the reader→compute→writer pipeline, and the \"pick your altitude\" ladder — grounded for CUDA programmers.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "llm",
+        "from-scratch",
+        "tt-lang",
+        "cuda",
+        "transformers"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 20,
+      "order": 200,
+      "nextLesson": "lfs-01-tokenizer",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-00-intro.md"
+    },
+    {
+      "id": "lfs-01-tokenizer",
+      "title": "Tokenizer & Data from Scratch",
+      "description": "Build a BPE tokenizer and data pipeline from scratch, then see how a token sequence becomes tiled ttnn tensors on Tenstorrent hardware.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "tokenizer",
+        "bpe",
+        "data",
+        "tinystories",
+        "llm"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 30,
+      "order": 201,
+      "previousLesson": "lfs-00-intro",
+      "nextLesson": "lfs-02-embeddings",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-01-tokenizer.md"
+    },
+    {
+      "id": "lfs-02-embeddings",
+      "title": "Embeddings & the Residual Stream",
+      "description": "Build token and positional embeddings, meet the residual stream, and write your first TT-Lang inception kernel live in the browser playground.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "embeddings",
+        "positional",
+        "residual",
+        "tt-lang",
+        "playground"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 30,
+      "order": 202,
+      "previousLesson": "lfs-01-tokenizer",
+      "nextLesson": "lfs-03-attention",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-02-embeddings.md"
+    },
+    {
+      "id": "lfs-03-attention",
+      "title": "Attention from Scratch",
+      "description": "Build multi-head self-attention from scratch and author the TT-Lang attention/softmax inception kernel — the reader→compute→writer payoff.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "attention",
+        "softmax",
+        "tt-lang",
+        "flashattention",
+        "inception"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 40,
+      "order": 203,
+      "previousLesson": "lfs-02-embeddings",
+      "nextLesson": "lfs-04-block-and-model",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-03-attention.md"
+    },
+    {
+      "id": "lfs-04-block-and-model",
+      "title": "The Transformer Block & the Model",
+      "description": "Assemble MLP, RMSNorm, and residuals into a full transformer block, stack it into a nano GPT, and see TT-Lang kernels drop in as ttnn ops. Scale to 80M.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "transformer",
+        "mlp",
+        "rmsnorm",
+        "matmul",
+        "tt-lang"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 40,
+      "order": 204,
+      "previousLesson": "lfs-03-attention",
+      "nextLesson": "lfs-05-train-and-run",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-04-block-and-model.md"
+    },
+    {
+      "id": "lfs-05-train-and-run",
+      "title": "Train It & Run for Real",
+      "description": "Write the training loop from scratch — cross-entropy, AdamW, backprop — then train your model for real on Blackhole with ttml. Verified on p300c.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "training",
+        "adamw",
+        "ttml",
+        "blackhole",
+        "nanogpt"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "validatedOn": [
+        "p300c"
+      ],
+      "estimatedMinutes": 45,
+      "order": 205,
+      "previousLesson": "lfs-04-block-and-model",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-05-train-and-run.md"
     }
   ]
 }
