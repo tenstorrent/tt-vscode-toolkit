@@ -1,0 +1,169 @@
+# Build an LLM from Scratch, TT-Native — Design Spec
+
+**Date:** 2026-07-08
+**Branch:** `llm_from_scratch`
+**Status:** Design approved, pending spec review
+
+## Acknowledgments (bake into Lab 0)
+
+This arc is a **thank-you-forward** lesson, in keeping with Tenstorrent's value of
+saying thanks. Lab 0 opens by crediting, with links and genuine thanks:
+
+- **The r/LocalLLaMA "I built an 80M-parameter LLM from scratch" project** — the spark
+  for this arc. (Reddit post; link to be captured. It was behind a JS challenge at
+  authoring time — capture the canonical URL and the author's repo before publishing.)
+- **The "Coming From CUDA" chapter** of the internal **tt-quietbox2-guide**
+  (`src/content/tracks/ml-practitioner/chapters/01-coming-from-cuda.md`) — the source of
+  the CUDA-grounding layer. We adapt its ideas (with attribution), we do not copy it.
+
+## Goal
+
+A **standalone, multi-part, code-first arc** that teaches a reader to build a small
+GPT-style LLM **from scratch**, expressing it **TT-native from the first line** — using
+**TT-Lang as a tool for *inception* (authoring kernels from scratch), not just conversion
+(importing CUDA/Triton/PyTorch)**. Accessible to CUDA programmers throughout.
+
+It is deliberately separate from the existing `ct1`–`ct8` Custom-Training track (which is
+`blocked` on `ttml` packaging). This arc links to `ct8`/`build-tt-metal` for the real
+training graduation path but is never itself blocked, because its hands-on runtime is the
+functional simulator / browser playground plus validated ttnn forward inference.
+
+## Three load-bearing decisions (from brainstorming)
+
+1. **Shape:** multi-part code-first arc (like `cs-fundamentals-08-matmul-labs`), 5 labs + intro.
+2. **Model target:** two-tier — build & run at **nano scale** (converges live), framed as
+   scaling to the **~80M** "hero" number (same code, config knobs + DRAM/time math).
+3. **Execution contract:** **layered per-lab runtime** — PyTorch reference for concepts,
+   TT-Lang functional sim / browser playground for inception kernels, and a final
+   "run for real" lab offering **ttnn forward inference on Blackhole** (validated) plus the
+   **ttml source-build training** path (honestly caveated).
+
+## Research findings that constrain the design
+
+Verified against `vendor/tt-metal`, `vendor/tt-lang`, GitHub releases, and PyPI (July 2026):
+
+- **Latest tt-metal:** stable **v0.73.1** (2026-06-26), rc **v0.74.0-rc1** (2026-07-02).
+  Pin the lesson to these; the `ct8` v0.67.0+ floor is comfortably met.
+- **`ttml` (tt-train) is still source-only** — no pip wheel / deb. Bindings
+  (`tt-train/sources/ttml/nanobind/`) are real and functional but require building from a
+  tt-metal source tree. The `ct7`/`ct8` "blocked pending a standalone package" note remains
+  accurate. Canonical from-scratch reference: **`nano_gpt/nanogpt_primitives_example.py`**
+  (builds NanoGPT from `ttml.ops` + ttnn primitives; the removed `train_nanogpt.py` is NOT
+  canonical).
+- ⚠️ **Blackhole training-op gap:** tt-train's `softmax`, `cross_entropy` (fwd+bwd),
+  `rmsnorm`, and `sdpa` tests are **`GTEST_SKIP`-ped on P100/P150**. Training from scratch
+  on Blackhole is therefore **not validated** — the lesson must NOT claim it. Forward /
+  inference is the safe Blackhole path.
+- **TT-Lang** is v1.0.0. From-scratch authoring is first-class (the "inception" angle is
+  legitimate). Kernel model = one `@ttl.operation` with **three concurrent threads**
+  (`@ttl.compute` + two `@ttl.datamovement`) coordinated through typed L1 ring buffers
+  (Dataflow Buffers via `.reserve()`/`.wait()`). This maps *exactly* onto the CUDA guide's
+  **reader → compute → writer** framing. Use `@ttl.operation` — the `@ttl.kernel` /
+  `buffer_factor` API in the Hermes-spoke skills is **stale**; do not cite it.
+- **TT-Lang transformer kernels already exist** in `vendor/tt-lang/examples/`:
+  `test_transformer_block.py` (RMSNorm+QKV, RoPE, attention/softmax, out-proj+residual,
+  MLP relu²) — sim-validated vs PyTorch; plus `matmul.py`, `eltwise_add.py`,
+  `matmul-tutorial/step_*`. **Simulator runs ahead of the hardware compiler** — some
+  kernels are sim-validated only; flag this honestly per lab.
+- **TT-Lang ops are drop-in `ttnn.Tensor` calls** — a hand-written kernel splices into an
+  otherwise-ttnn model op-by-op (boundary = `ttnn.Tensor`, `TILE_LAYOUT`, on device).
+- **ttnn/ttml API names** (verified): `ttnn.embedding`, `ttnn.matmul`/`ttnn.linear`,
+  `ttnn.softmax`, `ttnn.rms_norm`, `ttnn.transformer.scaled_dot_product_attention`;
+  training needs **ttml** wrappers (ttnn has no autograd): `ttml.ops.cross_entropy_loss`,
+  `ttml.optimizers.AdamW`/`MorehAdamW`.
+- **Blackhole runtime:** `mesh_shape [1,1]` for single-chip p300c/p150;
+  `TT_METAL_ARCH_NAME=blackhole` (guard: `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"`); never
+  `DispatchCoreAxis.ROW`. p300c behaves as a single Blackhole chip (p100 mode); TT-QuietBox 2
+  = 4× independent p300c.
+
+## Arc structure
+
+New track category **`llm-from-scratch`**, lesson IDs **`lfs-00`…`lfs-05`**.
+Every lab follows the same rhythm:
+
+> **Coming-from-CUDA callout → PyTorch reference (understand) → TT-native expression
+> (ttnn / TT-Lang inception) → run it (sim / playground / hw) → "graduate to real
+> hardware" box.**
+
+### CUDA grounding layer (adapted from `01-coming-from-cuda.md`, with attribution)
+
+1. **"Pick Your Altitude" ladder** — TT-Forge → **TTNN** → **TT-Lang** → Metalium, mapped to
+   `model.cuda()` → cuBLAS/cuDNN → custom CUDA kernel → PTX. Lab 0's orienting frame:
+   *"build at TTNN altitude, descend to TT-Lang for the hot kernels — that descent is inception."*
+2. **CUDA → Tensix concept map** — SM→Tensix core, thread block→tile-on-a-core, shared
+   memory→L1 SRAM, `<<<g,b>>>`→automatic dispatch, warp scheduler→explicit reader/compute/writer
+   pipeline, `cudaMemcpy`→`ttnn.from_torch`/`to_torch`. Appears as a per-lab "Coming from CUDA"
+   callout scoped to that lab's component.
+3. **"Custom kernels without the dread — the agentic shortcut"** — the inception thesis: on
+   CUDA the kernel spec lives in the programmer's head; in TT-Lang it lives *in the source*
+   (arrivals in → tile math → departures out), which is why you can author TT-native from
+   line one and even hand an agent a reader/compute/writer spec.
+
+*Rendering note:* the QB2 guide uses shortcodes (`:::callout`, `{% tensixviz %}`, personas)
+that do NOT render in VSCode walkthroughs. Bring the *ideas* into plain-markdown toolkit
+style. Reconcile hardware numbers against source when authoring (the guide rounds L1 to
+"1.5 MB" / 120 cores; the TT-Lang spec says L1 ≈ 1464 KB and Blackhole grid up to 13×10).
+
+### Labs
+
+| Lab | Builds from scratch | Inception / TT-native moment | Runs where |
+|---|---|---|---|
+| **lfs-00 — Intro: Pick Your Altitude & the Tile** | The whole picture; why TT-native from line one; 32×32 tile, `ttnn.Tensor`/`TILE_LAYOUT`, reader→compute→writer; two-tier promise; runtime matrix; **acknowledgments/thanks** | altitude ladder + CUDA concept map | reading |
+| **lfs-01 — Tokenizer & Data** | BPE tokenizer (train on TinyStories), encode/decode, batching; tokens → tiled tensors; `ttnn.embedding` preview | CUDA callout: `cudaMemcpy`↔`from_torch`/`to_torch`, no unified memory | pure Python (anywhere) |
+| **lfs-02 — Embeddings & the Residual Stream** | Token + positional embeddings; residual stream | **First inception kernel:** elementwise-add TT-Lang kernel (from `eltwise_add.py`) live in **browser playground**; CUDA callout: shared memory→L1, three explicit threads vs warp scheduler | functional sim + playground |
+| **lfs-03 — Attention from Scratch (centerpiece)** | Multi-head self-attention + softmax (PyTorch ref: Q·Kᵀ, scale, mask, softmax, ·V) | **TT-Lang attention/softmax inception kernel** (from `test_transformer_block.py`), sim-validated vs PyTorch; CUDA callout: FlashAttention↔reader/compute/writer; **agentic shortcut** shown concretely; honest sim-vs-compiler flag | functional sim |
+| **lfs-04 — The Block & the Model** | MLP (GELU/relu²) + RMSNorm + residuals → full block → stack into nano model | **TT-Lang RMSNorm + matmul inception kernels** (`test_transformer_block.py`/`matmul.py`); kernels as drop-in `ttnn.Tensor` ops; **nano↔80M config table** + params/DRAM math; CUDA callout: kernel fusion transfers | sim + ttnn |
+| **lfs-05 — Train It & Run for Real** | Training loop from scratch: cross-entropy, AdamW, backprop (mirrors `nanogpt_primitives_example.py`) | Layered "run for real": (a) **ttnn forward inference on Blackhole** — validated (`mesh [1,1]`, `TT_METAL_ARCH_NAME=blackhole`, no `DispatchCoreAxis.ROW`); (b) **ttml training** graduation path — source-build-only + ⚠️ BH op-skip caveat, links to `ct8`/`build-tt-metal`; (c) **80M scaling** math | ttnn forward on BH (real) + ttml documented |
+
+## Runtime & accuracy mechanics (Section 3)
+
+- **Pin** tt-metal v0.73.1 / v0.74.0-rc1; state it in front matter (`minTTMetalVersion`) and prose.
+- **Verify everything against `vendor/`** before publishing: API names, paths, flags, env vars.
+  Use `@ttl.operation`; ttnn/ttml names per the research table above.
+- **Drift management:** TT-Lang kernels are *adapted from* `vendor/tt-lang/examples/`. Each
+  embedded kernel carries a source-path note and a drift-check reminder (same spirit as
+  `scripts/check-sim-lite-drift.py`). If Lab 3 gets a browser-playground softmax/attention
+  kernel, add it under `content/web/ttlang-sim-lite/kernels/` and wire it into the drift check.
+- **Honest hardware flags** as plain-markdown callouts: simulator-ahead-of-compiler; BH
+  training-op skips; ttml source-build requirement. Never claim BH training validation.
+- **Runnable code** shipped under `content/templates/llm-from-scratch/` (complete scripts);
+  lessons walk excerpts code-first so the prose and the files stay in sync.
+
+## Integration (Section 4)
+
+- **Files:** `content/lessons/lfs-0{0..5}-*.md` (6 lessons) + `content/templates/llm-from-scratch/`.
+- **Registry:** add `llm-from-scratch` category to `content/lesson-registry.json`; populate
+  lesson entries via `npm run generate:lessons -- --execute` (front matter is source of truth),
+  then hand-add `order`/`previousLesson`/`nextLesson`/`completionEvents`.
+- **Walkthrough:** 6 steps in `package.json` → `contributes.walkthroughs[0].steps` with
+  `metadata`, ordering, and completion events.
+- **Playground:** reuse the existing `ttlang-sim` playground (`playground: ttlang-sim` front
+  matter) for Lab 2 (`eltwise_add` already bundled) and Lab 4 (`matmul_1d`/`matmul_relu`
+  bundled). Optional stretch: add a softmax/attention kernel for Lab 3.
+- **Version & changelog:** bump `package.json` (MINOR — new track; `0.0.518 → 0.1.0`, or PATCH
+  per maintainer preference) and add a CHANGELOG.md entry (no line numbers).
+- **Gates:** `npm run validate:lessons` and `npm run build` must pass (build runs validation).
+
+## Metadata policy
+
+- `supportedHardware`: full WH + BH set incl. `p300c` (+ `sim` where the playground/functional
+  sim is the runtime).
+- `status`: `draft` for training-dependent content (Lab 5 ttml path); `validated` only for what
+  is actually run and confirmed (sim/playground labs, ttnn forward). No BH-training claims.
+- `validatedOn`: only hardware/sim actually exercised.
+
+## Non-goals (YAGNI)
+
+- Not unblocking or rewriting `ct7`/`ct8` (separate track; link only).
+- Not full 80M convergence in-lesson (nano converges; 80M is the framed scale target).
+- Not a Metalium/C++ descent (mention as the floor of the altitude ladder; out of scope).
+- No new custom UI — VSCode-native walkthrough + existing playground only.
+
+## Open items to resolve while authoring
+
+1. Capture the canonical Reddit URL + author repo for the acknowledgment.
+2. Confirm exact nano config (embed dim / heads / blocks / vocab / seq) and the 80M config,
+   and the params/DRAM math, against a real `TransformerConfig`.
+3. Decide whether Lab 3 gets a browser-playground kernel or stays functional-sim-only.
+4. Reconcile L1 size / core-count numbers against `vendor/tt-lang` spec + tt-metal.
+5. Final version-bump policy (MINOR vs PATCH) with maintainer convention.
