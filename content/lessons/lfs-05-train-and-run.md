@@ -11,7 +11,7 @@ status: draft
 validatedOn:
   - p300c
 estimatedMinutes: 45
-minTTMetalVersion: v0.67.0
+minTTMetalVersion: v0.73.1
 ---
 
 # Train It & Run for Real
@@ -227,7 +227,7 @@ runs (you saw the same effect described in earlier labs' honest-flag
 sections). Every step after that ran in **~65 ms**, at roughly **16.5
 TFLOPS** and **~11% model FLOPS utilization (MFU)**. All 20 steps, compile
 included, finished in **13.6 seconds**, and the process exited **0**. Loss
-dropped **monotonically** — 4.6875 → 4.69ish → ... → 3.2344 — the same shape
+dropped **monotonically** — 4.6875 → 3.56 → 3.375 → 3.2344 — the same shape
 of curve as lfs-04's `smoke()` output would predict, now with a real gradient
 signal instead of random initialization pulling the number down.
 

@@ -480,12 +480,16 @@ So the honest status of this kernel, stated plainly:
 - **Authored** TT-native, from scratch — inception, not a port.
 - **Faithful** to the vendor `attention_kernel` (drift-checked against
   `test_transformer_block.py @ a19aaa8`).
-- **Validated against the PyTorch reference** via the correlation gate in
-  `main()` — not executed on the functional simulator, and **not yet run on
-  hardware in this arc.**
-- **Scheduled for a hardware pass before publish** — the correlation gate is
-  the confidence we have today; a real on-device run is the confidence we owe
-  you before this leaves `draft`.
+- **Confident by construction and by oracle** — faithful to the vendor
+  `attention_kernel` (drift-checked, above), with the verified PyTorch
+  reference standing in as the oracle it will be scored against. The
+  correlation gate in `main()` is **wired and ready, but pending the
+  kernel's first successful execution** (sim or hardware) — not executed
+  on the functional simulator, and **not yet run on hardware in this arc.**
+- **Scheduled for a hardware pass before publish** — construction-faithfulness
+  plus the PyTorch oracle is the confidence we have today; a real on-device
+  run — the one that finally lights up the correlation gate — is the
+  confidence we owe you before this leaves `draft`.
 
 Contrast lfs-02's add and lfs-04's matmul, which *are* sim-runnable and pass
 cleanly. Attention and RMSNorm are the two kernels in this arc that press the
@@ -496,8 +500,11 @@ point.
 
 You've now read attention as the same math twice — a PyTorch module and a
 17-buffer TT-Lang pipeline — and you know exactly how far each has been
-verified. The kernel's confidence today is the PyTorch correlation gate; the
-confidence it still needs is a real on-device run.
+verified. The kernel's confidence today is construction-faithfulness to the
+vendor kernel plus the verified PyTorch reference acting as the oracle — the
+correlation gate that will score it against that oracle is wired and ready,
+pending the kernel's first successful execution; the confidence it still
+needs is a real on-device run.
 
 That on-device run is **lfs-05**. There, the arc's hero run —
 `nanollama3_char` (the same 6-head, 3-KV-group GQA and RoPE θ=500000 this lab

@@ -1722,6 +1722,7 @@
         "p300c"
       ],
       "estimatedMinutes": 45,
+      "minTTMetalVersion": "v0.73.1",
       "order": 205,
       "previousLesson": "lfs-04-block-and-model",
       "completionEvents": [],

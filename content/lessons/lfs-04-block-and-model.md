@@ -133,7 +133,7 @@ op `ttml.ops.swiglu`, which composes `ttml.ops.unary.silu` and
 elementwise add (`binary.mul` is the multiply cousin of the add you already
 wrote) rather than as a new hand-authored reader/compute/writer pipeline. The
 matmuls underneath `gate`, `up`, and `down` are ordinary matmuls — the same
-`matmul_kernel` this lab shows you a few sections down.
+`matmul` this lab shows you a few sections down.
 
 ## RMSNorm: normalizing before every sub-layer
 
@@ -372,7 +372,7 @@ into one, op-by-op, exactly where a `ttnn` call would otherwise go.**
 
 The clearest example is matmul, because it's everywhere in this lab's model:
 `q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate`, `up`, `down`, and `head` are
-all, underneath, `Y = A @ B`. Here is `matmul_kernel`, quoted verbatim from
+all, underneath, `Y = A @ B`. Here is `matmul`, quoted verbatim from
 `content/templates/llm-from-scratch/kernels/matmul.py` — **sim-validated**,
 unlike RMSNorm and attention, because a plain tiled matmul never needs the
 broadcast pattern the pinned simulator rejects:
@@ -450,7 +450,7 @@ add, when you need one, is the same `eltwise_add` kernel from lfs-02 applied
 afterward.
 
 Put the two kernels side by side and you get the honest picture lfs-00's
-runtime matrix promised: `matmul_kernel` sim-validated, `rmsnorm_kernel`
+runtime matrix promised: `matmul` sim-validated, `rmsnorm_kernel`
 compiler/hardware-path only — and both are, from the model's point of view,
 interchangeable with a `ttnn` call. Sketching (not a shipped file — just the
 shape) what one block's forward pass looks like with both dropped in:
@@ -460,17 +460,17 @@ shape) what one block's forward pass looks like with both dropped in:
 # with TT-Lang kernels dropped in exactly where a ttnn library call would go.
 def block_forward(x, w, rope_cos, rope_sin):
     normed = rmsnorm_kernel(x, w.attn_norm_scaler, out=...)          # <- TT-Lang
-    q = matmul_kernel(normed, w.q_proj, out=...)                     # <- TT-Lang
-    k = matmul_kernel(normed, w.k_proj, out=...)                     # <- TT-Lang
-    v = matmul_kernel(normed, w.v_proj, out=...)                     # <- TT-Lang
+    q = matmul(normed, w.q_proj, out=...)                     # <- TT-Lang
+    k = matmul(normed, w.k_proj, out=...)                     # <- TT-Lang
+    v = matmul(normed, w.v_proj, out=...)                     # <- TT-Lang
     attn_out = ...                                                   # RoPE + GQA share + softmax·V (ttnn/ttml, lfs-03)
-    x = ttnn.add(x, matmul_kernel(attn_out, w.o_proj, out=...))      # <- TT-Lang + ttnn
+    x = ttnn.add(x, matmul(attn_out, w.o_proj, out=...))      # <- TT-Lang + ttnn
     normed2 = rmsnorm_kernel(x, w.mlp_norm_scaler, out=...)          # <- TT-Lang
     x = ttnn.add(x, ttml.ops.swiglu(normed2, w.gate, w.up, w.down))  # <- fused ttml op
     return x
 ```
 
-Nothing here cares whether `rmsnorm_kernel` or `matmul_kernel` is the
+Nothing here cares whether `rmsnorm_kernel` or `matmul` is the
 hand-authored TT-Lang version from this lab or a future `ttnn.rms_norm` /
 `ttnn.matmul` call — the contract is the same `ttnn.Tensor` in, `ttnn.Tensor`
 out, at `TILE_LAYOUT`. That's the whole payoff of building at TT-NN altitude
@@ -594,7 +594,7 @@ of those blocks into a **9,810,816-parameter** model whose forward pass you
 just ran and verified. You've also seen the boundary that makes any of this
 TT-native in the first place: a `ttnn.Tensor` at `TILE_LAYOUT` doesn't care
 whether the op that touches it is a `ttnn` library call or a hand-authored
-TT-Lang kernel like `matmul_kernel` (sim-validated) or `rmsnorm_kernel`
+TT-Lang kernel like `matmul` (sim-validated) or `rmsnorm_kernel`
 (compiler/hardware-path only) — both drop in exactly the same way.
 
 And you know precisely what changes, and what doesn't, on the way to the

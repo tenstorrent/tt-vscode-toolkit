@@ -147,7 +147,7 @@ Notice the first merges are boring on purpose — `"e "`, `":\n"`, `"t "` —
 because BPE always finds the *globally* most frequent pair first, and in
 English prose that's punctuation-plus-whitespace, not word fragments. Train
 on a bigger corpus for longer and the merges climb toward whole common words
-("the", "and") and then multi-word fragments. The probe sentence — 29
+("the", "and") and then multi-word fragments. The probe sentence — 28
 characters — collapses to 9 tokens once trained, because "First Citizen"
 and "speak" both showed up (and got merged) during training.
 

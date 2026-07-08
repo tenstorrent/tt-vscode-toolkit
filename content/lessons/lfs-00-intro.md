@@ -242,7 +242,7 @@ wrong expectations. Here's exactly what runs where:
 |---|---|---|
 | **lfs-01** — Tokenizer & Data | BPE tokenizer, batching | Pure Python, anywhere — no device, no simulator |
 | **lfs-02** — Embeddings & the Residual Stream | PyTorch **RoPE** reference + first TT-Lang inception kernel (elementwise add) | Functional simulator + the browser-based TT-Lang playground |
-| **lfs-03** — Attention from Scratch | PyTorch reference (**GQA** — KV-head sharing) + TT-Lang attention/softmax kernel | Kernel is **authored and verified against the PyTorch reference**, not sim-run — the functional simulator can't execute attention's softmax reduction yet |
+| **lfs-03** — Attention from Scratch | PyTorch reference (**GQA** — KV-head sharing) + TT-Lang attention/softmax kernel | Kernel is **authored, faithful to the vendor kernel, and torch-verified via oracle** (correlation gate wired, pending first execution) — not sim-run yet, the functional simulator can't execute attention's softmax reduction |
 | **lfs-04** — The Block & the Model | PyTorch reference (**SwiGLU**) + TT-Lang RMSNorm/matmul kernels, wired in as drop-in `ttnn.Tensor` ops | Matmul kernel is sim-validated; RMSNorm hits the same sim gap as attention — authored and torch-verified |
 | **lfs-05** — Train It & Run for Real | A real from-scratch training loop for the nano Llama model (RoPE, RMSNorm, SwiGLU, GQA) — cross-entropy, AdamW, backprop | **Real hardware.** `ttml` built from source, `train_nanogpt.py` (llama path) run on a Blackhole p300c — loss dropped monotonically from **4.69 to 3.23** over 20 steps, ~65 ms/step, 16.5 TFLOPS, on-device, exit 0 |
 
