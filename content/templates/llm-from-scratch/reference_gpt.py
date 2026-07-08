@@ -12,6 +12,10 @@
 # runs (tt-train/configs/model_configs/nanogpt.yaml): token + positional
 # embeddings, a stack of pre-norm transformer blocks (multi-head self-attention
 # + MLP), a final norm and an LM head. Kept deliberately small and comment-heavy.
+#
+# Normalization: RMSNorm, not LayerNorm — matching Lab 4's rmsnorm.py kernel
+# and the ttml model, so the "same math twice" pedagogy (PyTorch here, TT-Lang
+# / ttnn kernel there) actually holds for norm as well as attention.
 # ============================================================================
 """Pure-PyTorch nano GPT reference model.
 
@@ -29,6 +33,30 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+# torch.nn.RMSNorm landed in PyTorch 2.4. Fall back to a tiny pure-PyTorch
+# implementation (matching Lab 4's rmsnorm.py: x / sqrt(mean(x^2) + eps),
+# scaled by a learned per-feature weight) on older installs so this file has
+# no hard version requirement.
+if hasattr(nn, "RMSNorm"):
+    RMSNorm = nn.RMSNorm
+else:
+
+    class RMSNorm(nn.Module):
+        """out = x / sqrt(mean(x^2, dim=-1) + eps) * weight
+
+        No mean-subtraction and no bias (the classic RMSNorm formulation) —
+        just a learned per-feature rescale of the root-mean-square norm.
+        """
+
+        def __init__(self, normalized_shape: int, eps: float = 1e-6):
+            super().__init__()
+            self.eps = eps
+            self.weight = nn.Parameter(torch.ones(normalized_shape))
+
+        def forward(self, x):
+            rms = torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + self.eps)
+            return x * rms * self.weight
 
 
 # --- Nano baseline config (matches tt-train/configs/model_configs/nanogpt.yaml)
@@ -127,9 +155,9 @@ class Block(nn.Module):
 
     def __init__(self, cfg: GPTConfig):
         super().__init__()
-        self.ln1 = nn.LayerNorm(cfg.n_embd, bias=cfg.bias)
+        self.ln1 = RMSNorm(cfg.n_embd)
         self.attn = MultiHeadSelfAttention(cfg)
-        self.ln2 = nn.LayerNorm(cfg.n_embd, bias=cfg.bias)
+        self.ln2 = RMSNorm(cfg.n_embd)
         self.mlp = MLP(cfg)
 
     def forward(self, x):
@@ -148,7 +176,7 @@ class NanoGPT(nn.Module):
         self.pos_emb = nn.Embedding(cfg.block_size, cfg.n_embd)
         self.drop = nn.Dropout(cfg.dropout)
         self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
-        self.ln_f = nn.LayerNorm(cfg.n_embd, bias=cfg.bias)
+        self.ln_f = RMSNorm(cfg.n_embd)
         self.head = nn.Linear(cfg.n_embd, cfg.vocab_size, bias=False)
 
     def forward(self, idx, targets=None):

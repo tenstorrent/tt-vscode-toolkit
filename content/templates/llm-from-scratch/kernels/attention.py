@@ -120,6 +120,10 @@ def attention_kernel(q, k, v, scale, causal_mask, scaler, out):
                 with sum_dfb.wait() as smv2, sum_bcast_dfb.reserve() as smb:
                     smb.store(ttl.math.broadcast(smv2, smb, dims=[1]))
                 with sum_bcast_dfb.wait() as smbv, softmax_dfb.reserve() as sfm:
+                    # Recomputing exp(shifted) here (rather than reusing exv from
+                    # exp_dfb above) is faithful to the vendor kernel structure —
+                    # `attention_kernel` in test_transformer_block.py @ a19aaa8
+                    # does the same recompute. Not "optimized" away on purpose.
                     sfm.store(ttl.math.exp(shifted) / smbv)
 
         # out = softmax @ V
