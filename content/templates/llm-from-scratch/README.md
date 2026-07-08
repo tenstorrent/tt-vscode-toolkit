@@ -12,6 +12,7 @@ prose and the code never drift: **this directory is the source of truth.**
 
 | File | What it is | Run it | Verified |
 |---|---|---|---|
+| `tokenizer_bpe.py` | Minimal from-scratch byte-pair-encoding (BPE) tokenizer -- train merges, encode, decode. No external tokenizer libs. The ~80M/TinyStories-scale tokenizer for Lab 1 (the nano run itself still uses `CharTokenizer` below). | `python tokenizer_bpe.py` | ✅ CPU: vocab 306 (256 bytes + 50 merges), round-trip on seen + unseen text, exit 0 |
 | `reference_gpt.py` | Pure-PyTorch nano GPT (tokenizer, embeddings, MHA, block, forward). No TT deps, CPU-runnable. The "understand" half of Labs 1-4. | `python reference_gpt.py --smoke` | ✅ CPU: logits `[2, 32, 96]`, 10.8M params, exit 0 |
 | `train_nano_from_scratch.py` | Thin runner that imports the model + training primitives from the verified `nanogpt_primitives_example.py` and drives a short from-scratch training loop (cross-entropy, AdamW, N steps). Requires `ttml`. | see below | ✅ Blackhole p300c: loss 4.72 → 3.27 in 10 steps, exit 0 |
 | `BUILD_TTML.md` | The verified `ttml`-from-source recipe (incl. the `std::bad_cast` ABI fix, env vars, board-reset note). Prerequisite for the training runner. | — | ✅ p300c, tt-metal v0.73 |
@@ -114,6 +115,7 @@ sources before publishing (same spirit as `scripts/check-sim-lite-drift.py`):
 | `kernels/rmsnorm.py` | RMSNorm block of `norm_qkv_kernel` / `norm_mlp_residual_kernel`, same file | `a19aaa8` |
 | `train_nano_from_scratch.py` | imports & reuses `$TT_METAL_HOME/tt-train/sources/examples/nano_gpt/nanogpt_primitives_example.py` | tt-metal v0.73 |
 | `reference_gpt.py` | independent pure-PyTorch mirror of the ttml NanoGPT / `nanogpt.yaml` config | — |
+| `tokenizer_bpe.py` | independent from-scratch implementation of Sennrich et al. 2016 byte-pair encoding (same core loop as Karpathy's `minbpe`, not copied from it) | — |
 
 Check the current tt-lang commit with:
 
