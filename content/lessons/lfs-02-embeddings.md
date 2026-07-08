@@ -168,7 +168,7 @@ directly, as its original TT-native form.
 
 ---
 
-The playground below defaults to exactly this kernel — **Element-wise Add**
+The playground above defaults to exactly this kernel — **Element-wise Add**
 is pre-selected, no dropdown to touch. Hit **Run** now, then come back and
 walk through the fuller version below.
 
