@@ -13,18 +13,24 @@ estimatedMinutes: 40
 
 # Attention from Scratch
 
-lfs-02 gave the residual stream its first value: `tok_emb(idx) +
-pos_emb(pos)`, a running `[B, T, n_embd]` tensor that every block reads from
-and adds back into. But so far each position in that stream is an island —
+lfs-02 gave the residual stream its first value: `x = self.tok_emb(idx)`, a
+running `[B, T, n_embd]` tensor that every block reads from and adds back
+into — and, this arc being modern-Llama-3-shaped, that's the *whole* value.
+There is no `+ pos_emb(pos)` term to add: position was deliberately left out
+of the residual stream in lfs-02, because a Llama-3-style model carries it a
+different way entirely — as a **rotation applied to Q and K**, called RoPE,
+and *this* is the lab where that rotation actually happens. So far, aside
+from that still-pending rotation, each position in the stream is an island —
 token 12's vector knows nothing about token 3's. **Attention is the
 mechanism that lets every position look at every earlier position and pull in
-what it needs.** It is the reason a transformer can resolve "it" to the noun
-five words back, and it is the single most compute-heavy thing the model
-does.
+what it needs**, and it's also where RoPE finally gets applied. It is the
+reason a transformer can resolve "it" to the noun five words back, and it is
+the single most compute-heavy thing the model does.
 
 This is the centerpiece lab. You'll read the math twice — once in plain
-PyTorch, the `MultiHeadSelfAttention` module from the reference model, then
-as a **from-scratch TT-Lang kernel** that expresses the same
+PyTorch, the `GroupedQueryAttention` module from the reference model
+(RoPE'd Q/K, grouped-query sharing, causal softmax), then as a **from-scratch
+TT-Lang kernel** that expresses the single-head core of that same
 `softmax(QKᵀ/√d + mask)V` as an explicit reader → compute → writer pipeline.
 And this lab is where the arc's honesty about a fast-moving stack earns its
 keep: unlike lfs-02's elementwise add, this attention kernel is **not runnable
@@ -74,77 +80,130 @@ fill in and something concrete to check itself against. That's why
 you're not asking an agent to intuit hidden GPU state, you're asking it to
 write down a pipeline whose shape is already pinned by the DSL.
 
-## Attention, the math (PyTorch reference)
+## Attention, the math: Grouped-Query Attention with RoPE'd Q/K (PyTorch reference)
 
-Here is the reference — `MultiHeadSelfAttention`, quoted verbatim from
+Here is the reference — `GroupedQueryAttention`, quoted verbatim from
 `content/templates/llm-from-scratch/reference_gpt.py` so the prose and the
 code can't drift apart:
 
 ```python
-class MultiHeadSelfAttention(nn.Module):
-    """Causal multi-head self-attention: the heart of Lab 3.
+class GroupedQueryAttention(nn.Module):
+    """Causal grouped-query attention with RoPE — the heart of Lab 3.
 
-    Q, K, V come from a single fused linear projection, are split into heads,
-    then for each head:  softmax(Q Kᵀ / sqrt(d) + causal_mask) V.
+    GQA: `n_head` query heads share `n_kv_groups` key/value heads (each KV head
+    serves `n_head // n_kv_groups` query heads). This shrinks the KV cache and
+    KV projections while keeping full query resolution — the modern inference
+    win over vanilla multi-head attention.
+
+    Pedagogy note: ttml's GroupedQueryAttention fuses K and V into one
+    `kv_linear` (concat_kv_dim) and creates heads with
+    `ttml.ops.multi_head_utils.grouped_heads_creation`; here we keep separate
+    q/k/v projections for readability. The math is identical.
     """
 
-    def __init__(self, cfg: GPTConfig):
+    def __init__(self, cfg: LlamaConfig):
         super().__init__()
         assert cfg.n_embd % cfg.n_head == 0, "n_embd must be divisible by n_head"
+        assert cfg.n_head % cfg.n_kv_groups == 0, (
+            "n_head must be divisible by n_kv_groups"
+        )
         self.n_head = cfg.n_head
+        self.n_kv_groups = cfg.n_kv_groups
         self.head_dim = cfg.n_embd // cfg.n_head
-        # One matmul produces Q, K, V (3 * n_embd) — cheaper than three.
-        self.qkv = nn.Linear(cfg.n_embd, 3 * cfg.n_embd, bias=cfg.bias)
-        self.proj = nn.Linear(cfg.n_embd, cfg.n_embd, bias=cfg.bias)
+        self.group_size = cfg.n_head // cfg.n_kv_groups  # query heads per KV head
+
+        # Llama linears carry no bias. Q is full width; K/V are group-width.
+        self.q_proj = nn.Linear(cfg.n_embd, self.n_head * self.head_dim, bias=False)
+        self.k_proj = nn.Linear(cfg.n_embd, self.n_kv_groups * self.head_dim, bias=False)
+        self.v_proj = nn.Linear(cfg.n_embd, self.n_kv_groups * self.head_dim, bias=False)
+        self.o_proj = nn.Linear(cfg.n_embd, cfg.n_embd, bias=False)
         self.attn_dropout = nn.Dropout(cfg.dropout)
         self.resid_dropout = nn.Dropout(cfg.dropout)
+
         # Lower-triangular causal mask (no token attends to the future).
         self.register_buffer(
             "mask",
             torch.tril(torch.ones(cfg.block_size, cfg.block_size)).view(
                 1, 1, cfg.block_size, cfg.block_size
             ),
+            persistent=False,
         )
 
-    def forward(self, x):
+    def forward(self, x, cos, sin):
         B, T, C = x.shape
-        q, k, v = self.qkv(x).split(C, dim=2)
-        # (B, T, C) -> (B, n_head, T, head_dim)
-        q = q.view(B, T, self.n_head, self.head_dim).transpose(1, 2)
-        k = k.view(B, T, self.n_head, self.head_dim).transpose(1, 2)
-        v = v.view(B, T, self.n_head, self.head_dim).transpose(1, 2)
+        # Project, then split into heads. Q has n_head heads; K/V have
+        # n_kv_groups heads (that is the whole GQA trick).
+        q = self.q_proj(x).view(B, T, self.n_head, self.head_dim).transpose(1, 2)
+        k = self.k_proj(x).view(B, T, self.n_kv_groups, self.head_dim).transpose(1, 2)
+        v = self.v_proj(x).view(B, T, self.n_kv_groups, self.head_dim).transpose(1, 2)
+
+        # RoPE rotates Q and K (never V) — position lives in the Q·K product.
+        q = apply_rope(q, cos, sin)
+        k = apply_rope(k, cos, sin)
+
+        # Share each KV head across its group of query heads. repeat_interleave
+        # (not repeat) keeps heads of the same group adjacent, matching how the
+        # query heads are laid out. (B, n_kv_groups, T, hd) -> (B, n_head, T, hd)
+        k = k.repeat_interleave(self.group_size, dim=1)
+        v = v.repeat_interleave(self.group_size, dim=1)
 
         scores = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
         scores = scores.masked_fill(self.mask[:, :, :T, :T] == 0, float("-inf"))
         weights = self.attn_dropout(F.softmax(scores, dim=-1))
-        out = weights @ v                       # (B, n_head, T, head_dim)
+        out = weights @ v                        # (B, n_head, T, head_dim)
         out = out.transpose(1, 2).contiguous().view(B, T, C)
-        return self.resid_dropout(self.proj(out))
+        return self.resid_dropout(self.o_proj(out))
 ```
 
-Strip away the bookkeeping and it's five steps, per head:
+Strip away the bookkeeping and it's six steps:
 
-1. **Project.** One `qkv` linear turns each `[T, n_embd]` residual-stream
-   slice into Q, K, and V at once (`3 * n_embd` wide), then splits and reshapes
-   into `[n_head, T, head_dim]`. One matmul for three projections is cheaper
-   than three separate ones.
-2. **Score.** `q @ k.transpose(-2, -1)` — every query dotted with every key,
-   giving a `[T, T]` matrix where entry `(i, j)` is how much token `i` attends
-   to token `j`. Divide by `√head_dim` to keep the scores from growing with
-   dimension (which would saturate the softmax).
-3. **Mask.** `masked_fill(... == 0, -inf)` sets everything above the diagonal
-   to `-inf`, so a token can't attend to the future — this is what makes it
-   *causal*, and it's why the model can be trained to predict the next token.
-4. **Softmax.** `F.softmax(scores, dim=-1)` turns each row into a probability
-   distribution over the keys — the attention weights.
-5. **Gather.** `weights @ v` — a weighted sum of value vectors, so each output
-   position is a blend of the value vectors it chose to attend to.
+1. **Project — asymmetrically.** `q_proj` produces `n_head` (6) query heads,
+   full width; `k_proj`/`v_proj` produce only `n_kv_groups` (3) heads each —
+   *half* as many KV heads as query heads. That asymmetry is the entire GQA
+   trick, and it's visible directly in the two projection widths:
+   `self.n_head * self.head_dim` vs. `self.n_kv_groups * self.head_dim`.
+2. **Rotate.** `apply_rope(q, cos, sin)` and `apply_rope(k, cos, sin)` — the
+   exact function lfs-02 handed you, now finally called. This is where
+   position actually enters the model: not in the residual stream, but here,
+   as a rotation of Q and K (never V) by an angle that depends on each
+   token's position.
+3. **Share.** `k.repeat_interleave(self.group_size, dim=1)` and the same for
+   `v` — each of the 3 KV heads gets copied to serve `group_size = 2` query
+   heads apiece, so K and V end up looking `[B, n_head, T, head_dim]` — the
+   same shape attention needs — without ever having *computed* `n_head`
+   independent KV projections.
+4. **Score.** `q @ k.transpose(-2, -1)` — every (now RoPE'd) query dotted
+   with every (now RoPE'd, now shared) key, giving a `[T, T]` matrix per head
+   where entry `(i, j)` is how much token `i` attends to token `j`. Divide by
+   `√head_dim` to keep the scores from growing with dimension (which would
+   saturate the softmax).
+5. **Mask + softmax.** `masked_fill(... == 0, -inf)` sets everything above
+   the diagonal to `-inf` so a token can't attend to the future (this is what
+   makes it *causal*), then `F.softmax(scores, dim=-1)` turns each row into a
+   probability distribution over the keys.
+6. **Gather.** `weights @ v` — a weighted sum of (shared) value vectors, so
+   each output position is a blend of the value vectors it chose to attend
+   to.
 
-The TT-Lang kernel below implements the numerical core — steps 2 through 5,
-for a single head — as tile math. (The `qkv`/`proj` linears and the
-head-split are ordinary `ttnn` matmuls and reshapes around it; the kernel's
-job is the fused score → mask → softmax → gather that FlashAttention fuses on
-CUDA.)
+**Why GQA, concretely.** Every one of those `n_head` query heads still gets
+its own attention pattern — full query resolution is preserved. What shrinks
+is the *key/value* side: `n_kv_groups` = 3 instead of `n_head` = 6 means the
+KV cache an inference server has to keep resident (one K and one V vector per
+token, per KV head, for every token generated so far) is **half the size**,
+and the `k_proj`/`v_proj` matmuls that produce it are correspondingly
+cheaper. That's the modern efficiency win: MHA is simply the special case
+`n_kv_groups == n_head` (no sharing, no cache savings); GQA dials that ratio
+down without touching query resolution at all. It's why Llama-3 uses GQA
+throughout, and why Mini-LLM — the from-scratch project this arc credits —
+and this arc's own `nanollama3` hero config (6 heads, 3 KV groups) both build
+on it rather than plain MHA.
+
+The TT-Lang kernel below implements the numerical core of one head — score →
+mask → softmax → gather — as tile math. (The projections, RoPE rotation, and
+KV-head sharing are ordinary `ttnn` matmuls, elementwise ops, and reshapes
+around it; the kernel's job is the fused score → mask → softmax → gather that
+FlashAttention fuses on CUDA, run once per query head after GQA has already
+lined Q, K, and V up to the same `[T, head_dim]` shape.)
 
 ## The TT-Lang attention inception kernel
 
@@ -156,6 +215,20 @@ kept faithful to the vendor original in
 compute → writer shape you met in lfs-02, scaled up to the full attention
 pipeline. It lives in
 `content/templates/llm-from-scratch/kernels/attention.py`.
+
+**Where GQA fits against this kernel.** `attention_kernel` below takes Q, K,
+and V that are already `[T, head_dim]` for a *single* head — it has no
+opinion about how many query heads share that K/V, because by the time this
+kernel runs, GQA's `repeat_interleave` has already made every query head's K
+and V look like an ordinary single-head input. GQA is a **sharing pattern
+layered on top of this kernel**, not a change to it: run it once per query
+head (6 times for `nanollama3`), and the KV-head-sharing that makes GQA cheap
+already happened one level up, in the reshape/repeat step, not in the tile
+math below. On the real training path this reshape has a name —
+`ttml.ops.multi_head_utils.grouped_heads_creation` — which is what
+`ttml.models.llama`'s GQA module calls to turn `n_kv_groups` KV heads into
+`n_head`-shaped tensors before attention runs; the PyTorch reference's
+`repeat_interleave` is the from-scratch mirror of exactly that call.
 
 It works at single-tile granularity — one 32×32 tile of tokens (`SEQ_TILES =
 1`), one 32×32 tile of head dimension (`EMBD_TILES = 1`) — so the pipeline is
@@ -222,8 +295,9 @@ need a second slot.
 
 ### The compute thread: score → mask → softmax → gather
 
-Here is the whole compute body, verbatim — the five-step math from the PyTorch
-reference, now as tile operations handed between L1 buffers:
+Here is the whole compute body, verbatim — the score/mask/softmax/gather core
+of the PyTorch reference (steps 4 through 6 above, for one already-shared
+head), now as tile operations handed between L1 buffers:
 
 ```python
     @ttl.compute()
@@ -281,7 +355,7 @@ Read it as the four commented stanzas:
 - **scaled + masked scores** — `ttl.math.broadcast` fans the single `1/√d`
   scalar out across the whole score tile, then `scv * sbv + maskv` scales and
   adds the causal mask (`-inf` above the diagonal) in one tile expression.
-  This is step 2's `/ √head_dim` and step 3's `masked_fill` combined.
+  This is step 4's `/ √head_dim` and half of step 5's `masked_fill` combined.
 - **softmax** — this is the interesting part, and the reason for most of those
   intermediate buffers. Softmax over a tile can't be a single op; it's built
   from primitives: `reduce_max` down the key dimension for the per-row max,
@@ -425,18 +499,18 @@ You've now read attention as the same math twice — a PyTorch module and a
 verified. The kernel's confidence today is the PyTorch correlation gate; the
 confidence it still needs is a real on-device run.
 
-That on-device run is **lfs-05**. There, a from-scratch training loop
-(cross-entropy, AdamW, backprop) — attention, softmax, and all — was built
-from `ttml` source and actually executed on a Blackhole p300c, with the loss
-dropping monotonically from ~4.7 to ~3.3 over 10 steps, on-device, exit 0.
-That's where the softmax path this lab authored gets exercised for real on
-silicon, closing the loop this honest flag opens.
+That on-device run is **lfs-05**. There, the arc's hero run —
+`nanollama3_char` (the same 6-head, 3-KV-group GQA and RoPE θ=500000 this lab
+just walked) — trained via `ttml.models.llama` on a Blackhole p300c, with the
+loss dropping monotonically from 4.69 to 3.23 over 20 steps, on-device, exit
+0. That's where the GQA + softmax path this lab authored gets exercised for
+real on silicon, closing the loop this honest flag opens.
 
 ## Next
 
-Attention is built and its honesty is on the table. Next: the rest of the
-transformer block — the MLP, RMSNorm (which hits the same simulator edge as
-attention), and the residual wiring that stacks it all into a model you can
-run.
+Attention is built — GQA, RoPE'd Q/K, and all — and its honesty is on the
+table. Next: the rest of the transformer block — a SwiGLU MLP, RMSNorm
+(which hits the same simulator edge as attention), and the residual wiring
+that stacks it all into a model you can run.
 
 [→ Continue to Lab 4: The Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
