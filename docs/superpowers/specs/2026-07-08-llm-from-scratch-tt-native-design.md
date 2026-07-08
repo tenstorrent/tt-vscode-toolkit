@@ -228,3 +228,31 @@ python nanogpt_primitives_example.py --data_path <shakespeare.txt> --max_steps 1
 **RESOLVED by the 2026-07-08 build:** ttml IS buildable + importable, and from-scratch
 training IS verified on p300c Blackhole. Lab 5 is a real on-hardware training lab, not a
 documented-only path. The build recipe + `std::bad_cast` fix are captured above.
+
+---
+
+## ADDENDUM — Modern Llama-3 pivot (approved & VERIFIED 2026-07-08)
+
+After reading the full inspiration post, the arc pivots from GPT-2-style to the **modern Llama-3 component set** the post champions. Credit/thank **Mini-LLM by Ashx098** (https://github.com/Ashx098/Mini-LLM, HF https://huggingface.co/Ashx098/Mini-LLM) alongside the existing acknowledgments — it uses RoPE, RMSNorm, SwiGLU, GQA, SentencePiece BPE 32K (80M params / 361M tokens / ~5h on one A100 / final loss ~3.25).
+
+**Why this works on TT:** the TT stack already ships this exact stack. `ttml.models.llama` (RoPE + RMSNorm + SwiGLU + GQA) is driven by `train_nanogpt.py` (Blackhole-aware), and the TT-Lang kernels we teach (`test_transformer_block.py`) are already Llama-style (RoPE `rotary_qk_kernel`, RMSNorm).
+
+**VERIFIED on this p300c (2026-07-08):** `train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml --max_steps 20` — model_type=llama, 6 heads / **3 KV groups (GQA)**, dim 384, 6 blocks, **RoPE theta 500000**, char tokenizer. Loss **4.69 → 3.23** over 20 steps, ~65 ms/step, 16.5 TFLOPS, MFU ~11%, exit 0. This is the arc's HERO run (supersedes the GPT-2 nanogpt run for Lab 5; GPT-2 stays a footnote/contrast).
+
+### Component decisions (supersede the GPT-2 choices above)
+| Component | Pivot decision | TT expression |
+|---|---|---|
+| Positional | **RoPE** replaces learned positional embeddings | TT-Lang `rotary_qk_kernel` (elementwise, no sim-broadcast issue) + `ttml.ops.rope`; add a `kernels/rope.py` template |
+| Norm | **RMSNorm** (already done in reference + `kernels/rmsnorm.py`) | existing template (HW-path only) |
+| MLP | **SwiGLU** replaces GELU MLP | PyTorch reference + `ttml.ops.swiglu` (SiLU·gate); NO from-scratch TT-Lang SwiGLU kernel (out of scope — teach via ttml op + note) |
+| Attention | **GQA** (KV-head sharing) extends MHA | reference GQA in PyTorch + `ttml.ops.grouped_heads_creation`; TT-Lang attention kernel stays single-head (HW-path only), GQA taught as the sharing pattern |
+| Tokenizer | Keep from-scratch **byte-BPE** for pedagogy (Lab 1) + frame **SentencePiece BPE 32K** as what production/Mini-LLM uses; the verified nano hero run uses the char tokenizer | Lab 1 copy |
+
+### Per-lab rework (supersedes the earlier Labs table)
+- **Lab 0:** update nano-config refs (nanollama3: dim 384 / 6 heads / 3 KV groups / 6 blocks / RoPE θ=500000) + add Mini-LLM thanks; runtime matrix Lab 5 = verified Llama numbers.
+- **Lab 1:** add SentencePiece-32K framing (Mini-LLM) alongside the from-scratch byte-BPE; note the hero run uses char tokenization.
+- **Lab 2:** **RoPE** (not learned positional embeddings) — new `kernels/rope.py` + PyTorch RoPE reference; keep eltwise_add playground as the "first kernel" mechanic.
+- **Lab 3:** **GQA** extends the MHA build (KV-head sharing, why it's efficient for inference).
+- **Lab 4:** **SwiGLU** + RMSNorm block (SwiGLU via PyTorch ref + ttml.ops.swiglu; RMSNorm kernel already exists).
+- **Lab 5:** hero run = `nanollama3_char` on Blackhole with the VERIFIED loss curve above; 80M scale via Mini-LLM's numbers (361M tokens, ~5h A100, loss ~3.25).
+- **Templates:** `reference_gpt.py` → Llama-style (RoPE + RMSNorm + SwiGLU + GQA), still pure-PyTorch CPU; `train_nano_from_scratch.py` → drive the verified `train_nanogpt.py` llama path; add `kernels/rope.py`.

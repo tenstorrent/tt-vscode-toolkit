@@ -462,3 +462,18 @@ git commit -m "docs(lfs): changelog + README highlights for 0.1.0 LLM-from-scrat
 **Placeholder scan:** Open items #1 (Reddit URL), #2 (exact 80M config), #4 (L1/core numbers) are explicitly flagged as authoring-time lookups against named sources, not hidden TODOs. #3 (Lab 3 playground) resolved: functional-sim-only by default, stretch is a separate task. #5 resolved: 0.1.0.
 
 **Type/name consistency:** Lesson IDs `lfs-00`…`lfs-05`, category `llm-from-scratch`, template paths, and kernel filenames are used identically across Tasks 1–9. Front-matter fields match the registry schema verified from an existing lesson.
+
+---
+
+## ADDENDUM — Modern Llama-3 pivot rework (2026-07-08)
+
+The arc pivots to modern Llama-3 components (RoPE/RMSNorm/SwiGLU/GQA/SentencePiece) per the inspiration (Mini-LLM, https://github.com/Ashx098/Mini-LLM) — VERIFIED training on p300c (loss 4.69→3.23, `training_shakespeare_nanollama3_char.yaml`). See the spec ADDENDUM for component decisions. Rework tasks (executed after Task 1 scaffolding, which stands):
+
+- **Task 2R — Templates → Llama.** `reference_gpt.py` becomes Llama-style (RoPE, RMSNorm [done], SwiGLU, GQA), pure PyTorch, `--smoke` verified. Add `kernels/rope.py` (adapt `rotary_qk_kernel` from `vendor/tt-lang/examples/test_transformer_block.py`, cite+commit; RoPE is elementwise so sim-runnable-ish — verify). `train_nano_from_scratch.py` drives the verified `train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml` llama path. README/BUILD updated.
+- **Task 3R — Lab 0:** update nano-config numbers to nanollama3 + add Mini-LLM thanks + Lab-5 runtime row = verified Llama loss.
+- **Task 4R — Lab 1:** add SentencePiece-32K framing (Mini-LLM) + keep from-scratch byte-BPE; note hero run uses char tokenizer.
+- **Task 5R — Lab 2:** RoPE replaces learned positional embeddings (new rope kernel + PyTorch RoPE ref).
+- **Task 6R — Lab 3:** GQA extends MHA (KV-head sharing). (Supersedes the unreviewed MHA-only commit 337105c.)
+- **Task 7 — Lab 4:** SwiGLU + RMSNorm block (SwiGLU via PyTorch ref + `ttml.ops.swiglu`; no from-scratch SwiGLU TT-Lang kernel).
+- **Task 8 — Lab 5:** hero run = verified `nanollama3_char` on Blackhole (loss 4.69→3.23, ~65ms/step, 16.5 TFLOPS); 80M scale via Mini-LLM numbers.
+- **Task 9 — Changelog/README/version** unchanged (0.1.0).
