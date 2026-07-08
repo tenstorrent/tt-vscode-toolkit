@@ -408,20 +408,17 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.0.401 (2026-04-23)
+### Latest Release: v0.1.0 (2026-07-08)
 
 **Highlights:**
-- ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole<sup>™</sup>/Blackhole<sup>®</sup> chip grids
-- 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the TT-Lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
-- 🎮 **Browser playground** — write and run TT-Lang kernels client-side with Pyodide; kernels: eltwise_add, fused_mma, matmul_relu, matmul_1d
-- 🔬 **Dev Container** — `devcontainer.json` for simulator-only development; extension detects context and routes commands accordingly
-- ☁️ **Cloud simulator API skeleton** — FastAPI + WebSocket execution server with `/sim-test` PR comment trigger
-- 🔍 **Drift detection scripts** — `check-sim-lite-drift.py` (fork vs upstream), `check-vendor-drift.py` (all vendor repos: TT-Metalium, tt-vllm, TT-Inference-Server, tt-forge-models, ttsim)
+- 🧠 **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00`–`lfs-05`) building a small, modern Llama-3-style model (RoPE, RMSNorm, SwiGLU, grouped-query attention) from scratch, TT-native from line one, with TT-Lang inception kernels (no CUDA/Triton conversion) and CUDA-programmer grounding throughout
+- ✅ **Verified from-scratch training on Blackhole<sup>®</sup>** — a real `ttml` training run on p300c hardware, loss dropping monotonically from 4.69 to 3.23
+- 🙏 Architecture inspired by and credited to [Mini-LLM](https://github.com/Ashx098/Mini-LLM) (Ashx098)
 
-### Previous Release: v0.0.400 (2026-04-21)
+### Previous Release: v0.0.518 (2026-06-26)
 
 **Highlights:**
-- Fixed `assets/img/` being packaged twice in the `.vsix` bundle
+- CS Fundamentals Module 8 matmul labs expansion — interactive Lab 1/2/3 lesson content, simulator-friendly execution guidance, code-first host excerpts, and upstream matmul lesson drift detection tooling
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 

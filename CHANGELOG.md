@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.0] - 2026-07-08
+### Added
+- **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00` through `lfs-05`, category `llm-from-scratch`) that build a small, modern Llama-3-style language model — RoPE, RMSNorm, SwiGLU, grouped-query attention (GQA) — from scratch, TT-native from the first line of code, with every "coming from CUDA" concept grounded for CUDA programmers throughout:
+  - `lfs-00-intro` — the "pick your altitude" ladder (TT-Forge<sup>™</sup>/TT-XLA → TT-NN<sup>™</sup> → TT-Lang → TT-Metalium<sup>™</sup>), the 32×32 tile, and the reader→compute→writer Tensix execution model.
+  - `lfs-01-tokenizer` — a BPE tokenizer and data pipeline built from scratch, followed through to tiled `ttnn.Tensor` shapes.
+  - `lfs-02-embeddings` — token embeddings and RoPE, plus the arc's first hand-authored TT-Lang inception kernel (elementwise add), runnable live in the browser playground.
+  - `lfs-03-attention` — grouped-query attention with RoPE'd Q/K, expressed both as a PyTorch reference and as a from-scratch TT-Lang attention/softmax kernel.
+  - `lfs-04-block-and-model` — SwiGLU MLP and RMSNorm assembled into the full transformer block and a runnable nano model, with TT-Lang RMSNorm/matmul kernels wired in as drop-in `ttnn.Tensor` ops.
+  - `lfs-05-train-and-run` — a from-scratch training loop (cross-entropy, AdamW, backprop) built on `ttml`, actually run on Blackhole<sup>®</sup> p300c hardware — loss verified dropping monotonically from 4.69 to 3.23 over 20 steps.
+  - Every TT-Lang kernel in the arc is authored as an original **inception** kernel — there is no existing CUDA/Triton source being translated. Architectural choices (RoPE, RMSNorm, SwiGLU, GQA) follow the lead of, and credit, [Mini-LLM](https://github.com/Ashx098/Mini-LLM) by Ashx098.
+### Changed
+- **Version bump to 0.1.0** — first MINOR release, adding the new `llm-from-scratch` lesson category (6 lessons, `lfs-00`–`lfs-05`).
+
 ## [0.0.518] - 2026-06-26
 ### Added
 - **CS Fundamentals Module 8 matmul labs expansion** — consolidated this PR’s Module 8 work into one release item: long-form interactive Lab 1/2/3 lesson content, simulator-friendly execution guidance, CS Fundamentals navigation wiring, code-first host excerpts with stepwise explanations, and upstream matmul lesson drift detection tooling.
