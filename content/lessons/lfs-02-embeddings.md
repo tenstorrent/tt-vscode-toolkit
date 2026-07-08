@@ -17,12 +17,17 @@ playground: ttlang-sim
 Lab 1 ended at a single explicit line: `ttnn.from_torch(x, device=device,
 layout=ttnn.TILE_LAYOUT)`, a `[batch, seq]` tensor of raw token IDs, tiled and
 sitting in device DRAM. IDs alone don't mean anything to a model yet — this
-lab turns each ID into a vector, adds in *where* that token sits in the
-sequence, and sums both into the **residual stream**: the running tensor
-every block in the model reads from and writes back into. Then, for the
-first time in this arc, you'll write that summation as a hand-authored
-TT-Lang kernel — not port one, author it — and run it live, in your browser,
-before you finish reading.
+lab turns each ID into a vector and writes it into the **residual stream**:
+the running tensor every block in the model reads from and writes back into.
+Position gets a different treatment entirely. A modern Llama-3-style model —
+the `nanollama3` config this arc actually trains — never looks up and adds a
+positional vector at all; it carries position as a **rotation**, applied
+later to Q and K inside attention (Lab 3), called **RoPE**. This lab builds
+both halves: the token embedding that seeds the residual stream, and the RoPE
+math that will rotate Q/K in the next lab. And, for the first time in this
+arc, it's where you write a summation as a hand-authored TT-Lang kernel — not
+a positional add, but the **residual add** every transformer sub-layer
+performs — and run it live, in your browser, before you finish reading.
 
 ## Coming from CUDA: shared memory becomes L1, and there's no warp scheduler
 
@@ -54,117 +59,151 @@ and `wait()`. This lab is where that diagram stops being a diagram. The
 kernel you're about to read is the first place in the arc where you write
 those three functions out yourself.
 
-## Token + positional embeddings, from scratch
+One more contrast worth flagging before the code: whatever kernel handles
+*position* in a modern model carries no learned weights at all. A GPT-2-style
+positional embedding table is a `[block_size, n_embd]` matrix of trainable
+parameters — the optimizer updates it every step, exactly like `tok_emb`.
+**RoPE, which this lab uses instead, is pure math** — cosines and sines
+computed once from position and a fixed constant, with nothing to train.
+You'll see exactly why later in this lab.
+
+## Token embeddings, from scratch
 
 A token ID by itself carries no information a matrix multiply can use — it's
-just an index. The standard fix, unchanged since the original Transformer
-paper, is a **lookup table**: one learned vector per token ID, plus a second
-learned vector per sequence position, summed together. Here's the exact
-code, quoted verbatim from `content/templates/llm-from-scratch/reference_gpt.py`'s
-`NanoGPT` module so the prose and the code never drift:
+just an index. The fix is the same one from the original Transformer paper:
+a **lookup table**, one learned vector per token ID. What's different in a
+modern Llama-3-style model is what's *missing* — there's no second lookup
+table for position. Here's the exact code, quoted verbatim from
+`content/templates/llm-from-scratch/reference_gpt.py`'s `NanoLlama` module so
+the prose and the code never drift:
 
 ```python
-class NanoGPT(nn.Module):
-    """The whole model: embeddings -> blocks -> norm -> LM head."""
+class NanoLlama(nn.Module):
+    """The whole model: token embeddings -> Llama blocks -> RMSNorm -> LM head.
 
-    def __init__(self, cfg: GPTConfig):
+    No learned positional embedding table — position enters only through RoPE
+    inside attention. cos/sin are precomputed once and threaded to every block.
+    """
+
+    def __init__(self, cfg: LlamaConfig):
         super().__init__()
         self.cfg = cfg
         self.tok_emb = nn.Embedding(cfg.vocab_size, cfg.n_embd)
-        self.pos_emb = nn.Embedding(cfg.block_size, cfg.n_embd)
         self.drop = nn.Dropout(cfg.dropout)
         self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
-        self.ln_f = RMSNorm(cfg.n_embd)
+        self.ln_f = make_rmsnorm(cfg.n_embd, cfg.norm_eps)
         self.head = nn.Linear(cfg.n_embd, cfg.vocab_size, bias=False)
+
+        # RoPE tables, sized to the max sequence length. head_dim = n_embd/n_head.
+        head_dim = cfg.n_embd // cfg.n_head
+        cos, sin = precompute_rope_cos_sin(head_dim, cfg.block_size, cfg.rope_theta)
+        self.register_buffer("rope_cos", cos, persistent=False)
+        self.register_buffer("rope_sin", sin, persistent=False)
 
     def forward(self, idx, targets=None):
         B, T = idx.shape
         assert T <= self.cfg.block_size, "sequence longer than block_size"
-        pos = torch.arange(T, device=idx.device)
-        x = self.drop(self.tok_emb(idx) + self.pos_emb(pos))  # residual stream
+        x = self.drop(self.tok_emb(idx))          # residual stream (no pos-emb add)
         for block in self.blocks:
-            x = block(x)
+            x = block(x, self.rope_cos, self.rope_sin)
         x = self.ln_f(x)
-        logits = self.head(x)                                  # [B, T, vocab]
+        logits = self.head(x)                      # [B, T, vocab]
         loss = None
         if targets is not None:
             loss = F.cross_entropy(
                 logits.view(-1, logits.size(-1)), targets.view(-1)
             )
         return logits, loss
+
+    def num_params(self) -> int:
+        return sum(p.numel() for p in self.parameters())
 ```
 
-Two embedding tables, both just `nn.Embedding` — a lookup, nothing more:
-
-- **`tok_emb`** — shape `[vocab_size, n_embd]`. Row `i` is the learned vector
-  for token ID `i`. At the nano config from lfs-00 (`vocab_size=96,
-  n_embd=384`), that's a `[96, 384]` table.
-- **`pos_emb`** — shape `[block_size, n_embd]`. Row `t` is the learned vector
-  for "this token is at position `t`." At nano scale (`block_size=256`),
-  that's `[256, 384]`.
-
-`tok_emb(idx)` gathers one row per token ID in the batch, giving
-`[B, T, n_embd]`. `pos_emb(pos)` gathers one row per position (`pos =
-torch.arange(T)`, the same range for every sequence in the batch), giving
-`[T, n_embd]`, which broadcasts across the batch dimension. **The line that
-matters most in this whole file is the one already commented
-`# residual stream`:**
+One embedding table, `tok_emb` — a lookup, nothing more. Shape
+`[vocab_size, n_embd]`; row `i` is the learned vector for token ID `i`. At
+the nano config (`vocab_size=96, n_embd=384`), that's a `[96, 384]` table,
+and `tok_emb(idx)` gathers one row per token ID in the batch, giving
+`[B, T, n_embd]` directly — no second gather, no second table, nothing to
+add it to. **The line that matters most in this whole file is the one
+already commented `# residual stream (no pos-emb add)`:**
 
 ```python
-x = self.drop(self.tok_emb(idx) + self.pos_emb(pos))  # residual stream
+x = self.drop(self.tok_emb(idx))          # residual stream (no pos-emb add)
 ```
 
-That `+` is the entire subject of this lab.
+That comment is the whole pivot this lab teaches, written directly into the
+model. Also worth noticing while you're in this excerpt: `self.rope_cos` and
+`self.rope_sin` are registered with `register_buffer(..., persistent=False)`,
+**not** `nn.Parameter` like `tok_emb.weight` is. Buffers don't receive
+gradients and never appear in an optimizer's parameter list — that's the
+tell that RoPE, precomputed once in `__init__`, isn't something the model
+ever learns. More on exactly what it computes later in this lab.
 
 **A tile-alignment note, since lfs-01 flagged it and this is where it shows
-up:** `vocab_size=96` in `GPTConfig` isn't the organic number of characters
-in the training corpus — it's padded. The real from-scratch training run
-(`train_nano_from_scratch.py`, verified in Task 2 on a Blackhole p300c)
-prints `vocab=68 (padded 96)`: 68 distinct characters in the actual
-Shakespeare excerpt, rounded up to 96 by
-`vocab_size = round_up_to_tile(tokenizer.vocab_size, 32)` before the model is
-built. 96 is the next multiple of 32 above 68, so `tok_emb`'s `[vocab_size,
-n_embd]` table tiles cleanly under `ttnn.TILE_LAYOUT` instead of leaving a
-partial, wasted tile at the edge. `n_embd=384` (12×32) and `block_size=256`
-(8×32) are already clean multiples, so the padding only bites on the
-vocabulary axis at nano scale — but it's the same rule from lfs-00 either
-way: Tensix moves and computes in whole 32×32 tiles, so shapes get rounded up
-to fit.
+up:** `LlamaConfig.vocab_size` defaults to 96 — not because Shakespeare's raw
+character set happens to land there, but because 96 is a clean multiple of
+32 (3×32 tiles). lfs-01's `CharTokenizer` counts the actual distinct
+characters in whatever text it's given, comfortably fewer than 96 for a
+Shakespeare excerpt; `LlamaConfig` doesn't grow the embedding table to match
+that organic count, it holds `vocab_size` at a tile-friendly constant instead.
+`n_embd=384` (12×32) and `block_size=256` (8×32) are already clean multiples
+too — vocab is the one axis at nano scale where tile alignment is a
+deliberate config choice. Same rule as lfs-00 either way: Tensix moves and
+computes in whole 32×32 tiles, so shapes get chosen (or rounded up) to fit.
 
 ## The residual stream: the model's spine
 
-`x = tok_emb(idx) + pos_emb(pos)` is the **first write** to a tensor that
-the rest of the model calls the residual stream — `x` in the code above, and
-in every block from here through lfs-04. Every transformer block reads the
-current `x`, computes something (attention in lfs-03, an MLP in lfs-04), and
-**adds its output back into `x`** rather than replacing it:
+`x = self.tok_emb(idx)` is the residual stream's first value — plain, no
+addition needed, because there's no second table left to sum in. But starting
+from the very first transformer block, `x` stops being *written* and starts
+being *added to*. Here's the exact pattern, quoted verbatim from
+`reference_gpt.py`'s `Block` class:
 
 ```python
-x = x + attention(x)   # lfs-03
-x = x + mlp(x)          # lfs-04
+class Block(nn.Module):
+    """A pre-norm Llama transformer block: RMSNorm -> GQA -> +residual,
+    RMSNorm -> SwiGLU -> +residual (mirrors ttml's LlamaBlock).
+    """
+
+    def __init__(self, cfg: LlamaConfig):
+        super().__init__()
+        self.attention_norm = make_rmsnorm(cfg.n_embd, cfg.norm_eps)
+        self.attn = GroupedQueryAttention(cfg)
+        self.mlp_norm = make_rmsnorm(cfg.n_embd, cfg.norm_eps)
+        self.mlp = SwiGLU(cfg)
+
+    def forward(self, x, cos, sin):
+        x = x + self.attn(self.attention_norm(x), cos, sin)  # residual around attention
+        x = x + self.mlp(self.mlp_norm(x))                   # residual around MLP
+        return x
 ```
 
 That's the whole idea: `x` is a running sum, never overwritten, only added
-to. Information from every earlier block stays directly reachable in later
-blocks because it was never erased — just accumulated. The name "residual"
-comes from ResNets, where the same additive shortcut solved vanishing
-gradients in very deep CNNs; transformers inherited the trick wholesale.
+to. Every block reads the current `x`, computes something (grouped-query
+attention in lfs-03, a SwiGLU MLP in lfs-04), and **adds its output back
+into `x`** rather than replacing it. Information from every earlier block
+stays directly reachable in later blocks because it was never erased — just
+accumulated. The name "residual" comes from ResNets, where the same
+additive shortcut solved vanishing gradients in very deep CNNs; transformers
+inherited the trick wholesale.
 
-Here's the payoff for this lab specifically: **the very first residual-stream
-write is itself nothing but an elementwise add of two same-shaped tensors** —
-`tok_emb(idx) + pos_emb(pos)`, both `[T, n_embd]` (broadcast to `[B, T,
-n_embd]`). Elementwise add of two tiled tensors is also the simplest
-operation TT-Lang can express. That's not a coincidence this lab is built
-around — it's why the residual stream's first write is exactly where a
-from-scratch TT-Lang arc should hand you your first kernel.
+Here's the payoff for this lab specifically: **every one of those additions
+is itself nothing but an elementwise add of two same-shaped tensors** — `x`
+and `self.attn(...)`, or `x` and `self.mlp(...)`, both `[B, T, n_embd]`.
+Elementwise add of two tiled tensors is also the simplest operation TT-Lang
+can express. That's not a coincidence this lab is built around — it's why
+the residual stream's defining operation, repeated at every block for the
+entire depth of the model, is exactly where a from-scratch TT-Lang arc
+should hand you your first kernel.
 
-## First inception kernel: adding the position embedding to the token embedding
+## First inception kernel: the residual add
 
 Recall from lfs-00: this arc descends from TT-NN<sup>™</sup> altitude to
 TT-Lang for the hot kernels, and that descent is **inception, not
 conversion** — there's no existing CUDA or Triton `add` kernel being ported
-here. You're writing the TT-Lang expression of `tok_emb(idx) + pos_emb(pos)`
-directly, as its original TT-native form.
+here. You're writing the TT-Lang expression of `x + sublayer(x)` directly, as
+its original TT-native form — the exact add that fires at every block, for
+every sub-layer, all the way through lfs-04.
 
 ---
 
@@ -176,13 +215,14 @@ The browser's built-in copy is deliberately the simplest possible cut of
 this kernel — single-tile granularity, no grid partitioning — so it fits in
 a small editable panel. What follows is the LFS-specific version,
 `content/templates/llm-from-scratch/kernels/eltwise_add.py`, verified
-sim-runnable in Task 2 (`max abs error vs torch: 0.000000`, `PASSED`). It's
-the same reader → compute → writer / DFB pattern the browser just ran, with
-two additions: `GRANULARITY = 2` batches two row-tiles per reserve/wait
-cycle, and `ttl.node(dims=2)` partitions the work across a multi-core grid
-instead of one core. Read it as `eltwise_add(a_in, b_in, out)` where `a_in`
-is `tok_emb(idx)`, `b_in` is `pos_emb(pos)`, and `out` is the residual
-stream `x`:
+sim-runnable (`max abs error vs torch: 0.000000`, `PASSED`). It's the same
+reader → compute → writer / DFB pattern the browser just ran, with two
+additions: `GRANULARITY = 2` batches two row-tiles per reserve/wait cycle,
+and `ttl.node(dims=2)` partitions the work across a multi-core grid instead
+of one core. Read it as `eltwise_add(a_in, b_in, out)` where `a_in` is `x`
+(the residual stream entering the block), `b_in` is a sub-layer's output
+(`self.attn(...)` in lfs-03, or `self.mlp(...)` in lfs-04), and `out` is the
+updated residual stream:
 
 ```python
 TILE_SIZE = 32
@@ -262,27 +302,27 @@ above:
 
 - **`read()`** is the reader thread. It calls `.reserve()` on `a_dfb` and
   `b_dfb` — the *producer* role, claiming an empty L1 slot — then
-  `ttl.copy(...).wait()` to pull one tile of `tok_emb(idx)` and one tile of
-  `pos_emb(pos)` in from DRAM.
+  `ttl.copy(...).wait()` to pull one tile of `x` and one tile of the
+  sub-layer's output in from DRAM.
 - **`compute()`** is the compute thread. It calls `.wait()` on `a_dfb` and
   `b_dfb` — the *consumer* role, blocking until the reader has filled a slot —
   adds the two tiles with a plain `+`, and `.store()`s the sum into a slot it
   `.reserve()`d on `out_dfb`.
 - **`write()`** is the writer thread. It `.wait()`s on `out_dfb` — consuming
   compute's result — and `ttl.copy(...).wait()`s it back out to DRAM. That
-  DRAM write *is* the residual stream's first value landing in memory.
+  DRAM write *is* one residual-stream update landing in memory — the same
+  shape as every `x = x + sublayer(x)` line in the model, all the way
+  through lfs-04.
 
-**One shape nuance worth naming, not glossing over:** in PyTorch, `+`
-broadcasts `pos_emb(pos)`'s `[T, n_embd]` across the batch dimension
-automatically, so `tok_emb(idx)` (`[B, T, n_embd]`) and `pos_emb(pos)`
-(`[T, n_embd]`) just work. `eltwise_add` above expects `a_in` and `b_in` to
-already be the *same* shape — no implicit broadcast. On device, that means
-broadcasting `pos_emb(pos)` out to `[B, T, n_embd]` first (or, since `B` is
-tiny at nano scale, invoking the kernel once per batch element against a
-`[T, n_embd]` slice), then handing this kernel two identically-shaped
-tensors. That's a real implementation detail, not a simplification hidden
-from you — and it doesn't change the reader → compute → writer / DFB shape
-that's the actual point of this section.
+**One shape nuance worth naming — and it's a cleaner story than the arc's
+first draft had.** Framing this kernel around the *residual* add instead of
+the old GPT-2-style token+position add sidesteps a broadcast problem
+entirely: `x` and `self.attn(...)` (or `self.mlp(...)`) are *always* exactly
+the same `[B, T, n_embd]` shape, at every block, for the entire depth of the
+model — no batch-dimension broadcasting to reason about, ever.
+`eltwise_add`'s contract — two identically-shaped tensors in, one
+identically-shaped tensor out — is exactly what a residual add needs, with
+nothing to paper over.
 
 Every tile makes exactly one DRAM read per input and one DRAM write for the
 output; the addition itself never leaves L1. `GRANULARITY = 2` just means
@@ -291,22 +331,174 @@ blocking-factor knob, not a change to the reader → compute → writer shape.
 
 ---
 
+## Positional information: RoPE, not a learned table
+
+GPT-2's recipe added a second learned lookup table — `pos_emb =
+nn.Embedding(block_size, n_embd)` — right alongside `tok_emb`, and summed it
+into the residual stream before the first block. Modern Llama-3-style
+models, including the `nanollama3` config this arc trains, drop that table
+entirely. Position isn't looked up and added; it's applied later, inside
+attention (lfs-03), as a **rotation** — **RoPE, Rotary Position Embeddings**.
+
+The idea: take the Q and K vectors inside each attention layer (never the
+residual stream `x` itself, and never V) and rotate each adjacent pair of
+features by an angle that grows with the token's position and shrinks with
+the feature's index inside the head. Rotate Q and K by amounts that depend on
+position, and the dot product `Q·Kᵀ` — the thing softmax attention runs on —
+ends up depending on the *relative* distance between two positions rather
+than their absolute values. No addition, no lookup table, nothing to train:
+the rotation angles fall out of `theta` (a single fixed constant — 500000 for
+this arc's nano config) and the position index, both known in closed form
+before the model ever sees a training example. Here's the exact math, quoted
+verbatim from `reference_gpt.py`:
+
+```python
+def precompute_rope_cos_sin(head_dim: int, max_seq: int, theta: float):
+    """Precompute the cos/sin tables RoPE rotates Q and K with.
+
+    RoPE encodes position by *rotating* pairs of features by an angle that
+    grows with position and shrinks with feature index — so relative position
+    falls out of the Q·K dot product, with no learned positional table.
+
+    inv_freq[i] = theta^(-2i/head_dim) for i in [0, head_dim/2).
+    angle(pos, i) = pos * inv_freq[i]; we duplicate the half-width table so it
+    lines up with rotate_half's [-x2, x1] convention (the Llama/HF layout).
+
+    Returns (cos, sin), each shaped [max_seq, head_dim].
+    """
+    assert head_dim % 2 == 0, "RoPE needs an even head_dim"
+    inv_freq = 1.0 / (theta ** (torch.arange(0, head_dim, 2).float() / head_dim))
+    positions = torch.arange(max_seq).float()
+    freqs = torch.outer(positions, inv_freq)      # [max_seq, head_dim/2]
+    emb = torch.cat([freqs, freqs], dim=-1)       # [max_seq, head_dim]
+    return emb.cos(), emb.sin()
+
+
+def rotate_half(x: torch.Tensor) -> torch.Tensor:
+    """(-x2, x1): rotate the two halves of the last dim by 90 degrees."""
+    x1, x2 = x.chunk(2, dim=-1)
+    return torch.cat((-x2, x1), dim=-1)
+
+
+def apply_rope(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.Tensor:
+    """Apply RoPE to x shaped [B, n_head, T, head_dim].
+
+    x_rot = x * cos + rotate_half(x) * sin — the standard rotary formula. cos
+    and sin are [T, head_dim] and broadcast over batch and head dims.
+    """
+    T = x.shape[-2]
+    cos = cos[:T].to(x.dtype)          # [T, head_dim] -> broadcasts to [1,1,T,hd]
+    sin = sin[:T].to(x.dtype)
+    return x * cos + rotate_half(x) * sin
+```
+
+`precompute_rope_cos_sin` builds the `cos`/`sin` tables once, sized to
+`[max_seq, head_dim]` (you already saw `NanoLlama.__init__` call this and
+stash the result in non-persistent buffers — no gradients, nothing learned).
+`apply_rope` is what actually rotates a tensor: `x * cos + rotate_half(x) *
+sin`, applied to Q and K separately, once per attention layer, in lfs-03.
+
+### The TT-Lang expression: `kernels/rope.py`
+
+`content/templates/llm-from-scratch/kernels/rope.py` is this arc's second
+hand-authored TT-Lang kernel, and — like `eltwise_add.py` — it's **verified
+sim-runnable** in the standalone functional simulator (max abs error vs a
+torch reference ~0.0005, well inside bf16 tolerance, `PASSED`). But read the
+honest annotation at the top of that file before trusting it as "RoPE":
+
+```python
+SEQ_TILES = 1   # 32 tokens
+EMBD_TILES = 1  # 32 head-dim (single head)
+
+
+@ttl.operation(grid=(1, 1))
+def rotary_qk_kernel(q_in, k_in, cos, q_out, k_out):
+    """Apply the SIMPLIFIED rotary embedding to Q and K: q_rot = q * cos,
+    k_rot = k * cos.
+
+    (Real RoPE also splits the head dim and adds a rotate_half(x) * sin term;
+    see reference_gpt.py. This kernel keeps the elementwise-multiply shape that
+    the reader/compute/writer pipeline makes concrete.)
+    """
+    q_dfb = ttl.make_dataflow_buffer_like(q_in, shape=(SEQ_TILES, EMBD_TILES), block_count=2)
+    k_dfb = ttl.make_dataflow_buffer_like(k_in, shape=(SEQ_TILES, EMBD_TILES), block_count=2)
+    cos_dfb = ttl.make_dataflow_buffer_like(cos, shape=(SEQ_TILES, EMBD_TILES), block_count=2)
+    qo_dfb = ttl.make_dataflow_buffer_like(q_out, shape=(SEQ_TILES, EMBD_TILES), block_count=2)
+    ko_dfb = ttl.make_dataflow_buffer_like(k_out, shape=(SEQ_TILES, EMBD_TILES), block_count=2)
+
+    @ttl.compute()
+    def compute():
+        # Keep cos in scope while rotating both Q and K by it.
+        with cos_dfb.wait() as cv:
+            with q_dfb.wait() as qv, qo_dfb.reserve() as qo:
+                qo.store(qv * cv)
+            with k_dfb.wait() as kv, ko_dfb.reserve() as ko:
+                ko.store(kv * cv)
+
+    @ttl.datamovement()
+    def dm_read():
+        with q_dfb.reserve() as blk:
+            tx = ttl.copy(q_in[0:SEQ_TILES, 0:EMBD_TILES], blk)
+            tx.wait()
+        with k_dfb.reserve() as blk:
+            tx = ttl.copy(k_in[0:SEQ_TILES, 0:EMBD_TILES], blk)
+            tx.wait()
+        with cos_dfb.reserve() as blk:
+            tx = ttl.copy(cos[0:SEQ_TILES, 0:EMBD_TILES], blk)
+            tx.wait()
+
+    @ttl.datamovement()
+    def dm_write():
+        with qo_dfb.wait() as blk:
+            tx = ttl.copy(blk, q_out[0:SEQ_TILES, 0:EMBD_TILES])
+            tx.wait()
+        with ko_dfb.wait() as blk:
+            tx = ttl.copy(blk, k_out[0:SEQ_TILES, 0:EMBD_TILES])
+            tx.wait()
+```
+
+Same reader → compute → writer shape as `eltwise_add`, just a multiply
+instead of an add, and two outputs (`q_out`, `k_out`) instead of one — the
+compute thread waits on `cos_dfb` once and rotates both Q and K by it before
+the writer drains either buffer. **Read the docstring closely: this kernel
+multiplies by `cos` only.** It does not split the head dimension into pairs,
+call `rotate_half`, or add the `sin` term — that's the simplified,
+elementwise-multiply cut of RoPE this sim build can actually execute today.
+The full math — `x * cos + rotate_half(x) * sin` — is the `apply_rope`
+function you just read above in `reference_gpt.py`, and that's the version
+the arc's hero training run (lfs-05) actually uses on hardware via
+`ttml.ops.rope`. This kernel exists to make the *data-movement* shape of a
+RoPE-style op concrete — DRAM → L1 → rotate → L1 → DRAM — not to be a
+drop-in replacement for the real thing.
+
+Where GPT-2's `pos_emb` was a `[block_size, n_embd]` parameter matrix the
+optimizer updates every training step, RoPE's `cos`/`sin` tables are computed
+once from `theta` and never touched by an optimizer again. That's the actual
+trade this lab walks through: the same *kind* of hardware operation — an
+elementwise map over 32×32 tiles, the same reader → compute → writer shape as
+`eltwise_add`'s elementwise add — standing in for a fundamentally different
+mechanism (rotation of Q/K vs. lookup-and-sum into the residual stream) with
+a fundamentally different parameter count: zero, versus `block_size ×
+n_embd`.
+
+---
+
 ## Run it
 
-Two ways to see this kernel run, and both are honest — no fallback, no
-mocked output:
+Three ways to see this lab's kernels run, and all are honest — no fallback,
+no mocked output:
 
 **In the browser:** the playground above, no install. Hit **Run** and the
-Pyodide-hosted `ttlang-sim-lite` simulator executes the same reader →
-compute → writer DFB choreography you just read, entirely client-side.
+Pyodide-hosted `ttlang-sim-lite` simulator executes the residual-add kernel's
+reader → compute → writer DFB choreography entirely client-side.
 
-**Locally, in the standalone functional simulator:**
+**Locally, in the standalone functional simulator — the residual add:**
 
 ```bash
 python content/templates/llm-from-scratch/kernels/eltwise_add.py
 ```
 
-Expected output (the actual Task 2 verification run):
+Expected output:
 
 ```
 max abs error vs torch: 0.000000
@@ -316,38 +508,69 @@ PASSED
 `main()` builds two random `[256, 256]` bf16 tensors, runs `eltwise_add`
 through the DFB pipeline above, converts the result back with
 `ttnn.to_torch`, and diffs it against plain `a + b` in PyTorch. Zero error,
-exit 0 — the kernel you just read is not a diagram, it's a working add.
+exit 0 — the same add that fires at every `x = x + sublayer(x)` line in the
+model, verified.
+
+**Locally, in the standalone functional simulator — the RoPE kernel:**
+
+```bash
+python content/templates/llm-from-scratch/kernels/rope.py
+```
+
+Expected output (an actual verification run):
+
+```
+torch reference q_rot[0,:6]: [0.146484375, 0.029052734375, 0.09619140625, 0.1572265625, 0.04931640625, -0.1513671875]
+TT-Lang kernel ran in sim. max abs error  Q: 0.000481  K: 0.000580
+PASSED
+```
+
+`main()` builds random Q/K tensors and a non-trivial per-position `cos`
+table, runs `rotary_qk_kernel` through the same DFB pipeline, and diffs the
+result against `q * cos` / `k * cos` in PyTorch — the simplified rotary this
+kernel actually implements, not the full `apply_rope` formula. Small,
+nonzero error (bf16 rounding through the tile pipeline), well inside
+tolerance, exit 0.
 
 ---
 
 ## Graduate box
 
-You just ran this kernel two ways — the browser (`ttlang-sim-lite`, Pyodide,
-no install) and, if you ran the command above, the standalone functional
-simulator (same DFB engine, from a terminal). **Not one line of the kernel
-changes between those two environments, and TT-Lang's own design goes
-further still:** as tt-lang-intro puts it, "if you installed via pip and
-have a Tenstorrent card, skip the `TT_METAL_SIMULATOR` and
-`TT_METAL_SLOW_DISPATCH_MODE` variables — everything else is identical. The
-same kernel source runs bit-exact on simulation and silicon." That's the
-general guarantee TT-Lang is built around, and this elementwise-add kernel —
-the arc's very first hand-authored one — is the first place you're seeing it
-apply.
+You just ran the residual-add kernel two ways — the browser
+(`ttlang-sim-lite`, Pyodide, no install) and, if you ran the command above,
+the standalone functional simulator (same DFB engine, from a terminal).
+**Not one line of the kernel changes between those two environments, and
+TT-Lang's own design goes further still:** as tt-lang-intro puts it, "if you
+installed via pip and have a Tenstorrent card, skip the
+`TT_METAL_SIMULATOR` and `TT_METAL_SLOW_DISPATCH_MODE` variables —
+everything else is identical. The same kernel source runs bit-exact on
+simulation and silicon." That's the general guarantee TT-Lang is built
+around, and this residual-add kernel — the arc's very first hand-authored
+one — is the first place you're seeing it apply.
 
-One honest scope note: this lab doesn't re-run `eltwise_add.py` on a
-physical chip to independently confirm that guarantee for this specific
-file — lfs-05 is where you'll watch a real from-scratch training loop
-execute on a Blackhole p300c and read actual loss numbers coming
-off hardware. What you've verified here is the sim side, twice over, with a
-kernel you can already reason about completely.
+The RoPE kernel earns a narrower claim. It's sim-runnable and verified
+against a torch reference today, but — as its own file says outright — it's
+the simplified cos-only cut of rotary embeddings, not the full `x * cos +
+rotate_half(x) * sin` math your model actually needs. That full math runs on
+Blackhole<sup>®</sup> today, just not via this hand-authored kernel — it's
+`ttml.ops.rope`, exercised for real in lfs-05's hero training run. Two
+different levels of "verified," named honestly rather than blurred together.
+
+One honest scope note for both: this lab doesn't re-run either kernel on a
+physical chip to independently confirm TT-Lang's sim-to-silicon guarantee for
+these specific files — lfs-05 is where you'll watch a real from-scratch
+training loop execute on a Blackhole p300c and read actual loss numbers
+coming off hardware. What you've verified here is the sim side, twice over,
+with kernels you can already reason about completely.
 
 ---
 
 ## Next
 
-Embeddings are built, the residual stream has its first value, and you've
-written your first TT-Lang kernel end to end. Next: the mechanism that lets
-every position in the residual stream look at every other position —
-attention.
+Token embeddings are built, the residual stream has its first value, RoPE's
+math is on the page, and you've written your first TT-Lang kernel end to
+end. Next: the mechanism that lets every position in the residual stream
+look at every other position — attention, where the RoPE rotation you just
+met gets applied to Q and K for real, inside grouped-query attention.
 
 [→ Continue to Lab 3: Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
