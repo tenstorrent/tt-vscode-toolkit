@@ -74,7 +74,7 @@ just an index. The fix is the same one from the original Transformer paper:
 a **lookup table**, one learned vector per token ID. What's different in a
 modern Llama-3-style model is what's *missing* — there's no second lookup
 table for position. Here's the exact code, quoted verbatim from
-`content/templates/llm-from-scratch/reference_gpt.py`'s `NanoLlama` module so
+`~/tt-scratchpad/llm-from-scratch/reference_gpt.py`'s `NanoLlama` module so
 the prose and the code never drift:
 
 ```python
@@ -214,7 +214,7 @@ walk through the fuller version below.
 The browser's built-in copy is deliberately the simplest possible cut of
 this kernel — single-tile granularity, no grid partitioning — so it fits in
 a small editable panel. What follows is the LFS-specific version,
-`content/templates/llm-from-scratch/kernels/eltwise_add.py`, verified
+`~/tt-scratchpad/llm-from-scratch/kernels/eltwise_add.py`, verified
 sim-runnable (`max abs error vs torch: 0.000000`, `PASSED`). It's the same
 reader → compute → writer / DFB pattern the browser just ran, with two
 additions: `GRANULARITY = 2` batches two row-tiles per reserve/wait cycle,
@@ -400,7 +400,7 @@ sin`, applied to Q and K separately, once per attention layer, in lfs-03.
 
 ### The TT-Lang expression: `kernels/rope.py`
 
-`content/templates/llm-from-scratch/kernels/rope.py` is this arc's second
+`~/tt-scratchpad/llm-from-scratch/kernels/rope.py` is this arc's second
 hand-authored TT-Lang kernel, and — like `eltwise_add.py` — it's **verified
 sim-runnable** in the standalone functional simulator (max abs error vs a
 torch reference ~0.0005, well inside bf16 tolerance, `PASSED`). But read the
@@ -495,7 +495,7 @@ reader → compute → writer DFB choreography entirely client-side.
 **Locally, in the standalone functional simulator — the residual add:**
 
 ```bash
-python content/templates/llm-from-scratch/kernels/eltwise_add.py
+python ~/tt-scratchpad/llm-from-scratch/kernels/eltwise_add.py
 ```
 
 Expected output:
@@ -514,7 +514,7 @@ model, verified.
 **Locally, in the standalone functional simulator — the RoPE kernel:**
 
 ```bash
-python content/templates/llm-from-scratch/kernels/rope.py
+python ~/tt-scratchpad/llm-from-scratch/kernels/rope.py
 ```
 
 Expected output (an actual verification run):

@@ -23,6 +23,12 @@ out. This lab builds that conversion **from scratch**, with no tokenizer
 library doing the work for you, and follows the integers all the way to the
 tiled `ttnn.Tensor` shape the rest of the arc builds on.
 
+The reference code for this arc lives in `~/tt-scratchpad/llm-from-scratch/`,
+and every command below runs out of that folder. If you haven't scaffolded it
+yet — or you landed here before Lab 0 — set it up now:
+
+[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.createLlmFromScratchProject)
+
 ---
 
 ## Coming from CUDA: moving data on and off the device
@@ -73,7 +79,7 @@ The algorithm, in four steps:
    learned — until no more apply.
 
 Here's the whole thing, quoted verbatim from
-`content/templates/llm-from-scratch/tokenizer_bpe.py` so the prose and the
+`~/tt-scratchpad/llm-from-scratch/tokenizer_bpe.py` so the prose and the
 code never drift:
 
 ```python
@@ -127,7 +133,7 @@ Run it and you'll see merges being learned live, on a tiny Shakespeare
 excerpt:
 
 ```
-$ python content/templates/llm-from-scratch/tokenizer_bpe.py
+$ python ~/tt-scratchpad/llm-from-scratch/tokenizer_bpe.py
 vocab size: 306  (256 raw bytes + 50 learned merges)
 first 5 learned merges:
   b'e' + b' ' -> b'e '  (id 256)
@@ -172,7 +178,7 @@ and the merge budget do.
 Here's the part that's easy to gloss over, and this lesson won't: **the
 nano model this arc actually trains on Blackhole<sup>®</sup> in Lab 5 does not use the
 BPE tokenizer above.** It uses something simpler — `CharTokenizer`, already
-sitting in `reference_gpt.py`:
+sitting in `~/tt-scratchpad/llm-from-scratch/reference_gpt.py`:
 
 ```python
 class CharTokenizer:
@@ -332,7 +338,7 @@ Everything in this lab is pure Python — no device, no simulator, no `ttnn`
 import required to see it work:
 
 ```bash
-python content/templates/llm-from-scratch/tokenizer_bpe.py
+python ~/tt-scratchpad/llm-from-scratch/tokenizer_bpe.py
 ```
 
 Expected: a printed vocab size (`306`), the first five learned merges, a

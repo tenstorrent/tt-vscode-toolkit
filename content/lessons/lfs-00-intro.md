@@ -27,43 +27,16 @@ estimatedMinutes: 20
 
 # Build an LLM from Scratch — Pick Your Altitude
 
-## Thanks, first
+## Inspiration
 
-Three things sparked this arc, and all three deserve a real thank-you before
-anything else.
-
-The first is a post on **r/LocalLLaMA**: someone [built an ~80M-parameter LLM
-from scratch](https://www.reddit.com/r/LocalLLaMA/comments/1qq5zdr/i_built_an_80m_parameter_llm_from_scratch_using/)
-and shared it with the community. The thread sat behind a JS challenge page
-while this lesson was being written, so we're not going to pretend to know
-the author's exact architecture, training recipe, or results beyond the
-headline — that would be making things up, and we'd rather just say what's
-true: the idea that you can build a *real*, working GPT from scratch, in the
-open, at a size a single person can reason about end to end, is the whole
-premise of this arc. Thank you to that author, and to everyone in
-r/LocalLLaMA who posts working code instead of just talking about it.
-
-Since then, the JS challenge cleared, and the repo behind that post turned
-out to be **[Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM)** — an
-~80M-parameter model trained on 361M tokens in ~5 hours on a single A100,
-final loss ~3.25. Its component choices are exactly what a from-scratch build
-should look like in 2026: **RoPE** instead of learned positional embeddings,
-**RMSNorm**, **SwiGLU**, **grouped-query attention (GQA)**, and a
-**SentencePiece BPE 32K** tokenizer. This arc follows that lead — every
-architectural choice from here on matches Mini-LLM's, re-expressed
-TT-native. Thank you to Ashx098 for building it, and for making the modern
-recipe legible enough to learn from.
-
-The third is the **"Coming From CUDA"** chapter of Tenstorrent's internal
-TT-QuietBox<sup>®</sup> 2 guide. It's the clearest short explanation we've seen of how
-CUDA mental models map onto Tensix, and three of its ideas are load-bearing
-for this entire arc: the "pick your altitude" ladder, the CUDA→Tensix concept
-map, and the reader→compute→writer framing of how a Tensix core actually
-executes. We adapt those ideas below (in plain markdown — the original uses
-some documentation shortcodes that don't render here) rather than copy them,
-and we re-verified every number against the actual TT-Lang and TT-Metalium<sup>™</sup>
-specs before writing them down. Credit for the framing is theirs; any errors
-in this adaptation are ours.
+This arc was sparked by a post on **r/LocalLLaMA** and the repo behind it,
+**[Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM)** — an
+~80M-parameter model built from scratch, in the open, at a size one person
+can reason about end to end. We follow its modern recipe: **RoPE** instead of
+learned positional embeddings, **RMSNorm**, **SwiGLU**, **grouped-query
+attention (GQA)**, and a **BPE** tokenizer — every architectural choice here
+matches it, re-expressed TT-native. When you finish this arc, go build your
+own and share it back.
 
 ---
 
@@ -107,6 +80,21 @@ what changes when you do that. We don't run an 80M training job inside a
 lesson — that's a multi-hour-to-multi-day job depending on hardware and data
 — but by lfs-04 you'll know precisely how to get there from the nano
 baseline.
+
+---
+
+## Set up your workspace
+
+The reference code for this whole arc — the from-scratch tokenizer, the
+`reference_gpt.py` model, and the hand-authored TT-Lang kernels — lives in
+`~/tt-scratchpad/llm-from-scratch/`. Every command in the labs ahead runs out
+of that folder, so scaffold it once now and follow along in your own copy:
+
+[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.createLlmFromScratchProject)
+
+The button copies the arc's reference files into that folder and opens it. If
+you land in a later lab first, the same button appears there — run it whenever
+you're ready to start typing along.
 
 ---
 
@@ -216,10 +204,9 @@ each lab is building.
 verified rather than rounded:** each Tensix core's L1 SRAM is **1,464 KB**,
 on both Wormhole<sup>™</sup> and Blackhole, per the TT-Lang specification's platform-limits
 table (`TTLangSpecification.md`, Appendix E). You'll sometimes see this
-rounded to "1.5 MB" in other write-ups, including the CUDA-grounding chapter
-this section adapts — close enough for intuition, but 1,464 KB is the number
-the compiler and simulator actually enforce, and it's the one to use if
-you're doing tile-budget math.
+rounded to "1.5 MB" in other write-ups — close enough for intuition, but
+1,464 KB is the number the compiler and simulator actually enforce, and it's
+the one to use if you're doing tile-budget math.
 
 The same appendix gives the maximum single-chip Tensix grid size
 (unharvested) as **13×10 on Blackhole** (130 cores) and **8×9 on Wormhole**
