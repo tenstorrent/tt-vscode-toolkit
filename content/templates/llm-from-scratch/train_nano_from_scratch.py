@@ -2,233 +2,144 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # ============================================================================
-# Lab 5 — Train It & Run for Real: from-scratch training on Blackhole.
+# Lab 5 — Train It & Run for Real: the modern Llama-3 from-scratch training run.
 #
-# This is a THIN runner. It does NOT reinvent the model. It imports the model
-# and the training primitives from the canonical, verified upstream example:
+# This is a THIN, documented runner. It does NOT reinvent the model or the
+# training loop — it drives the VERIFIED upstream Llama trainer:
 #
-#     $TT_METAL_HOME/tt-train/sources/examples/nano_gpt/
-#         nanogpt_primitives_example.py
+#     $TT_METAL_HOME/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
+#         --config training_shakespeare_nanollama3_char.yaml
 #
-# ...which builds NanoGPT purely from `ttml.ops` + ttnn primitives (embedding,
-# linear, multi-head attention, layernorm, cross-entropy, AdamW) and runs a
-# real forward + backward + optimizer step on the device. We reuse that code
-# verbatim and drive a short, explicit training loop with the nano config so a
-# reader can watch the loss drop live.
+# ...with the env vars the run requires, and passes through --max_steps /
+# --data_path. That config selects `model_type: llama`, i.e. the modern stack
+# the whole arc teaches:
+#     RoPE (theta 500000) + RMSNorm + Grouped-Query Attention (6 heads / 3 KV
+#     groups) + SwiGLU MLP, embedding_dim 384, 6 blocks, seq 256, char tokenizer
+# built from `ttml.models.llama` (transformer.py / gqattn.py).
+#
+# WHY A DIFFERENT SHAPE THAN THE GPT-2 PATH: unlike GPT-2 (which ships a
+# single-file `nanogpt_primitives_example.py` that hand-assembles the model
+# from `ttml.ops` primitives), there is NO single-file Llama "primitives"
+# example. The canonical, supported way to train the Llama stack from scratch is
+# `train_nanogpt.py` + the `training_shakespeare_nanollama3_char.yaml` config
+# driving `ttml.models.llama`. So this runner is a launcher around that command,
+# not a primitives reimplementation. (reference_gpt.py is the pure-PyTorch
+# mirror of the same components, for the "understand" half of the labs.)
 #
 # PREREQUISITE: `ttml` must be built from a tt-metal source tree and importable.
 # See BUILD_TTML.md in this directory for the verified recipe (including the
 # `std::bad_cast` ABI fix). There is NO pip wheel for ttml.
 #
-# Verified on 2026-07-08 on a Blackhole p300c against tt-metal v0.73: a real
-# forward+backward+AdamW loop trained on-device, loss dropping ~4.6 -> ~3.3
-# over 10 steps, exit 0. Upstream does NOT CI training on Blackhole, so pin your
-# tt-metal version and reset the board (`tt-smi -r`) if device open times out.
+# VERIFIED on 2026-07-08 on a Blackhole p300c against tt-metal v0.73:
+#     train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml \
+#         --max_steps 20
+#   -> loss 4.69 -> 3.23 over 20 steps, ~65 ms/step, 16.5 TFLOPS, MFU ~11%,
+#      exit 0. This is the arc's HERO run. Upstream does NOT CI Llama training
+#   on Blackhole, so pin your tt-metal version and reset the board (`tt-smi -r`)
+#   if device open times out.
 #
 # Run (Blackhole p300c):
 #
-#     TT_METAL_HOME=/home/ttuser/tt-metal \
-#     TT_METAL_RUNTIME_ROOT=/home/ttuser/tt-metal \
-#     TT_METAL_ARCH_NAME=blackhole TT_LOGGER_LEVEL=FATAL \
 #     python content/templates/llm-from-scratch/train_nano_from_scratch.py \
-#         --max_steps 10 --batch_size 2 --data_path /path/to/shakespeare.txt
+#         --max_steps 20 --data_path /home/ttuser/tt-metal/tt-train/data/shakespeare.txt
 #
-# (On Wormhole use TT_METAL_ARCH_NAME=wormhole_b0.)
+# (The runner sets TT_METAL_ARCH_NAME=blackhole by default here; pass
+#  --arch wormhole_b0 on N-series.)
 # ============================================================================
-"""Minimal from-scratch NanoGPT training runner (ttml, on-device)."""
+"""Thin launcher for the verified nanollama3 from-scratch training run."""
 
 import argparse
-import importlib.util
 import os
+import subprocess
 import sys
-import time
 
 
-# --- Nano baseline config (from tt-train/configs/model_configs/nanogpt.yaml) --
-# Same shape the verified 4.6 -> 3.3 run used. Scaling to the ~80M "hero" model
-# is the same code with bigger knobs (see the README / Lab 5 scaling math).
-NANO_EMBEDDING_DIM = 384
-NANO_NUM_HEADS = 6
-NANO_NUM_BLOCKS = 6
-NANO_SEQ_LEN = 256
-NANO_DROPOUT = 0.2
+# The training config that selects the modern Llama-3 stack (model_type=llama).
+# train_nanogpt.py resolves --config relative to
+# $TT_METAL_HOME/tt-train/configs/training_configs, so we pass the bare name.
+NANOLLAMA3_CONFIG = "training_shakespeare_nanollama3_char.yaml"
 
 
 def _default_tt_metal_home() -> str:
     return os.environ.get("TT_METAL_HOME", "/home/ttuser/tt-metal")
 
 
-def _ensure_env(tt_metal_home: str) -> None:
-    """Set the env vars ttml/ttnn need if the caller didn't.
+def _build_env(tt_metal_home: str, arch: str) -> dict:
+    """Return an environment dict with the vars ttml/ttnn need.
 
-    The upstream example aborts immediately without TT_METAL_RUNTIME_ROOT, and
-    Blackhole requires TT_METAL_ARCH_NAME=blackhole. We honour anything the user
-    already exported (the `:=` semantics) and only fill gaps.
+    - TT_METAL_HOME / TT_METAL_RUNTIME_ROOT: train_nanogpt.py aborts immediately
+      without TT_METAL_RUNTIME_ROOT (it needs it to find runtime kernels).
+    - TT_METAL_ARCH_NAME: `blackhole` for P-series, `wormhole_b0` for N-series.
+    - TT_LOGGER_LEVEL=FATAL: keep the on-device log quiet.
+    We honour anything the caller already exported and only fill in gaps.
     """
-    os.environ.setdefault("TT_METAL_HOME", tt_metal_home)
-    os.environ.setdefault("TT_METAL_RUNTIME_ROOT", tt_metal_home)
-    # Guard pattern from the repo CLAUDE.md: default to wormhole_b0 unless the
-    # user (or their shell) already set an arch. On this Blackhole box you must
-    # pass TT_METAL_ARCH_NAME=blackhole.
-    os.environ.setdefault("TT_METAL_ARCH_NAME", "wormhole_b0")
-    os.environ.setdefault("TT_LOGGER_LEVEL", "FATAL")
-
-
-def _load_example_module(tt_metal_home: str):
-    """Import the canonical nanogpt_primitives_example.py by path.
-
-    We reuse its PrimitiveNanoGPT model and training primitives rather than
-    reimplementing them, so this runner never drifts from the verified source.
-    """
-    example_dir = os.path.join(
-        tt_metal_home, "tt-train", "sources", "examples", "nano_gpt"
-    )
-    example_path = os.path.join(example_dir, "nanogpt_primitives_example.py")
-    if not os.path.isfile(example_path):
-        raise FileNotFoundError(
-            f"Canonical example not found at {example_path}.\n"
-            "Set TT_METAL_HOME to a tt-metal source tree and build ttml "
-            "(see BUILD_TTML.md)."
-        )
-    # The example dir is not a package; add it so relative helpers resolve.
-    if example_dir not in sys.path:
-        sys.path.insert(0, example_dir)
-    spec = importlib.util.spec_from_file_location(
-        "nanogpt_primitives_example", example_path
-    )
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    env = dict(os.environ)
+    env.setdefault("TT_METAL_HOME", tt_metal_home)
+    env.setdefault("TT_METAL_RUNTIME_ROOT", tt_metal_home)
+    env["TT_METAL_ARCH_NAME"] = arch
+    env.setdefault("TT_LOGGER_LEVEL", "FATAL")
+    return env
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Thin from-scratch NanoGPT training runner (ttml, on-device)."
+        description="Thin launcher for the verified nanollama3 (Llama-3) "
+                    "from-scratch training run on Tenstorrent hardware."
     )
-    parser.add_argument("--data_path", type=str, required=True,
-                        help="Path to a plain-text corpus (char-level tokenized).")
-    parser.add_argument("--max_steps", type=int, default=10,
-                        help="Number of optimizer steps to run (default: 10).")
-    parser.add_argument("--batch_size", type=int, default=2)
-    parser.add_argument("--sequence_length", type=int, default=NANO_SEQ_LEN)
-    parser.add_argument("--embedding_dim", type=int, default=NANO_EMBEDDING_DIM)
-    parser.add_argument("--num_heads", type=int, default=NANO_NUM_HEADS)
-    parser.add_argument("--num_blocks", type=int, default=NANO_NUM_BLOCKS)
-    parser.add_argument("--dropout", type=float, default=NANO_DROPOUT)
-    parser.add_argument("--lr", type=float, default=3e-4)
-    parser.add_argument("--seed", type=int, default=5489)
+    parser.add_argument("--data_path", type=str, default="",
+                        help="Path to a plain-text corpus (char-tokenized). "
+                             "Defaults to the config's data/shakespeare.txt.")
+    parser.add_argument("--max_steps", type=int, default=20,
+                        help="Number of optimizer steps (default: 20, the "
+                             "verified hero-run length).")
+    parser.add_argument("--arch", type=str, default="blackhole",
+                        choices=["blackhole", "wormhole_b0"],
+                        help="TT_METAL_ARCH_NAME (default: blackhole for p300c).")
     parser.add_argument("--tt_metal_home", type=str, default=_default_tt_metal_home())
+    parser.add_argument("--dry_run", action="store_true",
+                        help="Print the command and environment, then exit "
+                             "without launching (no device needed).")
     args = parser.parse_args()
 
-    _ensure_env(args.tt_metal_home)
-
-    # Import ttml/ttnn and the verified example only AFTER env is set.
-    import ttml  # noqa: E402
-    import ttnn  # noqa: E402
-    from ttml.common.utils import round_up_to_tile  # noqa: E402
-
-    nge = _load_example_module(args.tt_metal_home)
-
-    print("=" * 70)
-    print("NanoGPT from-scratch training (thin runner over the verified example)")
-    print(f"  arch={os.environ.get('TT_METAL_ARCH_NAME')}  "
-          f"runtime_root={os.environ.get('TT_METAL_RUNTIME_ROOT')}")
-    print("=" * 70)
-
-    # 1. Data -----------------------------------------------------------------
-    if not os.path.isfile(args.data_path):
-        print(f"ERROR: data file not found: {args.data_path}")
+    tt_metal_home = args.tt_metal_home
+    train_script = os.path.join(
+        tt_metal_home, "tt-train", "sources", "examples", "nano_gpt", "train_nanogpt.py"
+    )
+    if not os.path.isfile(train_script):
+        print(f"ERROR: canonical trainer not found at {train_script}")
+        print("Set --tt_metal_home / TT_METAL_HOME to a tt-metal source tree "
+              "and build ttml (see BUILD_TTML.md).")
         return 1
-    text = nge.read_file_to_str(args.data_path)
-    dataset, tokenizer = nge.create_dataset_from_text(text, args.sequence_length)
-    vocab_size = round_up_to_tile(tokenizer.vocab_size, 32)
-    print(f"1. Data: {len(dataset)} samples, vocab={tokenizer.vocab_size} "
-          f"(padded {vocab_size}), seq_len={args.sequence_length}")
 
-    # 2. Device ---------------------------------------------------------------
-    instance = ttml.autograd.AutoContext.get_instance()
-    instance.open_device()
-    instance.get_device()
-    instance.set_seed(args.seed)
+    cmd = [
+        sys.executable, train_script,
+        "--config", NANOLLAMA3_CONFIG,
+        "--max_steps", str(args.max_steps),
+    ]
+    if args.data_path:
+        cmd += ["--data_path", args.data_path]
 
-    try:
-        # 3. Model (built from ttml.ops in the reused example code) -----------
-        config = nge.PrimitiveNanoGPTConfig(
-            vocab_size=vocab_size,
-            block_size=args.sequence_length,
-            n_embd=args.embedding_dim,
-            n_layer=args.num_blocks,
-            n_head=args.num_heads,
-            dropout=args.dropout,
-            bias=True,
-        )
-        model = nge.PrimitiveNanoGPT(config)
-        total_params = sum(
-            p.to_numpy(ttnn.DataType.FLOAT32).size for p in model.parameters().values()
-        )
-        print(f"2. Model: {args.num_blocks} blocks, {args.embedding_dim} embd, "
-              f"{args.num_heads} heads -> {total_params:,} params")
+    env = _build_env(tt_metal_home, args.arch)
 
-        # 4. Optimizer: AdamW (cross-entropy loss lives inside train_step) ----
-        optimizer = ttml.optimizers.create_optimizer(
-            {
-                "type": "AdamW",
-                "lr": args.lr,
-                "beta1": 0.9,
-                "beta2": 0.999,
-                "epsilon": 1.0e-8,
-                "weight_decay": 0.01,
-                "amsgrad": False,
-            },
-            model.parameters(),
-        )
-        print(f"3. Optimizer: {optimizer.get_name()} (lr={optimizer.get_lr()})")
+    print("=" * 70)
+    print("nanollama3 from-scratch training (thin launcher over train_nanogpt.py)")
+    print(f"  model: Llama-3 stack (RoPE theta=500000 + RMSNorm + GQA 6h/3kv + SwiGLU)")
+    print(f"  arch={env['TT_METAL_ARCH_NAME']}  "
+          f"runtime_root={env['TT_METAL_RUNTIME_ROOT']}")
+    print(f"  config={NANOLLAMA3_CONFIG}  max_steps={args.max_steps}")
+    print("  command:")
+    print("    " + " ".join(cmd))
+    print("=" * 70)
 
-        # 5. Causal mask + training loop --------------------------------------
-        mask = nge.create_causal_mask_tensor(args.sequence_length)
-        grad_accum = nge.GradientAccumulator(1)  # no accumulation for the demo
+    if args.dry_run:
+        print("--dry_run set: not launching.")
+        return 0
 
-        model.train()
-        print(f"4. Training for {args.max_steps} steps (batch_size={args.batch_size})")
-        print()
-
-        losses = []
-        step = 0
-        start = time.time()
-        # Single pass over the data is plenty for a short from-scratch demo.
-        for batch_start in range(0, len(dataset), args.batch_size):
-            if step >= args.max_steps:
-                break
-            batch = dataset[batch_start : batch_start + args.batch_size]
-            if len(batch) < args.batch_size:
-                break
-            input_tokens, target_tokens = nge.collate_fn(
-                batch, args.batch_size, args.sequence_length
-            )
-            loss_float, step_ms, _ = nge.train_step(
-                model, optimizer, None, step,
-                input_tokens, target_tokens, mask,
-                grad_accum, False, 1.0, batch_size=args.batch_size,
-            )
-            grad_accum.reset()
-            losses.append(loss_float)
-            print(f"Step: {step:>3}  Loss: {loss_float:.6f}  Time: {step_ms:.1f} ms")
-            step += 1
-
-        total = time.time() - start
-        print()
-        print("=" * 70)
-        print("Training completed")
-        if losses:
-            print(f"  first-step loss: {losses[0]:.4f}   last-step loss: {losses[-1]:.4f}")
-        print(f"  steps: {step}   total time: {total:.1f} s")
-        print("=" * 70)
-    finally:
-        # Let ttml close the device cleanly (a killed/partial run triggers a
-        # benign teardown abort in MetalContext::destroy_all_instances).
-        instance.close_device()
-
-    return 0
+    # Launch the verified trainer. Its own device open/close + training loop
+    # run in the child process (it closes the device cleanly on exit, which
+    # avoids the benign MetalContext::destroy_all_instances teardown abort).
+    completed = subprocess.run(cmd, env=env)
+    return completed.returncode
 
 
 if __name__ == "__main__":

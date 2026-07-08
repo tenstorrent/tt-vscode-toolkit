@@ -4,8 +4,11 @@
 TT-Native" arc uses for Lab 5's real on-device training. **It is source-only —
 there is no pip wheel or `.deb`.** This recipe was verified end-to-end on
 **2026-07-08 on a Blackhole p300c against tt-metal v0.73**: after building, the
-canonical `nanogpt_primitives_example.py` ran a real forward + backward + AdamW
-loop on-device with loss dropping ~4.6 → ~3.3 over 10 steps (exit 0).
+canonical `train_nanogpt.py` ran a real forward + backward + AdamW loop
+on-device for the **modern Llama-3 stack** (`--config
+training_shakespeare_nanollama3_char.yaml`, `model_type: llama` — RoPE +
+RMSNorm + GQA + SwiGLU) with loss dropping 4.69 → 3.23 over 20 steps, ~65 ms/step,
+16.5 TFLOPS, exit 0.
 
 > This retires the `ct7`/`ct8` "no way to get ttml" blocker for anyone willing
 > to build from source. If you do not already have a tt-metal source tree, do
