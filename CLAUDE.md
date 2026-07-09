@@ -18,8 +18,15 @@ VSCode extension for Tenstorrent hardware development:
 All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy) and
 **Blackhole** (p100/p150/p300c/TT-QuietBox 2) hardware. Key constraints:
 
-- **p300c = p100 mode**: p300c is a single Blackhole chip; TT-QuietBox 2 = 4× p300c operating
-  as 4 independent single-chip devices (not a mesh). Treat p300c exactly like p100.
+- **p300c = p100 mode for single-chip work**: a p300c ASIC is a single Blackhole chip, so
+  single-device lessons/templates treat it exactly like a p100. **Correction (verified
+  2026-07-09):** a TT-QuietBox 2 is NOT "4 independent chips" — it is 4 Blackhole chips wired
+  in a ring (`P300_X2`, a 2×2 mesh), and **multi-chip tt-train DDP works on it** (near-linear:
+  ~1.95× at 2 chips, ~3.98× at 4). The catch: ttml ships default mesh-graph descriptors only
+  for 8-dev (T3000) and 32-dev (Galaxy), so for 2/4-dev Blackhole you must set
+  `TT_MESH_GRAPH_DESC_PATH` to a matching descriptor (shipped `p300_mesh_graph_descriptor.textproto`
+  for [1,2]; a custom `[1,4]` `dim_types [LINE, RING]` descriptor for [1,4]) — otherwise fabric
+  router sync times out. See lesson `ct5-multi-device-training` and `reference_ttml_build_blackhole`.
 - **TT-QuietBox 2 ships without `~/tt-metal`**: Pre-configured TT-QuietBox 2 images have TT-NN<sup>™</sup> and vLLM
   pre-installed but do not include the tt-metal source tree. Lessons must not assume
   `~/tt-metal` exists — link to `build-tt-metal` lesson for users who need it.
