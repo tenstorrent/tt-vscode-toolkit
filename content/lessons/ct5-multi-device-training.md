@@ -2,7 +2,7 @@
 id: ct5-multi-device-training
 title: Multi-Device Training
 description: >-
-  Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on n300, T3000, and Galaxy systems.
+  Walk through the documented Data Parallel (DDP) pattern for n300, T3000, and Galaxy systems — device mesh configuration, gradient synchronization, and scaling considerations — read from tt-train's real configs and source.
 category: custom-training
 tags:
   - multi-device
@@ -13,9 +13,6 @@ tags:
 supportedHardware:
   - n300
   - t3k
-  - p100
-  - p150
-  - p300c
   - galaxy
 status: draft
 note: >-
@@ -23,8 +20,7 @@ note: >-
   2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
-validatedOn:
-  - n150
+validatedOn: []
 estimatedMinutes: 15
 ---
 

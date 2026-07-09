@@ -8,7 +8,7 @@ tags:
   - training
   - fine-tuning
   - tt-train
-  - tt-blacksmith
+  - ttml
   - concepts
 supportedHardware:
   - n150

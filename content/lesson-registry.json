@@ -445,7 +445,7 @@
         "training",
         "fine-tuning",
         "tt-train",
-        "tt-blacksmith",
+        "ttml",
         "concepts"
       ],
       "supportedHardware": [
@@ -567,7 +567,7 @@
     {
       "id": "ct5-multi-device-training",
       "title": "Multi-Device Training",
-      "description": "Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on n300, T3000, and Galaxy systems.",
+      "description": "Walk through the documented Data Parallel (DDP) pattern for n300, T3000, and Galaxy systems — device mesh configuration, gradient synchronization, and scaling considerations — read from tt-train's real configs and source.",
       "category": "custom-training",
       "tags": [
         "multi-device",
@@ -579,15 +579,10 @@
       "supportedHardware": [
         "n300",
         "t3k",
-        "p100",
-        "p150",
-        "p300c",
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [
-        "n150"
-      ],
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 5,
       "previousLesson": "ct4-finetuning-basics",
@@ -628,7 +623,7 @@
     {
       "id": "ct7-architecture-basics",
       "title": "Model Architecture Basics",
-      "description": "Understand transformer architecture components before training from scratch. Learn about embeddings, attention mechanisms, feed-forward networks, and how to design custom architectures. Prepare to build your own models.",
+      "description": "A concise tour of modern transformer components — RoPE, GQA, SwiGLU, RMSNorm — and how they map to tt-train's configuration fields. Build them by hand in the from-scratch arc.",
       "category": "custom-training",
       "tags": [
         "architecture",

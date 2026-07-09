@@ -2,7 +2,7 @@
 id: ct7-architecture-basics
 title: Model Architecture Basics
 description: >-
-  Understand transformer architecture components before training from scratch. Learn about embeddings, attention mechanisms, feed-forward networks, and how to design custom architectures. Prepare to build your own models.
+  A concise tour of modern transformer components — RoPE, GQA, SwiGLU, RMSNorm — and how they map to tt-train's configuration fields. Build them by hand in the from-scratch arc.
 category: custom-training
 tags:
   - architecture

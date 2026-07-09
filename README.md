@@ -231,7 +231,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Dataset Fundamentals** — `N150`
 - **Configuration Patterns** — `N150`
 - **Fine-tuning Basics** — `N150` `P300C`
-- **Multi-Device Training** — `N150`
+- **Multi-Device Training** — *draft*
 - **Experiment Tracking** — `N150`
 - **Model Architecture Basics** — `N150`
 - **Training from Scratch** — `N150` `P300C`
@@ -408,18 +408,18 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.5 (2026-07-09)
+### Latest Release: v0.1.6 (2026-07-09)
+
+**Highlights:**
+- 📚 **Custom Training (`ct1`–`ct8`) track re-authored** — now a verified `ttml`/`tt-train` training-workflow track, disentangled from `tt-blacksmith` (the separate TT-Forge<sup>™</sup>/TT-XLA recipe stack); `ct4` and `ct8` are `validated` on Blackhole<sup>®</sup> p300c with real loss curves and honest "structure-not-coherence" output framing
+- 🧭 **`ct7` slimmed to a concise architecture tour**, deferring the by-hand component build to the from-scratch (`lfs`) arc
+- 🛠️ **`installTtTrain` aligned to the verified build recipe** — the `ttnn/_ttnn.so` `std::bad_cast` ABI fix that unblocks `import ttml` on prebuilt tt-metal images, including TT-QuietBox 2
+
+### Previous Release: v0.1.5 (2026-07-09)
 
 **Highlights:**
 - 🔓 **Custom Training (`ct1`–`ct8`) lessons unblocked** — the old `blocked` status/reason ("ttml isn't available as a package") is retired now that `ttml` is verified building and training on Blackhole<sup>®</sup> p300c; all 8 lessons flip to `draft` while their bodies are re-authored
 - 🛠️ **`installTtTrain` rebuilt to match the verified build recipe** — configures the tt-train subproject, builds the `_ttml` bindings, rebuilds `ttnn/_ttnn.so` (fixes the `std::bad_cast` nanobind ABI mismatch that hits every prebuilt tt-metal image, including TT-QuietBox 2), and wires `ttml` onto the active venv
-
-### Previous Release: v0.1.4 (2026-07-08)
-
-**Highlights:**
-- 🧠 **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00`–`lfs-05`) building a small, modern Llama-3-style model (RoPE, RMSNorm, SwiGLU, grouped-query attention) from scratch, TT-native from line one, with TT-Lang inception kernels (no CUDA/Triton conversion) and CUDA-programmer grounding throughout
-- ✅ **Verified from-scratch training on Blackhole<sup>®</sup>** — a real `ttml` training run on p300c hardware, loss dropping monotonically from 4.69 to 3.23
-- 🙏 Architecture inspired by and credited to [Mini-LLM](https://github.com/Ashx098/Mini-LLM) (Ashx098)
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 

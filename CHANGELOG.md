@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.6] - 2026-07-09
+### Changed
+- Re-authored the Custom Training track (ct1–ct8) as a verified `ttml`/`tt-train` training-workflow track — unblocked (ttml build verified on Blackhole p300c), disentangled from `tt-blacksmith` (the separate TT-Forge/TT-XLA recipe stack), ct4 and ct8 validated on p300c with real loss curves and honest "structure-not-coherence" output framing, ct7 slimmed to defer the by-hand build to the from-scratch arc, and the installTtTrain command aligned to the verified build recipe (the `_ttnn.so` `std::bad_cast` fix).
+
 ## [0.1.5] - 2026-07-09
 ### Changed
 - **Unblocked `ct1`–`ct8` Custom Training lessons** — flipped `status` from `blocked` to `draft` across all 8 lessons; the old `blockReason` ("ttml isn't available as a package") is false as of the `ttml`-on-Blackhole-p300c build verification (2026-07-08, tt-metal v0.73) documented in `content/templates/llm-from-scratch/BUILD_TTML.md`. Replaced each `blockReason` with a `note` pointing at the verified build recipe; `ct4`/`ct8` will move to `validated` once their hardware-run tasks land. Lesson bodies are unchanged — re-authoring is tracked separately.

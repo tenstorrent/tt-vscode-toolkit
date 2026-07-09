@@ -380,7 +380,7 @@ Checkpoints are written as `.pkl` files, named from that path plus the step numb
 
 ## Evaluation Sampling and Logging
 
-`eval_config:` doesn't control a validation *set* — `tt-train`'s nano examples don't hold out one. It controls the **sampling parameters used to generate text periodically during training**, so you can watch the model's output evolve:
+`eval_config:` doesn't control a validation *set* — `tt-train`'s nano examples don't hold out one. Every shipped config declares one anyway:
 
 ```yaml
 eval_config:
@@ -390,7 +390,7 @@ eval_config:
   top_p: 1.0
 ```
 
-Every shipped Shakespeare config uses the same four values — `temperature: 0.7` gives a little variety in the periodic samples without going incoherent, `top_k: 50` and `top_p: 1.0` leave nucleus sampling effectively off, and `repetition_penalty: 1.0` leaves repetition penalty off too. These are the exact settings behind the sample generations you'll see in Fine-tuning Basics as the model progresses from noise to structure to Shakespeare-flavored text.
+**But `train_nanogpt.py` never reads it.** Grep the script and `eval_config` doesn't appear — it's present in the YAML schema but not wired into the generation path. The periodic text samples you'll see in Fine-tuning Basics come from `train_nanogpt.py`'s own `--temperature`/`--top_k` command-line flags, which default to `0.8` and `40` respectively (`--top_p` and `--repetition_penalty` aren't exposed as generation controls at all). If you want to change what those periodic samples look like, pass `--temperature`/`--top_k` on the command line — editing `eval_config:` in the YAML won't do anything.
 
 **On logging:** there's no WandB or dashboard field in `tt-train`'s YAML schema — don't reach for `use_wandb:` or similar, it isn't real. Training progress today is stdout: per-step loss and timing, printed directly by `train_nanogpt.py`, plus whatever you capture yourself by redirecting output to a file. `project_name` in the training config is just a label; it doesn't wire up an external tracking service on its own.
 
