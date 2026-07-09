@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -593,7 +593,7 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createLlmFromScratchProject",
+        "command": "tenstorrent.llmFromScratch.createProject",
         "title": "Create LLM-from-Scratch Project",
         "category": "Tenstorrent"
       },

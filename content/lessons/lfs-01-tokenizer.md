@@ -27,7 +27,7 @@ The reference code for this arc lives in `~/tt-scratchpad/llm-from-scratch/`,
 and every command below runs out of that folder. If you haven't scaffolded it
 yet — or you landed here before Lab 0 — set it up now:
 
-[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.createLlmFromScratchProject)
+[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.llmFromScratch.createProject)
 
 ---
 

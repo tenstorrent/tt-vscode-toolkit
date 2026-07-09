@@ -3628,7 +3628,7 @@ python test_particle_life.py</pre>
 }
 
 /**
- * Command: tenstorrent.createLlmFromScratchProject
+ * Command: tenstorrent.llmFromScratch.createProject
  *
  * Deploys the "Build an LLM from Scratch" reference templates to
  * ~/tt-scratchpad/llm-from-scratch/ so a developer can follow the lesson
@@ -4885,7 +4885,7 @@ async function showCommandMenu(): Promise<void> {
     { label: '$(library) Browse Model Zoo', description: 'Explore validated models', command: 'tenstorrent.browseModelZoo' },
     { label: '$(code) Programming Examples', description: 'Sample code and patterns', command: 'tenstorrent.exploreProgrammingExamples' },
     { label: '$(book) Create Cookbook Projects', description: 'Deploy 4 complete recipes', command: 'tenstorrent.createCookbookProjects' },
-    { label: '$(beaker) Create LLM-from-Scratch Project', description: 'Copy the arc templates to ~/tt-scratchpad', command: 'tenstorrent.createLlmFromScratchProject' },
+    { label: '$(beaker) Create LLM-from-Scratch Project', description: 'Copy the arc templates to ~/tt-scratchpad', command: 'tenstorrent.llmFromScratch.createProject' },
   ];
 
   const selected = await vscode.window.showQuickPick(items, {
@@ -5583,7 +5583,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // Lesson 12 - TT-Metalium Cookbook
     vscode.commands.registerCommand('tenstorrent.createCookbookProjects', createCookbookProjects),
-    vscode.commands.registerCommand('tenstorrent.createLlmFromScratchProject', createLlmFromScratchProject),
+    vscode.commands.registerCommand('tenstorrent.llmFromScratch.createProject', createLlmFromScratchProject),
     vscode.commands.registerCommand('tenstorrent.runGameOfLife', runGameOfLife),
     vscode.commands.registerCommand('tenstorrent.runGameOfLifeGlider', runGameOfLifeGlider),
     vscode.commands.registerCommand('tenstorrent.runGameOfLifeGliderGun', runGameOfLifeGliderGun),

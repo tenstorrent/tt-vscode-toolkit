@@ -90,7 +90,7 @@ The reference code for this whole arc — the from-scratch tokenizer, the
 `~/tt-scratchpad/llm-from-scratch/`. Every command in the labs ahead runs out
 of that folder, so scaffold it once now and follow along in your own copy:
 
-[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.createLlmFromScratchProject)
+[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.llmFromScratch.createProject)
 
 The button copies the arc's reference files into that folder and opens it. If
 you land in a later lab first, the same button appears there — run it whenever
