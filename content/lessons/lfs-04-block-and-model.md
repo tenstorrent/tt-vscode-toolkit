@@ -33,6 +33,15 @@ end, you will have read, line by line, every component of the model
 [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
 trains for real on Blackhole<sup>®</sup>.
 
+**You are here:**
+
+```mermaid
+graph LR
+    A["Tokenizer & Data"] --> B["Embeddings & RoPE"] --> C["Attention (GQA)"] --> D["Block & Model"] --> E["Train on Blackhole"]
+
+    style D fill:#1B8EB1,stroke:#333,stroke-width:3px
+```
+
 ## Coming from CUDA: kernel fusion, one more time
 
 [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
@@ -578,7 +587,8 @@ provision more than one chip.
 ## Run it
 
 There's no new playground for this lab — the payoff is that the *whole
-model* now runs, forward-pass only, in plain PyTorch, on CPU, anywhere:
+model* now runs, forward-pass only, in plain PyTorch, on CPU, anywhere, in
+seconds:
 
 ```bash
 python ~/tt-scratchpad/llm-from-scratch/reference_gpt.py --smoke

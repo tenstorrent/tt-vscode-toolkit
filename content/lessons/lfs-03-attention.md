@@ -46,6 +46,15 @@ attention kernel is **not runnable in the bundled functional simulator yet.**
 We'll be exact about why, how we gain confidence in it anyway, and what still
 has to happen before it ships.
 
+**You are here:**
+
+```mermaid
+graph LR
+    A["Tokenizer & Data"] --> B["Embeddings & RoPE"] --> C["Attention (GQA)"] --> D["Block & Model"] --> E["Train on Blackhole"]
+
+    style C fill:#1B8EB1,stroke:#333,stroke-width:3px
+```
+
 ## Coming from CUDA: FlashAttention, and the agentic shortcut
 
 If you've optimized attention on a GPU, you know the enemy is memory traffic,

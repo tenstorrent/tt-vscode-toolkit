@@ -67,6 +67,14 @@ Five labs follow this one:
    cross-entropy, AdamW, backprop — that we ran for real on Blackhole<sup>®</sup>
    hardware.
 
+That's the whole arc, start to finish, in one picture — each lesson ahead
+gets its own small version of this, with the step you're on highlighted:
+
+```mermaid
+graph LR
+    A["Tokenizer & Data"] --> B["Embeddings & RoPE"] --> C["Attention (GQA)"] --> D["Block & Model"] --> E["Train on Blackhole"]
+```
+
 **The promise is two-tier, and both tiers are honest.**
 
 Every lab builds and runs a **nano Llama** configuration live: 6 transformer

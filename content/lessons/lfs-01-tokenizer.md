@@ -29,6 +29,15 @@ yet — or you landed here before Lab 0 — set it up now:
 
 [🧪 Create the LLM-from-Scratch Project](command:tenstorrent.llmFromScratch.createProject)
 
+**You are here:**
+
+```mermaid
+graph LR
+    A["Tokenizer & Data"] --> B["Embeddings & RoPE"] --> C["Attention (GQA)"] --> D["Block & Model"] --> E["Train on Blackhole"]
+
+    style A fill:#1B8EB1,stroke:#333,stroke-width:3px
+```
+
 ---
 
 ## Coming from CUDA: moving data on and off the device
@@ -347,7 +356,7 @@ tokenizer is exactly the input `ttnn.embedding` expects.** The seam between
 ## Run it
 
 Everything in this lab is pure Python — no device, no simulator, no `ttnn`
-import required to see it work:
+import required to see it work. It runs in seconds, on any laptop CPU:
 
 ```bash
 python ~/tt-scratchpad/llm-from-scratch/tokenizer_bpe.py

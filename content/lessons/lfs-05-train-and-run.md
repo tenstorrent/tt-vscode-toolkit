@@ -46,6 +46,15 @@ Everything from
 [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) onward has
 been building toward this one run.
 
+**You are here:**
+
+```mermaid
+graph LR
+    A["Tokenizer & Data"] --> B["Embeddings & RoPE"] --> C["Attention (GQA)"] --> D["Block & Model"] --> E["Train on Blackhole"]
+
+    style E fill:#1B8EB1,stroke:#333,stroke-width:3px
+```
+
 ## Coming from CUDA: where's `.backward()`?
 
 On CUDA, `loss.backward()` is one line because PyTorch's autograd engine
@@ -137,6 +146,11 @@ source-and-build tree, stop here and do the
 [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
 lesson first — everything below assumes `install_dependencies.sh` and
 `build_metal.sh` already work on your machine.
+
+**Time budget:** with a warm ccache, the whole recipe below — configure,
+build `_ttml`, rebuild `_ttnn.so` — takes about **5 minutes** on this
+hardware. A first-ever tt-metal build from cold (no ccache) is much longer;
+budget accordingly.
 
 **This matters especially if you're on a TT-QuietBox<sup>®</sup> 2.** A
 pre-configured TT-QuietBox 2 image ships TT-NN<sup>™</sup> and vLLM
@@ -256,8 +270,17 @@ one-time on-device kernel compile every fresh op shape pays the first time it
 runs (you saw the same effect described in earlier labs' honest-flag
 sections). Every step after that ran in **~65 ms**, at roughly **16.5
 TFLOPS** and **~11% model FLOPS utilization (MFU)**. All 20 steps, compile
-included, finished in **13.6 seconds**, and the process exited **0**. Loss
-dropped **monotonically** — 4.6875 → 3.56 → 3.375 → 3.2344 — the same shape
+included, finished in **13.6 seconds**, and the process exited **0**.
+
+**The general rule underneath that first-step number, worth carrying past
+this lab:** the first time any op runs against a new tensor shape, the
+device compiles kernels for it — roughly **12–20 seconds** on this
+hardware — and caches the result. Every later step against that same shape
+just runs the cached kernel, which is why step 2 onward drops straight to
+~65 ms. **Never benchmark the first step of anything on this stack** — it's
+timing the compiler, not the model.
+
+Loss dropped **monotonically** — 4.6875 → 3.56 → 3.375 → 3.2344 — the same shape
 of curve the `smoke()` output in
 [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
 would predict, now with a real gradient signal instead of random initialization
@@ -300,6 +323,22 @@ benign-but-alarming-looking teardown abort in
 `MetalContext::destroy_all_instances`. `train_nanogpt.py` closes the device
 in a `finally` block for exactly this reason — if you're scripting around
 it, don't bypass that.
+
+### Going longer: a 3000-step run
+
+20 steps is enough to prove the mechanism works — it's not a training
+budget. Raise `--max_steps` and the same command keeps running at the same
+steady-state pace: a 3000-step run against this same tiny Shakespeare
+excerpt finishes in about **3.3 minutes** on this p300c and drives the loss
+from **~4.7 down to ~0.18**.
+
+Don't read that low number as "a better model." On a corpus this small,
+3000 steps is enough to **memorize** the excerpt rather than learn anything
+that generalizes — the from-scratch training loop is working exactly as
+designed, and overfitting a few hundred kilobytes of text is what working
+correctly looks like at that step count. It's the same honest distinction
+the next section draws in more depth: more steps, on their own, don't buy
+you a comparably *trained* model.
 
 ## Scaling to ~80M — and being honest about the comparison
 

@@ -32,6 +32,15 @@ kernel — not a positional add, but the **residual add** every transformer
 sub-layer performs — and run it live in your browser before you finish
 reading.
 
+**You are here:**
+
+```mermaid
+graph LR
+    A["Tokenizer & Data"] --> B["Embeddings & RoPE"] --> C["Attention (GQA)"] --> D["Block & Model"] --> E["Train on Blackhole"]
+
+    style B fill:#1B8EB1,stroke:#333,stroke-width:3px
+```
+
 ## Coming from CUDA: shared memory becomes L1, and there's no warp scheduler
 
 CUDA gives every thread block a pool of fast `__shared__` memory, scoped to
