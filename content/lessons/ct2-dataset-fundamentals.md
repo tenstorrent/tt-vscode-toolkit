@@ -41,7 +41,9 @@ Learn to create and validate training datasets for fine-tuning AI models. This i
 - How datasets flow through training
 - HuggingFace datasets integration
 
-**Time:** 15 minutes | **Prerequisites:** CT-1 (Understanding Custom Training)
+**Time:** 15 minutes | **Prerequisites:** [Understanding Custom Training](command:tenstorrent.showLesson?["ct1-understanding-training"])
+
+**A quick note on scope before you start:** this lesson teaches dataset curation the way most of the fine-tuning world does it — JSONL prompt/response pairs, validated and versioned. That skill transfers everywhere. But the trainer this track actually runs, `train_nanogpt.py` (`ttml`/tt-train's Python entry point, see [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])), doesn't take JSONL directly — it takes a plain-text corpus. The "How Your Data Reaches tt-train" section below closes that gap honestly, with a real script to get from one to the other.
 
 ---
 
@@ -536,6 +538,77 @@ Fix these issues and run validation again.
 
 ---
 
+## How Your Data Reaches tt-train
+
+Once your dataset is validated JSONL, the natural next question is: how does it actually get to a model? For a lot of the fine-tuning ecosystem — Hugging Face's `trl`, hosted fine-tuning APIs — JSONL prompt/response pairs *are* the direct input. This track's own trainer is more specific about what it wants.
+
+[Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) runs `train_nanogpt.py`, the trainer script that ships with `ttml` (tt-train's Python bindings), against real Tenstorrent hardware. Its data argument looks like this:
+
+```bash
+python train_nanogpt.py \
+  --data_path ~/tt-scratchpad/training/data/shakespeare.txt \
+  --num_epochs 30 \
+  --batch_size 4 \
+  --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare_stage2.pkl \
+  --fresh
+```
+
+`--data_path` points at **one plain-text file** — not JSONL, not a `prompt`/`response` schema. By default, `train_nanogpt.py` tokenizes that file one character at a time (`ttml.common.data.CharTokenizer`) and trains next-character prediction on it. That's exactly why the tiny-shakespeare corpus you downloaded earlier in this lesson works as-is: `input.txt` is already the shape the trainer wants, no conversion needed.
+
+tt-train also supports subword tokenization: set `tokenizer_type: bpe` in the training config and point `tokenizer_path` at a saved Hugging Face tokenizer, and the corpus gets byte-pair-encoded instead of split into characters. Either way — char-level or BPE — the trainer wants **already-tokenizable text**, not a JSON schema of examples.
+
+### Bridging JSONL to a plain-text corpus
+
+If you've curated a JSONL dataset above and want to point `train_nanogpt.py` at it, flatten it into text first. `prompt`/`response` fields don't survive the trip — the trainer just sees characters — so the flattening step is where you decide how those fields get joined:
+
+```python
+import json
+
+def jsonl_to_plain_text(jsonl_path, output_path, separator="\n\n"):
+    """Flatten a JSONL prompt/response dataset into the single plain-text
+    stream train_nanogpt.py's --data_path expects.
+
+    tt-train's default tokenizer has no concept of a "prompt" or "response"
+    field -- it reads characters (or BPE tokens, if tokenizer_type: bpe is
+    set) from one continuous file. This is the conversion step that makes a
+    JSONL dataset usable by that trainer.
+    """
+    count = 0
+    with open(jsonl_path, "r") as infile, open(output_path, "w") as outfile:
+        for line in infile:
+            line = line.strip()
+            if not line:
+                continue
+            example = json.loads(line)
+            outfile.write(example["prompt"])
+            outfile.write("\n")
+            outfile.write(example["response"])
+            outfile.write(separator)
+            count += 1
+    return count
+
+# Usage
+n = jsonl_to_plain_text("my_dataset.jsonl", "my_dataset.txt")
+print(f"Flattened {n} examples into my_dataset.txt")
+```
+
+Then hand the flattened file to `train_nanogpt.py` the same way [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) hands it `shakespeare.txt`:
+
+```bash
+python train_nanogpt.py \
+  --data_path ~/tt-scratchpad/training/data/my_dataset.txt \
+  --num_epochs 100 \
+  --batch_size 4 \
+  --model_save_path ~/tt-metal/tt-train/checkpoints/my_model.pkl \
+  --fresh
+```
+
+**So the JSONL work above isn't wasted** — it's still the right format for curating, reviewing, and diffing examples, and it's what plenty of other fine-tuning tools want natively. It just isn't the literal input to *this track's* trainer; that trainer eats plain text.
+
+**Want to see a tokenizer built by hand** — byte-pair encoding, merges, vocabulary, all of it — instead of taking `CharTokenizer` or a Hugging Face tokenizer on faith? [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) in the from-scratch track builds a BPE tokenizer from raw bytes and a data pipeline around it, entirely from first principles, and shows exactly what `tokenizer_type: bpe` is doing under the hood.
+
+---
+
 ## Dataset Creation Workflow
 
 Here's how successful dataset creation flows, from idea to validated training data:
@@ -618,11 +691,11 @@ graph TD
 
 ## Understanding Tokenization
 
-Your dataset goes through several transformations before reaching the model. Here's the complete journey:
+Your dataset goes through several transformations before reaching the model. The exact shape of the early stages depends on which trainer you're targeting (JSONL for curation-friendly tools, a flattened plain-text corpus for `train_nanogpt.py` — see the section above) but every path converges on the same last three steps:
 
 ```mermaid
 graph LR
-    A[Raw Text<br/>Ideas, Q&A pairs] --> B[JSONL Format<br/>Structured data]
+    A[Raw Text<br/>Ideas, Q&A pairs] --> B[Curated Dataset<br/>JSONL or plain-text corpus]
     B --> C[Validation<br/>Check format & quality]
     C --> D[Tokenization<br/>Text → Numbers]
     D --> E[Batching<br/>Group examples]
@@ -638,9 +711,9 @@ graph LR
 
 **Each stage matters:**
 - **Raw Text:** Your domain knowledge and creativity
-- **JSONL Format:** Makes it machine-readable while staying human-readable
+- **Curated Dataset:** Makes it machine-readable while staying human-readable — JSONL if a schema helps you review it, plain text if `train_nanogpt.py` is the destination
 - **Validation:** Catches errors before expensive training
-- **Tokenization:** Converts text to numbers the model understands
+- **Tokenization:** Converts text to numbers the model understands — character-by-character by default in `train_nanogpt.py`, or via a Hugging Face tokenizer if `tokenizer_type: bpe` is configured
 - **Batching:** Groups examples for efficient processing
 - **Training:** Where the model actually learns
 
@@ -688,19 +761,33 @@ print(f"Total: {len(prompt_tokens) + len(response_tokens)} tokens")
 
 **Rule of thumb:** Keep total (prompt + response) under 512 tokens for fine-tuning.
 
+**Where this applies to tt-train:** `train_nanogpt.py`'s default `CharTokenizer` doesn't need any of this — one character is one token, and there's no external vocabulary to load. This section matters once you're on the `tokenizer_type: bpe` path (a real subword tokenizer, loaded from `tokenizer_path`) or working with datasets destined for other, tokenizer-based fine-tuning tools.
+
 ---
 
 ## Advanced: HuggingFace Datasets Integration
 
-Once you have JSONL working, you can integrate with HuggingFace datasets:
+Once you have JSONL working, you can integrate with HuggingFace datasets — useful for large corpora, preprocessing pipelines, or pulling an existing dataset from the Hub instead of writing one by hand.
 
-### Loading JSONL with HuggingFace
+### Downloading a Dataset from the Hub
+
+Use the `hf` CLI, not `huggingface-cli` — the latter is deprecated:
+
+```bash
+hf download roneneldan/TinyStories --repo-type dataset --local-dir ~/data/tinystories
+```
+
+### Loading JSONL (or a downloaded dataset) with HuggingFace
 
 ```python
 from datasets import load_dataset
 
-# Load your JSONL file
+# Load your own JSONL file
 dataset = load_dataset("json", data_files="my_dataset.jsonl")
+
+# Or load a plain-text corpus the same way train_nanogpt.py would read it
+# (each line becomes one example, so this doesn't apply a schema at all)
+text_dataset = load_dataset("text", data_files="my_dataset.txt")
 
 # Access examples
 for example in dataset["train"]:
@@ -720,8 +807,9 @@ for example in dataset["train"]:
 - ✅ Large datasets (10,000+ examples)
 - ✅ Complex preprocessing pipelines
 - ✅ Integration with HuggingFace ecosystem
+- ✅ Pulling an existing corpus from the Hub instead of writing one by hand
 
-**For this series:** We'll stick with simple JSONL for clarity. HuggingFace integration is optional.
+**For `train_nanogpt.py` specifically:** none of this is required. It reads a single text file directly — HuggingFace `datasets` is a convenience for building or downloading that file, not a dependency of the trainer itself.
 
 ---
 
@@ -881,7 +969,7 @@ You've learned the mechanics of creating datasets - but what makes a dataset tru
 2. **Week 2 (n150):** Test with real users, gather feedback, refine dataset
 3. **Week 3 (n150 or n300):** Expand to 200-500 examples based on feedback
 4. **Month 2 (n300/T3000):** Scale to 1000+ examples, multi-task fine-tuning
-5. **Production:** Deploy with vLLM (**Lesson 7**), serve thousands of requests/day
+5. **Production:** Deploy with [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]), serve thousands of requests/day
 
 **Real example from the wild:**
 - Started: 60 examples of code explanations (3 hours of work)
@@ -925,22 +1013,24 @@ Pick a task you know well. Spend 3-4 hours creating 100 prompt/response pairs. F
 
 ✅ **Tokenization determines cost** and length limits
 
+✅ **`train_nanogpt.py` wants plain text, not JSONL** — flatten curated examples into a text corpus before handing them to `--data_path`
+
 ✅ **Version your datasets** like code
 
 ---
 
 ## Next Steps
 
-**Lesson CT-3: Configuration Patterns**
+**[Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"])**
 
 You have your dataset! Next, you'll learn how to configure training using YAML files:
 
 1. Understand training configuration structure
-2. Set up device configuration (n150/n300)
+2. Set up device configuration (n150/n300/p100/p300c)
 3. Configure logging and checkpointing
 4. Create hardware-specific configs
 
-**Estimated time:** 15 minutes | **Prerequisites:** CT-2 (this lesson)
+**Estimated time:** 15 minutes | **Prerequisites:** This lesson.
 
 ---
 
@@ -963,4 +1053,4 @@ You have your dataset! Next, you'll learn how to configure training using YAML f
 
 ---
 
-**Ready to configure your training?** Continue to **Lesson CT-3: Configuration Patterns** →
+**Ready to configure your training?** Continue to [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]).
