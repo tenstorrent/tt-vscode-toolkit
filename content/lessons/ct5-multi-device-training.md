@@ -30,7 +30,7 @@ Scale `tt-train` across multiple Tenstorrent chips with Data Parallel (DDP) — 
 
 ## An Honest Note Before You Start
 
-This lesson has **not been verified on the hardware these lessons were authored on.** That machine is a single-chip Blackhole<sup>®</sup> p300c. A single p300c cannot run DDP — there's only one device to split a batch across. TT-QuietBox<sup>®</sup> 2 doesn't change that: it's **4 independent p300c chips**, not a mesh. Each behaves like its own p150, with no interconnect joining them into one training job.
+We **tested this on a 4-chip TT-QuietBox<sup>®</sup> 2** (Blackhole<sup>®</sup> p300c, tt-metal v0.73), and the honest result is blunt: **multi-chip `tt-train` DDP does not work on it yet.** The four chips *are* physically Ethernet-meshed — UMD system-health shows a healthy `0↔1↔2↔3↔0` ring — so this isn't "four isolated chips." But the `tt-train` / tt-fabric software layer fails to bring the mesh up as a training job: a 2-chip run dies at `Fabric Router Sync: Timeout` during mesh open (and survives a `tt-smi -r`), and a 4-chip run clears fabric init but then hangs in optimizer compilation without ever reaching a step. Single-chip training works fine. So **today, treat a QB2 as four chips you run independent jobs on, not one mesh you train across** — until that fabric issue is resolved.
 
 So what follows is the **documented `tt-train` pattern** for real multi-chip hardware — n300, T3000 (also called LoudBox), and Galaxy — read from `tt-metal/tt-train/configs/README.md` and the actual YAML configs shipped in `tt-metal/tt-train/configs/training_configs/`. It's grounded in the real source, not hardware-verified end to end on this box. If you're on n300+ hardware and run this, the community would benefit from your results — file them against this lesson.
 
@@ -76,7 +76,7 @@ A single chip is one node in a mesh of size 1. There's nothing to split a batch 
 - ✅ Batch splits across chips; gradients average via all-reduce
 - ✅ More devices → more throughput, up to communication overhead
 - ✅ Larger effective batch sizes without exhausting one chip's DRAM
-- ⚠️ Requires hardware with an actual chip-to-chip interconnect — TT-QuietBox 2's four independent p300c chips don't qualify
+- ⚠️ Requires hardware where the tt-fabric mesh actually initializes for training. On the TT-QuietBox 2 we tested (tt-metal v0.73) the chips are physically meshed but multi-chip DDP currently fails at fabric-router sync — so its four chips can't yet form one training job (see the honest note above)
 
 **Key insight:** correctly configured DDP produces the same results as single-device training, just faster. It doesn't change what the model learns — only how many chips do the work.
 
@@ -149,7 +149,7 @@ graph TD
 - ✅ Your model fits on one device (this is data parallelism, not model/tensor parallelism — see the tensor-parallel note further down)
 
 **Skip DDP when:**
-- ⚠️ You have a single chip — n150, p150, or a single p300c. This includes each individual chip in a TT-QuietBox 2, which is four independent p300c, not a mesh.
+- ⚠️ You have a single chip — n150, p150, or a single p300c. On a TT-QuietBox 2, multi-chip DDP doesn't work yet (the fabric-router-sync failure we hit at tt-metal v0.73), so in practice you train one chip at a time there too — see the honest note above.
 - ⚠️ Debugging training issues (simpler to debug on 1 device)
 - ⚠️ Very small datasets (overhead not worth it)
 

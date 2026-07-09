@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.8] - 2026-07-09
+### Changed
+- **ct5 (Multi-Device Training) updated to tested reality** — on a 4-chip TT-QuietBox 2 (tt-metal v0.73) the p300c chips are physically Ethernet-meshed, but multi-chip tt-train DDP currently fails (2-chip: fabric-router-sync timeout at mesh open; 4-chip: hangs in optimizer compile). Single-chip training works. Lesson now documents this honestly instead of asserting the chips are non-meshed/independent.
+
 ## [0.1.7] - 2026-07-09
 ### Added
 - **Mermaid diagrams + timing expectations across the training lessons** — a big-picture arc diagram in each track's entry lesson, a "you are here" diagram in every `lfs-*` and `ct*` lesson, and honest, p300c-benchmarked timing callouts (ttml build ~5 min; first-step kernel JIT ~7–20 s then ~65 ms/step; 20 steps ~14 s; 3000 steps ~3.3 min; real loss milestones).
