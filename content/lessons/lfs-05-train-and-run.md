@@ -295,6 +295,17 @@ pre-trained checkpoint. That is the payoff this whole arc has been pointing at
 since the altitude ladder in
 [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]).
 
+And there's a physical dimension to this that a cloud endpoint never gives you.
+Leave a real job running — scale past twenty steps into the thousands, or up to
+the 80M configuration below — and the machine makes its presence felt a few feet
+away. The Blackhole<sup>®</sup> chips settle in around **70–81&nbsp;°C** under
+sustained load, and the closed-loop liquid cooling holds them there with a steady,
+oddly companionable **tick-tock** — the pump modulating as the mesh works hard
+enough to stay fast without cooking. It's a small thing, but it changes your
+relationship with the model. You're not watching a billing meter climb in a
+browser tab; you're listening to chips on your own desk train a language model you
+built from nothing.
+
 ### The honest caveat, stated plainly
 
 **Upstream tt-metal does not run continuous-integration training tests for
