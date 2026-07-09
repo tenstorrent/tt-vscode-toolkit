@@ -532,14 +532,15 @@
     {
       "id": "ct4-finetuning-basics",
       "title": "Fine-tuning Basics",
-      "description": "Train a character-level language model from scratch on Tenstorrent hardware. Watch NanoGPT learn Shakespeare through progressive training stages. See hierarchical learning in action as models learn structure before vocabulary before fluency.",
+      "description": "Run your first real tt-train job on Tenstorrent hardware: build a checkpoint with train_nanogpt.py, then continue training it with --resume — the load-weights-and-keep-going mechanic real fine-tuning uses. Real loss curves and generation samples captured on Blackhole p300c, with an honest account of what a 10M-parameter model actually outputs at this scale.",
       "category": "custom-training",
       "tags": [
         "fine-tuning",
         "tt-train",
         "training",
         "nanogpt",
-        "transformer",
+        "checkpoints",
+        "resume",
         "loss-curves"
       ],
       "supportedHardware": [
@@ -551,9 +552,10 @@
         "p300c",
         "galaxy"
       ],
-      "status": "draft",
+      "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
       "estimatedMinutes": 25,
       "order": 4,

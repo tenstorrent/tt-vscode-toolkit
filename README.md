@@ -225,12 +225,12 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **ttsim QEMU Bridge: Full-System Simulation** — *draft*
 
 ### 🎓 Custom Training
-*8 lessons, 0 validated*
+*8 lessons, 1 validated*
 
 - **Understanding Custom Training** — `N150`
 - **Dataset Fundamentals** — `N150`
 - **Configuration Patterns** — `N150`
-- **Fine-tuning Basics** — `N150`
+- **Fine-tuning Basics** — `N150` `P300C`
 - **Multi-Device Training** — `N150`
 - **Experiment Tracking** — `N150`
 - **Model Architecture Basics** — `N150`
