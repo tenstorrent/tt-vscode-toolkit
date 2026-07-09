@@ -659,14 +659,17 @@
     {
       "id": "ct8-training-from-scratch",
       "title": "Training from Scratch",
-      "description": "Build and train a transformer from random initialization. Design nano-trickster (11M params), train on Shakespeare, and watch it learn language patterns from scratch. Compare to random baseline and understand scaling laws.",
+      "description": "Configure, launch, monitor, checkpoint, and scale a from-scratch training job with ttml's train_nanogpt.py — the modern nanollama3_char config (RoPE/RMSNorm/SwiGLU/GQA), a real 3000-step loss curve on Blackhole p300c, and an honest look at what driving loss to 0.18 on a tiny corpus actually buys you.",
       "category": "custom-training",
       "tags": [
         "from-scratch",
-        "nano-trickster",
-        "architecture-design",
-        "character-level",
-        "language-modeling"
+        "ttml",
+        "train-nanogpt",
+        "nanollama3",
+        "checkpoints",
+        "loss-curves",
+        "overfitting",
+        "scaling"
       ],
       "supportedHardware": [
         "n150",
@@ -677,11 +680,12 @@
         "p300c",
         "galaxy"
       ],
-      "status": "draft",
+      "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
-      "estimatedMinutes": 90,
+      "estimatedMinutes": 30,
       "order": 8,
       "previousLesson": "ct7-architecture-basics",
       "nextLesson": "cookbook-overview",
