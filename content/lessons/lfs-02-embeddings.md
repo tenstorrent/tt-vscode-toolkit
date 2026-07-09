@@ -37,7 +37,8 @@ reading.
 CUDA gives every thread block a pool of fast `__shared__` memory, scoped to
 the block and the one Streaming Multiprocessor it runs on. Tensix has a direct
 analog: **L1 SRAM**, scoped to one Tensix core. That's 1,464 KB per core on
-both Wormhole<sup>™</sup> and Blackhole<sup>®</sup>, the exact figure lfs-00
+both Wormhole<sup>™</sup> and Blackhole<sup>®</sup>, the exact figure
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"])
 verified against the TT-Lang specification. Same idea — fast, local,
 explicitly managed — just owned by a core instead of an SM.
 
@@ -56,7 +57,7 @@ as three separate Python functions inside one `@ttl.operation`:
 | Compute | Does the math on tiles already in L1 | `@ttl.compute()` |
 | Writer | Streams finished tiles from L1 back to DRAM | `@ttl.datamovement()` |
 
-lfs-00 introduced this as a *diagram* — reader → compute → writer, three
+**Pick Your Altitude** introduced this as a *diagram* — reader → compute → writer, three
 threads, explicit handoff through Dataflow Buffers (DFBs) with `reserve()`
 and `wait()`. This lab is where that diagram stops being a diagram. The
 kernel you're about to read is the first place in the arc where you write
@@ -148,17 +149,17 @@ never appear in an optimizer's parameter list. That's the tell that RoPE,
 precomputed once in `__init__`, isn't something the model ever learns. More on
 what it computes later in this lab.
 
-**A tile-alignment note, since lfs-01 flagged it and this is where it shows
+**A tile-alignment note, since [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) flagged it and this is where it shows
 up.** `LlamaConfig.vocab_size` defaults to 96 — not because Shakespeare's raw
 character set lands there, but because 96 is a clean multiple of 32 (3×32
-tiles). lfs-01's `CharTokenizer` counts the actual distinct characters in
+tiles). **Tokenizer & Data**'s `CharTokenizer` counts the actual distinct characters in
 whatever text it's given, comfortably fewer than 96 for a Shakespeare excerpt.
 `LlamaConfig` doesn't grow the embedding table to match that organic count; it
 holds `vocab_size` at a tile-friendly constant instead.
 
 `n_embd=384` (12×32) and `block_size=256` (8×32) are already clean multiples
 too. Vocab is the one axis at nano scale where tile alignment is a deliberate
-config choice. Same rule as lfs-00 either way: Tensix moves and computes in
+config choice. Same rule as [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) either way: Tensix moves and computes in
 whole 32×32 tiles, so shapes get chosen (or rounded up) to fit.
 
 ## The residual stream: the model's spine
@@ -192,7 +193,7 @@ class Block(nn.Module):
 
 That's the whole idea: `x` is a running sum, never overwritten, only added to.
 Every block reads the current `x`, computes something (grouped-query attention
-in lfs-03, a SwiGLU MLP in lfs-04), and **adds its output back into `x`**
+in [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]), a SwiGLU MLP in [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])), and **adds its output back into `x`**
 rather than replacing it. Information from every earlier block stays directly
 reachable in later blocks because it was never erased, only accumulated.
 
@@ -212,12 +213,12 @@ is exactly where a from-scratch TT-Lang arc should hand you your first kernel.
 
 ## First inception kernel: the residual add
 
-Recall from lfs-00: this arc descends from TT-NN<sup>™</sup> altitude to
+Recall from [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]): this arc descends from TT-NN<sup>™</sup> altitude to
 TT-Lang for the hot kernels, and that descent is **inception, not
 conversion**. There's no existing CUDA or Triton `add` kernel being ported
 here. You're writing the TT-Lang expression of `x + sublayer(x)` directly, as
 its original TT-native form — the exact add that fires at every block, for
-every sub-layer, all the way through lfs-04.
+every sub-layer, all the way through [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"]).
 
 ---
 
@@ -239,7 +240,7 @@ core.
 
 Read it as `eltwise_add(a_in, b_in, out)`, where `a_in` is `x` (the residual
 stream entering the block), `b_in` is a sub-layer's output (`self.attn(...)`
-in lfs-03, or `self.mlp(...)` in lfs-04), and `out` is the updated residual
+in [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]), or `self.mlp(...)` in **The Transformer Block & the Model**), and `out` is the updated residual
 stream:
 
 ```python
@@ -330,7 +331,7 @@ above:
   compute's result — and `ttl.copy(...).wait()`s it back out to DRAM. That
   DRAM write *is* one residual-stream update landing in memory — the same
   shape as every `x = x + sublayer(x)` line in the model, all the way
-  through lfs-04.
+  through **The Transformer Block & the Model**.
 
 **One shape nuance worth naming — and it's a cleaner story than the arc's
 first draft had.** Framing this kernel around the *residual* add, instead of
@@ -357,7 +358,7 @@ nn.Embedding(block_size, n_embd)` — right alongside `tok_emb`, and summed it
 into the residual stream before the first block. Modern Llama-3-style models,
 including the `nanollama3` config this arc trains, drop that table entirely.
 Position isn't looked up and added. It's applied later, inside attention
-(lfs-03), as a **rotation**: **RoPE, Rotary Position Embeddings**.
+([Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])), as a **rotation**: **RoPE, Rotary Position Embeddings**.
 
 The idea: take the Q and K vectors inside each attention layer (never the
 residual stream `x` itself, and never V) and rotate each adjacent pair of
@@ -418,7 +419,7 @@ def apply_rope(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.T
 `[max_seq, head_dim]`. You already saw `NanoLlama.__init__` call this and stash
 the result in non-persistent buffers — no gradients, nothing learned.
 `apply_rope` is what actually rotates a tensor: `x * cos + rotate_half(x) *
-sin`, applied to Q and K separately, once per attention layer, in lfs-03.
+sin`, applied to Q and K separately, once per attention layer, in **Attention from Scratch**.
 
 ### The TT-Lang expression: `kernels/rope.py`
 
@@ -489,7 +490,7 @@ not split the head dimension into pairs, call `rotate_half`, or add the `sin`
 term. That's the simplified, elementwise-multiply cut of RoPE this sim build
 can execute today. The full math — `x * cos + rotate_half(x) * sin` — is the
 `apply_rope` function you just read in `reference_gpt.py`, and it's the version
-the arc's hero training run (lfs-05) uses on hardware via `ttml.ops.rope`.
+the arc's hero training run ([Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])) uses on hardware via `ttml.ops.rope`.
 
 This kernel exists to make the *data-movement* shape of a RoPE-style op
 concrete — DRAM → L1 → rotate → L1 → DRAM — not to be a drop-in replacement for
@@ -577,12 +578,12 @@ a torch reference today. But — as its own file says outright — it's the
 simplified cos-only cut of rotary embeddings, not the full `x * cos +
 rotate_half(x) * sin` math your model actually needs. That full math runs on
 Blackhole<sup>®</sup> today, just not via this hand-authored kernel: it's
-`ttml.ops.rope`, exercised for real in lfs-05's hero training run. Two
+`ttml.ops.rope`, exercised for real in [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])'s hero training run. Two
 different levels of "verified," named honestly rather than blurred together.
 
 One honest scope note for both. This lab doesn't re-run either kernel on a
 physical chip to independently confirm TT-Lang's sim-to-silicon guarantee for
-these specific files. lfs-05 is where you'll watch a real from-scratch training
+these specific files. **Train It & Run for Real** is where you'll watch a real from-scratch training
 loop execute on a Blackhole p300c and read actual loss numbers coming off
 hardware. What you've verified here is the sim side, twice over, with kernels
 you can already reason about completely.

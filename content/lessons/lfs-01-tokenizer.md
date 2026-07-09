@@ -161,7 +161,7 @@ because "First Citizen" and "speak" both showed up (and got merged) during
 training.
 
 **This is the tokenizer for the ~80M-parameter / TinyStories-scale target**
-this arc frames as its "hero" run (see lfs-00). It's the same family of
+this arc frames as its "hero" run (see [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"])). It's the same family of
 tokenizer used by the r/LocalLLaMA build that inspired this whole arc. To
 point it at a real dataset instead of the tiny inline sample, you'd pull the
 data with the `hf` CLI, not `huggingface-cli`:
@@ -314,14 +314,14 @@ tt_tokens = ttnn.from_torch(
 )
 ```
 
-Recall from lfs-00: Tensix hardware doesn't compute on scalars or arbitrary
+Recall from [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]): Tensix hardware doesn't compute on scalars or arbitrary
 rows. It computes on **32×32 tiles** — 1,024 elements addressed as a single
 unit. `ttnn.TILE_LAYOUT` performs that reshuffle.
 
 At nano scale (`block_size=256`), a `[2, 256]` token tensor already divides
 evenly into 32-wide tiles along the sequence axis. Padding only becomes a
 concern once `seq` or the embedding width isn't a multiple of 32 — which
-lfs-02 runs into directly.
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]) runs into directly.
 
 The token tensor is still just IDs. It doesn't become a *meaningful* tensor to
 the model until each ID is looked up in an embedding table and turned into an
@@ -335,7 +335,7 @@ x_embedded = ttnn.embedding(tt_tokens, embedding_weight, layout=ttnn.TILE_LAYOUT
 `ttnn.embedding` is a gather. For every integer in `tt_tokens`, it pulls the
 matching row out of `embedding_weight` and returns a `[batch, seq, n_embd]`
 tensor, already tiled. That's real code from the next lab, not this one —
-lfs-02 builds the embedding table and the residual stream it feeds into.
+**Embeddings & the Residual Stream** builds the embedding table and the residual stream it feeds into.
 
 Fix one thing in your head now: **the token tensor produced by this lab's
 tokenizer is exactly the input `ttnn.embedding` expects.** The seam between

@@ -53,17 +53,17 @@ in TT-Lang.
 
 Five labs follow this one:
 
-1. **lfs-01 — Tokenizer & Data.** A BPE tokenizer from scratch, encode/decode,
+1. **[Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"])** — A BPE tokenizer from scratch, encode/decode,
    batching — the raw material every model needs.
-2. **lfs-02 — Embeddings & the Residual Stream.** Token embeddings and
+2. **[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])** — Token embeddings and
    **RoPE** (rotary positional embeddings — no learned position table), plus
    your first TT-native kernel: elementwise add.
-3. **lfs-03 — Attention from Scratch.** Multi-head self-attention extended to
+3. **[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])** — Multi-head self-attention extended to
    **grouped-query attention (GQA)**, written out fully — Q·Kᵀ, scale, mask,
    softmax, ·V, KV-head sharing — and re-expressed as a TT-Lang kernel.
-4. **lfs-04 — The Block & the Model.** **SwiGLU** MLP, RMSNorm, residuals, and
+4. **[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])** — **SwiGLU** MLP, RMSNorm, residuals, and
    the full transformer block stacked into a model you can actually run.
-5. **lfs-05 — Train It & Run for Real.** A from-scratch training loop —
+5. **[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])** — A from-scratch training loop —
    cross-entropy, AdamW, backprop — that we ran for real on Blackhole<sup>®</sup>
    hardware.
 
@@ -87,8 +87,9 @@ vocabulary. Each lab also gives you the params/DRAM math for exactly what
 changes when you do that.
 
 We don't run an 80M training job inside a lesson. That's a
-multi-hour-to-multi-day job depending on hardware and data. But by lfs-04
-you'll know precisely how to get there from the nano baseline.
+multi-hour-to-multi-day job depending on hardware and data. But by the time you
+finish **The Transformer Block & the Model** you'll know precisely how to get
+there from the nano baseline.
 
 ---
 
@@ -154,7 +155,8 @@ This shows up directly in `ttnn`. When you convert a PyTorch tensor with
   This is the layout matmul, attention, and virtually every fused op expect.
 
 You'll see `ttnn.Tensor` objects and `TILE_LAYOUT` conversions constantly,
-starting in lfs-02. Every embedding table, every attention score matrix, every
+starting in [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]).
+Every embedding table, every attention score matrix, every
 hidden-state activation in this arc is, underneath, a grid of 32×32 tiles
 moving between DRAM and each Tensix core's local memory.
 
@@ -192,7 +194,8 @@ buffers (Dataflow Buffers). Two primitives drive it — `reserve()` claims a
 slot to fill, `wait()` blocks until a slot is ready to consume.
 
 That's the shape of every hand-authored kernel in this arc, starting with the
-elementwise-add kernel in lfs-02. Hold onto this mental picture — reader,
+elementwise-add kernel in [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]).
+Hold onto this mental picture — reader,
 compute, writer, three threads, explicit handoff — because from here on,
 "writing a TT-Lang kernel" just means writing those three functions.
 
@@ -242,13 +245,14 @@ wrong expectations. Here's exactly what runs where:
 
 | Lab | What you build | Runs on |
 |---|---|---|
-| **lfs-01** — Tokenizer & Data | BPE tokenizer, batching | Pure Python, anywhere — no device, no simulator |
-| **lfs-02** — Embeddings & the Residual Stream | PyTorch **RoPE** reference + first TT-Lang inception kernel (elementwise add) | Functional simulator + the browser-based TT-Lang playground |
-| **lfs-03** — Attention from Scratch | PyTorch reference (**GQA** — KV-head sharing) + TT-Lang attention/softmax kernel | Kernel is **authored, faithful to the vendor kernel, and torch-verified via oracle** (correlation gate wired, pending first execution) — not sim-run yet, the functional simulator can't execute attention's softmax reduction |
-| **lfs-04** — The Block & the Model | PyTorch reference (**SwiGLU**) + TT-Lang RMSNorm/matmul kernels, wired in as drop-in `ttnn.Tensor` ops | Matmul kernel is sim-validated; RMSNorm hits the same sim gap as attention — authored and torch-verified |
-| **lfs-05** — Train It & Run for Real | A real from-scratch training loop for the nano Llama model (RoPE, RMSNorm, SwiGLU, GQA) — cross-entropy, AdamW, backprop | **Real hardware.** `ttml` built from source, `train_nanogpt.py` (llama path) run on a Blackhole p300c — loss dropped monotonically from **4.69 to 3.23** over 20 steps, ~65 ms/step, 16.5 TFLOPS, on-device, exit 0 |
+| **[Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"])** | BPE tokenizer, batching | Pure Python, anywhere — no device, no simulator |
+| **[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])** | PyTorch **RoPE** reference + first TT-Lang inception kernel (elementwise add) | Functional simulator + the browser-based TT-Lang playground |
+| **[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])** | PyTorch reference (**GQA** — KV-head sharing) + TT-Lang attention/softmax kernel | Kernel is **authored, faithful to the vendor kernel, and torch-verified via oracle** (correlation gate wired, pending first execution) — not sim-run yet, the functional simulator can't execute attention's softmax reduction |
+| **[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])** | PyTorch reference (**SwiGLU**) + TT-Lang RMSNorm/matmul kernels, wired in as drop-in `ttnn.Tensor` ops | Matmul kernel is sim-validated; RMSNorm hits the same sim gap as attention — authored and torch-verified |
+| **[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])** | A real from-scratch training loop for the nano Llama model (RoPE, RMSNorm, SwiGLU, GQA) — cross-entropy, AdamW, backprop | **Real hardware.** `ttml` built from source, `train_nanogpt.py` (llama path) run on a Blackhole p300c — loss dropped monotonically from **4.69 to 3.23** over 20 steps, ~65 ms/step, 16.5 TFLOPS, on-device, exit 0 |
 
-The lfs-03/lfs-04 gap has one honest cause: **the functional simulator runs
+The gap for **Attention from Scratch** and **The Transformer Block & the Model**
+has one honest cause: **the functional simulator runs
 ahead of the hardware compiler.** Some kernel patterns — attention's softmax
 reduction, RMSNorm's normalization — are expressible and torch-verified in
 TT-Lang today. But the simulator build this arc is pinned to doesn't yet
@@ -258,7 +262,7 @@ That's a simulator limitation, not a correctness problem with the kernel. Each
 lab says so plainly rather than quietly running something narrower than
 advertised.
 
-lfs-05 deserves one more honest note. **Upstream tt-metal does not run
+**Train It & Run for Real** deserves one more honest note. **Upstream tt-metal does not run
 continuous-integration training tests for Blackhole.** The softmax,
 cross-entropy, RMSNorm, and scaled-dot-product-attention training-op tests are
 skipped on P100/P150 in CI. So there's no upstream guarantee that from-scratch
@@ -266,7 +270,7 @@ training works on Blackhole.
 
 We built `ttml` from source against `~/tt-metal` **v0.73** and ran the training
 loop on a p300c. It worked. If you want the same result, **pin your tt-metal
-version to v0.73** and follow the build recipe in lfs-05. A different version
+version to v0.73** and follow the build recipe in **Train It & Run for Real**. A different version
 may hit different edges of a fast-moving stack.
 
 ---
