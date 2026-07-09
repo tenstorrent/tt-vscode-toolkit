@@ -408,7 +408,7 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.6 (2026-07-09)
+### Latest Release: v0.1.7 (2026-07-09)
 
 **Highlights:**
 - 📚 **Custom Training (`ct1`–`ct8`) track re-authored** — now a verified `ttml`/`tt-train` training-workflow track, disentangled from `tt-blacksmith` (the separate TT-Forge<sup>™</sup>/TT-XLA recipe stack); `ct4` and `ct8` are `validated` on Blackhole<sup>®</sup> p300c with real loss curves and honest "structure-not-coherence" output framing
