@@ -47,6 +47,23 @@ Every number and every generated sample below is copied verbatim from a real tra
 
 ---
 
+## Where This Fits in the Track
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style D fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+---
+
 ## Install `ttml`
 
 `ttml` is source-only — there's no pip wheel. If you don't already have a built `~/tt-metal` source tree, do [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first. This matters especially on a TT-QuietBox<sup>®</sup> 2: those images ship TT-NN<sup>™</sup> and vLLM pre-installed, but **not** the tt-metal source tree — there's nothing to build `ttml` against until that tree exists.
@@ -56,6 +73,8 @@ Once you have a tt-metal build, this extension's **Install tt-train** command bu
 [📦 Install tt-train](command:tenstorrent.installTtTrain)
 
 Behind that button: configuring tt-train as a tt-metal subproject, building the `_ttml` Python bindings, then **rebuilding `ttnn`'s `_ttnn.so`** and wiring `ttml` onto your Python environment with a `.pth` file (there's no `tt-train/pyproject.toml`, so `pip install .` doesn't apply). That rebuild step is the fix for `import ttml` raising `std::bad_cast` — every pre-built tt-metal image, including TT-QuietBox 2's, ships an `_ttnn.so` built before `tt-train` was enabled, and the two binaries disagree about the shape of `ttnn`'s enum registry until you rebuild one against the other. The full recipe, with every gotcha hit during verification, lives in [`content/templates/llm-from-scratch/BUILD_TTML.md`](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/content/templates/llm-from-scratch/BUILD_TTML.md).
+
+**How long this takes:** with a warm ccache, this build takes about 5 minutes. If this is your first-ever `tt-metal` build — no ccache yet — budget far longer; see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) before you start the clock.
 
 Verify it worked:
 

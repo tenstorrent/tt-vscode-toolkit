@@ -44,6 +44,23 @@ This is a **conceptual tour**, not a build. If you want to write every one of th
 
 ---
 
+## Where This Fits in the Track
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style G fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+---
+
 ## The Shape of a Transformer
 
 Text goes in, a token comes out, and in between the same block repeats `num_blocks` times:

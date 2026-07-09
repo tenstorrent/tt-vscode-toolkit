@@ -42,6 +42,21 @@ Learn to create and validate training datasets for fine-tuning AI models. This i
 
 **Time:** 15 minutes | **Prerequisites:** [Understanding Custom Training](command:tenstorrent.showLesson?["ct1-understanding-training"])
 
+**Where this fits in the track:**
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style B fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
 **A quick note on scope before you start:** this lesson teaches dataset curation the way most of the fine-tuning world does it — JSONL prompt/response pairs, validated and versioned. That skill transfers everywhere. But the trainer this track actually runs, `train_nanogpt.py` (`ttml`/tt-train's Python entry point, see [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])), doesn't take JSONL directly — it takes a plain-text corpus. The "How Your Data Reaches tt-train" section below closes that gap honestly, with a real script to get from one to the other.
 
 ---

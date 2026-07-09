@@ -45,6 +45,23 @@ So what follows is the **documented `tt-train` pattern** for real multi-chip har
 
 ---
 
+## Where This Fits in the Track
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style E fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+---
+
 ## Why Multi-Device Training?
 
 ### Single Device (n150, p150, p300c) — No DDP Here

@@ -44,6 +44,23 @@ You've been running real `tt-train` jobs since [Fine-tuning Basics](command:tens
 
 ---
 
+## Where This Fits in the Track
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style F fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+---
+
 ## Why Track Experiments?
 
 Run a handful of training jobs with different hyperparameters and a familiar problem shows up fast:

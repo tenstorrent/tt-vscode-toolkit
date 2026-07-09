@@ -45,6 +45,27 @@ This lesson lays the groundwork before you touch a dataset or a training loop: w
 
 ---
 
+## The Track at a Glance
+
+This track runs in a fixed order: six lessons that each build on the last, plus two deeper lessons on model architecture that build on those six.
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style A fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+You're at the start — **Understand**. Everything else in this diagram is a lesson later in the walkthrough, in the order it's meant to be read.
+
+---
+
 ## Custom Training vs. Inference
 
 ### Inference (what you've done so far)

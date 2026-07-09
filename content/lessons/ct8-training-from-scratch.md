@@ -48,6 +48,23 @@ Every number below — the loss curve, the wall-clock time, the generated text �
 
 ---
 
+## Where This Fits in the Track
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style H fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+---
+
 ## Set Up the Job
 
 Same `ttml` build every other lesson in this track uses. If you haven't built it, [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) covers the **Install tt-train** command and the `std::bad_cast` fix in full — this lesson assumes that's done.
@@ -96,6 +113,8 @@ python train_nanogpt.py \
   --fresh \
   --model_save_path ~/tt-metal/tt-train/checkpoints/ct8_nanollama3
 ```
+
+**Before committing to the full 3,000-step run:** sanity-check your setup with a much shorter smoke test — just swap `--max_steps 3000` for `--max_steps 20`. On this hardware that finishes in about 14 seconds, plenty to confirm the config loads, the data path resolves, and the device initializes. It still pays the one-time kernel-compile cost on step 1, same as the full run — a smoke test skips steps, not the compile tax.
 
 `--fresh` matters: it says "ignore any existing checkpoint at this path, start from random initialization." That's the entire meaning of "from scratch" — everything else in this command is the same job-launching mechanic [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) already used.
 

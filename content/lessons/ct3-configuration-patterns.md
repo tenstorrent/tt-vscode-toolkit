@@ -47,6 +47,23 @@ This lesson grounds you in the **real** config files that ship in `tt-metal/tt-t
 
 ---
 
+## Where This Fits in the Track
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style C fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+---
+
 ## Why Configuration-Driven Training?
 
 **Don't hardcode values. Use config files.**
@@ -419,6 +436,8 @@ python train_nanogpt.py \
 The real overridable flags are `--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, and `--model_save_path`. **There is no `--learning_rate` flag** — to change `lr`, edit `optimizer.lr` in the training config YAML itself, or point `--config` at a different file. This matters because it's easy to assume every training-config field has a matching CLI override; only the seven listed above do.
 
 If you'd rather not touch Python at all, the same YAML files also drive a native C++ binary (`nano_gpt`, built by `build_metal.sh` alongside everything else) with its own `--config`/`-c` flag — same config format, same two-file split, no `ttml` Python bindings required.
+
+**A word on timing before you actually run one of these:** the first time any of these ops execute on your hardware, TT-Metalium compiles the kernels they need — a one-time pause of anywhere from a few seconds up to around twenty seconds, depending on the model config. Every step after that runs at steady-state speed, which is orders of magnitude faster. [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) captures this concretely: about 7.5 seconds on step 1, then ~74 ms/step for the rest of a 3,000-step run. Don't judge a config's speed — or benchmark anything — off step 1.
 
 ---
 
