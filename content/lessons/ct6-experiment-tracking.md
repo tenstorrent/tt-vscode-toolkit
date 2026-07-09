@@ -31,447 +31,277 @@ estimatedMinutes: 15
 
 # Experiment Tracking
 
-Learn to track, compare, and visualize training experiments using file-based logging and optional WandB integration.
+You've been running real `tt-train` jobs since [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) — each one printing a wall of `Step: N, Loss: X` lines to your terminal and then scrolling out of view. This lesson is about not losing that signal: capturing it to a file, plotting it, comparing it across runs, and — if you want a dashboard instead of a CSV — bridging it to Weights & Biases.
 
 ## What You'll Learn
 
-- File-based experiment tracking (baseline)
-- Weights & Biases (WandB) integration
-- Comparing hyperparameter variations
-- Visualizing training curves
-- Best practices for experiment management
+- What `train_nanogpt.py` actually prints, and how to capture it to a file
+- Turning captured logs into a loss-curve plot
+- Comparing hyperparameter runs (and which knobs you can actually vary from the CLI)
+- Wiring your own runs up to Weights & Biases — honestly, given what `tt-train` does and doesn't do natively
+- Naming, organizing, and not losing track of your checkpoints
 
-**Time:** 10-15 minutes | **Prerequisites:** CT-4 (Fine-tuning Basics)
+**Time:** 10-15 minutes | **Prerequisites:** [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) (produces the runs you'll track) and [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) (the YAML this lesson's comparisons build on)
 
 ---
 
 ## Why Track Experiments?
 
-### The Problem
-
-You run 10 training experiments with different hyperparameters:
+Run a handful of training jobs with different hyperparameters and a familiar problem shows up fast:
 
 ```
-Which batch size worked best?
-Which learning rate converged fastest?
-Did that checkpoint from Tuesday outperform today's?
+Which batch size actually finished with the lower loss?
+Did the run from this morning beat yesterday's?
+What config produced that checkpoint sitting in ~/tt-metal/tt-train/checkpoints?
 ```
 
-**Without tracking:** Scroll through terminal logs, compare files manually, rely on memory.
+**Without tracking:** scroll back through terminal history, or don't — and just guess.
 
-**With tracking:** Compare all runs at a glance, see visualizations, make data-driven decisions.
+**With tracking:** every run's loss curve, config, and checkpoint path lives somewhere you can compare at a glance.
 
 ---
 
-## Approach 1: File-Based Tracking (Baseline)
+## What `tt-train` Actually Gives You
 
-### What's Already Tracked
+Before building anything, it's worth being precise about what `train_nanogpt.py` does on its own, because it's less than you might expect:
 
-The `train.py` script automatically logs:
+- **Per-step stdout, nothing more.** There's no `training.log`, no `validation.txt`, no auto-generated plot. Everything the trainer produces during a run, it prints to your terminal.
+- **Checkpoints, on a schedule you control.** Pass `--model_save_path`, and the trainer writes a `.pkl` checkpoint every `model_save_interval` steps (set in the training config's YAML) — see [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) for how that field works.
+- **No wandb calls in the code path you're running.** More on this below — it matters for what "tracking" honestly means here.
 
-**1. Training log:**
-```
-output/training.log
-```
-
-Contains:
-- Hyperparameters
-- Loss per step
-- Validation results
-- Checkpoint saves
-- Errors/warnings
-
-**2. Validation samples:**
-```
-output/validation.txt
-```
-
-Contains:
-- Generated responses at each validation step
-- Qualitative improvement over time
-
-**3. Training curves:**
-```
-output/training_curves.png
-```
-
-Visualizes:
-- Training loss over time
-- Validation loss over time
-
-### Organizing Experiments
-
-**Bad (hard to track):**
-```
-output/
-  final_model/
-  training.log
-```
-
-**Good (organized by date/name):**
-```
-experiments/
-  2026-02-01_baseline/
-    config.yaml
-    training.log
-    validation.txt
-    training_curves.png
-    final_model/
-
-  2026-02-01_higher_lr/
-    config.yaml
-    training.log
-    validation.txt
-    training_curves.png
-    final_model/
-```
-
-### Manual Comparison Script
-
-Create `compare_experiments.sh`:
-
-```bash
-#!/bin/bash
-
-echo "Experiment Comparison"
-echo "===================="
-
-for exp in experiments/*/; do
-  echo ""
-  echo "Experiment: $(basename $exp)"
-
-  # Extract final loss
-  final_loss=$(tail -5 "$exp/training.log" | grep "Final training loss" | awk '{print $NF}')
-  echo "  Final Loss: $final_loss"
-
-  # Extract config values
-  lr=$(grep "learning_rate:" "$exp/config.yaml" | awk '{print $2}')
-  batch=$(grep "batch_size:" "$exp/config.yaml" | awk '{print $2}')
-  echo "  LR: $lr, Batch: $batch"
-done
-```
-
-**Run:**
-```bash
-chmod +x compare_experiments.sh
-./compare_experiments.sh
-```
-
-**Output:**
-```
-Experiment Comparison
-====================
-
-Experiment: 2026-02-01_baseline
-  Final Loss: 1.84
-  LR: 0.0001, Batch: 8
-
-Experiment: 2026-02-01_higher_lr
-  Final Loss: 1.92
-  LR: 0.0002, Batch: 8
-```
+So the object you're building in this lesson is exactly one thing: **capture the stdout stream, and everything else (files, curves, dashboards) is something you construct from it.**
 
 ---
 
-## Approach 2: WandB Integration (Recommended)
+## Approach 1: File-Based Tracking (the real baseline)
 
-### What is Weights & Biases?
+### The real print statement
 
-**WandB** is a cloud-based experiment tracking platform:
-
-- 📊 Real-time loss curves
-- 🔍 Compare runs side-by-side
-- 📝 Automatic hyperparameter logging
-- 🖼️ Log sample outputs
-- 👥 Share with team
-- 🆓 Free tier available
-
-**Website:** [wandb.ai](https://wandb.ai)
-
-### Setup (One-Time)
-
-**1. Create account:**
-```bash
-# Visit wandb.ai and sign up (free)
-```
-
-**2. Install WandB:**
-```bash
-pip install wandb
-```
-
-**3. Login:**
-```bash
-wandb login
-```
-
-Paste your API key when prompted.
-
-**4. Enable in config:**
-```yaml
-# configs/training_n150_wandb.yaml
-training_config:
-  # ... other settings ...
-
-  use_wandb: true                  # Enable WandB
-  wandb_project: "my-training-project"
-  wandb_run_name: "n150-baseline"
-```
-
-### Running with WandB
-
-```bash
-cd ~/tt-scratchpad/training
-python train.py --config configs/training_n150_wandb.yaml
-```
-
-**What gets logged:**
-- Loss (training and validation)
-- Learning rate (if using scheduler)
-- Hyperparameters (from config)
-- Generated samples (validation text)
-- System metrics (GPU usage, memory)
-- Model checkpoints (optional)
-
-### WandB Dashboard
-
-After training starts, you'll see:
-
-```
-wandb: 🚀 View run at https://wandb.ai/your-username/my-training-project/runs/abc123
-```
-
-**Dashboard shows:**
-
-1. **Overview tab:**
-   - Run summary (final loss, duration)
-   - Hyperparameters
-   - System info
-
-2. **Charts tab:**
-   - Real-time loss curves
-   - Custom plots
-   - Compare with other runs
-
-3. **Logs tab:**
-   - Generated text samples
-   - Validation outputs
-
-4. **Files tab:**
-   - Config files
-   - Saved artifacts
-
----
-
-## Comparing Experiments
-
-### Scenario: Finding Best Learning Rate
-
-You want to try 3 learning rates: 5e-5, 1e-4, 2e-4
-
-**1. Run three experiments:**
-
-```bash
-# Experiment 1: LR = 5e-5
-python train.py \
-  --config configs/training_n150_lr_5e5.yaml
-
-# Experiment 2: LR = 1e-4
-python train.py \
-  --config configs/training_n150_lr_1e4.yaml
-
-# Experiment 3: LR = 2e-4
-python train.py \
-  --config configs/training_n150_lr_2e4.yaml
-```
-
-**2. Compare in WandB:**
-
-Go to your project page, click "Compare runs":
-- Select all 3 runs
-- View overlaid loss curves
-- Check final validation loss
-- See sample outputs side-by-side
-
-**3. Identify best:**
-
-```
-Run 1 (5e-5):  Final val loss: 2.34  (too slow)
-Run 2 (1e-4):  Final val loss: 2.12  (best!)
-Run 3 (2e-4):  Final val loss: 2.28  (too aggressive)
-```
-
-**Conclusion:** LR = 1e-4 is optimal.
-
----
-
-## Advanced WandB Features
-
-### 1. Logging Custom Metrics
-
-Add to your training script:
+This is the actual line `train_nanogpt.py` emits per optimizer step (quoted verbatim from the trainer):
 
 ```python
-import wandb
-
-# After optimizer step
-wandb.log({
-    "train_loss": avg_loss,
-    "learning_rate": current_lr,
-    "gradient_norm": grad_norm,
-    "step": opt_step
-})
-
-# After validation
-wandb.log({
-    "val_loss": val_loss,
-    "sample_output": generated_text,
-    "step": opt_step
-})
-```
-
-### 2. Hyperparameter Sweeps
-
-Automate hyperparameter search:
-
-```yaml
-# sweep.yaml
-program: train.py
-method: grid
-parameters:
-  learning_rate:
-    values: [5e-5, 1e-4, 2e-4]
-  batch_size:
-    values: [8, 16]
-```
-
-**Run sweep:**
-```bash
-wandb sweep sweep.yaml
-wandb agent your-username/my-training-project/sweep-id
-```
-
-WandB automatically runs all combinations!
-
-### 3. Model Artifacts
-
-Save checkpoints to WandB:
-
-```python
-import wandb
-
-# After saving checkpoint
-artifact = wandb.Artifact('trained-model', type='model')
-artifact.add_dir('output/final_model')
-wandb.log_artifact(artifact)
-```
-
-**Benefits:**
-- Checkpoint versioning
-- Easy download from any machine
-- Link models to experiments
-
-### 4. Group Experiments
-
-Organize related runs:
-
-```python
-wandb.init(
-    project="my-training-project",
-    group="lr-search",              # Group related experiments
-    tags=["n150", "baseline"],      # Add tags for filtering
+print(
+    f"Step: {global_step}, Loss: {avg_loss:.6f}, Time: {step_time:.2f} ms, "
+    f"TPS: {tps:.0f}, TFLOPS: {achieved_tflops:.2f}{mfu_str}"
 )
 ```
 
----
+`TPS` (tokens/sec) and `TFLOPS` always print once the trainer can compute them; `MFU` (model FLOPs utilization) only appears for architectures where per-token FLOPs are known — Llama-family configs get it, some others don't. If FLOPs-per-token isn't available for a model, the trainer falls back to a shorter line with just `Step`, `Loss`, `Time`, and `TPS`.
 
-## Best Practices for Experiment Management
-
-### 1. Naming Convention
-
-**Use descriptive names:**
+Here's a line reconstructed from a real run, [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])'s captured 20-step training loop of a 9.81M-parameter Llama-style model on a Blackhole<sup>®</sup> p300c against tt-metal v0.73 (`config: training_shakespeare_nanollama3_char.yaml`, `batch_size: 64`, `max_sequence_length: 256`):
 
 ```
-Good:  "2026-02-01_n150_lr1e4_batch8_baseline"
-Bad:   "experiment_1"
+Step: 20, Loss: 3.234400, Time: 65.00 ms, TPS: 252061, TFLOPS: 16.50, MFU: 11.2%
 ```
 
-**Include key info:**
-- Date
-- Hardware (n150, n300)
-- Key hyperparameters
-- Purpose (baseline, ablation, etc.)
+*(Time/TPS/TFLOPS/MFU here are reconstructed from that lesson's reported "~65 ms/step, ~16.5 TFLOPS, ~11% MFU" plus its real `batch_size × sequence_length`, formatted to match the trainer's actual print pattern — the Loss values below are the exact ones it captured.)*
 
-### 2. Version Control Configs
+The full loss trajectory from that run:
+
+| Step | Loss |
+|---|---|
+| 1 | 4.6875 |
+| 5 | 3.5600 |
+| 10 | 3.3750 |
+| 20 | 3.2344 |
+
+Monotonically down, over 20 steps, on real hardware. Step 1 took 12.3 seconds — one-time kernel compile, not a slow training step — and every step after ran in ~65 ms. That's the shape of signal this lesson is about capturing and comparing.
+
+### Capture it
+
+Redirect stdout with `tee` so you see the run live *and* keep a copy:
 
 ```bash
-# Save configs alongside code
-git add configs/training_n150_lr1e4.yaml
-git commit -m "Add config for LR=1e-4 experiment"
-git tag exp-lr1e4
+cd ~/tt-metal/tt-train/sources/examples/nano_gpt
+
+mkdir -p ~/tt-scratchpad/runs
+python train_nanogpt.py \
+  --config training_shakespeare_nanollama3_char.yaml \
+  --max_steps 500 \
+  --model_save_path ~/tt-metal/tt-train/checkpoints/tracking_baseline \
+  2>&1 | tee ~/tt-scratchpad/runs/2026-07-09_baseline.log
 ```
 
-**Why:** Reproducibility - know exactly what config produced results.
-
-### 3. Document Results
-
-Create `experiments.md`:
-
-```markdown
-# Custom Training Experiments
-
-## Experiment 1: Baseline (2026-02-01)
-- **Config:** training_n150.yaml
-- **Hardware:** n150
-- **Duration:** 2.3 hours
-- **Final Loss:** 1.84 (train), 2.12 (val)
-- **Result:** Good baseline, will try higher LR next
-- **WandB:** [link](https://wandb.ai/...)
-
-## Experiment 2: Higher LR (2026-02-01)
-- **Config:** training_n150_lr2e4.yaml
-- **Hardware:** n150
-- **Duration:** 2.1 hours
-- **Final Loss:** 1.92 (train), 2.28 (val)
-- **Result:** Slightly worse, LR=1e-4 is better
-- **WandB:** [link](https://wandb.ai/...)
-```
-
-### 4. Archive Failed Experiments
-
-Don't delete failures - they teach you what doesn't work!
+### Organize by run, not by output directory
 
 ```
-experiments/
-  successful/
-    2026-02-01_baseline/
-  failed/
-    2026-01-30_lr_too_high/       # Exploded at step 50
-    2026-01-31_batch_too_large/   # OOM error
+~/tt-scratchpad/runs/
+  2026-07-09_baseline.log
+  2026-07-09_baseline.yaml          # copy of the training config used
+  2026-07-09_batch32.log
+  2026-07-09_batch32.yaml
 ```
 
-### 5. Regular Cleanup
+Copy the config alongside its log — `tt-train` doesn't do this for you, and a log file without its config is much less useful six weeks from now.
 
-Keep last 5 checkpoints, archive older:
+### Parse the log into a loss curve
+
+A small, dependency-light script that pulls `Step`/`Loss`/`TPS`/`TFLOPS` out of any captured log and plots it:
+
+```python
+#!/usr/bin/env python3
+"""plot_run.py — parse train_nanogpt.py stdout and plot the loss curve.
+
+Usage: python plot_run.py run1.log [run2.log ...]
+"""
+import re
+import sys
+import matplotlib.pyplot as plt
+
+LINE_RE = re.compile(
+    r"Step:\s*(\d+),\s*Loss:\s*([\d.]+),\s*Time:\s*([\d.]+)\s*ms"
+    r"(?:,\s*TPS:\s*([\d.]+))?(?:,\s*TFLOPS:\s*([\d.]+))?(?:,\s*MFU:\s*([\d.]+)%)?"
+)
+
+def parse_log(path):
+    steps, losses = [], []
+    with open(path) as f:
+        for line in f:
+            m = LINE_RE.search(line)
+            if m:
+                steps.append(int(m.group(1)))
+                losses.append(float(m.group(2)))
+    return steps, losses
+
+if __name__ == "__main__":
+    for path in sys.argv[1:]:
+        steps, losses = parse_log(path)
+        if not steps:
+            print(f"warning: no Step/Loss lines found in {path}")
+            continue
+        plt.plot(steps, losses, label=path.split("/")[-1])
+        print(f"{path}: {len(steps)} steps, final loss {losses[-1]:.4f}")
+
+    plt.xlabel("Step")
+    plt.ylabel("Loss")
+    plt.title("tt-train loss curve(s)")
+    plt.legend()
+    plt.savefig("loss_curve.png")
+    print("Saved loss_curve.png")
+```
+
+Run it against one or several logs — passing multiple files overlays them on the same axes, which is exactly what you want for the comparisons below.
 
 ```bash
-# Keep only step 400, 500 checkpoints
-rm -rf output/checkpoint_step_100
-rm -rf output/checkpoint_step_200
-rm -rf output/checkpoint_step_300
-
-# Or archive to S3/NAS
-tar -czf checkpoints_baseline.tar.gz output/
-mv checkpoints_baseline.tar.gz /archive/
+python plot_run.py ~/tt-scratchpad/runs/2026-07-09_baseline.log
 ```
 
 ---
 
-## Visualization Tips
+## Comparing Hyperparameter Runs
 
-### Loss Curve Analysis
+[Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) established which fields `train_nanogpt.py` actually lets you override from the command line: `--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, `--model_save_path`. **Learning rate is not one of them** — `lr` only lives in the training config YAML's `optimizer:` block.
 
-**Healthy training:**
+That split determines how you run a comparison:
+
+### Batch size — a CLI flag away
+
+```bash
+python train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml \
+  --batch_size 32 --max_steps 200 \
+  2>&1 | tee ~/tt-scratchpad/runs/batch32.log
+
+python train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml \
+  --batch_size 64 --max_steps 200 \
+  2>&1 | tee ~/tt-scratchpad/runs/batch64.log
+
+python plot_run.py ~/tt-scratchpad/runs/batch32.log ~/tt-scratchpad/runs/batch64.log
+```
+
+Two log files, one plot, one command each — no config edits needed.
+
+### Learning rate — needs a second config file
+
+Since `lr` can't be overridden on the command line, comparing learning rates means copying the training config and editing `optimizer.lr` in the copy, the same pattern [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) walks through for the model/training config split:
+
+```bash
+cp ~/tt-metal/tt-train/configs/training_configs/training_shakespeare_nanollama3_char.yaml \
+   ~/tt-scratchpad/runs/lr_1e-4.yaml
+# edit optimizer.lr: 0.0001 in the copy
+
+python train_nanogpt.py --config ~/tt-scratchpad/runs/lr_1e-4.yaml --max_steps 200 \
+  2>&1 | tee ~/tt-scratchpad/runs/lr_1e-4.log
+```
+
+Run the same for a second `lr` value, then feed both logs to `plot_run.py` to see which one drops faster.
+
+### Reading what comes out
+
+Once you've got two or more logs, the comparison is just: lower final loss, at the same step count, wins — with an eye on `TPS`/`TFLOPS` too, since a run that's 2x slower per step needs a correspondingly larger win to be worth it.
+
+---
+
+## Approach 2: Weights & Biases — Honestly
+
+`tt-train`'s top-level README does describe wandb integration, and tells you how to opt *out* of it: pass `-w 0`, or run `wandb offline` beforehand. There's even a vendored `wandb-cpp` library in `tt-train/3rd_party/`.
+
+Here's the honest part: **that flag and that vendored library aren't wired into the trainer you're actually running.** Neither `train_nanogpt.py`'s argument parser nor its training loop calls into wandb anywhere — `-w` isn't a recognized flag on the Python trainer, and `project_name` in the training config is used only to name the checkpoint directory (as [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) found when it went looking for a wandb field in the YAML schema and came up empty). The README describes an integration point that exists in the repo's history and docs, not in this code path today.
+
+That doesn't make wandb pointless here — it means you build the bridge yourself, which is a dozen lines on top of the exact log you're already capturing:
+
+```python
+#!/usr/bin/env python3
+"""wandb_bridge.py — tail a train_nanogpt.py log and mirror it into wandb.
+
+Usage: python wandb_bridge.py run.log --project my-tt-train-project
+"""
+import argparse
+import re
+
+import wandb
+
+LINE_RE = re.compile(
+    r"Step:\s*(\d+),\s*Loss:\s*([\d.]+),\s*Time:\s*([\d.]+)\s*ms"
+    r"(?:,\s*TPS:\s*([\d.]+))?(?:,\s*TFLOPS:\s*([\d.]+))?(?:,\s*MFU:\s*([\d.]+)%)?"
+)
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("log_path")
+    ap.add_argument("--project", default="tt-train")
+    ap.add_argument("--offline", action="store_true", help="Log locally, no network")
+    args = ap.parse_args()
+
+    run = wandb.init(project=args.project, mode="offline" if args.offline else "online")
+    with open(args.log_path) as f:
+        for line in f:
+            m = LINE_RE.search(line)
+            if not m:
+                continue
+            step, loss, time_ms, tps, tflops, mfu = m.groups()
+            payload = {"loss": float(loss), "time_ms": float(time_ms)}
+            if tps:
+                payload["tps"] = float(tps)
+            if tflops:
+                payload["tflops"] = float(tflops)
+            if mfu:
+                payload["mfu_pct"] = float(mfu)
+            wandb.log(payload, step=int(step))
+    run.finish()
+
+if __name__ == "__main__":
+    main()
+```
+
+Run it against a completed log, or `tail -f` a live one into the same parser if you want it near-real-time. Either way, you get real wandb charts backed by real `tt-train` numbers — you just own the pipe between the two, instead of relying on a flag that isn't there.
+
+### Verified: wandb offline needs no network
+
+`wandb.init(mode="offline")` — the `--offline` flag above — writes run data to a local `wandb/` directory and never attempts a network call. This was confirmed directly: running the bridge script above with `mode="offline"` against a sample log completes immediately and prints `W&B syncing is set to offline in this directory`, with a local run folder left behind and no connection attempt. That's the same effect as `tt-train`'s README-documented `wandb offline` command (which also just writes a local `wandb/settings` file) — useful if you're on an air-gapped box, or just don't want an account yet:
+
+```bash
+python wandb_bridge.py ~/tt-scratchpad/runs/2026-07-09_baseline.log --offline
+```
+
+When you're ready to see it on wandb.ai, drop `--offline`, `wandb login` once, and re-run — or `wandb sync` the offline run directory it already wrote.
+
+---
+
+## Visualizing and Comparing Runs
+
+However you got the numbers — parsed log or wandb dashboard — the shapes to recognize are the same:
+
+**Healthy:**
 ```
 Loss
   4 |*
@@ -482,13 +312,10 @@ Loss
     |            -------
   1 |___________________
     0   100   200   300   400   500
-                Steps
 ```
-- Smooth decrease
-- Plateaus near end
-- Val tracks train
+Smooth decrease, plateauing near the end.
 
-**Overfitting:**
+**Overfitting (if you're holding out a validation split):**
 ```
 Loss
   4 |*
@@ -500,9 +327,7 @@ Loss
   1 |___________________
     0   100   200   300   400   500
 ```
-- Train continues down
-- Val starts increasing
-- **Fix:** Stop early, add data
+Train keeps dropping; val turns upward. Stop earlier, or get more data.
 
 **Underfitting:**
 ```
@@ -516,337 +341,68 @@ Loss
   1 |___________________
     0   100   200   300   400   500
 ```
-- Loss barely decreases
-- Still high at end
-- **Fix:** Increase LR, train longer
+Barely moving. Try a higher `lr`, more steps, or a larger model — [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) is where the "larger model" knobs actually live.
 
 ---
 
-## Experiment Workflow Template
+## Best Practices for Experiment Management
 
-**Phase 1: Baseline (1 run)**
+**Name runs so you can tell them apart later:**
 ```
-Goal: Get something working
-- Use default config
-- Verify training completes
-- Check sample outputs
+Good:  2026-07-09_p300c_lr1e-4_batch64_baseline.log
+Bad:   run3.log
 ```
+Date, hardware, the hyperparameter you varied, and why — in the filename, not just in your memory.
 
-**Phase 2: Hyperparameter Search (3-5 runs)**
-```
-Goal: Find optimal settings
-- Try 3 learning rates
-- Try 2 batch sizes
-- Keep other settings constant
-```
+**Keep the config next to the log.** A loss curve without the YAML that produced it is a curiosity, not a reproducible result.
 
-**Phase 3: Refinement (2-3 runs)**
-```
-Goal: Polish best config
-- Take best from Phase 2
-- Try minor variations
-- Longer training
+**Version-control configs you care about:**
+```bash
+git add training_shakespeare_nanollama3_char_lr1e-4.yaml
+git commit -m "Config for lr=1e-4 comparison run"
+git tag exp-lr1e-4
 ```
 
-**Phase 4: Validation (1 run)**
-```
-Goal: Final confirmation
-- Retrain with best config
-- Full evaluation
-- Document results
-```
+**Don't delete failed runs.** A log where loss diverged at step 40 is exactly the evidence you'll want when someone (including future you) asks "didn't we already try that lr?"
 
-**Total:** 7-10 experiments to find optimal settings.
-
----
-
-## Beyond This Lesson: From Ad-Hoc to Professional ML Engineering
-
-You've learned the tools for tracking experiments. But what transforms scattered training runs into systematic ML engineering? Let's explore how experiment tracking becomes the foundation for data-driven model development.
-
-### Real-World ML Engineering Stories
-
-**What professional teams have built with systematic tracking:**
-
-🚀 **"API Documentation Bot" (Solo dev → Team product)**
-- **Week 1 (File-based):** 5 training runs, notes in text files, hard to compare
-- **Week 2 (WandB):** Ran 50+ experiments, found LR=2e-4 outperformed 1e-4 by 15%
-- **Month 2:** Tracked 200+ runs across 3 developers, identified dataset quality > hyperparameters
-- **Impact:** From "guessing what works" → "knowing what works based on data"
-- **Result:** Model accuracy improved 40% through systematic experimentation
-
-💼 **"Medical Report Classifier" (Research → Clinical deployment)**
-- **Without tracking:** 20 experiments, relied on memory, couldn't reproduce best results
-- **With tracking:** Compared 100+ configurations, discovered batch_size=8 + dropout=0.3 optimal
-- **Production insight:** WandB comparison revealed validation loss plateau at epoch 12 (not 20!)
-- **Impact:** Reduced training time 40%, improved consistency across hospital deployments
-- **Cost savings:** $15k/month in compute by training smarter, not longer
-
-🎮 **"Game NPC Dialogue" (Indie studio, 2-person team)**
-- **Manual tracking phase:** Lost best model checkpoint, had to retrain for 8 hours
-- **WandB phase:** Automatic checkpoint linking, recovered any model in 30 seconds
-- **Team benefit:** Designer could view sample outputs without bothering ML engineer
-- **Impact:** Iteration speed 5x faster (1 experiment/day → 5 experiments/day)
-- **Shipping:** Reduced model development cycle from 6 weeks to 10 days
-
-🏥 **"Radiology Assistant" (Startup → FDA submission)**
-- **Challenge:** FDA requires complete training history documentation
-- **Solution:** WandB experiment logs provided full audit trail
-- **Evidence:** Showed 500+ experiments, systematic hyperparameter search, validation strategy
-- **Impact:** FDA approval accelerated by 3 months due to documentation quality
-- **Lesson:** Good tracking isn't just productivity - it's regulatory compliance
-
-### The Data-Driven ML Development Cycle
-
-**How tracking transforms your workflow:**
-
-```mermaid
-graph TD
-    A[Traditional Approach<br/>No Tracking] --> B[Try config]
-    B --> C[Wait for training]
-    C --> D[Check result]
-    D --> E[Forget what you tried]
-    E --> F[Try something random]
-    F --> B
-
-    G[Data-Driven Approach<br/>With Tracking] --> H[Form hypothesis]
-    H --> I[Design experiments]
-    I --> J[Run multiple configs]
-    J --> K[Compare results in WandB]
-    K --> L[Identify patterns]
-    L --> M[Make informed decision]
-    M --> N[Document findings]
-    N --> H
-
-    style A fill:#E85D75,stroke:#333,stroke-width:2px
-    style G fill:#50C878,stroke:#333,stroke-width:2px
-    style E fill:#FF6B6B,stroke:#333,stroke-width:2px
-    style L fill:#7B68EE,stroke:#333,stroke-width:3px
-```
-
-**The difference:**
-- **Without tracking:** Circular, random, driven by intuition
-- **With tracking:** Iterative, systematic, driven by evidence
-
-### What Systematic Tracking Reveals
-
-**Insights you miss without tracking:**
-
-🔍 **"The batch size doesn't matter... until it does"**
-- Experiment series: batch_size 4, 8, 16, 32, 64
-- Discovery: Performance identical for 4-16, then drops at 32+
-- Learning: Larger batches need LR adjustment (not obvious without comparison!)
-- Saved: Weeks of chasing the wrong optimization
-
-📊 **"Our validation set was too easy"**
-- Tracked 50 experiments, all showed val_loss < train_loss
-- WandB comparison revealed: Model memorizing validation patterns
-- Fix: Rotated validation set every 10 experiments
-- Result: Found models that actually generalize
-
-⏱️ **"We were overtraining by 300%"**
-- Loss curves showed: Model converges at step 5000, not 15000
-- Impact: Reduced training from 3 hours → 1 hour with same quality
-- Savings: 10× more experiments in same time budget
-- ROI: Found better config in 1 week that took 2 months without tracking
-
-💡 **"Dataset quality beats hyperparameter tuning"**
-- 100 experiments varying LR, batch size, optimizer
-- Best improvement: 3% accuracy gain
-- Then: Cleaned dataset (removed duplicates, fixed labels)
-- Result: 25% accuracy gain with baseline hyperparameters
-- Lesson: Track everything, find the real bottleneck
-
-### From Experiments to Insights: The Tracking Hierarchy
-
-**Level 1: Survival (File logs)**
-- Can reproduce results if you remember the config
-- Time to compare runs: 30+ minutes (manual)
-- **Suitable for:** Solo prototyping, 1-5 experiments total
-
-**Level 2: Efficiency (Organized files)**
-- Consistent naming, structured directories
-- Time to compare runs: 10 minutes (scripted)
-- **Suitable for:** Small projects, 10-20 experiments
-
-**Level 3: Professional (WandB basic)**
-- Automatic logging, web dashboard, side-by-side comparison
-- Time to compare runs: 30 seconds (click and view)
-- **Suitable for:** Serious projects, 50+ experiments
-
-**Level 4: Team-Scale (WandB advanced)**
-- Shared projects, sweeps, artifact versioning, team collaboration
-- Time to compare runs: Instant (live updates)
-- **Suitable for:** Production systems, 200+ experiments, multiple developers
-
-**Level 5: Production (WandB + CI/CD)**
-- Automated experiment triggers, model registry, deployment tracking
-- Time to compare runs: Always available (historical data)
-- **Suitable for:** ML platforms, thousands of experiments, continuous improvement
-
-### The Compound Interest of Good Tracking
-
-**Month 1:**
-- 20 experiments tracked
-- Found best LR (1e-4 vs 2e-4 comparison)
-- Saved 2 hours by not re-running duplicates
-- **Value:** Nice to have
-
-**Month 3:**
-- 150 experiments tracked
-- Identified optimal batch size, warmup schedule, regularization
-- Shared configs with teammates (reproducibility)
-- Automated hyperparameter sweeps
-- **Value:** Significant productivity boost
-
-**Month 6:**
-- 500+ experiments tracked
-- Comprehensive understanding of model behavior across conditions
-- Documentation for production deployment
-- Historical data prevents repeating mistakes
-- New team members onboard 5× faster (review past experiments)
-- **Value:** Institutional knowledge, competitive advantage
-
-**Year 1:**
-- Thousands of experiments
-- Model performance improved 60% through systematic iteration
-- Can answer "Why did we make this decision?" for any model version
-- Identified patterns that led to novel architecture improvements
-- **Value:** Research insights, publishable findings, product differentiation
-
-### Your Experiment Tracking Journey
-
-**This week (File-based tracking):**
-- Organize experiments with consistent naming
-- Create `experiments.md` to document findings
-- Compare 3-5 runs manually
-- **Goal:** Build discipline, understand what to track
-
-**Next week (WandB setup):**
-- Create free WandB account
-- Integrate logging into training script
-- Run 10 experiments, compare in dashboard
-- **Goal:** Experience speed of visual comparison
-
-**Month 2 (Professional workflow):**
-- Use WandB for all experiments
-- Document hypotheses before running
-- Share dashboards with collaborators
-- **Goal:** Data-driven decision making
-
-**Production (Systematic ML engineering):**
-- Experiment tracking integrated into workflow
-- Hyperparameter sweeps automated
-- Model registry for deployment
-- **Goal:** Continuous improvement based on evidence
-
-### The Questions Tracking Answers
-
-**Without tracking, you wonder:**
-- "Which config gave the best validation loss?"
-- "Did I already try learning_rate=2e-4?"
-- "What was different between Tuesday's model and today's?"
-- "Why is this model worse than last week's?"
-
-**With tracking, you know:**
-- ✅ Best config: Run #47 (2026-02-03, LR=1.5e-4, batch=16, dropout=0.2)
-- ✅ Already tried: Yes, runs #12, #23, #34 (all converged to val_loss ~1.8)
-- ✅ Difference: Tuesday used warmup_steps=500, today uses 1000 (10% better!)
-- ✅ Regression: New model uses dataset v2 which has labeling errors
-
-**The transformation:**
-- From "I think this works better" → "This works 15% better based on 20 experiments"
-- From "Let me try random things" → "Let me test this hypothesis systematically"
-- From "I lost the best model" → "Downloaded checkpoint from WandB in 30 seconds"
-
-### Imagine: Your ML Engineering Future
-
-**You now understand:**
-- ✅ File-based tracking for quick projects
-- ✅ WandB for professional workflows
-- ✅ Hyperparameter comparison strategies
-- ✅ Experiment organization best practices
-
-**What will you build with systematic tracking?**
-
-- 📈 **Data-driven models** - Every decision backed by evidence
-- 🔬 **Reproducible research** - Anyone can verify your results
-- 👥 **Team collaboration** - Share insights across developers
-- 🚀 **Faster iteration** - Compare 50 runs in seconds, not hours
-- 📚 **Institutional knowledge** - Never lose insights from past experiments
-
-**The question isn't "Should I track experiments?"**
-
-**The question is "How many breakthroughs am I missing without tracking?"**
+**Clean up checkpoints deliberately, not accidentally.** `model_save_interval` in the training config controls how often `.pkl` files land on disk — for a long run that's a lot of checkpoints. Keep the final one and a couple of milestones; archive or delete the rest once you've confirmed the run's outcome.
 
 ---
 
 ## Key Takeaways
 
-✅ **File-based tracking works for simple cases**
+✅ **`train_nanogpt.py` gives you stdout and checkpoints — nothing else is automatic.** Files, curves, and dashboards are things you build on top of the print statement above.
 
-✅ **WandB scales to many experiments effortlessly**
+✅ **Capture with `tee`, parse with a small regex, plot with matplotlib.** That's the whole file-based baseline, and it's the one guaranteed to work.
 
-✅ **Compare runs side-by-side to make informed decisions**
+✅ **Seven fields are CLI-overridable; `lr` isn't.** Comparing batch size is a flag; comparing learning rate means a second config file.
 
-✅ **Use consistent naming and documentation**
+✅ **wandb's `-w 0`/`wandb offline` opt-out is documented but the integration it opts out of isn't wired into the trainer you're running.** Bridge it yourself by parsing the same log — including in `--offline` mode, verified to need no network.
 
-✅ **Don't delete failed experiments - learn from them**
-
-✅ **Version control your configs**
+✅ **Name runs, keep configs with logs, don't delete failures.**
 
 ---
 
 ## Next Steps
 
-You've completed the core Custom Training lessons (CT-1 through CT-6)!
+You've covered the full loop: configure ([Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"])), run ([Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]), [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])), and now track.
 
-**Optional Advanced Lessons:**
+**Next: [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"])** — once you're comparing runs and asking "would a bigger model help here?", this is where you learn what's actually inside the `transformer_config:` block you've been editing: attention heads, embedding dimensions, block counts, and the trade-offs behind each.
 
-**Lesson CT-7: Model Architecture Basics**
-
-Understand transformer components before training from scratch:
-- Tokenization
-- Embeddings
-- Attention mechanisms
-- Feed-forward layers
-
-**Lesson CT-8: Training from Scratch**
-
-Build a tiny model (10-20M parameters) from ground up:
-- Design architecture
-- Initialize weights
-- Train on tiny-shakespeare
-- Compare to fine-tuning
-
-**Or apply your knowledge:**
-
-1. Create your own dataset for a specific task
-2. Fine-tune for your use case
-3. Deploy with vLLM (Lesson 7)
-4. Share your results with the community!
+**Or go all the way down:** if you'd rather see the loss curve you just plotted come from a training loop you wrote yourself — cross-entropy, backprop, `AdamW`, no framework hiding the mechanics — [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) is the from-scratch counterpart to this whole lesson: the exact captured run quoted above, built line by line.
 
 ---
 
 ## Additional Resources
 
-### WandB
-- [WandB Quickstart](https://docs.wandb.ai/quickstart) - Official docs
-- [WandB Examples](https://github.com/wandb/examples) - Integration examples
-- [WandB Sweeps](https://docs.wandb.ai/guides/sweeps) - Hyperparameter optimization
+### Weights & Biases
+- [WandB Quickstart](https://docs.wandb.ai/quickstart) — official docs
+- [WandB Offline Mode](https://docs.wandb.ai/guides/technical-faq/setup/#can-i-run-wandb-offline) — the mode used in this lesson's bridge script
 
-### Experiment Management
-- [ML Experiment Tracking Best Practices](https://neptune.ai/blog/ml-experiment-tracking) - Industry guide
-- [DVC](https://dvc.org/) - Alternative (local-first) experiment tracking
+### The real source
+- `tt-train/sources/examples/nano_gpt/train_nanogpt.py` — the trainer this lesson's log format comes from, verbatim
+- `tt-train/README.md` — documents the `-w 0`/`wandb offline` opt-out this lesson cross-checked against the actual code
 
 ### Visualization
-- [Matplotlib tutorials](https://matplotlib.org/stable/tutorials/index.html) - Custom plots
-- [Seaborn](https://seaborn.pydata.org/) - Statistical visualizations
-
----
-
-**Congratulations on completing the core Custom Training series!** 🎉
-
-You now have the tools to fine-tune models, scale to multiple devices, and track experiments professionally.
-
-Continue to **Lesson CT-7: Model Architecture Basics** for deep understanding, or start building your own custom models!
+- [Matplotlib tutorials](https://matplotlib.org/stable/tutorials/index.html) — the plotting library used above
+- [DVC](https://dvc.org/) — a heavier-weight, local-first alternative if file-based tracking outgrows a directory of logs
