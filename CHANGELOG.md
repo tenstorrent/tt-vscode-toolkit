@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.5] - 2026-07-09
+### Changed
+- **Unblocked `ct1`–`ct8` Custom Training lessons** — flipped `status` from `blocked` to `draft` across all 8 lessons; the old `blockReason` ("ttml isn't available as a package") is false as of the `ttml`-on-Blackhole-p300c build verification (2026-07-08, tt-metal v0.73) documented in `content/templates/llm-from-scratch/BUILD_TTML.md`. Replaced each `blockReason` with a `note` pointing at the verified build recipe; `ct4`/`ct8` will move to `validated` once their hardware-run tasks land. Lesson bodies are unchanged — re-authoring is tracked separately.
+- **`installTtTrain` command rebuilt to match the verified recipe** — the old handler ran `pip install -e .` in `tt-train`, which always failed (`tt-train` has no `pyproject.toml`; it's a tt-metal cmake subproject, not a pip package). It now: configures the tt-train subproject, builds the `_ttml` bindings, **rebuilds `ttnn/_ttnn.so` and copies it over the prebuilt one** (fixes the nanobind ABI `std::bad_cast` on `import ttml` that hits every prebuilt tt-metal image, including TT-QuietBox 2), and wires `ttml` onto the active venv via a `.pth` file — setting `TT_METAL_RUNTIME_ROOT`, `TT_METAL_ARCH_NAME` (honors a user-supplied value, defaults `wormhole_b0`), and `CMAKE_POLICY_VERSION_MINIMUM` along the way. Also now checks for a `$TT_METAL_HOME`/`~/tt-metal` source tree up front and offers to open the Build TT-Metalium lesson if it's missing, since TT-QuietBox 2 images don't ship one.
+
 ## [0.1.4] - 2026-07-08
 ### Added
 - **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00` through `lfs-05`, category `llm-from-scratch`) that build a small, modern Llama-3-style language model — RoPE, RMSNorm, SwiGLU, grouped-query attention (GQA) — from scratch, TT-native from the first line of code, with every "coming from CUDA" concept grounded for CUDA programmers throughout:

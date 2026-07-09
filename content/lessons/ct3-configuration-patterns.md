@@ -18,11 +18,12 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: blocked
-blockReason: >-
-  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
-  Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
+status: draft
+note: >-
+  ttml (tt-train) builds and trains from source on Blackhole p300c as of
+  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  "Install tt-train" command for the verified recipe. This lesson is being
+  re-authored around that verified workflow.
 validatedOn:
   - n150
 estimatedMinutes: 15

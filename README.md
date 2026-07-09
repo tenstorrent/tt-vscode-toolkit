@@ -408,17 +408,18 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.2 (2026-07-08)
+### Latest Release: v0.1.5 (2026-07-09)
+
+**Highlights:**
+- 🔓 **Custom Training (`ct1`–`ct8`) lessons unblocked** — the old `blocked` status/reason ("ttml isn't available as a package") is retired now that `ttml` is verified building and training on Blackhole<sup>®</sup> p300c; all 8 lessons flip to `draft` while their bodies are re-authored
+- 🛠️ **`installTtTrain` rebuilt to match the verified build recipe** — configures the tt-train subproject, builds the `_ttml` bindings, rebuilds `ttnn/_ttnn.so` (fixes the `std::bad_cast` nanobind ABI mismatch that hits every prebuilt tt-metal image, including TT-QuietBox 2), and wires `ttml` onto the active venv
+
+### Previous Release: v0.1.4 (2026-07-08)
 
 **Highlights:**
 - 🧠 **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00`–`lfs-05`) building a small, modern Llama-3-style model (RoPE, RMSNorm, SwiGLU, grouped-query attention) from scratch, TT-native from line one, with TT-Lang inception kernels (no CUDA/Triton conversion) and CUDA-programmer grounding throughout
 - ✅ **Verified from-scratch training on Blackhole<sup>®</sup>** — a real `ttml` training run on p300c hardware, loss dropping monotonically from 4.69 to 3.23
 - 🙏 Architecture inspired by and credited to [Mini-LLM](https://github.com/Ashx098/Mini-LLM) (Ashx098)
-
-### Previous Release: v0.0.518 (2026-06-26)
-
-**Highlights:**
-- CS Fundamentals Module 8 matmul labs expansion — interactive Lab 1/2/3 lesson content, simulator-friendly execution guidance, code-first host excerpts, and upstream matmul lesson drift detection tooling
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 

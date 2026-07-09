@@ -4401,13 +4401,49 @@ async function exploreAnimateDiffPackage(): Promise<void> {
 
 /**
  * Command: tenstorrent.installTtTrain
- * Installs tt-train Python package from tt-metal repository
+ *
+ * Builds `ttml` (tt-train's Python bindings) from source and wires it onto
+ * the active venv, following the verified recipe in
+ * content/templates/llm-from-scratch/BUILD_TTML.md.
+ *
+ * ttml is source-only — there is no pip wheel, and tt-train has no
+ * pyproject.toml, so a plain `pip install -e .` (the old behavior of this
+ * handler) never worked. The real recipe: configure tt-train as a tt-metal
+ * cmake subproject, build the `_ttml` bindings, then REBUILD ttnn's
+ * `_ttnn.so` and copy it over the prebuilt one. That rebuild is required —
+ * every prebuilt tt-metal image (including TT-QuietBox 2) ships a
+ * `_ttnn.so` with a different nanobind ABI tag than a freshly built
+ * `_ttml`, and skipping it is the #1 cause of `std::bad_cast` on
+ * `import ttml`. Finally, since there's no install step to wire ttml onto
+ * the venv, a `.pth` file is added pointing at the built sources.
+ *
+ * TT-QuietBox 2 images ship TT-NN + vLLM preinstalled but NOT the tt-metal
+ * source tree, so we check for $TT_METAL_HOME (or ~/tt-metal) first and
+ * point users at the "Build TT-Metalium from Source" lesson if it's
+ * missing rather than let the terminal command fail deep into the build.
  */
 async function installTtTrain(): Promise<void> {
+  const os = await import('os');
+  const path = await import('path');
+  const fs = await import('fs');
+  const ttMetalHome = process.env.TT_METAL_HOME || path.join(os.homedir(), 'tt-metal');
+
+  if (!fs.existsSync(ttMetalHome)) {
+    const choice = await vscode.window.showWarningMessage(
+      `No tt-metal source tree found at ${ttMetalHome}. TT-QuietBox 2 images ship TT-NN + vLLM but not the tt-metal source tree — ttml needs a built tt-metal tree first.`,
+      'Open Build TT-Metalium Lesson',
+      'Cancel'
+    );
+    if (choice === 'Open Build TT-Metalium Lesson') {
+      await vscode.commands.executeCommand('tenstorrent.showLesson', 'build-tt-metal');
+    }
+    return;
+  }
+
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.INSTALL_TT_TRAIN.template);
   vscode.window.showInformationMessage(
-    '📦 Installing tt-train... This may take a few minutes.'
+    '📦 Building ttml (tt-train) from source... This includes a required _ttnn.so rebuild (fixes std::bad_cast) and can take several minutes.'
   );
 }
 

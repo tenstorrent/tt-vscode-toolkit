@@ -457,7 +457,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -488,7 +488,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -519,7 +519,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -551,7 +551,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -582,7 +582,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -613,7 +613,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -644,7 +644,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -675,7 +675,7 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "draft",
       "validatedOn": [
         "n150"
       ],
@@ -1722,11 +1722,11 @@
         "p300c"
       ],
       "estimatedMinutes": 45,
-      "minTTMetalVersion": "v0.73.1",
       "order": 205,
       "previousLesson": "lfs-04-block-and-model",
       "completionEvents": [],
-      "markdownFile": "content/lessons/lfs-05-train-and-run.md"
+      "markdownFile": "content/lessons/lfs-05-train-and-run.md",
+      "minTTMetalVersion": "v0.73.1"
     }
   ]
 }
