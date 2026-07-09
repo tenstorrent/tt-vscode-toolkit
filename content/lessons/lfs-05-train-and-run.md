@@ -143,7 +143,7 @@ pre-configured TT-QuietBox 2 image ships TT-NN<sup>™</sup> and vLLM
 pre-installed, but it does **not** include the `~/tt-metal` source tree —
 there's nothing to build `ttml` against until you clone and build tt-metal
 yourself. Don't assume `~/tt-metal` exists; if it's missing, the
-build-tt-metal lesson is exactly the gap-filler.
+[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) is exactly the gap-filler.
 
 The full, verified recipe lives in
 [`content/templates/llm-from-scratch/BUILD_TTML.md`](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/content/templates/llm-from-scratch/BUILD_TTML.md)

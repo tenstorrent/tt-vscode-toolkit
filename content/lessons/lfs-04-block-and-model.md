@@ -539,7 +539,7 @@ final `ln_f`, and `head` — lands at **9,810,816 parameters**, matching
 model, small enough to add up on paper.
 
 **The params/DRAM reasoning, done the same way this project's own hardware
-notes do it (`ct7-architecture-basics.md`'s training-memory breakdown):**
+notes do it ([Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) has the training-memory breakdown):**
 bf16 weights cost 2 bytes/parameter, bf16 gradients another 2 bytes/parameter,
 and AdamW's two fp32 moment buffers cost roughly 8 bytes/parameter more — call
 it ~12 bytes/parameter for weights + gradients + optimizer state, before
@@ -551,7 +551,7 @@ parameter count).
 
 Both totals are tiny next to even the most DRAM-constrained device this arc
 supports: this repo's own lessons document **n150 at 12 GB DRAM** (see
-`ct4-finetuning-basics.md`, `ct7-architecture-basics.md`) as the tight case —
+[Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]), [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"])) as the tight case —
 tight enough that a real Llama-3.1-8B-Instruct model (8B parameters, ~100×
 this lab's 80M target) reliably exhausts it, per this project's own hardware
 notes. An 80M-parameter model is nowhere near that ceiling on any single

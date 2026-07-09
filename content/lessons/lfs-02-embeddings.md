@@ -566,7 +566,7 @@ Pyodide, no install) and — if you ran the command above — the standalone
 functional simulator (same DFB engine, from a terminal). Not one line of the
 kernel changes between those two environments.
 
-**TT-Lang's own design goes further still.** As tt-lang-intro puts it: "if you
+**TT-Lang's own design goes further still.** As [Introduction to TT-Lang](command:tenstorrent.showLesson?["tt-lang-intro"]) puts it: "if you
 installed via pip and have a Tenstorrent card, skip the `TT_METAL_SIMULATOR`
 and `TT_METAL_SLOW_DISPATCH_MODE` variables — everything else is identical. The
 same kernel source runs bit-exact on simulation and silicon." That's the
