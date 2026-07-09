@@ -2,7 +2,7 @@
 id: ct3-configuration-patterns
 title: Configuration Patterns
 description: >-
-  Learn YAML-driven training configuration using tt-blacksmith patterns. Master hyperparameters, device configuration, checkpointing strategies, and logging. Create reproducible, shareable training configurations.
+  Learn YAML-driven training configuration for tt-train: the model-config and training-config split, hyperparameters, device (mesh) configuration, checkpointing, and logging — grounded in the real nanogpt/nanollama configs train_nanogpt.py runs.
 category: custom-training
 tags:
   - configuration
