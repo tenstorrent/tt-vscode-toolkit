@@ -379,7 +379,8 @@ channels {
 Then:
 
 ```bash
-export TT_MESH_GRAPH_DESC_PATH=/path/to/qb2_1x4_ring.textproto
+# This descriptor ships with the toolkit — copy it somewhere and point at it:
+export TT_MESH_GRAPH_DESC_PATH=~/tt-scratchpad/qb2_1x4_ring.textproto  # from content/templates/llm-from-scratch/mesh-descriptors/qb2_1x4_ring.textproto
 
 python tt-metal/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
   --config train_ddp_4chip.yaml --fresh
