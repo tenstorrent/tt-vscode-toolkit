@@ -19,20 +19,32 @@ minTTMetalVersion: v0.73.1
 > **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
 
 
-lfs-04 finished the model: a **9,810,816-parameter** `NanoLlama` — RoPE,
-RMSNorm, GQA, SwiGLU, six blocks — whose forward pass you ran and verified on
-CPU, in plain PyTorch, with an initial loss near `ln(vocab_size)`. That number
-is the honest tell of a correctly-wired *but untrained* model: it has no idea
-which character comes next, so its predictions are close to uniform. This lab
-closes that gap. You'll write the training loop from scratch — cross-entropy
-loss, backpropagation, the AdamW optimizer — understand exactly why `ttnn`
-alone can't run it, build the one missing piece (`ttml`) from source, and then
-actually run it: the same modern Llama-3-shape model this arc has built,
-training for real on a Tenstorrent Blackhole<sup>®</sup> chip, loss dropping
-step by step, on this hardware, verified.
+This is it. The hero lab.
 
-This is the arc's hero lab. Everything from lfs-00 onward has been building
-toward this one run.
+Across four labs you built a modern Llama-3-shape model from nothing: a
+tokenizer, a residual stream, attention with RoPE and grouped-query sharing, a
+full SwiGLU/RMSNorm block — stacked six deep into a **9,810,816-parameter**
+`NanoLlama`. You ran its forward pass and watched the initial loss land near
+`ln(vocab_size)`. That number is the honest tell of a model that is correctly
+wired but knows nothing: it has no idea which character comes next, so its
+predictions are close to uniform.
+
+Now you make it learn. Not on a GPU, not in a simulator — on real Tenstorrent
+Blackhole<sup>®</sup> silicon, watching the loss drop step by step.
+
+[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+finished the model. This lab closes the last gap. You'll:
+
+- **Write the training loop from scratch** — cross-entropy loss,
+  backpropagation, the AdamW optimizer.
+- **Understand why `ttnn` alone can't run it**, and what can.
+- **Build the one missing piece (`ttml`) from source.**
+- **Then run it for real** — the exact model this arc built, training on a
+  Blackhole chip, loss dropping step by step, exit 0, verified.
+
+Everything from
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) onward has
+been building toward this one run.
 
 ## Coming from CUDA: where's `.backward()`?
 
@@ -61,26 +73,31 @@ backward:  grad = ∂L/∂θ for every parameter θ  (backprop)
 update:    θ ← θ − optimizer_step(grad)         (AdamW)
 ```
 
-**Cross-entropy loss** is the same quantity lfs-04's `smoke()` check already
-computed — `F.cross_entropy(logits.view(-1, vocab), targets.view(-1))` — a
-freshly-initialized model's loss sits near `ln(vocab_size)` because an
-untrained model's output distribution is close to uniform over the
-vocabulary, and cross-entropy of a uniform distribution over `V` classes is
-exactly `ln(V)`. Training's whole job is to push that number down by making
-the model's predicted distribution assign more probability mass to the
-actual next character.
+**Cross-entropy loss** is the same quantity the `smoke()` check in
+[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+already computed: `F.cross_entropy(logits.view(-1, vocab), targets.view(-1))`.
+A freshly-initialized model's loss sits near `ln(vocab_size)` because its output
+distribution is close to uniform over the vocabulary, and cross-entropy of a
+uniform distribution over `V` classes is exactly `ln(V)`. Training's whole job
+is to push that number down — making the model assign more probability mass to
+the actual next character.
 
-**Backpropagation** is the algorithm that turns "the loss is too high" into
-"here is how much to nudge every one of the model's 9.81M parameters" — the
-chain rule, applied mechanically from the loss backward through every matmul,
-RMSNorm, and SwiGLU gate you read in lfs-02 through lfs-04, in reverse order.
+**Backpropagation** turns "the loss is too high" into "here is how much to
+nudge every one of the model's 9.81M parameters." It's the chain rule, applied
+mechanically from the loss backward through every matmul, RMSNorm, and SwiGLU
+gate you read across
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+through **The Transformer Block & the Model**, in reverse order.
+
 On CUDA, autograd builds this chain for you automatically. On Tenstorrent
-hardware, `ttml`'s ops are the pieces that know how to run backward as well
-as forward: `ttml.ops.cross_entropy_loss` isn't just a forward computation of
-the loss value — it's an op with a matching backward that seeds the gradient
-chain, and every op it calls into underneath (`ttml.ops.rmsnorm`,
-`ttml.ops.rope`, `ttml.ops.swiglu`, the attention and linear ops lfs-03 and
-lfs-04 named) carries its own backward the same way.
+hardware, `ttml`'s ops are the pieces that know how to run backward as well as
+forward. `ttml.ops.cross_entropy_loss` isn't just a forward computation of the
+loss value — it's an op with a matching backward that seeds the gradient chain.
+And every op it calls into underneath (`ttml.ops.rmsnorm`, `ttml.ops.rope`,
+`ttml.ops.swiglu`, the attention and linear ops
+[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+and **The Transformer Block & the Model** named) carries its own backward the
+same way.
 
 **AdamW** is the optimizer that turns a raw gradient into an actual parameter
 update — momentum-smoothed, per-parameter-scaled, with decoupled weight
@@ -88,22 +105,29 @@ decay. `ttml.optimizers.AdamW` is the on-device implementation of exactly
 that algorithm, stepping every parameter tensor in place after each backward
 pass.
 
-**There is no single-file "Llama primitives" example for this stack** — and
-that's worth being honest about, because lfs-01 through lfs-04's GPT-2-era
-cousin has one (`nanogpt_primitives_example.py`, which hand-assembles a
-GPT-2-shape model directly from `ttml.ops` calls, forward and backward,
-inside one readable script). The modern Llama-3 stack this arc actually
-teaches — RoPE, RMSNorm, GQA, SwiGLU — doesn't have that single-file
-teaching example yet. Its canonical, supported training path is
-`ttml.models.llama` (the module that assembles the same architecture you
-read in lfs-02 through lfs-04, expressed against `ttml`'s autograd-aware ops
-instead of PyTorch's) driven by the upstream trainer script
-`train_nanogpt.py` plus a YAML config that selects `model_type: llama`. This
-lab's runner, `~/tt-scratchpad/llm-from-scratch/train_nano_from_scratch.py`,
-is a thin, documented launcher around exactly that command — it doesn't
-reinvent the model or the loop, it drives the verified one with the right
-environment variables set. Read the file; it's short, and every environment
-variable it sets is explained inline and again in the build section below.
+**There is no single-file "Llama primitives" example for this stack.** That's
+worth being honest about, because the GPT-2-era cousin of
+[Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) through
+**The Transformer Block & the Model** *does* have one:
+`nanogpt_primitives_example.py` hand-assembles a GPT-2-shape model directly from
+`ttml.ops` calls, forward and backward, inside one readable script. The modern
+Llama-3 stack this arc teaches — RoPE, RMSNorm, GQA, SwiGLU — doesn't have that
+single-file teaching example yet.
+
+What it has instead is a canonical, supported training path:
+
+- **`ttml.models.llama`** — the module that assembles the same architecture you
+  read across **Embeddings & the Residual Stream** through **The Transformer
+  Block & the Model**, expressed against `ttml`'s autograd-aware ops instead of
+  PyTorch's.
+- **`train_nanogpt.py`** — the upstream trainer script that drives it.
+- **A YAML config** that selects `model_type: llama`.
+
+This lab's runner, `~/tt-scratchpad/llm-from-scratch/train_nano_from_scratch.py`,
+is a thin, documented launcher around exactly that command. It doesn't reinvent
+the model or the loop — it drives the verified one with the right environment
+variables set. Read the file: it's short, and every environment variable it
+sets is explained inline and again in the build section below.
 
 ## Build `ttml`
 
@@ -210,9 +234,12 @@ python $TT_METAL_HOME/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
 That config selects `model_type: llama` — the exact architecture you've read
 every line of: RoPE (`theta=500000`), RMSNorm, grouped-query attention (6
 heads, 3 KV groups), SwiGLU, embedding dim 384, 6 blocks, block size 256,
-char-level tokenizer. **This is the same `nanollama3` shape as lfs-02 through
-lfs-04's PyTorch reference — now training on-device instead of running one
-forward pass on CPU.**
+char-level tokenizer. **This is the same `nanollama3` shape as the PyTorch
+reference across
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+through
+[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+— now training on-device instead of running one forward pass on CPU.**
 
 **Here is what actually happened when we ran it, on this p300c, against
 tt-metal v0.73:**
@@ -231,16 +258,19 @@ sections). Every step after that ran in **~65 ms**, at roughly **16.5
 TFLOPS** and **~11% model FLOPS utilization (MFU)**. All 20 steps, compile
 included, finished in **13.6 seconds**, and the process exited **0**. Loss
 dropped **monotonically** — 4.6875 → 3.56 → 3.375 → 3.2344 — the same shape
-of curve as lfs-04's `smoke()` output would predict, now with a real gradient
-signal instead of random initialization pulling the number down.
+of curve the `smoke()` output in
+[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+would predict, now with a real gradient signal instead of random initialization
+pulling the number down.
 
 Read that curve for what it is: a **modern Llama-3-style language model —
 RoPE, RMSNorm, SwiGLU, grouped-query attention, the exact stack you've built
 from scratch across five labs — trained from a random initialization to a
 measurably lower loss, entirely on Tenstorrent Blackhole hardware**, with a
 from-scratch training loop (cross-entropy → backprop → AdamW) instead of a
-pre-trained checkpoint. That is the payoff this whole arc has been pointing
-at since lfs-00's altitude ladder.
+pre-trained checkpoint. That is the payoff this whole arc has been pointing at
+since the altitude ladder in
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]).
 
 ### The honest caveat, stated plainly
 
@@ -274,9 +304,10 @@ it, don't bypass that.
 ## Scaling to ~80M — and being honest about the comparison
 
 This arc has credited [Mini-LLM by
-Ashx098](https://github.com/Ashx098/Mini-LLM) since lfs-00 as the project
-whose component choices this whole build follows: RoPE, RMSNorm, SwiGLU, GQA,
-SentencePiece BPE 32K. Its real, published numbers: **~80M parameters, 361M
+Ashx098](https://github.com/Ashx098/Mini-LLM) since
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) as the
+project whose component choices this whole build follows: RoPE, RMSNorm, SwiGLU,
+GQA, SentencePiece BPE 32K. Its real, published numbers: **~80M parameters, 361M
 training tokens, ~5 hours on a single A100, final loss ~3.25.**
 
 Our nano run above hit **3.2344** in **20 steps** on a **9.81M-parameter**
@@ -297,7 +328,8 @@ Mini-LLM scales up** — same code path, same `ttml.models.llama`, same
 training loop shape — not that a 20-step demo run and a 5-hour production
 run landed at "the same" loss.
 
-lfs-04 already worked through the config knobs (`embedding_dim`, `num_heads`,
+[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+already worked through the config knobs (`embedding_dim`, `num_heads`,
 `num_groups`, `num_blocks`, `block_size`, vocab) and the params/DRAM math for
 scaling nano toward the ~80M target, so this lab won't repeat that table —
 what's worth restating here is the **hardware regime** it implies for
@@ -305,8 +337,8 @@ training. A single p300c or p150 (`mesh_shape [1,1]`, per this project's own
 compatibility notes — p300c behaves as one Blackhole chip, exactly like
 p100) has more than enough DRAM headroom for an 80M-parameter model's
 weights, gradients, and AdamW optimizer state — that total lands around 1 GB
-by the ~12 bytes/parameter estimate lfs-04 worked through, nowhere close to
-even n150's comparatively tight 12 GB. **You'd reach for a multi-chip mesh
+by the ~12 bytes/parameter estimate **The Transformer Block & the Model** worked
+through, nowhere close to even n150's comparatively tight 12 GB. **You'd reach for a multi-chip mesh
 (T3000, Galaxy) only once parameter count grows into the billions** — the
 regime where weights + gradients + optimizer state alone start approaching a
 single chip's DRAM ceiling, which calls for tensor or pipeline parallelism
@@ -317,14 +349,24 @@ config.
 
 ## Where next
 
-You've now done the whole arc: picked your altitude (lfs-00), built a
-tokenizer from scratch (lfs-01), wired up embeddings and the residual stream
-with RoPE waiting in the wings (lfs-02), authored attention with
-grouped-query sharing and a from-scratch TT-Lang kernel (lfs-03), assembled
-SwiGLU and RMSNorm into a full six-block Llama-shape model (lfs-04), and just
-now trained that exact model from scratch, on real Blackhole hardware,
-watching the loss actually drop. That is a complete, honest, from-scratch
-path from a 32×32 tile to a training run with a falsifiable result.
+You've now done the whole arc:
+
+- [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) — picked
+  your altitude on the TT-NN ↔ TT-Lang ladder.
+- [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) —
+  built a tokenizer from scratch.
+- [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+  — wired up embeddings and the residual stream, with RoPE waiting in the wings.
+- [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+  — authored attention with grouped-query sharing and a from-scratch TT-Lang
+  kernel.
+- [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+  — assembled SwiGLU and RMSNorm into a full six-block Llama-shape model.
+- **Train It & Run for Real** (this lab) — trained that exact model from
+  scratch, on real Blackhole hardware, watching the loss actually drop.
+
+That is a complete, honest, from-scratch path from a 32×32 tile to a training
+run with a falsifiable result.
 
 If you want to go deeper into `ttml`-based training beyond this arc's nano
 scope — different architectures, longer runs, the full custom-training

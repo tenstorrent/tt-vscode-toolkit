@@ -16,21 +16,27 @@ estimatedMinutes: 40
 > **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
 
 
-lfs-03 ended with a working attention output — GQA'd, RoPE'd, causal-masked,
-projected back through `o_proj` — but attention is only half of what a
-transformer block does to `x`. The other half is a feed-forward
-transformation applied independently to every position, and in a modern
-Llama-3-style model that is not a "GELU MLP" — it's **SwiGLU**. This lab
-finishes the block: SwiGLU, **RMSNorm** (the pre-norm every earlier lab has
-quoted inside `Block` without explaining), and the residual wiring that turns
-`x = x + attn(...)` and `x = x + mlp(...)` into a repeatable unit you stack six
-times — the exact `nanollama3` shape this arc has been building toward since
-lfs-00. By the end of this lab you will have read, line by line, every
-component of the model lfs-05 trains for real on Blackhole<sup>®</sup>.
+[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+ended with a working attention output — GQA'd, RoPE'd, causal-masked, projected
+back through `o_proj`. But attention is only half of what a transformer block
+does to `x`. The other half is a feed-forward transformation applied
+independently to every position, and in a modern Llama-3-style model that is
+not a "GELU MLP" — it's **SwiGLU**.
+
+This lab finishes the block. Three pieces: SwiGLU, **RMSNorm** (the pre-norm
+every earlier lab has quoted inside `Block` without explaining), and the
+residual wiring that turns `x = x + attn(...)` and `x = x + mlp(...)` into a
+repeatable unit you stack six times. That's the exact `nanollama3` shape this
+arc has been building toward since
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]). By the
+end, you will have read, line by line, every component of the model
+[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+trains for real on Blackhole<sup>®</sup>.
 
 ## Coming from CUDA: kernel fusion, one more time
 
-lfs-03 built the case that TT-Lang's reader → compute → writer pipeline *is*
+[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+built the case that TT-Lang's reader → compute → writer pipeline *is*
 FlashAttention's memory-traffic argument, made textual: every intermediate
 stays in L1, nothing round-trips DRAM between QKᵀ and ·V. That same argument
 shows up twice more in this lab, at two different scales.
@@ -102,20 +108,24 @@ class SwiGLU(nn.Module):
 
 Three linears, no bias, and one line of math: `down(silu(gate(x)) * up(x))`.
 `gate` and `up` both project `n_embd` (384) up to an `intermediate` width
-(1024, from the helper above); `silu(gate(x))` acts as a learned, per-feature
-**gate** on `up(x)` — `silu(z) = z * sigmoid(z)` is near-zero (and mildly
-negative, down to about -0.28) for negative `z`, and tracks `z` itself for
-positive `z`, so each element of `up(x)` gets smoothly let through, damped, or
-flipped slightly negative, depending on what `gate(x)` computed for that same
-position — before `down` projects back to `n_embd`. That gate is the whole
-idea: a standard GELU MLP applies the *same* nonlinearity everywhere; SwiGLU lets the network
-learn *which* features of `up(x)` to pass through and by how much, on a
-per-token, per-feature basis. Empirically (this is the finding Llama-3, and
-the [Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM) build this arc
-credits, both act on) a gated feed-forward reaches lower loss per parameter
-and per FLOP than the ungated GELU MLP it replaces — which is why every
-modern open LLM you'll read the source of, this arc's own `nanollama3`
-included, uses some SwiGLU variant instead.
+(1024, from the helper above).
+
+`silu(gate(x))` acts as a learned, per-feature **gate** on `up(x)`. The gating
+function `silu(z) = z * sigmoid(z)` is near-zero (and mildly negative, down to
+about -0.28) for negative `z`, and tracks `z` itself for positive `z`. So each
+element of `up(x)` gets smoothly let through, damped, or flipped slightly
+negative, depending on what `gate(x)` computed for that same position — before
+`down` projects back to `n_embd`.
+
+That gate is the whole idea. A standard GELU MLP applies the *same* nonlinearity
+everywhere; SwiGLU lets the network learn *which* features of `up(x)` to pass
+through and by how much, on a per-token, per-feature basis. Empirically — this
+is the finding Llama-3, and the
+[Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM) build this arc
+credits, both act on — a gated feed-forward reaches lower loss per parameter and
+per FLOP than the ungated GELU MLP it replaces. That's why every modern open
+LLM you'll read the source of, this arc's own `nanollama3` included, uses some
+SwiGLU variant instead.
 
 **Why three projections don't cost three times as much.** A GELU MLP has two
 matrices at width `4 * n_embd` (1536 for nano); SwiGLU has three matrices, but
@@ -132,9 +142,10 @@ oversight. SwiGLU is taught two ways instead: the PyTorch module above (to
 understand the math), and, on the real training path, the single fused device
 op `ttml.ops.swiglu`, which composes `ttml.ops.unary.silu` and
 `ttml.ops.binary.mul` around the three projections — i.e. exactly `silu(gate)
-· up`, expressed as ops you already know the *shape* of from lfs-02's
-elementwise add (`binary.mul` is the multiply cousin of the add you already
-wrote) rather than as a new hand-authored reader/compute/writer pipeline. The
+· up`, expressed as ops you already know the *shape* of from the elementwise add
+in [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+(`binary.mul` is the multiply cousin of the add you already wrote) rather than
+as a new hand-authored reader/compute/writer pipeline. The
 matmuls underneath `gate`, `up`, and `down` are ordinary matmuls — the same
 `matmul` this lab shows you a few sections down.
 
@@ -230,7 +241,9 @@ fusion this lab's CUDA callout promised.
 ### Honest flag: the same simulator edge as attention
 
 **This kernel does not run in the bundled functional simulator, for the exact
-same reason attention's softmax didn't in lfs-03.** RMSNorm's `reduce_sum`
+same reason attention's softmax didn't in
+[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]).**
+RMSNorm's `reduce_sum`
 collapses the feature dimension to a per-row scalar, then `ttl.math.broadcast`
 has to fan that scalar back out across a full 32×32 tile — and the pinned
 simulator's `broadcast` requires its *source* block to already have a genuine
@@ -240,8 +253,8 @@ file's own header states this outright:
 > **Verification status: COMPILER / HARDWARE PATH ONLY** — *not* runnable in
 > the bundled functional simulator at this tt-lang pin (`a19aaa8`).
 
-Run it and you'll see the same honest fallback lfs-03's attention kernel
-prints:
+Run it and you'll see the same honest fallback the attention kernel in
+**Attention from Scratch** prints:
 
 ```bash
 python ~/tt-scratchpad/llm-from-scratch/kernels/rmsnorm.py
@@ -261,8 +274,9 @@ The vendor's own `test_transformer_block.py` carries the same
 on a real device — this is a simulator-ahead-of-compiler gap, not a
 correctness problem with the tile math. On the real training path, this
 normalization is `ttml.ops.rmsnorm` — the op `ttml.models.llama` calls before
-every attention and MLP sub-layer, and the op this lab's hero training run
-(lfs-05) actually exercises on Blackhole.
+every attention and MLP sub-layer, and the op this lab's hero training run in
+[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+actually exercises on Blackhole.
 
 ## Assembling the block
 
@@ -289,25 +303,31 @@ class Block(nn.Module):
         return x
 ```
 
-Two lines, two identical shapes: `x = x + sublayer(norm(x))`. The first line
-is lfs-02's residual stream and lfs-03's `GroupedQueryAttention` meeting for
-the first time — `attention_norm` (RMSNorm) runs on `x`, `attn` (GQA, RoPE'd
-Q/K, causal softmax) turns the normalized `x` into an attention output, and
-the residual add — the exact `eltwise_add` kernel from lfs-02 — puts it back
-into `x`. The second line is the same shape with this lab's two new pieces:
-`mlp_norm` (RMSNorm again, a separate learned weight from `attention_norm`)
-normalizes `x`, `mlp` (SwiGLU) transforms it, and another residual add puts
-the result back. `x` is read twice and written twice per block, and every one
-of those four operations is something you've now read the exact TT-native
-expression of: RMSNorm's kernel above, GQA from lfs-03, SwiGLU via
-`ttml.ops.swiglu`, and the residual add from lfs-02.
+Two lines, two identical shapes: `x = x + sublayer(norm(x))`. The first line is
+the residual stream from
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+and the `GroupedQueryAttention` from
+[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+meeting for the first time — `attention_norm` (RMSNorm) runs on `x`, `attn`
+(GQA, RoPE'd Q/K, causal softmax) turns the normalized `x` into an attention
+output, and the residual add — the exact `eltwise_add` kernel from
+**Embeddings & the Residual Stream** — puts it back into `x`. The second line
+is the same shape with this lab's two new pieces: `mlp_norm` (RMSNorm again, a
+separate learned weight from `attention_norm`) normalizes `x`, `mlp` (SwiGLU)
+transforms it, and another residual add puts the result back. `x` is read twice
+and written twice per block, and every one of those four operations is something
+you've now read the exact TT-native expression of: RMSNorm's kernel above, GQA
+from **Attention from Scratch**, SwiGLU via `ttml.ops.swiglu`, and the residual
+add from **Embeddings & the Residual Stream**.
 
 ## Stacking blocks into the model
 
-`NanoLlama` is the same class lfs-02 quoted when it introduced the residual
-stream — but lfs-02 asked you to take `Block`'s internals on faith. Now that
-you've read every line inside `Block`, here's the whole model again, verbatim
-from `reference_gpt.py`, with nothing left unexplained:
+`NanoLlama` is the same class
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+quoted when it introduced the residual stream — but back then it asked you to
+take `Block`'s internals on faith. Now that you've read every line inside
+`Block`, here's the whole model again, verbatim from `reference_gpt.py`, with
+nothing left unexplained:
 
 ```python
 class NanoLlama(nn.Module):
@@ -352,7 +372,8 @@ class NanoLlama(nn.Module):
 ```
 
 Read `forward` top to bottom and it's four moves: embed (`tok_emb`, no
-positional add — lfs-02), loop `n_layer` (6) times through `Block` (this lab),
+positional add — **Embeddings & the Residual Stream**), loop `n_layer` (6) times
+through `Block` (this lab),
 normalize once more (`ln_f`, one final RMSNorm after the last block, before
 anything reads `x`), then project to vocabulary logits (`head`, a plain
 linear — no bias, and **not** weight-tied to `tok_emb` in this reference,
@@ -366,8 +387,9 @@ and `mlp` weights, all reading and writing the same running `x`.
 
 Step back from the PyTorch reference for a moment and ask what "TT-native"
 actually means for this model on device. The boundary is `ttnn.Tensor` in
-`ttnn.TILE_LAYOUT`, sitting in DRAM or L1 — lfs-00's 32×32 tile, still doing
-all the work. Anything that consumes and produces that type can sit inside an
+`ttnn.TILE_LAYOUT`, sitting in DRAM or L1 — the 32×32 tile from
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]), still
+doing all the work. Anything that consumes and produces that type can sit inside an
 otherwise-`ttnn` forward pass, whether it's a library op (`ttnn.matmul`,
 `ttnn.softmax`) or a hand-authored TT-Lang kernel like the two this lab has
 shown you. **A TT-Lang kernel doesn't replace the forward pass — it drops
@@ -449,11 +471,13 @@ run, no honest-flag caveat needed.
 uses a broadcast the functional simulator doesn't support yet (vendor marks
 it `xfail`). This lab's kernel drops the bias and teaches the pure
 accumulation loop, which is the pedagogical heart of matmul anyway; a bias
-add, when you need one, is the same `eltwise_add` kernel from lfs-02 applied
-afterward.
+add, when you need one, is the same `eltwise_add` kernel from
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+applied afterward.
 
-Put the two kernels side by side and you get the honest picture lfs-00's
-runtime matrix promised: `matmul` sim-validated, `rmsnorm_kernel`
+Put the two kernels side by side and you get the honest picture the runtime
+matrix in **Pick Your Altitude** promised: `matmul` sim-validated,
+`rmsnorm_kernel`
 compiler/hardware-path only — and both are, from the model's point of view,
 interchangeable with a `ttnn` call. Sketching (not a shipped file — just the
 shape) what one block's forward pass looks like with both dropped in:
@@ -478,16 +502,20 @@ hand-authored TT-Lang version from this lab or a future `ttnn.rms_norm` /
 `ttnn.matmul` call — the contract is the same `ttnn.Tensor` in, `ttnn.Tensor`
 out, at `TILE_LAYOUT`. That's the whole payoff of building at TT-NN altitude
 and descending to TT-Lang only for the pieces you need to author yourself
-(lfs-00's ladder, now concrete): you get to choose, op by op, which lines are
+(the ladder from **Pick Your Altitude**, now concrete): you get to choose, op
+by op, which lines are
 library calls and which are your own kernel — and swap one for the other
 later without touching anything else in the forward pass.
 
 ## Scaling nano to ~80M
 
 Every number in this arc so far has been the **nano** `nanollama3_char`
-config — the one that actually trains in lfs-05. The **~80M** number is the
-scale of [Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM), the
-project this arc credits in lfs-00: 80M parameters, 361M training tokens,
+config — the one that actually trains in
+[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]).
+The **~80M** number is the scale of
+[Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM), the project this arc
+credits in [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]):
+80M parameters, 361M training tokens,
 ~5 hours on one A100, final loss ~3.25. Same code, same architecture — every
 class in this lab — with the config knobs turned up:
 
@@ -582,8 +610,10 @@ correctly, computed entirely on CPU, no device or simulator required.
 **What this lab does not do is train the model.** A forward pass and an
 initial loss near `ln(vocab)` tell you the wiring is correct; watching that
 loss actually drop needs a backward pass, an optimizer, and real data — the
-from-scratch training loop (cross-entropy, AdamW, backprop) that is lfs-05's
-entire subject, run for real on Blackhole hardware.
+from-scratch training loop (cross-entropy, AdamW, backprop) that is the entire
+subject of
+[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]),
+run for real on Blackhole hardware.
 
 ## Graduate box
 
@@ -601,9 +631,10 @@ TT-Lang kernel like `matmul` (sim-validated) or `rmsnorm_kernel`
 (compiler/hardware-path only) — both drop in exactly the same way.
 
 And you know precisely what changes, and what doesn't, on the way to the
-~80M "hero" scale this arc has pointed at since lfs-00: the same classes,
-bigger config knobs, a real BPE vocabulary instead of char-level — and,
-worked through above, nowhere near enough parameters to need more than one
+~80M "hero" scale this arc has pointed at since
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]): the same
+classes, bigger config knobs, a real BPE vocabulary instead of char-level —
+and, worked through above, nowhere near enough parameters to need more than one
 chip.
 
 ## Next
@@ -612,7 +643,8 @@ The model is fully assembled and its forward pass is verified. What's left
 is the part that turns a freshly-initialized 9.81M-parameter model into one
 that actually predicts text: a from-scratch training loop — cross-entropy,
 AdamW, backprop — run for real on Blackhole<sup>®</sup> hardware, watching the
-loss drop the way lfs-00's honest runtime matrix already previewed (4.69 →
-3.23 over 20 steps, on a p300c, exit 0).
+loss drop the way the honest runtime matrix in
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) already
+previewed (4.69 → 3.23 over 20 steps, on a p300c, exit 0).
 
 [→ Continue to Lab 5: Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])

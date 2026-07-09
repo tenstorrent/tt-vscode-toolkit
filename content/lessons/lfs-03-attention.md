@@ -16,30 +16,35 @@ estimatedMinutes: 40
 > **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
 
 
-lfs-02 gave the residual stream its first value: `x = self.tok_emb(idx)`, a
-running `[B, T, n_embd]` tensor that every block reads from and adds back
-into — and, this arc being modern-Llama-3-shaped, that's the *whole* value.
-There is no `+ pos_emb(pos)` term to add: position was deliberately left out
-of the residual stream in lfs-02, because a Llama-3-style model carries it a
-different way entirely — as a **rotation applied to Q and K**, called RoPE,
-and *this* is the lab where that rotation actually happens. So far, aside
-from that still-pending rotation, each position in the stream is an island —
-token 12's vector knows nothing about token 3's. **Attention is the
-mechanism that lets every position look at every earlier position and pull in
-what it needs**, and it's also where RoPE finally gets applied. It is the
-reason a transformer can resolve "it" to the noun five words back, and it is
-the single most compute-heavy thing the model does.
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+gave the residual stream its first value: `x = self.tok_emb(idx)`. That's a
+running `[B, T, n_embd]` tensor every block reads from and adds back into. In a
+modern Llama-3-shaped model, that's the *whole* value — there is no
+`+ pos_emb(pos)` term.
 
-This is the centerpiece lab. You'll read the math twice — once in plain
-PyTorch, the `GroupedQueryAttention` module from the reference model
-(RoPE'd Q/K, grouped-query sharing, causal softmax), then as a **from-scratch
-TT-Lang kernel** that expresses the single-head core of that same
-`softmax(QKᵀ/√d + mask)V` as an explicit reader → compute → writer pipeline.
-And this lab is where the arc's honesty about a fast-moving stack earns its
-keep: unlike lfs-02's elementwise add, this attention kernel is **not runnable
-in the bundled functional simulator yet.** We'll be exact about why, exactly
-how we gain confidence in it anyway, and what still has to happen before it
-ships.
+Position was left out of the residual stream on purpose. A Llama-3-style model
+carries it a different way: as a **rotation applied to Q and K**, called RoPE.
+This is the lab where that rotation finally happens.
+
+So far, each position in the stream is an island. Token 12's vector knows
+nothing about token 3's. **Attention is the mechanism that lets every position
+look at every earlier position and pull in what it needs** — and it's where
+RoPE gets applied. It's the reason a transformer can resolve "it" to the noun
+five words back, and it's the single most compute-heavy thing the model does.
+
+This is the centerpiece lab. You'll read the math twice.
+
+First in plain PyTorch: the `GroupedQueryAttention` module from the reference
+model, with RoPE'd Q/K, grouped-query sharing, and causal softmax. Then as a
+**from-scratch TT-Lang kernel** that expresses the single-head core of that
+same `softmax(QKᵀ/√d + mask)V` as an explicit reader → compute → writer
+pipeline.
+
+This lab is also where the arc's honesty about a fast-moving stack earns its
+keep. Unlike the elementwise add in **Embeddings & the Residual Stream**, this
+attention kernel is **not runnable in the bundled functional simulator yet.**
+We'll be exact about why, how we gain confidence in it anyway, and what still
+has to happen before it ships.
 
 ## Coming from CUDA: FlashAttention, and the agentic shortcut
 
@@ -166,7 +171,8 @@ Strip away the bookkeeping and it's six steps:
    trick, and it's visible directly in the two projection widths:
    `self.n_head * self.head_dim` vs. `self.n_kv_groups * self.head_dim`.
 2. **Rotate.** `apply_rope(q, cos, sin)` and `apply_rope(k, cos, sin)` — the
-   exact function lfs-02 handed you, now finally called. This is where
+   exact function [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+   handed you, now finally called. This is where
    position actually enters the model: not in the residual stream, but here,
    as a rotation of Q and K (never V) by an angle that depends on each
    token's position.
@@ -210,13 +216,14 @@ lined Q, K, and V up to the same `[T, head_dim]` shape.)
 
 ## The TT-Lang attention inception kernel
 
-Recall the arc's framing from lfs-00: descending to TT-Lang for a hot kernel
-is **inception, not conversion**. There is no CUDA or Triton attention kernel
-being ported here. This kernel is `attention_kernel`, authored TT-native and
-kept faithful to the vendor original in
-`vendor/tt-lang/examples/test_transformer_block.py` — the same reader →
-compute → writer shape you met in lfs-02, scaled up to the full attention
-pipeline. It lives in
+Recall the arc's framing from [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]):
+descending to TT-Lang for a hot kernel is **inception, not conversion**. There
+is no CUDA or Triton attention kernel being ported here. This kernel is
+`attention_kernel`, authored TT-native and kept faithful to the vendor original
+in `vendor/tt-lang/examples/test_transformer_block.py` — the same reader →
+compute → writer shape you met in
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]),
+scaled up to the full attention pipeline. It lives in
 `~/tt-scratchpad/llm-from-scratch/kernels/attention.py`.
 
 **Where GQA fits against this kernel.** `attention_kernel` below takes Q, K,
@@ -290,7 +297,8 @@ accounting that on CUDA lives in your head as "register pressure" and
 "shared-memory occupancy"; in TT-Lang it's a countable line-by-line fact in the
 source, which is again why an agent can reason about it.
 
-The `block_count` on each buffer is the same double-buffering knob from lfs-02:
+The `block_count` on each buffer is the same double-buffering knob from
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]):
 `block_count=2` lets the producer fill the next block while the consumer drains
 the current one (pipelining); the single-slot `block_count=1` buffers
 (`scale_dfb`, `mask_dfb`, `scaler_dfb`) hold read-once constants that never
@@ -412,8 +420,9 @@ buffers between DRAM and L1:
 
 `dm_read` `.reserve()`s each input buffer (producer role) and `ttl.copy`s a
 tile in from DRAM; `dm_write` `.wait()`s on the finished output (consumer role)
-and copies it back out. Same reader → compute → writer contract as lfs-02's
-add — just seven inputs and a much busier compute body between them.
+and copies it back out. Same reader → compute → writer contract as the add in
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+— just seven inputs and a much busier compute body between them.
 
 ## Validate: the PyTorch-reference correlation check
 
@@ -451,11 +460,13 @@ lights up the moment the kernel runs on a path that accepts it.
 
 ## Honest flag: the simulator is ahead of the hardware compiler
 
-lfs-02's elementwise add ran two ways — in your browser and in the standalone
-functional simulator — with `max abs error vs torch: 0.000000`. **This
-attention kernel does not run in the bundled functional simulator, and this
-lab will not pretend it does.** Here is exactly what's true, from the kernel's
-own header annotation (verified while authoring, not asserted):
+The elementwise add in
+[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+ran two ways — in your browser and in the standalone functional simulator —
+with `max abs error vs torch: 0.000000`. **This attention kernel does not run
+in the bundled functional simulator, and this lab will not pretend it does.**
+Here is exactly what's true, from the kernel's own header annotation (verified
+while authoring, not asserted):
 
 > **Verification status: COMPILER / HARDWARE PATH ONLY** — *not* runnable in
 > the bundled functional simulator at this tt-lang pin (`a19aaa8`).
@@ -469,8 +480,9 @@ along dimension N: dimension must have element size 1"`. That's the softmax
 broadcast in the compute body above (`max_bcast_dfb`, `sum_bcast_dfb`) hitting
 a validator the simulator applies and the hardware path does not.
 
-The framing to hold onto is the one lfs-00's runtime matrix set up: **the
-functional simulator runs ahead of the hardware compiler.** The vendor's own
+The framing to hold onto is the one the runtime matrix in
+[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) set up:
+**the functional simulator runs ahead of the hardware compiler.** The vendor's own
 `test_transformer_block.py` — the kernel this one is faithful to — carries
 `TTLANG_HARDWARE_CI: skip-compiler` and runs on a *real device*, precisely
 because it targets the compiler/hardware path, not the sim's stricter
@@ -494,10 +506,11 @@ So the honest status of this kernel, stated plainly:
   run — the one that finally lights up the correlation gate — is the
   confidence we owe you before this leaves `draft`.
 
-Contrast lfs-02's add and lfs-04's matmul, which *are* sim-runnable and pass
-cleanly. Attention and RMSNorm are the two kernels in this arc that press the
-edge the simulator hasn't caught up to yet — and saying so, precisely, is the
-point.
+Contrast the add in **Embeddings & the Residual Stream** and the matmul in
+[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"]),
+which *are* sim-runnable and pass cleanly. Attention and RMSNorm are the two
+kernels in this arc that press the edge the simulator hasn't caught up to yet —
+and saying so, precisely, is the point.
 
 ## Graduate box
 
@@ -509,12 +522,13 @@ correlation gate that will score it against that oracle is wired and ready,
 pending the kernel's first successful execution; the confidence it still
 needs is a real on-device run.
 
-That on-device run is **lfs-05**. There, the arc's hero run —
-`nanollama3_char` (the same 6-head, 3-KV-group GQA and RoPE θ=500000 this lab
-just walked) — trained via `ttml.models.llama` on a Blackhole p300c, with the
-loss dropping monotonically from 4.69 to 3.23 over 20 steps, on-device, exit
-0. That's where the GQA + softmax path this lab authored gets exercised for
-real on silicon, closing the loop this honest flag opens.
+That on-device run is
+[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]).
+There, the arc's hero run — `nanollama3_char`, the same 6-head, 3-KV-group GQA
+and RoPE θ=500000 this lab just walked — trains via `ttml.models.llama` on a
+Blackhole p300c, with the loss dropping monotonically from 4.69 to 3.23 over 20
+steps, on-device, exit 0. That's where the GQA + softmax path this lab authored
+gets exercised for real on silicon, closing the loop this honest flag opens.
 
 ## Next
 
