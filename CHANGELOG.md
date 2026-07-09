@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0] - 2026-07-08
+## [0.1.2] - 2026-07-08
 ### Added
 - **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00` through `lfs-05`, category `llm-from-scratch`) that build a small, modern Llama-3-style language model — RoPE, RMSNorm, SwiGLU, grouped-query attention (GQA) — from scratch, TT-native from the first line of code, with every "coming from CUDA" concept grounded for CUDA programmers throughout:
   - `lfs-00-intro` — the "pick your altitude" ladder (TT-Forge<sup>™</sup>/TT-XLA → TT-NN<sup>™</sup> → TT-Lang → TT-Metalium<sup>™</sup>), the 32×32 tile, and the reader→compute→writer Tensix execution model.
@@ -17,8 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `lfs-04-block-and-model` — SwiGLU MLP and RMSNorm assembled into the full transformer block and a runnable nano model, with TT-Lang RMSNorm/matmul kernels wired in as drop-in `ttnn.Tensor` ops.
   - `lfs-05-train-and-run` — a from-scratch training loop (cross-entropy, AdamW, backprop) built on `ttml`, actually run on Blackhole<sup>®</sup> p300c hardware — loss verified dropping monotonically from 4.69 to 3.23 over 20 steps.
   - Every TT-Lang kernel in the arc is authored as an original **inception** kernel — there is no existing CUDA/Triton source being translated. Architectural choices (RoPE, RMSNorm, SwiGLU, GQA) follow the lead of, and credit, [Mini-LLM](https://github.com/Ashx098/Mini-LLM) by Ashx098.
+- **`tenstorrent.llmFromScratch.createProject` scaffold command** — one-click copies the arc's reference code (PyTorch model, TT-Lang kernels, tokenizer, training runner, build recipe) into `~/tt-scratchpad/llm-from-scratch/` and opens it, mirroring the cookbook scaffold. Lessons offer it as a **Create the LLM-from-Scratch Project** button so developers follow along in their own workspace rather than the repo's internal templates. Namespaced `tenstorrent.<feature>.<action>` per the ttsim convention.
 ### Changed
-- **Version bump to 0.1.0** — first MINOR release, adding the new `llm-from-scratch` lesson category (6 lessons, `lfs-00`–`lfs-05`).
+- **Version bump to 0.1.2** — adds the new `llm-from-scratch` lesson category (6 lessons, `lfs-00`–`lfs-05`) and the `llmFromScratch.createProject` scaffold command; Labs 0–2 editorial pass (brief inspiration credit, CUDA grounding folded in, `~/tt-scratchpad` follow-along).
 
 ## [0.0.518] - 2026-06-26
 ### Added
