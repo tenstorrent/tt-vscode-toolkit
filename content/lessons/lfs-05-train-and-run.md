@@ -16,6 +16,9 @@ minTTMetalVersion: v0.73.1
 
 # Train It & Run for Real
 
+> **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
+
+
 lfs-04 finished the model: a **9,810,816-parameter** `NanoLlama` — RoPE,
 RMSNorm, GQA, SwiGLU, six blocks — whose forward pass you ran and verified on
 CPU, in plain PyTorch, with an initial loss near `ln(vocab_size)`. That number
@@ -96,7 +99,7 @@ teaching example yet. Its canonical, supported training path is
 read in lfs-02 through lfs-04, expressed against `ttml`'s autograd-aware ops
 instead of PyTorch's) driven by the upstream trainer script
 `train_nanogpt.py` plus a YAML config that selects `model_type: llama`. This
-lab's runner, `content/templates/llm-from-scratch/train_nano_from_scratch.py`,
+lab's runner, `~/tt-scratchpad/llm-from-scratch/train_nano_from_scratch.py`,
 is a thin, documented launcher around exactly that command — it doesn't
 reinvent the model or the loop, it drives the verified one with the right
 environment variables set. Read the file; it's short, and every environment
@@ -173,7 +176,7 @@ the trainer aborts immediately at startup without it, a different failure
 mode than the ABI error above) and **`TT_METAL_ARCH_NAME=blackhole`** for
 p100/p150/p300c (`wormhole_b0` on n150/n300/T3000/Galaxy — always guard with
 `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` if you're scripting this, per this
-project's compatibility rules). `content/templates/llm-from-scratch/train_nano_from_scratch.py`
+project's compatibility rules). `~/tt-scratchpad/llm-from-scratch/train_nano_from_scratch.py`
 sets both for you, honouring anything you've already exported.
 
 Verify the build with the one-liner `BUILD_TTML.md` ends on:
@@ -188,7 +191,7 @@ Here is the exact, verified command — the launcher, driving the upstream
 trainer, with the Llama config:
 
 ```bash
-python content/templates/llm-from-scratch/train_nano_from_scratch.py \
+python ~/tt-scratchpad/llm-from-scratch/train_nano_from_scratch.py \
     --max_steps 20 \
     --data_path $TT_METAL_HOME/tt-train/data/shakespeare.txt
 ```

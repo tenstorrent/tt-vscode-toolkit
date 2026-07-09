@@ -13,6 +13,9 @@ estimatedMinutes: 40
 
 # Attention from Scratch
 
+> **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
+
+
 lfs-02 gave the residual stream its first value: `x = self.tok_emb(idx)`, a
 running `[B, T, n_embd]` tensor that every block reads from and adds back
 into — and, this arc being modern-Llama-3-shaped, that's the *whole* value.
@@ -83,7 +86,7 @@ write down a pipeline whose shape is already pinned by the DSL.
 ## Attention, the math: Grouped-Query Attention with RoPE'd Q/K (PyTorch reference)
 
 Here is the reference — `GroupedQueryAttention`, quoted verbatim from
-`content/templates/llm-from-scratch/reference_gpt.py` so the prose and the
+`~/tt-scratchpad/llm-from-scratch/reference_gpt.py` so the prose and the
 code can't drift apart:
 
 ```python
@@ -214,7 +217,7 @@ kept faithful to the vendor original in
 `vendor/tt-lang/examples/test_transformer_block.py` — the same reader →
 compute → writer shape you met in lfs-02, scaled up to the full attention
 pipeline. It lives in
-`content/templates/llm-from-scratch/kernels/attention.py`.
+`~/tt-scratchpad/llm-from-scratch/kernels/attention.py`.
 
 **Where GQA fits against this kernel.** `attention_kernel` below takes Q, K,
 and V that are already `[T, head_dim]` for a *single* head — it has no
@@ -418,7 +421,7 @@ Because this kernel doesn't run in the simulator (next section explains why),
 its `main()` is built to still give you an honest, reproducible signal. Run it:
 
 ```bash
-python content/templates/llm-from-scratch/kernels/attention.py
+python ~/tt-scratchpad/llm-from-scratch/kernels/attention.py
 ```
 
 `main()` does three things, in order:

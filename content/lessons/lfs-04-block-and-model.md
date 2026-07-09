@@ -13,6 +13,9 @@ estimatedMinutes: 40
 
 # The Transformer Block & the Model
 
+> **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
+
+
 lfs-03 ended with a working attention output — GQA'd, RoPE'd, causal-masked,
 projected back through `o_proj` — but attention is only half of what a
 transformer block does to `x`. The other half is a feed-forward
@@ -61,7 +64,7 @@ Every GPT-2-era MLP does the same two-step dance: expand `n_embd` to `4 *
 n_embd`, apply GELU, project back down. Llama-3 — and the `nanollama3` config
 this arc trains — replaces that with **SwiGLU**: a *gated* feed-forward that
 adds a third projection and swaps GELU for SiLU. Here's the exact module,
-quoted verbatim from `content/templates/llm-from-scratch/reference_gpt.py` so
+quoted verbatim from `~/tt-scratchpad/llm-from-scratch/reference_gpt.py` so
 the prose and the code can't drift apart:
 
 ```python
@@ -154,7 +157,7 @@ Llama-3, Mini-LLM, and this arc's own `nanollama3` all use RMSNorm in place of
 LayerNorm throughout.
 
 Here is the from-scratch TT-Lang kernel, quoted verbatim from
-`content/templates/llm-from-scratch/kernels/rmsnorm.py` — this arc's third
+`~/tt-scratchpad/llm-from-scratch/kernels/rmsnorm.py` — this arc's third
 hand-authored inception kernel, faithful to the RMSNorm compute block inside
 `norm_qkv_kernel` / `norm_mlp_residual_kernel` in the vendor's
 `test_transformer_block.py`:
@@ -241,7 +244,7 @@ Run it and you'll see the same honest fallback lfs-03's attention kernel
 prints:
 
 ```bash
-python content/templates/llm-from-scratch/kernels/rmsnorm.py
+python ~/tt-scratchpad/llm-from-scratch/kernels/rmsnorm.py
 ```
 
 ```
@@ -373,7 +376,7 @@ into one, op-by-op, exactly where a `ttnn` call would otherwise go.**
 The clearest example is matmul, because it's everywhere in this lab's model:
 `q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate`, `up`, `down`, and `head` are
 all, underneath, `Y = A @ B`. Here is `matmul`, quoted verbatim from
-`content/templates/llm-from-scratch/kernels/matmul.py` — **sim-validated**,
+`~/tt-scratchpad/llm-from-scratch/kernels/matmul.py` — **sim-validated**,
 unlike RMSNorm and attention, because a plain tiled matmul never needs the
 broadcast pattern the pinned simulator rejects:
 
@@ -437,7 +440,7 @@ into a compute-local register (`y += a_blk @ b_blk`, the tiled-matmul inner
 reduction loop you'd hand-write with shared memory and `__syncthreads()` on
 CUDA — here the "sync" is just the `.reserve()`/`.wait()` handshake) before
 storing the finished output tile; `matmul_write` drains it back to DRAM. Run
-it (`python content/templates/llm-from-scratch/kernels/matmul.py`) and it
+it (`python ~/tt-scratchpad/llm-from-scratch/kernels/matmul.py`) and it
 prints `max abs error vs torch: ...` followed by `PASSED` — a real, clean sim
 run, no honest-flag caveat needed.
 
@@ -550,7 +553,7 @@ There's no new playground for this lab — the payoff is that the *whole
 model* now runs, forward-pass only, in plain PyTorch, on CPU, anywhere:
 
 ```bash
-python content/templates/llm-from-scratch/reference_gpt.py --smoke
+python ~/tt-scratchpad/llm-from-scratch/reference_gpt.py --smoke
 ```
 
 Expected output (an actual verification run):
