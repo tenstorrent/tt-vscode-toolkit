@@ -18,10 +18,10 @@ estimatedMinutes: 30
 
 # Tokenizer & Data from Scratch
 
-Every model in this arc starts the same way: text goes in, integers come
-out. This lab builds that conversion **from scratch**, with no tokenizer
-library doing the work for you, and follows the integers all the way to the
-tiled `ttnn.Tensor` shape the rest of the arc builds on.
+Every model in this arc starts the same way: text goes in, integers come out.
+This lab builds that conversion **from scratch**, with no tokenizer library
+doing the work for you. Then it follows the integers all the way to the tiled
+`ttnn.Tensor` shape the rest of the arc builds on.
 
 The reference code for this arc lives in `~/tt-scratchpad/llm-from-scratch/`,
 and every command below runs out of that folder. If you haven't scaffolded it
@@ -49,23 +49,24 @@ tt_tokens = ttnn.from_torch(torch_tokens, device=device)   # H2D
 torch_logits = ttnn.to_torch(tt_logits)                    # D2H
 ```
 
-**There is no unified memory here, same as on discrete CUDA GPUs without
-`cudaMallocManaged`.** A tensor is either a plain `torch.Tensor` living in
-host RAM, or a `ttnn.Tensor` living in a Tensix chip's DRAM — never both at
-once, and the move between them is always an explicit call you can see in
-the code. Everything in this lab happens on the host side of that line: a
-tokenizer is pure Python, and the first `ttnn.from_torch` doesn't happen
-until the very end, once there's a batch of token IDs worth moving.
+**There's no unified memory here — same as on discrete CUDA GPUs without
+`cudaMallocManaged`.** A tensor is either a plain `torch.Tensor` in host RAM
+or a `ttnn.Tensor` in a Tensix chip's DRAM, never both at once. The move
+between them is always an explicit call you can see in the code.
+
+Everything in this lab happens on the host side of that line. A tokenizer is
+pure Python, and the first `ttnn.from_torch` doesn't happen until the very
+end, once there's a batch of token IDs worth moving.
 
 ---
 
 ## Build a BPE tokenizer, from scratch
 
-Real tokenizers almost never map one character to one token — that wastes
+Real tokenizers almost never map one character to one token. That wastes
 vocabulary slots on redundant sequences ("th", "ing", "the ") that show up
-constantly in real text. **Byte-pair encoding (BPE)** fixes this by
-*learning* which byte sequences are common enough to deserve their own
-token, starting from nothing but the 256 raw bytes and merging upward.
+constantly in real text. **Byte-pair encoding (BPE)** fixes this by *learning*
+which byte sequences are common enough to deserve their own token — starting
+from nothing but the 256 raw bytes and merging upward.
 
 The algorithm, in four steps:
 
@@ -123,11 +124,11 @@ class BPETokenizer:
             ids = self._merge(ids, best_pair, new_id)
 ```
 
-`encode()` and `decode()` are the mirror image of `train()` — `encode()`
-walks the same merge table forward on new text; `decode()` just concatenates
-token bytes and decodes as UTF-8. The full file (`_merge`, `encode`,
-`decode`, and a self-test) is about 130 lines, all pure Python, no
-dependencies beyond `collections.Counter`.
+`encode()` and `decode()` are the mirror image of `train()`. `encode()` walks
+the same merge table forward on new text; `decode()` just concatenates token
+bytes and decodes as UTF-8. The full file (`_merge`, `encode`, `decode`, and a
+self-test) is about 130 lines — all pure Python, no dependencies beyond
+`collections.Counter`.
 
 Run it and you'll see merges being learned live, on a tiny Shakespeare
 excerpt:
@@ -149,19 +150,21 @@ decoded:    'First Citizen: Speak, speak.'
 PASSED
 ```
 
-Notice the first merges are boring on purpose — `"e "`, `":\n"`, `"t "` —
-because BPE always finds the *globally* most frequent pair first, and in
-English prose that's punctuation-plus-whitespace, not word fragments. Train
-on a bigger corpus for longer and the merges climb toward whole common words
-("the", "and") and then multi-word fragments. The probe sentence — 28
-characters — collapses to 9 tokens once trained, because "First Citizen"
-and "speak" both showed up (and got merged) during training.
+Notice the first merges are boring on purpose — `"e "`, `":\n"`, `"t "`. BPE
+always finds the *globally* most frequent pair first, and in English prose
+that's punctuation-plus-whitespace, not word fragments. Train on a bigger
+corpus for longer and the merges climb toward whole common words ("the",
+"and"), then multi-word fragments.
+
+The probe sentence — 28 characters — collapses to 9 tokens once trained,
+because "First Citizen" and "speak" both showed up (and got merged) during
+training.
 
 **This is the tokenizer for the ~80M-parameter / TinyStories-scale target**
-this arc frames as its "hero" run (see lfs-00) — and it's the same family of
-tokenizer used by the r/LocalLLaMA build that inspired this whole arc. If
-you wanted to point it at a real dataset instead of the tiny inline sample,
-you'd pull it with the `hf` CLI, not `huggingface-cli`:
+this arc frames as its "hero" run (see lfs-00). It's the same family of
+tokenizer used by the r/LocalLLaMA build that inspired this whole arc. To
+point it at a real dataset instead of the tiny inline sample, you'd pull the
+data with the `hf` CLI, not `huggingface-cli`:
 
 ```bash
 hf download roneneldan/TinyStories --repo-type dataset --local-dir ~/data/tinystories
@@ -175,9 +178,9 @@ and the merge budget do.
 
 ## The honest three-tier tokenizer story
 
-Here's the part that's easy to gloss over, and this lesson won't: **the
-nano model this arc actually trains on Blackhole<sup>®</sup> in Lab 5 does not use the
-BPE tokenizer above.** It uses something simpler — `CharTokenizer`, already
+Here's the part that's easy to gloss over, and this lesson won't. **The nano
+model this arc actually trains on Blackhole<sup>®</sup> in Lab 5 does not use
+the BPE tokenizer above.** It uses something simpler: `CharTokenizer`, already
 sitting in `~/tt-scratchpad/llm-from-scratch/reference_gpt.py`:
 
 ```python
@@ -206,10 +209,11 @@ class CharTokenizer:
 
 No merges, no training loop — just every distinct character in the corpus
 assigned an integer. That's genuinely all `ttml`'s from-scratch training run
-needs at nano scale (`vocab≈96` on tiny Shakespeare), and it's simple enough
-that the data pipeline stays the star of the show rather than the
-tokenizer. **All three tokenizers in this arc are real, and each is used
-honestly for what it's good at — none is a placeholder for another:**
+needs at nano scale (`vocab≈96` on tiny Shakespeare). It's simple enough that
+the data pipeline stays the star of the show, not the tokenizer.
+
+**All three tokenizers in this arc are real, and each is used honestly for
+what it's good at — none is a placeholder for another:**
 
 1. **Char-level** (`CharTokenizer`, `vocab≈96`) — what actually runs, live,
    on Blackhole hardware in Lab 5. Simplest possible, zero training cost,
@@ -224,34 +228,38 @@ honestly for what it's good at — none is a placeholder for another:**
 
 ## What production LLMs use: SentencePiece BPE @ 32K
 
-Neither tokenizer above is what a real production model reaches for. Llama
-3, and [Mini-LLM](https://github.com/Ashx098/Mini-LLM) — the
-~80M-parameter, TinyStories-scale build this arc's hero run is patterned
-after — both tokenize with **SentencePiece BPE trained to a ~32,000-token
-vocabulary** over a large corpus, orders of magnitude bigger than the
-306-token vocab this lab trains on a Shakespeare excerpt.
+Neither tokenizer above is what a real production model reaches for. Llama 3
+and [Mini-LLM](https://github.com/Ashx098/Mini-LLM) — the ~80M-parameter,
+TinyStories-scale build this arc's hero run is patterned after — both tokenize
+with **SentencePiece BPE trained to a ~32,000-token vocabulary** over a large
+corpus. That's orders of magnitude bigger than the 306-token vocab this lab
+trains on a Shakespeare excerpt.
 
 SentencePiece is the same BPE *idea* explained above — merges learned
-bottom-up from pair frequency — productionized: a mature, widely-used
-library, a subword-regularization option for training-time robustness, and
-a vocabulary budget large enough that whole common words end up as single
-tokens instead of the two- and three-character fragments a 300-token vocab
-tops out at. The four-step algorithm at the top of this lesson (start from
-raw units, count pairs, merge the most frequent, repeat) is exactly what
-SentencePiece's BPE mode does internally; it just runs that loop against a
-corpus of billions of characters instead of one paragraph of Shakespeare,
-and stops at 32,000 merges instead of 50.
+bottom-up from pair frequency — but productionized. You get a mature,
+widely-used library, a subword-regularization option for training-time
+robustness, and a vocabulary budget large enough that whole common words
+become single tokens instead of the two- and three-character fragments a
+300-token vocab tops out at.
 
-That's the honest arithmetic behind the three tiers above: this lesson
-builds the *mechanism* at a scale small enough to run and inspect in
-seconds, and production systems buy the same mechanism — matured, and
-scaled up roughly 100x in vocabulary — off the shelf. A trained
-SentencePiece vocabulary is normally distributed as a `.model` artifact
-rather than something you regenerate from source each run; if one is hosted
-on the Hugging Face Hub, you'd pull it the same way as any other model
-asset in this arc, with `hf download`, not `huggingface-cli`. This lesson
-doesn't add a runnable SentencePiece example, though — it's an external
-dependency, and the from-scratch tokenizer above stays the hands-on,
+The four-step algorithm at the top of this lesson (start from raw units, count
+pairs, merge the most frequent, repeat) is exactly what SentencePiece's BPE
+mode does internally. It just runs that loop against billions of characters
+instead of one paragraph of Shakespeare, and stops at 32,000 merges instead of
+50.
+
+That's the honest arithmetic behind the three tiers. This lesson builds the
+*mechanism* at a scale small enough to run and inspect in seconds. Production
+systems buy the same mechanism off the shelf — matured, and scaled up roughly
+100x in vocabulary.
+
+A trained SentencePiece vocabulary normally ships as a `.model` artifact
+rather than something you regenerate each run. If one is hosted on the Hugging
+Face Hub, you'd pull it like any other model asset in this arc, with `hf
+download`, not `huggingface-cli`.
+
+This lesson doesn't add a runnable SentencePiece example, though. It's an
+external dependency, and the from-scratch tokenizer above stays the hands-on,
 byte-for-byte-inspectable artifact for this lab.
 
 ---
@@ -277,21 +285,23 @@ def get_batch(token_ids: list[int], batch_size: int, block_size: int):
     return x, y  # both [batch_size, block_size]
 ```
 
-`x` is the model's input; `y` is `x` shifted one token to the right — at
-every position, the target is simply "the next token." This is the exact
+`x` is the model's input; `y` is `x` shifted one token to the right. At every
+position, the target is simply "the next token." This is the exact
 `[batch, seq]` shape (`batch=2, seq=32` at nano scale) that
 `reference_gpt.py`'s `smoke()` function feeds into the model, and the shape
-every downstream lab builds on. Nothing about batching is TT-specific —
-this step is identical whether the next stop is `ttnn` or plain PyTorch.
+every downstream lab builds on.
+
+Nothing about batching is TT-specific. This step is identical whether the next
+stop is `ttnn` or plain PyTorch.
 
 ---
 
 ## Tokens → tiled tensors
 
 This is where the CUDA callout from the top of the lesson stops being
-abstract. A `[batch, seq]` integer tensor is still a `torch.Tensor` living
-on the host at this point — nothing has crossed onto a Tensix chip yet.
-Getting it there is two explicit steps:
+abstract. A `[batch, seq]` integer tensor is still a `torch.Tensor` on the
+host at this point — nothing has crossed onto a Tensix chip yet. Getting it
+there takes two explicit steps:
 
 ```python
 import ttnn
@@ -305,30 +315,32 @@ tt_tokens = ttnn.from_torch(
 ```
 
 Recall from lfs-00: Tensix hardware doesn't compute on scalars or arbitrary
-rows, it computes on **32×32 tiles** — 1,024 elements addressed as a single
-unit. `ttnn.TILE_LAYOUT` is what performs that reshuffle. At nano scale
-(`block_size=256`), a `[2, 256]` token tensor already divides evenly into
-32-wide tiles along the sequence axis; padding only becomes a concern once
-`seq` or the embedding width isn't a multiple of 32, which lfs-02 runs into
-directly.
+rows. It computes on **32×32 tiles** — 1,024 elements addressed as a single
+unit. `ttnn.TILE_LAYOUT` performs that reshuffle.
 
-The token tensor itself is just IDs — it doesn't become a *meaningful*
-tensor to the model until each ID is looked up in an embedding table and
-turned into a `n_embd`-wide vector. That lookup is one call:
+At nano scale (`block_size=256`), a `[2, 256]` token tensor already divides
+evenly into 32-wide tiles along the sequence axis. Padding only becomes a
+concern once `seq` or the embedding width isn't a multiple of 32 — which
+lfs-02 runs into directly.
+
+The token tensor is still just IDs. It doesn't become a *meaningful* tensor to
+the model until each ID is looked up in an embedding table and turned into an
+`n_embd`-wide vector. That lookup is one call:
 
 ```python
 # Preview only -- lfs-02 builds and owns this.
 x_embedded = ttnn.embedding(tt_tokens, embedding_weight, layout=ttnn.TILE_LAYOUT)
 ```
 
-`ttnn.embedding` is a gather: for every integer in `tt_tokens`, it pulls the
+`ttnn.embedding` is a gather. For every integer in `tt_tokens`, it pulls the
 matching row out of `embedding_weight` and returns a `[batch, seq, n_embd]`
 tensor, already tiled. That's real code from the next lab, not this one —
 lfs-02 builds the embedding table and the residual stream it feeds into.
-The one thing worth fixing in your head now: **the token tensor produced by
-this lab's tokenizer is exactly the input `ttnn.embedding` expects.** The
-seam between "data from scratch" and "model from scratch" is a single,
-explicit `ttnn.from_torch` call.
+
+Fix one thing in your head now: **the token tensor produced by this lab's
+tokenizer is exactly the input `ttnn.embedding` expects.** The seam between
+"data from scratch" and "model from scratch" is a single, explicit
+`ttnn.from_torch` call.
 
 ---
 
@@ -351,12 +363,13 @@ the whole tokenizer, verified, before a single line of model code exists.
 ## Graduate box
 
 Everything you just ran — training merges, encoding, decoding, batching —
-runs on a laptop CPU with no Tenstorrent hardware, no simulator, and no
-device driver in sight. That's deliberate: data and tokenization are a
-host-side problem on every stack, CUDA included. **The token tensor lands
-on-device for the first time in the next lab**, the moment `ttnn.from_torch`
-hands a batch to `ttnn.embedding` — and that's also where your first
-TT-Lang kernel gets written.
+runs on a laptop CPU with no Tenstorrent hardware, no simulator, and no device
+driver in sight. That's deliberate: data and tokenization are a host-side
+problem on every stack, CUDA included.
+
+**The token tensor lands on-device for the first time in the next lab**, the
+moment `ttnn.from_torch` hands a batch to `ttnn.embedding`. That's also where
+your first TT-Lang kernel gets written.
 
 ---
 
