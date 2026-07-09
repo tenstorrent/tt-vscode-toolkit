@@ -2,7 +2,9 @@
 id: ct5-multi-device-training
 title: Multi-Device Training
 description: >-
-  Walk through the documented Data Parallel (DDP) pattern for n300, T3000, and Galaxy systems — device mesh configuration, gradient synchronization, and scaling considerations — read from tt-train's real configs and source.
+  Verified multi-chip Data Parallel (DDP) training with tt-train — near-linear
+  scaling to 4 Blackhole chips on a TT-QuietBox 2, the mesh graph descriptor fix
+  that unlocks it, plus the documented pattern for n300, T3000, and Galaxy.
 category: custom-training
 tags:
   - multi-device
@@ -14,13 +16,10 @@ supportedHardware:
   - n300
   - t3k
   - galaxy
-status: draft
-note: >-
-  ttml (tt-train) builds and trains from source on Blackhole p300c as of
-  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
-  "Install tt-train" command for the verified recipe. This lesson is being
-  re-authored around that verified workflow.
-validatedOn: []
+  - p300c
+status: validated
+validatedOn:
+  - p300c
 estimatedMinutes: 15
 ---
 
@@ -28,11 +27,25 @@ estimatedMinutes: 15
 
 Scale `tt-train` across multiple Tenstorrent chips with Data Parallel (DDP) — split a batch across devices, average gradients, keep every device's weights identical.
 
-## An Honest Note Before You Start
+## Verified: Multi-Chip DDP Works on a TT-QuietBox 2
 
-We **tested this on a 4-chip TT-QuietBox<sup>®</sup> 2** (Blackhole<sup>®</sup> p300c, tt-metal v0.73), and the honest result is blunt: **multi-chip `tt-train` DDP does not work on it yet.** The four chips *are* physically Ethernet-meshed — UMD system-health shows a healthy `0↔1↔2↔3↔0` ring — so this isn't "four isolated chips." But the `tt-train` / tt-fabric software layer fails to bring the mesh up as a training job: a 2-chip run dies at `Fabric Router Sync: Timeout` during mesh open (and survives a `tt-smi -r`), and a 4-chip run clears fabric init but then hangs in optimizer compilation without ever reaching a step. Single-chip training works fine. So **today, treat a QB2 as four chips you run independent jobs on, not one mesh you train across** — until that fabric issue is resolved.
+We **tested this on a TT-QuietBox<sup>®</sup> 2** (2× p300c dual-ASIC boards = 4 Blackhole<sup>®</sup> chips, tt-metal v0.73), and the result is good news: **multi-chip `tt-train` DDP works, at 2 chips and at 4, with near-linear scaling.** The box's physical topology is a **2×2 ring mesh** — `ClusterType::P300_X2` — not four independent chips: board A holds chips 0/1, board B holds chips 2/3, and the cross-board Ethernet links close the ring `0↔1↔2↔3↔0`. Every earlier statement in this lesson describing a QB2 as "four independent p300c" was wrong for this framing — it's one mesh.
 
-So what follows is the **documented `tt-train` pattern** for real multi-chip hardware — n300, T3000 (also called LoudBox), and Galaxy — read from `tt-metal/tt-train/configs/README.md` and the actual YAML configs shipped in `tt-metal/tt-train/configs/training_configs/`. It's grounded in the real source, not hardware-verified end to end on this box. If you're on n300+ hardware and run this, the community would benefit from your results — file them against this lesson.
+**Measured scaling** (nanogpt, char tokenizer, seq len 256, per-device batch 64, steady-state over steps 10–50, tt-metal v0.73.0-dev on a P300_X2 QB2):
+
+| Chips | Mesh | ms/step | tokens/s | Scaling | Efficiency |
+|---|---|---|---|---|---|
+| 1 | `[1,1]` | 74.4 | 220,283 | 1.00× | 100% |
+| 2 | `[1,2]` | 76.3 | 429,479 | 1.95× | 97% |
+| 4 | `[1,4]` | 74.8 | 876,341 | 3.98× | 99.5% |
+
+Peak TFLOPS scaled almost exactly N×: 148.5 → 297 → 594. Loss decreased at every chip count (e.g. the 4-chip run: 4.65 → 3.03 over 50 steps) — DDP is producing real, correct training, not just running without crashing.
+
+**The catch, and the fix:** out of the box, a 2-chip run on this hardware died at `Fabric Router Sync: Timeout` during mesh open, and this **survived both `tt-smi -r` and a full host reboot** — it looked like a genuine hardware or firmware fault. It wasn't. `ttml` only ships a *default* mesh graph descriptor (MGD) for 8-device (T3000) and 32-device (Galaxy) topologies; for 2- or 4-device Blackhole it silently falls back to a descriptor-less fabric config that mis-initializes the routers. Pointing `TT_MESH_GRAPH_DESC_PATH` at the right descriptor — no source changes, no firmware flash — fixed both the 2-chip and 4-chip case. The full recipe is in [Making the Mesh Initialize on a QB2](#making-the-mesh-initialize-on-a-qb2-the-mgd-fix) below.
+
+A firmware-bundle mismatch (19.11.0 installed vs. 19.5.0 last fully tested for Blackhole) showed up as a warning during this testing and was a suspect for a while — it turned out to be a red herring; the MGD was the actual root cause.
+
+So what follows is **both**: the documented `tt-train` pattern for n300, T3000 (also called LoudBox), and Galaxy — read from `tt-metal/tt-train/configs/README.md` and the actual YAML configs shipped in `tt-metal/tt-train/configs/training_configs/` — **and** the QB2-specific MGD fix and measured scaling above, verified end to end on Blackhole p300c hardware. If you hit something different on your own n300+ or QB2 hardware, the community would benefit from your results — file them against this lesson.
 
 ## What You'll Learn
 
@@ -71,12 +84,12 @@ A single chip is one node in a mesh of size 1. There's nothing to split a batch 
 - ✅ Simple, easy to debug — the workflow [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) walks through
 - ⚠️ One device's worth of throughput — that's it
 
-### Multi-Device (n300, T3000/LoudBox, Galaxy) — Where DDP Applies
+### Multi-Device (n300, T3000/LoudBox, Galaxy, QB2/p300c) — Where DDP Applies
 
 - ✅ Batch splits across chips; gradients average via all-reduce
 - ✅ More devices → more throughput, up to communication overhead
 - ✅ Larger effective batch sizes without exhausting one chip's DRAM
-- ⚠️ Requires hardware where the tt-fabric mesh actually initializes for training. On the TT-QuietBox 2 we tested (tt-metal v0.73) the chips are physically meshed but multi-chip DDP currently fails at fabric-router sync — so its four chips can't yet form one training job (see the honest note above)
+- ✅ Verified on a TT-QuietBox 2 (2×2 ring mesh of Blackhole p300c, tt-metal v0.73): near-linear scaling to 4 chips, once the mesh graph descriptor is supplied — see [Verified: Multi-Chip DDP Works on a TT-QuietBox 2](#verified-multi-chip-ddp-works-on-a-tt-quietbox-2) above
 
 **Key insight:** correctly configured DDP produces the same results as single-device training, just faster. It doesn't change what the model learns — only how many chips do the work.
 
@@ -144,14 +157,15 @@ graph TD
 ### When to Use DDP
 
 **Use DDP when:**
-- ✅ You have n300, T3000/LoudBox, or Galaxy — real multi-chip interconnect
+- ✅ You have n300, T3000/LoudBox, Galaxy, or a QB2 (2 or 4 Blackhole chips) — real multi-chip interconnect
 - ✅ You want faster iteration
 - ✅ Your model fits on one device (this is data parallelism, not model/tensor parallelism — see the tensor-parallel note further down)
 
 **Skip DDP when:**
-- ⚠️ You have a single chip — n150, p150, or a single p300c. On a TT-QuietBox 2, multi-chip DDP doesn't work yet (the fabric-router-sync failure we hit at tt-metal v0.73), so in practice you train one chip at a time there too — see the honest note above.
+- ⚠️ You have a single chip — n150, p150, or a single p300c not paired into a QB2. There's nothing to split a batch across.
 - ⚠️ Debugging training issues (simpler to debug on 1 device)
 - ⚠️ Very small datasets (overhead not worth it)
+- ⚠️ You're on a QB2 and haven't set `TT_MESH_GRAPH_DESC_PATH` yet — see the MGD fix below; without it, multi-chip mesh open fails at fabric-router sync
 
 ---
 
@@ -162,11 +176,12 @@ graph TD
 | Hardware | `mesh_shape` |
 |---|---|
 | Single-device (n150, p150, single p300c) | `[1, 1]` |
-| Dual-device (n300, p300) | `[1, 2]` |
+| Dual-device (n300, p300, or 2 chips of a QB2) | `[1, 2]` |
 | LoudBox (T3000, 8 chips) | `[1, 8]` |
+| Full TT-QuietBox 2 (2× p300c boards, 4 Blackhole chips) | `[1, 4]` |
 | Single Galaxy (32 chips) | `[1, 32]` |
 
-These are the whole-mesh shapes for the hardware itself — not a choice you make freely. `mesh_shape` for an n300 is `[1, 2]` because an n300 physically has two chips; it isn't `[2, 4]` or anything else. Earlier drafts of this lesson had that table wrong (`[2, 4]` for T3000, `[4, 8]` for Galaxy) — those numbers don't correspond to any real hardware configuration and are corrected here.
+These are the whole-mesh shapes for the hardware itself — not a choice you make freely. `mesh_shape` for an n300 is `[1, 2]` because an n300 physically has two chips; it isn't `[2, 4]` or anything else. Earlier drafts of this lesson had that table wrong (`[2, 4]` for T3000, `[4, 8]` for Galaxy) — those numbers don't correspond to any real hardware configuration and are corrected here. On a QB2, `mesh_shape: [1, 4]` is the plain-DDP shape across all 4 chips — see the MGD fix below for why this needs a custom mesh graph descriptor to actually open.
 
 ### Single-Chip Baseline
 
@@ -315,23 +330,101 @@ Per-chip open/close loops race against each other during teardown and reliably c
 
 ---
 
+## Making the Mesh Initialize on a QB2 (the MGD Fix)
+
+If you point `tt-train`'s DDP config straight at 2 or 4 chips on a TT-QuietBox 2 without doing anything else, mesh open fails. A 2-chip attempt dies during `ttml.open_device_mesh` with:
+
+```
+WARNING: TT_MESH_GRAPH_DESC_PATH not set, skipping MGD validation
+RuntimeError: TT_THROW @ .../fabric_firmware_initializer.cpp:263: tt::exception
+info:
+Fabric Router Sync: Timeout after 10000 ms on Device 2: expected status 0xa2b2c2d2.
+Master chan=2 got 0xa0b0c0d0. ...
+```
+
+This looks like a hardware fault, and it isn't: the same failure reproduces identically after `tt-smi -r` **and** after a full host reboot, while the physical Ethernet ring (`0↔1↔2↔3↔0`, confirmed via UMD's `system_health` tool) stays healthy throughout. A 4-chip attempt (before the fix) instead clears fabric init but hangs during optimizer compilation without reaching a training step.
+
+**Root cause:** `ttml`'s `enable_fabric()` (`tt-train/sources/ttml/ttnn_fixed/distributed/tt_metal.cpp`, `get_mgd_path`) only ships a *default* mesh graph descriptor (MGD) for **8-device (T3000)** and **32-device (Galaxy)** topologies. For 2 or 4 Blackhole devices with `TT_MESH_GRAPH_DESC_PATH` unset, it returns no descriptor, tt-metal falls back to `SetFabricConfig(FABRIC_2D)` with no MGD, and the auto-discovered fabric-router config doesn't match this box's actual topology — hence the router-sync timeout. The `TT_MESH_GRAPH_DESC_PATH not set, skipping MGD validation` warning is the exact tell that you're missing this.
+
+**The fix is config only — no source edits, no firmware flash.** Supply the right MGD and set `TT_MESH_GRAPH_DESC_PATH` before launching:
+
+### 2-chip `[1,2]` — use the shipped p300 descriptor
+
+```bash
+export TT_MESH_GRAPH_DESC_PATH="$TT_METAL_HOME/tt_metal/fabric/mesh_graph_descriptors/p300_mesh_graph_descriptor.textproto"
+
+python tt-metal/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
+  --config train_ddp_2chip.yaml --fresh
+```
+
+This descriptor's `dims` are `[1, 2]`, matching a 2-chip mesh exactly. `ttml` infers `FABRIC_2D` from it, mesh open succeeds, and training reaches steady state (peak 297 TFLOPS in our run).
+
+### 4-chip `[1,4]` — needs a custom descriptor with a RING on the DP axis
+
+The 4-chip case needs a descriptor that doesn't ship by default: `dims [1, 4]` with **`dim_types [LINE, RING]`**. The `RING` on the data-parallel axis is what makes `ttml` infer `FABRIC_2D_TORUS_Y` — a torus config that matches the box's physical 0-1-2-3-0 ring. Without it (plain `FABRIC_2D`, no torus), the 4-chip run stalls on the collective instead of hanging cleanly — this was exactly what the earlier, pre-fix spike hit.
+
+Key fields of the working descriptor (`qb2_1x4_ring.textproto`):
+
+```protobuf
+device_topology {
+  dims: [1, 4]
+  dim_types: [LINE, RING]
+}
+channels {
+  count: 2
+  policy: RELAXED
+}
+```
+
+Then:
+
+```bash
+export TT_MESH_GRAPH_DESC_PATH=/path/to/qb2_1x4_ring.textproto
+
+python tt-metal/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
+  --config train_ddp_4chip.yaml --fresh
+```
+
+Mesh opens as `(1, 4)`, `ttml` validates the descriptor against the requested `mesh_shape`, and training reaches steady state (peak 594 TFLOPS in our run).
+
+**Why you need a matching descriptor per device count:** `ttml`'s `_validate_mgd` requires the descriptor's `device_topology.dims` to exactly equal the requested `mesh_shape`. A `[1,2]` descriptor won't validate against a 4-chip run and vice versa — each device count needs its own file.
+
+**One more wrinkle:** a `p300_x2` (2×2) descriptor exists in tt-metal, but plain DDP rejects a genuinely 2D mesh shape — DDP needs a `1×N` shape (DDP+TP is what consumes a real 2D mesh). That's why the 4-chip fix above is a `[1,4]` descriptor with a `RING` dim type, not a `[2,2]` one — it's a 1D DDP mesh whose fabric config happens to route over the physical 2×2 hardware ring.
+
+**Status of this gap:** as of tt-metal v0.73, this is a genuine upstream gap — `ttml`'s `get_mgd_path` should ship default MGDs for 2/4-device Blackhole (`P300`/`P300_X2`) the same way it does for T3000 and Galaxy, so `TT_MESH_GRAPH_DESC_PATH` isn't a manual step on a QB2. Until it does, the export above is the workaround.
+
+---
+
 ## Performance and Scaling Considerations
 
-### Expected Speedup — Documented Pattern, Not Benchmarked Here
+### Measured Scaling on a TT-QuietBox 2 (Verified)
 
-The table below describes the DDP scaling pattern documented for `tt-train` — it is **not a set of measurements from this hardware.** No T3000/LoudBox or Galaxy system was available to benchmark while writing this lesson; treat these as informed expectations to validate on your own run, not verified numbers.
+The table below **is** a set of measurements from this hardware — a TT-QuietBox 2, 2×2 ring mesh of Blackhole p300c, tt-metal v0.73.0-dev, with the MGD fix above applied. Workload: nanogpt (char tokenizer), sequence length 256, **per-device** batch size 64 (weak scaling — total batch grows with chip count), steady state averaged over steps 10–50:
+
+| Chips | Mesh | ms/step | tokens/s | Scaling | Efficiency |
+|---|---|---|---|---|---|
+| 1 | `[1,1]` | 74.4 | 220,283 | 1.00× | 100% |
+| 2 | `[1,2]` | 76.3 | 429,479 | 1.95× | 97% |
+| 4 | `[1,4]` | 74.8 | 876,341 | 3.98× | 99.5% |
+
+Peak TFLOPS scaled almost exactly N×: 148.5 (1 chip) → 297 (2 chips) → 594 (4 chips). MFU held steady around 10.5% at every chip count — scaling efficiency this close to linear means the ring topology and all-reduce aren't the bottleneck at this model size and batch. Loss decreased at every chip count over the run (1 chip: 4.66→3.05; 2 chip: 4.66→2.89; 4 chip: 4.65→3.03), confirming DDP is training correctly, not just running fast.
+
+This is a weak-scaling measurement (fixed per-device batch, not fixed total batch) — ms/step staying roughly flat while tokens/s scales linearly is exactly the expected signature of near-ideal weak scaling.
+
+For n300, T3000/LoudBox, and Galaxy — hardware we have not benchmarked — the pattern below is the documented expectation from `tt-train`'s design, not a measurement:
 
 | Hardware | Devices | `mesh_shape` | Speedup (typical, ideal case) |
 |----------|---------|--------------|--------------------------------|
-| n150 / p150 / single p300c | 1 | `[1, 1]` | 1x (baseline) |
-| n300 / p300 | 2 | `[1, 2]` | ~2x |
+| n300 / p300 | 2 | `[1, 2]` | ~2x (matches our measured 1.95× on QB2) |
 | T3000 / LoudBox | 8 | `[1, 8]` | ~6-8x |
 | Single Galaxy | 32 | `[1, 32]` | well under 32x — see below |
 
-**Why scaling is never linear:**
+**Why scaling is never perfectly linear:**
 - **Communication overhead** — every step's all-reduce has to move gradients between chips; more chips means more data crossing the interconnect
 - **Batch size scaling** — a fixed dataset run in fewer, larger steps hits diminishing returns per additional device
 - **Utilization** — not every operation in a training step parallelizes equally well across the mesh
+
+Our QB2 measurements landed close enough to ideal (97-99.5% efficiency) that communication overhead wasn't yet the limiting factor at 4 chips and this model size — that changes at larger scale (T3000, Galaxy), where the ~6-8x and well-under-32x expectations above come from.
 
 **LR scaling rule of thumb:** if you scale the effective batch size by N, consider scaling the learning rate by √N (e.g. batch 32 → 64 is N=2, try `lr` × 1.4). Validate rather than assume — the actual right scaling factor depends on the model and optimizer.
 
@@ -360,6 +453,19 @@ Notice `[2, 4]` and `[8, 4]` show up here — those are the *combined* DDP+TP sh
 ---
 
 ## Troubleshooting Multi-Device Issues
+
+### Issue 0: `Fabric Router Sync: Timeout` at Mesh Open (QB2)
+
+**Symptoms:**
+```
+WARNING: TT_MESH_GRAPH_DESC_PATH not set, skipping MGD validation
+RuntimeError: TT_THROW @ .../fabric_firmware_initializer.cpp:263: tt::exception
+Fabric Router Sync: Timeout after 10000 ms on Device N: expected status 0xa2b2c2d2 ...
+```
+
+**This is not a hardware fault** — it survives both `tt-smi -r` and a full reboot on a QB2 with healthy physical Ethernet links. It means `ttml` has no mesh graph descriptor for a 2- or 4-device Blackhole mesh and mis-initialized the fabric routers.
+
+**Fix:** set `TT_MESH_GRAPH_DESC_PATH` to the matching descriptor before launching — see [Making the Mesh Initialize on a QB2](#making-the-mesh-initialize-on-a-qb2-the-mgd-fix) above for the 2-chip and 4-chip descriptors.
 
 ### Issue 1: DDP Initialization Fails
 
@@ -508,7 +614,7 @@ Device 0 ←→ Device 1 ←→ ... ←→ Device N
 
 ✅ **DDP splits a batch across devices and averages gradients by all-reduce — same math, same results as single-device, just parallelized**
 
-✅ **The real `mesh_shape` values are `[1, 1]` (single-chip), `[1, 2]` (n300), `[1, 8]` (T3000/LoudBox), `[1, 32]` (single Galaxy)** — read from `tt-train/configs/README.md`, not guessed
+✅ **The real `mesh_shape` values are `[1, 1]` (single-chip), `[1, 2]` (n300 or 2 QB2 chips), `[1, 4]` (full QB2), `[1, 8]` (T3000/LoudBox), `[1, 32]` (single Galaxy)** — read from `tt-train/configs/README.md`, not guessed
 
 ✅ **Coordinated device management (`CreateDevices`/`CloseDevices`, or `tt-train`'s internal `open_mesh_device`/`close_mesh_device`) treats the whole mesh as one unit — never open or close chips in a per-device loop**
 
@@ -516,7 +622,7 @@ Device 0 ←→ Device 1 ←→ ... ←→ Device N
 
 ✅ **Keep effective batch size (`batch_size × gradient_accumulation_steps`) constant when comparing hardware configurations**
 
-✅ **None of this was verified end-to-end on the machine this lesson was written on — a single p300c can't run DDP. Validate it yourself on n300+ hardware.**
+✅ **Verified on a TT-QuietBox 2 (2×2 ring mesh, tt-metal v0.73): multi-chip DDP works, with near-linear scaling to 4 chips (97-99.5% efficiency), once you supply the right mesh graph descriptor via `TT_MESH_GRAPH_DESC_PATH` — see the MGD fix section above**
 
 ---
 
@@ -540,6 +646,7 @@ Whether you trained on one chip or eight, the next problem is the same: keeping 
 ### Configuration Examples
 - **The real schema:** `tt-train/configs/README.md` — the source for every `mesh_shape`/`enable_ddp`/`enable_tp` value in this lesson
 - **The real configs:** `tt-train/configs/training_configs/training_shakespeare_nanogpt_ddp_n300.yaml` (plain DDP), `training_llama8b_dp2_tp4.yaml` and `training_llama8b_tp_ddp_galaxy.yaml` (DDP+TP combined)
+- **Mesh graph descriptors:** `tt_metal/fabric/mesh_graph_descriptors/p300_mesh_graph_descriptor.textproto` (shipped, use for QB2 2-chip DDP) — the 4-chip `[1,4]`/`RING` descriptor used in this lesson isn't shipped yet; build it from the key fields in the MGD fix section above
 - [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) — the full single-chip config schema this lesson builds on
 
 ### Profiling Tools

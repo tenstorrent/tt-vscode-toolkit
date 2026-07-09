@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.9] - 2026-07-09
+### Changed
+- **ct5 (Multi-Device Training) flipped to `validated` — multi-chip `tt-train` DDP verified working on a TT-QuietBox 2.** Corrected the topology framing: a QB2 is a 2×2 ring mesh (`P300_X2`, 2× p300c dual-ASIC boards), not four independent chips. Root-caused the earlier fabric-router-sync failure (survived `tt-smi -r` and a full reboot) to a missing mesh graph descriptor — `ttml` only ships default MGDs for 8/32-device topologies, so 2- and 4-device Blackhole meshes need `TT_MESH_GRAPH_DESC_PATH` set explicitly. Added a "Making the Mesh Initialize on a QB2" section with the exact fix (shipped `p300_mesh_graph_descriptor.textproto` for 2 chips; a custom `dims [1,4]` / `dim_types [LINE, RING]` descriptor for 4 chips) and replaced the old "not benchmarked" placeholder table with real measured scaling: 1.95× at 2 chips (97% efficiency), 3.98× at 4 chips (99.5% efficiency), losses decreasing at every chip count.
+
 ## [0.1.8] - 2026-07-09
 ### Changed
 - **ct5 (Multi-Device Training) updated to tested reality** — on a 4-chip TT-QuietBox 2 (tt-metal v0.73) the p300c chips are physically Ethernet-meshed, but multi-chip tt-train DDP currently fails (2-chip: fabric-router-sync timeout at mesh open; 4-chip: hangs in optimizer compile). Single-chip training works. Lesson now documents this honestly instead of asserting the chips are non-meshed/independent.

@@ -225,13 +225,13 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **ttsim QEMU Bridge: Full-System Simulation** — *draft*
 
 ### 🎓 Custom Training
-*8 lessons, 2 validated*
+*8 lessons, 3 validated*
 
 - **Understanding Custom Training** — *draft*
 - **Dataset Fundamentals** — *draft*
 - **Configuration Patterns** — *draft*
 - **Fine-tuning Basics** — `P300C`
-- **Multi-Device Training** — *draft*
+- **Multi-Device Training** — `P300C`
 - **Experiment Tracking** — *draft*
 - **Model Architecture Basics** — *draft*
 - **Training from Scratch** — `P300C`
@@ -408,18 +408,17 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.7 (2026-07-09)
+### Latest Release: v0.1.9 (2026-07-09)
 
 **Highlights:**
-- 📚 **Custom Training (`ct1`–`ct8`) track re-authored** — now a verified `ttml`/`tt-train` training-workflow track, disentangled from `tt-blacksmith` (the separate TT-Forge<sup>™</sup>/TT-XLA recipe stack); `ct4` and `ct8` are `validated` on Blackhole<sup>®</sup> p300c with real loss curves and honest "structure-not-coherence" output framing
-- 🧭 **`ct7` slimmed to a concise architecture tour**, deferring the by-hand component build to the from-scratch (`lfs`) arc
-- 🛠️ **`installTtTrain` aligned to the verified build recipe** — the `ttnn/_ttnn.so` `std::bad_cast` ABI fix that unblocks `import ttml` on prebuilt tt-metal images, including TT-QuietBox 2
+- ✅ **ct5 (Multi-Device Training) flipped to `validated`** — multi-chip `tt-train` DDP verified working on a TT-QuietBox<sup>®</sup> 2, with near-linear scaling to 4 Blackhole<sup>®</sup> chips (1.95× at 2 chips, 3.98× at 4 chips)
+- 🧩 **The mesh graph descriptor (MGD) fix documented** — the fabric-router-sync failure that blocked 2-/4-chip DDP was a missing MGD, not a hardware fault; the lesson now shows the exact `TT_MESH_GRAPH_DESC_PATH` fix for both chip counts
+- 🔧 **Topology corrected** — a QB2 is a 2×2 ring mesh (`P300_X2`, 2× p300c dual-ASIC boards), not four independent chips, everywhere this lesson discusses it
 
-### Previous Release: v0.1.5 (2026-07-09)
+### Previous Release: v0.1.8 (2026-07-09)
 
 **Highlights:**
-- 🔓 **Custom Training (`ct1`–`ct8`) lessons unblocked** — the old `blocked` status/reason ("ttml isn't available as a package") is retired now that `ttml` is verified building and training on Blackhole<sup>®</sup> p300c; all 8 lessons flip to `draft` while their bodies are re-authored
-- 🛠️ **`installTtTrain` rebuilt to match the verified build recipe** — configures the tt-train subproject, builds the `_ttml` bindings, rebuilds `ttnn/_ttnn.so` (fixes the `std::bad_cast` nanobind ABI mismatch that hits every prebuilt tt-metal image, including TT-QuietBox 2), and wires `ttml` onto the active venv
+- 📝 **ct5 (Multi-Device Training) updated to tested reality** — documented the (since-resolved) fabric-router-sync failure on a 4-chip TT-QuietBox 2 honestly instead of asserting the chips were non-meshed/independent
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 

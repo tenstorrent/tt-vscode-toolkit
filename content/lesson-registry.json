@@ -560,7 +560,7 @@
     {
       "id": "ct5-multi-device-training",
       "title": "Multi-Device Training",
-      "description": "Walk through the documented Data Parallel (DDP) pattern for n300, T3000, and Galaxy systems — device mesh configuration, gradient synchronization, and scaling considerations — read from tt-train's real configs and source.",
+      "description": "Verified multi-chip Data Parallel (DDP) training with tt-train — near-linear scaling to 4 Blackhole chips on a TT-QuietBox 2, the mesh graph descriptor fix that unlocks it, plus the documented pattern for n300, T3000, and Galaxy.",
       "category": "custom-training",
       "tags": [
         "multi-device",
@@ -572,10 +572,13 @@
       "supportedHardware": [
         "n300",
         "t3k",
-        "galaxy"
+        "galaxy",
+        "p300c"
       ],
-      "status": "draft",
-      "validatedOn": [],
+      "status": "validated",
+      "validatedOn": [
+        "p300c"
+      ],
       "estimatedMinutes": 15,
       "order": 5,
       "previousLesson": "ct4-finetuning-basics",
