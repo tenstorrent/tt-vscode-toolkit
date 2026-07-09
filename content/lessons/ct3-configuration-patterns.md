@@ -24,8 +24,7 @@ note: >-
   2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
-validatedOn:
-  - n150
+validatedOn: []
 estimatedMinutes: 15
 ---
 
@@ -102,7 +101,7 @@ Per `tt-train/configs/README.md`, there are four config *types*, though most fil
 
 ## A Real Pair: Character-Level LLaMA on Shakespeare
 
-Here is `tt-train/tt-train/configs/model_configs/nanollama3_char.yaml`, unedited:
+Here is `tt-train/configs/model_configs/nanollama3_char.yaml`, unedited:
 
 ```yaml
 transformer_config:

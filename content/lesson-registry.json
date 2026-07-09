@@ -458,9 +458,7 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [
-        "n150"
-      ],
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 1,
       "previousLesson": "coding-assistant",
@@ -489,9 +487,7 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [
-        "n150"
-      ],
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 2,
       "previousLesson": "ct1-understanding-training",
@@ -520,9 +516,7 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [
-        "n150"
-      ],
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 3,
       "previousLesson": "ct2-dataset-fundamentals",
@@ -554,7 +548,6 @@
       ],
       "status": "validated",
       "validatedOn": [
-        "n150",
         "p300c"
       ],
       "estimatedMinutes": 25,
@@ -611,9 +604,7 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [
-        "n150"
-      ],
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 6,
       "previousLesson": "ct5-multi-device-training",
@@ -642,9 +633,7 @@
         "galaxy"
       ],
       "status": "draft",
-      "validatedOn": [
-        "n150"
-      ],
+      "validatedOn": [],
       "estimatedMinutes": 20,
       "order": 7,
       "previousLesson": "ct6-experiment-tracking",
@@ -677,7 +666,6 @@
       ],
       "status": "validated",
       "validatedOn": [
-        "n150",
         "p300c"
       ],
       "estimatedMinutes": 30,

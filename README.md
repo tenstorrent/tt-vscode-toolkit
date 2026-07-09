@@ -227,14 +227,14 @@ code --install-extension tt-vscode-toolkit-*.vsix
 ### 🎓 Custom Training
 *8 lessons, 2 validated*
 
-- **Understanding Custom Training** — `N150`
-- **Dataset Fundamentals** — `N150`
-- **Configuration Patterns** — `N150`
-- **Fine-tuning Basics** — `N150` `P300C`
+- **Understanding Custom Training** — *draft*
+- **Dataset Fundamentals** — *draft*
+- **Configuration Patterns** — *draft*
+- **Fine-tuning Basics** — `P300C`
 - **Multi-Device Training** — *draft*
-- **Experiment Tracking** — `N150`
-- **Model Architecture Basics** — `N150`
-- **Training from Scratch** — `N150` `P300C`
+- **Experiment Tracking** — *draft*
+- **Model Architecture Basics** — *draft*
+- **Training from Scratch** — `P300C`
 
 ### 🔬 Build an LLM from Scratch
 *6 lessons, 0 validated*

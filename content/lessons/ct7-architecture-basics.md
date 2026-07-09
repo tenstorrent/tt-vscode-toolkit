@@ -24,8 +24,7 @@ note: >-
   2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
-validatedOn:
-  - n150
+validatedOn: []
 estimatedMinutes: 20
 ---
 

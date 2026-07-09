@@ -22,7 +22,6 @@ supportedHardware:
   - galaxy
 status: validated
 validatedOn:
-  - n150
   - p300c
 estimatedMinutes: 25
 minTTMetalVersion: v0.67.0

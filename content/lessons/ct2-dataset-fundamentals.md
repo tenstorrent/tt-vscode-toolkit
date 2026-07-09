@@ -24,8 +24,7 @@ note: >-
   2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
-validatedOn:
-  - n150
+validatedOn: []
 estimatedMinutes: 15
 ---
 
@@ -185,19 +184,15 @@ I know not, sir.
 
 ### What Makes It Pedagogically Perfect
 
-Shakespeare isn't just famous - it's **strategically perfect** for teaching language modeling:
+Shakespeare isn't just famous - it's **strategically useful** for teaching dataset fundamentals:
 
 ✅ **Fast iteration cycles**
-- 10 epochs: ~1 minute training time
-- 200 epochs: 20-30 minutes total
-- See results quickly, experiment rapidly
+- A few thousand training steps run in minutes, not hours, on this track's hardware — [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) ran 3,000 steps against this exact corpus in under 4 minutes on a Blackhole<sup>®</sup> p300c
+- See results quickly, experiment rapidly — you don't need to wait overnight to know whether a dataset change did anything
 
-✅ **Clear learning progression**
-- You can **SEE** the model learning hierarchically
-- Stage 1 (10 epochs): Structure (line breaks, capitalization)
-- Stage 2 (30 epochs): Vocabulary (real character names)
-- Stage 3 (100 epochs): Style (Shakespearean patterns)
-- Stage 4 (200 epochs): Fluency (natural dialogue)
+✅ **Observable structure learning**
+- You can watch the model pick up the corpus's *structure* step by step: capitalization, line breaks, `NAME:`-style speaker headers
+- What you will **not** see, on this hardware with this corpus, is the model becoming fluent. [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) both trained on this exact text and neither produced coherent sentences — real words show up scattered among invented syllables, never assembling into fluent prose. That's the honest result of a ~10M-parameter character-level model on a ~1MB corpus, not a flaw in the lesson
 
 ✅ **Rich hierarchical structure**
 - Format conventions (character names, stage directions)
@@ -207,78 +202,62 @@ Shakespeare isn't just famous - it's **strategically perfect** for teaching lang
 
 ✅ **Human-readable validation**
 - No metrics needed - just read the output
-- Quality improves from gibberish → words → sentences → Shakespeare-like text
-- Anyone can evaluate: "Does this sound like a play?"
+- Quality moves from uniform-random characters, to recognizable Shakespeare-*like structure* (speaker names, colons, line breaks), to a scatter of real words sitting inside that structure — not, on this hardware, to coherent sentences
+- Anyone can evaluate: "Does this look structurally like a play?" (yes, quickly) vs. "Does this read like Shakespeare?" (no — see the real output below)
 
 ✅ **Continuous text**
 - Character-level modeling learns from pure sequence
 - No word boundaries or tokenization artifacts
 - Model discovers word structure naturally
 
-### The Learning Journey: What Models Learn from Shakespeare
+### The Learning Journey: What Models Actually Learn from Shakespeare (and Where It Stops)
 
-Understanding **how** models learn from Shakespeare teaches you how they learn from ANY dataset. Here's the hierarchical progression:
+Understanding **how** models learn from Shakespeare — and where that learning plateaus on modest models and hardware — teaches you how they'll behave on ANY dataset you build. Here's the real, step-based progression, taken directly from [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])'s verified training run on this corpus (a ~10.8M-parameter GPT-2-style model, Blackhole p300c):
 
 ```mermaid
 graph LR
-    A[Random Weights<br/>Loss: ~4.5<br/>Output: Random chars] --> B[Structure<br/>10 epochs, Loss: ~2.5<br/>Line breaks, caps]
-    B --> C[Vocabulary<br/>30 epochs, Loss: ~1.8<br/>Real names, words]
-    C --> D[Style<br/>100 epochs, Loss: ~1.2<br/>Shakespearean patterns]
-    D --> E[Fluency<br/>200 epochs, Loss: <1.0<br/>Natural dialogue]
+    A[Random Weights<br/>Step 1, Loss 4.66<br/>Uniform-random characters] --> B[Structure<br/>Step 500, Loss 2.30<br/>Speaker names, colons, line breaks]
+    B --> C[Scattered Words<br/>Step 1500, Loss 1.61<br/>Real words among invented syllables]
+    C --> D[Diminishing Returns<br/>Step 3000, Loss 1.41<br/>Still not coherent text]
 
     style A fill:#E85D75,stroke:#333,stroke-width:2px
     style B fill:#FFA07A,stroke:#333,stroke-width:2px
     style C fill:#FFD700,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:2px
-    style E fill:#50C878,stroke:#333,stroke-width:2px
+    style D fill:#4A90E2,stroke:#333,stroke-width:2px
 ```
 
-**Stage 1: Structure Learning (10 epochs)**
-```
-Before:
-jkl;asdf ROMEO kjhasdf
+**Step 1 (loss 4.66): the random baseline**
 
-After:
-ROMEO:
-asdfkjh asdfkj asdf
+`ln(96) ≈ 4.56` — the entropy of guessing uniformly among the corpus's ~96 characters. This is what "the model hasn't learned anything yet" looks like as a number.
 
-Servant:
-lkjasdf kjhasdf
+**Step 500 (loss 2.30): structure emerges** — actual output, verbatim, from [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]):
 ```
-**What changed:** Character name format, line breaks, basic capitalization
+antlastolptatcsamthartosiga mabomantarsaemoowouatheatouomarathanoouarearanawarouranouanoonarorofoururave,
+INare I matolo tone.
+BENGHA:
+Tonot wit ithald weat thay theard.
+```
+Capitalization, line breaks, and `NAME:`-style speaker headers are already there. Almost none of the rest is real English.
 
-**Stage 2: Vocabulary Learning (30 epochs)**
+**Step 1500 (loss 1.61): a scatter of real words** — same run, same command, later checkpoint:
 ```
-ROMEO:
-What lady doth that hand knight?
+tspafrttwathofarantttorarorasthatorororitoretoshreamawinytoucanowinayonanunanousoreiseonofasayonouro anouroura meather,
+Yor withe, tha wenon wano herde.
 
-Servant:
-I know not sir.
+SENGERDI:
+Tow towall wawind yownthonger mates this tiedern,
 ```
-**What changed:** Real character names, common words, basic sentence structure
+A handful of real short words appear ("this", fragments like "wit", "tha") embedded in mostly-invented syllables. The structural skeleton is intact; fluency is not.
 
-**Stage 3: Style Learning (100 epochs)**
+**Step 3000 (loss 1.41): the plateau**
 ```
-ROMEO:
-What lady is that, which doth enrich the hand
-Of yonder knight most fair?
+ytmtatpatofasttanfabanadrtofriorthouandeithonatino theayorearanunearananonoounanouroorowareanaroratorouree inorenod.
+WEBUCHELARI:
+I ie mod hadeste, hand ast wame, souce mee,
+```
+Loss kept dropping between step 1500 and step 3000, but the text did not get noticeably more readable. [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) pushes a different architecture on this same corpus all the way to loss 0.18 and hits the same ceiling: a much lower loss bought no visible improvement in coherence — that run's honest conclusion is overfitting, not mastery.
 
-Servant:
-I know not, good sir.
-```
-**What changed:** Shakespearean vocabulary ("doth," "yonder"), appropriate grammar, dramatic style
-
-**Stage 4: Fluency (200 epochs)**
-```
-ROMEO:
-What lady is that, which doth enrich the hand
-Of yonder knight with beauty's touch divine?
-
-Servant:
-I know not, sir. She is a stranger here,
-Methinks she came with Count Paris to the feast.
-```
-**What changed:** Natural dialogue flow, proper meter, contextually appropriate responses, maintains dramatic tone
+**The takeaway for this lesson:** on this hardware, with this corpus and these model sizes, training produces Shakespeare-*shaped* text — the structural skeleton — not Shakespeare-*like* prose. Getting past that ceiling needs a much bigger model trained on much more data, which is a different problem than "curate a good dataset." This lesson stays honest about that boundary instead of promising fluency a nano model on a 1MB corpus can't deliver.
 
 ### Why This Dataset Still Matters in 2026
 
@@ -303,53 +282,49 @@ You might think: "Why learn from a 2015 dataset when we have GPT-4 and modern LL
 - Applicable to any language, code, or structured format
 
 ⚡ **Fast experimentation enables learning**
-- 30 minutes to see full training progression
+- Minutes, not hours, to see the real training progression (see [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) for exact wall-clock numbers)
 - Try different architectures, hyperparameters, techniques
 - Learn what works before scaling to production datasets
 
 ### From Shakespeare to Your Domain
 
-The learning patterns you observe with Shakespeare **directly transfer** to your custom domain:
+The learning patterns you observe with Shakespeare **directly transfer** to your custom domain — through the same early stages, and with the same honest limit:
 
 **Code generation models:**
-- Stage 1: Learn syntax (brackets, indentation)
-- Stage 2: Learn keywords and function names
-- Stage 3: Learn code patterns and idioms
-- Stage 4: Generate fluent, working code
+- Learn syntax first (brackets, indentation)
+- Then keywords and function names
+- Then code patterns and idioms
+- Generating fluent, working code from those patterns is a production-scale outcome, not something a nano model on a small dataset will do — see the ceiling [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) both hit on this corpus
 
 **Medical note generation:**
-- Stage 1: Learn format (sections, headers)
-- Stage 2: Learn medical terminology
-- Stage 3: Learn diagnostic patterns
-- Stage 4: Generate coherent clinical notes
+- Learn format first (sections, headers)
+- Then medical terminology
+- Then diagnostic patterns
+- Coherent clinical notes require a much larger model and far more data than this lesson's dataset-curation scale — the same gap documented above
 
 **Legal contract generation:**
-- Stage 1: Learn clause structure
-- Stage 2: Learn legal vocabulary
-- Stage 3: Learn argument patterns
-- Stage 4: Generate legally sound contracts
+- Learn clause structure first
+- Then legal vocabulary
+- Then argument patterns
+- Legally sound contract generation is, again, a production-scale outcome — this track's nano runs stop well short of it
 
-**The principle:** Models learn hierarchically regardless of domain. Structure → Vocabulary → Style → Fluency.
+**The principle:** Models learn hierarchically regardless of domain — structure first, then vocabulary, then style. Whether they ever reach fluent, coherent output is a question of model scale and data volume, not something a dataset lesson can promise. [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) show exactly where that ceiling sits for the models this track actually trains.
 
-### Key Insight: What Shakespeare Teaches You
+### Key Insight: What Shakespeare Teaches You About Datasets
 
-When you train on Shakespeare and watch the progression from random characters to coherent dialogue, you learn:
+When you train on Shakespeare and watch the progression from random characters through structure to a scatter of real words, you learn:
 
-- ✅ **How transformers learn** - Hierarchically, from structure to meaning
+- ✅ **How transformers learn** - Hierarchically, structure before meaning
 - ✅ **What makes a good dataset** - Clear structure, consistent patterns, sufficient examples
-- ✅ **How to evaluate learning** - Observable quality improvement over time
-- ✅ **When to stop training** - When loss plateaus and output quality stabilizes
-- ✅ **Why architecture matters** - Deeper models capture deeper patterns
+- ✅ **How to evaluate learning** - Observable quality improvement over time, without over-claiming what "improvement" means
+- ✅ **Why low loss isn't the whole story** - [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) drives loss nearly 8x lower than [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) on the same corpus and gets no more readable an output — a direct lesson in overfitting a small dataset
+- ✅ **Why architecture and data scale matter** - the nano models in this track plateau well short of fluency; reaching it takes a much bigger model and much more data, not a better dataset-curation trick
 
 **This knowledge transfers to every dataset you'll ever create.**
 
-When you build your medical chatbot, legal assistant, or code generator, you'll recognize the same learning stages. You'll know:
-- "The model is learning structure now" (epoch 10)
-- "Vocabulary is forming" (epoch 30)
-- "Style is emerging" (epoch 100)
-- "Almost fluent" (epoch 200)
+When you build your medical chatbot, legal assistant, or code generator, you'll recognize these same early stages — structure, then scattered vocabulary — and you'll know that getting past them to genuinely fluent, coherent output takes a much bigger model and much more data than a from-scratch nano run on a small corpus, exactly as [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) demonstrate.
 
-**Shakespeare isn't just a dataset - it's a masterclass in how language models learn.**
+**Shakespeare isn't just a dataset - it's a lesson in what good structure buys you, and what it doesn't.**
 
 ---
 
