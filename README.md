@@ -408,7 +408,7 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.0 (2026-07-08)
+### Latest Release: v0.1.2 (2026-07-08)
 
 **Highlights:**
 - 🧠 **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00`–`lfs-05`) building a small, modern Llama-3-style model (RoPE, RMSNorm, SwiGLU, grouped-query attention) from scratch, TT-native from line one, with TT-Lang inception kernels (no CUDA/Triton conversion) and CUDA-programmer grounding throughout
