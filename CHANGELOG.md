@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.7] - 2026-07-09
+### Added
+- **Mermaid diagrams + timing expectations across the training lessons** — a big-picture arc diagram in each track's entry lesson, a "you are here" diagram in every `lfs-*` and `ct*` lesson, and honest, p300c-benchmarked timing callouts (ttml build ~5 min; first-step kernel JIT ~7–20 s then ~65 ms/step; 20 steps ~14 s; 3000 steps ~3.3 min; real loss milestones).
+
 ## [0.1.6] - 2026-07-09
 ### Changed
 - Re-authored the Custom Training track (ct1–ct8) as a verified `ttml`/`tt-train` training-workflow track — unblocked (ttml build verified on Blackhole p300c), disentangled from `tt-blacksmith` (the separate TT-Forge/TT-XLA recipe stack), ct4 and ct8 validated on p300c with real loss curves and honest "structure-not-coherence" output framing, ct7 slimmed to defer the by-hand build to the from-scratch arc, and the installTtTrain command aligned to the verified build recipe (the `_ttnn.so` `std::bad_cast` fix).
