@@ -30,37 +30,42 @@ estimatedMinutes: 15
 
 # Multi-Device Training
 
-Scale your training to multiple Tenstorrent chips using Data Parallel (DDP) patterns. Learn to train faster while maintaining results quality.
+Scale `tt-train` across multiple Tenstorrent chips with Data Parallel (DDP) — split a batch across devices, average gradients, keep every device's weights identical.
+
+## An Honest Note Before You Start
+
+This lesson has **not been verified on the hardware these lessons were authored on.** That machine is a single-chip Blackhole<sup>®</sup> p300c. A single p300c cannot run DDP — there's only one device to split a batch across. TT-QuietBox<sup>®</sup> 2 doesn't change that: it's **4 independent p300c chips**, not a mesh. Each behaves like its own p150, with no interconnect joining them into one training job.
+
+So what follows is the **documented `tt-train` pattern** for real multi-chip hardware — n300, T3000 (also called LoudBox), and Galaxy — read from `tt-metal/tt-train/configs/README.md` and the actual YAML configs shipped in `tt-metal/tt-train/configs/training_configs/`. It's grounded in the real source, not hardware-verified end to end on this box. If you're on n300+ hardware and run this, the community would benefit from your results — file them against this lesson.
 
 ## What You'll Learn
 
 - Data Parallel (DDP) training fundamentals
-- Scaling from n150 to n300, T3000, and beyond
-- Device mesh configuration
-- Performance optimization
-- Multi-device debugging
+- The real `mesh_shape` values for n300, T3000/LoudBox, and Galaxy
+- Coordinated multi-device init/teardown (`CreateDevices`/`CloseDevices`) — and why per-chip loops break
+- Performance and scaling considerations for DDP
 
-**Time:** 15 minutes | **Prerequisites:** CT-4 (Fine-tuning Basics)
+**Time:** 15 minutes | **Prerequisites:** [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])
 
 ---
 
 ## Why Multi-Device Training?
 
-### Single Device (n150) Limitations
+### Single Device (n150, p150, p300c) — No DDP Here
 
-- ✅ Simple, easy to debug
-- ⚠️ Slower training (1-3 hours)
-- ⚠️ Smaller batch sizes (memory-limited)
+A single chip is one node in a mesh of size 1. There's nothing to split a batch across and nothing to synchronize gradients with. `enable_ddp: true` on a single-chip mesh has no effect — [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) covers this exact misconfiguration.
 
-### Multi-Device (n300+) Benefits
+- ✅ Simple, easy to debug — the workflow [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) walks through
+- ⚠️ One device's worth of throughput — that's it
 
-- ✅ ~2x faster on n300 (30-60 minutes)
-- ✅ ~8x faster on T3000 (8 chips)
-- ✅ Larger effective batch sizes
-- ✅ Better hardware utilization
-- ⚠️ Slightly more complex setup
+### Multi-Device (n300, T3000/LoudBox, Galaxy) — Where DDP Applies
 
-**Key insight:** With proper configuration, multi-device training produces identical results to single-device, just faster.
+- ✅ Batch splits across chips; gradients average via all-reduce
+- ✅ More devices → more throughput, up to communication overhead
+- ✅ Larger effective batch sizes without exhausting one chip's DRAM
+- ⚠️ Requires hardware with an actual chip-to-chip interconnect — TT-QuietBox 2's four independent p300c chips don't qualify
+
+**Key insight:** correctly configured DDP produces the same results as single-device training, just faster. It doesn't change what the model learns — only how many chips do the work.
 
 ---
 
@@ -112,9 +117,9 @@ graph TD
 | **Backward** | Calculate gradients | Calculate gradients in parallel |
 | **Sync** | No sync needed | **All-reduce averages gradients** |
 | **Update** | Update weights | Both devices update identically |
-| **Time** | 1.0x | ~0.5x (2x faster) |
+| **Time** | 1.0x | ~0.5x (2x faster, ideal case) |
 
-**Key insight:** The all-reduce synchronization is the "magic" that keeps devices in sync while processing different data.
+**Key insight:** The all-reduce synchronization is the "magic" that keeps devices in sync while processing different data. Real speedup is always somewhat less than ideal — see [Performance and Scaling Considerations](#performance-and-scaling-considerations) below.
 
 **Key points:**
 - Each device processes a portion of the batch
@@ -126,52 +131,79 @@ graph TD
 ### When to Use DDP
 
 **Use DDP when:**
-- ✅ You have n300 (2 chips) or T3000 (8 chips)
+- ✅ You have n300, T3000/LoudBox, or Galaxy — real multi-chip interconnect
 - ✅ You want faster iteration
-- ✅ Your model fits on one device (we're not doing model parallelism)
+- ✅ Your model fits on one device (this is data parallelism, not model/tensor parallelism — see the tensor-parallel note further down)
 
 **Skip DDP when:**
-- ⚠️ You only have n150 (single chip)
+- ⚠️ You have a single chip — n150, p150, or a single p300c. This includes each individual chip in a TT-QuietBox 2, which is four independent p300c, not a mesh.
 - ⚠️ Debugging training issues (simpler to debug on 1 device)
 - ⚠️ Very small datasets (overhead not worth it)
 
 ---
 
-## Configuration Changes for DDP
+## Real `mesh_shape` Values
 
-### n150 (Single Device) - Baseline
+`device_config` — the same block [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) introduced for single-chip runs — has two fields that matter for DDP: `enable_ddp` and `mesh_shape`. Per `tt-train/configs/README.md`, the real device mesh shapes are:
+
+| Hardware | `mesh_shape` |
+|---|---|
+| Single-device (n150, p150, single p300c) | `[1, 1]` |
+| Dual-device (n300, p300) | `[1, 2]` |
+| LoudBox (T3000, 8 chips) | `[1, 8]` |
+| Single Galaxy (32 chips) | `[1, 32]` |
+
+These are the whole-mesh shapes for the hardware itself — not a choice you make freely. `mesh_shape` for an n300 is `[1, 2]` because an n300 physically has two chips; it isn't `[2, 4]` or anything else. Earlier drafts of this lesson had that table wrong (`[2, 4]` for T3000, `[4, 8]` for Galaxy) — those numbers don't correspond to any real hardware configuration and are corrected here.
+
+### Single-Chip Baseline
+
+```yaml
+device_config:
+  enable_ddp: false
+  mesh_shape: [1, 1]
+```
+
+As [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) notes, this is also `tt-train`'s default when `device_config` is omitted entirely.
+
+### n300 — DDP Enabled (real shipped config)
+
+This is quoted verbatim from `tt-metal/tt-train/configs/training_configs/training_shakespeare_nanogpt_ddp_n300.yaml`:
 
 ```yaml
 training_config:
-  batch_size: 8
-  gradient_accumulation_steps: 4
-  # Effective batch: 8 × 4 = 32
+  project_name: "tt_train_nano_gpt"
+  seed: 5489
+  model_save_interval: 500
+  batch_size: 256
+  num_epochs: 1
+  max_steps: 5000
+  use_clip_grad_norm: false
+  clip_grad_norm_max_norm: 1.0
+  model_config: "${TT_METAL_RUNTIME_ROOT}/tt-train/configs/model_configs/nanogpt.yaml"
+  optimizer:
+    type: AdamW
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+    stochastic_rounding: false
 
 device_config:
-  enable_ddp: False
-  mesh_shape: [1, 1]               # 1 device
+  enable_ddp: true
+  mesh_shape: [1,2]
+
+eval_config:
+  repetition_penalty: 1.0
+  temperature: 0.7
+  top_k: 50
+  top_p: 1.0
 ```
 
-### n300 (Dual Chips) - DDP Enabled
+**What changed from the single-chip config:** `enable_ddp: true`, `mesh_shape: [1, 2]` — that's it. `batch_size: 256` here is the *total* batch across both devices (128 per chip); `tt-train` requires `batch_size` to be divisible by the number of DDP devices, per the README's constraints section.
 
-```yaml
-training_config:
-  batch_size: 16                   # 2x larger (split across devices)
-  gradient_accumulation_steps: 2   # Reduced (same effective batch)
-  # Effective batch: 16 × 2 = 32 (same as n150!)
-
-device_config:
-  enable_ddp: True                 # Enable DDP
-  mesh_shape: [1, 2]               # 1 row × 2 columns = 2 devices
-```
-
-**What changed:**
-- `batch_size` doubled (16 instead of 8)
-- `gradient_accumulation_steps` halved (2 instead of 4)
-- `enable_ddp: True`
-- `mesh_shape: [1, 2]` (two devices)
-
-**Key principle:** Keep `batch_size × gradient_accumulation_steps` constant for fair comparison.
+**Key principle:** when you compare timings across hardware, keep `batch_size × gradient_accumulation_steps` (the effective batch) constant, or you're not measuring the same experiment.
 
 ---
 
@@ -193,150 +225,124 @@ Device 1: Wormhole (n300)
 
 ### Step 2: Launch Training
 
-**To start multi-device training:**
+Same entry point [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) uses on a single chip — `train_nanogpt.py` — just pointed at the DDP config:
 
 ```bash
-cd ~/tt-scratchpad/training
-python train.py --config configs/training_n300.yaml
+python tt-metal/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
+  --config tt-metal/tt-train/configs/training_configs/training_shakespeare_nanogpt_ddp_n300.yaml
 ```
 
 **What this does:**
-1. Loads `configs/training_n300.yaml` (with DDP configuration)
-2. Initializes both devices in the mesh
-3. Launches training with DDP enabled across all devices
+1. Loads the config above, including its `device_config`
+2. Opens both devices in the mesh as a coordinated unit (see the next section — never a per-chip loop)
+3. Launches training with DDP enabled across both devices; each step splits the batch, computes gradients in parallel, and all-reduces them before the optimizer step
 
-### Step 3: Monitor DDP Training
+### Step 3: What to Expect
 
-**Initial setup:**
+This is the shape of output you should see — **illustrative, not a captured log from a verified run**:
+
 ```
-🎯 Custom Training
-============================================================
-
-Loading config: configs/training_n300.yaml
-Initializing 2 devices...                    # ← DDP initialization
-Device mesh: [1, 2]                          # ← 2 devices configured
+Loading config: training_shakespeare_nanogpt_ddp_n300.yaml
+Device mesh: [1, 2]                          # ← 2 devices, matches mesh_shape
 Creating model...
-Loading weights from ~/models/tinyllama_safetensors
-Loaded 50 examples from my_dataset.jsonl
+Loading data...
 
 Training configuration:
   Devices: 2                                 # ← DDP active
-  Batch size: 16 (per-device: 8)             # ← Split across devices
-  Gradient accumulation: 2
-  Effective batch size: 32
+  Batch size: 256 (per-device: 128)          # ← split across devices
+  Effective batch size: 256
 ```
 
-**Training progress:**
 ```
-Training:  20%|████▌                   | 100/500 [00:08<00:32, 3.1 it/s, loss=2.12]
+Training:  20%|████▌                   | 1000/5000 [00:08<00:32, 3.1 it/s, loss=2.12]
 ```
 
-**Notice:** `3.1 it/s` (iterations per second) should be ~2x higher than n150.
+`it/s` should be higher than the equivalent single-chip run — by how much depends on communication overhead; see the next section.
 
 ---
 
-## Performance Comparison
+## Coordinated Device Management: `CreateDevices`/`CloseDevices`
 
-### Expected Speedup
+If you're writing custom multi-device TTNN code (rather than letting `tt-train`'s `device_config` handle it), how you open and close devices matters. `tt-train` itself never opens chips one at a time: internally, its `MeshDevice` wrapper calls `ttnn::distributed::open_mesh_device(...)` once for the whole mesh, and `close_mesh_device(...)` once to tear it all down (`tt-train/sources/ttml/core/mesh_device.cpp`).
 
-| Hardware | Devices | Batch Size | Training Time | Speedup |
-|----------|---------|------------|---------------|---------|
-| n150     | 1       | 8          | 1.5-3 hours   | 1x (baseline) |
-| n300     | 2       | 16         | 45-90 min     | ~2x |
-| T3000      | 8       | 64         | 15-30 min     | ~6-8x |
+The public TTNN equivalent for a multi-device script is `ttnn.CreateDevices`/`ttnn.CloseDevices` — this repo's own particle-life template uses exactly this pattern (`content/templates/cookbook/particle_life/particle_life_multi_device.py`):
 
-**Why not perfect linear scaling?**
-- Communication overhead (gradient synchronization)
-- Batch size scaling (larger batches → fewer steps → less benefit)
-- Hardware utilization (not all operations parallelize perfectly)
+```python
+num_devices = ttnn.GetNumAvailableDevices()
+device_ids = list(range(num_devices))
+devices = []
 
-**Real-world:** Expect 1.8-2.0x speedup on n300, 6-7x on T3000.
+try:
+    # Opens the whole set of devices as one coordinated unit
+    devices = ttnn.CreateDevices(device_ids)
+    print(f"Opened {len(devices)} devices using CreateDevices API")
+
+    # ... run your workload across `devices` ...
+
+finally:
+    # Coordinated shutdown of all devices at once
+    if devices:
+        ttnn.CloseDevices(devices)
+```
+
+**Never do this instead:**
+
+```python
+# BROKEN: opens/closes chips independently
+devices = []
+for id in range(num_devices):
+    devices.append(ttnn.open_device(device_id=id))
+for device in devices:
+    ttnn.close_device(device)   # crashes with a dispatch core error
+```
+
+Per-chip open/close loops race against each other during teardown and reliably crash with dispatch core errors on multi-device systems. `CreateDevices`/`CloseDevices` (or `tt-train`'s `open_mesh_device`/`close_mesh_device`) treat the mesh as one unit for both init and shutdown.
+
+**One more trap in the same neighborhood:** never pass `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER, ttnn.DispatchCoreAxis.ROW)` explicitly — `DispatchCoreAxis.ROW` crashes on Blackhole. Leave the axis unset (`ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)`, or no `dispatch_core_config` argument at all, which is what both `CreateDevices` and `tt-train`'s `MeshDevice` do by default) and TT-NN<sup>™</sup> auto-detects the right axis — COL on Blackhole, ROW on Wormhole.
 
 ---
 
-## Advanced: T3000 and Galaxy
+## Performance and Scaling Considerations
 
-### T3000 Configuration (8 Devices)
+### Expected Speedup — Documented Pattern, Not Benchmarked Here
 
-```yaml
-training_config:
-  batch_size: 64                   # 8x larger
-  gradient_accumulation_steps: 1   # No accumulation needed
-  # Effective batch: 64 × 1 = 64
+The table below describes the DDP scaling pattern documented for `tt-train` — it is **not a set of measurements from this hardware.** No T3000/LoudBox or Galaxy system was available to benchmark while writing this lesson; treat these as informed expectations to validate on your own run, not verified numbers.
 
-device_config:
-  enable_ddp: True
-  mesh_shape: [2, 4]               # 2 rows × 4 columns = 8 devices
-```
+| Hardware | Devices | `mesh_shape` | Speedup (typical, ideal case) |
+|----------|---------|--------------|--------------------------------|
+| n150 / p150 / single p300c | 1 | `[1, 1]` | 1x (baseline) |
+| n300 / p300 | 2 | `[1, 2]` | ~2x |
+| T3000 / LoudBox | 8 | `[1, 8]` | ~6-8x |
+| Single Galaxy | 32 | `[1, 32]` | well under 32x — see below |
 
-**Device Mesh Visualization:**
+**Why scaling is never linear:**
+- **Communication overhead** — every step's all-reduce has to move gradients between chips; more chips means more data crossing the interconnect
+- **Batch size scaling** — a fixed dataset run in fewer, larger steps hits diminishing returns per additional device
+- **Utilization** — not every operation in a training step parallelizes equally well across the mesh
 
-```mermaid
-graph TD
-    subgraph n150["n150 (Single Chip)"]
-        A1[Device 0]
-    end
+**LR scaling rule of thumb:** if you scale the effective batch size by N, consider scaling the learning rate by √N (e.g. batch 32 → 64 is N=2, try `lr` × 1.4). Validate rather than assume — the actual right scaling factor depends on the model and optimizer.
 
-    subgraph n300["n300 (Dual Chip)"]
-        B1[Device 0] --- B2[Device 1]
-    end
+### Combining DDP with Tensor Parallelism (Advanced)
 
-    subgraph T3000["T3000 (8 Chips, 2x4 Mesh)"]
-        C1[Dev 0] --- C2[Dev 1] --- C3[Dev 2] --- C4[Dev 3]
-        C5[Dev 4] --- C6[Dev 5] --- C7[Dev 6] --- C8[Dev 7]
-        C1 --- C5
-        C2 --- C6
-        C3 --- C7
-        C4 --- C8
-    end
-
-    subgraph Galaxy["Galaxy (32+ Chips)"]
-        D1[4x8 mesh = 32 chips]
-    end
-
-    style A1 fill:#4A90E2,stroke:#333,stroke-width:2px
-    style B1 fill:#7B68EE,stroke:#333,stroke-width:2px
-    style B2 fill:#7B68EE,stroke:#333,stroke-width:2px
-    style C1 fill:#50C878,stroke:#333,stroke-width:1px
-    style C2 fill:#50C878,stroke:#333,stroke-width:1px
-    style C3 fill:#50C878,stroke:#333,stroke-width:1px
-    style C4 fill:#50C878,stroke:#333,stroke-width:1px
-    style C5 fill:#50C878,stroke:#333,stroke-width:1px
-    style C6 fill:#50C878,stroke:#333,stroke-width:1px
-    style C7 fill:#50C878,stroke:#333,stroke-width:1px
-    style C8 fill:#50C878,stroke:#333,stroke-width:1px
-    style D1 fill:#E85D75,stroke:#333,stroke-width:2px
-```
-
-**Mesh shape explained:**
-- **[1, 1]** = 1 row × 1 column = 1 device (n150)
-- **[1, 2]** = 1 row × 2 columns = 2 devices (n300)
-- **[2, 4]** = 2 rows × 4 columns = 8 devices (T3000)
-- **[4, 8]** = 4 rows × 8 columns = 32 devices (Galaxy)
-
-**Trade-offs:**
-- ✅ Much faster training (~6-8x speedup)
-- ⚠️ Larger effective batch (may need LR adjustment)
-- ⚠️ More communication overhead
-
-**LR scaling rule:** If you scale batch size by N, consider scaling LR by √N.
-
-Example: Batch 32 → 64 (2x), try LR 1e-4 → 1.4e-4 (√2 ≈ 1.4x)
-
-### Galaxy Configuration (32+ Devices)
+`device_config` supports `enable_tp` alongside `enable_ddp` on the same 2D mesh — DDP uses one axis, tensor parallelism the other. Two real examples from `tt-metal/tt-train/configs/training_configs/`:
 
 ```yaml
+# training_llama8b_dp2_tp4.yaml — 8 devices total
 device_config:
-  enable_ddp: True
-  mesh_shape: [4, 8]               # 32 devices (4 rows × 8 columns)
+  enable_tp: true
+  enable_ddp: true
+  mesh_shape: [2, 4]  # axis 0 = 2 DP groups, axis 1 = 4 TP devices per group
 ```
 
-**Use cases:**
-- Large-scale training (billions of parameters)
-- Research experiments (fast iteration)
-- Production training pipelines
+```yaml
+# training_llama8b_tp_ddp_galaxy.yaml — 32 devices (Galaxy)
+device_config:
+  enable_tp: true
+  enable_ddp: true
+  mesh_shape: [8, 4]  # 4 DP groups x 8 TP devices = 32 devices
+```
 
-**Note:** Galaxy-scale training requires careful hyperparameter tuning and is beyond the scope of this intro lesson.
+Notice `[2, 4]` and `[8, 4]` show up here — those are the *combined* DDP+TP shapes for specific models (LLaMA-8B), not the plain-DDP shapes from the table above. Which axis means what is set by axis order and the model config, per `tt-train/configs/README.md`'s constraints section — this is genuinely advanced territory, and beyond what this intro lesson can verify. If you need tensor parallelism, read those two files directly before writing your own config.
 
 ---
 
@@ -353,8 +359,8 @@ Device 1 not found
 **Fixes:**
 1. Check `tt-smi` - are all devices detected?
 2. Restart devices: `tt-smi -r all`
-3. Check mesh_shape matches available devices
-4. Verify no other processes using devices
+3. Check `mesh_shape` matches the number of devices actually available
+4. Verify no other processes are holding devices open
 
 ### Issue 2: Gradients Not Synchronizing
 
@@ -364,7 +370,7 @@ Device 1 not found
 - Inconsistent results
 
 **Fixes:**
-1. Verify `enable_ddp: True` in config
+1. Verify `enable_ddp: true` in config
 2. Check gradient synchronization logs
 3. Ensure all devices running same code version
 4. Profile with `ttnn.profiler`
@@ -394,10 +400,10 @@ RuntimeError: Device out of memory
 ```
 
 **Fixes:**
-1. Reduce batch_size (try 12 instead of 16)
-2. Increase gradient_accumulation_steps
-3. Check that batch is properly split across devices
-4. Verify device memory with `tt-smi -m`
+1. Reduce `batch_size`
+2. Increase `gradient_accumulation_steps` to compensate
+3. Check that the batch divides evenly across DDP devices (a `tt-train` requirement — see the constraints in `tt-train/configs/README.md`)
+4. Check per-device memory in `tt-smi`'s interactive telemetry view (there's no `-m` flag; `tt-smi -s` dumps a snapshot including memory if you need it non-interactively)
 
 ---
 
@@ -441,17 +447,17 @@ Use logging to track:
 **Tools:**
 - `tt-smi` - Real-time device monitoring
 - `ttnn.profiler` - Performance profiling
-- WandB (CT-6) - Multi-run comparison
+- [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"]) - multi-run comparison, including across hardware configurations
 
 ### 4. Start Small, Scale Up
 
 **Recommended progression:**
-1. Debug on n150 (single device)
-2. Validate on n300 (2 devices)
-3. Scale to T3000 (8 devices) when ready
-4. Consider Galaxy for production
+1. Debug on a single chip (n150, p150, or single p300c) — no `enable_ddp`, `mesh_shape: [1, 1]`
+2. Validate the same config with `enable_ddp: true` on n300 (2 devices)
+3. Scale to T3000/LoudBox (8 devices) once the n300 run checks out
+4. Consider Galaxy only once you have a real workload that needs it
 
-**Why:** Easier to debug on fewer devices, then scale with confidence.
+**Why:** it's much easier to debug on fewer devices, then scale up with a config you already trust.
 
 ---
 
@@ -479,227 +485,50 @@ Device 0 ←→ Device 1 ←→ ... ←→ Device N
 
 ### Profiling Communication
 
-```python
-# In training script (advanced)
-import ttnn
+`ttml` ships a real profiler (`ttml.core.TTProfiler`, reachable via `AutoContext.get_profiler()`) rather than a PyTorch-style context manager — check `tt-train/sources/ttml/core/tt_profiler.hpp` for its actual `enable()`/`disable()`/marker API before wiring profiling into a training script. At the TTNN level, `ttnn.profiler` exposes Tracy-zone hooks (`start_tracy_zone`/`stop_tracy_zone`) for the same purpose. Either way, what you're looking for is the same: time spent in the all-reduce versus time spent in compute.
 
-with ttnn.profile() as prof:
-    # Training step
-    loss.backward()
-    optim.step()
-
-# Analyze communication vs compute time
-print(prof.summary())
-```
-
-**Ideal ratio:** Communication < 10% of total time.
-
----
-
-## Scaling Your Ambitions: From Prototype to Production
-
-You've learned the mechanics of multi-device training. But what does scaling really enable? Let's explore how multi-device training transforms what you can build.
-
-### The Scaling Journey
-
-**Week 1: Prototype on n150**
-- Build your model concept
-- Validate with 50-200 training examples
-- Training time: 1-3 hours per experiment
-- **Goal:** Prove the concept works
-
-**Week 2: Iterate on n300**
-- 2x faster iteration (30-90 min per experiment)
-- Run 3-5 experiments per day instead of 1-2
-- Test multiple hyperparameter configurations
-- **Goal:** Find optimal configuration
-
-**Month 2: Scale on T3000**
-- 6-8x faster training (10-20 min per experiment)
-- Train on larger datasets (1000+ examples)
-- Multi-task learning (multiple skills in one model)
-- **Goal:** Production-ready models
-
-**Production: Deploy with confidence**
-- Models validated on multiple hardware configurations
-- Proven performance characteristics
-- Scalable training pipeline
-- **Goal:** Serve real users
-
-### Real-World Scaling Success Stories
-
-🚀 **"Code Review Bot" (Startup → Enterprise)**
-- **n150 phase:** Trained on 100 team PRs, 2-hour iterations
-- **n300 phase:** Expanded to 500 PRs, tested 10 prompt variations in a day
-- **T3000 phase:** Full company history (5000+ PRs), multi-task (style + security + performance)
-- **Impact:** From team tool (10 devs) → company standard (200+ devs)
-- **Training time:** 3 hours → 90 min → 15 min per full model
-
-💼 **"Legal Document Generator" (Consulting → SaaS)**
-- **n150 phase:** 50 contract templates, proved concept
-- **n300 phase:** 200 templates across 3 practice areas, found winning config
-- **T3000 phase:** 1000+ examples, 10 specialized models (corporate, IP, employment, etc.)
-- **Impact:** Consultancy internal tool → multi-tenant SaaS product
-- **Revenue:** $0 → $50k MRR from faster iteration
-
-🎮 **"Game NPC Dialogue" (Indie → AAA)**
-- **n150 phase:** Single character archetype (100 dialogue lines)
-- **n300 phase:** 5 character types, varied personalities
-- **T3000 phase:** 50+ unique NPCs, context-aware responses
-- **Impact:** Hand-written dialogues → AI-augmented content at scale
-- **Cost savings:** $100k+ in writing/voice acting budget
-
-🏥 **"Medical Report Assistant" (Research → Clinical)**
-- **n150 phase:** Single specialty (dermatology), 100 report examples
-- **n300 phase:** 3 specialties, validation by clinicians
-- **T3000 phase:** 10+ specialties, multi-lingual support
-- **Impact:** Research project → deployed in 20+ hospitals
-- **Time saved:** 30 min/report → 5 min/report (doctors can see more patients)
-
-### What Multi-Device Training Really Gives You
-
-**It's not just about speed. It's about:**
-
-✨ **Experimentation velocity**
-- n150: Try 1-2 ideas per day
-- n300: Try 5-10 ideas per day
-- T3000: Try 20-30 ideas per day
-- **Result:** Find winning approaches 10x faster
-
-🎯 **Dataset scale**
-- n150: Validate with 50-200 examples
-- n300: Train on 500-1000 examples
-- T3000: Handle 10,000+ examples
-- **Result:** Better models from more data
-
-🚀 **Model complexity**
-- n150: Single-task models
-- n300: Multi-task learning
-- T3000: Ensemble of specialists
-- **Result:** More capable, versatile models
-
-💰 **Economic viability**
-- Prototype on n150: Low upfront cost
-- Prove value before scaling: Validate before investing
-- Scale to T3000 when revenue justifies: Grow hardware with business
-- **Result:** Sustainable business model
-
-### Your Multi-Device Roadmap
-
-**Month 1 (n150 - Learning):**
-- Master single-device training
-- Build intuition for hyperparameters
-- Create baseline model
-- **Investment:** n150 hardware, your time
-
-**Month 2 (n300 - Optimizing):**
-- 2x faster iteration unlocks experimentation
-- Test architectural variations
-- Expand dataset strategically
-- **Investment:** n300 hardware (~2x n150 cost)
-
-**Month 3+ (T3000 - Scaling):**
-- Production-quality models in hours
-- Multiple models for different use cases
-- Continuous improvement pipeline
-- **Investment:** T3000 hardware, justified by production value
-
-**Production (Right-sized hardware):**
-- Training pipeline optimized for your scale
-- Deploy on hardware that matches your needs
-- Continuous retraining as data grows
-- **ROI:** Revenue/savings >> hardware costs
-
-### The Power Law of Training Scale
-
-**Here's what most developers don't realize:**
-
-- **1x hardware (n150)** = Good for learning and prototypes
-- **2x hardware (n300)** = 4x more experiments (because iteration is faster, you try more)
-- **8x hardware (T3000)** = 30x more experiments (speed enables entirely different workflows)
-
-**Why the multiplier effect?**
-- Faster training → More courage to experiment
-- More experiments → Better intuition
-- Better intuition → Smarter choices
-- Smarter choices → Faster progress
-
-**It's not linear. It's exponential.**
-
-### From Learning to Leading
-
-**You now understand:**
-- ✅ How DDP works (gradient synchronization, device meshes)
-- ✅ How to configure for different hardware (n150 → n300 → T3000 → Galaxy)
-- ✅ How to debug multi-device issues (synchronization, performance, memory)
-- ✅ How scaling enables exponentially more experimentation
-
-**The question isn't "Should I scale to multi-device?"**
-
-**The question is "How fast do I want to iterate and learn?"**
-
-- **n150:** Learn fundamentals, prove concepts (essential first step)
-- **n300:** Iterate 2x faster, find winning approaches (when you're serious)
-- **T3000:** Move at production speed, build real products (when you're committed)
-- **Galaxy:** Research-scale innovation, push boundaries (when you're leading)
-
-**Start where you are. Scale when you're ready. The path is clear.**
+**Ideal ratio:** communication well under compute time. If it isn't, batch size is usually too small for the mesh you're running on.
 
 ---
 
 ## Key Takeaways
 
-✅ **DDP scales training to multiple devices efficiently**
+✅ **DDP splits a batch across devices and averages gradients by all-reduce — same math, same results as single-device, just parallelized**
 
-✅ **n300 provides ~2x speedup over n150**
+✅ **The real `mesh_shape` values are `[1, 1]` (single-chip), `[1, 2]` (n300), `[1, 8]` (T3000/LoudBox), `[1, 32]` (single Galaxy)** — read from `tt-train/configs/README.md`, not guessed
 
-✅ **Keep effective batch size constant for fair comparison**
+✅ **Coordinated device management (`CreateDevices`/`CloseDevices`, or `tt-train`'s internal `open_mesh_device`/`close_mesh_device`) treats the whole mesh as one unit — never open or close chips in a per-device loop**
 
-✅ **Gradient synchronization ensures all devices stay in sync**
+✅ **Never pass `DispatchCoreAxis.ROW` explicitly — it crashes on Blackhole. Leave the axis unset and let TT-NN auto-detect it**
 
-✅ **Start with single device, scale up after validation**
+✅ **Keep effective batch size (`batch_size × gradient_accumulation_steps`) constant when comparing hardware configurations**
 
-✅ **Monitor per-device metrics to catch issues early**
+✅ **None of this was verified end-to-end on the machine this lesson was written on — a single p300c can't run DDP. Validate it yourself on n300+ hardware.**
 
 ---
 
 ## Next Steps
 
-**Lesson CT-6: Experiment Tracking**
+**Next: [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"])**
 
-You've learned to train on single and multiple devices. Next, learn to track and compare experiments:
+Whether you trained on one chip or eight, the next problem is the same: keeping track of what you ran and what it produced. That lesson covers file-based logging and WandB integration for comparing runs — including runs across different hardware configurations, which is exactly what multi-device training gives you more of.
 
-1. WandB integration for experiment tracking
-2. Compare hyperparameter variations
-3. Visualize training curves
-4. Share results with team
-
-**Estimated time:** 10-15 minutes
-**Prerequisites:** CT-4, CT-5
-
-**Or skip to:**
-
-**Lesson CT-7: Model Architecture Basics**
-
-Understand transformer components before training from scratch.
+**Or, if you'd rather go deeper on the model itself:** [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) covers transformer components before [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) designs a full architecture.
 
 ---
 
 ## Additional Resources
 
 ### Documentation
-- [DDP in PyTorch](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html) - Conceptual foundation
-- [tt-train DDP](https://github.com/tenstorrent/tt-metal/tree/main/tt-train) - TT implementation
-- [Efficient DDP](https://arxiv.org/abs/2006.15704) - Research paper
+- [DDP in PyTorch](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html) — conceptual foundation (PyTorch's DDP, not `tt-train`'s, but the same underlying idea)
+- [tt-train](https://github.com/tenstorrent/tt-metal/tree/main/tt-train) — the actual implementation this lesson describes
+- [Efficient DDP](https://arxiv.org/abs/2006.15704) — background research paper on the all-reduce pattern
 
 ### Configuration Examples
-- **tt-train examples:** Check `tt-metal/tt-train/sources/examples/` for multi-device configs
-- **DDP patterns:** Reference TT-Metalium<sup>™</sup> documentation for device mesh configuration
+- **The real schema:** `tt-train/configs/README.md` — the source for every `mesh_shape`/`enable_ddp`/`enable_tp` value in this lesson
+- **The real configs:** `tt-train/configs/training_configs/training_shakespeare_nanogpt_ddp_n300.yaml` (plain DDP), `training_llama8b_dp2_tp4.yaml` and `training_llama8b_tp_ddp_galaxy.yaml` (DDP+TP combined)
+- [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) — the full single-chip config schema this lesson builds on
 
 ### Profiling Tools
-- `tt-smi` - Device monitoring
-- `ttnn.profiler` - Performance analysis
-
----
-
-**Ready to track your experiments?** Continue to **Lesson CT-6: Experiment Tracking** →
+- `tt-smi` - Device monitoring and reset
+- `ttml.core.TTProfiler` / `ttnn.profiler` - Performance analysis
