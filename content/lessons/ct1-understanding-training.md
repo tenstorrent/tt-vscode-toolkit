@@ -217,7 +217,7 @@ Once training is complete, use your trained model for inference. Integrate with 
 
 ## Hardware Considerations
 
-`ttml` builds and trains from source across the Wormhole<sup>™</sup> and Blackhole<sup>®</sup> lineup. Treat p300c as a single Blackhole chip — identical to p100 — and remember that TT-QuietBox<sup>®</sup> 2's four p300c chips run as four independent single-chip devices, not a mesh.
+`ttml` builds and trains from source across the Wormhole<sup>™</sup> and Blackhole<sup>®</sup> lineup. For single-chip work, treat p300c exactly like a p100. A TT-QuietBox<sup>®</sup> 2 is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh) — not four independent chips — so beyond single-chip training it can also run multi-chip data-parallel training with near-linear scaling (verified in [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])).
 
 ### n150 / p100 / p300c (single chip)
 - **Good for:** Fine-tuning small models (1-3B params), your first training runs.
