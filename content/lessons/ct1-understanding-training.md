@@ -43,6 +43,8 @@ This lesson lays the groundwork before you touch a dataset or a training loop: w
 
 **Time:** 10-15 minutes | **Prerequisites:** Basic understanding of machine learning concepts
 
+> **What the whole track needs (built once).** Every *hands-on* lesson from [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) onward runs on **`ttml` (tt-train)**, which has **no pip wheel**. You'll need a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73). On a TT-QuietBox<sup>®</sup> 2 the tt-metal source tree isn't pre-installed, so budget a one-time build — ct4 walks the exact recipe behind an **Install tt-train** button. The concept lessons before it (this one, Datasets, Configuration) need no hardware, so you can start the build now and keep reading.
+
 ---
 
 ## The Track at a Glance
