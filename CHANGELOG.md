@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.14] - 2026-07-10
+### Changed
+- **Raised the `tt-metal` version floor for the Custom Training track to v0.73.1** to match the only version actually verified. `ct4` and `ct8` previously declared `minTTMetalVersion: v0.67.0` in front matter (with nothing in the registry) and a stale `recommended_metal_version: v0.66.0-rc7` — all predating the v0.73 build the track was verified against, and that `ct5`'s multi-chip DDP required. Aligned both the markdown front matter and `lesson-registry.json` to `v0.73.1` (floor + recommendation). Framed as a *verified* floor, not a proven minimum.
+
+## [0.1.13] - 2026-07-10
+### Changed
+- **Surfaced the "recent `tt-metal`, built from source with `tt-train` enabled" prerequisite upfront** at the three entry points that were silent about it. `build-tt-metal` (the canonical build lesson) now lists the Custom Training track / from-scratch arc under "When you need this" — it previously never mentioned that training needs `tt-train` *enabled* (an extra build step beyond a stock build) on a recent version. `ct1` (track entrance) gained a visible "what the whole track needs (built once)" callout — the requirement had lived only in a front-matter note. `lfs-00` (from-scratch arc entrance) now warns that the final lab needs a from-source `tt-metal` + `tt-train` build (verified on v0.73), so learners kick off the one-time build early instead of discovering it after four labs.
+
+## [0.1.12] - 2026-07-09
+### Changed
+- **Corrected TT-QuietBox 2 topology across the lessons and folded the verified 80M-from-scratch result into `ct8`.** `ct1`, `ct8`, and `tt-xla-jax` had described a QB2 as "four independent chips" — it is a `P300_X2` ring mesh (four Blackhole chips, 2×2), and multi-chip DDP scales near-linearly (3.98× at 4 chips); `ct5` is now hardware-verified. `ct8`'s scaling section and takeaways now cite the measured reality: an ~80M `nanollama3` trains from scratch across four chips in ~2.4 h to the structure-and-vocabulary tier, and coherence is **data-bound** (100M tokens plateaus at an eval loss of ~1.4; the Mini-LLM reference reaches readable output with 361M) — not a hardware or decoder limit.
+
+## [0.1.11] - 2026-07-09
+### Changed
+- **Enriched `ct8` troubleshooting with the gotchas hit during a real four-chip QB2 run** — multi-chip DDP `Fabric Router Sync: Timeout` (missing mesh-graph descriptor; survives a reboot and `tt-smi -r`), device contention masquerading as a wedge (only one job can own the mesh), the DDP checkpoint-save failure (weights replicated across the mesh; pull them through a concat-mesh composer), `model_save_interval` set too large losing a run, broken auto-resume (empty `--resume` argparse error; use `--fresh`), and generation looping / word-salad from an undertrained model plus a bare decoder.
+
+## [0.1.10] - 2026-07-09
+### Changed
+- **Wove the human-experience angle into the from-scratch hero lab (`lfs-05`)** — what a QB2 is actually like under sustained training load: the chips settle at 70–81 °C while the closed-loop liquid cooling holds them there with an audible, rhythmic tick-tock.
+
 ## [0.1.9] - 2026-07-09
 ### Changed
 - **ct5 (Multi-Device Training) flipped to `validated` — multi-chip `tt-train` DDP verified working on a TT-QuietBox 2.** Corrected the topology framing: a QB2 is a 2×2 ring mesh (`P300_X2`, 2× p300c dual-ASIC boards), not four independent chips. Root-caused the earlier fabric-router-sync failure (survived `tt-smi -r` and a full reboot) to a missing mesh graph descriptor — `ttml` only ships default MGDs for 8/32-device topologies, so 2- and 4-device Blackhole meshes need `TT_MESH_GRAPH_DESC_PATH` set explicitly. Added a "Making the Mesh Initialize on a QB2" section with the exact fix (shipped `p300_mesh_graph_descriptor.textproto` for 2 chips; a custom `dims [1,4]` / `dim_types [LINE, RING]` descriptor for 4 chips) and replaced the old "not benchmarked" placeholder table with real measured scaling: 1.95× at 2 chips (97% efficiency), 3.98× at 4 chips (99.5% efficiency), losses decreasing at every chip count.
