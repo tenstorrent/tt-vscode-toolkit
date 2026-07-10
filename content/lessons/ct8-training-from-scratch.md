@@ -220,15 +220,27 @@ Check the data actually loaded — `train_nanogpt.py` prints dataset size and vo
 
 ### No checkpoint file after training
 
-`train_nanogpt.py` doesn't create parent directories for `--model_save_path`:
+Three real causes, in order of how often they bite:
 
-```bash
-mkdir -p ~/tt-metal/tt-train/checkpoints
-```
+- **Parent dir missing** — `train_nanogpt.py` doesn't create it. `mkdir -p $(dirname <model_save_path>)` first.
+- **`model_save_interval` too large** — if a run dies before its first save, you get nothing. Keep it small (500–1000). A run killed 42 steps before an interval-1500 save leaves zero checkpoints — learned the hard way.
+- **DDP save throws** — under multi-chip DDP the stock saver hits `Can't get a single buffer from host storage distributed over mesh`. The weights are replicated across chips; pull them through `ttml.core.distributed.concat_mesh_to_tensor_composer(device, 0)` and keep the first replica.
+
+### Multi-chip DDP dies at `Fabric Router Sync: Timeout`
+
+On a TT-QuietBox 2 a 2- or 4-chip run can time out at fabric-router sync during mesh open — and it survives both a full reboot and `tt-smi -r`, so it looks like dead hardware. It isn't: ttml ships default mesh-graph descriptors only for T3000/Galaxy, so on a 2/4-device Blackhole mesh you must set `TT_MESH_GRAPH_DESC_PATH` yourself. The full fix (with the `[1,4]` ring descriptor) is in [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]).
+
+### `argument --resume: expected one argument` (auto-resume is broken)
+
+Any run *without* `--fresh` triggers auto-resume, which currently injects an empty `--resume` and dies in argparse. Run with `--fresh` and checkpoint often instead of relying on resume.
 
 ### Device open hangs or times out on p300c / TT-QuietBox 2
 
-Try `tt-smi -r` to reset the board, then retry. Common enough on Blackhole hardware to try first before assuming something else is broken.
+First check: is another job holding the device? Only one process can own the mesh, so a live training run makes any second job (like inference) hang at device open — that's contention, not a fault. If nothing else is running, `tt-smi -r` to reset the board and retry; a hard-killed `ttml` process can wedge the device, so always let it close cleanly.
+
+### Generated text loops or turns to word-salad
+
+Same root cause both ways: an **undertrained** model plus a bare decoder. The stock `sample_greedy` has no repetition penalty, so a low-maturity model loops ("and Ben and Ben"); bolting on a *strong* penalty just turns the loop into word-salad. The real fix is training maturity (loss well under 1.0 for TinyStories-scale text) plus a *gentle* repetition penalty — not the penalty alone.
 
 ---
 
