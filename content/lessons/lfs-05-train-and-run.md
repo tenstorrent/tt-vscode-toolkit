@@ -85,7 +85,7 @@ update:    θ ← θ − optimizer_step(grad)         (AdamW)
 **Cross-entropy loss** is the same quantity the `smoke()` check in
 [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
 already computed: `F.cross_entropy(logits.view(-1, vocab), targets.view(-1))`.
-A freshly-initialized model's loss sits near `ln(vocab_size)` because its output
+A freshly initialized model's loss sits near `ln(vocab_size)` because its output
 distribution is close to uniform over the vocabulary, and cross-entropy of a
 uniform distribution over `V` classes is exactly `ln(V)`. Training's whole job
 is to push that number down — making the model assign more probability mass to
@@ -185,7 +185,7 @@ mistake most likely to eat your afternoon: if `ttnn` was already built
 *before* `tt-train` was enabled in your build tree — which describes **every
 pre-built tt-metal image, including TT-QuietBox 2's** — then `import ttml`
 raises `std::bad_cast`. The cause is a `nanobind` `STABLE_ABI` tag mismatch:
-the old `_ttnn.so` and the newly-built `_ttml` binding disagree about the
+the old `_ttnn.so` and the newly built `_ttml` binding disagree about the
 shape of `ttnn`'s `Layout`/`DataType` enum registry, and `ttml` can't safely
 cast into it. The fix is exactly the two lines above — rebuild `_ttnn.so` so
 both binaries share the same stable ABI — or, equivalently, run a single
@@ -311,12 +311,12 @@ built from nothing.
 **Upstream tt-metal does not run continuous-integration training tests for
 Blackhole.** `tt-train`'s own CI `GTEST_SKIP`s the `softmax`,
 `cross_entropy` (forward and backward), `rmsnorm`, and scaled-dot-product-
-attention training-op tests on P100/P150 — so there is no upstream guarantee
+attention training-op tests on p100/p150 — so there is no upstream guarantee
 that any of this works on Blackhole. What you just read above is not an
 upstream claim; it's **this project's own verification**: we built `ttml`
 from source against `~/tt-metal` **v0.73** and actually ran the loop on a
 p300c, and every one of those "skipped" ops executed correctly and produced
-a real, monotonically-decreasing loss curve. Two practical consequences
+a real, monotonically decreasing loss curve. Two practical consequences
 follow directly from that:
 
 - **Pin your tt-metal version.** This was verified at v0.73 specifically. A
@@ -444,7 +444,7 @@ That's it — that's the arc. Five labs ago you started with nothing but a
 without ever leaving TT-native ground. You wrote a tokenizer, a residual
 stream, attention with RoPE and grouped-query sharing, a full pre-norm
 SwiGLU/RMSNorm block, and — in this lab — the training loop that turned all
-of it from a correctly-wired-but-random network into one that measurably
+of it from a correctly wired but random network into one that measurably
 learned, loss dropping from 4.6875 to 3.2344 in twenty real steps on a
 Blackhole chip. Thank you again to the r/LocalLLaMA post that sparked this,
 to Ashx098 and Mini-LLM for the modern component recipe, and to the

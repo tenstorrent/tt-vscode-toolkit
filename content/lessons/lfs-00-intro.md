@@ -51,7 +51,7 @@ later port — a model whose forward pass, attention, and normalization are
 written directly against `ttnn.Tensor`, with the hot inner loops hand-authored
 in TT-Lang.
 
-> **Before you start — the one heavy prerequisite.** The final lab, [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]), trains on real hardware with **`ttml` (tt-train)** — which is **not** a pip install. It needs a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73); a TT-QuietBox<sup>®</sup> 2 image ships TT-NN<sup>™</sup> and vLLM but *not* the tt-metal source tree, so there's nothing to build against until you make one. It's a one-time build (~5 min with a warm ccache, much longer cold) — so kick it off early via [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) then the **Install tt-train** step in [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]). Labs 1–4 don't need it; Lab 5 does.
+> **Before you start — the one heavy prerequisite.** The final lab, [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]), trains on real hardware with **`ttml` (tt-train)** — which is **not** a pip install. It needs a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73); a TT-QuietBox<sup>®</sup> 2 image ships TT-NN<sup>™</sup> and vLLM but *not* the `tt-metal` source tree, so there's nothing to build against until you make one. It's a one-time build (~5 min with a warm ccache, much longer cold) — so kick it off early via [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) then the **Install tt-train** step in [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]). Labs 1–4 don't need it; Lab 5 does.
 
 Five labs follow this one:
 
@@ -275,7 +275,7 @@ advertised.
 **Train It & Run for Real** deserves one more honest note. **Upstream tt-metal does not run
 continuous-integration training tests for Blackhole.** The softmax,
 cross-entropy, RMSNorm, and scaled-dot-product-attention training-op tests are
-skipped on P100/P150 in CI. So there's no upstream guarantee that from-scratch
+skipped on p100/p150 in CI. So there's no upstream guarantee that from-scratch
 training works on Blackhole.
 
 We built `ttml` from source against `~/tt-metal` **v0.73** and ran the training

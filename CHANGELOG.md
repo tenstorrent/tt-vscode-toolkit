@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.16] - 2026-07-10
+### Fixed
+- **Vale (prose linter) cleanup on the training-track articles** — ran `vale` against the eight lessons changed this cycle and fixed the issues that were introduced this cycle plus pure wins: backticked bare `tt-metal` repo references in the new build-prerequisite callouts (ct1, lfs-00, build-tt-metal), removed unnecessary `-ly` adverb hyphens ("freshly initialized", "newly built", "monotonically decreasing", "correctly wired" in lfs-05), and lowercased hardware IDs in prose (p100/p150 in lfs-00 and lfs-05). Remaining Vale findings are pre-existing bare-`tt-metal`-in-prose repo references in older lesson sections — a house-style backticking pass tracked separately.
+
 ## [0.1.15] - 2026-07-10
 ### Fixed
 - **CS-Fundamentals no longer renders a stray game-of-life command under "Open Kernel Source" (issue #42).** The static docs-site generator (`build-web.js`) parsed `extension.ts` with a regex whose body scan crossed function boundaries and whose key capture excluded digits, so `openRiscvKernel` — a file-opener with no terminal command — inherited a later function's `RUN_GAME_OF_LIFE` template, and digit-keyed commands (e.g. `START_TT_INFERENCE_SERVER_N150`, `DOWNLOAD_WAN22_MODEL`) bled to the wrong command too. Tightened both regexes: the function-body scan now stops at the next top-level `function`, and command keys may contain digits. "Open Kernel Source" now renders as a neutral badge (it is a VS Code file-open with no shell equivalent), and nine digit-keyed commands resolve to their correct shell command. Appears on docs.tenstorrent.com after the next docs-site regeneration.
