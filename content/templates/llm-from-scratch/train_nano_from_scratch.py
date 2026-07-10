@@ -63,7 +63,7 @@ NANOLLAMA3_CONFIG = "training_shakespeare_nanollama3_char.yaml"
 
 
 def _default_tt_metal_home() -> str:
-    return os.environ.get("TT_METAL_HOME", "/home/ttuser/tt-metal")
+    return os.environ.get("TT_METAL_HOME", os.path.expanduser("~/tt-metal"))
 
 
 def _build_env(tt_metal_home: str, arch: str | None) -> dict:

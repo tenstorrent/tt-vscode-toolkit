@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.17] - 2026-07-10
+### Fixed
+- **Addressed PR #43 review feedback:**
+  - `install-tt-train` command — resolve site-packages via `sysconfig.get_paths()['purelib']` (works in virtualenvs where `site.getsitepackages()` may not) and add the actual `build_Release/tt-train/sources/ttml` build-output path to the generated `.pth` (alongside the `build/` symlink path), so `ttml` imports regardless of build-dir layout.
+  - `build-web.js` — the command-parser body scan now also stops at `export function` / `export async function` declarations (e.g. `export async function activate`), closing a remaining cross-function bleed-through path in the issue #42 fix.
+  - `train_nano_from_scratch.py` — default `TT_METAL_HOME` to `~/tt-metal` (current user's home) instead of a hardcoded `/home/ttuser/tt-metal`, so the scaffolded script runs out of the box for any user.
+  - `lfs-05` — removed a stale "the Custom Training track is currently blocked" aside; the track is re-authored and `ct4`/`ct8` are validated on Blackhole p300c.
+  - README "Latest Release" section aligned with `package.json` / `CHANGELOG`.
+
 ## [0.1.16] - 2026-07-10
 ### Fixed
 - **Vale (prose linter) cleanup on the training-track articles** — ran `vale` against the eight lessons changed this cycle and fixed the issues that were introduced this cycle plus pure wins: backticked bare `tt-metal` repo references in the new build-prerequisite callouts (ct1, lfs-00, build-tt-metal), removed unnecessary `-ly` adverb hyphens ("freshly initialized", "newly built", "monotonically decreasing", "correctly wired" in lfs-05), and lowercased hardware IDs in prose (p100/p150 in lfs-00 and lfs-05). Remaining Vale findings are pre-existing bare-`tt-metal`-in-prose repo references in older lesson sections — a house-style backticking pass tracked separately.

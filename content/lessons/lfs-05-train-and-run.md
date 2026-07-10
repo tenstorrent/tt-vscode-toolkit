@@ -420,10 +420,9 @@ run with a falsifiable result.
 
 If you want to go deeper into `ttml`-based training beyond this arc's nano
 scope — different architectures, longer runs, the full custom-training
-workflow — this project's existing (currently `blocked`, pending a
-standalone `ttml` package, though this lab's build recipe above is a real
-way around that block if you're willing to build from source) tracks are
-where that continues:
+workflow — this project's Custom Training track (re-authored and verified
+against the same `ttml` build recipe used above — `ct4` and `ct8` are
+validated on Blackhole p300c) is where that continues:
 
 - [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"])
   — embeddings, attention, feed-forward design, before training from

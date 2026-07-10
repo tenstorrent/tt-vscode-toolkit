@@ -408,9 +408,10 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.15 (2026-07-10)
+### Latest Release: v0.1.17 (2026-07-10)
 
 **Highlights:**
+- 🔧 **PR #43 review fixes** — robust `ttml` `.pth` wiring (venv-safe site-packages + `build_Release` path), export-aware docs-site command parser, `~/tt-metal` default in the from-scratch scaffold, and doc/version alignment
 - 🐛 **Fixed issue #42** — CS-Fundamentals no longer renders a stray game-of-life command under "Open Kernel Source"; the docs-site generator's command parser was crossing function boundaries and dropping digit-keyed commands (both fixed; nine commands now resolve correctly)
 
 **Plus the v0.1.10–v0.1.14 training-track hardening pass:**

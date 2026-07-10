@@ -705,8 +705,8 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
       'echo "Rebuilding ttnn _ttnn.so so its ABI matches ttml (fixes std::bad_cast on import ttml)..." && ' +
       'ninja -C build_Release ttnn/_ttnn.so && ' +
       'cp -a build_Release/ttnn/_ttnn.so ttnn/ttnn/_ttnn.so && ' +
-      'SITE_PACKAGES=$(python3 -c "import site; print(site.getsitepackages()[0])") && ' +
-      '{ echo "$TT_METAL_HOME/tt-train/sources/ttml"; echo "$TT_METAL_HOME/build/tt-train/sources/ttml"; } > "$SITE_PACKAGES/ttml-custom.pth" && ' +
+      'SITE_PACKAGES=$(python3 -c "import sysconfig; print(sysconfig.get_paths()[\'purelib\'])") && ' +
+      '{ echo "$TT_METAL_HOME/tt-train/sources/ttml"; echo "$TT_METAL_HOME/build_Release/tt-train/sources/ttml"; echo "$TT_METAL_HOME/build/tt-train/sources/ttml"; } > "$SITE_PACKAGES/ttml-custom.pth" && ' +
       'python3 -c "import ttml, ttnn; print(\'\\u2713 ttml + ttnn installed and importable\')"',
     description:
       'Builds ttml (tt-train) from source against $TT_METAL_HOME: configures the tt-train subproject, builds the _ttml bindings, rebuilds ttnn/_ttnn.so to fix the nanobind ABI mismatch (std::bad_cast), and wires ttml onto the active venv via a .pth file',
