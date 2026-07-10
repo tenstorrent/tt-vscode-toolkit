@@ -408,9 +408,12 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.14 (2026-07-10)
+### Latest Release: v0.1.15 (2026-07-10)
 
-**Highlights (the v0.1.10–v0.1.14 training-track hardening pass):**
+**Highlights:**
+- 🐛 **Fixed issue #42** — CS-Fundamentals no longer renders a stray game-of-life command under "Open Kernel Source"; the docs-site generator's command parser was crossing function boundaries and dropping digit-keyed commands (both fixed; nine commands now resolve correctly)
+
+**Plus the v0.1.10–v0.1.14 training-track hardening pass:**
 - 🎯 **Honest 80M-from-scratch reality folded into `ct8`** — an ~80M `nanollama3` trains from scratch across four QB2 chips in ~2.4 h to the structure-and-vocabulary tier; coherence is **data-bound** (100M tokens plateaus at eval loss ~1.4; Mini-LLM used 361M), not a hardware limit
 - 🔧 **TT-QuietBox<sup>®</sup> 2 topology corrected everywhere** — a QB2 is a `P300_X2` ring mesh (four Blackhole<sup>®</sup> chips, 2×2), not four independent chips, across `ct1`/`ct8`/`tt-xla-jax`
 - 📣 **Build prerequisite now stated upfront** — `build-tt-metal`, `ct1`, and `lfs-00` all warn early that training needs a recent `tt-metal` built from source **with `tt-train` enabled** (verified v0.73), so nobody discovers it four labs in

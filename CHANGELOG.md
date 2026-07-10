@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.15] - 2026-07-10
+### Fixed
+- **CS-Fundamentals no longer renders a stray game-of-life command under "Open Kernel Source" (issue #42).** The static docs-site generator (`build-web.js`) parsed `extension.ts` with a regex whose body scan crossed function boundaries and whose key capture excluded digits, so `openRiscvKernel` — a file-opener with no terminal command — inherited a later function's `RUN_GAME_OF_LIFE` template, and digit-keyed commands (e.g. `START_TT_INFERENCE_SERVER_N150`, `DOWNLOAD_WAN22_MODEL`) bled to the wrong command too. Tightened both regexes: the function-body scan now stops at the next top-level `function`, and command keys may contain digits. "Open Kernel Source" now renders as a neutral badge (it is a VS Code file-open with no shell equivalent), and nine digit-keyed commands resolve to their correct shell command. Appears on docs.tenstorrent.com after the next docs-site regeneration.
+
 ## [0.1.14] - 2026-07-10
 ### Changed
 - **Raised the `tt-metal` version floor for the Custom Training track to v0.73.1** to match the only version actually verified. `ct4` and `ct8` previously declared `minTTMetalVersion: v0.67.0` in front matter (with nothing in the registry) and a stale `recommended_metal_version: v0.66.0-rc7` — all predating the v0.73 build the track was verified against, and that `ct5`'s multi-chip DDP required. Aligned both the markdown front matter and `lesson-registry.json` to `v0.73.1` (floor + recommendation). Framed as a *verified* floor, not a proven minimum.

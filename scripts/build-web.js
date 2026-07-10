@@ -195,7 +195,8 @@ function buildCommandMap() {
   // We walk line by line, tracking the current KEY name, then extract
   // the template value regardless of which quote style is used.
   let currentKey = null;
-  const keyRe = /^\s{2}([A-Z_]+):\s*\{/;
+  // Keys can contain digits (e.g. START_TT_INFERENCE_SERVER_N150, DOWNLOAD_WAN22_MODEL).
+  const keyRe = /^\s{2}([A-Z][A-Z0-9_]*):\s*\{/;
   const lines = src.split('\n');
 
   for (let i = 0; i < lines.length; i++) {
@@ -269,9 +270,14 @@ function buildCommandMap() {
   if (fs.existsSync(EXTENSION_PATH)) {
     const extSrc = fs.readFileSync(EXTENSION_PATH, 'utf8');
 
-    // Map: funcName → TERMINAL_COMMANDS key (first occurrence wins)
+    // Map: funcName → TERMINAL_COMMANDS key (first occurrence wins).
+    // The body scan is tempered to stop at the next top-level `function`/`async function`
+    // declaration so a function with NO TERMINAL_COMMANDS reference (e.g. a file-opener
+    // like openRiscvKernel) can't "steal" a later function's key — that bleed-through was
+    // rendering a game-of-life command under CS-Fundamentals' "Open Kernel Source" (issue #42).
+    // Keys can contain digits (START_TT_INFERENCE_SERVER_N150, RUN_ANIMATEDIFF_2FRAME, …).
     const funcToKey = {};
-    const funcKeyRe = /(?:async\s+)?function\s+(\w+)[^{]*\{[\s\S]*?TERMINAL_COMMANDS\.([A-Z_]+)\./g;
+    const funcKeyRe = /(?:async\s+)?function\s+(\w+)[^{]*\{(?:(?!\n(?:async )?function )[\s\S])*?TERMINAL_COMMANDS\.([A-Z0-9_]+)\./g;
     let fkMatch;
     while ((fkMatch = funcKeyRe.exec(extSrc)) !== null) {
       const funcName = fkMatch[1];
