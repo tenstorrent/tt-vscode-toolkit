@@ -555,7 +555,8 @@
       "previousLesson": "ct3-configuration-patterns",
       "nextLesson": "ct5-multi-device-training",
       "markdownFile": "content/lessons/ct4-finetuning-basics.md",
-      "recommended_metal_version": "v0.66.0-rc7"
+      "recommended_metal_version": "v0.73.1",
+      "minTTMetalVersion": "v0.73.1"
     },
     {
       "id": "ct5-multi-device-training",
@@ -679,7 +680,8 @@
         "onCommand:tenstorrent.trainFromScratch"
       ],
       "markdownFile": "content/lessons/ct8-training-from-scratch.md",
-      "recommended_metal_version": "v0.66.0-rc7"
+      "recommended_metal_version": "v0.73.1",
+      "minTTMetalVersion": "v0.73.1"
     },
     {
       "id": "cookbook-overview",

@@ -24,7 +24,7 @@ status: validated
 validatedOn:
   - p300c
 estimatedMinutes: 25
-minTTMetalVersion: v0.67.0
+minTTMetalVersion: v0.73.1
 ---
 
 # Fine-tuning Basics

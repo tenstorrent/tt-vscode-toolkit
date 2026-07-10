@@ -25,7 +25,7 @@ status: validated
 validatedOn:
   - p300c
 estimatedMinutes: 30
-minTTMetalVersion: v0.67.0
+minTTMetalVersion: v0.73.1
 ---
 
 # Training from Scratch
