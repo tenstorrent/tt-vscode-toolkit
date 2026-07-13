@@ -408,7 +408,14 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.17 (2026-07-10)
+### Latest Release: v0.1.18 (2026-07-13)
+
+**Highlights:**
+- 🐛 **PRD-246 first-inference flow fixes (from QB2 testing)** — fixed the broken "Step 3: Download the Model" skip link, consolidated the scattered Hugging Face auth flow into one sequence, marked the device-reset check optional, dropped the redundant `tt-smi` step from the installer lesson, and simplified the "Test TT-Metalium" button (with a QB2/Podman caveat)
+- ✅ **Regression test for the docs-site command parser (issue #42)** — extracted the parser into a pure module and added tests that lock in the function-boundary guard so a keyless file-opener can never again inherit the next command's template
+- 🧹 **PR #43 follow-up** — `train_nano_from_scratch.py` docstring example now matches the `~/tt-metal` code default
+
+### Previous Release: v0.1.17 (2026-07-10)
 
 **Highlights:**
 - 🔧 **PR #43 review fixes** — robust `ttml` `.pth` wiring (venv-safe site-packages + `build_Release` path), export-aware docs-site command parser, `~/tt-metal` default in the from-scratch scaffold, and doc/version alignment
@@ -421,7 +428,7 @@ We welcome contributions! Here's how to get involved:
 - 📌 **Version floors aligned to the verified reality** — `ct4`/`ct8` raised to `minTTMetalVersion: v0.73.1` in both markdown and the registry
 - 🩹 **`ct8` troubleshooting enriched** with real four-chip-run gotchas (fabric/MGD timeout, device contention, DDP checkpoint-save, broken auto-resume, decoder looping)
 
-### Previous Release: v0.1.9 (2026-07-09)
+### Earlier: v0.1.9 (2026-07-09)
 
 **Highlights:**
 - ✅ **ct5 (Multi-Device Training) flipped to `validated`** — multi-chip `tt-train` DDP verified working on a TT-QuietBox<sup>®</sup> 2, with near-linear scaling to 4 Blackhole<sup>®</sup> chips (1.95× at 2 chips, 3.98× at 4 chips)

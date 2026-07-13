@@ -171,22 +171,11 @@ For automated deployments or cloud environments, use non-interactive mode:
 
 ## Step 4: Verify Installation
 
-After installation (and reboot if prompted), verify everything works:
+After installation (and reboot if prompted), confirm the pieces are in place.
 
-### Check Hardware Detection
-
-```bash
-tt-smi
-```
-
-You should see your Tenstorrent device(s) listed with:
-- Board Type (n150, n300, T3000, etc.)
-- PCI Bus ID
-- Firmware version
-- Temperature
-- Power draw
-
-[🔍 Run tt-smi](command:tenstorrent.runHardwareDetection)
+**Detecting your hardware** (`tt-smi`) is covered in depth in the next lesson —
+see [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]).
+Once that shows your device, come back and test the container below.
 
 ### Test TT-Metalium Container
 
@@ -200,6 +189,15 @@ This verifies:
 - ✅ Container launches successfully
 - ✅ TT-NN library is available
 - ✅ Python environment is configured
+
+> **⚠️ TT-QuietBox 2 (and other pre-configured images):** this test needs the
+> TT-Metalium **container** (Podman + the `tt-metalium` wrapper) that the
+> installer sets up. Pre-built QB2 images ship TT-NN and vLLM directly but may
+> **not** include Podman or the container wrapper — in that case `tt-metalium`
+> won't be found. Verify TT-NN directly instead:
+> ```bash
+> python3 -c 'import ttnn; print(ttnn.__version__)'
+> ```
 
 [🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
 

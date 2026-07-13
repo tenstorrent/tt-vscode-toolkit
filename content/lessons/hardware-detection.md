@@ -251,7 +251,11 @@ sudo usermod -a -G tenstorrent $USER
 # Log out and back in for group changes to take effect
 ```
 
-### Check 4: Device Reset
+### Check 4 (Optional): Device Reset
+
+> **Optional — recovery step only.** Skip this unless a device shows up in
+> `tt-smi` but reports errors or won't initialize. A healthy device does not
+> need a reset.
 
 **If device appears but shows errors:**
 ```bash
