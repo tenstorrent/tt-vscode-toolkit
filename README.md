@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![VSCode](https://img.shields.io/badge/VSCode-1.93%2B-blue.svg)](https://code.visualstudio.com/)
 
-Learn Tenstorrent hardware and software through 48 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference and **custom training** pipelines.
+Learn Tenstorrent hardware and software through 53 interactive lessons with guided hands-on exercises, production-ready code templates, and intelligent hardware detection. Perfect for developers new to Tenstorrent hardware and teams building production AI inference and **custom training** pipelines.
 
 ![Screen capture of TT-VSCode-Toolkit in action](assets/img/screenshot.png)
 
@@ -16,7 +16,7 @@ Learn Tenstorrent hardware and software through 48 interactive lessons with guid
 
 The TT-VSCode-Toolkit is an educational extension that provides:
 
-- ✅ **48 Interactive Lessons** - From hardware detection to custom training, organized by skill level
+- ✅ **53 Interactive Lessons** - From hardware detection to custom training, organized by skill level
 - ✅ **Custom Training Ready** - Train models from scratch or fine-tune existing ones (validated on hardware!)
 - ✅ **Click-to-Run Commands** - Execute lessons step-by-step without copy-pasting commands
 - ✅ **Hardware Auto-Detection** - Automatically detects your Tenstorrent device and provides tailored guidance
@@ -225,16 +225,26 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **ttsim QEMU Bridge: Full-System Simulation** — *draft*
 
 ### 🎓 Custom Training
-*8 lessons, 0 validated*
+*8 lessons, 3 validated*
 
-- **Understanding Custom Training** — `N150`
-- **Dataset Fundamentals** — `N150`
-- **Configuration Patterns** — `N150`
-- **Fine-tuning Basics** — `N150`
-- **Multi-Device Training** — `N150`
-- **Experiment Tracking** — `N150`
-- **Model Architecture Basics** — `N150`
-- **Training from Scratch** — `N150`
+- **Understanding Custom Training** — *draft*
+- **Dataset Fundamentals** — *draft*
+- **Configuration Patterns** — *draft*
+- **Fine-tuning Basics** — `P300C`
+- **Multi-Device Training** — `P300C`
+- **Experiment Tracking** — *draft*
+- **Model Architecture Basics** — *draft*
+- **Training from Scratch** — `P300C`
+
+### 🔬 Build an LLM from Scratch
+*6 lessons, 0 validated*
+
+- **Build an LLM from Scratch — Pick Your Altitude** — *draft*
+- **Tokenizer & Data from Scratch** — *draft*
+- **Embeddings & the Residual Stream** — *draft*
+- **Attention from Scratch** — *draft*
+- **The Transformer Block & the Model** — *draft*
+- **Train It & Run for Real** — `P300C`
 
 ### ☁️ Deployment
 *2 lessons, 2 validated*
@@ -253,7 +263,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Recipe 5: Particle Life Simulator** — `N150` `P300C`
 
 ### 🧠 CS Fundamentals
-*7 lessons, 0 validated*
+*8 lessons, 0 validated*
 
 - **Module 1: RISC-V & Computer Architecture** — *draft*
 - **Module 2: The Memory Hierarchy** — *draft*
@@ -262,6 +272,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Module 5: Synchronization** — *draft*
 - **Module 6: Abstraction Layers** — *draft*
 - **Module 7: Computational Complexity in Practice** — *draft*
+- **Module 8: Matrix Math and Matmul Labs** — *draft*
 
 <!-- LESSON_CATALOG_END -->
 
@@ -397,20 +408,24 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.0.401 (2026-04-23)
+### Latest Release: v0.1.17 (2026-07-10)
 
 **Highlights:**
-- ⬡ **Tensix Grid Visualizer** — animated Canvas component embedded in lessons (VSCode + GH Pages); shows NOC routing, parallelism, kernel dispatch on real Wormhole<sup>™</sup>/Blackhole<sup>®</sup> chip grids
-- 🐍 **ttlang-sim-lite** — pure-Python, torch-free fork of the TT-Lang simulator; runs TT-Lang kernels in the browser via Pyodide with no hardware required
-- 🎮 **Browser playground** — write and run TT-Lang kernels client-side with Pyodide; kernels: eltwise_add, fused_mma, matmul_relu, matmul_1d
-- 🔬 **Dev Container** — `devcontainer.json` for simulator-only development; extension detects context and routes commands accordingly
-- ☁️ **Cloud simulator API skeleton** — FastAPI + WebSocket execution server with `/sim-test` PR comment trigger
-- 🔍 **Drift detection scripts** — `check-sim-lite-drift.py` (fork vs upstream), `check-vendor-drift.py` (all vendor repos: TT-Metalium, tt-vllm, TT-Inference-Server, tt-forge-models, ttsim)
+- 🔧 **PR #43 review fixes** — robust `ttml` `.pth` wiring (venv-safe site-packages + `build_Release` path), export-aware docs-site command parser, `~/tt-metal` default in the from-scratch scaffold, and doc/version alignment
+- 🐛 **Fixed issue #42** — CS-Fundamentals no longer renders a stray game-of-life command under "Open Kernel Source"; the docs-site generator's command parser was crossing function boundaries and dropping digit-keyed commands (both fixed; nine commands now resolve correctly)
 
-### Previous Release: v0.0.400 (2026-04-21)
+**Plus the v0.1.10–v0.1.14 training-track hardening pass:**
+- 🎯 **Honest 80M-from-scratch reality folded into `ct8`** — an ~80M `nanollama3` trains from scratch across four QB2 chips in ~2.4 h to the structure-and-vocabulary tier; coherence is **data-bound** (100M tokens plateaus at eval loss ~1.4; Mini-LLM used 361M), not a hardware limit
+- 🔧 **TT-QuietBox<sup>®</sup> 2 topology corrected everywhere** — a QB2 is a `P300_X2` ring mesh (four Blackhole<sup>®</sup> chips, 2×2), not four independent chips, across `ct1`/`ct8`/`tt-xla-jax`
+- 📣 **Build prerequisite now stated upfront** — `build-tt-metal`, `ct1`, and `lfs-00` all warn early that training needs a recent `tt-metal` built from source **with `tt-train` enabled** (verified v0.73), so nobody discovers it four labs in
+- 📌 **Version floors aligned to the verified reality** — `ct4`/`ct8` raised to `minTTMetalVersion: v0.73.1` in both markdown and the registry
+- 🩹 **`ct8` troubleshooting enriched** with real four-chip-run gotchas (fabric/MGD timeout, device contention, DDP checkpoint-save, broken auto-resume, decoder looping)
+
+### Previous Release: v0.1.9 (2026-07-09)
 
 **Highlights:**
-- Fixed `assets/img/` being packaged twice in the `.vsix` bundle
+- ✅ **ct5 (Multi-Device Training) flipped to `validated`** — multi-chip `tt-train` DDP verified working on a TT-QuietBox<sup>®</sup> 2, with near-linear scaling to 4 Blackhole<sup>®</sup> chips (1.95× at 2 chips, 3.98× at 4 chips)
+- 🧩 **The mesh graph descriptor (MGD) fix documented** — the fabric-router-sync failure that blocked 2-/4-chip DDP was a missing MGD, not a hardware fault; the lesson now shows the exact `TT_MESH_GRAPH_DESC_PATH` fix for both chip counts
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
 

@@ -676,11 +676,40 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // Custom Training Lessons
   // ========================================
 
+  // Verified build recipe: content/templates/llm-from-scratch/BUILD_TTML.md
+  // ttml (tt-train) is source-only — there is no pip wheel and tt-train has
+  // no pyproject.toml, so `pip install -e .` (the old approach) always
+  // failed. The real recipe configures tt-train as a tt-metal cmake
+  // subproject, builds the `_ttml` bindings, then REBUILDS ttnn's
+  // `_ttnn.so` and copies it over the prebuilt one. That rebuild is
+  // required: every prebuilt tt-metal image (including TT-QuietBox 2)
+  // ships a `_ttnn.so` with a different nanobind ABI tag than a freshly
+  // built `_ttml`, and skipping the rebuild is the #1 cause of
+  // `std::bad_cast` on `import ttml`. Finally, since there's no install
+  // step to wire ttml onto the venv, we add a `.pth` file pointing at the
+  // built sources.
   INSTALL_TT_TRAIN: {
     id: 'install-tt-train',
     name: 'Install tt-train',
-    template: 'cd $TT_METAL_HOME/tt-train && pip install -e . && echo "✓ tt-train installed successfully"',
-    description: 'Install tt-train Python package from tt-metal repository',
+    template:
+      'export TT_METAL_HOME="${TT_METAL_HOME:-$HOME/tt-metal}" && ' +
+      'export TT_METAL_RUNTIME_ROOT="$TT_METAL_HOME" && ' +
+      ': "${TT_METAL_ARCH_NAME:=wormhole_b0}" && export TT_METAL_ARCH_NAME && ' +
+      'export CMAKE_POLICY_VERSION_MINIMUM=3.5 && ' +
+      'export TT_LOGGER_LEVEL=FATAL && ' +
+      'cd "$TT_METAL_HOME" && ' +
+      'echo "Configuring tt-train subproject..." && ' +
+      './build_metal.sh --build-tt-train --configure-only && ' +
+      'echo "Building ttml python bindings (a few minutes with warm ccache)..." && ' +
+      'cmake --build build_Release --target _ttml && ' +
+      'echo "Rebuilding ttnn _ttnn.so so its ABI matches ttml (fixes std::bad_cast on import ttml)..." && ' +
+      'ninja -C build_Release ttnn/_ttnn.so && ' +
+      'cp -a build_Release/ttnn/_ttnn.so ttnn/ttnn/_ttnn.so && ' +
+      'SITE_PACKAGES=$(python3 -c "import sysconfig; print(sysconfig.get_paths()[\'purelib\'])") && ' +
+      '{ echo "$TT_METAL_HOME/tt-train/sources/ttml"; echo "$TT_METAL_HOME/build_Release/tt-train/sources/ttml"; echo "$TT_METAL_HOME/build/tt-train/sources/ttml"; } > "$SITE_PACKAGES/ttml-custom.pth" && ' +
+      'python3 -c "import ttml, ttnn; print(\'\\u2713 ttml + ttnn installed and importable\')"',
+    description:
+      'Builds ttml (tt-train) from source against $TT_METAL_HOME: configures the tt-train subproject, builds the _ttml bindings, rebuilds ttnn/_ttnn.so to fix the nanobind ABI mismatch (std::bad_cast), and wires ttml onto the active venv via a .pth file',
   },
 
   // CT-8: Training from Scratch Commands

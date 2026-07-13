@@ -239,7 +239,7 @@ Wormhole<sup>™</sup> and Blackhole<sup>®</sup> chips are configured identical
 | n300 | `[TtDevice(id=0), TtDevice(id=1)]` | Two Wormhole chips |
 | T3000 | `[TtDevice(id=0..7)]` | Eight Wormhole chips |
 | p300c | `[TtDevice(id=0)]` | Single Blackhole chip |
-| TT-QuietBox 2 | `[TtDevice(id=0..3)]` | Four independent p300c chips |
+| TT-QuietBox 2 | `[TtDevice(id=0..3)]` | Four Blackhole chips (P300_X2 ring mesh) |
 | Galaxy | `[TtDevice(id=0..31)]` | 32 Wormhole chips |
 
 Set `TT_METAL_ARCH_NAME` before activating the env if it isn't already set:

@@ -1,0 +1,13 @@
+# Custom MGD for QB2 (2x p300c boards = 4 Blackhole chips) as a 1x4 RING.
+# Physical ethernet ring: 0-1-2-3-0 (each edge has 2 eth links).
+# dp axis (cols) = RING so the DDP all-reduce uses a torus/ring fabric.
+
+mesh_descriptors {
+  name: "M0"
+  arch: BLACKHOLE
+  device_topology { dims: [ 1, 4 ] dim_types: [ LINE, RING ] }
+  host_topology   { dims: [ 1, 1 ] }
+  channels { count: 2 policy: RELAXED }
+}
+
+top_level_instance { mesh { mesh_descriptor: "M0" mesh_id: 0 } }

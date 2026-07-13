@@ -8,7 +8,7 @@ tags:
   - training
   - fine-tuning
   - tt-train
-  - tt-blacksmith
+  - ttml
   - concepts
 supportedHardware:
   - n150
@@ -18,169 +18,131 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: blocked
-blockReason: >-
-  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
-  Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
-validatedOn:
-  - n150
+status: draft
+note: >-
+  ttml (tt-train) builds and trains from source on Blackhole p300c as of
+  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  "Install tt-train" command for the verified recipe. This lesson is being
+  re-authored around that verified workflow.
+validatedOn: []
 estimatedMinutes: 15
 ---
 
 # Understanding Custom Training
 
-Welcome to the Custom Training series! This lesson provides a conceptual foundation for understanding how to build and customize AI models on Tenstorrent hardware.
+Welcome to the Custom Training track. Elsewhere in this extension you've learned to **run** models — inference. This track is about **creating** them: teaching a network new behavior by adjusting its weights.
+
+This lesson lays the groundwork before you touch a dataset or a training loop: what custom training is, when you actually need it, and which of the three ways to train on Tenstorrent hardware fits your goal.
 
 ## What You'll Learn
 
-- What is custom training and when do you need it?
-- The difference between fine-tuning and training from scratch
-- How training frameworks work together
-- The tt-blacksmith approach to model development
-- When to use tt-train vs tt-blacksmith vs PyTorch
+- What custom training is, and when you actually need it
+- Fine-tuning vs. training from scratch — and how to pick
+- The three ways to train on Tenstorrent hardware, and which one this track teaches
+- Where to go if you'd rather build every piece — tokenizer, attention, the training loop itself — by hand
 
 **Time:** 10-15 minutes | **Prerequisites:** Basic understanding of machine learning concepts
 
----
-
-## Custom Training vs Inference
-
-So far in this extension, you've learned how to **run** pre-trained models (inference). Now you'll learn how to **create** your own models (training).
-
-### Inference (What You've Done)
-- Load a pre-trained model
-- Feed it inputs, get outputs
-- Like using a tool someone else built
-- Fast, predictable, production-ready
-
-### Training (What We'll Build)
-- Teach a model new behaviors
-- Adjust billions of parameters
-- Like building your own custom tool
-- Slower, requires experimentation, incredibly powerful
-
-**Key insight:** Training is where the magic happens. A model is just a collection of numbers (weights) until training teaches it what those numbers should be.
+> **What the whole track needs (built once).** Every *hands-on* lesson from [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) onward runs on **`ttml` (tt-train)**, which has **no pip wheel**. You'll need a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73). On a TT-QuietBox<sup>®</sup> 2 the `tt-metal` source tree isn't pre-installed, so budget a one-time build — ct4 walks the exact recipe behind an **Install tt-train** button. The concept lessons before it (this one, Datasets, Configuration) need no hardware, so you can start the build now and keep reading.
 
 ---
 
-## Two Paths to Custom Models
+## The Track at a Glance
 
-### Path 1: Fine-Tuning (Lessons CT-2 through CT-6)
-**Start with a pre-trained model, teach it something new.**
-
-**When to use:**
-- You want to specialize an existing model
-- You have a specific task or domain
-- You have 100-10,000 examples
-- You want results in hours, not days
-
-**Example:** Take TinyLlama (general language model) and fine-tune it to explain machine learning concepts in creative ways.
-
-**Analogy:** Like hiring an experienced developer and training them on your company's codebase.
-
-### Path 2: Training from Scratch (Lessons CT-7 and CT-8)
-**Build a model from the ground up.**
-
-**When to use:**
-- You want complete architectural control
-- You're researching new model designs
-- You want to deeply understand how models work
-- You have time and computational resources
-
-**Example:** Build a tiny transformer (10-20M parameters) that learns language patterns from scratch.
-
-**Analogy:** Like teaching yourself programming from first principles.
-
----
-
-## The Training Framework Ecosystem
-
-Tenstorrent's training ecosystem is designed around clarity and modularity. Here's how the pieces fit together:
-
-### TT-Metalium<sup>™</sup> (Foundation)
-- **What it is:** Core SDK for Tenstorrent hardware
-- **What it does:** Low-level operations, kernels, device management, memory handling
-- **Why it matters:** This is the foundation everything else builds on
-- **Location:** `vendor/tt-metal/`
-
-### tt-train (Training Framework)
-- **What it is:** Python API for training on TT hardware
-- **What it does:** PyTorch-like interface, built-in DDP for multi-device training, YAML configuration
-- **Why it matters:** Makes training feel familiar to ML engineers while optimizing for TT hardware
-- **Location:** `vendor/tt-metal/tt-train/`
-
-### tt-blacksmith (Development Patterns)
-- **What it is:** Not just for bounties - it's a **development framework**
-- **What it does:** Config-driven patterns, modular organization, experiment management best practices
-- **Why it matters:** Shows you how experienced engineers structure training projects
-- **Location:** External reference (we'll apply these patterns throughout)
-
-**How they work together:**
+This track runs in a fixed order: six lessons that each build on the last, plus two deeper lessons on model architecture that build on those six.
 
 ```mermaid
-graph TD
-    A[Your Training Script] --> B[tt-train API<br/>High-level Training Interface]
-    B --> C[TT-Metalium SDK<br/>Hardware Operations]
-    C --> D[Tenstorrent Hardware<br/>n150/n300/T3000/p100/Galaxy]
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
 
-    E[tt-blacksmith Patterns] -.->|Best Practices<br/>Config Organization| A
-
-    style A fill:#4A90E2,stroke:#333,stroke-width:2px
-    style B fill:#7B68EE,stroke:#333,stroke-width:2px
-    style C fill:#7B68EE,stroke:#333,stroke-width:2px
-    style D fill:#50C878,stroke:#333,stroke-width:2px
-    style E fill:#6C757D,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+    style A fill:#1B8EB1,stroke:#092221,stroke-width:3px
 ```
 
-**Think of it like web development:**
-- TT-Metalium = Browser APIs (low-level)
-- tt-train = React/Vue (framework)
-- tt-blacksmith = Design patterns & best practices
-- Your script = Your application
+You're at the start — **Understand**. Everything else in this diagram is a lesson later in the walkthrough, in the order it's meant to be read.
 
 ---
 
-## The tt-blacksmith Philosophy
+## Custom Training vs. Inference
 
-tt-blacksmith isn't just a collection of bounty scripts - it's a framework for **making things work** on Tenstorrent hardware. Here are its key patterns:
+### Inference (what you've done so far)
+- Load a pre-trained model, feed it inputs, read outputs.
+- Fast, predictable, production-ready.
+- Like using a tool someone else built.
 
-### 1. Configuration-Driven Everything
-Instead of hardcoding values, use YAML configs:
+### Training (what this track builds)
+- Adjust a model's weights so it does something it couldn't do before.
+- Slower, and it takes experimentation.
+- Like building the tool yourself.
 
-```yaml
-training_config:
-  batch_size: 8
-  learning_rate: 1e-4
-  num_epochs: 3
+**Key insight:** a model is a pile of numbers until training decides what those numbers should be. That's the whole job.
 
-device_config:
-  enable_ddp: False    # Single device
-  mesh_shape: [1, 1]
+---
 
-logging_config:
-  use_wandb: false     # Optional experiment tracking
-  log_level: "INFO"
-```
+## Two Paths to a Custom Model
 
-**Why:** Easy to experiment, reproduce, and share configurations.
+### Fine-tuning
+Start with a pre-trained model and teach it something new.
 
-### 2. Modular Organization
-Separate concerns into focused components:
-- **Dataset handling** - Load, validate, format data
-- **Model creation** - Architecture definition
-- **Training loop** - Forward, backward, optimize
-- **Evaluation** - Generate samples, compute metrics
+**Reach for this when:**
+- You want to specialize an existing model for a task or domain.
+- You have somewhere between a hundred and tens of thousands of examples.
+- You want results in hours, not days.
 
-**Why:** Easier to debug, test, and reuse code.
+**Analogy:** hiring an experienced developer and onboarding them to your codebase, not teaching them to code from zero.
 
-### 3. Progressive Enhancement
-Start simple, add complexity when needed:
-1. File-based logging → WandB integration
-2. Single device → Multi-device DDP
-3. Fine-tuning → Training from scratch
+[Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) is where this track puts a first training run into practice, end to end.
 
-**Why:** Learn incrementally, avoid over-engineering.
+### Training from scratch
+Build a model from random weights, with no pre-trained starting point.
+
+**Reach for this when:**
+- You want full architectural control, or you're researching a new design.
+- You want to understand every piece of a model, not just call into one.
+- You have the data and the compute time — usually far more of both than fine-tuning needs.
+
+**Analogy:** teaching yourself programming from first principles instead of joining a team that already knows the codebase.
+
+[Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) covers this later in the track: a small transformer trained from random initialization on Shakespeare text.
+
+**Rule of thumb:** fine-tune unless you have a specific reason not to. Pre-trained models already understand language; training from scratch means re-deriving that from nothing, which costs real time and data.
+
+---
+
+## Three Ways to Train on Tenstorrent Hardware
+
+There isn't one training stack on Tenstorrent hardware — there are three, and they solve different problems. Picking the wrong one for your goal is the most common source of confusion here, so it's worth being precise about what each actually is.
+
+### tt-train / ttml — this track's stack
+
+`tt-train` is the autograd training framework that lives inside TT-Metalium<sup>™</sup>'s source tree. Its Python bindings are called `ttml`. It supplies the piece TT-NN<sup>™</sup> doesn't have on its own: a backward pass. TT-NN's ops (`ttnn.matmul`, `ttnn.rms_norm`, and so on) are forward-only — each one computes a result and hands it back, with nothing recording how to differentiate that computation. `ttml` wraps operations like these with a matching backward pass and an on-device `AdamW` optimizer, so a real training loop — forward, loss, backward, update — can run on Tenstorrent hardware instead of just inference.
+
+**This is the framework the rest of this track uses.** Later lessons run `train_nanogpt.py` against it: real gradient descent, real loss curves dropping step by step, on real Tenstorrent silicon.
+
+`ttml` is source-only — no pip wheel — and builds as a cmake subproject of TT-Metalium. If you don't already have a built `~/tt-metal` source tree (TT-QuietBox<sup>®</sup> 2 images ship TT-NN and vLLM pre-installed but not the tt-metal source tree), start with [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]). Once that tree exists, the **Install tt-train** command in this extension automates the `ttml` build.
+
+### tt-blacksmith — a separate stack, not this track
+
+[tt-blacksmith](https://github.com/tenstorrent/tt-blacksmith) is a different, actively maintained repository of optimized training recipes — but built on the **TT-Forge<sup>™</sup>/TT-XLA compiler stack**, not on `tt-train`. It is not a configuration layer over `tt-train`, and the two projects don't share code or config format. If you're already working in the TT-Forge/TT-XLA world — see [JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"]) — and want tuned recipes for that compiler stack, `tt-blacksmith` is the place to look. This track doesn't teach it: everything from here forward is `tt-train`/`ttml`.
+
+### PyTorch / GPU — the familiar baseline
+
+If you've trained models before, it was almost certainly PyTorch on a GPU: `loss.backward()`, an `Adam` optimizer, a `DataLoader`. That mental model transfers directly here — `ttml` mirrors it deliberately. The training loop you'll write in this track is the same four steps (forward, loss, backward, update) you'd write in PyTorch. What changes is the hardware underneath, and the library that knows how to run backward on it.
+
+---
+
+## Want to Build It Yourself, By Hand?
+
+Everything above assumes a framework — `ttml` or `tt-blacksmith` — handles the backward pass and optimizer for you. If instead you want to build every one of those pieces yourself, tokenizer through training loop, with nothing hidden behind a framework call, that's a different track: **Build an LLM from Scratch**, starting from [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]).
+
+That arc builds a small Llama-style model TT-native from the first line: [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]) writes the embedding table and RoPE by hand, [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]) hand-authors attention with a TT-Lang kernel, [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"]) assembles the full block, and [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) writes the training loop itself — cross-entropy, backprop, AdamW — before handing off to `ttml` to run it for real on Blackhole<sup>®</sup> hardware.
+
+Come back to this track once you want the fast path: real training runs without hand-rolling every op first.
 
 ---
 
@@ -251,80 +213,41 @@ Generate sample outputs to see if the model is improving. This happens every few
 Store model weights and training state so you can resume if interrupted or pick the best version later.
 
 ### Step 6: Deployment
-Once training is complete, use your fine-tuned model for inference. Integrate with vLLM (from **Lesson 7: vLLM Production**) for production serving.
+Once training is complete, use your trained model for inference. Integrate with [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) for production serving.
 
 ---
 
 ## Hardware Considerations
 
-### n150 (Single Wormhole<sup>™</sup> Chip)
-- **Perfect for:** Fine-tuning small models (1-3B params)
-- **Batch size:** 4-8 (conservative for DRAM)
-- **Training time:** 1-3 hours typical
-- **What you'll learn:** Core concepts, single-device patterns
+`ttml` builds and trains from source across the Wormhole<sup>™</sup> and Blackhole<sup>®</sup> lineup. For single-chip work, treat p300c exactly like a p100. A TT-QuietBox<sup>®</sup> 2 is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh) — not four independent chips — so beyond single-chip training it can also run multi-chip data-parallel training with near-linear scaling (verified in [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])).
 
-### n300 (Dual Wormhole Chips)
-- **Perfect for:** Larger models, faster training
-- **Batch size:** 16-32 (distributed across chips)
-- **Training time:** 30-60 minutes (2x faster than n150)
-- **What you'll learn:** DDP patterns, multi-device coordination
+### n150 / p100 / p300c (single chip)
+- **Good for:** Fine-tuning small models (1-3B params), your first training runs.
+- **Batch size:** 4-8, conservative for DRAM.
+- **What you'll learn:** Core concepts, single-device patterns.
 
-### T3000 / Blackhole<sup>®</sup> / Galaxy (Advanced)
-- **Perfect for:** Large-scale training, experimentation
-- **Batch size:** 32+ (highly parallel)
-- **Training time:** Minutes for small jobs
-- **What you'll learn:** Scaling strategies, tensor parallelism
+### n300 (dual Wormhole chips)
+- **Good for:** Larger models, faster training via data-parallel splitting.
+- **Batch size:** 16-32, distributed across chips.
+- **What you'll learn:** DDP patterns, multi-device coordination.
 
-**For this series:** We'll focus on n150 (everyone can follow) with n300 examples for scaling.
+### T3000 / Galaxy (multi-chip mesh)
+- **Good for:** Large-scale training and experimentation.
+- **Batch size:** 32+, highly parallel.
+- **What you'll learn:** Scaling strategies, tensor parallelism.
 
----
-
-## Training Examples Throughout This Series
-
-This series uses concrete examples to teach transferable principles:
-
-**CT-4 (Fine-tuning Basics):**
-- Train NanoGPT on Shakespeare text
-- See hierarchical learning in action (structure → vocabulary → fluency)
-- Demonstrates character-level language modeling
-
-**CT-7 and CT-8 (Architecture & Training from Scratch):**
-- Build a tiny transformer (10-20M parameters)
-- Understand every component of the model
-- Learn to design custom architectures
-
-**Why these examples:**
-- Clear learning progression (simple → complex)
-- Visual results (you can see the model learning)
-- Transferable to any domain
-- Work on all hardware (n150 through Galaxy)
-
-**The goal:** Learn principles you can apply to **your** custom models and domains.
+**For this track:** the hands-on lessons target n150 and p300c/p100 first — everyone can follow along — with n300+ covered when the track reaches multi-device training.
 
 ---
 
-## What You'll Build (Series Overview)
+## What's Ahead in This Track
 
-### Lessons CT-2 and CT-3: Preparation
-- Create training datasets (JSONL format)
-- Write configuration files (YAML)
-- Understand the pieces before assembly
+- [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"]) and [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) — prepare a dataset (JSONL) and a training config (YAML) before you run anything.
+- [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) — your first hands-on training run against `ttml`, with progressive learning stages you can watch happen.
+- [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]) and [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"]) — scale across chips and track runs against each other.
+- [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) — understand every transformer component, then train one from random weights.
 
-### Lesson CT-4: Your First Training Run
-- Train NanoGPT on Shakespeare dataset
-- See progressive learning stages
-- Monitor training progress
-- **Outcome:** Understanding how models learn, working trained model
-
-### Lessons CT-5 and CT-6: Scaling Up
-- Train on multiple devices (DDP)
-- Track experiments with WandB
-- Understand performance optimization
-
-### Lessons CT-7 and CT-8: Advanced Topics
-- Understand transformer architecture
-- Train a tiny model from scratch
-- See the full picture (10M → 1B+ params)
+Each lesson is a concrete, runnable example chosen to teach a principle you can carry into your own domain — not just a script to copy.
 
 ---
 
@@ -332,188 +255,86 @@ This series uses concrete examples to teach transferable principles:
 
 ### "Should I fine-tune or train from scratch?"
 
-**99% of the time: fine-tune.**
+Fine-tune, nearly always. It's faster (hours, not days or weeks), cheaper (less compute), and starts from a model that already understands language instead of nothing.
 
-Fine-tuning is:
-- **Faster** - Hours vs days/weeks
-- **Cheaper** - Less compute required
-- **Better** - Pre-trained models already understand language
-- **Easier** - Fewer hyperparameters to tune
-
-Train from scratch when:
-- You're researching new architectures
-- You need complete control
-- You want to understand the fundamentals
-- You're building something truly novel
+Train from scratch when you're researching a new architecture, need complete control, want to understand the fundamentals down to the training loop, or are building something genuinely novel.
 
 ### "How much data do I need?"
 
 **For fine-tuning:**
-- 50-200 examples: Decent results for specific tasks
-- 1,000-10,000 examples: Strong performance
-- 100,000+ examples: Approaching pre-training scale
+- 50-200 examples: decent results for a narrow task
+- 1,000-10,000 examples: strong performance
+- 100,000+ examples: approaching pre-training scale
 
 **For training from scratch:**
-- Millions of examples for production models
-- But 10,000+ examples can teach a tiny model (CT-8)
+- Millions of examples for production-scale models.
+- 10,000+ examples can still teach a tiny model — see [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]).
 
-**Quality > Quantity:** 200 high-quality examples beat 10,000 mediocre ones.
+**Quality beats quantity:** 200 high-quality examples beat 10,000 mediocre ones.
 
 ### "Will fine-tuning erase what the model learned?"
 
-**No, if done correctly.**
+No, if done correctly.
 
-- Use a low learning rate (1e-4 to 1e-5)
-- Don't over-train (watch validation loss)
-- The model retains general knowledge while learning your task
+- Use a low learning rate (1e-4 to 1e-5).
+- Don't over-train — watch validation loss.
+- The model retains general knowledge while learning your task.
 
-**Think of it as:** Teaching a PhD new skills, not wiping their memory.
+**Think of it as:** teaching someone new skills, not wiping their memory.
 
 ### "Can I use this for commercial projects?"
 
-**Yes**, with caveats:
+Yes, with caveats:
 
-- **TinyLlama:** Apache 2.0 license (commercial-friendly)
-- **Your fine-tuned model:** You own it
-- **Training code:** Check TT-Metalium and tt-train licenses
-- **Hosting:** Use TT-Inference-Server or vLLM (Lesson 7)
+- **Qwen3-0.6B and similar small models:** typically permissively licensed — check the specific model card.
+- **Your fine-tuned model:** you own the result.
+- **Training code:** check TT-Metalium and `tt-train` licenses in their respective repos.
+- **Hosting:** deploy with [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
 
 Always verify licenses for your specific use case.
 
 ---
 
-## Beyond This Lesson: The Custom AI Landscape
-
-You're about to learn how to train custom models - but what will you build with this power? Let's explore the possibilities.
-
-### What Developers Have Built on Tenstorrent
-
-**Real-world custom models running on TT hardware:**
-
-🎯 **Domain-Specific Coding Assistants**
-- Python → TT-NN<sup>™</sup> translators (convert PyTorch to TT-optimized code)
-- Hardware description language generators (Verilog patterns)
-- Code review bots trained on team style guides
-- API documentation chatbots
-
-📚 **Knowledge Specialists**
-- Technical documentation assistants (trained on company wikis)
-- Research paper summarizers (domain-specific scientific content)
-- Legal contract analyzers (specialized terminology)
-- Medical Q&A systems (trained on authorized datasets)
-
-🎨 **Creative Applications**
-- Genre-specific writing assistants (sci-fi, technical writing, poetry)
-- Dialog generators for games or simulations
-- Educational content creators (explain concepts in multiple styles)
-- Multilingual translators with domain expertise
-
-🔬 **Research & Experimentation**
-- Novel architecture testing (new attention patterns)
-- Compression experiments (how small can models go?)
-- Specialized tokenizers (music notation, chemical formulas)
-- Domain-specific embeddings (protein sequences, geographic data)
-
-### Working Within Constraints (n150 Can Do This!)
-
-**You don't need massive infrastructure to build something meaningful:**
-
-- **Fine-tune 1-3B models in hours** - TinyLlama, Qwen3-0.6B, Gemma-3-1B all work on n150
-- **Deploy with vLLM for production inference** - Sub-millisecond latency, thousands of requests/second
-- **Iterate quickly with small datasets** - 100-1000 high-quality examples beat 100,000 mediocre ones
-- **Combine multiple specialized models** - Build an ensemble of experts, each fine-tuned for specific tasks
-- **Scale when needed** - Start on n150, move to n300 for 2x speedup, T3000 for 8x, Galaxy for research scale
-
-**The magic is in the data and the task definition, not the hardware scale.**
-
-### Imagine: Your Custom Model Journey
-
-**Month 1 (Starting Today):**
-- Learn training fundamentals on n150
-- Build your first domain-specific model
-- Deploy with vLLM for internal use
-- **Outcome:** Working custom model serving real users
-
-**Month 2-3:**
-- Experiment with different base models (Qwen, Gemma, Llama)
-- Try multi-task fine-tuning (one model, multiple skills)
-- Scale to n300 for faster iteration
-- **Outcome:** Production-ready specialized models
-
-**Month 6+:**
-- Train multiple specialized models for different domains
-- Explore novel architectures (CT-7, CT-8)
-- Contribute patterns back to tt-blacksmith
-- **Outcome:** You're pushing the boundaries of what's possible on TT hardware
-
-### From Learning to Leading
-
-**This series teaches you:**
-- ✅ The techniques (fine-tuning, configuration, multi-device training)
-- ✅ The tools (tt-train, TT-Metalium, experiment tracking)
-- ✅ The patterns (tt-blacksmith best practices)
-
-**But more importantly, it empowers you to:**
-- 🚀 **Imagine** what specialized AI can do for your domain
-- 🛠️ **Build** custom models that solve real problems
-- 📈 **Scale** from prototype to production
-- 🌟 **Innovate** within hardware constraints
-
-**The question isn't "Can I train a custom model on Tenstorrent hardware?"**
-
-**The question is "What will I build first?"**
-
----
-
 ## Key Takeaways
 
-✅ **Training creates models**, inference uses them
-
-✅ **Fine-tuning is usually the right choice** for custom models
-
-✅ **tt-train provides the framework** for training on TT hardware
-
-✅ **tt-blacksmith shows the patterns** for organizing training code
-
-✅ **Start with n150**, scale to n300+ when needed
-
-✅ **Focus on data quality** over quantity
-
-✅ **Examples in this series teach transferable principles**
+- Training creates models; inference uses them.
+- Fine-tuning is the right default — reach for training from scratch only when you need full architectural control.
+- **`tt-train`/`ttml`** is this track's framework: the autograd layer inside TT-Metalium that gives TT-NN a backward pass.
+- **`tt-blacksmith`** is a separate project — optimized recipes on the TT-Forge/TT-XLA compiler stack, not a config layer over `tt-train`.
+- Want to build every component by hand instead of using a framework? That's [Build an LLM from Scratch](command:tenstorrent.showLesson?["lfs-00-intro"]), not this track.
+- Start on n150 or p300c/p100, scale to n300+ when a job actually needs it.
+- Data quality matters more than data volume.
 
 ---
 
 ## Next Steps
 
-**Lesson CT-2: Dataset Fundamentals**
+Now that the concepts and the framework choice are settled, it's time to get hands-on. [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"]) has you:
 
-Now that you understand the concepts, it's time to get hands-on. In the next lesson, you'll:
+1. Create your first training dataset (JSONL format).
+2. Validate the dataset format.
+3. Understand tokenization and batching.
+4. See how data flows through training.
 
-1. Create your first training dataset (JSONL format)
-2. Validate dataset format
-3. Understand tokenization and batching
-4. See how data flows through training
-
-**Estimated time:** 15 minutes | **Prerequisites:** This lesson (CT-1)
+**Estimated time:** 15 minutes | **Prerequisites:** This lesson.
 
 ---
 
 ## Additional Resources
 
 ### Official Documentation
-- [TT-Metalium GitHub](https://github.com/tenstorrent/tt-metal) - Core SDK
-- [tt-train Documentation](https://github.com/tenstorrent/tt-metal/tree/main/tt-train) - Training framework
-- [tt-blacksmith Examples](https://github.com/tenstorrent/tt-blacksmith) - Framework patterns
+- [TT-Metalium GitHub](https://github.com/tenstorrent/tt-metal) — core SDK and the `tt-train` source tree (`tt-train/` inside this repo)
+- [tt-blacksmith GitHub](https://github.com/tenstorrent/tt-blacksmith) — optimized training recipes on the TT-Forge/TT-XLA compiler stack (a separate project from `tt-train`, not covered in this track)
 
 ### Related Lessons
-- **Lesson 7:** vLLM Production (inference with fine-tuned models)
-- **Lesson 11:** TT-Forge<sup>™</sup> (experimental compiler)
-- **Lesson 12:** TT-XLA JAX (alternative training framework)
+- [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) — serve a trained or fine-tuned model
+- [JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"]) — the compiler stack `tt-blacksmith` recipes target
+- [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) — build every component of an LLM by hand, TT-native, instead of using a framework
 
 ### Community
-- [Tenstorrent Discord](https://discord.gg/tenstorrent) - Ask questions, share results
-- [GitHub Discussions](https://github.com/tenstorrent/tt-metal/discussions) - Technical discussions
+- [Tenstorrent Discord](https://discord.gg/tenstorrent) — ask questions, share results
+- [GitHub Discussions](https://github.com/tenstorrent/tt-metal/discussions) — technical discussions
 
 ---
 
-**Ready to build your first dataset?** Continue to **Lesson CT-2: Dataset Fundamentals** →
+**Ready to build your first dataset?** Continue to [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"]).

@@ -52,6 +52,13 @@
       "icon": "graduation-cap"
     },
     {
+      "id": "llm-from-scratch",
+      "title": "🔬 Build an LLM from Scratch",
+      "description": "Build a small GPT from scratch, TT-native from line one — with TT-Lang for inception",
+      "order": 11,
+      "icon": "beaker"
+    },
+    {
       "id": "deployment",
       "title": "☁️ Deployment",
       "description": "Deploy your applications to cloud platforms",
@@ -438,7 +445,7 @@
         "training",
         "fine-tuning",
         "tt-train",
-        "tt-blacksmith",
+        "ttml",
         "concepts"
       ],
       "supportedHardware": [
@@ -450,10 +457,8 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
-      "validatedOn": [
-        "n150"
-      ],
+      "status": "draft",
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 1,
       "previousLesson": "coding-assistant",
@@ -481,10 +486,8 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
-      "validatedOn": [
-        "n150"
-      ],
+      "status": "draft",
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 2,
       "previousLesson": "ct1-understanding-training",
@@ -494,7 +497,7 @@
     {
       "id": "ct3-configuration-patterns",
       "title": "Configuration Patterns",
-      "description": "Learn YAML-driven training configuration using tt-blacksmith patterns. Master hyperparameters, device configuration, checkpointing strategies, and logging. Create reproducible, shareable training configurations.",
+      "description": "Learn YAML-driven training configuration for tt-train: the model-config and training-config split, hyperparameters, device (mesh) configuration, checkpointing, and logging — grounded in the real nanogpt/nanollama configs train_nanogpt.py runs.",
       "category": "custom-training",
       "tags": [
         "configuration",
@@ -512,10 +515,8 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
-      "validatedOn": [
-        "n150"
-      ],
+      "status": "draft",
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 3,
       "previousLesson": "ct2-dataset-fundamentals",
@@ -525,14 +526,15 @@
     {
       "id": "ct4-finetuning-basics",
       "title": "Fine-tuning Basics",
-      "description": "Train a character-level language model from scratch on Tenstorrent hardware. Watch NanoGPT learn Shakespeare through progressive training stages. See hierarchical learning in action as models learn structure before vocabulary before fluency.",
+      "description": "Run your first real tt-train job on Tenstorrent hardware: build a checkpoint with train_nanogpt.py, then continue training it with --resume — the load-weights-and-keep-going mechanic real fine-tuning uses. Real loss curves and generation samples captured on Blackhole p300c, with an honest account of what a 10M-parameter model actually outputs at this scale.",
       "category": "custom-training",
       "tags": [
         "fine-tuning",
         "tt-train",
         "training",
         "nanogpt",
-        "transformer",
+        "checkpoints",
+        "resume",
         "loss-curves"
       ],
       "supportedHardware": [
@@ -544,21 +546,22 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "validated",
       "validatedOn": [
-        "n150"
+        "p300c"
       ],
       "estimatedMinutes": 25,
       "order": 4,
       "previousLesson": "ct3-configuration-patterns",
       "nextLesson": "ct5-multi-device-training",
       "markdownFile": "content/lessons/ct4-finetuning-basics.md",
-      "recommended_metal_version": "v0.66.0-rc7"
+      "recommended_metal_version": "v0.73.1",
+      "minTTMetalVersion": "v0.73.1"
     },
     {
       "id": "ct5-multi-device-training",
       "title": "Multi-Device Training",
-      "description": "Scale training to multiple Tenstorrent chips with Data Parallel (DDP). Learn device mesh configuration, gradient synchronization, and performance optimization. Achieve 2-8x speedup on n300, T3000, and Galaxy systems.",
+      "description": "Verified multi-chip Data Parallel (DDP) training with tt-train — near-linear scaling to 4 Blackhole chips on a TT-QuietBox 2, the mesh graph descriptor fix that unlocks it, plus the documented pattern for n300, T3000, and Galaxy.",
       "category": "custom-training",
       "tags": [
         "multi-device",
@@ -570,14 +573,12 @@
       "supportedHardware": [
         "n300",
         "t3k",
-        "p100",
-        "p150",
-        "p300c",
-        "galaxy"
+        "galaxy",
+        "p300c"
       ],
-      "status": "blocked",
+      "status": "validated",
       "validatedOn": [
-        "n150"
+        "p300c"
       ],
       "estimatedMinutes": 15,
       "order": 5,
@@ -606,10 +607,8 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
-      "validatedOn": [
-        "n150"
-      ],
+      "status": "draft",
+      "validatedOn": [],
       "estimatedMinutes": 15,
       "order": 6,
       "previousLesson": "ct5-multi-device-training",
@@ -619,7 +618,7 @@
     {
       "id": "ct7-architecture-basics",
       "title": "Model Architecture Basics",
-      "description": "Understand transformer architecture components before training from scratch. Learn about embeddings, attention mechanisms, feed-forward networks, and how to design custom architectures. Prepare to build your own models.",
+      "description": "A concise tour of modern transformer components — RoPE, GQA, SwiGLU, RMSNorm — and how they map to tt-train's configuration fields. Build them by hand in the from-scratch arc.",
       "category": "custom-training",
       "tags": [
         "architecture",
@@ -637,10 +636,8 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
-      "validatedOn": [
-        "n150"
-      ],
+      "status": "draft",
+      "validatedOn": [],
       "estimatedMinutes": 20,
       "order": 7,
       "previousLesson": "ct6-experiment-tracking",
@@ -650,14 +647,17 @@
     {
       "id": "ct8-training-from-scratch",
       "title": "Training from Scratch",
-      "description": "Build and train a transformer from random initialization. Design nano-trickster (11M params), train on Shakespeare, and watch it learn language patterns from scratch. Compare to random baseline and understand scaling laws.",
+      "description": "Configure, launch, monitor, checkpoint, and scale a from-scratch training job with ttml's train_nanogpt.py — the modern nanollama3_char config (RoPE/RMSNorm/SwiGLU/GQA), a real 3000-step loss curve on Blackhole p300c, and an honest look at what driving loss to 0.18 on a tiny corpus actually buys you.",
       "category": "custom-training",
       "tags": [
         "from-scratch",
-        "nano-trickster",
-        "architecture-design",
-        "character-level",
-        "language-modeling"
+        "ttml",
+        "train-nanogpt",
+        "nanollama3",
+        "checkpoints",
+        "loss-curves",
+        "overfitting",
+        "scaling"
       ],
       "supportedHardware": [
         "n150",
@@ -668,11 +668,11 @@
         "p300c",
         "galaxy"
       ],
-      "status": "blocked",
+      "status": "validated",
       "validatedOn": [
-        "n150"
+        "p300c"
       ],
-      "estimatedMinutes": 90,
+      "estimatedMinutes": 30,
       "order": 8,
       "previousLesson": "ct7-architecture-basics",
       "nextLesson": "cookbook-overview",
@@ -680,7 +680,8 @@
         "onCommand:tenstorrent.trainFromScratch"
       ],
       "markdownFile": "content/lessons/ct8-training-from-scratch.md",
-      "recommended_metal_version": "v0.66.0-rc7"
+      "recommended_metal_version": "v0.73.1",
+      "minTTMetalVersion": "v0.73.1"
     },
     {
       "id": "cookbook-overview",
@@ -1538,6 +1539,188 @@
       "previousLesson": "ttsim-twenty-and-ten",
       "nextLesson": null,
       "markdownFile": "content/lessons/ttsim-qemu-bridge.md"
+    },
+    {
+      "id": "lfs-00-intro",
+      "title": "Build an LLM from Scratch — Pick Your Altitude",
+      "description": "Start an LLM from scratch, TT-native from line one. Meet the 32×32 tile, the reader→compute→writer pipeline, and the \"pick your altitude\" ladder — grounded for CUDA programmers.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "llm",
+        "from-scratch",
+        "tt-lang",
+        "cuda",
+        "transformers"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 20,
+      "order": 200,
+      "nextLesson": "lfs-01-tokenizer",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-00-intro.md"
+    },
+    {
+      "id": "lfs-01-tokenizer",
+      "title": "Tokenizer & Data from Scratch",
+      "description": "Build a BPE tokenizer and data pipeline from scratch, then see how a token sequence becomes tiled ttnn tensors on Tenstorrent hardware.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "tokenizer",
+        "bpe",
+        "data",
+        "tinystories",
+        "llm"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 30,
+      "order": 201,
+      "previousLesson": "lfs-00-intro",
+      "nextLesson": "lfs-02-embeddings",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-01-tokenizer.md"
+    },
+    {
+      "id": "lfs-02-embeddings",
+      "title": "Embeddings & the Residual Stream",
+      "description": "Build token embeddings and RoPE (rotary position embeddings), meet the residual stream, and write your first TT-Lang inception kernel live in the browser playground.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "embeddings",
+        "rope",
+        "residual",
+        "tt-lang",
+        "playground"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 30,
+      "order": 202,
+      "previousLesson": "lfs-01-tokenizer",
+      "nextLesson": "lfs-03-attention",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-02-embeddings.md"
+    },
+    {
+      "id": "lfs-03-attention",
+      "title": "Attention from Scratch",
+      "description": "Build grouped-query attention (GQA) with RoPE'd queries and keys, and author the TT-Lang attention/softmax inception kernel — the reader→compute→writer payoff.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "attention",
+        "gqa",
+        "rope",
+        "tt-lang",
+        "inception"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 40,
+      "order": 203,
+      "previousLesson": "lfs-02-embeddings",
+      "nextLesson": "lfs-04-block-and-model",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-03-attention.md"
+    },
+    {
+      "id": "lfs-04-block-and-model",
+      "title": "The Transformer Block & the Model",
+      "description": "Assemble SwiGLU, RMSNorm, and residuals into a full Llama-style transformer block, stack it into a nano model, and see TT-Lang kernels drop in as ttnn ops. Scale to 80M.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "transformer",
+        "swiglu",
+        "rmsnorm",
+        "matmul",
+        "tt-lang"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 40,
+      "order": 204,
+      "previousLesson": "lfs-03-attention",
+      "nextLesson": "lfs-05-train-and-run",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-04-block-and-model.md"
+    },
+    {
+      "id": "lfs-05-train-and-run",
+      "title": "Train It & Run for Real",
+      "description": "Write the training loop from scratch — cross-entropy, AdamW, backprop — then train your model for real on Blackhole with ttml. Verified on p300c.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "training",
+        "adamw",
+        "ttml",
+        "blackhole",
+        "nanogpt"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "validatedOn": [
+        "p300c"
+      ],
+      "estimatedMinutes": 45,
+      "order": 205,
+      "previousLesson": "lfs-04-block-and-model",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-05-train-and-run.md",
+      "minTTMetalVersion": "v0.73.1"
     }
   ]
 }

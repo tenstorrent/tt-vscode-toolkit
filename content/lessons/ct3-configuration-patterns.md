@@ -2,7 +2,7 @@
 id: ct3-configuration-patterns
 title: Configuration Patterns
 description: >-
-  Learn YAML-driven training configuration using tt-blacksmith patterns. Master hyperparameters, device configuration, checkpointing strategies, and logging. Create reproducible, shareable training configurations.
+  Learn YAML-driven training configuration for tt-train: the model-config and training-config split, hyperparameters, device (mesh) configuration, checkpointing, and logging — grounded in the real nanogpt/nanollama configs train_nanogpt.py runs.
 category: custom-training
 tags:
   - configuration
@@ -18,30 +18,49 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: blocked
-blockReason: >-
-  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
-  Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
-validatedOn:
-  - n150
+status: draft
+note: >-
+  ttml (tt-train) builds and trains from source on Blackhole p300c as of
+  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  "Install tt-train" command for the verified recipe. This lesson is being
+  re-authored around that verified workflow.
+validatedOn: []
 estimatedMinutes: 15
 ---
 
 # Configuration Patterns
 
-Master YAML-driven training configuration using patterns from tt-blacksmith. Learn to configure hardware, logging, checkpointing, and hyperparameters.
+`tt-train` — the training library that ships inside `tt-metal`, with Python bindings called `ttml` — drives every training job from two YAML files: one describing the model's architecture, one describing how to train it. No Python code changes between runs. Change a number in a file, rerun, compare.
+
+This lesson grounds you in the **real** config files that ship in `tt-metal/tt-train/configs/` — the same ones [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) runs against real hardware. Every YAML snippet below is quoted verbatim from a file in that directory, not a hypothetical schema.
 
 ## What You'll Learn
 
-- YAML configuration structure (tt-blacksmith pattern)
-- Training hyperparameters and their effects
-- Device configuration (single vs multi-chip)
-- Logging and experiment tracking
-- Checkpoint management strategies
-- Hardware-specific optimization
+- The real `tt-train` config split: **model config** (architecture) vs. **training config** (everything else)
+- Model architecture fields and their effects — `num_heads`, `num_groups`, `embedding_dim`, `num_blocks`, `vocab_size`, `max_sequence_length`, `theta`, `runner_type`
+- Training hyperparameters and their effects — `batch_size`, `num_epochs`, `max_steps`, `data_path`, and the nested `optimizer` block (`AdamW`'s `lr`, `beta1`/`beta2`, `epsilon`, `weight_decay`)
+- Single-chip vs. multi-chip device configuration (`mesh_shape`, `enable_ddp`)
+- Checkpointing (`model_save_interval`, `--model_save_path`)
+- How `train_nanogpt.py --config <yaml>` actually loads, resolves, and overrides these files
 
-**Time:** 15 minutes | **Prerequisites:** CT-2 (Dataset Fundamentals)
+**Time:** 15 minutes | **Prerequisites:** [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"])
+
+---
+
+## Where This Fits in the Track
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style C fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
 
 ---
 
@@ -49,904 +68,473 @@ Master YAML-driven training configuration using patterns from tt-blacksmith. Lea
 
 **Don't hardcode values. Use config files.**
 
-Think about cooking: Would you rather memorize every ingredient quantity, or use a recipe you can share, modify, and perfect over time? Configuration files are your training recipes.
+Think about cooking: would you rather memorize every ingredient quantity, or use a recipe you can share, modify, and perfect over time? Configuration files are your training recipes.
 
-### The Power of Configuration
+**Reproducibility is everything.** When you find a config that works, you want to recreate those exact results. Same config file → same training behavior → same model quality. No hunting through code to remember what learning rate you used three weeks ago.
 
-**Reproducibility is everything.** When you find a config that works, you want to be able to recreate those exact results. Same config file → same training behavior → same model quality. No hunting through code to remember what learning rate you used three weeks ago.
+**Experimentation becomes systematic.** Want to try a higher learning rate? Change one line in your config, rerun. Compare results. Keep the winner. No code changes, no risk of breaking something else.
 
-**Experimentation becomes systematic.** Want to try a higher learning rate? Change one line in your config, rerun. Compare results. Keep the winner. No code changes, no risk of breaking something else. Configuration files let you experiment fearlessly.
+**Sharing is effortless.** Instead of writing "I used batch size 64, learning rate 0.0003, AdamW with weight decay 0.01..." just send your config file. Everything's there.
 
-**Sharing is effortless.** Instead of writing "I used batch size 8, learning rate 0.0001, AdamW optimizer with weight decay 0.01, gradient clipping at 1.0..." just send your config file. Everything's there. Your colleague runs the exact same setup in seconds.
+**Version control tells the story.** When you track config files in git, you see exactly what changed between runs — and when a change made things better or worse.
 
-**Version control tells the story.** When you track config files in git, you see exactly what changed between runs. "Oh, this commit lowered the learning rate from 1e-4 to 5e-5 - that's when training stabilized." The history writes itself.
+### The `tt-train` Way: Two Files, Not One
 
-**Documentation that never lies.** Comments in code get out of sync. Config files can't lie - they are what the training run actually used. Self-documenting by necessity.
+Unlike a single monolithic config, `tt-train` splits configuration into two files that live in two directories:
 
-### The tt-blacksmith Way
+```
+tt-train/configs/
+├── model_configs/       # Architecture only — model_type, num_heads, embedding_dim, ...
+├── training_configs/    # Everything else — batch_size, optimizer, device mesh, eval sampling
+└── README.md            # The real schema — every field, type, and default
+```
 
-tt-blacksmith uses comprehensive YAML configs with standardized sections. Here's how they fit together:
+The training config **points at** its model config by path. That's the whole relationship:
 
 ```mermaid
 graph TD
-    A[YAML Config File] --> B[training_config<br/>Core Training Settings]
-    A --> C[device_config<br/>Hardware Setup]
-    A --> D[eval_config<br/>Validation Settings]
+    A[training_configs/training_shakespeare_nanollama3_char.yaml] -->|model_config: path| B[model_configs/nanollama3_char.yaml]
+    A --> C[training_config<br/>batch_size, optimizer, data_path, model_save_interval]
+    A --> D[device_config<br/>mesh_shape, enable_ddp, enable_tp — optional, defaults to 1x1]
+    A --> E[eval_config<br/>temperature, top_k, top_p, repetition_penalty]
+    B --> F[transformer_config<br/>model_type, num_heads, embedding_dim, num_blocks, ...]
 
-    B --> E[Hyperparameters<br/>batch_size, learning_rate, epochs]
-    B --> F[Checkpointing<br/>Save frequency, strategy]
-    B --> G[Logging<br/>WandB, file output, log level]
-    B --> H[Optimizer<br/>AdamW, weight decay, gradient clipping]
-
-    C --> I[Single/Multi Device<br/>enable_ddp, mesh_shape]
-
-    D --> J[Sampling Parameters<br/>temperature, top_k, top_p]
-
-    style A fill:#4A90E2,stroke:#333,stroke-width:3px
-    style B fill:#7B68EE,stroke:#333,stroke-width:2px
-    style C fill:#7B68EE,stroke:#333,stroke-width:2px
-    style D fill:#7B68EE,stroke:#333,stroke-width:2px
-    style E fill:#6C757D,stroke:#333,stroke-width:1px
-    style F fill:#6C757D,stroke:#333,stroke-width:1px
-    style G fill:#6C757D,stroke:#333,stroke-width:1px
-    style H fill:#6C757D,stroke:#333,stroke-width:1px
-    style I fill:#6C757D,stroke:#333,stroke-width:1px
-    style J fill:#6C757D,stroke:#333,stroke-width:1px
+    style A fill:#1B8EB1,stroke:#333,stroke-width:3px
+    style B fill:#1B8EB1,stroke:#333,stroke-width:3px
+    style C fill:#6FABA0,stroke:#333,stroke-width:1px
+    style D fill:#6FABA0,stroke:#333,stroke-width:1px
+    style E fill:#6FABA0,stroke:#333,stroke-width:1px
+    style F fill:#6FABA0,stroke:#333,stroke-width:1px
 ```
 
-**Why this structure?**
-- **Logical grouping:** Related settings stay together
-- **Easy to navigate:** Find what you need quickly
-- **Consistent across projects:** Same pattern everywhere
-- **Self-documenting:** Structure tells you what each section controls
+Per `tt-train/configs/README.md`, there are four config *types*, though most files only use two or three of them:
 
-**We'll follow this pattern** throughout the Custom Training series.
+- **Training Config** (`training_config:`) — hyperparameters and optimizer settings
+- **Device Config** (`device_config:`) — device mesh and distributed training setup; *expected in the same file as the training config*
+- **Model Config** (`transformer_config:`) — model type and architecture, in a **separate file**
+- **MultiHost Config** (`multihost_config:`) — multi-process / pipeline-parallel settings (see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]))
 
 ---
 
-## Configuration File Structure
+## A Real Pair: Character-Level LLaMA on Shakespeare
 
-### Full Example: `training_n150.yaml`
+Here is `tt-train/configs/model_configs/nanollama3_char.yaml`, unedited:
 
 ```yaml
-# Training Configuration for n150 (Single Wormhole Chip)
-#
-# Optimized for single-chip development hardware
-# Typical training time: 1-3 hours depending on dataset size
-
-training_config:
+transformer_config:
   model_type: "llama"
-  seed: 42
-  batch_size: 8                    # n150: Conservative for DRAM limits
-  validation_batch_size: 2
-  num_epochs: 3                    # Adjust based on dataset size
-  max_steps: 5000                  # Maximum training steps
-  learning_rate: 0.0001            # Standard for fine-tuning
-  weight_decay: 0.01
-  use_moreh_adamw: true
-  use_kahan_summation: false
-  use_clip_grad_norm: true
+  num_heads: 6
+  num_groups: 3
+  embedding_dim: 384
+  dropout_prob: 0.0
+  num_blocks: 6
+  max_sequence_length: 256
+  runner_type: default
+  theta: 500000.0
+```
+
+And the training config that points at it, `tt-train/configs/training_configs/training_shakespeare_nanollama3_char.yaml`, unedited:
+
+```yaml
+training_config:
+  project_name: "tt_train_nano_llama"
+  seed: 5489
+  model_save_interval: 500
+  batch_size: 64
+  num_epochs: 1
+  max_steps: 5000
+  use_clip_grad_norm: false
   clip_grad_norm_max_norm: 1.0
-  gradient_accumulation_steps: 4   # Effective batch: 8 * 4 = 32
-  eval_every: 50                   # Validate every 50 steps
-  model_save_interval: 100         # Checkpoint every 100 steps
-  tokenizer_type: "bpe"
-  checkpoint_dir: "checkpoints"
-  model_config: "model_configs/model.yaml"
-
-  # Logging configuration (tt-blacksmith pattern)
-  log_level: "INFO"
-  use_wandb: false                 # Optional experiment tracking
-  wandb_project: "my-training"
-  wandb_run_name: "n150-experiment"
-
-  # Checkpoint strategy (tt-blacksmith pattern)
-  checkpoint_frequency: 100        # Save every 100 steps
-  validation_frequency: 50         # Validate every 50 steps
-  save_strategy: "steps"           # Save based on steps (not epochs)
-
-# NOTE: v0.64.5+ uses constant learning_rate, no scheduler_config needed
+  data_path: "data/shakespeare.txt"
+  model_config: "${TT_METAL_RUNTIME_ROOT}/tt-train/configs/model_configs/nanollama3_char.yaml"
+  optimizer:
+    type: AdamW
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+    stochastic_rounding: false
 
 eval_config:
   repetition_penalty: 1.0
-  temperature: 0.0                 # Greedy decoding for validation
+  temperature: 0.7
   top_k: 50
   top_p: 1.0
+```
+
+Notice two things that matter:
+
+1. **`model_config` is a path**, resolved through the `${TT_METAL_RUNTIME_ROOT}` environment variable — not an inline block. The two files are loaded and merged at runtime.
+2. **There's no `device_config:` section at all.** When it's omitted, `tt-train` falls back to its defaults: `mesh_shape: [1, 1]`, `enable_ddp: false` — a single chip, no distribution. That's exactly right for n150, p150, or a single p300c.
+
+---
+
+## A Second Real Pair: BPE-Tokenized GPT-2
+
+Character-level tokenization isn't the only option. Here's `model_configs/nanogpt.yaml`:
+
+```yaml
+transformer_config:
+  model_type: "gpt2"
+  num_heads: 6
+  embedding_dim: 384
+  dropout_prob: 0.2
+  num_blocks: 6
+  vocab_size: 50257
+  max_sequence_length: 256
+  positional_embedding_type: trainable
+  experimental:
+    use_composite_layernorm: false
+```
+
+And its paired training config, `training_configs/training_shakespeare_nanogpt.yaml`:
+
+```yaml
+training_config:
+  project_name: "tt_train_nano_gpt"
+  seed: 5489
+  model_save_interval: 500
+  batch_size: 2
+  num_epochs: 1
+  max_steps: 5000
+  data_path: "data/tokenized_shakespeare.yaml"
+  model_config: "${TT_METAL_RUNTIME_ROOT}/tt-train/configs/model_configs/nanogpt.yaml"
+  optimizer:
+    type: AdamW
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
 
 device_config:
-  enable_ddp: False                # n150: Single chip, no DDP
-  mesh_shape: [1, 1]               # 1x1 mesh (single device)
-```
+  enable_ddp: false
+  mesh_shape: [1,1]
 
-Let's break down each section.
-
----
-
-## Section 1: Training Configuration
-
-### Core Hyperparameters
-
-| Parameter | What It Does | Typical Values | Example (n150) |
-|-----------|--------------|----------------|----------------|
-| `batch_size` | Examples per training step | 4-32 | **8** (DRAM conservative) |
-| `learning_rate` | How fast model learns | 1e-5 to 1e-4 | **1e-4** (fine-tuning LR) |
-| `num_epochs` | Passes through full dataset | 1-10 | **3** (typical fine-tuning) |
-| `max_steps` | Total training steps | 100-5000 | **500** (1-3 hours) |
-| `weight_decay` | Regularization strength | 0.0-0.1 | **0.01** (mild regularization) |
-
-### Batch Size Deep Dive
-
-Think of batch size like teaching multiple students at once versus one-on-one tutoring. **Batch size is how many training examples the model sees before updating its weights.**
-
-**Larger batches (16-32) are like teaching a classroom.** You show 16 different examples, collect feedback from all of them, then make one consolidated update to the model. The advantage? You get more consistent, stable feedback across different perspectives. Training moves faster because each update is based on broader evidence. The downside? You need more resources - specifically, more memory to hold all those examples at once.
-
-**Smaller batches (4-8) are like tutoring individuals.** You show 4 examples, update immediately. The feedback is noisier - each small batch might have quirks that don't represent the full dataset. Progress is slower because you're making more frequent, smaller updates. But here's the win: it works with limited resources.
-
-**On n150, we're memory-constrained** compared to massive GPU clusters with 80GB+ VRAM. The n150's DRAM is fantastic for its purpose, but we're not running H100s here. Batch size 8 is our sweet spot - conservative enough to always work, large enough to make meaningful progress. Got a particularly small model? You might push to 16. But 8 is the safe starting point that won't exhaust your DRAM mid-training.
-
-**Here's the clever trick:** `effective_batch_size = batch_size × gradient_accumulation_steps`
-
-Example: `8 × 4 = 32` effective batch size
-
-You can simulate the stability of batch size 32 while only holding 8 examples in memory at once! We'll cover gradient accumulation next.
-
-### Learning Rate Deep Dive
-
-Think of learning rate like adjusting the steering wheel when driving. **Learning rate controls how aggressively the model updates its weights after seeing each batch.**
-
-**Too aggressive (1e-3, ten times too high)?** You overcorrect wildly. The model's loss starts bouncing all over the place, then explodes into NaN errors. It's like jerking the steering wheel hard left, then hard right, then harder left - you're not making progress, you're just creating chaos. The model literally forgets everything it knew and becomes useless.
-
-**Too timid (1e-6, a hundred times too low)?** You barely turn the wheel at all. Training becomes painfully slow. After hours of compute, the loss has barely budged. You might not converge at all - the model never learns the patterns you're trying to teach it. Progress is so incremental that you're wasting time and electricity.
-
-**Just right (1e-4 to 1e-5)?** Smooth, steady improvement. The loss curve descends consistently. The model absorbs your training data without catastrophic forgetting. You make measurable progress every few steps. This is the Goldilocks zone.
-
-**Starting point: 1e-4 (0.0001).** This is the sweet spot for fine-tuning pre-trained models. Nine times out of ten, it just works.
-
-**If your loss is jumpy and unstable,** the model is learning too aggressively. Lower the learning rate to `5e-5` or even `1e-5`. You'll see the loss curve smooth out and training stabilize.
-
-**If your loss barely moves after 50-100 steps,** you're being too conservative. Bump it up to `2e-4`. Give the model permission to learn faster.
-
-**Why do we use lower learning rates for fine-tuning than for training from scratch?**
-
-Because the pre-trained weights are already good! They represent millions of dollars of compute and massive datasets. We're not starting from random noise - we're starting from a model that already speaks English (or code, or whatever domain). We want to **nudge** those weights toward our specific task, not **overwrite** them with aggressive updates. Think of it like editing a draft, not rewriting from scratch.
-
-### Gradient Accumulation
-
-This is one of the cleverest tricks in deep learning. **Gradient accumulation lets you simulate a large batch size while only holding a small batch in memory.**
-
-Think of it like polling a large group before making a decision. You can't fit 32 people in your office at once, but you can interview them in groups of 8, collect all their feedback, then make one consolidated decision based on all 32 opinions. That's gradient accumulation.
-
-**Here's how it works:**
-
-You set `batch_size = 8` (fits in n150 DRAM) and `gradient_accumulation_steps = 4`. Now:
-
-1. **Step 1:** Process batch of 8 examples, compute gradients, but **don't update weights yet** - just save the gradients
-2. **Step 2:** Process another 8 examples, add their gradients to the saved ones
-3. **Step 3:** Process another 8 examples, keep accumulating
-4. **Step 4:** Process final 8 examples (32 total now), average all the gradients, **now update weights**
-
-**Effective batch size: 8 × 4 = 32**
-
-You get the training stability of a 32-example batch while only needing memory for 8 examples at once. It's like having your cake and eating it too.
-
-**The benefits are clear:** Training becomes more stable (larger effective batch smooths out noise), and you don't run out of memory. The trade-off? Slightly slower training because you're doing 4 forward passes before each backward pass. But on memory-constrained hardware like n150, this trade-off is absolutely worth it.
-
-**On n150, use gradient accumulation always.** Set `gradient_accumulation_steps = 4` as your default. On n300 or T3000 with more memory available, you might not need it - you can just use larger actual batches. But even on big hardware, gradient accumulation remains useful when you want to push batch sizes beyond what physically fits in memory.
-
-### Epochs vs Steps
-
-Two ways to control how long training runs: count how many times you've seen the full dataset (epochs), or count how many training iterations you've done (steps). Both work, but they're useful in different situations.
-
-**Epochs are like saying "read the entire textbook 3 times."** An epoch is one complete pass through your dataset. If you have 100 training examples and set `num_epochs = 3`, the model sees all 100 examples three times. The total number of training steps depends on your batch size:
-
-```
-num_epochs = 3
-dataset_size = 100
-batch_size = 8
-
-→ steps_per_epoch = 100 / 8 = 12.5 (rounds to 12-13)
-→ total_steps = 3 × 12 = 36 steps
-```
-
-**Steps are like saying "study for 500 minutes, regardless of how many chapters that covers."** With `max_steps = 500`, training runs for exactly 500 iterations, no matter how large or small your dataset is. You might see the full dataset dozens of times (small dataset) or only see a fraction of it (huge dataset).
-
-**Which should you use?**
-
-**For small datasets (50-500 examples),** use `max_steps` for better control. With a 50-example dataset and batch size 8, one epoch is only 6-7 steps. Setting `num_epochs = 3` would give you just 18-21 steps total - barely enough to learn anything. Instead, set `max_steps = 500` and let the model see those 50 examples many times over. Small datasets need repetition to extract patterns.
-
-**For large datasets (10,000+ examples),** use `num_epochs` as your natural unit. With 10,000 examples and batch size 8, one epoch is 1,250 steps. Setting `num_epochs = 3` gives you 3,750 steps - substantial training. Epochs feel more intuitive here because they correspond to meaningful milestones.
-
-**Example calculation for small dataset:** 50 examples, batch size 8 → 6-7 steps per epoch → 500 max_steps ≈ 80 epochs
-
-**Don't panic at "80 epochs"!** This is completely normal for small datasets. The model needs to see those patterns dozens of times to internalize them. You're not overfitting - you're learning deeply from limited data.
-
----
-
-## Section 2: Device Configuration
-
-### Single Device (n150)
-
-```yaml
-device_config:
-  enable_ddp: False                # No distributed training
-  mesh_shape: [1, 1]               # 1 row × 1 column = 1 device
-```
-
-**When to use:**
-- n150 (single Wormhole chip)
-- Development and debugging
-- Small models (1-3B parameters)
-
-### Multi-Device (n300)
-
-```yaml
-device_config:
-  enable_ddp: True                 # Distributed Data Parallel
-  mesh_shape: [1, 2]               # 1 row × 2 columns = 2 devices
-```
-
-**What changes:**
-- Batch split across devices
-- Gradients synchronized after backward pass
-- ~2x faster training
-
-**When to use:**
-- n300 (dual Wormhole chips)
-- Larger models or larger batches
-- Faster iteration for experimentation
-
-### Advanced (T3000, Galaxy)
-
-```yaml
-device_config:
-  enable_ddp: True
-  mesh_shape: [2, 4]               # 2 rows × 4 columns = 8 devices
-```
-
-**When to use:**
-- T3000 (8 chips in mesh)
-- Galaxy (32+ chips)
-- Large-scale training or research
-
-**Note:** Lesson CT-5 covers multi-device training in detail.
-
----
-
-## Section 3: Optimizer Configuration
-
-### AdamW (Default Choice)
-
-```yaml
-training_config:
-  use_moreh_adamw: true            # TT-optimized AdamW
-  weight_decay: 0.01               # L2 regularization
-  use_kahan_summation: false       # Numerical stability (optional)
-```
-
-**AdamW advantages:**
-- ✅ Adaptive learning rates per parameter
-- ✅ Momentum (better convergence)
-- ✅ Weight decay (regularization)
-- ✅ Industry standard for LLMs
-
-**Alternatives:**
-- **SGD:** Simpler, sometimes better for small models
-- **AdamW with Kahan:** Better numerical precision (slower)
-
-**Recommendation:** Stick with AdamW unless you have specific reasons not to.
-
-### Gradient Clipping
-
-```yaml
-training_config:
-  use_clip_grad_norm: true
-  clip_grad_norm_max_norm: 1.0     # Clip gradients above this norm
-```
-
-**Why clip gradients?**
-
-Prevents **exploding gradients** - when gradients become huge and cause NaN errors.
-
-**When to use:**
-- ✅ Always (it's a safety net)
-- ✅ Especially with RNNs/Transformers
-- ⚠️ If training is stable, can disable for slight speedup
-
-**Typical values:** 0.5 to 1.0
-
----
-
-## Section 4: Checkpointing Strategy
-
-### Basic Checkpointing
-
-```yaml
-training_config:
-  model_save_interval: 100         # Save every 100 steps
-  checkpoint_dir: "checkpoints_n150"
-```
-
-**What gets saved:**
-- Model weights (safetensors format)
-- Optimizer state (for resuming)
-- Training step number
-
-**Why checkpoint?**
-- ✅ Training crashes → resume from last checkpoint
-- ✅ Epoch 47 was best → load that checkpoint
-- ✅ Share checkpoints with collaborators
-
-### Advanced Strategy (tt-blacksmith pattern)
-
-```yaml
-training_config:
-  checkpoint_frequency: 100        # How often to save
-  save_strategy: "steps"           # "steps" or "epoch"
-  validation_frequency: 50         # Validate more often than save
-```
-
-**save_strategy options:**
-- **"steps":** Save every N steps (fine-grained control)
-- **"epoch":** Save after each epoch (natural for large datasets)
-
-**Best practices:**
-- Validate more frequently than saving (catch issues early)
-- Keep last 3-5 checkpoints (disk space vs safety)
-- Save final model separately (easy to find)
-
----
-
-## Section 5: Logging Configuration
-
-### Basic Logging (File-based)
-
-```yaml
-training_config:
-  log_level: "INFO"                # INFO, DEBUG, WARNING, ERROR
-  # File logging is always enabled
-```
-
-**What gets logged:**
-- Training loss per step
-- Validation loss
-- Generated sample outputs
-- Hyperparameters
-
-**Output files:**
-- `training.log` - All training output
-- `validation.txt` - Sample generations
-- `training_curves.png` - Loss visualization
-
-### Advanced: WandB Integration (Optional)
-
-```yaml
-training_config:
-  use_wandb: false                 # Enable for experiment tracking
-  wandb_project: "my-training-project"
-  wandb_run_name: "n150-experiment-1"
-```
-
-**What is WandB (Weights & Biases)?**
-
-Cloud-based experiment tracking:
-- 📊 Beautiful loss curves
-- 🔍 Compare multiple runs
-- 📝 Log hyperparameters automatically
-- 🖼️ Visualize sample outputs
-- 👥 Share with team
-
-**When to use:**
-- ✅ Multiple experiments to compare
-- ✅ Collaborative projects
-- ✅ Production ML workflows
-- ⚠️ Requires internet, account (free tier available)
-
-**When to skip:**
-- Single experiment, local-only
-- Offline environment
-- Privacy-sensitive projects
-
-**Note:** Lesson CT-6 covers experiment tracking in detail.
-
----
-
-## Section 6: Evaluation Configuration
-
-```yaml
 eval_config:
-  repetition_penalty: 1.0          # Penalize repeated tokens
-  temperature: 0.0                 # Greedy (deterministic) sampling
-  top_k: 50                        # Consider top-K tokens
-  top_p: 1.0                       # Nucleus sampling threshold
+  repetition_penalty: 1.0
+  temperature: 0.7
+  top_k: 50
+  top_p: 1.0
 ```
 
-### Sampling Parameters Explained
+**Compare the two pairs side by side** and a pattern falls out:
 
-| Parameter | Effect | Validation | Inference |
-|-----------|--------|------------|-----------|
-| `temperature` | Randomness (0=greedy, 1+=creative) | **0.0** (deterministic) | 0.7-1.0 (varied) |
-| `top_k` | Only consider top K tokens | 50 | 40-80 |
-| `top_p` | Nucleus sampling (cumulative probability) | 1.0 (disabled) | 0.9-0.95 |
-| `repetition_penalty` | Discourage repeating tokens | 1.0 (disabled) | 1.1-1.3 |
+| | LLaMA / char-level | GPT-2 / BPE |
+|---|---|---|
+| `data_path` | `data/shakespeare.txt` (raw text) | `data/tokenized_shakespeare.yaml` (pre-tokenized) |
+| `vocab_size` in model config | *omitted* | `50257` |
+| Tokenizer | Built-in `CharTokenizer`, vocab derived from the text | Hugging Face BPE, pre-tokenized by `tools/dataset_to_tokens.py` |
 
-**For validation:**
-- Use `temperature=0.0` (greedy) for consistent evaluation
-- Same prompt always generates same output
-- Easy to spot improvements
+That's not a coincidence — it's how `train_nanogpt.py` actually decides which path to take. The trainer checks the **file extension** of `data_path`:
 
-**For inference:**
-- Use `temperature=0.7-1.0` for variety
-- Adjust based on use case (creative vs factual)
+```python
+is_pretokenized = training_config.data_path.endswith((".yaml", ".yml"))
+```
+
+If it's `.yaml`/`.yml`, the trainer expects pre-tokenized integer IDs and **requires `vocab_size` in the model config** — omitting it raises `ValueError: Pre-tokenized data (...) requires vocab_size to be set in the model config`. If the data is plain text, `vocab_size` can be omitted entirely; `CharTokenizer` builds the vocabulary directly from the characters it finds. This is why `nanollama3_char.yaml` has no `vocab_size` field and `nanogpt.yaml` does — they're matched to different data pipelines, not to different model families.
+
+There's a second real safety check worth knowing: if a pre-tokenized dataset contains a token ID that doesn't fit inside `vocab_size`, the trainer raises `ValueError: Tokenized data contains token ID X but model vocab_size is Y` rather than silently corrupting an embedding lookup. Getting `vocab_size` right isn't cosmetic — it's load-bearing.
 
 ---
 
-## Hardware-Specific Configurations
+## Model Config Fields
 
-### n150: Memory-Constrained
+These live under `transformer_config:` in a `model_configs/*.yaml` file, per `tt-train/configs/README.md`:
+
+| Field | Effect |
+|---|---|
+| `model_type` | `"llama"` or `"gpt2"` — which architecture gets built (RMSNorm + SwiGLU + RoPE vs. learned positional embeddings) |
+| `num_heads` | Attention heads. More heads = more parallel attention "views," at the cost of more parameters |
+| `num_groups` | **LLaMA-only.** Grouped-query attention groups — fewer than `num_heads` means several query heads share one KV head, cutting KV-cache size |
+| `embedding_dim` | Hidden/embedding dimension — the width of the model |
+| `num_blocks` | Transformer layers — the depth of the model |
+| `vocab_size` | Tokenizer vocabulary size. Required when `data_path` is pre-tokenized; omit it for plain-text/char data |
+| `max_sequence_length` | Context window in tokens. Directly sets memory use — doubling it roughly doubles attention memory |
+| `theta` | **LLaMA-only.** RoPE base frequency; `500000.0` in the shipped char-level config |
+| `runner_type` | `default` or `memory_efficient` — trades some speed for lower peak memory on tight DRAM budgets |
+| `dropout_prob` | Regularization — `0.0` in the LLaMA example, `0.2` in the GPT-2 example |
+
+More parameters exist for RoPE scaling (`rope_scaling.scaling_factor`, `high_freq_factor`, `low_freq_factor`, `original_context_length`) and LLaMA's feed-forward width (`intermediate_dim`) — see the full table in `tt-train/configs/README.md` for models larger than the nano examples here.
+
+### `num_heads`, `embedding_dim`, `num_blocks` — the size dials
+
+**Bigger isn't automatically better on your hardware.** The nano models in this lesson — 6 heads, 384-dim embeddings, 6 blocks — are deliberately tiny (a few million parameters), sized to compile and train fast enough for iteration on a single chip. [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) walks through designing a slightly larger architecture (nano-trickster, ~11M params) and what changes when you scale these three numbers up.
+
+---
+
+## Training Config Fields
+
+These live under `training_config:` in a `training_configs/*.yaml` file:
+
+| Field | What it does |
+|---|---|
+| `project_name` | A label for this run. Not required for training to work — useful for keeping checkpoints and logs straight across experiments |
+| `seed` | Random seed for reproducibility — same seed, same data order, same initialization |
+| `batch_size` | Examples per training step. `64` in the LLaMA/char config, `2` in the GPT-2/BPE config — the right value depends on model size and sequence length, not a universal constant |
+| `num_epochs` | Passes through the full dataset |
+| `max_steps` | Hard cap on training steps, regardless of epoch count |
+| `data_path` | Path to training data — raw text (char tokenizer) or a `.yaml`/`.yml` pre-tokenized file (BPE) |
+| `model_config` | Path to the paired model config file (see above) |
+| `model_save_interval` | Save a checkpoint every N steps |
+| `use_clip_grad_norm` / `clip_grad_norm_max_norm` | Gradient-norm clipping toggle and threshold |
+| `scheduler_type` | `"identity"` (constant learning rate, the default) or `"warmup_linear"` |
+| `tokenizer_type` | `"char"` (default) or `"bpe"` — in practice this tracks the `data_path` extension check described above |
+| `gradient_accumulation_steps` | Accumulate gradients over N steps before an optimizer update, simulating a larger effective batch. Defaults to `1`; none of the shipped Shakespeare configs use it, but it's real and documented |
+
+**Note on `max_steps` and `num_epochs` both being set:** every shipped config here sets both. `max_steps` wins as the hard stop; `num_epochs: 1` just means the trainer won't cycle back through the dataset more than once before that cap. For a tiny dataset like Shakespeare's ~1.1M characters, one epoch at `batch_size: 64` and `max_sequence_length: 256` covers far fewer than 5,000 steps' worth of unique windows — in practice the loader wraps and re-samples, so `max_steps` is the number that actually determines training length here, not `num_epochs`.
+
+### `batch_size` — sized to the model, not the hardware in the abstract
+
+The LLaMA/char config uses `batch_size: 64` for a ~6-block, 384-dim model. The GPT-2/BPE config uses `batch_size: 2` for a similarly sized model but with a full `50257`-token vocabulary — that vocabulary alone makes the embedding and output-projection matrices far larger, eating the DRAM budget that would otherwise go to a bigger batch. **Read the model config before guessing at a batch size**; vocabulary size and sequence length both compete with batch size for the same memory.
+
+---
+
+## Optimizer Configuration
+
+The optimizer is a nested block under `training_config.optimizer` — **not** top-level fields. This is a real, easy mistake to make if you're used to flatter config schemas: `lr` and `weight_decay` live *inside* `optimizer:`, never as siblings of `batch_size`.
 
 ```yaml
 training_config:
-  batch_size: 8                    # Conservative
-  gradient_accumulation_steps: 4   # Simulate batch_size=32
+  optimizer:
+    type: AdamW
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+    stochastic_rounding: false
+```
 
+| Field | Default | Effect |
+|---|---|---|
+| `type` | — | Optimizer implementation — see the table below |
+| `lr` | `3e-4` | Learning rate. `0.0003` in every shipped Shakespeare config — a reasonable starting point for training a small model from scratch |
+| `beta1` / `beta2` | `0.9` / `0.999` | Adam's first/second moment decay rates — the standard values, rarely worth changing |
+| `epsilon` | `1e-8` | Numerical stability constant in the denominator |
+| `weight_decay` | `1e-2` | L2-style regularization strength |
+| `amsgrad` | `false` | AMSGrad variant of Adam |
+| `stochastic_rounding` | `false` | Stochastic rounding for the bf16 optimizer state (`AdamW` only) |
+
+`tt-train` ships more than one optimizer implementation, all selected via `type`:
+
+| `type` | What it is |
+|---|---|
+| `AdamW` | Fused AdamW, bf16 state, single kernel per step. Default and recommended |
+| `AdamWFullPrecision` | fp32 master weights/state, casts to bf16 for the forward pass — use if bf16 accumulation causes instability |
+| `MorehAdamW` | AdamW via the Moreh team's `ttnn::moreh_adamw` kernel |
+| `AdamWComposite` | AdamW built from individual TTNN ops (no custom kernel); supports Kahan summation |
+| `SGD` / `SGDComposite` | Fused or composite SGD |
+| `NoOp` | No parameter updates — useful for debugging a forward/backward pass in isolation |
+
+### Gradient Clipping — the real default is *off*
+
+```yaml
+training_config:
+  use_clip_grad_norm: false
+  clip_grad_norm_max_norm: 1.0
+```
+
+Every shipped Shakespeare config sets `use_clip_grad_norm: false`. That's worth sitting with for a second: gradient clipping is a safety net for exploding gradients, but it isn't free — it's an extra reduction over every gradient tensor on every step. For these small, well-behaved nano models trained at `lr: 0.0003`, the shipped defaults simply don't need it. If you push the learning rate up, widen the model, or see loss spike into `NaN`, flip `use_clip_grad_norm: true` and start with `clip_grad_norm_max_norm: 1.0`.
+
+---
+
+## Device Configuration — Single-Chip vs. Multi-Chip
+
+`device_config:` lives in the training config file, alongside `training_config:` — never in a separate file. Two fields matter here:
+
+```yaml
 device_config:
-  enable_ddp: False
+  enable_ddp: false
   mesh_shape: [1, 1]
 ```
 
-**Key trade-offs:**
-- Slower training (smaller batch)
-- Lower memory usage
-- Single-device simplicity
+Per `tt-train/configs/README.md`, the real device mesh shapes are:
 
-### n300: Balanced Performance
+| Hardware | `mesh_shape` |
+|---|---|
+| Single-device (n150, p150, single p300c) | `[1, 1]` |
+| Dual-device (n300, p300) | `[1, 2]` |
+| LoudBox | `[1, 8]` |
+| Single Galaxy | `[1, 32]` |
 
-```yaml
-training_config:
-  batch_size: 16                   # Larger batch with DDP
-  gradient_accumulation_steps: 2   # Still effective_batch=32
+For this lesson — and for [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) right after it — `[1, 1]` is the answer. p300c and p150 are both single Blackhole<sup>®</sup> chips; treat them exactly like a single-chip Wormhole<sup>™</sup> board here. Notice, too, that the LLaMA/char config earlier in this lesson **omits `device_config:` entirely** — when you don't specify it, `tt-train` defaults to `mesh_shape: [1, 1]`, `enable_ddp: false` anyway. Leaving it out on purpose for a single-chip run is a legitimate, minimal config.
 
-device_config:
-  enable_ddp: True
-  mesh_shape: [1, 2]
-```
+Turning on `enable_ddp: true` with a `[1, 2]` or larger mesh splits the batch across devices and requires `batch_size` to be divisible by the device count — real constraints, real gradient synchronization, and a real gotcha if `enable_ddp` and `mesh_shape` disagree (`enable_ddp: true` on `[1, 1]` has nothing to synchronize with). The full story — data parallelism, tensor parallelism, and how they combine on a 2D mesh — belongs to [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]); this lesson stays single-chip on purpose.
 
-**Key improvements:**
-- ~2x faster training
-- Better GPU utilization
-- Minimal code changes
+---
 
-### T3000: High Performance
+## Checkpointing
+
+`model_save_interval` in the training config sets how often a checkpoint gets written, in steps:
 
 ```yaml
 training_config:
-  batch_size: 32                   # Large batch
-  gradient_accumulation_steps: 1   # No accumulation needed
-
-device_config:
-  enable_ddp: True
-  mesh_shape: [2, 4]               # 8 devices
+  model_save_interval: 500
 ```
 
-**Key advantages:**
-- ~8x faster training
-- Experiment rapidly
-- Train larger models
+That's the config-file half. The other half is a command-line flag on `train_nanogpt.py` itself — `--model_save_path`, which sets *where* checkpoints land:
+
+```bash
+python train_nanogpt.py \
+  --config training_shakespeare_nanollama3_char.yaml \
+  --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare
+```
+
+Checkpoints are written as `.pkl` files, named from that path plus the step number (`shakespeare_step_500.pkl`) or `_final.pkl` when training completes. Two more real flags round this out:
+
+- `--resume <path>` — resume from a specific checkpoint (auto-detects the latest if you omit the path and don't pass `--fresh`)
+- `--fresh` — start over, ignoring any existing checkpoint
+
+[Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) runs through several checkpoint-then-resume cycles as it trains in progressive stages — that's where `model_save_interval` and `--model_save_path` actually get exercised end to end.
+
+---
+
+## Evaluation Sampling and Logging
+
+`eval_config:` doesn't control a validation *set* — `tt-train`'s nano examples don't hold out one. Every shipped config declares one anyway:
+
+```yaml
+eval_config:
+  repetition_penalty: 1.0
+  temperature: 0.7
+  top_k: 50
+  top_p: 1.0
+```
+
+**But `train_nanogpt.py` never reads it.** Grep the script and `eval_config` doesn't appear — it's present in the YAML schema but not wired into the generation path. The periodic text samples you'll see in Fine-tuning Basics come from `train_nanogpt.py`'s own `--temperature`/`--top_k` command-line flags, which default to `0.8` and `40` respectively (`--top_p` and `--repetition_penalty` aren't exposed as generation controls at all). If you want to change what those periodic samples look like, pass `--temperature`/`--top_k` on the command line — editing `eval_config:` in the YAML won't do anything.
+
+**On logging:** there's no WandB or dashboard field in `tt-train`'s YAML schema — don't reach for `use_wandb:` or similar, it isn't real. Training progress today is stdout: per-step loss and timing, printed directly by `train_nanogpt.py`, plus whatever you capture yourself by redirecting output to a file. `project_name` in the training config is just a label; it doesn't wire up an external tracking service on its own.
+
+---
+
+## Running It: `train_nanogpt.py --config <yaml>`
+
+This is the payoff — how the files above actually get consumed. `train_nanogpt.py` lives at `tt-metal/tt-train/sources/examples/nano_gpt/train_nanogpt.py` and takes `-c`/`--config`, a path resolved relative to `configs/training_configs/`:
+
+```bash
+cd ~/tt-metal/tt-train/sources/examples/nano_gpt
+python train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml
+```
+
+Leave `--config` off entirely and it falls back to a real default: `training_shakespeare_nanogpt_char.yaml` (paired with `nanogpt_char.yaml` — a GPT-2 architecture trained on plain-text, char-tokenized Shakespeare, no pre-tokenization step required). That's genuinely the config that runs if you type `python train_nanogpt.py` with no arguments at all.
+
+A handful of fields can also be overridden directly on the command line, without editing the YAML — useful for one-off experiments:
+
+```bash
+python train_nanogpt.py \
+  --config training_shakespeare_nanollama3_char.yaml \
+  --batch_size 8 \
+  --max_steps 1000 \
+  --data_path ~/tt-scratchpad/training/data/my_corpus.txt
+```
+
+The real overridable flags are `--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, and `--model_save_path`. **There is no `--learning_rate` flag** — to change `lr`, edit `optimizer.lr` in the training config YAML itself, or point `--config` at a different file. This matters because it's easy to assume every training-config field has a matching CLI override; only the seven listed above do.
+
+If you'd rather not touch Python at all, the same YAML files also drive a native C++ binary (`nano_gpt`, built by `build_metal.sh` alongside everything else) with its own `--config`/`-c` flag — same config format, same two-file split, no `ttml` Python bindings required.
+
+**A word on timing before you actually run one of these:** the first time any of these ops execute on your hardware, TT-Metalium compiles the kernels they need — a one-time pause of anywhere from a few seconds up to around twenty seconds, depending on the model config. Every step after that runs at steady-state speed, which is orders of magnitude faster. [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) captures this concretely: about 7.5 seconds on step 1, then ~74 ms/step for the rest of a 3,000-step run. Don't judge a config's speed — or benchmark anything — off step 1.
+
+---
+
+### A Note on `tt-blacksmith`
+
+If that name is familiar: [tt-blacksmith](https://github.com/tenstorrent/tt-blacksmith) is a separate, actively maintained collection of optimized training recipes on the **TT-Forge<sup>™</sup>/TT-XLA compiler stack** — a different config format, a different project, unrelated to the `tt-train`/`ttml` files this lesson covers. [Understanding Custom Training](command:tenstorrent.showLesson?["ct1-understanding-training"]) has the full breakdown if you're deciding between the two stacks.
 
 ---
 
 ## Common Configuration Mistakes
 
-### ❌ Don't: Set Learning Rate Too High
-
-```yaml
-learning_rate: 0.001              # 10x too high for fine-tuning!
-```
-
-**Result:** Loss explodes, model forgets everything, NaN errors.
-
-**Fix:** Use `0.0001` (1e-4) for fine-tuning.
-
-### ❌ Don't: Disable Gradient Clipping
-
-```yaml
-use_clip_grad_norm: false         # Risky!
-```
-
-**Result:** Occasional training crashes from exploding gradients.
-
-**Fix:** Keep it enabled unless you have good reason not to.
-
-### ❌ Don't: Save Too Frequently
-
-```yaml
-model_save_interval: 1            # Save every step!
-```
-
-**Result:** Hundreds of checkpoints, disk space exhausted, slow I/O.
-
-**Fix:** Save every 50-100 steps for small jobs, 500-1000 for large.
-
-### ❌ Don't: Ignore Validation
-
-```yaml
-validation_frequency: 99999       # Never validate
-```
-
-**Result:** Model overfits, you don't notice until the end.
-
-**Fix:** Validate every 50-100 steps, check sample outputs.
-
-### ❌ Don't: Mix Single/Multi-Device Settings
-
-```yaml
-device_config:
-  enable_ddp: True                # DDP enabled...
-  mesh_shape: [1, 1]              # ...but only 1 device?
-```
-
-**Result:** Confusing errors or unexpected behavior.
-
-**Fix:** `enable_ddp: False` for `[1,1]`, `enable_ddp: True` for `[1,2]` or larger.
-
----
-
-## Configuration Experimentation Workflow
-
-Experimentation is the heart of ML engineering. Here's how to systematically improve your models through config changes:
-
-```mermaid
-graph TD
-    A[Start: Baseline Config<br/>training_n150.yaml] --> B[Run Training<br/>Monitor loss & samples]
-
-    B --> C{Results Good?}
-    C -->|Yes| D[🎉 Use This Config<br/>Save as production]
-    C -->|No| E[Identify Issue<br/>Loss too high? Overfit? Slow?]
-
-    E --> F{What to Change?}
-
-    F -->|Loss not improving| G[Try Higher LR<br/>1e-4 → 2e-4]
-    F -->|Loss jumpy/unstable| H[Try Lower LR<br/>1e-4 → 5e-5]
-    F -->|Training too slow| I[Increase batch_size<br/>8 → 16]
-    F -->|Out of memory| J[Decrease batch_size<br/>or add gradient_accumulation]
-
-    G --> K[Run Experiment<br/>Change ONE parameter]
-    H --> K
-    I --> K
-    J --> K
-
-    K --> L[Compare Results<br/>Better or worse?]
-
-    L -->|Better| M[Keep Change<br/>Update baseline]
-    L -->|Worse| N[Revert Change<br/>Try something else]
-
-    M --> O{More to Try?}
-    N --> O
-
-    O -->|Yes| F
-    O -->|No| D
-
-    style A fill:#4A90E2,stroke:#333,stroke-width:2px
-    style B fill:#7B68EE,stroke:#333,stroke-width:2px
-    style D fill:#50C878,stroke:#333,stroke-width:3px
-    style E fill:#E85D75,stroke:#333,stroke-width:2px
-    style K fill:#7B68EE,stroke:#333,stroke-width:2px
-    style L fill:#E85D75,stroke:#333,stroke-width:2px
-```
-
-**Key principle: Change one thing at a time.**
-
-### 1. Start with Baseline Config
-
-Use a baseline config appropriate for your hardware as-is. This is your reference point.
-
-### 2. Change One Thing at a Time
-
-**Good approach:**
-```
-Run 1: batch_size=8, lr=1e-4
-Run 2: batch_size=16, lr=1e-4  # Changed batch size only ✅
-Run 3: batch_size=16, lr=5e-5  # Changed LR only ✅
-```
-
-**Bad approach:**
-```
-Run 1: batch_size=8, lr=1e-4, steps=500
-Run 2: batch_size=16, lr=5e-5, steps=1000  # Changed everything! ❌
-```
-
-**Why?** If Run 2 is better, you won't know if it was the batch size, learning rate, or step count that made the difference. Scientific method requires isolating variables.
-
-### 3. Track Results
-
-Create `experiments.md`:
-
-```markdown
-## Experiment 1: Baseline
-- Config: training_n150.yaml
-- Final train loss: 2.34
-- Final val loss: 2.56
-- Sample output: "Good"
-
-## Experiment 2: Higher Batch Size
-- Config: batch_size=16
-- Final train loss: 2.21
-- Final val loss: 2.48
-- Sample output: "Better!"
-- **Conclusion:** Larger batch helps
-```
-
-### 4. Version Your Configs
-
-```bash
-configs/
-  training_n150_v1.yaml          # Baseline
-  training_n150_v2.yaml          # Higher batch
-  training_n150_v3.yaml          # Lower LR
-```
-
-**Why:** Know which config produced which model.
-
----
-
-## Configuration Templates
-
-### Quick Start (Just Train!)
+### ❌ Pre-tokenized data without `vocab_size`
 
 ```yaml
 training_config:
-  batch_size: 8
-  learning_rate: 0.0001
-  max_steps: 5000
-  model_config: "model_configs/model.yaml"
-  checkpoint_dir: "checkpoints"
+  data_path: "data/tokenized_shakespeare.yaml"   # .yaml → pre-tokenized
 
-device_config:
-  enable_ddp: False
-  mesh_shape: [1, 1]
+transformer_config:
+  model_type: "gpt2"
+  # vocab_size omitted
 ```
 
-**Use when:** You want to get started quickly, no frills.
+**Result:** `ValueError: Pre-tokenized data (...) requires vocab_size to be set in the model config.` — `vocab_size` is only optional for plain-text data.
 
-### Research (Maximum Visibility)
+**Fix:** set `vocab_size` to match the tokenizer that produced the `.yaml` file (`tools/dataset_to_tokens.py` reports it as `tokenizer_vocab_size` in that same file).
+
+### ❌ `vocab_size` smaller than the tokenized data actually needs
+
+**Result:** `ValueError: Tokenized data contains token ID X but model vocab_size is Y.`
+
+**Fix:** match `vocab_size` to the tokenizer's real vocabulary, not a guessed round number.
+
+### ❌ Flat `lr:` / `weight_decay:` instead of nested under `optimizer:`
 
 ```yaml
 training_config:
-  batch_size: 8
-  learning_rate: 0.0001
-  max_steps: 5000
-  validation_frequency: 25        # Validate often
-  checkpoint_frequency: 50        # Save often
-  use_wandb: true                 # Track everything
-  log_level: "DEBUG"              # Verbose logging
-
-device_config:
-  enable_ddp: False
-  mesh_shape: [1, 1]
+  lr: 0.0003          # Wrong — this field doesn't exist here
+  weight_decay: 0.01  # Wrong — same problem
 ```
 
-**Use when:** Debugging, research, need full visibility.
+**Result:** silently ignored; the optimizer falls back to its defaults (`lr: 3e-4`, `weight_decay: 1e-2`) instead of erroring, which can mask what actually changed between runs.
 
-### Production (Fast Iteration)
+**Fix:** nest both under `optimizer:`.
+
+### ❌ `enable_ddp: true` on a `[1, 1]` mesh
+
+```yaml
+device_config:
+  enable_ddp: true    # Nothing to synchronize with...
+  mesh_shape: [1, 1]  # ...only one device
+```
+
+**Fix:** `enable_ddp: false` for `[1, 1]`; `enable_ddp: true` only once `mesh_shape` names more than one device. See [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]) before flipping this on.
+
+### ❌ Saving every step
 
 ```yaml
 training_config:
-  batch_size: 16
-  learning_rate: 0.0001
-  max_steps: 500
-  validation_frequency: 100       # Less frequent
-  checkpoint_frequency: 250       # Only keep key checkpoints
-  use_wandb: false                # Simple file logging
-
-device_config:
-  enable_ddp: True
-  mesh_shape: [1, 2]
+  model_save_interval: 1   # A checkpoint on every single step
 ```
 
-**Use when:** Iterating on production models, n300+ available.
+**Result:** hundreds of `.pkl` files, disk pressure, slower training from constant I/O.
 
----
-
-## Real-World Configuration Scenarios
-
-Configuration isn't just about technical settings - it's about solving real problems within constraints. Let's explore how different scenarios drive different config choices.
-
-### Scenario 1: The Medical Chatbot (Privacy-First)
-
-**Challenge:** Fine-tune a model for medical Q&A within HIPAA constraints.
-
-**Configuration decisions:**
-```yaml
-training_config:
-  batch_size: 4                    # Small batches (limited patient data)
-  learning_rate: 5e-5              # Conservative to preserve medical knowledge
-  checkpoint_frequency: 50         # Frequent saves (expensive hardware time)
-  validation_frequency: 25         # Validate often (safety-critical)
-  use_wandb: false                 # NO cloud logging (HIPAA compliance)
-  log_level: "INFO"                # Local-only logging
-
-device_config:
-  enable_ddp: False                # On-premise n150 only
-  mesh_shape: [1, 1]
-```
-
-**Result:** Production model in 2 hours on n150, deployable with vLLM (**Lesson 7**), fully compliant.
-
-**Total time:** One afternoon of fine-tuning, months of value.
-
----
-
-### Scenario 2: The Code Translator (Speed Matters)
-
-**Challenge:** PyTorch → TT-NN<sup>™</sup> translator for internal dev team. Need fast iteration.
-
-**Configuration decisions:**
-```yaml
-training_config:
-  batch_size: 16                   # Larger batch on n300
-  learning_rate: 1e-4              # Standard fine-tuning LR
-  max_steps: 300                   # Shorter runs for rapid experiments
-  checkpoint_frequency: 100        # Less frequent (iterate fast)
-  validation_frequency: 50         # Regular quality checks
-  use_wandb: true                  # Track 10+ experiments easily
-  wandb_project: "pytorch-to-ttnn"
-
-device_config:
-  enable_ddp: True                 # n300 for 2x speedup
-  mesh_shape: [1, 2]
-```
-
-**Result:** Iterate through 10 model versions in 2 days. Find winning config. Deploy.
-
-**Impact:** 500 examples → model that saves team 5 hours/week.
-
----
-
-### Scenario 3: The Research Experiment (Maximum Insight)
-
-**Challenge:** Testing novel attention patterns. Need full visibility into training dynamics.
-
-**Configuration decisions:**
-```yaml
-training_config:
-  batch_size: 8                    # Standard for n150
-  learning_rate: 1e-4
-  max_steps: 1000                  # Longer run to see convergence
-  checkpoint_frequency: 50         # Save often (expensive compute)
-  validation_frequency: 25         # Validate very often
-  use_wandb: true                  # Essential for analysis
-  log_level: "DEBUG"               # Maximum visibility
-  gradient_accumulation_steps: 4   # Simulate larger batch
-
-eval_config:
-  temperature: 0.0                 # Deterministic for fair comparison
-
-device_config:
-  enable_ddp: False                # Single device for simplicity
-  mesh_shape: [1, 1]
-```
-
-**Result:** Rich training logs, beautiful WandB visualizations, clear insights into what works.
-
-**Learning:** Config isn't just for training - it's for understanding.
-
----
-
-### Scenario 4: The Production Pipeline (Reliability & Scale)
-
-**Challenge:** Training custom models weekly for production deployment. Need consistency and speed.
-
-**Configuration decisions:**
-```yaml
-training_config:
-  batch_size: 32                   # T3000 can handle it
-  learning_rate: 1e-4
-  max_steps: 500
-  checkpoint_frequency: 250        # Only keep key checkpoints
-  validation_frequency: 100        # Less frequent (known dataset quality)
-  use_wandb: true                  # Track production runs
-  use_clip_grad_norm: true         # Safety net
-  gradient_accumulation_steps: 1   # No accumulation needed
-
-device_config:
-  enable_ddp: True                 # T3000 mesh
-  mesh_shape: [2, 4]               # 8 devices, 8x speedup
-```
-
-**Result:** Train multiple models per day. A/B test in production. Iterate based on user feedback.
-
-**Scale:** From prototype (n150) → production (T3000) seamlessly. Same config pattern, different values.
-
----
-
-### What These Scenarios Teach Us
-
-**Configuration reflects your constraints:**
-- **Privacy concerns** → No cloud logging, local-only
-- **Speed requirements** → Multi-device, shorter runs, WandB tracking
-- **Research goals** → Maximum logging, frequent checkpoints, careful validation
-- **Production scale** → Large batches, fast hardware, reliability features
-
-**The same tt-blacksmith pattern works for all scenarios.** Only the values change.
-
-### Your Configuration Journey
-
-**Week 1 (n150, Learning):**
-- Use baseline configs from this extension
-- Focus on understanding what each parameter does
-- Experiment with one parameter at a time
-- **Goal:** Build intuition
-
-**Week 2-3 (n150, Iterating):**
-- Apply lessons to your domain
-- Create custom configs for your use case
-- Track experiments systematically
-- **Goal:** Find what works for your data
-
-**Month 2+ (n300/T3000, Scaling):**
-- Scale successful configs to faster hardware
-- Run multiple experiments in parallel
-- Build a library of proven configs
-- **Goal:** Production-ready workflow
-
-**The power isn't in any single config value.**
-
-**The power is in systematic experimentation, guided by configuration.**
+**Fix:** `500` (the shipped default) is a reasonable starting point for a 5,000-step run; scale it to roughly 1% of `max_steps`.
 
 ---
 
 ## Key Takeaways
 
-✅ **Configuration-driven training is reproducible and shareable**
+✅ **Two files, one relationship:** a model config (architecture) and a training config (everything else), linked by a `model_config:` path
 
-✅ **batch_size and learning_rate are your most important hyperparameters**
+✅ **`optimizer` is nested** — `lr`, `beta1`/`beta2`, `epsilon`, `weight_decay` live under `training_config.optimizer`, not at the top level
 
-✅ **Gradient accumulation simulates larger batches**
+✅ **`vocab_size` is conditionally required** — omit it for plain-text/char data, set it exactly for pre-tokenized `.yaml`/`.yml` data
 
-✅ **Checkpoint frequently (but not too frequently)**
+✅ **`device_config` is optional** — omitting it means single-chip, `mesh_shape: [1, 1]`, by default
 
-✅ **Validate more often than you save checkpoints**
+✅ **Gradient clipping defaults to off** in every shipped Shakespeare config — it's a safety net, not a mandatory setting
 
-✅ **Start with baseline config, change one thing at a time**
+✅ **`train_nanogpt.py --config <yaml>`** is the real entry point; seven fields (`--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, `--model_save_path`) can be overridden on the command line — `lr` cannot
 
-✅ **Use WandB for experiment tracking (optional but powerful)**
+✅ **`tt-blacksmith` is a different project** on the TT-Forge/TT-XLA stack — not a config layer over `tt-train`
 
 ---
 
 ## Next Steps
 
-**Lesson CT-4: Fine-tuning Basics**
+You've prepared your dataset ([Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"])) and now know exactly what's in a `tt-train` config and how it's loaded. Time to actually run one.
 
-You've prepared your dataset (CT-2) and configured your training (CT-3). Now it's time to **actually train a model!**
-
-In CT-4, you'll:
-1. Install tt-train
-2. Launch your first fine-tuning job
-3. Monitor training progress
-4. Load and test your fine-tuned model
-5. See your model in action!
-
-**Estimated time:** 20-25 minutes (+ 1-3 hours training time)
-**Prerequisites:** CT-2, CT-3
+**Next: [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])** — launch `train_nanogpt.py` for real, watch loss drop stage by stage, and generate text from your own checkpoints.
 
 ---
 
 ## Additional Resources
 
-### Configuration Examples
-- **tt-train examples:** Check `tt-metal/tt-train/sources/examples/` for sample configs
-- **tt-blacksmith:** Reference patterns for config organization
-- **Your experiments:** Build your own library of proven configs
-
-### Deep Dives
-- [Adam optimizer paper](https://arxiv.org/abs/1412.6980) - Understanding adaptive LR
-- [Mixed precision training](https://arxiv.org/abs/1710.03740) - BF16/FP32 techniques
-- [Learning rate schedules](https://arxiv.org/abs/1908.06477) - Advanced scheduling
-
-### Tools
-- **WandB:** [wandb.ai](https://wandb.ai) - Experiment tracking
-- **TensorBoard:** Alternative to WandB (local-only)
-
----
-
-**Ready to run your first training job?** Continue to **Lesson CT-4: Fine-tuning Basics** →
+- **The real schema:** `tt-train/configs/README.md` — every field, type, and default, generated from the actual implementation
+- **The real configs:** `tt-train/configs/model_configs/` and `tt-train/configs/training_configs/` — dozens of examples beyond the nano pair covered here, including LLaMA-8B, Galaxy pipeline-parallel, and MoE configs
+- **The real trainer:** `tt-train/sources/examples/nano_gpt/train_nanogpt.py`
+- [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]) — the full `mesh_shape`/`enable_ddp`/`enable_tp` story
+- [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) — designing a model config's architecture fields instead of borrowing the nano ones

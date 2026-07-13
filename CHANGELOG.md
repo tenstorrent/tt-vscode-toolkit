@@ -7,6 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.17] - 2026-07-10
+### Fixed
+- **Addressed PR #43 review feedback:**
+  - `install-tt-train` command — resolve site-packages via `sysconfig.get_paths()['purelib']` (works in virtualenvs where `site.getsitepackages()` may not) and add the actual `build_Release/tt-train/sources/ttml` build-output path to the generated `.pth` (alongside the `build/` symlink path), so `ttml` imports regardless of build-dir layout.
+  - `build-web.js` — the command-parser body scan now also stops at `export function` / `export async function` declarations (e.g. `export async function activate`), closing a remaining cross-function bleed-through path in the issue #42 fix.
+  - `train_nano_from_scratch.py` — default `TT_METAL_HOME` to `~/tt-metal` (current user's home) instead of a hardcoded `/home/ttuser/tt-metal`, so the scaffolded script runs out of the box for any user.
+  - `lfs-05` — removed a stale "the Custom Training track is currently blocked" aside; the track is re-authored and `ct4`/`ct8` are validated on Blackhole p300c.
+  - README "Latest Release" section aligned with `package.json` / `CHANGELOG`.
+
+## [0.1.16] - 2026-07-10
+### Fixed
+- **Vale (prose linter) cleanup on the training-track articles** — ran `vale` against the eight lessons changed this cycle and fixed the issues that were introduced this cycle plus pure wins: backticked bare `tt-metal` repo references in the new build-prerequisite callouts (ct1, lfs-00, build-tt-metal), removed unnecessary `-ly` adverb hyphens ("freshly initialized", "newly built", "monotonically decreasing", "correctly wired" in lfs-05), and lowercased hardware IDs in prose (p100/p150 in lfs-00 and lfs-05). Remaining Vale findings are pre-existing bare-`tt-metal`-in-prose repo references in older lesson sections — a house-style backticking pass tracked separately.
+
+## [0.1.15] - 2026-07-10
+### Fixed
+- **CS-Fundamentals no longer renders a stray game-of-life command under "Open Kernel Source" (issue #42).** The static docs-site generator (`build-web.js`) parsed `extension.ts` with a regex whose body scan crossed function boundaries and whose key capture excluded digits, so `openRiscvKernel` — a file-opener with no terminal command — inherited a later function's `RUN_GAME_OF_LIFE` template, and digit-keyed commands (e.g. `START_TT_INFERENCE_SERVER_N150`, `DOWNLOAD_WAN22_MODEL`) bled to the wrong command too. Tightened both regexes: the function-body scan now stops at the next top-level `function`, and command keys may contain digits. "Open Kernel Source" now renders as a neutral badge (it is a VS Code file-open with no shell equivalent), and nine digit-keyed commands resolve to their correct shell command. Appears on docs.tenstorrent.com after the next docs-site regeneration.
+
+## [0.1.14] - 2026-07-10
+### Changed
+- **Raised the `tt-metal` version floor for the Custom Training track to v0.73.1** to match the only version actually verified. `ct4` and `ct8` previously declared `minTTMetalVersion: v0.67.0` in front matter (with nothing in the registry) and a stale `recommended_metal_version: v0.66.0-rc7` — all predating the v0.73 build the track was verified against, and that `ct5`'s multi-chip DDP required. Aligned both the markdown front matter and `lesson-registry.json` to `v0.73.1` (floor + recommendation). Framed as a *verified* floor, not a proven minimum.
+
+## [0.1.13] - 2026-07-10
+### Changed
+- **Surfaced the "recent `tt-metal`, built from source with `tt-train` enabled" prerequisite upfront** at the three entry points that were silent about it. `build-tt-metal` (the canonical build lesson) now lists the Custom Training track / from-scratch arc under "When you need this" — it previously never mentioned that training needs `tt-train` *enabled* (an extra build step beyond a stock build) on a recent version. `ct1` (track entrance) gained a visible "what the whole track needs (built once)" callout — the requirement had lived only in a front-matter note. `lfs-00` (from-scratch arc entrance) now warns that the final lab needs a from-source `tt-metal` + `tt-train` build (verified on v0.73), so learners kick off the one-time build early instead of discovering it after four labs.
+
+## [0.1.12] - 2026-07-09
+### Changed
+- **Corrected TT-QuietBox 2 topology across the lessons and folded the verified 80M-from-scratch result into `ct8`.** `ct1`, `ct8`, and `tt-xla-jax` had described a QB2 as "four independent chips" — it is a `P300_X2` ring mesh (four Blackhole chips, 2×2), and multi-chip DDP scales near-linearly (3.98× at 4 chips); `ct5` is now hardware-verified. `ct8`'s scaling section and takeaways now cite the measured reality: an ~80M `nanollama3` trains from scratch across four chips in ~2.4 h to the structure-and-vocabulary tier, and coherence is **data-bound** (100M tokens plateaus at an eval loss of ~1.4; the Mini-LLM reference reaches readable output with 361M) — not a hardware or decoder limit.
+
+## [0.1.11] - 2026-07-09
+### Changed
+- **Enriched `ct8` troubleshooting with the gotchas hit during a real four-chip QB2 run** — multi-chip DDP `Fabric Router Sync: Timeout` (missing mesh-graph descriptor; survives a reboot and `tt-smi -r`), device contention masquerading as a wedge (only one job can own the mesh), the DDP checkpoint-save failure (weights replicated across the mesh; pull them through a concat-mesh composer), `model_save_interval` set too large losing a run, broken auto-resume (empty `--resume` argparse error; use `--fresh`), and generation looping / word-salad from an undertrained model plus a bare decoder.
+
+## [0.1.10] - 2026-07-09
+### Changed
+- **Wove the human-experience angle into the from-scratch hero lab (`lfs-05`)** — what a QB2 is actually like under sustained training load: the chips settle at 70–81 °C while the closed-loop liquid cooling holds them there with an audible, rhythmic tick-tock.
+
+## [0.1.9] - 2026-07-09
+### Changed
+- **ct5 (Multi-Device Training) flipped to `validated` — multi-chip `tt-train` DDP verified working on a TT-QuietBox 2.** Corrected the topology framing: a QB2 is a 2×2 ring mesh (`P300_X2`, 2× p300c dual-ASIC boards), not four independent chips. Root-caused the earlier fabric-router-sync failure (survived `tt-smi -r` and a full reboot) to a missing mesh graph descriptor — `ttml` only ships default MGDs for 8/32-device topologies, so 2- and 4-device Blackhole meshes need `TT_MESH_GRAPH_DESC_PATH` set explicitly. Added a "Making the Mesh Initialize on a QB2" section with the exact fix (shipped `p300_mesh_graph_descriptor.textproto` for 2 chips; a custom `dims [1,4]` / `dim_types [LINE, RING]` descriptor for 4 chips) and replaced the old "not benchmarked" placeholder table with real measured scaling: 1.95× at 2 chips (97% efficiency), 3.98× at 4 chips (99.5% efficiency), losses decreasing at every chip count.
+
+## [0.1.8] - 2026-07-09
+### Changed
+- **ct5 (Multi-Device Training) updated to tested reality** — on a 4-chip TT-QuietBox 2 (tt-metal v0.73) the p300c chips are physically Ethernet-meshed, but multi-chip tt-train DDP currently fails (2-chip: fabric-router-sync timeout at mesh open; 4-chip: hangs in optimizer compile). Single-chip training works. Lesson now documents this honestly instead of asserting the chips are non-meshed/independent.
+
+## [0.1.7] - 2026-07-09
+### Added
+- **Mermaid diagrams + timing expectations across the training lessons** — a big-picture arc diagram in each track's entry lesson, a "you are here" diagram in every `lfs-*` and `ct*` lesson, and honest, p300c-benchmarked timing callouts (ttml build ~5 min; first-step kernel JIT ~7–20 s then ~65 ms/step; 20 steps ~14 s; 3000 steps ~3.3 min; real loss milestones).
+
+## [0.1.6] - 2026-07-09
+### Changed
+- Re-authored the Custom Training track (ct1–ct8) as a verified `ttml`/`tt-train` training-workflow track — unblocked (ttml build verified on Blackhole p300c), disentangled from `tt-blacksmith` (the separate TT-Forge/TT-XLA recipe stack), ct4 and ct8 validated on p300c with real loss curves and honest "structure-not-coherence" output framing, ct7 slimmed to defer the by-hand build to the from-scratch arc, and the installTtTrain command aligned to the verified build recipe (the `_ttnn.so` `std::bad_cast` fix).
+
+## [0.1.5] - 2026-07-09
+### Changed
+- **Unblocked `ct1`–`ct8` Custom Training lessons** — flipped `status` from `blocked` to `draft` across all 8 lessons; the old `blockReason` ("ttml isn't available as a package") is false as of the `ttml`-on-Blackhole-p300c build verification (2026-07-08, tt-metal v0.73) documented in `content/templates/llm-from-scratch/BUILD_TTML.md`. Replaced each `blockReason` with a `note` pointing at the verified build recipe; `ct4`/`ct8` will move to `validated` once their hardware-run tasks land. Lesson bodies are unchanged — re-authoring is tracked separately.
+- **`installTtTrain` command rebuilt to match the verified recipe** — the old handler ran `pip install -e .` in `tt-train`, which always failed (`tt-train` has no `pyproject.toml`; it's a tt-metal cmake subproject, not a pip package). It now: configures the tt-train subproject, builds the `_ttml` bindings, **rebuilds `ttnn/_ttnn.so` and copies it over the prebuilt one** (fixes the nanobind ABI `std::bad_cast` on `import ttml` that hits every prebuilt tt-metal image, including TT-QuietBox 2), and wires `ttml` onto the active venv via a `.pth` file — setting `TT_METAL_RUNTIME_ROOT`, `TT_METAL_ARCH_NAME` (honors a user-supplied value, defaults `wormhole_b0`), and `CMAKE_POLICY_VERSION_MINIMUM` along the way. Also now checks for a `$TT_METAL_HOME`/`~/tt-metal` source tree up front and offers to open the Build TT-Metalium lesson if it's missing, since TT-QuietBox 2 images don't ship one.
+
+## [0.1.4] - 2026-07-08
+### Added
+- **"Build an LLM from Scratch, TT-Native" lesson track** — 6 new lessons (`lfs-00` through `lfs-05`, category `llm-from-scratch`) that build a small, modern Llama-3-style language model — RoPE, RMSNorm, SwiGLU, grouped-query attention (GQA) — from scratch, TT-native from the first line of code, with every "coming from CUDA" concept grounded for CUDA programmers throughout:
+  - `lfs-00-intro` — the "pick your altitude" ladder (TT-Forge<sup>™</sup>/TT-XLA → TT-NN<sup>™</sup> → TT-Lang → TT-Metalium<sup>™</sup>), the 32×32 tile, and the reader→compute→writer Tensix execution model.
+  - `lfs-01-tokenizer` — a BPE tokenizer and data pipeline built from scratch, followed through to tiled `ttnn.Tensor` shapes.
+  - `lfs-02-embeddings` — token embeddings and RoPE, plus the arc's first hand-authored TT-Lang inception kernel (elementwise add), runnable live in the browser playground.
+  - `lfs-03-attention` — grouped-query attention with RoPE'd Q/K, expressed both as a PyTorch reference and as a from-scratch TT-Lang attention/softmax kernel.
+  - `lfs-04-block-and-model` — SwiGLU MLP and RMSNorm assembled into the full transformer block and a runnable nano model, with TT-Lang RMSNorm/matmul kernels wired in as drop-in `ttnn.Tensor` ops.
+  - `lfs-05-train-and-run` — a from-scratch training loop (cross-entropy, AdamW, backprop) built on `ttml`, actually run on Blackhole<sup>®</sup> p300c hardware — loss verified dropping monotonically from 4.69 to 3.23 over 20 steps.
+  - Every TT-Lang kernel in the arc is authored as an original **inception** kernel — there is no existing CUDA/Triton source being translated. Architectural choices (RoPE, RMSNorm, SwiGLU, GQA) follow the lead of, and credit, [Mini-LLM](https://github.com/Ashx098/Mini-LLM) by Ashx098.
+- **`tenstorrent.llmFromScratch.createProject` scaffold command** — one-click copies the arc's reference code (PyTorch model, TT-Lang kernels, tokenizer, training runner, build recipe) into `~/tt-scratchpad/llm-from-scratch/` and opens it, mirroring the cookbook scaffold. Lessons offer it as a **Create the LLM-from-Scratch Project** button so developers follow along in their own workspace rather than the repo's internal templates. Namespaced `tenstorrent.<feature>.<action>` per the ttsim convention.
+### Changed
+- **Editorial clarity + storytelling pass** across all six `lfs` lessons — shorter paragraphs, reader-centric second-person voice, and a payoff-first rewrite of the hero training lesson. Lesson cross-references now use human names linked via `command:tenstorrent.showLesson` instead of raw `lfs-0X`/`ct*` IDs.
+- **Version bump to 0.1.2** — adds the new `llm-from-scratch` lesson category (6 lessons, `lfs-00`–`lfs-05`) and the `llmFromScratch.createProject` scaffold command; Labs 0–2 editorial pass (brief inspiration credit, CUDA grounding folded in, `~/tt-scratchpad` follow-along).
+
 ## [0.0.518] - 2026-06-26
 ### Added
 - **CS Fundamentals Module 8 matmul labs expansion** — consolidated this PR’s Module 8 work into one release item: long-form interactive Lab 1/2/3 lesson content, simulator-friendly execution guidance, CS Fundamentals navigation wiring, code-first host excerpts with stepwise explanations, and upstream matmul lesson drift detection tooling.

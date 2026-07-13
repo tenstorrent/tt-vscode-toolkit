@@ -18,13 +18,13 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: blocked
-blockReason: >-
-  ttml Python bindings require building from a TT-Metalium v0.67.0+ source tree.
-  Not available as a standalone package; lessons will return when ttml ships
-  as a prebuilt wheel. Use Lesson 6 (TT-Inference-Server) for model serving.
-validatedOn:
-  - n150
+status: draft
+note: >-
+  ttml (tt-train) builds and trains from source on Blackhole p300c as of
+  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  "Install tt-train" command for the verified recipe. This lesson is being
+  re-authored around that verified workflow.
+validatedOn: []
 estimatedMinutes: 15
 ---
 
@@ -40,7 +40,24 @@ Learn to create and validate training datasets for fine-tuning AI models. This i
 - How datasets flow through training
 - HuggingFace datasets integration
 
-**Time:** 15 minutes | **Prerequisites:** CT-1 (Understanding Custom Training)
+**Time:** 15 minutes | **Prerequisites:** [Understanding Custom Training](command:tenstorrent.showLesson?["ct1-understanding-training"])
+
+**Where this fits in the track:**
+
+```mermaid
+graph LR
+    A[Understand] --> B[Datasets]
+    B --> C[Configuration]
+    C --> D[Fine-tuning]
+    D --> E[Multi-Device]
+    E --> F[Experiment Tracking]
+    F -.-> G[Architecture Basics]
+    G -.-> H[From Scratch]
+
+    style B fill:#1B8EB1,stroke:#092221,stroke-width:3px
+```
+
+**A quick note on scope before you start:** this lesson teaches dataset curation the way most of the fine-tuning world does it — JSONL prompt/response pairs, validated and versioned. That skill transfers everywhere. But the trainer this track actually runs, `train_nanogpt.py` (`ttml`/tt-train's Python entry point, see [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])), doesn't take JSONL directly — it takes a plain-text corpus. The "How Your Data Reaches tt-train" section below closes that gap honestly, with a real script to get from one to the other.
 
 ---
 
@@ -182,19 +199,15 @@ I know not, sir.
 
 ### What Makes It Pedagogically Perfect
 
-Shakespeare isn't just famous - it's **strategically perfect** for teaching language modeling:
+Shakespeare isn't just famous - it's **strategically useful** for teaching dataset fundamentals:
 
 ✅ **Fast iteration cycles**
-- 10 epochs: ~1 minute training time
-- 200 epochs: 20-30 minutes total
-- See results quickly, experiment rapidly
+- A few thousand training steps run in minutes, not hours, on this track's hardware — [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) ran 3,000 steps against this exact corpus in under 4 minutes on a Blackhole<sup>®</sup> p300c
+- See results quickly, experiment rapidly — you don't need to wait overnight to know whether a dataset change did anything
 
-✅ **Clear learning progression**
-- You can **SEE** the model learning hierarchically
-- Stage 1 (10 epochs): Structure (line breaks, capitalization)
-- Stage 2 (30 epochs): Vocabulary (real character names)
-- Stage 3 (100 epochs): Style (Shakespearean patterns)
-- Stage 4 (200 epochs): Fluency (natural dialogue)
+✅ **Observable structure learning**
+- You can watch the model pick up the corpus's *structure* step by step: capitalization, line breaks, `NAME:`-style speaker headers
+- What you will **not** see, on this hardware with this corpus, is the model becoming fluent. [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) both trained on this exact text and neither produced coherent sentences — real words show up scattered among invented syllables, never assembling into fluent prose. That's the honest result of a ~10M-parameter character-level model on a ~1MB corpus, not a flaw in the lesson
 
 ✅ **Rich hierarchical structure**
 - Format conventions (character names, stage directions)
@@ -204,78 +217,62 @@ Shakespeare isn't just famous - it's **strategically perfect** for teaching lang
 
 ✅ **Human-readable validation**
 - No metrics needed - just read the output
-- Quality improves from gibberish → words → sentences → Shakespeare-like text
-- Anyone can evaluate: "Does this sound like a play?"
+- Quality moves from uniform-random characters, to recognizable Shakespeare-*like structure* (speaker names, colons, line breaks), to a scatter of real words sitting inside that structure — not, on this hardware, to coherent sentences
+- Anyone can evaluate: "Does this look structurally like a play?" (yes, quickly) vs. "Does this read like Shakespeare?" (no — see the real output below)
 
 ✅ **Continuous text**
 - Character-level modeling learns from pure sequence
 - No word boundaries or tokenization artifacts
 - Model discovers word structure naturally
 
-### The Learning Journey: What Models Learn from Shakespeare
+### The Learning Journey: What Models Actually Learn from Shakespeare (and Where It Stops)
 
-Understanding **how** models learn from Shakespeare teaches you how they learn from ANY dataset. Here's the hierarchical progression:
+Understanding **how** models learn from Shakespeare — and where that learning plateaus on modest models and hardware — teaches you how they'll behave on ANY dataset you build. Here's the real, step-based progression, taken directly from [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])'s verified training run on this corpus (a ~10.8M-parameter GPT-2-style model, Blackhole p300c):
 
 ```mermaid
 graph LR
-    A[Random Weights<br/>Loss: ~4.5<br/>Output: Random chars] --> B[Structure<br/>10 epochs, Loss: ~2.5<br/>Line breaks, caps]
-    B --> C[Vocabulary<br/>30 epochs, Loss: ~1.8<br/>Real names, words]
-    C --> D[Style<br/>100 epochs, Loss: ~1.2<br/>Shakespearean patterns]
-    D --> E[Fluency<br/>200 epochs, Loss: <1.0<br/>Natural dialogue]
+    A[Random Weights<br/>Step 1, Loss 4.66<br/>Uniform-random characters] --> B[Structure<br/>Step 500, Loss 2.30<br/>Speaker names, colons, line breaks]
+    B --> C[Scattered Words<br/>Step 1500, Loss 1.61<br/>Real words among invented syllables]
+    C --> D[Diminishing Returns<br/>Step 3000, Loss 1.41<br/>Still not coherent text]
 
     style A fill:#E85D75,stroke:#333,stroke-width:2px
     style B fill:#FFA07A,stroke:#333,stroke-width:2px
     style C fill:#FFD700,stroke:#333,stroke-width:2px
-    style D fill:#90EE90,stroke:#333,stroke-width:2px
-    style E fill:#50C878,stroke:#333,stroke-width:2px
+    style D fill:#4A90E2,stroke:#333,stroke-width:2px
 ```
 
-**Stage 1: Structure Learning (10 epochs)**
-```
-Before:
-jkl;asdf ROMEO kjhasdf
+**Step 1 (loss 4.66): the random baseline**
 
-After:
-ROMEO:
-asdfkjh asdfkj asdf
+`ln(96) ≈ 4.56` — the entropy of guessing uniformly among the corpus's ~96 characters. This is what "the model hasn't learned anything yet" looks like as a number.
 
-Servant:
-lkjasdf kjhasdf
+**Step 500 (loss 2.30): structure emerges** — actual output, verbatim, from [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]):
 ```
-**What changed:** Character name format, line breaks, basic capitalization
+antlastolptatcsamthartosiga mabomantarsaemoowouatheatouomarathanoouarearanawarouranouanoonarorofoururave,
+INare I matolo tone.
+BENGHA:
+Tonot wit ithald weat thay theard.
+```
+Capitalization, line breaks, and `NAME:`-style speaker headers are already there. Almost none of the rest is real English.
 
-**Stage 2: Vocabulary Learning (30 epochs)**
+**Step 1500 (loss 1.61): a scatter of real words** — same run, same command, later checkpoint:
 ```
-ROMEO:
-What lady doth that hand knight?
+tspafrttwathofarantttorarorasthatorororitoretoshreamawinytoucanowinayonanunanousoreiseonofasayonouro anouroura meather,
+Yor withe, tha wenon wano herde.
 
-Servant:
-I know not sir.
+SENGERDI:
+Tow towall wawind yownthonger mates this tiedern,
 ```
-**What changed:** Real character names, common words, basic sentence structure
+A handful of real short words appear ("this", fragments like "wit", "tha") embedded in mostly-invented syllables. The structural skeleton is intact; fluency is not.
 
-**Stage 3: Style Learning (100 epochs)**
+**Step 3000 (loss 1.41): the plateau**
 ```
-ROMEO:
-What lady is that, which doth enrich the hand
-Of yonder knight most fair?
+ytmtatpatofasttanfabanadrtofriorthouandeithonatino theayorearanunearananonoounanouroorowareanaroratorouree inorenod.
+WEBUCHELARI:
+I ie mod hadeste, hand ast wame, souce mee,
+```
+Loss kept dropping between step 1500 and step 3000, but the text did not get noticeably more readable. [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) pushes a different architecture on this same corpus all the way to loss 0.18 and hits the same ceiling: a much lower loss bought no visible improvement in coherence — that run's honest conclusion is overfitting, not mastery.
 
-Servant:
-I know not, good sir.
-```
-**What changed:** Shakespearean vocabulary ("doth," "yonder"), appropriate grammar, dramatic style
-
-**Stage 4: Fluency (200 epochs)**
-```
-ROMEO:
-What lady is that, which doth enrich the hand
-Of yonder knight with beauty's touch divine?
-
-Servant:
-I know not, sir. She is a stranger here,
-Methinks she came with Count Paris to the feast.
-```
-**What changed:** Natural dialogue flow, proper meter, contextually appropriate responses, maintains dramatic tone
+**The takeaway for this lesson:** on this hardware, with this corpus and these model sizes, training produces Shakespeare-*shaped* text — the structural skeleton — not Shakespeare-*like* prose. Getting past that ceiling needs a much bigger model trained on much more data, which is a different problem than "curate a good dataset." This lesson stays honest about that boundary instead of promising fluency a nano model on a 1MB corpus can't deliver.
 
 ### Why This Dataset Still Matters in 2026
 
@@ -300,53 +297,49 @@ You might think: "Why learn from a 2015 dataset when we have GPT-4 and modern LL
 - Applicable to any language, code, or structured format
 
 ⚡ **Fast experimentation enables learning**
-- 30 minutes to see full training progression
+- Minutes, not hours, to see the real training progression (see [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) for exact wall-clock numbers)
 - Try different architectures, hyperparameters, techniques
 - Learn what works before scaling to production datasets
 
 ### From Shakespeare to Your Domain
 
-The learning patterns you observe with Shakespeare **directly transfer** to your custom domain:
+The learning patterns you observe with Shakespeare **directly transfer** to your custom domain — through the same early stages, and with the same honest limit:
 
 **Code generation models:**
-- Stage 1: Learn syntax (brackets, indentation)
-- Stage 2: Learn keywords and function names
-- Stage 3: Learn code patterns and idioms
-- Stage 4: Generate fluent, working code
+- Learn syntax first (brackets, indentation)
+- Then keywords and function names
+- Then code patterns and idioms
+- Generating fluent, working code from those patterns is a production-scale outcome, not something a nano model on a small dataset will do — see the ceiling [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) both hit on this corpus
 
 **Medical note generation:**
-- Stage 1: Learn format (sections, headers)
-- Stage 2: Learn medical terminology
-- Stage 3: Learn diagnostic patterns
-- Stage 4: Generate coherent clinical notes
+- Learn format first (sections, headers)
+- Then medical terminology
+- Then diagnostic patterns
+- Coherent clinical notes require a much larger model and far more data than this lesson's dataset-curation scale — the same gap documented above
 
 **Legal contract generation:**
-- Stage 1: Learn clause structure
-- Stage 2: Learn legal vocabulary
-- Stage 3: Learn argument patterns
-- Stage 4: Generate legally sound contracts
+- Learn clause structure first
+- Then legal vocabulary
+- Then argument patterns
+- Legally sound contract generation is, again, a production-scale outcome — this track's nano runs stop well short of it
 
-**The principle:** Models learn hierarchically regardless of domain. Structure → Vocabulary → Style → Fluency.
+**The principle:** Models learn hierarchically regardless of domain — structure first, then vocabulary, then style. Whether they ever reach fluent, coherent output is a question of model scale and data volume, not something a dataset lesson can promise. [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) show exactly where that ceiling sits for the models this track actually trains.
 
-### Key Insight: What Shakespeare Teaches You
+### Key Insight: What Shakespeare Teaches You About Datasets
 
-When you train on Shakespeare and watch the progression from random characters to coherent dialogue, you learn:
+When you train on Shakespeare and watch the progression from random characters through structure to a scatter of real words, you learn:
 
-- ✅ **How transformers learn** - Hierarchically, from structure to meaning
+- ✅ **How transformers learn** - Hierarchically, structure before meaning
 - ✅ **What makes a good dataset** - Clear structure, consistent patterns, sufficient examples
-- ✅ **How to evaluate learning** - Observable quality improvement over time
-- ✅ **When to stop training** - When loss plateaus and output quality stabilizes
-- ✅ **Why architecture matters** - Deeper models capture deeper patterns
+- ✅ **How to evaluate learning** - Observable quality improvement over time, without over-claiming what "improvement" means
+- ✅ **Why low loss isn't the whole story** - [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) drives loss nearly 8x lower than [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) on the same corpus and gets no more readable an output — a direct lesson in overfitting a small dataset
+- ✅ **Why architecture and data scale matter** - the nano models in this track plateau well short of fluency; reaching it takes a much bigger model and much more data, not a better dataset-curation trick
 
 **This knowledge transfers to every dataset you'll ever create.**
 
-When you build your medical chatbot, legal assistant, or code generator, you'll recognize the same learning stages. You'll know:
-- "The model is learning structure now" (epoch 10)
-- "Vocabulary is forming" (epoch 30)
-- "Style is emerging" (epoch 100)
-- "Almost fluent" (epoch 200)
+When you build your medical chatbot, legal assistant, or code generator, you'll recognize these same early stages — structure, then scattered vocabulary — and you'll know that getting past them to genuinely fluent, coherent output takes a much bigger model and much more data than a from-scratch nano run on a small corpus, exactly as [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) and [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) demonstrate.
 
-**Shakespeare isn't just a dataset - it's a masterclass in how language models learn.**
+**Shakespeare isn't just a dataset - it's a lesson in what good structure buys you, and what it doesn't.**
 
 ---
 
@@ -535,6 +528,77 @@ Fix these issues and run validation again.
 
 ---
 
+## How Your Data Reaches tt-train
+
+Once your dataset is validated JSONL, the natural next question is: how does it actually get to a model? For a lot of the fine-tuning ecosystem — Hugging Face's `trl`, hosted fine-tuning APIs — JSONL prompt/response pairs *are* the direct input. This track's own trainer is more specific about what it wants.
+
+[Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) runs `train_nanogpt.py`, the trainer script that ships with `ttml` (tt-train's Python bindings), against real Tenstorrent hardware. Its data argument looks like this:
+
+```bash
+python train_nanogpt.py \
+  --data_path ~/tt-scratchpad/training/data/shakespeare.txt \
+  --num_epochs 30 \
+  --batch_size 4 \
+  --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare_stage2.pkl \
+  --fresh
+```
+
+`--data_path` points at **one plain-text file** — not JSONL, not a `prompt`/`response` schema. By default, `train_nanogpt.py` tokenizes that file one character at a time (`ttml.common.data.CharTokenizer`) and trains next-character prediction on it. That's exactly why the tiny-shakespeare corpus you downloaded earlier in this lesson works as-is: `input.txt` is already the shape the trainer wants, no conversion needed.
+
+tt-train also supports subword tokenization: set `tokenizer_type: bpe` in the training config and point `tokenizer_path` at a saved Hugging Face tokenizer, and the corpus gets byte-pair-encoded instead of split into characters. Either way — char-level or BPE — the trainer wants **already-tokenizable text**, not a JSON schema of examples.
+
+### Bridging JSONL to a plain-text corpus
+
+If you've curated a JSONL dataset above and want to point `train_nanogpt.py` at it, flatten it into text first. `prompt`/`response` fields don't survive the trip — the trainer just sees characters — so the flattening step is where you decide how those fields get joined:
+
+```python
+import json
+
+def jsonl_to_plain_text(jsonl_path, output_path, separator="\n\n"):
+    """Flatten a JSONL prompt/response dataset into the single plain-text
+    stream train_nanogpt.py's --data_path expects.
+
+    tt-train's default tokenizer has no concept of a "prompt" or "response"
+    field -- it reads characters (or BPE tokens, if tokenizer_type: bpe is
+    set) from one continuous file. This is the conversion step that makes a
+    JSONL dataset usable by that trainer.
+    """
+    count = 0
+    with open(jsonl_path, "r") as infile, open(output_path, "w") as outfile:
+        for line in infile:
+            line = line.strip()
+            if not line:
+                continue
+            example = json.loads(line)
+            outfile.write(example["prompt"])
+            outfile.write("\n")
+            outfile.write(example["response"])
+            outfile.write(separator)
+            count += 1
+    return count
+
+# Usage
+n = jsonl_to_plain_text("my_dataset.jsonl", "my_dataset.txt")
+print(f"Flattened {n} examples into my_dataset.txt")
+```
+
+Then hand the flattened file to `train_nanogpt.py` the same way [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) hands it `shakespeare.txt`:
+
+```bash
+python train_nanogpt.py \
+  --data_path ~/tt-scratchpad/training/data/my_dataset.txt \
+  --num_epochs 100 \
+  --batch_size 4 \
+  --model_save_path ~/tt-metal/tt-train/checkpoints/my_model.pkl \
+  --fresh
+```
+
+**So the JSONL work above isn't wasted** — it's still the right format for curating, reviewing, and diffing examples, and it's what plenty of other fine-tuning tools want natively. It just isn't the literal input to *this track's* trainer; that trainer eats plain text.
+
+**Want to see a tokenizer built by hand** — byte-pair encoding, merges, vocabulary, all of it — instead of taking `CharTokenizer` or a Hugging Face tokenizer on faith? [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) in the from-scratch track builds a BPE tokenizer from raw bytes and a data pipeline around it, entirely from first principles, and shows exactly what `tokenizer_type: bpe` is doing under the hood.
+
+---
+
 ## Dataset Creation Workflow
 
 Here's how successful dataset creation flows, from idea to validated training data:
@@ -617,11 +681,11 @@ graph TD
 
 ## Understanding Tokenization
 
-Your dataset goes through several transformations before reaching the model. Here's the complete journey:
+Your dataset goes through several transformations before reaching the model. The exact shape of the early stages depends on which trainer you're targeting (JSONL for curation-friendly tools, a flattened plain-text corpus for `train_nanogpt.py` — see the section above) but every path converges on the same last three steps:
 
 ```mermaid
 graph LR
-    A[Raw Text<br/>Ideas, Q&A pairs] --> B[JSONL Format<br/>Structured data]
+    A[Raw Text<br/>Ideas, Q&A pairs] --> B[Curated Dataset<br/>JSONL or plain-text corpus]
     B --> C[Validation<br/>Check format & quality]
     C --> D[Tokenization<br/>Text → Numbers]
     D --> E[Batching<br/>Group examples]
@@ -637,9 +701,9 @@ graph LR
 
 **Each stage matters:**
 - **Raw Text:** Your domain knowledge and creativity
-- **JSONL Format:** Makes it machine-readable while staying human-readable
+- **Curated Dataset:** Makes it machine-readable while staying human-readable — JSONL if a schema helps you review it, plain text if `train_nanogpt.py` is the destination
 - **Validation:** Catches errors before expensive training
-- **Tokenization:** Converts text to numbers the model understands
+- **Tokenization:** Converts text to numbers the model understands — character-by-character by default in `train_nanogpt.py`, or via a Hugging Face tokenizer if `tokenizer_type: bpe` is configured
 - **Batching:** Groups examples for efficient processing
 - **Training:** Where the model actually learns
 
@@ -687,19 +751,33 @@ print(f"Total: {len(prompt_tokens) + len(response_tokens)} tokens")
 
 **Rule of thumb:** Keep total (prompt + response) under 512 tokens for fine-tuning.
 
+**Where this applies to tt-train:** `train_nanogpt.py`'s default `CharTokenizer` doesn't need any of this — one character is one token, and there's no external vocabulary to load. This section matters once you're on the `tokenizer_type: bpe` path (a real subword tokenizer, loaded from `tokenizer_path`) or working with datasets destined for other, tokenizer-based fine-tuning tools.
+
 ---
 
 ## Advanced: HuggingFace Datasets Integration
 
-Once you have JSONL working, you can integrate with HuggingFace datasets:
+Once you have JSONL working, you can integrate with HuggingFace datasets — useful for large corpora, preprocessing pipelines, or pulling an existing dataset from the Hub instead of writing one by hand.
 
-### Loading JSONL with HuggingFace
+### Downloading a Dataset from the Hub
+
+Use the `hf` CLI, not `huggingface-cli` — the latter is deprecated:
+
+```bash
+hf download roneneldan/TinyStories --repo-type dataset --local-dir ~/data/tinystories
+```
+
+### Loading JSONL (or a downloaded dataset) with HuggingFace
 
 ```python
 from datasets import load_dataset
 
-# Load your JSONL file
+# Load your own JSONL file
 dataset = load_dataset("json", data_files="my_dataset.jsonl")
+
+# Or load a plain-text corpus the same way train_nanogpt.py would read it
+# (each line becomes one example, so this doesn't apply a schema at all)
+text_dataset = load_dataset("text", data_files="my_dataset.txt")
 
 # Access examples
 for example in dataset["train"]:
@@ -719,8 +797,9 @@ for example in dataset["train"]:
 - ✅ Large datasets (10,000+ examples)
 - ✅ Complex preprocessing pipelines
 - ✅ Integration with HuggingFace ecosystem
+- ✅ Pulling an existing corpus from the Hub instead of writing one by hand
 
-**For this series:** We'll stick with simple JSONL for clarity. HuggingFace integration is optional.
+**For `train_nanogpt.py` specifically:** none of this is required. It reads a single text file directly — HuggingFace `datasets` is a convenience for building or downloading that file, not a dependency of the trainer itself.
 
 ---
 
@@ -880,7 +959,7 @@ You've learned the mechanics of creating datasets - but what makes a dataset tru
 2. **Week 2 (n150):** Test with real users, gather feedback, refine dataset
 3. **Week 3 (n150 or n300):** Expand to 200-500 examples based on feedback
 4. **Month 2 (n300/T3000):** Scale to 1000+ examples, multi-task fine-tuning
-5. **Production:** Deploy with vLLM (**Lesson 7**), serve thousands of requests/day
+5. **Production:** Deploy with [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]), serve thousands of requests/day
 
 **Real example from the wild:**
 - Started: 60 examples of code explanations (3 hours of work)
@@ -924,22 +1003,24 @@ Pick a task you know well. Spend 3-4 hours creating 100 prompt/response pairs. F
 
 ✅ **Tokenization determines cost** and length limits
 
+✅ **`train_nanogpt.py` wants plain text, not JSONL** — flatten curated examples into a text corpus before handing them to `--data_path`
+
 ✅ **Version your datasets** like code
 
 ---
 
 ## Next Steps
 
-**Lesson CT-3: Configuration Patterns**
+**[Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"])**
 
 You have your dataset! Next, you'll learn how to configure training using YAML files:
 
 1. Understand training configuration structure
-2. Set up device configuration (n150/n300)
+2. Set up device configuration (n150/n300/p100/p300c)
 3. Configure logging and checkpointing
 4. Create hardware-specific configs
 
-**Estimated time:** 15 minutes | **Prerequisites:** CT-2 (this lesson)
+**Estimated time:** 15 minutes | **Prerequisites:** This lesson.
 
 ---
 
@@ -962,4 +1043,4 @@ You have your dataset! Next, you'll learn how to configure training using YAML f
 
 ---
 
-**Ready to configure your training?** Continue to **Lesson CT-3: Configuration Patterns** →
+**Ready to configure your training?** Continue to [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]).

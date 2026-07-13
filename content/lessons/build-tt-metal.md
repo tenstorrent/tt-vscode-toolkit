@@ -48,6 +48,12 @@ You need a local TT-Metalium source build if any of the following apply:
   `tt-metal/tests/` assume the repo is present and built.
 - **Debugging TT-NN<sup>™</sup> ops or dispatch issues** — Source-level tracing requires a
   built checkout.
+- **The Custom Training track & the from-scratch arc** — Training with **`ttml`
+  (tt-train)** needs a from-source `tt-metal` **built with tt-train enabled** — an
+  extra step beyond a stock build — on a **recent version** (verified on v0.73).
+  After this lesson, run the **Install tt-train** step in
+  [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) to
+  add it (it reconfigures `tt-metal` with tt-train and rebuilds `_ttnn.so`).
 
 You do **not** need a source build for:
 
