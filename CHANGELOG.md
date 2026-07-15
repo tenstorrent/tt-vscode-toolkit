@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.18] - 2026-07-15
+### Added
+- **New advanced lesson "Monkeypatching TT-NN — Ninja Edition"** — teaches upgrade-safe, smallest-trace patching of TT-NN / TT-Metalium organized by developer goal (observe, fix a bug early, change a default, add something new, and a last-resort source-diff escape hatch), for the TT-QuietBox 2 case where `ttnn` is an installed package with no `~/tt-metal` source tree. Covers the env + import-order rule, the "patch to change behavior, wrap to add behavior" principle (citing Martin Chang's non-invasive `ttPseudoRowMajor` and upstream-first ggml backend), and an AI-agent verification recipe. Slotted at order 16, after "Exploring TT-Metalium".
+- **New reusable template `content/templates/monkeypatch/tt_patches.py`** — a dependency-free patch harness (save/restore `wrap` and `set_default`, `patched` context manager, `version_at_most` guard, and a `verify` probe helper) with fail-loud missing-target detection, shipped alongside a hardware-free `test_tt_patches.py` and a usage README.
+
 ## [0.1.17] - 2026-07-10
 ### Fixed
 - **Addressed PR #43 review feedback:**
