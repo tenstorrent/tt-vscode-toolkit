@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.18] - 2026-07-13
+### Fixed
+- **PRD-246 — Jeremy's QB2 testing feedback on the first-inference lesson flow:**
+  - `download-model` — fixed the broken "Step 3: Download the Model" skip link. The anchor pointed to `#step-3-download-qwen3-0-6b`, but the "Step 3: Download Qwen3-0.6B" heading slugs to `#step-3-download-qwen3-06b` (the `.` in `0.6B` is dropped, not turned into a hyphen).
+  - `download-model` — consolidated the repeated, scattered Hugging Face auth flow. Removed the standalone "Already Authenticated?" pre-check and folded the `hf auth whoami` check into Step 2, so authentication reads as a single sequence (set token → check → log in) instead of appearing in multiple places.
+  - `hardware-detection` — marked "Check 4: Device Reset" as optional; it is a recovery action, not part of normal detection, and a healthy device never needs it.
+  - `tt-installer` — removed the redundant `tt-smi` hardware-detection step from "Step 4: Verify Installation" (it duplicated the dedicated Hardware Detection lesson) and linked out to that lesson instead.
+  - `tt-installer` / `TEST_METALIUM_CONTAINER` — simplified the "Test TT-Metalium" button to the documented `tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"` form, dropping the fragile nested-quote/emoji f-string that could error. Added a TT-QuietBox 2 caveat noting the container test requires Podman plus the `tt-metalium` wrapper, which pre-built QB2 images may not include (verify TT-NN directly in that case).
+### Changed
+- **PR #43 post-release follow-ups (jzheng's non-blocking review notes):**
+  - `train_nano_from_scratch.py` — the docstring run example now uses `~/tt-metal/...` to match the code's `~/tt-metal` default. The code default was corrected in 0.1.17; the example in the header comment had lagged behind.
+  - Added regression coverage for the docs-site command-map parser (issue #42). Extracted the parser out of `build-web.js` into `scripts/lib/command-map-parser.js` as a pure function of two source strings, and added `test/lesson-tests/command-map-parser.test.ts`. The tests assert the function-boundary guard (a keyless file-opener must not inherit the next handler's command), plus single/double/backtick/multi-line template extraction and digit-bearing keys.
+
 ## [0.1.17] - 2026-07-10
 ### Fixed
 - **Addressed PR #43 review feedback:**

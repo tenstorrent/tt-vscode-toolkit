@@ -41,7 +41,7 @@
 # Run (Blackhole p300c):
 #
 #     python content/templates/llm-from-scratch/train_nano_from_scratch.py \
-#         --max_steps 20 --data_path /home/ttuser/tt-metal/tt-train/data/shakespeare.txt
+#         --max_steps 20 --data_path ~/tt-metal/tt-train/data/shakespeare.txt
 #
 # (Arch resolution: an explicit --arch always wins; otherwise the runner
 #  honours an already-exported TT_METAL_ARCH_NAME; otherwise it defaults to

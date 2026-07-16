@@ -124,7 +124,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   TEST_METALIUM_CONTAINER: {
     id: 'test-metalium-container',
     name: 'Test tt-metalium Container',
-    template: 'tt-metalium "python3 -c \'import ttnn; print(f\\"TTNN version: {ttnn.__version__}\\"); print(\\"✅ tt-metalium container working!\\")\'"',
+    template: 'tt-metalium "python3 -c \'import ttnn; print(ttnn.__version__)\'"',
     description: 'Verifies tt-metalium container is installed and TTNN is accessible',
   },
 

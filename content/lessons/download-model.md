@@ -67,21 +67,6 @@ which hf || pip install huggingface-hub
 
 ---
 
-### Already Authenticated?
-
-Check if you're already logged in to Hugging Face:
-
-```bash
-hf auth whoami
-```
-
-**If this shows your username:** You're already authenticated! Skip to
-[Step 3: Download the Model](#step-3-download-qwen3-0-6b).
-
-**If it shows an error:** Continue with Step 1 below to authenticate.
-
----
-
 ### Model Already Downloaded?
 
 Check if Qwen3-0.6B is already present:
@@ -160,7 +145,16 @@ source ~/.bashrc
 
 ## Step 2: Authenticate
 
-Once your token is set, authenticate with Hugging Face:
+**First, check whether you're already logged in:**
+
+```bash
+hf auth whoami
+```
+
+**If this prints your username:** you're authenticated — skip straight to
+[Step 3: Download the Model](#step-3-download-qwen3-06b).
+
+**If it shows an error:** log in with the token you set in Step 1:
 
 ```bash
 hf auth login --token "$HF_TOKEN"
