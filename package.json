@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -738,7 +738,8 @@
     "check:sim-drift": "python3 scripts/check-sim-lite-drift.py",
     "test:sim-lite": "python3 content/web/ttlang-sim-lite/test_sim_lite.py",
     "check:vendor-drift": "python3 scripts/check-vendor-drift.py",
-    "check:matmul-lesson-drift": "python3 scripts/check-matmul-lesson-drift.py"
+    "check:matmul-lesson-drift": "python3 scripts/check-matmul-lesson-drift.py",
+    "check:monkeypatch-drift": "python3 scripts/check-monkeypatch-drift.py"
   },
   "devDependencies": {
     "@types/chai": "^4.3.20",

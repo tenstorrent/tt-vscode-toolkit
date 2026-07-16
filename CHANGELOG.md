@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.23] - 2026-07-16
+### Fixed
+- **`tt_patches.version_at_most` now zero-pads unequal-length versions** (PR #45 review): `version_at_most("0.51.0", "0.51")` previously returned `False`; `0.51` and `0.51.0` now compare equal. Added regression tests.
+- Clarified the `test_tt_patches.py` run instructions (must run from the template directory so `tt_patches` imports) and corrected two stale notes in the design/plan docs (`command:` links are allowed when registered; this repo wires lessons via `lesson-registry.json`, not `package.json` walkthroughs).
+
+### Added
+- **`check:monkeypatch-drift`** script (wired into the pre-commit hook) fails if the `tt_patches.py` source embedded in the lesson diverges from the template file.
+
+### Changed
+- Excluded `.superpowers/` from the packaged `.vsix` via `.vscodeignore` (was shipping ~1.9 MB of session artifacts).
+
 ## [0.1.22] - 2026-07-16
 ### Added
 - **`tenstorrent.monkeypatch.copyHarness` command** — copies the `tt_patches` harness folder (`tt_patches.py` + `test_tt_patches.py` + `README.md`) into `~/tt-scratchpad/monkeypatch/`, with an "Open tt_patches.py" follow-up action. Wired into the "Monkeypatching TT-NN" lesson as a click-to-copy button.

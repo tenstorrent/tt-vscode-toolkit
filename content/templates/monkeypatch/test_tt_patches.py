@@ -2,7 +2,9 @@
 
 These test the save/restore/guard/verify logic against plain fake objects —
 no ttnn import, no device, so they run anywhere (CI, laptop, QB2).
-Run: pytest content/templates/monkeypatch/test_tt_patches.py -v
+
+Run from this directory so `tt_patches` is importable:
+    cd content/templates/monkeypatch && pytest test_tt_patches.py -v
 """
 import logging
 
@@ -87,6 +89,10 @@ def test_version_at_most():
     assert version_at_most("0.52.0", "0.51.0") is False
     # tolerates suffixes / non-numeric trailing segments
     assert version_at_most("0.51.0rc1", "0.51.0") is True
+    # unequal segment counts are zero-padded, so these are equal (not >/<)
+    assert version_at_most("0.51.0", "0.51") is True
+    assert version_at_most("0.51", "0.51.0") is True
+    assert version_at_most("0.51.1", "0.51") is False
 
 
 def test_verify_true_when_all_probes_pass():

@@ -14,7 +14,7 @@
 - **Lesson-registry sync:** markdown front matter is source of truth for `id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes`; `order, previousLesson, nextLesson, completionEvents, markdownFile` are manually maintained in `content/lesson-registry.json`. `npm run validate:lessons` must pass (it is wired into `npm run build`).
 - **No `package.json` walkthrough edits:** `contributes.walkthroughs` does not exist in this repo; do not add it.
 - **Template test gate:** every `.py` under `content/templates/` must pass `python3 -m py_compile` (enforced by `npm run test:templates`).
-- **Command URIs:** `npm run validate:command-uris` runs in build; do NOT invent `command:` links — the lesson uses plain markdown links/prose only.
+- **Command URIs:** `npm run validate:command-uris` runs in build. `command:` links ARE allowed as long as they resolve to a command registered via `registerCommand(...)` in `extension.ts` (e.g. `command:tenstorrent.showLesson?[...]`); do not reference commands that aren't registered.
 - **WH/BH compatibility copy rules (from CLAUDE.md):** use `hf` CLI (never `huggingface-cli`); never use `ttnn.DispatchCoreAxis.ROW`; do not assume `~/tt-metal` exists; `TT_METAL_ARCH_NAME` = `blackhole` (P-series) / `wormhole_b0` (N-series).
 - **No proprietary code:** re-express patterns generically; cite source repos by name, do not paste their code.
 - **Trademark superscripts:** follow existing lesson convention — TT-Metalium<sup>™</sup>, TT-NN<sup>™</sup>, TT-Forge<sup>™</sup> on first prominent use.

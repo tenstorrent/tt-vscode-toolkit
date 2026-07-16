@@ -63,8 +63,10 @@ non-invasive/upstreamable philosophy is the north star for the whole lesson.
 1. **Lesson markdown:** `content/lessons/monkeypatch-ttnn.md`
 2. **Reusable template:** a copy-paste patch harness under `content/templates/`
    (see "Template" below).
-3. **Wiring:** entry in `content/lesson-registry.json` (via generator) and a step
-   in `package.json` → `contributes.walkthroughs[0].steps`.
+3. **Wiring:** entry in `content/lesson-registry.json` (via generator + manual
+   `order`/navigation fields). NOTE: this repo has no `contributes.walkthroughs`
+   in `package.json` — lessons are driven entirely by the registry, so no
+   `package.json` walkthrough step is needed.
 4. **Version bump** in `package.json` (PATCH; content addition) + `CHANGELOG.md`
    entry.
 

@@ -275,8 +275,15 @@ def version_at_most(current: str, ceiling: str) -> bool:
             apply()
 
     Leading numeric segments are compared, so a ``…rc17.dev6200`` suffix is fine.
+    Shorter versions are zero-padded before comparison, so ``0.51`` and
+    ``0.51.0`` compare equal.
     """
-    return _version_tuple(current) <= _version_tuple(ceiling)
+    a = _version_tuple(current)
+    b = _version_tuple(ceiling)
+    width = max(len(a), len(b))
+    a += (0,) * (width - len(a))
+    b += (0,) * (width - len(b))
+    return a <= b
 
 
 def verify(*probes: tuple[str, Callable[[], object]]) -> bool:
