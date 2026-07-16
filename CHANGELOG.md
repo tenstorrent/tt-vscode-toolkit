@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.23] - 2026-07-16
+## [0.1.24] - 2026-07-16
 ### Fixed
 - **`tt_patches.version_at_most` now zero-pads unequal-length versions** (PR #45 review): `version_at_most("0.51.0", "0.51")` previously returned `False`; `0.51` and `0.51.0` now compare equal. Added regression tests.
 - Clarified the `test_tt_patches.py` run instructions (must run from the template directory so `tt_patches` imports) and corrected two stale notes in the design/plan docs (`command:` links are allowed when registered; this repo wires lessons via `lesson-registry.json`, not `package.json` walkthroughs).
@@ -18,29 +18,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Excluded `.superpowers/` from the packaged `.vsix` via `.vscodeignore` (was shipping ~1.9 MB of session artifacts).
 
-## [0.1.22] - 2026-07-16
+## [0.1.23] - 2026-07-16
 ### Added
 - **`tenstorrent.monkeypatch.copyHarness` command** — copies the `tt_patches` harness folder (`tt_patches.py` + `test_tt_patches.py` + `README.md`) into `~/tt-scratchpad/monkeypatch/`, with an "Open tt_patches.py" follow-up action. Wired into the "Monkeypatching TT-NN" lesson as a click-to-copy button.
 
 ### Changed
 - **Monkeypatching TT-NN lesson now embeds the full `tt_patches.py` source** in a collapsible section for transparency, so readers can review the ~150 lines they're about to copy without leaving the lesson.
 
-## [0.1.21] - 2026-07-16
+## [0.1.22] - 2026-07-16
 ### Changed
 - Promoted the "Monkeypatching TT-NN" lesson from `draft` to `validated` (`validatedOn: [p300c]`) after its examples passed a 19/19 on-device validation run on a TT-QuietBox 2.
 
-## [0.1.20] - 2026-07-16
+## [0.1.21] - 2026-07-16
 ### Fixed
 - **Monkeypatching TT-NN lesson — corrected the version-guard example after an on-device validation run (p300c / TT-QuietBox 2).** TT-NN exposes no `ttnn.__version__`; the Goal 2 bugfix-guard example and the `tt_patches.version_at_most` docstring now read the installed version via `importlib.metadata.version("ttnn")`. All lesson patterns (wrap/observe/restore, matmul shape-trace, `patched()` exception-safety, `set_default`, `DispatchCoreConfig` auto-detect, namespace injection, `verify()`, fail-loud `PatchError`) were exercised against real `ttnn` on p300c — 19/19 checks pass.
 
-## [0.1.19] - 2026-07-15
+## [0.1.20] - 2026-07-15
 ### Changed
 - Retitled the new lesson and template from "Monkeypatching TT-NN — Ninja Edition" to plain "Monkeypatching TT-NN"; dropped the "ninja" framing throughout the lesson body, `tt_patches` harness docstring, and README.
 
-## [0.1.18] - 2026-07-15
+## [0.1.19] - 2026-07-15
 ### Added
 - **New advanced lesson "Monkeypatching TT-NN"** — teaches upgrade-safe, smallest-trace patching of TT-NN / TT-Metalium organized by developer goal (observe, fix a bug early, change a default, add something new, and a last-resort source-diff escape hatch), for the TT-QuietBox 2 case where `ttnn` is an installed package with no `~/tt-metal` source tree. Covers the env + import-order rule, the "patch to change behavior, wrap to add behavior" principle (citing Martin Chang's non-invasive `ttPseudoRowMajor` and upstream-first ggml backend), and an AI-agent verification recipe. Slotted at order 16, after "Exploring TT-Metalium".
 - **New reusable template `content/templates/monkeypatch/tt_patches.py`** — a dependency-free patch harness (save/restore `wrap` and `set_default`, `patched` context manager, `version_at_most` guard, and a `verify` probe helper) with fail-loud missing-target detection, shipped alongside a hardware-free `test_tt_patches.py` and a usage README.
+
+## [0.1.18] - 2026-07-13
+### Fixed
+- **PRD-246 — Jeremy's QB2 testing feedback on the first-inference lesson flow:**
+  - `download-model` — fixed the broken "Step 3: Download the Model" skip link. The anchor pointed to `#step-3-download-qwen3-0-6b`, but the "Step 3: Download Qwen3-0.6B" heading slugs to `#step-3-download-qwen3-06b` (the `.` in `0.6B` is dropped, not turned into a hyphen).
+  - `download-model` — consolidated the repeated, scattered Hugging Face auth flow. Removed the standalone "Already Authenticated?" pre-check and folded the `hf auth whoami` check into Step 2, so authentication reads as a single sequence (set token → check → log in) instead of appearing in multiple places.
+  - `hardware-detection` — marked "Check 4: Device Reset" as optional; it is a recovery action, not part of normal detection, and a healthy device never needs it.
+  - `tt-installer` — removed the redundant `tt-smi` hardware-detection step from "Step 4: Verify Installation" (it duplicated the dedicated Hardware Detection lesson) and linked out to that lesson instead.
+  - `tt-installer` / `TEST_METALIUM_CONTAINER` — simplified the "Test TT-Metalium" button to the documented `tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"` form, dropping the fragile nested-quote/emoji f-string that could error. Added a TT-QuietBox 2 caveat noting the container test requires Podman plus the `tt-metalium` wrapper, which pre-built QB2 images may not include (verify TT-NN directly in that case).
+### Changed
+- **PR #43 post-release follow-ups (jzheng's non-blocking review notes):**
+  - `train_nano_from_scratch.py` — the docstring run example now uses `~/tt-metal/...` to match the code's `~/tt-metal` default. The code default was corrected in 0.1.17; the example in the header comment had lagged behind.
+  - Added regression coverage for the docs-site command-map parser (issue #42). Extracted the parser out of `build-web.js` into `scripts/lib/command-map-parser.js` as a pure function of two source strings, and added `test/lesson-tests/command-map-parser.test.ts`. The tests assert the function-boundary guard (a keyless file-opener must not inherit the next handler's command), plus single/double/backtick/multi-line template extraction and digit-bearing keys.
 
 ## [0.1.17] - 2026-07-10
 ### Fixed
