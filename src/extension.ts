@@ -958,6 +958,91 @@ async function createChatScript(): Promise<void> {
 }
 
 /**
+ * Command: tenstorrent.monkeypatch.copyHarness
+ *
+ * Copies the tt_patches monkeypatch harness folder (tt_patches.py +
+ * test_tt_patches.py + README.md) to ~/tt-scratchpad/monkeypatch/ so the
+ * developer has the harness, its hardware-free tests, and usage docs together.
+ * Used by the "Monkeypatching TT-NN" lesson.
+ */
+async function copyMonkeypatchHarness(): Promise<void> {
+  const path = await import('path');
+  const fs = await import('fs');
+  const os = await import('os');
+
+  // Source: the monkeypatch template folder shipped in the extension
+  const extensionPath = extensionContext.extensionPath;
+  const templateDir = path.join(extensionPath, 'dist', 'content', 'templates', 'monkeypatch');
+
+  if (!fs.existsSync(templateDir)) {
+    vscode.window.showErrorMessage(
+      `Monkeypatch template not found at ${templateDir}. Please reinstall the extension.`
+    );
+    return;
+  }
+
+  // Destination: ~/tt-scratchpad/monkeypatch/
+  const scratchpadDir = path.join(os.homedir(), 'tt-scratchpad');
+  const destDir = path.join(scratchpadDir, 'monkeypatch');
+
+  const destHarness = path.join(destDir, 'tt_patches.py');
+
+  // The copy below replaces the WHOLE folder so it mirrors the shipped
+  // template. If any prior content exists there, confirm before wiping it —
+  // key the prompt on the folder, not just tt_patches.py, so we never delete
+  // user content silently when that one file happens to be absent/renamed.
+  // Something already at destDir? Confirm before we replace it. Treat a
+  // non-directory (a stray file/symlink at that path) as "existing content"
+  // too — never call readdirSync on it (that would throw ENOTDIR).
+  if (fs.existsSync(destDir)) {
+    const isDir = fs.statSync(destDir).isDirectory();
+    const hasContent = !isDir || fs.readdirSync(destDir).length > 0;
+    if (hasContent) {
+      const choice = await vscode.window.showWarningMessage(
+        `${destDir} already exists. Copying the harness will replace it with a fresh copy. Continue?`,
+        { modal: true },
+        'Replace'
+      );
+      if (choice !== 'Replace') {
+        return; // User cancelled
+      }
+    }
+  }
+
+  try {
+    // Remove any prior copy first so the result exactly mirrors the shipped
+    // template — cpSync merges, so without this a template file that was later
+    // removed/renamed would linger as a stale file in the scratchpad.
+    if (fs.existsSync(destDir)) {
+      fs.rmSync(destDir, { recursive: true, force: true });
+    }
+    fs.mkdirSync(destDir, { recursive: true });
+    // Copy the folder, skipping any Python bytecode cache.
+    fs.cpSync(templateDir, destDir, {
+      recursive: true,
+      filter: (src) => !src.includes('__pycache__'),
+    });
+
+    const openAction = 'Open tt_patches.py';
+    const choice = await vscode.window.showInformationMessage(
+      `✅ Copied the tt_patches harness to ${destDir} (tt_patches.py, test_tt_patches.py, README.md). ` +
+        `Import it before you use ttnn.`,
+      openAction
+    );
+    if (choice === openAction) {
+      const doc = await vscode.workspace.openTextDocument(destHarness);
+      await vscode.window.showTextDocument(doc);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('tenstorrent.monkeypatch.copyHarness failed:', error);
+    vscode.window.showErrorMessage(
+      `Failed to copy monkeypatch harness: ${message}`
+    );
+  }
+}
+
+/**
  * Command: tenstorrent.startChatSession
  *
  * Starts an interactive chat session with the Llama model.
@@ -5534,6 +5619,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runInference', runInference),
     vscode.commands.registerCommand('tenstorrent.installInferenceDeps', installInferenceDeps),
     vscode.commands.registerCommand('tenstorrent.createChatScript', createChatScript),
+    vscode.commands.registerCommand('tenstorrent.monkeypatch.copyHarness', copyMonkeypatchHarness),
     vscode.commands.registerCommand('tenstorrent.startChatSession', startChatSession),
     vscode.commands.registerCommand('tenstorrent.createApiServer', createApiServer),
     vscode.commands.registerCommand('tenstorrent.installFlask', installFlask),

@@ -61,6 +61,7 @@ docs/
 plans/
 generated/
 .claude/
+.superpowers/
 .husky/
 .aider*
 CLAUDE.md

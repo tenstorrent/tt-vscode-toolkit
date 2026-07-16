@@ -1270,7 +1270,7 @@
       "estimatedMinutes": 30,
       "order": 15,
       "previousLesson": "bounty-program",
-      "nextLesson": "animatediff-video-generation",
+      "nextLesson": "monkeypatch-ttnn",
       "completionEvents": [
         "onCommand:tenstorrent.launchTtnnTutorials"
       ],
@@ -1302,7 +1302,7 @@
       ],
       "estimatedMinutes": 60,
       "order": 17,
-      "previousLesson": "explore-metalium",
+      "previousLesson": "monkeypatch-ttnn",
       "nextLesson": "deploy-vscode-to-koyeb",
       "completionEvents": [
         "onCommand:tenstorrent.runAnimateDiff2Frame"
@@ -1721,6 +1721,37 @@
       "completionEvents": [],
       "markdownFile": "content/lessons/lfs-05-train-and-run.md",
       "minTTMetalVersion": "v0.73.1"
+    },
+    {
+      "id": "monkeypatch-ttnn",
+      "title": "Monkeypatching TT-NN",
+      "description": "Change TT-NN / TT-Metalium behavior with the smallest possible trace and without forking tt-metal — add logging, work around a bug, tweak a default, or register a model, all while staying upgrade-safe. Built for TT-QuietBox 2, where ttnn is an installed package with no source tree.",
+      "category": "advanced",
+      "tags": [
+        "ttnn",
+        "metalium",
+        "patching",
+        "workflow"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "p300c"
+      ],
+      "estimatedMinutes": 25,
+      "order": 16,
+      "previousLesson": "explore-metalium",
+      "nextLesson": "animatediff-video-generation",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/monkeypatch-ttnn.md"
     }
   ]
 }
