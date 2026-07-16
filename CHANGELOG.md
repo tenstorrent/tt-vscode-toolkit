@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.20] - 2026-07-16
+### Fixed
+- **Monkeypatching TT-NN lesson — corrected the version-guard example after an on-device validation run (p300c / TT-QuietBox 2).** TT-NN exposes no `ttnn.__version__`; the Goal 2 bugfix-guard example and the `tt_patches.version_at_most` docstring now read the installed version via `importlib.metadata.version("ttnn")`. All lesson patterns (wrap/observe/restore, matmul shape-trace, `patched()` exception-safety, `set_default`, `DispatchCoreConfig` auto-detect, namespace injection, `verify()`, fail-loud `PatchError`) were exercised against real `ttnn` on p300c — 19/19 checks pass.
+
 ## [0.1.19] - 2026-07-15
 ### Changed
 - Retitled the new lesson and template from "Monkeypatching TT-NN — Ninja Edition" to plain "Monkeypatching TT-NN"; dropped the "ninja" framing throughout the lesson body, `tt_patches` harness docstring, and README.

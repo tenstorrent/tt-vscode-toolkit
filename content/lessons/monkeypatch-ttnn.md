@@ -184,15 +184,18 @@ retires itself the moment the fix lands. Otherwise you'll silently keep overridi
 a now-correct implementation and quietly miss the upgrade.
 
 ```python
+import importlib.metadata
 import tt_patches
 from tt_patches import PatchRegistry, version_at_most
 import ttnn
 
 reg = PatchRegistry()
 
+# TT-NN has no `ttnn.__version__`; read the installed package version instead.
+ttnn_version = importlib.metadata.version("ttnn")   # e.g. "0.65.1rc17.dev6200"
 FIXED_IN = "0.51.0"   # the release that fixes this upstream
 
-if version_at_most(ttnn.__version__, FIXED_IN):
+if version_at_most(ttnn_version, FIXED_IN):
     def corrected(original):
         def wrapper(*args, **kwargs):
             # ... the corrected behavior; call original where still valid ...
@@ -200,10 +203,14 @@ if version_at_most(ttnn.__version__, FIXED_IN):
         return wrapper
 
     reg.wrap(ttnn, "some_buggy_op", corrected, label=f"bugfix<= {FIXED_IN}")
-    print(f"tt_patches: applied bugfix for ttnn {ttnn.__version__}")
+    print(f"tt_patches: applied bugfix for ttnn {ttnn_version}")
 else:
-    print(f"tt_patches: bugfix no longer needed on ttnn {ttnn.__version__} — remove it")
+    print(f"tt_patches: bugfix no longer needed on ttnn {ttnn_version} — remove it")
 ```
+
+> ⚠️ **There is no `ttnn.__version__`.** Use
+> `importlib.metadata.version("ttnn")` (verified on TT-NN `0.65.x`). `version_at_most`
+> parses the leading numeric segments, so a `…rc17.dev6200` suffix is handled fine.
 
 **Upgrade-safety:** the `else` branch is the important half — it tells you (loudly)
 when the patch is dead weight, so patches don't accumulate silently across upgrades.

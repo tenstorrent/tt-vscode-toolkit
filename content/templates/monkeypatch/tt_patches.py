@@ -128,7 +128,13 @@ def _version_tuple(version: str) -> tuple[int, ...]:
 
 def version_at_most(current: str, ceiling: str) -> bool:
     """True if ``current`` <= ``ceiling`` — use to retire a bugfix patch once
-    upstream is fixed: ``if version_at_most(ttnn.__version__, "0.51.0"): apply()``.
+    upstream is fixed. TT-NN has no ``ttnn.__version__``; read the package version::
+
+        import importlib.metadata
+        if version_at_most(importlib.metadata.version("ttnn"), "0.51.0"):
+            apply()
+
+    Leading numeric segments are compared, so a ``…rc17.dev6200`` suffix is fine.
     """
     return _version_tuple(current) <= _version_tuple(ceiling)
 
