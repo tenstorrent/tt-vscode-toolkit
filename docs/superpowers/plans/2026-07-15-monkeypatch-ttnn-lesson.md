@@ -607,7 +607,7 @@ Expected: `DIST_OK`
 
 ```bash
 git add package.json CHANGELOG.md
-git commit -m "chore: bump to 0.1.18 for Monkeypatching TT-NN lesson"
+git commit -m "chore: bump to X.Y.Z for Monkeypatching TT-NN lesson"
 ```
 
 ---

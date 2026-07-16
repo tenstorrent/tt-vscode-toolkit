@@ -991,14 +991,21 @@ async function copyMonkeypatchHarness(): Promise<void> {
   // template. If any prior content exists there, confirm before wiping it —
   // key the prompt on the folder, not just tt_patches.py, so we never delete
   // user content silently when that one file happens to be absent/renamed.
-  if (fs.existsSync(destDir) && fs.readdirSync(destDir).length > 0) {
-    const choice = await vscode.window.showWarningMessage(
-      `${destDir} already exists. Copying the harness will replace the entire folder with a fresh copy. Continue?`,
-      { modal: true },
-      'Replace'
-    );
-    if (choice !== 'Replace') {
-      return; // User cancelled
+  // Something already at destDir? Confirm before we replace it. Treat a
+  // non-directory (a stray file/symlink at that path) as "existing content"
+  // too — never call readdirSync on it (that would throw ENOTDIR).
+  if (fs.existsSync(destDir)) {
+    const isDir = fs.statSync(destDir).isDirectory();
+    const hasContent = !isDir || fs.readdirSync(destDir).length > 0;
+    if (hasContent) {
+      const choice = await vscode.window.showWarningMessage(
+        `${destDir} already exists. Copying the harness will replace it with a fresh copy. Continue?`,
+        { modal: true },
+        'Replace'
+      );
+      if (choice !== 'Replace') {
+        return; // User cancelled
+      }
     }
   }
 
@@ -1027,8 +1034,10 @@ async function copyMonkeypatchHarness(): Promise<void> {
       await vscode.window.showTextDocument(doc);
     }
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('tenstorrent.monkeypatch.copyHarness failed:', error);
     vscode.window.showErrorMessage(
-      `Failed to copy monkeypatch harness: ${error}`
+      `Failed to copy monkeypatch harness: ${message}`
     );
   }
 }

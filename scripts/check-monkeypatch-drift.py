@@ -29,9 +29,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 LESSON = REPO_ROOT / "content" / "lessons" / "monkeypatch-ttnn.md"
 TEMPLATE = REPO_ROOT / "content" / "templates" / "monkeypatch" / "tt_patches.py"
 
-# The embedded block is the first ```python fence inside the <details> element
-# and begins with the tt_patches module docstring.
-EMBED_RE = re.compile(r"<details>.*?```python\n(.*?)\n```", re.S)
+# Match the ```python fence whose body begins with the tt_patches module
+# docstring — anchoring on that content (rather than "first fence after
+# <details>") keeps this correct if other <details>/python blocks are added.
+# `read_text` already normalizes CRLF to \n, but tolerate a stray \r anyway.
+EMBED_RE = re.compile(r'```python\r?\n("""tt_patches.*?)\r?\n```', re.S)
 
 
 def main() -> int:
@@ -41,7 +43,7 @@ def main() -> int:
 
     match = EMBED_RE.search(LESSON.read_text(encoding="utf-8"))
     if not match:
-        print("❌ could not find the embedded ```python block inside a <details> in the lesson")
+        print('❌ could not find the embedded ```python block starting with the tt_patches docstring in the lesson')
         return 2
 
     embedded = match.group(1).strip()
