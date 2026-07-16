@@ -20,8 +20,9 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: draft
-validatedOn: []
+status: validated
+validatedOn:
+  - p300c
 estimatedMinutes: 25
 ---
 
