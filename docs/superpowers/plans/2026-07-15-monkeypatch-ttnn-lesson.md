@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **Version bump required:** increment `package.json` version (PATCH) for this content change — `0.1.17` → `0.1.18`.
+- **Version bump required:** increment the `package.json` version by one PATCH level for this content change (from whatever the current released version is).
 - **Lesson-registry sync:** markdown front matter is source of truth for `id, title, description, category, tags, supportedHardware, status, validatedOn, estimatedMinutes`; `order, previousLesson, nextLesson, completionEvents, markdownFile` are manually maintained in `content/lesson-registry.json`. `npm run validate:lessons` must pass (it is wired into `npm run build`).
 - **No `package.json` walkthrough edits:** `contributes.walkthroughs` does not exist in this repo; do not add it.
 - **Template test gate:** every `.py` under `content/templates/` must pass `python3 -m py_compile` (enforced by `npm run test:templates`).
@@ -578,16 +578,18 @@ git commit -m "chore(lessons): register monkeypatch-ttnn (order 16, after explor
 
 - [ ] **Step 1: Bump the version**
 
-Edit `package.json`: `"version": "0.1.17"` → `"version": "0.1.18"`.
+Edit `package.json`: increment the `version` field by one PATCH level from the
+current released version (e.g. `X.Y.Z` → `X.Y.(Z+1)`).
 
 - [ ] **Step 2: Add a CHANGELOG entry**
 
-Edit `CHANGELOG.md` — add under a new `## [0.1.18]` heading (Keep a Changelog format), e.g.:
+Edit `CHANGELOG.md` — add a new `## [X.Y.Z] - <date>` heading matching the
+version you just set (Keep a Changelog format), e.g.:
 ```markdown
 ### Added
-- New advanced lesson "Monkeypatching TT-NN — Ninja Edition": upgrade-safe,
-  smallest-trace patching of TT-NN / TT-Metalium organized by goal, plus a
-  reusable, hardware-free-testable `tt_patches` harness template.
+- New advanced lesson "Monkeypatching TT-NN": upgrade-safe, smallest-trace
+  patching of TT-NN / TT-Metalium organized by goal, plus a reusable,
+  hardware-free-testable `tt_patches` harness template.
 ```
 (Describe by feature area — no line numbers, per the changelog policy.)
 

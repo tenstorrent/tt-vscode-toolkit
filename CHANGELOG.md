@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.25] - 2026-07-16
+### Fixed
+- **`tenstorrent.monkeypatch.copyHarness` now clears the destination before copying** (PR #45 review): the previous `cpSync` merge could leave stale files in `~/tt-scratchpad/monkeypatch/` if the template later removed/renamed a file. It now removes any prior copy first so the scratchpad exactly mirrors the shipped template.
+- **`test_tt_patches.py` is now self-contained** — it prepends its own directory to `sys.path`, so it imports `tt_patches` and passes from any working directory (repo root, CI, elsewhere), not just the template directory.
+- Made the implementation-plan doc version-agnostic (no hard-coded `0.1.17 → 0.1.18`), so it stays usable as a reference regardless of the current version.
+
 ## [0.1.24] - 2026-07-16
 ### Fixed
 - **`tt_patches.version_at_most` now zero-pads unequal-length versions** (PR #45 review): `version_at_most("0.51.0", "0.51")` previously returned `False`; `0.51` and `0.51.0` now compare equal. Added regression tests.

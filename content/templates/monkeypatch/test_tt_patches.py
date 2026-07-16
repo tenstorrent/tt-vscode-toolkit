@@ -3,14 +3,20 @@
 These test the save/restore/guard/verify logic against plain fake objects —
 no ttnn import, no device, so they run anywhere (CI, laptop, QB2).
 
-Run from this directory so `tt_patches` is importable:
-    cd content/templates/monkeypatch && pytest test_tt_patches.py -v
+Runs from any working directory (it puts its own folder on sys.path below):
+    pytest content/templates/monkeypatch/test_tt_patches.py -v
 """
 import logging
+import os
+import sys
 
 import pytest
 
-from tt_patches import (
+# Make tt_patches importable no matter the working directory (repo root, CI, …),
+# since it lives next to this test with no package __init__.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from tt_patches import (  # noqa: E402 - needs the sys.path insert above
     PatchError,
     PatchRegistry,
     patched,

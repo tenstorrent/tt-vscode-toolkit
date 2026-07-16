@@ -992,6 +992,12 @@ async function copyMonkeypatchHarness(): Promise<void> {
   }
 
   try {
+    // Remove any prior copy first so the result exactly mirrors the shipped
+    // template — cpSync merges, so without this a template file that was later
+    // removed/renamed would linger as a stale file in the scratchpad.
+    if (fs.existsSync(destDir)) {
+      fs.rmSync(destDir, { recursive: true, force: true });
+    }
     fs.mkdirSync(destDir, { recursive: true });
     // Copy the folder, skipping any Python bytecode cache.
     fs.cpSync(templateDir, destDir, {
