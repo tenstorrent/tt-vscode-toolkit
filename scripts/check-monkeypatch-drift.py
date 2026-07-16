@@ -39,13 +39,13 @@ def main() -> int:
         print(f"❌ missing file(s): lesson={LESSON.exists()} template={TEMPLATE.exists()}")
         return 2
 
-    match = EMBED_RE.search(LESSON.read_text())
+    match = EMBED_RE.search(LESSON.read_text(encoding="utf-8"))
     if not match:
         print("❌ could not find the embedded ```python block inside a <details> in the lesson")
         return 2
 
     embedded = match.group(1).strip()
-    actual = TEMPLATE.read_text().strip()
+    actual = TEMPLATE.read_text(encoding="utf-8").strip()
 
     if embedded == actual:
         print("✅ monkeypatch lesson embed is in sync with tt_patches.py")

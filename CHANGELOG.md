@@ -7,46 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.25] - 2026-07-16
-### Fixed
-- **`tenstorrent.monkeypatch.copyHarness` now clears the destination before copying** (PR #45 review): the previous `cpSync` merge could leave stale files in `~/tt-scratchpad/monkeypatch/` if the template later removed/renamed a file. It now removes any prior copy first so the scratchpad exactly mirrors the shipped template.
-- **`test_tt_patches.py` is now self-contained** — it prepends its own directory to `sys.path`, so it imports `tt_patches` and passes from any working directory (repo root, CI, elsewhere), not just the template directory.
-- Made the implementation-plan doc version-agnostic (no hard-coded `0.1.17 → 0.1.18`), so it stays usable as a reference regardless of the current version.
-
-## [0.1.24] - 2026-07-16
-### Fixed
-- **`tt_patches.version_at_most` now zero-pads unequal-length versions** (PR #45 review): `version_at_most("0.51.0", "0.51")` previously returned `False`; `0.51` and `0.51.0` now compare equal. Added regression tests.
-- Clarified the `test_tt_patches.py` run instructions (must run from the template directory so `tt_patches` imports) and corrected two stale notes in the design/plan docs (`command:` links are allowed when registered; this repo wires lessons via `lesson-registry.json`, not `package.json` walkthroughs).
-
+## [0.1.19] - 2026-07-16
 ### Added
-- **`check:monkeypatch-drift`** script (wired into the pre-commit hook) fails if the `tt_patches.py` source embedded in the lesson diverges from the template file.
+- **New advanced lesson "Monkeypatching TT-NN"** (order 16, after "Exploring TT-Metalium") — upgrade-safe, smallest-trace patching of TT-NN / TT-Metalium organized by developer goal (observe; fix a bug early; change a default; add something new; and a last-resort source-diff escape hatch), for the TT-QuietBox 2 case where `ttnn` is an installed package with no `~/tt-metal` source tree. Covers the env + import-order rule, the "patch to change behavior, wrap to add behavior" principle (citing Martin Chang's non-invasive `ttPseudoRowMajor` and upstream-first ggml backend), and an AI-agent verification recipe. Validated on p300c — all 19 lesson patterns exercised against real `ttnn` on a TT-QuietBox 2.
+- **New reusable template `content/templates/monkeypatch/tt_patches.py`** — a dependency-free patch harness (save/restore `wrap` and `set_default`, `patched` context manager, `version_at_most` guard that zero-pads unequal-length versions, and a `verify` probe helper) with fail-loud missing-target detection, shipped with a self-contained hardware-free `test_tt_patches.py` and a usage README. The lesson embeds the full harness source in a collapsible section for transparency.
+- **`tenstorrent.monkeypatch.copyHarness` command** — copies the harness folder into `~/tt-scratchpad/monkeypatch/`, replacing any prior copy (with confirmation) so it mirrors the shipped template, and offers an "Open tt_patches.py" follow-up. Wired into the lesson as a click-to-copy button.
+- **`check:monkeypatch-drift` script** (wired into the pre-commit hook) fails if the `tt_patches.py` source embedded in the lesson diverges from the template file.
 
 ### Changed
 - Excluded `.superpowers/` from the packaged `.vsix` via `.vscodeignore` (was shipping ~1.9 MB of session artifacts).
-
-## [0.1.23] - 2026-07-16
-### Added
-- **`tenstorrent.monkeypatch.copyHarness` command** — copies the `tt_patches` harness folder (`tt_patches.py` + `test_tt_patches.py` + `README.md`) into `~/tt-scratchpad/monkeypatch/`, with an "Open tt_patches.py" follow-up action. Wired into the "Monkeypatching TT-NN" lesson as a click-to-copy button.
-
-### Changed
-- **Monkeypatching TT-NN lesson now embeds the full `tt_patches.py` source** in a collapsible section for transparency, so readers can review the ~150 lines they're about to copy without leaving the lesson.
-
-## [0.1.22] - 2026-07-16
-### Changed
-- Promoted the "Monkeypatching TT-NN" lesson from `draft` to `validated` (`validatedOn: [p300c]`) after its examples passed a 19/19 on-device validation run on a TT-QuietBox 2.
-
-## [0.1.21] - 2026-07-16
-### Fixed
-- **Monkeypatching TT-NN lesson — corrected the version-guard example after an on-device validation run (p300c / TT-QuietBox 2).** TT-NN exposes no `ttnn.__version__`; the Goal 2 bugfix-guard example and the `tt_patches.version_at_most` docstring now read the installed version via `importlib.metadata.version("ttnn")`. All lesson patterns (wrap/observe/restore, matmul shape-trace, `patched()` exception-safety, `set_default`, `DispatchCoreConfig` auto-detect, namespace injection, `verify()`, fail-loud `PatchError`) were exercised against real `ttnn` on p300c — 19/19 checks pass.
-
-## [0.1.20] - 2026-07-15
-### Changed
-- Retitled the new lesson and template from "Monkeypatching TT-NN — Ninja Edition" to plain "Monkeypatching TT-NN"; dropped the "ninja" framing throughout the lesson body, `tt_patches` harness docstring, and README.
-
-## [0.1.19] - 2026-07-15
-### Added
-- **New advanced lesson "Monkeypatching TT-NN"** — teaches upgrade-safe, smallest-trace patching of TT-NN / TT-Metalium organized by developer goal (observe, fix a bug early, change a default, add something new, and a last-resort source-diff escape hatch), for the TT-QuietBox 2 case where `ttnn` is an installed package with no `~/tt-metal` source tree. Covers the env + import-order rule, the "patch to change behavior, wrap to add behavior" principle (citing Martin Chang's non-invasive `ttPseudoRowMajor` and upstream-first ggml backend), and an AI-agent verification recipe. Slotted at order 16, after "Exploring TT-Metalium".
-- **New reusable template `content/templates/monkeypatch/tt_patches.py`** — a dependency-free patch harness (save/restore `wrap` and `set_default`, `patched` context manager, `version_at_most` guard, and a `verify` probe helper) with fail-loud missing-target detection, shipped alongside a hardware-free `test_tt_patches.py` and a usage README.
 
 ## [0.1.18] - 2026-07-13
 ### Fixed

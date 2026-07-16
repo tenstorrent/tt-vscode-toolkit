@@ -985,10 +985,21 @@ async function copyMonkeypatchHarness(): Promise<void> {
   const scratchpadDir = path.join(os.homedir(), 'tt-scratchpad');
   const destDir = path.join(scratchpadDir, 'monkeypatch');
 
-  // If the harness already exists, confirm overwrite (keyed on the main file)
   const destHarness = path.join(destDir, 'tt_patches.py');
-  if (fs.existsSync(destHarness) && !(await shouldOverwriteFile(destHarness))) {
-    return; // User cancelled
+
+  // The copy below replaces the WHOLE folder so it mirrors the shipped
+  // template. If any prior content exists there, confirm before wiping it —
+  // key the prompt on the folder, not just tt_patches.py, so we never delete
+  // user content silently when that one file happens to be absent/renamed.
+  if (fs.existsSync(destDir) && fs.readdirSync(destDir).length > 0) {
+    const choice = await vscode.window.showWarningMessage(
+      `${destDir} already exists. Copying the harness will replace the entire folder with a fresh copy. Continue?`,
+      { modal: true },
+      'Replace'
+    );
+    if (choice !== 'Replace') {
+      return; // User cancelled
+    }
   }
 
   try {
