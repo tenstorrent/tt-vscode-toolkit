@@ -19,6 +19,26 @@
  *  @param {string} [extSrc] Contents of src/extension.ts (optional)
  *  @returns {Object<string,string>} map of KEY / "__ext__<suffix>" → command text
  */
+/**
+ * Decode the backslash escapes a JS/TS single- or double-quoted string literal
+ * would apply at runtime, so a source template like `'a \'b\' c'` maps to the
+ * actual command text `a 'b' c`. Done with a targeted replace (NOT eval) so we
+ * never execute source-derived strings.
+ *
+ * @param {string} raw  Captured literal body (contents between the quotes)
+ * @returns {string}
+ */
+function unescapeStringLiteral(raw) {
+  return raw.replace(/\\(['"\\nrt])/g, (_match, ch) => {
+    switch (ch) {
+      case 'n': return '\n';
+      case 'r': return '\r';
+      case 't': return '\t';
+      default:  return ch; // ' " \  → drop the leading backslash
+    }
+  });
+}
+
 function buildCommandMap(termSrc, extSrc) {
   const map = {};
 
@@ -46,15 +66,11 @@ function buildCommandMap(termSrc, extSrc) {
     if (!currentKey) continue;
 
     // ---- single-quoted single-line:  template: 'text',
-    // Capture escaped quotes/backslashes so templates containing \\' or \\" don't get truncated.
+    // The `(?:\\.|[^'])*` body matches escaped chars (e.g. \' \\) as a unit so a
+    // template containing an escaped quote isn't truncated at the first inner quote.
     const sqMatch = line.match(/template:\s*'((?:\\.|[^'])*)'/);
     if (sqMatch) {
-      try {
-        // Decode JS/TS string-literal escapes (e.g. \\n, \\', \\\\) to match runtime command text.
-        map[currentKey] = Function('"use strict"; return \' + sqMatch[1] + '\';')();
-      } catch (_) {
-        map[currentKey] = sqMatch[1];
-      }
+      map[currentKey] = unescapeStringLiteral(sqMatch[1]);
       currentKey = null;
       continue;
     }
@@ -62,11 +78,7 @@ function buildCommandMap(termSrc, extSrc) {
     // ---- double-quoted single-line:  template: "text",
     const dqMatch = line.match(/template:\s*"((?:\\.|[^"])*)"/);
     if (dqMatch) {
-      try {
-        map[currentKey] = Function('"use strict"; return "' + dqMatch[1] + '";')();
-      } catch (_) {
-        map[currentKey] = dqMatch[1];
-      }
+      map[currentKey] = unescapeStringLiteral(dqMatch[1]);
       currentKey = null;
       continue;
     }
