@@ -42,6 +42,21 @@ describe('command-map parser', () => {
       expect(map.BACKTICK_INLINE).to.equal('cd ~ && ./install.sh');
     });
 
+    it('decodes escaped quotes and escaped newlines in quoted templates', () => {
+      const term = [
+        'export const TERMINAL_COMMANDS = {',
+        '  ESCAPED: {',
+        "    template: 'tt-metalium \"python3 -c \\\'import ttnn; print(ttnn.__version__)\\\'\"\\nsecond line',",
+        '  },',
+        '};',
+      ].join('\n');
+
+      const map = buildCommandMap(term);
+      expect(map.ESCAPED).to.equal(
+        'tt-metalium "python3 -c \'import ttnn; print(ttnn.__version__)\'"\nsecond line'
+      );
+    });
+
     it('extracts multi-line backtick templates', () => {
       const term = [
         'export const TERMINAL_COMMANDS = {',
