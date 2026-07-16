@@ -958,6 +958,65 @@ async function createChatScript(): Promise<void> {
 }
 
 /**
+ * Command: tenstorrent.monkeypatch.copyHarness
+ *
+ * Copies the tt_patches monkeypatch harness folder (tt_patches.py +
+ * test_tt_patches.py + README.md) to ~/tt-scratchpad/monkeypatch/ so the
+ * developer has the harness, its hardware-free tests, and usage docs together.
+ * Used by the "Monkeypatching TT-NN" lesson.
+ */
+async function copyMonkeypatchHarness(): Promise<void> {
+  const path = await import('path');
+  const fs = await import('fs');
+  const os = await import('os');
+
+  // Source: the monkeypatch template folder shipped in the extension
+  const extensionPath = extensionContext.extensionPath;
+  const templateDir = path.join(extensionPath, 'dist', 'content', 'templates', 'monkeypatch');
+
+  if (!fs.existsSync(templateDir)) {
+    vscode.window.showErrorMessage(
+      `Monkeypatch template not found at ${templateDir}. Please reinstall the extension.`
+    );
+    return;
+  }
+
+  // Destination: ~/tt-scratchpad/monkeypatch/
+  const scratchpadDir = path.join(os.homedir(), 'tt-scratchpad');
+  const destDir = path.join(scratchpadDir, 'monkeypatch');
+
+  // If the harness already exists, confirm overwrite (keyed on the main file)
+  const destHarness = path.join(destDir, 'tt_patches.py');
+  if (fs.existsSync(destHarness) && !(await shouldOverwriteFile(destHarness))) {
+    return; // User cancelled
+  }
+
+  try {
+    fs.mkdirSync(destDir, { recursive: true });
+    // Copy the folder, skipping any Python bytecode cache.
+    fs.cpSync(templateDir, destDir, {
+      recursive: true,
+      filter: (src) => !src.includes('__pycache__'),
+    });
+
+    const openAction = 'Open tt_patches.py';
+    const choice = await vscode.window.showInformationMessage(
+      `✅ Copied the tt_patches harness to ${destDir} (tt_patches.py, test_tt_patches.py, README.md). ` +
+        `Import it before you use ttnn.`,
+      openAction
+    );
+    if (choice === openAction) {
+      const doc = await vscode.workspace.openTextDocument(destHarness);
+      await vscode.window.showTextDocument(doc);
+    }
+  } catch (error) {
+    vscode.window.showErrorMessage(
+      `Failed to copy monkeypatch harness: ${error}`
+    );
+  }
+}
+
+/**
  * Command: tenstorrent.startChatSession
  *
  * Starts an interactive chat session with the Llama model.
@@ -5534,6 +5593,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.runInference', runInference),
     vscode.commands.registerCommand('tenstorrent.installInferenceDeps', installInferenceDeps),
     vscode.commands.registerCommand('tenstorrent.createChatScript', createChatScript),
+    vscode.commands.registerCommand('tenstorrent.monkeypatch.copyHarness', copyMonkeypatchHarness),
     vscode.commands.registerCommand('tenstorrent.startChatSession', startChatSession),
     vscode.commands.registerCommand('tenstorrent.createApiServer', createApiServer),
     vscode.commands.registerCommand('tenstorrent.installFlask', installFlask),

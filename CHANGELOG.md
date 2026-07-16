@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.22] - 2026-07-16
+### Added
+- **`tenstorrent.monkeypatch.copyHarness` command** — copies the `tt_patches` harness folder (`tt_patches.py` + `test_tt_patches.py` + `README.md`) into `~/tt-scratchpad/monkeypatch/`, with an "Open tt_patches.py" follow-up action. Wired into the "Monkeypatching TT-NN" lesson as a click-to-copy button.
+
+### Changed
+- **Monkeypatching TT-NN lesson now embeds the full `tt_patches.py` source** in a collapsible section for transparency, so readers can review the ~150 lines they're about to copy without leaving the lesson.
+
 ## [0.1.21] - 2026-07-16
 ### Changed
 - Promoted the "Monkeypatching TT-NN" lesson from `draft` to `validated` (`validatedOn: [p300c]`) after its examples passed a 19/19 on-device validation run on a TT-QuietBox 2.
