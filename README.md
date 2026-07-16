@@ -223,7 +223,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Exploring TT-Metalium** — `N150` `P300C`
 - **Twenty-and-Ten Things You Can Do with ttsim** — *draft*
 - **ttsim QEMU Bridge: Full-System Simulation** — *draft*
-- **Monkeypatching TT-NN — Ninja Edition** — *draft*
+- **Monkeypatching TT-NN** — *draft*
 
 ### 🎓 Custom Training
 *8 lessons, 3 validated*

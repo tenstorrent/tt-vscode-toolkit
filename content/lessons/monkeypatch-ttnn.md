@@ -1,6 +1,6 @@
 ---
 id: monkeypatch-ttnn
-title: "Monkeypatching TT-NN — Ninja Edition"
+title: "Monkeypatching TT-NN"
 description: >-
   Change TT-NN / TT-Metalium behavior with the smallest possible trace and
   without forking tt-metal — add logging, work around a bug, tweak a default,
@@ -25,7 +25,7 @@ validatedOn: []
 estimatedMinutes: 25
 ---
 
-# Monkeypatching TT-NN<sup>™</sup> — Ninja Edition
+# Monkeypatching TT-NN<sup>™</sup>
 
 You want to change how **TT-NN** or **TT-Metalium<sup>™</sup>** behaves — add a log line, work
 around a bug, bump a default, register a new model — but you *don't* want to fork
@@ -45,7 +45,7 @@ nothing to fork. So you reach into the package at runtime instead — carefully.
   silently revert your change, and does it **fail loud** when its assumptions no
   longer hold?
 
-> 🥷 **Rule of thumb:** *Patch* to **change** behavior. *Wrap a thin library* to
+> 💡 **Rule of thumb:** *Patch* to **change** behavior. *Wrap a thin library* to
 > **add** behavior. Editing the source tree is the last resort, not the first.
 
 ## What You'll Learn
@@ -312,7 +312,7 @@ versions.
 
 ---
 
-## Make your patches ninja & durable
+## Make your patches durable
 
 A few habits keep patches from rotting into mystery bugs:
 

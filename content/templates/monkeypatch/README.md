@@ -1,4 +1,4 @@
-# `tt_patches` — Ninja Monkeypatch Harness for TT-NN / TT-Metalium
+# `tt_patches` — Low-Trace Monkeypatch Harness for TT-NN / TT-Metalium
 
 Change TT-NN behavior with the **smallest possible trace**, and stay
 **upgrade-safe** — no `tt-metal` fork, no editing installed package files.

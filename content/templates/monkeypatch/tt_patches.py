@@ -1,4 +1,4 @@
-"""tt_patches — a ninja monkeypatch harness for TT-NN / TT-Metalium.
+"""tt_patches — a low-trace monkeypatch harness for TT-NN / TT-Metalium.
 
 Change behavior with the smallest possible trace and stay upgrade-safe:
 
