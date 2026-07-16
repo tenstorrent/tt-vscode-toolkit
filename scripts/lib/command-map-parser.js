@@ -46,17 +46,27 @@ function buildCommandMap(termSrc, extSrc) {
     if (!currentKey) continue;
 
     // ---- single-quoted single-line:  template: 'text',
-    const sqMatch = line.match(/template:\s*'([^']+)'/);
+    // Capture escaped quotes/backslashes so templates containing \\' or \\" don't get truncated.
+    const sqMatch = line.match(/template:\s*'((?:\\.|[^'])*)'/);
     if (sqMatch) {
-      map[currentKey] = sqMatch[1];
+      try {
+        // Decode JS/TS string-literal escapes (e.g. \\n, \\', \\\\) to match runtime command text.
+        map[currentKey] = Function('"use strict"; return \' + sqMatch[1] + '\';')();
+      } catch (_) {
+        map[currentKey] = sqMatch[1];
+      }
       currentKey = null;
       continue;
     }
 
     // ---- double-quoted single-line:  template: "text",
-    const dqMatch = line.match(/template:\s*"([^"]+)"/);
+    const dqMatch = line.match(/template:\s*"((?:\\.|[^"])*)"/);
     if (dqMatch) {
-      map[currentKey] = dqMatch[1];
+      try {
+        map[currentKey] = Function('"use strict"; return "' + dqMatch[1] + '";')();
+      } catch (_) {
+        map[currentKey] = dqMatch[1];
+      }
       currentKey = null;
       continue;
     }
