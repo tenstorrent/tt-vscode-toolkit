@@ -274,14 +274,15 @@
     {
       "id": "tt-inference-server",
       "title": "Production Inference with TT-Inference-Server",
-      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, p100, p300c, or TT-QuietBox 2. TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
+      "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, p150, p300, or TT-QuietBox 2 (p300x2). TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
       "category": "serving",
       "tags": [
         "production",
         "deployment",
         "inference",
         "llama",
-        "docker"
+        "docker",
+        "p300x2"
       ],
       "supportedHardware": [
         "n150",
@@ -290,6 +291,7 @@
         "p100",
         "p150",
         "p300c",
+        "p300x2",
         "galaxy"
       ],
       "status": "validated",
@@ -322,7 +324,9 @@
         "n300",
         "t3k",
         "p100",
-        "p300c"
+        "p150",
+        "p300c",
+        "p300x2"
       ],
       "status": "validated",
       "validatedOn": [

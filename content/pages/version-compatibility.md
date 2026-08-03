@@ -1,6 +1,6 @@
 # Version Compatibility Matrix
 
-**Last updated:** January 2026
+**Last updated:** August 2026
 
 This guide documents validated combinations of hardware, software versions, and configurations for the Tenstorrent ecosystem. Use this to troubleshoot compatibility issues or plan your development environment.
 
@@ -17,7 +17,7 @@ This guide documents validated combinations of hardware, software versions, and 
 ### Production Inference (vLLM)
 **Hardware:** n150/n300/T3000/p100/p150
 **Deployment:** TT-Inference-Server Docker image (recommended)
-**Alternative:** Native installation requires careful version matching
+**Alternative:** Native installation of the standalone `vllm-tt-plugin` platform plugin over **upstream `vllm==0.24.0`** (no Tenstorrent fork), pinned per-model against the tt-metal README LLMs table
 
 ### Multi-Chip Development (TT-XLA)
 **Hardware:** n150/n300/T3000/Galaxy
@@ -41,9 +41,15 @@ This guide documents validated combinations of hardware, software versions, and 
 - **Tensix Cores:** 80
 - **Best for:** Development, small models (<2B parameters)
 - **Recommended models:**
-  - Qwen3-0.6B (0.6B params, 1.5GB) ✅ **Primary recommendation**
+  - Qwen3-0.6B (0.6B params, 1.5GB) ✅ **Easiest first run** — but see the note below
   - Gemma 3-1B-IT (1B params, 2GB)
-  - Llama-3.1-8B-Instruct (8B params, 16GB) ⚠️ **Tight fit, may exhaust DRAM**
+  - Llama-3.1-8B-Instruct (8B params, 16GB) ⚠️ **Tight fit, may exhaust DRAM** — but the
+    model tt-metal actually documents for this class of hardware
+- **⚠️ Note on Qwen3-0.6B (verified 2026-08-03):** `0.6B` appears nowhere in
+  `tt-metal/models/tt_transformers/`. The only Qwen3 with tt-transformers model parameters is
+  **Qwen3-32B** (QuietBox/Galaxy class). Qwen3-0.6B loads and runs under vLLM because the
+  plugin maps Qwen3 *by architecture* to `TTQwen3ForCausalLM`, but it runs on generic
+  defaults and is **not a validated configuration**. Treat it as a smoke test.
 - **Multi-chip support:** No
 
 #### n300 (Dual Chip)
@@ -53,7 +59,8 @@ This guide documents validated combinations of hardware, software versions, and 
 - **Recommended models:**
   - Llama-3.1-8B-Instruct (8B params, 16GB) ✅ **Comfortable**
   - Qwen3-8B (8B params)
-- **Multi-chip support:** Yes (2 chips)
+- **Production validation:** ✅ Validated for vLLM — Qwen 2.5 7B at batch 32 reaches 22.1 T/S/U and 707.2 T/S (tt-metal LLMs table)
+- **Multi-chip support:** Yes (2 chips, selected with `export MESH_DEVICE=N300`)
 
 #### T3000 (8 Chips)
 - **DRAM:** 96GB (8x 12GB)
@@ -67,10 +74,10 @@ This guide documents validated combinations of hardware, software versions, and 
 #### TT-QuietBox (Wormhole-based)
 - **Architecture:** Wormhole (not Blackhole<sup>®</sup>)
 - **Configuration:** Multi-chip Wormhole system
-- **Production validation:** ✅ Validated for vLLM (Batch 32: 22.1 T/S/U, 707.2 T/S)
+- **Production validation:** ✅ Validated for vLLM — Qwen 2.5 72B reaches 15.4 T/S/U and 492.8 T/S (tt-metal LLMs table)
 - **Best for:** Production inference deployments
 - **Reference:** [Tenstorrent TT-QuietBox](https://tenstorrent.com/hardware/tt-quietbox)
-- **vLLM compatibility:** Fully validated (see README.md performance benchmarks)
+- **vLLM compatibility:** Fully validated (see the tt-metal README LLMs table for the exact tt-metal release and vLLM commit this was measured with)
 
 ### Blackhole Architecture
 
@@ -131,7 +138,7 @@ This guide documents validated combinations of hardware, software versions, and 
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
-export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
+export MESH_DEVICE=N150  # or N300, T3K, P100, P150, P300, P300x2, TG (Galaxy)
 ```
 
 ### vLLM Production Inference (Lesson 7)
@@ -140,6 +147,59 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 |------------------|----------|--------|-------|
 | **TT-Inference-Server (Docker)** | n150/n300/T3000/p100/p150 | ✅ **Recommended** | Pre-validated configurations |
 | **Native installation** | n150/n300/T3000 | ⚠️ **Advanced** | Version compatibility challenges |
+
+**How Tenstorrent vLLM support is packaged:** Tenstorrent support is a conformant
+out-of-tree vLLM **platform plugin** named `vllm-tt-plugin` (importable as
+`vllm_tt_plugin`). It registers itself through vLLM's standard entry-point mechanism and
+activates automatically whenever `ttnn` is importable, so **no Tenstorrent fork of vLLM is
+involved**. The plugin lives in its own repository —
+[`github.com/tenstorrent/vllm-tt-plugin`](https://github.com/tenstorrent/vllm-tt-plugin) —
+and its installer pins **upstream `vllm==0.24.0`** from PyPI. It is not itself published on
+PyPI and Tenstorrent is not yet listed in upstream vLLM's hardware-plugin documentation, so
+installation is from that source checkout.
+
+**Superseded path:** the plugin previously shipped inside the `tenstorrent/vllm` fork on its
+`dev` branch at `plugins/vllm-tt-plugin/`. **That path is being retired.** If you have an
+older `~/tt-vllm` checkout, migrate to the standalone repo.
+
+**Canonical install** (run from the plugin repo root, with a recent tt-metal Python env
+already activated):
+
+```bash
+git clone https://github.com/tenstorrent/vllm-tt-plugin.git ~/vllm-tt-plugin
+cd ~/vllm-tt-plugin
+source docs/install-vllm-tt.sh
+```
+
+| Component | Version / source | Notes |
+|---|---|---|
+| **vLLM** | `vllm==0.24.0` from PyPI, built from sdist (`--no-binary vllm`) | Upstream and unpatched. Other versions untested by the plugin. |
+| **`vllm-tt-plugin`** | Source checkout, editable install (`uv pip install -e .`) | Not on PyPI |
+| **Python** | `>=3.10,<3.14` | Upstream vLLM 0.24.0's range; 3.10.12 is Ubuntu 22.04's default |
+| **`VLLM_TARGET_DEVICE`** | `empty` at **build time only** | `tt` is wrong; the `tt` platform is added at runtime by the plugin |
+| **torch** | Whatever the active tt-metal env provides (CPU build) | Not pinned by the plugin |
+| **`torchaudio`** | **Uninstalled by the installer** | The CUDA wheel is unloadable next to CPU torch, and `transformers>=5.12` imports it if merely installed |
+| **numpy** | `>=1.24.4,<2` — pinned by `docs/vllm-overrides.txt` | See below; this is not optional |
+| **`opencv-python-headless`** | `==4.11.0.86` — pinned by the same override file | Last release without a numpy 2 floor |
+
+**🚨 The numpy pin is load-bearing.** `ttnn` requires `numpy<2`, while vLLM's
+`requirements/common.txt` asks for `opencv-python-headless>=4.13.0`, which requires
+`numpy>=2`. Without `--override docs/vllm-overrides.txt` the resolver upgrades numpy to 2.x,
+the install *appears* to succeed, and then **`import ttnn` breaks** — which in turn silently
+disqualifies the TT platform. opencv is only reached by vLLM's lazy video-IO path, which no
+TT-registered model uses, so pinning it back is safe. Pass the same `--override` on any later
+`uv pip install` into this environment.
+
+**Extra dependencies the installer does not cover.** The installer assumes a *full* tt-metal
+environment. In a thinner venv or container you also need:
+
+| Package(s) | Symptom if missing |
+|---|---|
+| `pandas`, `seaborn`, `ml_dtypes`, `graphviz`, `networkx` | `ImportError: Encountered an error while initializing the extension` from `ttnn._ttnn` |
+| `torchvision` | `Model architectures ['TT…ForCausalLM'] failed to be inspected` |
+| `pytest` | the same "failed to be inspected" error (`tt-metal/models/common/utility_functions.py` imports it at module scope) |
+
+Install them with `--override docs/vllm-overrides.txt` so they cannot pull numpy 2.x back in.
 
 **Docker method (validated):**
 ```bash
@@ -157,18 +217,58 @@ export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
 | n300+ | Latest (main) | Docker image | ✅ Validated | **Use Docker** |
 
 **Known issues with native installation:**
-- PyTorch type hint incompatibilities
-- vLLM version mismatches with TT-Metalium changes
-- Complex dependency chains
+- **numpy silently upgraded to 2.x**, breaking `import ttnn` — always install with
+  `--override docs/vllm-overrides.txt` (see above)
+- A CUDA `torchaudio` wheel left installed next to CPU torch (the installer uninstalls it;
+  don't reinstall it)
+- Missing tracy/inspection dependencies producing opaque import errors (see the table above)
+- vLLM version mismatches with TT-Metalium changes — the plugin binds to tt-metal model code
 - **Recommendation:** Use Docker unless you have specific requirements for native installation
+
+**Version pinning is per-model, not global:** there is no single "correct" tt-metal + vLLM
+pair. The LLMs table in the tt-metal README pairs each model and hardware configuration with
+the specific tt-metal release and vLLM commit it was measured against. Pick the row that
+matches the model you intend to serve:
+
+| Model | Hardware | TT-Metalium release | vLLM commit |
+|-------|----------|---------------------|-------------|
+| Llama 3.3 70B | Galaxy | `v0.65.0-rc7` | `59be953` |
+| Qwen 2.5 7B | n300 | `v0.62.0-rc35` | `ced0161` |
+| Qwen 2.5 72B | TT-QuietBox (Wormhole) | `v0.62.0-rc25` | `e7c329b` |
+
+Always read the current table in the tt-metal README before pinning — these pairs advance
+with each release.
 
 **Environment variables (vLLM):**
 ```bash
-export VLLM_TARGET_DEVICE=tt
+# Verbose vLLM logging (helpful while bringing a server up)
 export VLLM_CONFIGURE_LOGGING=1
+
+# Generous RPC timeout — TT model compilation on first load is slow
 export VLLM_RPC_TIMEOUT=900000
+
+# Multi-chip is selected here, NOT with --tensor-parallel-size
+export MESH_DEVICE=N300  # see the MESH_DEVICE table in the FAQ for valid values
+
+# REQUIRED when the model argument is a local path. tt-metal's tt_transformers uses
+# HF_MODEL as its checkpoint directory (CKPT_DIR and TOKENIZER_PATH both come from it),
+# so it must be the same path you pass to `vllm serve`. An HF org/name also works.
+export HF_MODEL=~/models/Llama-3.1-8B-Instruct
+
 # For Blackhole (p100/p150):
 export TT_METAL_ARCH_NAME=blackhole
+```
+
+**Do not export `VLLM_TARGET_DEVICE` at runtime.** It is a **build-time only** variable, and
+the value used when building vLLM for Tenstorrent is `empty` (not `tt`), because the TT
+platform is supplied by `vllm-tt-plugin` at runtime and detected automatically. Setting it in
+your shell has no useful effect.
+
+If you set `VLLM_PLUGINS` at all — it is optional, and vLLM loads every discovered plugin
+when it is unset — it must include **both** plugin names, or TT support will only half-load:
+
+```bash
+export VLLM_PLUGINS=tt,tt_model_registry
 ```
 
 ### TT-XLA JAX Compiler (Lesson 12)
@@ -278,7 +378,7 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 # Specify hardware type
-export MESH_DEVICE=N150  # or N300, T3K, P100, P150, GALAXY
+export MESH_DEVICE=N150  # or N300, T3K, P100, P150, P300, P300x2, TG (Galaxy)
 ```
 
 ### Hardware-Specific
@@ -292,10 +392,20 @@ export TT_METAL_ARCH_NAME=blackhole
 
 **vLLM:**
 ```bash
-export VLLM_TARGET_DEVICE=tt
 export VLLM_CONFIGURE_LOGGING=1
 export VLLM_RPC_TIMEOUT=900000
+
+# Required whenever `vllm serve` is given a local model directory: tt-metal's
+# tt_transformers reads the checkpoint directory from HF_MODEL.
+export HF_MODEL=~/models/Llama-3.1-8B-Instruct
+
+# Optional. If set at all, it must list BOTH TT plugin names.
+export VLLM_PLUGINS=tt,tt_model_registry
 ```
+
+`VLLM_TARGET_DEVICE` is **not** a runtime variable — it only affects how upstream vLLM is
+built, and the Tenstorrent install uses `VLLM_TARGET_DEVICE=empty` because the TT platform
+comes from the `vllm-tt-plugin` package at runtime.
 
 **Stable Diffusion (non-interactive):**
 ```bash
@@ -360,7 +470,10 @@ TypeError: block_size has unsupported type list[int]
 # See Lesson 7 for manual Docker approach
 ```
 
-**Alternative:** Match specific TT-Metalium and vLLM commits via model_specs_output.json (advanced)
+**Alternative:** Pin a matched pair of commits (advanced). Pinning is **per-model**, not a
+single global version — look up the model and hardware you are serving in the tt-metal README
+LLMs table and check out the tt-metal release and vLLM commit that row names. See the
+per-model pinning table in the vLLM section above for examples.
 
 ### Issue 3: TT-Forge Import Failure
 

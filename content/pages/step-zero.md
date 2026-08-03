@@ -51,7 +51,11 @@ Choose your path:
 
 ### Path B: "I want production inference with vLLM"
 → **Use TT-Inference-Server Docker image** (recommended) or **Lesson 7** (advanced)
-- ⚠️ Native installation on n150 has version compatibility challenges
+- ⚠️ Native installation has version compatibility gotchas (chiefly a numpy pin — Lesson 7
+  covers it)
+- ℹ️ Native install = the standalone
+  [`vllm-tt-plugin`](https://github.com/tenstorrent/vllm-tt-plugin) over **upstream
+  `vllm==0.24.0`**. No Tenstorrent fork of vLLM is involved.
 - ✅ Docker image is validated and production-ready
 - ✅ OpenAI-compatible API
 - **You'll learn:** Production deployment, batching, scaling
@@ -250,7 +254,9 @@ export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH
 
 #### `MESH_DEVICE`
 **What:** Tells software which hardware configuration you have
-**Possible values:** `N150`, `N300`, `T3K`, `P100`, `P150`, `GALAXY`
+**Possible values:** `N150`, `N300`, `T3K`, `P100`, `P150`, `P300`, `P300x2`, `TG`
+
+Galaxy is spelled `TG`, not `GALAXY` — tt-metal and the vLLM plugin both use `TG`.
 **Why needed:** Model optimizations differ per hardware
 **Set it:**
 ```bash
@@ -262,15 +268,77 @@ export MESH_DEVICE=N150  # For single Wormhole chip
 tt-smi -s | grep board_type  # Shows your hardware
 ```
 
+**For vLLM specifically:** the TT plugin accepts a fixed set of names (including `TG` for
+Galaxy and `P300x2` for a TT-QuietBox 2), and `MESH_DEVICE` — not `--tensor-parallel-size` —
+is how you tell vLLM to use more than one chip. See the MESH_DEVICE table in the FAQ for the
+full list.
+
 ### vLLM Variables (Lesson 7-8)
 
 #### `VLLM_TARGET_DEVICE`
-**What:** Tells vLLM to use Tenstorrent backend
-**Value:** `tt` (always)
+**What:** A **build-time only** variable that selects which device backend vLLM compiles for.
+**Value:** `empty` — and only while building vLLM, never in your shell.
+**Why you don't set it:** Tenstorrent support is a vLLM **platform plugin**
+(`vllm-tt-plugin`), installed from
+[github.com/tenstorrent/vllm-tt-plugin](https://github.com/tenstorrent/vllm-tt-plugin)
+alongside **upstream `vllm==0.24.0`** — there is no Tenstorrent fork of vLLM. The plugin
+supplies the TT platform at runtime and vLLM selects it automatically whenever `ttnn` is
+importable, so vLLM itself is built with no device backend compiled in:
+```bash
+# This appears inside the plugin's installer, not in your shell profile
+VLLM_TARGET_DEVICE=empty uv pip install --no-binary vllm \
+    --override docs/vllm-overrides.txt vllm==0.24.0
+```
+**Do not export it at runtime.** An `export VLLM_TARGET_DEVICE=tt` in your shell does nothing
+useful; older guides that told you to set it predate the plugin.
+
+**Note the `--override`.** It pins `numpy>=1.24.4,<2` and `opencv-python-headless==4.11.0.86`,
+because `ttnn` needs numpy below 2 while vLLM's requirements pull an opencv that needs numpy 2.
+Drop it and the install *looks* fine but `import ttnn` breaks afterwards.
+
+#### `HF_MODEL`
+**What:** For tt-metal's `tt_transformers`, the **checkpoint directory** — not just a name.
+`model_config.py` sets both `CKPT_DIR` and `TOKENIZER_PATH` from it.
+**Value:** either a HuggingFace `org/name` or **the path to downloaded weights**.
+**Why needed:** if you hand `vllm serve` a local model directory and leave `HF_MODEL` unset,
+startup fails with `ValueError: Please set HF_MODEL to a HuggingFace name e.g.
+meta-llama/Llama-3.1-8B-Instruct`. That message is misleading — local paths are fine, the
+variable just has to be set to the same one.
 **Set it:**
 ```bash
-export VLLM_TARGET_DEVICE=tt
+export HF_MODEL=~/models/Llama-3.1-8B-Instruct     # same path you pass to vllm serve
+vllm serve ~/models/Llama-3.1-8B-Instruct
 ```
+
+#### `VLLM_RPC_TIMEOUT`
+**What:** How long vLLM waits for its internal RPC calls, in milliseconds
+**Value:** `900000` (15 minutes)
+**Why needed:** The first load of a model on TT hardware compiles kernels, which can take
+many minutes. The default timeout is far too short.
+**Set it:**
+```bash
+export VLLM_RPC_TIMEOUT=900000
+```
+
+#### `VLLM_CONFIGURE_LOGGING`
+**What:** Lets vLLM install its own logging configuration
+**Value:** `1`
+**Why needed:** Gives you readable startup and per-request logs, which is what you want while
+bringing a server up for the first time.
+**Set it:**
+```bash
+export VLLM_CONFIGURE_LOGGING=1
+```
+
+#### `VLLM_PLUGINS` (optional)
+**What:** Restricts vLLM to loading only the plugins you name
+**Why it's a trap:** When it is unset, vLLM loads every plugin it discovers, which is what you
+want. But if you set it — or inherit it from a script or container image — it must name
+**both** Tenstorrent entry points, or the platform loads without the TT model registry:
+```bash
+export VLLM_PLUGINS=tt,tt_model_registry
+```
+**Recommendation:** leave it unset unless you have a specific reason to filter plugins.
 
 #### `TT_METAL_ARCH_NAME` (Blackhole<sup>®</sup> chips only)
 **What:** Architecture name for Blackhole chips (p100/p150)
@@ -376,7 +444,6 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ~/tt-scratchpad/               # Extension-created scripts
 ├── tt-chat-direct.py         # Interactive chat demo
 ├── tt-api-server-direct.py   # HTTP API server
-├── start-vllm-server.py      # vLLM production server
 └── cookbook/                  # TT-Metalium examples
     ├── game_of_life/
     ├── mandelbrot/
@@ -529,7 +596,7 @@ python -c "import ttnn; print('✓ TTNN working')"
 ```bash
 echo $TT_METAL_HOME         # Should be ~/tt-metal or /home/user/tt-metal
 echo $LD_LIBRARY_PATH       # Should include /opt/openmpi-v5.0.7-ulfm/lib
-echo $MESH_DEVICE           # Should be N150, N300, T3K, P100, P150, or GALAXY
+echo $MESH_DEVICE           # Should be N150, N300, T3K, P100, P150, P300, P300x2, or TG
 ```
 
 **If any check fails:** Run the commands shown in the error message.

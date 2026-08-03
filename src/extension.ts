@@ -1468,6 +1468,18 @@ function startTtInferenceServerN300(): void {
 }
 
 /**
+ * Command: tenstorrent.startTtInferenceServerP300X2
+ * Starts vLLM server across all four Blackhole chips of a TT-QuietBox 2.
+ */
+function startTtInferenceServerP300X2(): void {
+  const terminal = getOrCreateSimpleTerminal();
+  runInTerminal(terminal, TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER_P300X2.template);
+  vscode.window.showInformationMessage(
+    'Starting Llama-3.1-8B-Instruct across all 4 Blackhole chips of a TT-QuietBox 2. First run: 10-20 min.'
+  );
+}
+
+/**
  * Command: tenstorrent.testTtInferenceServerSimple
  * Tests the vLLM server started by tt-inference-server with OpenAI-compatible API
  */
@@ -1571,17 +1583,22 @@ async function updateTTMetal(): Promise<void> {
 
 /**
  * Command: tenstorrent.cloneVllm
- * Clones the TT vLLM repository
+ * Clones the Tenstorrent vLLM platform plugin.
+ *
+ * This is the standalone plugin repo, which is the official home for TT vLLM
+ * support and works against upstream vLLM — no Tenstorrent fork involved. The
+ * older in-fork copy (tenstorrent/vllm, dev branch, plugins/vllm-tt-plugin) is
+ * being retired.
  */
 function cloneVllm(): void {
   const terminal = getOrCreateSimpleTerminal();
 
-  const command = `cd ~ && git clone --branch dev https://github.com/tenstorrent/vllm.git tt-vllm && cd tt-vllm`;
+  const command = `cd ~ && git clone https://github.com/tenstorrent/vllm-tt-plugin.git && cd vllm-tt-plugin`;
 
   runInTerminal(terminal, command);
 
   vscode.window.showInformationMessage(
-    'Cloning TT vLLM repository. This may take 1-2 minutes...'
+    'Cloning the Tenstorrent vLLM plugin (vllm-tt-plugin). This may take a minute...'
   );
 }
 
@@ -1592,12 +1609,40 @@ function cloneVllm(): void {
 function installVllm(): void {
   const terminal = getOrCreateSimpleTerminal();
 
-  const command = `cd ~/tt-vllm && python3 -m venv ~/tt-vllm-venv && source ~/tt-vllm-venv/bin/activate && pip install --upgrade pip && export vllm_dir=$(pwd) && source $vllm_dir/tt_metal/setup-metal.sh && pip install --upgrade ttnn pytest && pip install fairscale termcolor loguru blobfile fire pytz llama-models==0.0.48 && pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu`;
+  // The plugin ships its own installer, and it is the supported entry point:
+  //
+  //   VLLM_TARGET_DEVICE=empty uv pip install --no-binary vllm \
+  //       --override docs/vllm-overrides.txt vllm==0.24.0
+  //   uv pip uninstall torchaudio        # CUDA wheel; transformers>=5.12 imports it if present
+  //   uv pip install -e .
+  //
+  // Two details matter. VLLM_TARGET_DEVICE=empty is correct because the `tt`
+  // platform is contributed at runtime by the plugin rather than compiled into
+  // vLLM. And docs/vllm-overrides.txt holds numpy<2 — ttnn requires it while
+  // vLLM's opencv floor wants numpy>=2, and without the override `import ttnn`
+  // breaks after a seemingly successful install.
+  //
+  // Run it with the tt-metal environment already active: the plugin activates
+  // only when `ttnn` is importable, and most remaining dependencies come from
+  // that environment.
+  const command = [
+    'cd ~/vllm-tt-plugin || { echo "Clone tenstorrent/vllm-tt-plugin first"; exit 1; }',
+    'git pull --ff-only',
+    'pip install --upgrade pip setuptools wheel uv',
+    'source docs/install-vllm-tt.sh',
+    // Not declared by vLLM or the plugin, but needed by ttnn and the tt-metal
+    // model tree; each of these was a real failure during validation.
+    'uv pip install --override docs/vllm-overrides.txt pandas seaborn ml_dtypes graphviz networkx pytest',
+    'uv pip install --override docs/vllm-overrides.txt --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match torchvision',
+    // A silent discovery miss surfaces much later as "no TT hardware found".
+    `python -c "import vllm_tt_plugin; print('vllm-tt-plugin OK')"`,
+    `python -c "import ttnn; print('ttnn OK')"`,
+  ].join(' && ');
 
   runInTerminal(terminal, command);
 
   vscode.window.showInformationMessage(
-    'Creating venv and installing vLLM with all dependencies (ttnn, pytest, etc). This will take 5-10 minutes. Check terminal for progress.'
+    'Installing upstream vLLM 0.24.0 and the Tenstorrent vLLM plugin. This takes 5-10 minutes. Check terminal for progress.'
   );
 }
 
@@ -1608,72 +1653,84 @@ function installVllm(): void {
  */
 async function startVllmServer(): Promise<void> {
   if (await guardHardwareOnly('vLLM server')) return;
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  // Create starter script if it doesn't exist
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-  const starterPath = path.join(scratchpadDir, 'start-vllm-server.py');
-
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  if (!fs.existsSync(starterPath)) {
-    const extensionPath = extensionContext.extensionPath;
-    const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
-
-    if (fs.existsSync(templatePath)) {
-      fs.copyFileSync(templatePath, starterPath);
-      fs.chmodSync(starterPath, 0o755);
-    }
-  }
-
-  const modelPath = await getModelBasePath();
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `cd ~/tt-vllm && source ~/tt-vllm-venv/bin/activate && export TT_METAL_HOME=~/tt-metal && export MESH_DEVICE=N150 && export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && source ~/tt-vllm/tt_metal/setup-metal.sh && python ~/tt-scratchpad/start-vllm-server.py --model ${modelPath} --host 0.0.0.0 --port 8000 --max-model-len 8192 --max-num-seqs 4 --block-size 64`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🚀 Starting vLLM server on N150 with 8K context (memory-optimized). First load takes 2-5 minutes...'
-  );
+  await startVllmServerForHardware('N150', VLLM_HARDWARE_CONFIGS.N150);
 }
 
 /**
- * Hardware configuration map for vLLM server
- * Maps hardware names to their optimal vLLM settings
+ * Hardware configuration map for the vLLM server.
+ *
+ * Each key is a valid `MESH_DEVICE` value recognised by the Tenstorrent vLLM
+ * platform plugin, and the value carries that shape's sensible serving defaults.
+ *
+ * Two things deliberately absent here:
+ *
+ *   - There is no tensor-parallel setting. The TT platform rejects both tensor
+ *     parallel and pipeline parallel outright; multi-chip execution is selected
+ *     by the `MESH_DEVICE` mesh shape instead. Passing
+ *     `--tensor-parallel-size` fails before the model ever loads.
+ *   - There is no model-registration step. The plugin contributes the `tt`
+ *     platform and its model architectures through vLLM entry points, so plain
+ *     `vllm serve` is the correct entrypoint.
+ *
+ * `mesh` documents the chip grid the plugin maps each name to, so the numbers
+ * below can be sanity-checked against hardware.
  */
 const VLLM_HARDWARE_CONFIGS = {
   N150: {
+    mesh: '(1, 1)',
+    meshDevice: 'N150',
     maxModelLen: 8192,
     maxNumSeqs: 4,
     blockSize: 64,
-    tensorParallelSize: undefined,
     archName: undefined,
   },
   N300: {
+    mesh: '(1, 2)',
+    meshDevice: 'N300',
     maxModelLen: 131072,
     maxNumSeqs: 32,
     blockSize: 64,
-    tensorParallelSize: 2,
     archName: undefined,
   },
   T3K: {
+    mesh: '(1, 8)',
+    meshDevice: 'T3K',
     maxModelLen: 131072,
     maxNumSeqs: 64,
     blockSize: 64,
-    tensorParallelSize: 8,
     archName: undefined,
   },
   P100: {
+    mesh: '(1, 1)',
+    meshDevice: 'P100',
     maxModelLen: 8192,
     maxNumSeqs: 4,
     blockSize: 64,
-    tensorParallelSize: undefined,
+    archName: 'blackhole',
+  },
+  P150: {
+    mesh: '(1, 1)',
+    meshDevice: 'P150',
+    maxModelLen: 8192,
+    maxNumSeqs: 4,
+    blockSize: 64,
+    archName: 'blackhole',
+  },
+  P300: {
+    mesh: '(1, 2)',
+    meshDevice: 'P300',
+    maxModelLen: 32768,
+    maxNumSeqs: 16,
+    blockSize: 64,
+    archName: 'blackhole',
+  },
+  // TT-QuietBox 2: two P300 cards, four Blackhole chips wired as a 2x2 mesh.
+  P300X2: {
+    mesh: '(1, 4)',
+    meshDevice: 'P300x2',
+    maxModelLen: 131072,
+    maxNumSeqs: 32,
+    blockSize: 64,
     archName: 'blackhole',
   },
 } as const;
@@ -1688,6 +1745,9 @@ const VLLM_HARDWARE_CONFIGS = {
  * [Start N300](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
  * [Start T3K](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
  * [Start P100](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
+ * [Start P150](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P150"}])
+ * [Start P300](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P300"}])
+ * [Start TT-QuietBox 2](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P300X2"}])
  *
  * @param args - Optional arguments object with hardware type
  */
@@ -1713,67 +1773,57 @@ async function startVllmServerWithHardware(args?: { hardware?: string } | any[])
 async function startVllmServerForHardware(
   hardware: string,
   config: {
+    mesh?: string;
+    meshDevice?: string;
     maxModelLen: number;
     maxNumSeqs: number;
     blockSize: number;
-    tensorParallelSize?: number;
     archName?: string;
     modelPath?: string;  // Optional: override default Llama path
     maxNumBatchedTokens?: number;  // Optional: prevents batch size errors (required for Qwen)
+    ttConfig?: Record<string, unknown>;  // Optional: TT knobs, passed via --additional-config
   }
 ): Promise<void> {
   const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  // Create starter script if it doesn't exist
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-  const starterPath = path.join(scratchpadDir, 'start-vllm-server.py');
-
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  if (!fs.existsSync(starterPath)) {
-    const extensionPath = extensionContext.extensionPath;
-    const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
-
-    if (fs.existsSync(templatePath)) {
-      fs.copyFileSync(templatePath, starterPath);
-      fs.chmodSync(starterPath, 0o755);
-    }
-  }
 
   const modelPath = config.modelPath || await getModelBasePath();
   const terminal = getOrCreateSimpleTerminal();
 
-  // Build environment variables
-  let envVars = `export TT_METAL_HOME=~/tt-metal && export MESH_DEVICE=${hardware} && export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH`;
+  // MESH_DEVICE selects the chip grid and is how multi-chip execution is
+  // requested. The spelling matters — the plugin looks the value up in a fixed
+  // table, so we carry it explicitly rather than reusing the config key.
+  const meshDevice = config.meshDevice || hardware;
+
+  let envVars = `export TT_METAL_HOME=~/tt-metal && export MESH_DEVICE=${meshDevice} && export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH`;
   if (config.archName) {
     envVars += ` && export TT_METAL_ARCH_NAME=${config.archName}`;
   }
+  // Model load and first compile can far exceed vLLM's default RPC deadline.
+  envVars += ` && export VLLM_RPC_TIMEOUT=900000`;
 
-  // Build vLLM flags
   let vllmFlags = `--model ${modelPath} --host 0.0.0.0 --port 8000 --max-model-len ${config.maxModelLen} --max-num-seqs ${config.maxNumSeqs} --block-size ${config.blockSize}`;
   if (config.maxNumBatchedTokens) {
     vllmFlags += ` --max-num-batched-tokens ${config.maxNumBatchedTokens}`;
   }
-  if (config.tensorParallelSize) {
-    vllmFlags += ` --tensor-parallel-size ${config.tensorParallelSize}`;
+  // Tenstorrent-specific knobs travel in vLLM's generic additional-config
+  // namespace under a "tt" key, replacing the older --override_tt_config and
+  // --plugin-config flags.
+  if (config.ttConfig && Object.keys(config.ttConfig).length > 0) {
+    vllmFlags += ` --additional-config '${JSON.stringify({ tt: config.ttConfig })}'`;
   }
 
-  const command = `cd ~/tt-vllm && source ~/tt-vllm-venv/bin/activate && ${envVars} && source ~/tt-vllm/tt_metal/setup-metal.sh && python ~/tt-scratchpad/start-vllm-server.py ${vllmFlags}`;
+  // `vllm serve` is the correct entrypoint: the plugin registers the `tt`
+  // platform and its model architectures via entry points, so no wrapper script
+  // or manual ModelRegistry call is involved.
+  const command = `source ~/tt-vllm-venv/bin/activate && ${envVars} && vllm serve ${vllmFlags}`;
 
   runInTerminal(terminal, command);
 
   const modelName = config.modelPath ? path.basename(modelPath) : 'Llama-3.1-8B';
-  const contextInfo = config.tensorParallelSize
-    ? `${hardware} with ${modelName}, ${config.maxModelLen / 1024}K context, TP=${config.tensorParallelSize}`
-    : `${hardware} with ${modelName}, ${config.maxModelLen / 1024}K context`;
+  const meshInfo = config.mesh ? ` mesh ${config.mesh},` : '';
 
   vscode.window.showInformationMessage(
-    `🚀 Starting vLLM server on ${contextInfo}. First load takes 2-5 minutes...`
+    `🚀 Starting vLLM server on ${hardware} with ${modelName},${meshInfo} ${config.maxModelLen / 1024}K context. First load takes 2-5 minutes...`
   );
 }
 
@@ -1840,56 +1890,6 @@ async function shouldOverwriteFile(filePath: string): Promise<boolean> {
 }
 
 /**
- * Command: tenstorrent.createVllmStarter
- * Creates the vLLM starter script in ~/tt-scratchpad/ without starting the server.
- * This script registers TT models with vLLM before starting the API server.
- */
-async function createVllmStarter(): Promise<void> {
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-  const starterPath = path.join(scratchpadDir, 'start-vllm-server.py');
-
-  // Create directory if it doesn't exist
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  // Check if file exists and ask for overwrite confirmation
-  if (!(await shouldOverwriteFile(starterPath))) {
-    return; // User cancelled
-  }
-
-  // Copy template
-  const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
-
-  if (!fs.existsSync(templatePath)) {
-    vscode.window.showErrorMessage('❌ Template not found: start-vllm-server.py');
-    return;
-  }
-
-  fs.copyFileSync(templatePath, starterPath);
-  fs.chmodSync(starterPath, 0o755);
-
-  const selection = await vscode.window.showInformationMessage(
-    `✅ Created vLLM starter script at ${starterPath}`,
-    'Open File',
-    'Show in Folder'
-  );
-
-  if (selection === 'Open File') {
-    const doc = await vscode.workspace.openTextDocument(starterPath);
-    await vscode.window.showTextDocument(doc);
-  } else if (selection === 'Show in Folder') {
-    await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(starterPath));
-  }
-}
-
-/**
  * Command: tenstorrent.installAllScripts
  * Installs all template scripts to ~/tt-scratchpad/ in one go.
  * This creates the environment setup scripts and starter scripts needed by lessons.
@@ -1913,7 +1913,6 @@ async function installAllScripts(): Promise<void> {
   // List of scripts to install (the ones referenced in lessons)
   const scriptsToInstall = [
     'setup-vllm-env.sh',
-    'start-vllm-server.py',
     'setup-aider.sh',
     'setup-tt-forge.sh',
     'setup-tt-xla.sh',
@@ -4976,7 +4975,7 @@ async function showCommandMenu(): Promise<void> {
 
     // vLLM Production
     { label: '🚀 vLLM Production', kind: vscode.QuickPickItemKind.Separator },
-    { label: '$(git-branch) Clone vLLM', description: 'Clone Tenstorrent vLLM fork', command: 'tenstorrent.cloneVllm' },
+    { label: '$(git-branch) Clone vLLM Plugin', description: 'Clone the Tenstorrent vLLM platform plugin', command: 'tenstorrent.cloneVllm' },
     { label: '$(package) Install vLLM', description: 'Install vLLM with dependencies', command: 'tenstorrent.installVllm' },
     { label: '$(server-process) Start vLLM Server', description: 'Launch OpenAI-compatible API', command: 'tenstorrent.startVllmServer' },
     { label: '$(beaker) Test vLLM (OpenAI SDK)', description: 'Test with Python SDK', command: 'tenstorrent.testVllmOpenai' },
@@ -5642,6 +5641,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.startTtInferenceServer', startTtInferenceServer),
     vscode.commands.registerCommand('tenstorrent.startTtInferenceServerN150', startTtInferenceServerN150),
     vscode.commands.registerCommand('tenstorrent.startTtInferenceServerN300', startTtInferenceServerN300),
+    vscode.commands.registerCommand('tenstorrent.startTtInferenceServerP300X2', startTtInferenceServerP300X2),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerSimple', testTtInferenceServerSimple),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerStreaming', testTtInferenceServerStreaming),
     vscode.commands.registerCommand('tenstorrent.testTtInferenceServerSampling', testTtInferenceServerSampling),
@@ -5654,7 +5654,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.installVllm', installVllm),
     vscode.commands.registerCommand('tenstorrent.startVllmServer', startVllmServer),
     vscode.commands.registerCommand('tenstorrent.startVllmServerWithHardware', startVllmServerWithHardware), // Parameterized command (replaces N150/N300/T3K/P100 variants)
-    vscode.commands.registerCommand('tenstorrent.createVllmStarter', createVllmStarter),
     vscode.commands.registerCommand('tenstorrent.installAllScripts', installAllScripts),
     vscode.commands.registerCommand('tenstorrent.testVllmOpenai', testVllmOpenai),
     vscode.commands.registerCommand('tenstorrent.testVllmCurl', testVllmCurl),

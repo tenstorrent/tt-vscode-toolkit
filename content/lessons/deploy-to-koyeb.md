@@ -49,8 +49,9 @@ Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. We
 From Lesson 7 (vLLM Production), you learned to run:
 
 ```bash
-python3 -m vllm.entrypoints.openai.api_server \
-  --model ~/models/Qwen3-0.6B \
+export MESH_DEVICE=N300              # match your hardware
+export HF_MODEL=~/models/Qwen3-0.6B  # required: --model is a local path
+vllm serve ~/models/Qwen3-0.6B \
   --served-model-name Qwen/Qwen3-0.6B \
   --port 8000
 ```
@@ -79,12 +80,42 @@ USER root
 USER coder
 WORKDIR /home/coder
 
-# Install vLLM
-RUN git clone https://github.com/tenstorrent/vllm.git && \
-    cd vllm && \
-    python3 -m venv vllm-env && \
+# Install the Tenstorrent vLLM platform plugin. It works against *upstream*
+# vLLM — no Tenstorrent fork — and its own installer pins the version it is
+# tested against (vllm==0.24.0) and applies the dependency overrides that make
+# ttnn and vLLM coexist.
+#
+# Two things here are easy to get wrong:
+#
+#   1. `docs/vllm-overrides.txt` is load-bearing. ttnn pins numpy<2 while vLLM's
+#      opencv floor wants numpy>=2. Skip the override and the install appears to
+#      succeed, then `import ttnn` fails — and the plugin activates only when
+#      ttnn imports, so vLLM starts up seeing no hardware. Running the shipped
+#      installer applies it for you.
+#   2. The base vLLM build is device-agnostic, hence VLLM_TARGET_DEVICE=empty
+#      inside that script — the `tt` platform is contributed by the plugin at
+#      runtime, never compiled in. Never export VLLM_TARGET_DEVICE=tt.
+#
+# The base image must already provide tt-metal and an importable `ttnn`; the
+# plugin binds to it rather than shipping its own.
+#
+#   3. `--system-site-packages` on the venv is REQUIRED, not tidiness. The plugin
+#      only claims the `tt` platform when `ttnn` imports, and `ttnn` lives in the
+#      base image's tt-metal environment. A plain isolated venv cannot see it, so
+#      vLLM would start, decline the TT platform, and serve from the CPU — the
+#      most confusing possible outcome. (If your base image exposes an activate
+#      script for its tt-metal env, activating that instead is even better.)
+RUN git clone https://github.com/tenstorrent/vllm-tt-plugin.git && \
+    cd vllm-tt-plugin && \
+    python3 -m venv --system-site-packages vllm-env && \
     . vllm-env/bin/activate && \
-    pip install -e .
+    pip install --upgrade pip setuptools wheel uv && \
+    source docs/install-vllm-tt.sh && \
+    uv pip install --override docs/vllm-overrides.txt \
+      pandas seaborn ml_dtypes graphviz networkx pytest && \
+    uv pip install --override docs/vllm-overrides.txt \
+      --extra-index-url https://download.pytorch.org/whl/cpu \
+      --index-strategy unsafe-best-match torchvision
 
 # Download your model using pre-installed HuggingFace CLI
 RUN mkdir -p models && \
@@ -97,8 +128,26 @@ ENV MODEL_PATH=/home/coder/models/Qwen3-0.6B
 EXPOSE 8000
 
 # Run your app
-CMD ["/bin/bash", "-c", "source vllm/vllm-env/bin/activate && python3 -m vllm.entrypoints.openai.api_server --model ${MODEL_PATH} --served-model-name Qwen/Qwen3-0.6B --port 8000 --host 0.0.0.0"]
+# HF_MODEL must be set because MODEL_PATH is a local directory: tt-metal's
+# tt_transformers uses HF_MODEL as its checkpoint path, so serving a local path
+# without it fails with "Please set HF_MODEL to a HuggingFace name".
+CMD ["/bin/bash", "-c", "source vllm-tt-plugin/vllm-env/bin/activate && HF_MODEL=${MODEL_PATH} vllm serve ${MODEL_PATH} --served-model-name Qwen/Qwen3-0.6B --port 8000 --host 0.0.0.0"]
 ```
+
+> **Verify the plugin was picked up.** The most common failure on a fresh image is a
+> vLLM that starts but never sees the hardware, because the plugin is missing or
+> `ttnn` is not importable. Check both before you deploy:
+>
+> ```bash
+> . vllm-tt-plugin/vllm-env/bin/activate
+> python3 -c "import vllm_tt_plugin; print('plugin OK')"
+> python3 -c "import ttnn; print('ttnn OK')"
+> ```
+>
+> The plugin registers itself through two vLLM entry points — `tt` under
+> `vllm.platform_plugins` and `tt_model_registry` under `vllm.general_plugins`.
+> If you set `VLLM_PLUGINS` at all, it must permit both names:
+> `export VLLM_PLUGINS=tt,tt_model_registry`.
 
 **Benefits:**
 - ✅ 50% fewer lines (was ~60, now ~30)
@@ -275,10 +324,11 @@ WORKDIR /home/coder
 # Your processing script
 COPY --chown=coder:coder process.py /home/coder/
 
-# Install dependencies
+# Install dependencies. Note the numpy ceiling: ttnn requires numpy<2, and a bare
+# `pip install numpy` will happily give you 2.x and break the ttnn extension.
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
-    pip install torch ttnn numpy
+    pip install torch ttnn "numpy>=1.24.4,<2"
 
 # Run processing script
 CMD ["/bin/bash", "-c", "source venv/bin/activate && python3 process.py"]

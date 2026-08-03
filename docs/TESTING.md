@@ -192,7 +192,6 @@ def broken_function(
 - `tt-chat-direct.py`
 - `tt-api-server-direct.py`
 - `tt-forge-classifier.py`
-- `start-vllm-server.py`
 - `tt-coding-assistant.py`
 - `tt-xla-gpt2-demo.py`
 - ... (40+ templates total)

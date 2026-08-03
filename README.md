@@ -409,7 +409,34 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.18 (2026-07-13)
+### Latest Release: v0.1.22 (2026-08-03)
+
+**Highlights:**
+- ⚡ **vLLM setup no longer needs a TT-Metalium source build** — Step 0 now offers the published `ttnn` wheel as a fast path (seconds instead of 30–90 minutes). The wheel ships no `models/` tree, so a shallow source checkout at the same release tag is still required; the lesson explains why and how.
+- 🔧 **Fixed an assumption that `tt-vllm` exists everywhere** — it is an alias some tt-developer-image variants provide, and the QB2 variant deliberately omits it to mirror a real TT-QuietBox<sup>®</sup> 2. Activation guidance is now a labelled list per environment.
+- ✅ **Added a `models/` reachability check** — on a wheel-based setup that is a separate failure mode from `ttnn` not importing, and nothing caught it before
+
+### Previous Release: v0.1.21 (2026-08-03)
+
+**Highlights:**
+- 📦 **vLLM install repointed at the standalone plugin repo** — `github.com/tenstorrent/vllm-tt-plugin` is the plugin's official home and works against **upstream** vLLM (its installer pins `vllm==0.24.0`), so no Tenstorrent fork is involved. The in-fork copy is being retired.
+- 🧪 **Validated on a TT-QuietBox<sup>®</sup> 2** — plugin activates, `TTPlatform` selected, `MESH_DEVICE=P300x2` resolves to a `(1,4)` mesh across all four Blackhole<sup>®</sup> chips, and the OpenAI-compatible server serves requests
+- ⚠️ **Generation quality is still unvalidated** — output is degenerate across five configurations (two vLLM versions, three models, one and four chips), which isolates the cause to the host tt-metal build rather than the plugin or the mesh. See CHANGELOG for the full matrix.
+- 🔑 **Documented two install traps found by running it** — the `numpy<2` override that ttnn needs (without it `import ttnn` fails after a "successful" install), and that `HF_MODEL` is required whenever `--model` is a local path
+
+### Earlier: v0.1.20 (2026-08-03)
+
+**Highlights:**
+- 🔌 **vLLM lessons re-authored around the platform plugin** — Tenstorrent support is now an out-of-tree vLLM *platform plugin* (`vllm-tt-plugin`) that activates automatically when `ttnn` is importable, so the whole-fork build is no longer required. Install is the upstream two-part flow, and plain `vllm serve` is the entrypoint.
+- 🗑️ **Retired the `start-vllm-server.py` starter script** — it existed only to call `ModelRegistry.register_model()`, which the plugin now does via entry points
+- 🐛 **Fixed two actively broken paths** — the Koyeb Dockerfile cloned the fork's default branch (which no longer contains any Tenstorrent support), and the FAQ recommended `--tensor-parallel-size`, which the TT platform rejects outright
+- 🖥️ **TT-QuietBox<sup>®</sup> 2 is a first-class serving target** — `MESH_DEVICE=P300x2` for vLLM and `--tt-device p300x2` for TT-Inference-Server, replacing the incorrect "four independent chips, use device 0" guidance
+- 📦 **TT-Inference-Server lesson updated for v0.19.0** — `--tt-device`, the deleted `setup.sh`, removed `reports`/`tests` workflows, both auth schemes, and the host-volume ownership requirement
+- 🧹 **Removed ~139 lines of duplicated FAQ content** (the "Environment Reference" section appeared twice)
+
+> **Accuracy note:** Tenstorrent is not currently listed as a vLLM plugin in upstream vLLM's documentation, and no Tenstorrent plugin is published to PyPI. The lessons describe it as what it verifiably is — a conformant out-of-tree platform plugin installed from source.
+
+### Earlier: v0.1.18 (2026-07-13)
 
 **Highlights:**
 - 🐛 **PRD-246 first-inference flow fixes (from QB2 testing)** — fixed the broken "Step 3: Download the Model" skip link, consolidated the scattered Hugging Face auth flow into one sequence, marked the device-reset check optional, dropped the redundant `tt-smi` step from the installer lesson, and simplified the "Test TT-Metalium" button (with a QB2/Podman caveat)

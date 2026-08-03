@@ -101,7 +101,6 @@ All generated scripts for user customization:
 ├── tt-chat-direct.py              # Direct API chat (Generator API)
 ├── tt-api-server-direct.py        # Direct API Flask server
 ├── tt-forge-classifier.py         # TT-Forge image classification
-├── start-vllm-server.py           # vLLM production server starter
 ├── tt-coding-assistant.py         # AI coding assistant
 ├── tt-xla-gpt2-demo.py            # TT-XLA GPT-2 demo
 ├── particle-life/                  # Particle Life project

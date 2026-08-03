@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.19",
+  "version": "0.1.22",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -315,6 +315,11 @@
       {
         "command": "tenstorrent.startTtInferenceServerN300",
         "title": "Start tt-inference-server (N300 Config)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.startTtInferenceServerP300X2",
+        "title": "Start tt-inference-server (TT-QuietBox 2 / p300x2)",
         "category": "Tenstorrent"
       },
       {

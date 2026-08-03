@@ -329,6 +329,16 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Starts vLLM server for Llama-3.1-8B-Instruct on N300 (Wormhole dual-chip, 128K context)',
   },
 
+  // TT-QuietBox 2: two p300 cards, four Blackhole chips in a 2x2 mesh. run.py
+  // derives MESH_DEVICE and the mesh graph descriptor from --tt-device, so they
+  // must NOT be set by hand here — the correct values are per-model.
+  START_TT_INFERENCE_SERVER_P300X2: {
+    id: 'start-tt-inference-server-p300x2',
+    name: 'Start tt-inference-server (TT-QuietBox 2)',
+    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth',
+    description: 'Starts vLLM server for Llama-3.1-8B-Instruct across all 4 Blackhole chips of a TT-QuietBox 2 (128K context)',
+  },
+
   TEST_TT_INFERENCE_SERVER_SIMPLE: {
     id: 'test-tt-inference-server-simple',
     name: 'Test tt-inference-server (Simple)',

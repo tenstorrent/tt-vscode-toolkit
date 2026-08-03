@@ -226,145 +226,6 @@ lsb_release -rs
 
 ---
 
-## Environment Reference
-
-> **Jumped to a lesson directly and a command failed?** This section maps out every path, venv, and environment variable the lessons assume. Bookmark it.
-
-### Q: What is `~/tt-scratchpad` and do I need to create it?
-
-**A:** `~/tt-scratchpad` is a working directory the extension creates when you run commands inside VS Code. If you're following lessons on the web site or running commands manually in a terminal, it won't exist yet. Create it yourself:
-
-```bash
-mkdir -p ~/tt-scratchpad
-```
-
-Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookbook/mandelbrot/`). The `mkdir -p` in each command handles that — so creating the top-level directory is enough.
-
----
-
-### Q: Which Python virtual environment do I activate for which lesson?
-
-**A:** Three environments exist on a typical tt-installer system. Pick the one that matches what you're doing:
-
-| What you're doing | Activate this |
-|---|---|
-| TT-NN / direct API / TT-Metalium examples / custom training | `source ~/tt-metal/python_env/bin/activate` |
-| vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
-| TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
-
-**QB2 / tt-installer container environments:** These may be pre-activated via `/etc/profile.d/`. Check what's active with `which python3` before activating another venv.
-
-**Can't find a venv?**
-
-```bash
-# Check what exists
-ls ~/tt-metal/python_env/bin/activate 2>/dev/null && echo "✓ tt-metal venv"
-ls ~/tt-metal/build/python_env_vllm/bin/activate 2>/dev/null && echo "✓ vLLM venv"
-ls ~/tt-forge-venv/bin/activate 2>/dev/null && echo "✓ Forge/XLA venv"
-```
-
-If `~/tt-metal/python_env` doesn't exist, you need to build tt-metal first → [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
-
-If `~/tt-forge-venv` doesn't exist, check `/opt/venv-forge`:
-
-```bash
-# /opt/venv-forge exists but ~/tt-forge-venv symlink is missing:
-ln -s /opt/venv-forge ~/tt-forge-venv
-```
-
----
-
-### Q: What is `TT_METAL_HOME` and when do I need it?
-
-**A:** `TT_METAL_HOME` points to your tt-metal source checkout. It is **only needed for the Direct API lessons** (interactive-chat, api-server, custom training, video generation). It is **not needed** for vLLM, tt-inference-server, TT-Forge, or TT-XLA.
-
-Set it once per terminal session:
-
-```bash
-export TT_METAL_HOME=~/tt-metal
-export PYTHONPATH=$TT_METAL_HOME/build_Release:$PYTHONPATH
-export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
-```
-
-**Add to `~/.bashrc`** if you use Direct API regularly:
-
-```bash
-echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
-```
-
-**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
-
-**Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
-
-```bash
-unset TT_METAL_HOME
-source ~/tt-forge-venv/bin/activate
-```
-
----
-
-### Q: Where do models live and why do lessons reference `~/models/`?
-
-**A:** `~/models/` is the conventional location all lessons use. It isn't created automatically — the `hf download --local-dir` flag creates it on first use.
-
-```bash
-# Standard layout assumed by all lessons:
-~/models/
-  Qwen3-0.6B/            # HuggingFace format (for vLLM, tt-inference-server)
-  Qwen3-8B/
-  Llama-3.1-8B-Instruct/ # HuggingFace format (for vLLM, tt-inference-server)
-    original/            # Meta format subdirectory (for Direct API / Generator API lessons)
-```
-
-If your models are somewhere else, substitute your path in any `--model` or `--local-dir` flag. There is nothing special about `~/models/` — it is just a convention.
-
-**Check what you have:**
-
-```bash
-ls ~/models/ 2>/dev/null || echo "No ~/models/ directory yet"
-du -sh ~/models/* 2>/dev/null
-```
-
----
-
-### Q: What Ubuntu version do I need?
-
-**A:**
-
-| Version | Status |
-|---------|--------|
-| Ubuntu 22.04 LTS | ✅ Most tested — preferred by Tenstorrent for stability |
-| Ubuntu 24.04 LTS | ✅ Supported — QB2 ships with 24.04 |
-| Ubuntu 20.04 LTS | ⚠️ Deprecated — Metalium cannot be installed |
-
-Most Docker images in lessons are tagged `ubuntu-22.04-amd64`. They run fine on a 24.04 host — the Ubuntu version in the tag refers to the image, not your host OS.
-
-**Check your host:**
-
-```bash
-lsb_release -rs
-```
-
----
-
-### Q: A lesson says "from Lesson N" or "see Lesson 7" — what lesson is that?
-
-**A:** Old numbered references map to these lesson IDs:
-
-| "Lesson N" reference | Lesson ID |
-|---|---|
-| Lesson 1 | hardware-detection |
-| Lesson 2 | verify-installation |
-| Lesson 3 | download-model |
-| Lesson 4 | interactive-chat |
-| Lesson 5 | api-server |
-| Lesson 6 | tt-inference-server |
-| Lesson 7 | vllm-production |
-| Lesson 8 | (VSCode Chat — retired) |
-| Lesson 9 | image-generation |
-
----
-
 ## Remote Development & SSH
 
 ### Q: Can I use this extension from my Mac/Windows laptop to access remote Tenstorrent hardware?
@@ -930,27 +791,103 @@ TypeError: must be called with a dataclass type or instance
 # ... torch/_inductor/runtime/hints.py errors
 ```
 
-**Root cause:** vLLM on Tenstorrent hardware requires **PyTorch 2.5.0+cpu** specifically. Other versions (2.4.x, 2.7.x) cause compatibility issues.
+**Root cause:** a torch-wheel mismatch — almost always a **CUDA** wheel where a **CPU** wheel
+is needed. The TT path does not pin a specific torch version any more; the correct version is
+whatever the **active tt-metal environment** provides, and it must be a CPU build.
 
-**Solution: Recreate your vLLM environment**
+**Check what you have:**
+```bash
+python3 -c "import torch; print('torch:', torch.__version__)"
+```
+
+A `+cu…` suffix in a TT environment is the red flag.
+
+**Solution: reinstall inside the activated tt-metal environment**
 ```bash
 bash ~/tt-scratchpad/setup-vllm-env.sh
 ```
 
-This automated script:
-- ✅ Creates environment at correct location (`~/tt-metal/build/python_env_vllm`)
-- ✅ Installs PyTorch 2.5.0+cpu (exact version)
-- ✅ Installs all required dependencies
-- ✅ Validates installation before completion
-
-**Verify your environment:**
+Or run the plugin's own installer directly:
 ```bash
-source ~/activate-vllm-env.sh
-python3 -c "import torch; print('PyTorch version:', torch.__version__)"
-# Should print: PyTorch version: 2.5.0+cpu
+cd ~/vllm-tt-plugin
+source docs/install-vllm-tt.sh
 ```
 
-**Why the specific version?** TT-Metalium hardware drivers are built against PyTorch 2.5.0+cpu APIs. Other versions have incompatible dataclass implementations.
+**A related trap: `torchaudio`.** vLLM's dependency chain can pull in a CUDA `torchaudio`
+wheel, which cannot load next to CPU torch — and `transformers>=5.12` imports `torchaudio`
+whenever it is merely *installed*, so its presence alone breaks imports. The plugin's
+installer therefore runs `uv pip uninstall torchaudio` on purpose. Don't put it back.
+
+---
+
+### Q: `import ttnn` broke right after I installed vLLM — what happened?
+
+**A:** Almost certainly **numpy got upgraded to 2.x**. This is the single most common vLLM
+install failure on Tenstorrent hardware, and it is nasty because the install reports success.
+
+**Check:**
+```bash
+python3 -c "import numpy; print(numpy.__version__)"   # must be 1.x
+```
+
+**Why it happens:**
+- `ttnn` pins **`numpy>=1.24.4,<2`**, a constraint fixed by the tt-metal environment.
+- Upstream vLLM's `requirements/common.txt` asks for **`opencv-python-headless>=4.13.0`**,
+  which requires **`numpy>=2`**.
+- Resolve those naively and numpy 2.x wins, breaking the compiled `ttnn` extension. Because
+  the TT platform is only selected when `ttnn` imports, vLLM then silently runs as if you had
+  no Tenstorrent hardware at all.
+
+**Fix — and how to avoid it:** the plugin ships `docs/vllm-overrides.txt`, which pins
+`numpy>=1.24.4,<2` and `opencv-python-headless==4.11.0.86` (the last release without a numpy 2
+floor). The installer passes it, and **so should every later install into that environment**:
+
+```bash
+cd ~/vllm-tt-plugin
+uv pip install --override docs/vllm-overrides.txt "numpy>=1.24.4,<2" "opencv-python-headless==4.11.0.86"
+python3 -c "import ttnn; print('ttnn OK')"
+```
+
+**Is downgrading opencv safe?** Yes, for TT purposes. opencv is reached only by vLLM's lazy
+video-IO path (`vllm/multimodal/video.py`), which no TT-registered model uses.
+
+---
+
+### Q: `ValueError: Please set HF_MODEL to a HuggingFace name...` — but I gave it a local path
+
+**A:** The message is misleading. A local path **is** supported; `HF_MODEL` just also has to
+be set, to the same path.
+
+tt-metal's `tt_transformers` uses `HF_MODEL` as its **checkpoint directory**, not merely as an
+identifier — `model_config.py` assigns both `CKPT_DIR` and `TOKENIZER_PATH` from it. tt-metal's
+README documents it as *either* a HuggingFace `org/name` **or the path to downloaded weights*.
+
+**Fix:**
+```bash
+export HF_MODEL=~/models/Llama-3.1-8B-Instruct      # same path you pass to vllm serve
+vllm serve ~/models/Llama-3.1-8B-Instruct --served-model-name meta-llama/Llama-3.1-8B-Instruct
+```
+
+If you serve by HuggingFace id instead of a path, set `HF_MODEL` to that id.
+
+---
+
+### Q: `Model architectures ['TT…ForCausalLM'] failed to be inspected`
+
+**A:** Read it literally: vLLM could not **import** the TT model class. This is nearly always a
+missing package, not a registration problem. Two verified causes:
+
+- **`torchvision` missing** — transformers' pixtral image processor imports it during
+  inspection.
+- **`pytest` missing** — `tt-metal/models/common/utility_functions.py` imports pytest at module
+  scope.
+
+```bash
+cd ~/vllm-tt-plugin
+uv pip install --override docs/vllm-overrides.txt torchvision pytest
+```
+
+Keep the `--override`, or this install can drag numpy back to 2.x and break `ttnn` instead.
 
 ---
 
@@ -1077,10 +1014,27 @@ cd $TT_METAL_HOME && git describe --tags
 - 169 validated models listed
 - Start with these before trying others
 
-**For vLLM:**
-- Llama family well-supported (2, 3, 3.1, 3.2)
-- Mistral supported
-- Qwen supported (needs n300+ for larger models)
+**For vLLM:** the Tenstorrent vLLM plugin registers these model families:
+
+| Family | Notes |
+|--------|-------|
+| Llama 3.1 / 3.2 / 3.3 | Text; the best-trodden path |
+| Llama 3.2 Vision | Multimodal |
+| Qwen2.5 / Qwen3 | Text; larger variants need n300+ |
+| Qwen3.5 | Blackhole-specific implementation |
+| Qwen2.5-VL / Qwen3-VL | Vision-language |
+| Mistral / Mistral 3 | Mistral 3 is multimodal |
+| Gemma 3 | Multimodal |
+| DeepSeek V3 | Text |
+| GPT-OSS 20B / 120B | Text |
+
+Per-model device shapes, context limits, and required environment variables are
+documented in the matching tt-metal model demo — that, not this list, is the
+authority on whether a given size fits your hardware.
+
+To serve a model the plugin does not register, point `EXTRA_MODELS_DIR` at a
+directory of bundle folders (each with a `vllm_metadata.json` and its adapter
+class) instead of patching the plugin.
 - Check documentation for your specific model
 
 **For TT-XLA:**
@@ -1138,11 +1092,75 @@ ps aux | grep -E "tt-metal|vllm"
 
 **4. Verify vLLM installation:**
 ```bash
-source ~/tt-vllm-venv/bin/activate
-python3 -c "import vllm; print(vllm.__version__)"
+# Activate the tt-metal / vLLM environment you installed into, then:
+python3 -c "import vllm; print(vllm.__version__)"      # expect 0.24.0
 ```
 
-**5. Check device availability:**
+The TT path uses **upstream `vllm==0.24.0`** plus the standalone
+[`vllm-tt-plugin`](https://github.com/tenstorrent/vllm-tt-plugin) — there is no Tenstorrent
+fork of vLLM. A `0.10.x`-era dev version here means you are still on an old fork checkout.
+
+**5. Verify the TT plugin is installed and discoverable:**
+
+This is the most common new failure mode. Tenstorrent support is a vLLM **platform plugin**
+(`vllm-tt-plugin`), and if vLLM cannot discover it, the server starts up as if it were on a
+plain CPU host and fails in confusing ways. Three checks:
+
+```bash
+# a) Is the plugin package importable at all?
+python -c "import vllm_tt_plugin; print(vllm_tt_plugin.__file__)"
+
+# b) Is ttnn importable? The plugin only claims the TT platform when it is.
+python -c "import ttnn; print('ttnn OK')"
+
+# c) Are both entry points registered with the interpreter?
+python -c "
+from importlib.metadata import entry_points
+for g in ('vllm.platform_plugins','vllm.general_plugins'):
+    for e in entry_points(group=g): print(g, e.name, '->', e.value)
+"
+```
+
+You should see both of these in the output of check (c):
+
+```
+vllm.platform_plugins tt -> vllm_tt_plugin.entrypoints:platform_plugin
+vllm.general_plugins tt_model_registry -> vllm_tt_plugin.entrypoints:register
+```
+
+**If check (a) fails:** the plugin is not installed in this environment. Install it from the
+standalone repo, with your tt-metal environment active:
+
+```bash
+git clone https://github.com/tenstorrent/vllm-tt-plugin.git ~/vllm-tt-plugin
+cd ~/vllm-tt-plugin
+source docs/install-vllm-tt.sh      # `source`, not `bash`, and from the repo root
+```
+
+**If you have an older `~/tt-vllm` fork checkout:** that path — the plugin shipped inside
+`tenstorrent/vllm` at `plugins/vllm-tt-plugin` on the `dev` branch — **is being retired.** Use
+the standalone repo above instead. Remove the old editable installs first
+(`uv pip uninstall vllm vllm-tt-plugin`) so they cannot shadow the new ones.
+
+**If check (b) fails:** either your TT-Metalium environment is not active, or `ttnn` itself is
+broken. The plugin deliberately declines to claim the platform when `ttnn` is missing, so
+activate the tt-metal Python environment first. Two specific `ttnn` import failures are worth
+knowing:
+
+- **`numpy` is 2.x.** `ttnn` requires `numpy<2`. See the numpy question below — this is the
+  single most common cause.
+- **`ImportError: Encountered an error while initializing the extension`** from `ttnn._ttnn`
+  means ttnn's tracy tooling is missing dependencies. Install
+  `pandas seaborn ml_dtypes graphviz networkx`.
+
+**If check (c) shows nothing:** vLLM and the plugin were installed into different Python
+environments. Confirm `which python` and `pip show vllm vllm-tt-plugin` point at the same one.
+
+**Also check `VLLM_PLUGINS`:** if it is set, it must name **both** plugins
+(`export VLLM_PLUGINS=tt,tt_model_registry`). Leaving it unset is fine and usually better —
+vLLM then loads every plugin it discovers.
+
+**6. Check device availability:**
 ```bash
 tt-smi
 # Should show your device
@@ -1343,30 +1361,86 @@ export LD_LIBRARY_PATH=/path/to/openmpi/lib:$LD_LIBRARY_PATH
 
 ### Q: What are good vLLM server parameters?
 
-**A:** Recommended by hardware:
+**A:** Recommended by hardware.
+
+**Important:** the Tenstorrent vLLM platform **does not support tensor parallelism or
+pipeline parallelism** — the plugin rejects `--tensor-parallel-size` and
+`--pipeline-parallel-size` early in startup. Multi-chip is selected entirely through the
+`MESH_DEVICE` environment variable instead.
+
+**Set `HF_MODEL` first.** The examples below pass `"$HF_MODEL"` deliberately: tt-metal's
+`tt_transformers` reads its checkpoint directory from `HF_MODEL`, so it must be set *and* match
+the model argument. Export it once and both requirements are satisfied:
+
+```bash
+export HF_MODEL=~/models/Llama-3.1-8B-Instruct    # or a HuggingFace org/name
+```
 
 **n150 (single chip):**
 ```bash
---max-model-len 65536   # Full 64K context
---max-num-seqs 16       # Moderate batching
---block-size 64         # Standard
+export MESH_DEVICE=N150   # single Wormhole chip
+
+# Full 64K context, moderate batching, standard block size
+vllm serve "$HF_MODEL" \
+  --max-model-len 65536 \
+  --max-num-seqs 16 \
+  --block-size 64
 ```
 
 **n300 (dual chip):**
 ```bash
---max-model-len 131072  # Full 128K context
---max-num-seqs 32       # Higher batching
---block-size 64
---tensor-parallel-size 2  # Use both chips
+export MESH_DEVICE=N300   # this is what puts the model across both chips
+
+# Full 128K context, higher batching
+vllm serve "$HF_MODEL" \
+  --max-model-len 131072 \
+  --max-num-seqs 32 \
+  --block-size 64
 ```
 
 **T3000 (8 chips):**
 ```bash
---max-model-len 131072
---max-num-seqs 64       # High batching
---block-size 64
---tensor-parallel-size 8  # Use all chips
+export MESH_DEVICE=T3K    # this is what puts the model across all 8 chips
+
+# Full 128K context, high batching
+vllm serve "$HF_MODEL" \
+  --max-model-len 131072 \
+  --max-num-seqs 64 \
+  --block-size 64
 ```
+
+**Valid `MESH_DEVICE` values** (from the plugin's `get_mesh_grid`) are exactly these, with the
+mesh shape each one maps to:
+
+| Value | Mesh | Hardware |
+|-------|------|----------|
+| `N150` | (1, 1) | Wormhole single chip |
+| `N300` | (1, 2) | Wormhole dual chip |
+| `N150x4` | (1, 4) | Four n150 chips |
+| `T3K` | (1, 8) | TT-LoudBox / T3000 |
+| `TG` | (8, 4) | Galaxy |
+| `P100` | (1, 1) | Blackhole single chip |
+| `P150` | (1, 1) | Blackhole single chip |
+| `P150x2` | (1, 2) | Two p150 chips |
+| `P300` | (1, 2) | p300 board |
+| `P150x4` | (1, 4) | Four p150 chips |
+| `P150x8` | (1, 8) | Eight p150 chips |
+| `P300x2` | (1, 4) | **TT-QuietBox 2** (4x Blackhole) |
+
+A literal tuple string is also accepted for shapes not covered by a name, for example
+`export MESH_DEVICE="(4,8)"`.
+
+**TT-QuietBox 2 users:** your box is four Blackhole chips wired in a ring, so
+`export MESH_DEVICE=P300x2` serves a model across all four of them. Do not reach for
+`--tensor-parallel-size 4` — it will be rejected.
+
+**Other flags the TT platform does not support**, so you don't waste time chasing them:
+- **Speculative decoding** — not supported
+- **LoRA adapters** — not supported
+- **Chunked prefill** — disabled on TT
+- **Prompt logprobs** — rejected at request validation, so requests asking for them fail
+- **Prefix caching** and **async-decode overlap** — only enabled for models that explicitly
+  declare the capability, so they may silently not apply to your model
 
 **Conservative (if OOM errors):**
 - Reduce `max-model-len` by 50%
@@ -1460,7 +1534,7 @@ An interactive JavaScript canvas visualizer showing the actual Tensix grid layou
 - **Discord:** https://discord.gg/tenstorrent (most active)
 - **GitHub Issues:**
   - TT-Metalium: https://github.com/tenstorrent/tt-metal/issues
-  - vLLM: https://github.com/tenstorrent/vllm/issues
+  - vLLM TT plugin: https://github.com/tenstorrent/vllm-tt-plugin/issues
   - TT-Forge: https://github.com/tenstorrent/tt-forge/issues
 - **Documentation:** https://docs.tenstorrent.com
 
@@ -1555,8 +1629,9 @@ du -sh ~/models/*                       # Check model sizes
 python3 -c "import ttnn; print('✓')"   # Test TT-Metalium
 hf --version                            # Check HF CLI
 
-# vLLM
-source ~/tt-vllm-venv/bin/activate      # Activate venv
+# vLLM (activate the tt-metal env you installed into first)
+python3 -c "import vllm; print(vllm.__version__)"   # expect 0.24.0 (upstream)
+python3 -c "import vllm_tt_plugin; print('plugin OK')"
 curl http://localhost:8000/health       # Check server
 curl http://localhost:8000/metrics      # Get metrics
 
@@ -1658,7 +1733,7 @@ sudo rm -rf /dev/shm/tt_*
 
 ---
 
-**Last updated:** May 2026
-**Extension version:** 0.0.438
+**Last updated:** August 2026
+**Extension version:** 0.1.20
 
 **Found an error in this FAQ?** Please report it on GitHub or Discord!

@@ -273,7 +273,16 @@ Follow this workflow when creating educational content, updating lesson markdown
 cd vendor/
 # Clone/update relevant repos for reference
 git clone https://github.com/tenstorrent/tt-metal.git
-git clone https://github.com/tenstorrent/vllm.git
+
+# vLLM: Tenstorrent support is an out-of-tree platform plugin that works against
+# upstream vLLM. This standalone repo is its official home — no fork needed.
+git clone https://github.com/tenstorrent/vllm-tt-plugin.git
+
+# Optional, and only for historical comparison: the older in-fork copy of the
+# plugin lives on the fork's `dev` branch under plugins/vllm-tt-plugin. That path
+# is being retired, and the fork's *default* branch has no Tenstorrent support at
+# all, so never clone it without --branch dev.
+# git clone --branch dev https://github.com/tenstorrent/vllm.git
 ```
 
 **Plan your lesson:**

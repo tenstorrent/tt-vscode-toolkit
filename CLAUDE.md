@@ -178,7 +178,7 @@ src/
   commands/terminalCommands.ts  # Command definitions
 vendor/           # Reference repos (NOT deployed with extension)
   tt-metal/       # Main tt-metal repo - demos, examples, APIs
-  vllm/           # TT vLLM fork - production inference
+  vllm-tt-plugin/ # tenstorrent/vllm-tt-plugin - TT platform plugin (upstream vLLM)
   tt-xla/         # TT-XLA/JAX - compiler, examples
   tt-forge-fe/    # TT-Forge frontend - experimental compiler
   tt-inference-server/  # Production deployment automation
@@ -454,12 +454,113 @@ The JSON file includes a warning header:
 - **Llama-3.1-8B-Instruct** - General-purpose chat (8B params, gated) ⚠️ **Requires n300/T3000/p100**
 - **Qwen3-8B** - Multilingual coding/math (8B params) ⚠️ **Requires n300+ for reliable operation**
 
-**🔑 HF_MODEL Auto-Detection (v0.0.97):**
-- `start-vllm-server.py` now auto-detects and sets `HF_MODEL` from `--model` path
-- Qwen models: `HF_MODEL=Qwen/{model_name}` (e.g., `Qwen/Qwen3-0.6B`)
-- Gemma models: `HF_MODEL=google/{model_name}` (e.g., `google/gemma-3-1b-it`)
-- Llama models: No HF_MODEL needed (auto-detects correctly)
-- **Users no longer need to manually export HF_MODEL** - script handles it automatically!
+## 🔌 vLLM is now a platform plugin (Aug 2026)
+
+**The custom `start-vllm-server.py` starter script is gone**, along with the
+`tenstorrent.createVllmStarter` command. It existed only to call
+`ModelRegistry.register_model()`, which the plugin now does through vLLM entry points.
+Lessons and extension commands use plain `vllm serve`.
+
+Key facts, verified 2026-08-03 against `tenstorrent/vllm-tt-plugin` and validated on a
+TT-QuietBox 2 (4x P300C):
+
+- TT support is a **vLLM platform plugin**. Official home (as of 2026-08-03):
+  **`github.com/tenstorrent/vllm-tt-plugin`** — a standalone repo that works against
+  **upstream** vLLM, no Tenstorrent fork. It registers `tt` under
+  `vllm.platform_plugins` and `tt_model_registry` under `vllm.general_plugins`, and
+  activates automatically whenever `ttnn` is importable (logs
+  `Platform plugin tt is activated`).
+- The older **in-fork** copy (`tenstorrent/vllm` `dev` branch,
+  `plugins/vllm-tt-plugin`) still exists and tt-metal's README still links to it, but
+  it is **being retired**. Use the standalone repo for new work.
+- **Do not claim Tenstorrent is an "official" or "listed" vLLM plugin.** Verified
+  2026-08-03: absent from upstream vLLM's docs, `vllm/platforms/`, and the
+  "Universal Compatibility" list on vllm.ai (which names NVIDIA, AMD, Huawei, AWS,
+  Google, IBM, Intel, Apple, Baidu, Cambricon). No TT plugin is on PyPI. It is a
+  conformant *out-of-tree* plugin installed from source.
+- Install — from a checkout with a recent **tt-metal python env already active**:
+  `source docs/install-vllm-tt.sh`, which is:
+  `VLLM_TARGET_DEVICE=empty uv pip install --no-binary vllm --override docs/vllm-overrides.txt vllm==0.24.0`,
+  then `uv pip uninstall torchaudio`, then `uv pip install -e .`. Note `uv`, not `pip`.
+- **`docs/vllm-overrides.txt` is load-bearing:** `numpy>=1.24.4,<2` +
+  `opencv-python-headless==4.11.0.86`. ttnn pins numpy<2 while vLLM's opencv floor
+  wants numpy>=2; without the override the install "succeeds" and `import ttnn` dies.
+- **Three deps the installer does not cover** when the target venv isn't already a full
+  tt-metal env (all verified failures): `pandas seaborn ml_dtypes graphviz networkx`
+  (ttnn tracy tooling → opaque "error while initializing the extension"), `torchvision`
+  (transformers pixtral → `Model architectures [...] failed to be inspected`), and
+  `pytest` (`tt-metal/models/common/utility_functions.py` imports it at module scope).
+- **`HF_MODEL` is REQUIRED when `--model` is a local path.** `tt_transformers` uses it as
+  the *checkpoint directory* (`model_config.py`: `self.CKPT_DIR = HF_MODEL`), so it must
+  be an HF `org/name` or the path to downloaded weights.
+- **Qwen3-0.6B is not a tt-transformers model.** `0.6B` appears nowhere in
+  `models/tt_transformers/`; the only Qwen3 there is Qwen3-32B. It loads via
+  architecture mapping but has no validated params — don't call it validated.
+- **`VLLM_TARGET_DEVICE` is build-time only and is `empty`.** Never export it at
+  runtime; `=tt` is stale.
+- **Tensor parallel and pipeline parallel are rejected.** Multi-chip is `MESH_DEVICE`.
+  Also unsupported: speculative decoding, LoRA, chunked prefill, prompt logprobs.
+- TT knobs go through `--additional-config '{"tt": {...}}'`, replacing the older
+  `--override_tt_config` and `--plugin-config` flags. `dispatch_core_axis` is now a
+  config key (`row`/`col`) rather than a Python API call.
+- Valid `MESH_DEVICE` values: `N150` (1,1) · `N300` (1,2) · `N150x4` (1,4) ·
+  `T3K` (1,8) · `TG` (8,4) · `P100` (1,1) · `P150` (1,1) · `P150x2` (1,2) ·
+  `P300` (1,2) · `P150x4` (1,4) · `P150x8` (1,8) · **`P300x2` (1,4) = TT-QuietBox 2**.
+  A literal tuple string such as `"(4,8)"` also works. Galaxy is `TG`, never `GALAXY`.
+### Validation status on the QB2 (2026-08-03)
+
+Validated on this box with upstream `vllm==0.24.0` + the standalone plugin: plugin
+installs and activates, `TTPlatform` selected, both entry points registered,
+`MESH_DEVICE=P300x2` → `(1,4)`, UMD opens chips {0,1,2,3}, weights load, KV cache
+allocates on-mesh, server healthy, `/v1/models` and `/v1/completions` serve.
+
+**Generation quality is NOT validated — output is degenerate** (collapses into
+repetition). Reproduced across 5 configs: fork `dev@50d3f5ff4` *and* upstream `0.24.0`;
+Qwen3-0.6B, Llama-3.1-8B-Instruct, Qwen3-32B; `P100` (1 chip) *and* `P300x2` (4 chips) —
+byte-identical across both vLLM versions. So it is not the plugin, the install path, the
+mesh, or the model. The one invariant is the host tt-metal build
+(`0.65.1rc17.dev6200`), a dev build far from any release in tt-metal's LLMs table,
+which pins tt-metal release ↔ vLLM commit pairs. **Retest against a paired tt-metal
+release before trusting output quality, and do not mark `p300x2` as `validatedOn`
+until then.**
+
+- **Four competing TT vLLM plugins exist** (tenstorrent/vllm in-tree,
+  tenstorrent/vllm-tt-plugin standalone, tt-inference-server/tt-vllm-plugin,
+  tt-xla/integrations/vllm_plugin) and tenstorrent/vllm#452 tracking this is still
+  open. Verify which one a given doc means before trusting it.
+
+### tt-inference-server (v0.19.0) gotchas
+
+- **`--tt-device`**, not `--device` (which is a hidden legacy alias, and collides with
+  Docker's own `--device` on the same command line). QB2 is `--tt-device p300x2`.
+- **`setup.sh` was deleted**; `run.py` is the entrypoint. `~/models` is dead.
+- `--workflow reports` and `tests` were removed; reports emit automatically.
+- **Never hand-set `MESH_DEVICE` or `TT_MESH_GRAPH_DESC_PATH` on this path** — `run.py`
+  derives them per model. On QB2 the correct value is model-dependent (`P300x2`,
+  `(1, 4)`, or even `P150x4` for gemma-4).
+- **Qwen3-0.6B is not in the tt-inference-server catalog at all.** The "Qwen3-0.6B
+  first" guidance above applies to the native vLLM/tt-metal path only. Lead QB2 with
+  `Llama-3.1-8B`, and n150 with `Llama-3.2-1B-Instruct` or `gemma-3-1b-it`.
+- Auth is two schemes now: vLLM uses an HS256 JWT from `JWT_SECRET`; media/forge use a
+  literal `API_KEY`. `--no-auth` disables both.
+- With `--host-volume` you must `sudo chown 1000 <path>` yourself (the vLLM image no
+  longer runs root+gosu).
+
+### Mesh graph descriptor correction
+
+The TT-QuietBox 2 note earlier in this file says tt-metal ships default mesh-graph
+descriptors only for 8-dev (T3000) and 32-dev (Galaxy). That is true of **ttml/tt-train's**
+bundled subset, but tt-metal itself ships a full Blackhole family. Verified against
+`tt-metal` origin/main on 2026-08-03, `tt_metal/fabric/mesh_graph_descriptors/` contains:
+
+```
+p100_  p150_  p150_x2_  p150_x4_  p150_x8_  p300_  p300_x2_
+```
+
+`p300_x2_mesh_graph_descriptor.textproto` declares `arch: BLACKHOLE` with
+`device_topology { dims: [2, 2] }` — exactly a TT-QuietBox 2. **Prefer this shipped
+descriptor over a hand-rolled `[1,4]` one** for vLLM and tt-metal work. (The custom
+descriptor guidance still applies to tt-train/ttml, which bundles a narrower set.)
 
 **⚠️ n150 DRAM Reality:**
 - Llama-3.1-8B-Instruct consistently exhausts DRAM on n150

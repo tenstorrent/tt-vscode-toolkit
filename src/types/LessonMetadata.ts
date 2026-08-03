@@ -9,14 +9,17 @@
  * Hardware types supported by Tenstorrent
  */
 export type HardwareType =
-  | 'n150'    // Wormhole - Single Chip
-  | 'n300'    // Wormhole - Dual Chip
-  | 't3k'     // Wormhole - 8 Chips
-  | 'p100'    // Blackhole - Single Chip
-  | 'p150'    // Blackhole - Dual Chip
-  | 'p300'    // Blackhole - Single Chip (TT-QuietBox)
-  | 'galaxy'  // Galaxy configuration
-  | 'simulator'; // Simulator mode
+  | 'n150'    // Wormhole - single chip
+  | 'n300'    // Wormhole - dual chip
+  | 't3k'     // Wormhole - 8 chips (TT-QuietBox)
+  | 'p100'    // Blackhole - single chip
+  | 'p150'    // Blackhole - single chip
+  | 'p300'    // Blackhole - dual-chip card
+  | 'p300c'   // Blackhole - p300 ASIC variant; treated as single chip for single-device work
+  | 'p300x2'  // Blackhole - 2x p300 cards = 4 chips in a 2x2 mesh (TT-QuietBox 2)
+  | 'galaxy'  // Galaxy configuration (MESH_DEVICE spelling is TG)
+  | 'sim'        // Simulator mode (ttsim); shorthand used across the lesson registry
+  | 'simulator'; // Simulator mode (long form; both spellings appear in the registry)
 
 /**
  * Lesson validation status
