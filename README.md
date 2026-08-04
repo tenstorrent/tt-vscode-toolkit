@@ -409,14 +409,21 @@ We welcome contributions! Here's how to get involved:
 
 ## Release Information
 
-### Latest Release: v0.1.22 (2026-08-03)
+### Latest Release: v0.1.23 (2026-08-03)
+
+**Highlights:**
+- 🐛 **Addresses issue #17** — the lesson's Step 2 now installs `uv` before the installer that depends on it. The click-to-install command already did; readers following the steps by hand still hit `uv: command not found`.
+- 📌 **Python requirements made consistent and honest** — `>=3.10,<3.14` throughout, with an explicit note that Ubuntu 20.04 (Python 3.8) cannot run this at all
+- 🔗 **Fixed five broken in-page anchors**, verified by diffing every anchor against the `id` attributes the site renderer actually emits rather than assuming how headings slug
+
+### Previous Release: v0.1.22 (2026-08-03)
 
 **Highlights:**
 - ⚡ **vLLM setup no longer needs a TT-Metalium source build** — Step 0 now offers the published `ttnn` wheel as a fast path (seconds instead of 30–90 minutes). The wheel ships no `models/` tree, so a shallow source checkout at the same release tag is still required; the lesson explains why and how.
 - 🔧 **Fixed an assumption that `tt-vllm` exists everywhere** — it is an alias some tt-developer-image variants provide, and the QB2 variant deliberately omits it to mirror a real TT-QuietBox<sup>®</sup> 2. Activation guidance is now a labelled list per environment.
 - ✅ **Added a `models/` reachability check** — on a wheel-based setup that is a separate failure mode from `ttnn` not importing, and nothing caught it before
 
-### Previous Release: v0.1.21 (2026-08-03)
+### Earlier: v0.1.21 (2026-08-03)
 
 **Highlights:**
 - 📦 **vLLM install repointed at the standalone plugin repo** — `github.com/tenstorrent/vllm-tt-plugin` is the plugin's official home and works against **upstream** vLLM (its installer pins `vllm==0.24.0`), so no Tenstorrent fork is involved. The in-fork copy is being retired.

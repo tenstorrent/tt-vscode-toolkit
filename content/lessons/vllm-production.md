@@ -92,7 +92,7 @@ Be aware of what this is and is not, so you don't go looking for things that don
 `tenstorrent/vllm` fork on its `dev` branch, at `plugins/vllm-tt-plugin`, and earlier
 versions of this lesson documented that path. **That path is being retired.** If you have an
 older `~/tt-vllm` checkout, stop installing from it and switch to the standalone repo — see
-[Migrating from an older `~/tt-vllm` checkout](#migrating-from-an-older-tt-vllm-checkout).
+[Migrating from an older vLLM setup](#migrating-from-an-older-vllm-setup).
 tt-metal's README still links to the in-fork copy at the time of writing; treat that link as
 lagging rather than authoritative.
 
@@ -171,7 +171,9 @@ and your hardware.
 - **An activated tt-metal Python environment** — the installer expects to run inside one
 - Model downloaded (Llama-3.1-8B-Instruct, or Qwen3-0.6B for a quick first run)
 - **Python `>=3.10,<3.14`** — the range upstream vLLM 0.24.0 accepts. Python 3.10.12 is the
-  default `python3` on Ubuntu 22.04.
+  default `python3` on Ubuntu 22.04, and 3.12 on Ubuntu 24.04.
+  **Ubuntu 20.04 ships Python 3.8 and cannot run this** — you will need a newer interpreter
+  (deadsnakes, pyenv, or a newer Ubuntu) before any of the steps below will work.
 - ~20GB free disk space — vLLM is built from its source distribution, which is not cheap
 
 ## Starting Fresh?
@@ -492,7 +494,7 @@ own tree from it. You clone a small plugin, and its installer fetches **upstream
 from PyPI**. (It still *compiles* vLLM, from the source distribution — that part is not fast —
 but the source is stock upstream, not a Tenstorrent branch you have to keep in sync.)
 If you previously followed the `git clone --branch dev .../vllm.git` instructions,
-see [Migrating from an older `~/tt-vllm` checkout](#migrating-from-an-older-tt-vllm-checkout).
+see [Migrating from an older vLLM setup](#migrating-from-an-older-vllm-setup).
 
 Sanity check after cloning:
 
@@ -510,7 +512,19 @@ tt-metal environment. Installing into a bare venv produces a broken stack.
 
 ### The canonical install
 
-From the **plugin repository root** (the installer uses relative paths), with the tt-metal
+First make sure `uv` is present. The installer's very first line is a `uv pip install`, so
+without it you get `uv: command not found` and nothing is installed:
+
+```bash
+# Into the same environment you are installing vLLM into
+python3 -m pip install --upgrade pip setuptools wheel uv
+uv --version    # confirm it resolves
+```
+
+`uv` is not optional here: the installer depends on `uv pip`'s `--override` flag to hold numpy
+below 2, and plain `pip` has no equivalent.
+
+Then, from the **plugin repository root** (the installer uses relative paths), with the tt-metal
 environment active:
 
 ```bash
@@ -1918,7 +1932,7 @@ If any check fails, work down this list — these are the five real causes:
    Fix: `cd ~/vllm-tt-plugin && uv pip install -e .`
 3. **You are still installing from the retired in-fork path.** If your only checkout is
    `~/tt-vllm` (a clone of the `tenstorrent/vllm` fork), switch to the standalone repo — see
-   [Migrating from an older `~/tt-vllm` checkout](#migrating-from-an-older-tt-vllm-checkout).
+   [Migrating from an older vLLM setup](#migrating-from-an-older-vllm-setup).
 4. **`ttnn` is not importable** in this environment for some other reason. The plugin loads
    but *deliberately declines* to select the TT platform, because `platform_plugin()` only
    returns the TT platform when `ttnn` imports. If the error is
@@ -1947,7 +1961,7 @@ directory **from `HF_MODEL`**, not from vLLM's positional argument. Fix:
 export HF_MODEL=~/models/Qwen3-0.6B      # same path you pass to vllm serve
 ```
 
-See [the `HF_MODEL` box in the Quick Start](#-hf_model-is-required-when-you-serve-a-local-path).
+See [the `HF_MODEL` box in the Quick Start](#hf_model-is-required-when-you-serve-a-local-path).
 
 ### `Model architectures ['TT…ForCausalLM'] failed to be inspected`
 
@@ -2014,7 +2028,7 @@ installer pulls in directly. So the usual cause is that you are in the wrong ven
 tt-metal env wasn't active when you ran the installer. Activate tt-metal, then re-run the
 installer as above. If your environment is *not* a full tt-metal env, you also need the extra
 packages listed in
-[Extra dependencies the installer does not cover](#-extra-dependencies-the-installer-does-not-cover).
+[Extra dependencies the installer does not cover](#extra-dependencies-the-installer-does-not-cover).
 
 **Out of Memory / DRAM Exhausted (n150 Users):**
 If larger models (8B params) exhaust your DRAM on n150, use smaller models:
@@ -2206,7 +2220,7 @@ Now that your local model server is running, you can connect AI coding agents to
 Before starting, make sure:
 - ✅ vLLM server is running from the previous steps (test with `curl http://localhost:8000/health`)
 - ✅ Model is loaded and responding
-- ✅ You have Python 3.9+ and git installed
+- ✅ You have Python `>=3.10,<3.14` (as required above) and git installed
 
 ### Option 1: Aider CLI Agent (Recommended)
 

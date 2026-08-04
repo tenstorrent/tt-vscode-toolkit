@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.23] - 2026-08-03
+### Fixed
+- **Addresses issue #17 ("tt-vllm has drifted and now needs uv for install") for readers following the lesson by hand.** The extension's install command already installed `uv` first, but the lesson's own Step 2 went straight to `source docs/install-vllm-tt.sh`, whose first line is a `uv pip install` — so a reader copying the steps still hit `uv: command not found`, which is exactly what the issue reported. Step 2 now installs `uv` and verifies it resolves before the install runs, and explains why plain `pip` will not substitute (the installer depends on `uv pip`'s `--override` to hold numpy below 2).
+- Reconciled contradictory Python version requirements. The prerequisites correctly said `>=3.10,<3.14`; the Aider bonus section still said "Python 3.9+".
+- Noted that **Ubuntu 20.04 cannot run this at all** — it ships Python 3.8, below upstream vLLM 0.24.0's floor. Issue #17 was filed from 20.04, so someone on that release would previously have followed every step and failed late for an unrelated reason.
+- **Fixed five broken in-page anchors.** Three pointed at `#migrating-from-an-older-tt-vllm-checkout`, an anchor that stopped existing when that section was renamed to be state-based rather than path-based. Two more used GitHub-style slugs that keep a leading hyphen for emoji-prefixed headings (`#-extra-dependencies-...`), but this site's renderer strips both the emoji and the hyphen. Verified by diffing every anchor in the lesson against the `id` attributes the renderer actually emits, rather than against an assumption about slugging.
+
+### Notes
+- The link validator deliberately skips anchor links, which is why the broken anchors above passed CI. Worth closing that gap separately; comparing anchors against rendered `id` attributes is a reliable check.
+
 ## [0.1.22] - 2026-08-03
 ### Added
 - **`vllm-production` Step 0 now offers the published `ttnn` wheel as a fast path**, alongside the existing TT-Metalium source build. The plugin's real requirement is an importable `ttnn` plus a tt-metal `models/` tree, and the wheel satisfies the first in seconds rather than the 30–90 minutes a source build takes. Documents the two details that make it work: the wheel ships no `models/` tree (its top level is `ttnn`, `tt_lib`, `tracy`, `triage`), so a shallow source checkout at the *same* release tag is still required; and only the tt-metal root belongs on `sys.path`, never `<root>/ttnn`, which has no `__init__.py` and would register a namespace portion for `ttnn`.
