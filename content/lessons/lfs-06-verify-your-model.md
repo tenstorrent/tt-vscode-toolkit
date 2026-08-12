@@ -314,6 +314,52 @@ Worth keeping as a table, because the second column is the one people skip:
 | Held-out loss vs training | most layout errors (>0.2 nats) | anything under the noise floor; frozen-value tensors entirely |
 | Logits vs an independent implementation | nearly everything | whatever both implementations get wrong |
 
+### The deeper reason that table has a second column
+
+Every check above measures something **continuous** — a loss in nats, a PCC, a relative
+error. What you actually ship is `argmax`: a **step function**. At a near-tie the map from
+logits to tokens is a *discontinuity*, and no amount of agreement in the smooth quantity
+carries across it.
+
+The companion project hit this exactly. Its served model diverged from the CPU reference at
+a step where the top two logits were:
+
+```
+' She'   12.3750   p = 0.574
+' Lily'  11.9375   p = 0.370     margin 0.4375 logits, about 9 bfloat16 ulps
+```
+
+Continuous analysis calls a 9-ulp perturbation a rounding artefact. Token space calls it a
+different sentence. **PCC 0.9940–0.9998 and "the generated text is wrong" were both true at
+the same time.**
+
+Three things make this bite harder on Tenstorrent than the arithmetic alone suggests:
+
+- **Block float is not independent noise.** `bfp8`/`bfp4` share one exponent across a tile
+  of 32 values, so one large activation degrades the precision of its 31 neighbours. Error is
+  data-dependent and *correlated between neighbours* — the assumption ordinary error
+  propagation relies on. Treat "raise the precision" as a hypothesis and A/B it: on that
+  project, moving attention to `BFLOAT16` and the MLP off `BFLOAT4_B` bought about **one
+  token** of agreement.
+- **Decode is a feedback loop.** Prefill is one pass with bounded error; decode feeds its own
+  output back, so the model's dynamics amplify whatever was wrong. This is exactly why
+  teacher-forced decode checks pass while real generation degrades — teacher forcing breaks
+  the loop.
+- **Small models sit on a knife edge.** A ~22M model trained on a fraction of an epoch has a
+  flat next-token distribution: **21% of positions within 0.5 logits**. An 8B production model
+  is sharp enough that the same absolute error flips nothing. The hardware is no less accurate
+  for a small model — the small model is simply where that accuracy becomes visible.
+
+One counter-intuitive measurement worth carrying: training the same architecture properly
+made the distribution **flatter**, not sharper — near-ties rose from 21% to 32%. Lower loss
+means better *probability assignment*, not wider top-1/top-2 gaps. A well-calibrated model
+spreads probability where a continuation is genuinely ambiguous; an undertrained one is
+blunt and overconfident, which is precisely why it commits so hard to repetitive output.
+
+**The rule:** if the deliverable is tokens, measure tokens. Generate N tokens on device,
+generate N on the reference from the same prompt, and compare the sequences. It is the only
+check whose failure mode matches the product's.
+
 ## Conversion gotchas worth knowing before you hit them
 
 If you take your trained model out of `ttml` and into Hugging Face format —
