@@ -1718,9 +1718,39 @@
       "estimatedMinutes": 45,
       "order": 205,
       "previousLesson": "lfs-04-block-and-model",
+      "nextLesson": "lfs-06-verify-your-model",
       "completionEvents": [],
       "markdownFile": "content/lessons/lfs-05-train-and-run.md",
       "minTTMetalVersion": "v0.73.1"
+    },
+    {
+      "id": "lfs-06-verify-your-model",
+      "title": "Prove It's Right: Verifying a Model You Trained",
+      "description": "\"It loads\" and \"it generates fluent text\" are not evidence of correctness. Five verification techniques — ln(vocab), held-out loss, resume continuity, ablation, independent reimplementation — with the measured numbers from a model that passed four checks and was still wrong.",
+      "category": "llm-from-scratch",
+      "tags": [
+        "verification",
+        "ablation",
+        "conversion",
+        "rope",
+        "huggingface"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "draft",
+      "estimatedMinutes": 35,
+      "order": 206,
+      "previousLesson": "lfs-05-train-and-run",
+      "completionEvents": [],
+      "markdownFile": "content/lessons/lfs-06-verify-your-model.md"
     },
     {
       "id": "monkeypatch-ttnn",

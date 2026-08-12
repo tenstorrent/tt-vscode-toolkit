@@ -351,6 +351,108 @@ correctly looks like at that step count. It's the same honest distinction
 the next section draws in more depth: more steps, on their own, don't buy
 you a comparably *trained* model.
 
+### Gotcha: your RMSNorm layers may not be learning at all
+
+Stop on this one. It is the single most expensive thing this arc hit after the
+build, and **the loss curve gives you no warning whatsoever.**
+
+A longer run of this same architecture — the six-block `nanollama3` shape, but
+with a 32000-token BPE vocabulary instead of the char-level tokenizer, which
+is where the companion project below took it — drove the loss from **10.6875
+to 1.9219** over 3000 steps. A completely healthy curve. Then we loaded the
+checkpoint and looked at the parameters instead of the loss:
+
+**All 13 RMSNorm `gamma` tensors were exactly 1.0 — `mean=1.0, sd=0.0`.** Every
+normalization layer in the model, all twelve inside the six blocks plus the
+final one before the output projection, had learned nothing at all in 3000
+steps.
+
+The gradients were not the problem. Reading AdamW's own state out of the same
+checkpoint, `exp_avg` absmax was ≈ **3.6e-4** for block 0's gammas and
+≈ **2.5e-3** for the final norm — real, non-zero, well-formed momentum. The
+optimizer computed an update every step and then discarded it.
+
+**The cause is arithmetic, not a bug in anyone's code.** `gamma` is
+initialized to 1.0 (`core::ones(...)` in `tt-train/sources/ttml/modules/rms_norm_module.cpp`)
+and stored in **bf16**. bf16 keeps 8 bits of mantissa, so at 1.0 the distance
+to the next representable value — one **ulp** — is **0.0039**. A ~3e-4 Adam
+step is an order of magnitude smaller than the gap it would have to cross, so
+`1.0 + 3e-4` rounds straight back to `1.0`. Every step. For the entire run.
+
+This is why the failure is invisible from the loss: every *other* parameter in
+the model — the projections, the embedding table, the output head — is
+initialized near zero, where bf16's resolution is far finer, so it trains
+normally and pulls the loss down while the norms sit frozen. **Parameters
+initialized at 1.0 with small gradients are the worst case for this**, which
+is exactly what RMSNorm gains are.
+
+**This is not a "use a newer `tt-metal`" fix.** `stochastic_rounding{false}` is
+the default in `AdamWConfig`
+(`tt-train/sources/ttml/optimizers/adamw.hpp`), and it is still the default as
+of **v0.75.0**. The shipped `training_shakespeare_nanollama3_char.yaml` this
+lab drives sets it explicitly to `false`, so following this lab as written
+gets you frozen norms.
+
+**Two remedies exist today.** The first is one line:
+
+```yaml
+  optimizer:
+    type: AdamW
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+    stochastic_rounding: true      # was false — this is the fix
+```
+
+Stochastic rounding makes the update land probabilistically: an increment of
+3e-4 against a 0.0039 ulp rounds up roughly 1 time in 13 instead of never, so
+the gain performs a slow random walk in the right direction rather than
+standing still. This isn't exotic or experimental on this stack — **two
+configs that ship in `tt-train/configs/training_configs/` already set it**:
+`training_shakespeare_tiny_deepseek_char.yaml` and
+`training_shakespeare_tinyllama_muon.yaml`.
+
+The second remedy keeps fp32 master weights, sidestepping the ulp problem
+entirely:
+
+```yaml
+  optimizer:
+    type: AdamWFullPrecision       # registered in optimizer_registry.cpp
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+```
+
+`AdamWFullPrecision` is a first-class registered optimizer, selectable by name
+from YAML exactly like `AdamW`. Note that its config doesn't take a
+`stochastic_rounding` key — it doesn't need one, because the master copy of
+each parameter is fp32.
+
+**How to check that your own run didn't hit this.** Not by reading the loss —
+the loss is a liar here. Load a checkpoint and look at parameter statistics:
+
+```python
+# A gamma tensor with sd of exactly 0.0 after training is the tell.
+print(gamma.mean(), gamma.std())
+```
+
+A standard deviation of exactly `0.0` across a tensor that was initialized to
+a constant means not one element ever moved. Generalize the habit past this
+one bug: **an optimizer update smaller than one ulp of your parameter dtype is
+computed and thrown away silently**, and the only instrument that sees it is
+the parameter itself.
+
+The next lab, [Prove It's Right: Verifying a Model You
+Trained](command:tenstorrent.showLesson?["lfs-06-verify-your-model"]), is
+entirely about this class of problem — checks that pass while the model is
+wrong — and this gotcha is its opening exhibit.
+
 ## Scaling to ~80M — and being honest about the comparison
 
 This arc has credited [Mini-LLM by
@@ -418,6 +520,16 @@ You've now done the whole arc:
 That is a complete, honest, from-scratch path from a 32×32 tile to a training
 run with a falsifiable result.
 
+**And there's one more lab, because a dropping loss is not the same as a
+correct model** — the frozen-gamma gotcha above is proof of that, and it is the
+mildest example. [Prove It's Right: Verifying a Model You
+Trained](command:tenstorrent.showLesson?["lfs-06-verify-your-model"]) is the
+verification lab: how to tell whether the thing you just trained (or converted,
+or resumed) is computing the function you think it is, with the measured
+numbers from a model that passed four independent checks and was still wrong.
+
+[→ Continue to Lab 6: Prove It's Right](command:tenstorrent.showLesson?["lfs-06-verify-your-model"])
+
 If you want to go deeper into `ttml`-based training beyond this arc's nano
 scope — different architectures, longer runs, the full custom-training
 workflow — this project's Custom Training track (re-authored and verified
@@ -438,7 +550,7 @@ revisit the build steps this lab's `ttml` recipe depends on:
 
 ## You built an LLM from scratch, TT-native, on Tenstorrent hardware
 
-That's it — that's the arc. Five labs ago you started with nothing but a
+That's the build, end to end. Five labs ago you started with nothing but a
 32×32 tile and a promise that you could build a real, modern language model
 without ever leaving TT-native ground. You wrote a tokenizer, a residual
 stream, attention with RoPE and grouped-query sharing, a full pre-norm
