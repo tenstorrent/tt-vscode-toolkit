@@ -298,13 +298,24 @@ since the altitude ladder in
 And there's a physical dimension to this that a cloud endpoint never gives you.
 Leave a real job running — scale past twenty steps into the thousands, or up to
 the 80M configuration below — and the machine makes its presence felt a few feet
-away. The Blackhole<sup>®</sup> chips settle in around **70–81&nbsp;°C** under
-sustained load, and the closed-loop liquid cooling holds them there with a steady,
-oddly companionable **tick-tock** — the pump modulating as the mesh works hard
-enough to stay fast without cooking. It's a small thing, but it changes your
-relationship with the model. You're not watching a billing meter climb in a
-browser tab; you're listening to chips on your own desk train a language model you
-built from nothing.
+away. The chip doing the work settles in around **73–81&nbsp;°C** under sustained
+load, and the closed-loop liquid cooling holds it there with a steady, oddly
+companionable **tick-tock** — the pump modulating as the chip works hard enough to
+stay fast without cooking. It's a small thing, but it changes your relationship
+with the model. You're not watching a billing meter climb in a browser tab; you're
+listening to silicon on your own desk train a language model you built from nothing.
+
+**One chip, and you can see it.** This run is `mesh_shape [1, 1]` — single-device,
+no DDP. On a multi-board host that is visible in the telemetry: run
+[`tt-smi -s`](command:tenstorrent.showLesson?["hardware-detection"]) or a monitor
+like `tt-toplike` mid-run and one device shows a clear power and temperature lead
+while the others idle. Measured on a TT-QuietBox<sup>®</sup> 2 (four Blackhole chips)
+during a real training run: **82 W / 73 °C on the working chip against
+61–73 W / 63–68 °C on the idle three.**
+Idle Blackhole<sup>®</sup> still holds its clock at 1350 MHz, so the idle boards
+are warm rather than cold — the *power* gap is the clearer tell. Spreading that
+load is what [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])
+is for.
 
 ### The honest caveat, stated plainly
 
