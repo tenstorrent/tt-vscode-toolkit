@@ -1,7 +1,7 @@
 # Build an LLM from Scratch, TT-Native — reference code
 
 This directory holds the **verified, runnable reference code** for the
-`lfs-00`…`lfs-05` lesson arc. The labs quote these files code-first, so the
+`lfs-00`…`lfs-06` lesson arc. The labs quote these files code-first, so the
 prose and the code never drift: **this directory is the source of truth.**
 
 > These are **lesson reference code, not shipped extension features.** They are
