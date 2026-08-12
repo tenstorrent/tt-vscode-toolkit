@@ -230,6 +230,41 @@ Swapping two indistinguishable tensors is undetectable by construction. If you
 need to validate ordering or assignment of tensors like those, do it with a
 synthetic fixture carrying distinct values, not with the real checkpoint.
 
+### The follow-up experiment — and why the obvious fix isn't one
+
+The natural next thought is: *fix the frozen gammas, and the blind spot closes.*
+The companion project ran exactly that experiment. **It doesn't.**
+
+Retraining with `stochastic_rounding: true` gave all thirteen gammas real
+learned values (sd `0.047`–`0.158` instead of exactly `0.0`). Re-measuring the
+same swap on the new checkpoint:
+
+| Norm swap, measured on the retrained model | Loss impact |
+|---|---|
+| Frozen-gamma baseline (for reference) | **exactly 0.0000** |
+| Block 0 ↔ block 1 (real gammas) | **+0.0065** |
+| Block 3 `attention_norm` ↔ `mlp_norm` (real gammas) | **+0.0018** |
+
+Non-zero at last — the tensors are now distinguishable, so the defect is no
+longer invisible *by construction*. But look at the magnitude against the same
+calibration curve: **+0.0065 is about 31× below the 0.2-nat gate** and 45× below
+the model's own per-window noise (sd `0.29`). On the smaller swap, 10 of 32
+evaluation windows actually got *better*.
+
+So the honest conclusion is uncomfortable and worth sitting with: **a norm
+mis-mapping still slips past every loss-based gate — before the fix because the
+tensors were identical, after the fix because the effect is real but tiny.** Two
+independent causes, and repairing the dramatic one did nothing for the second.
+
+This is the most transferable lesson in the lab. A check that reads `0.0000` is
+obviously broken and you will investigate it. A check that reads `+0.0065` looks
+like it's working — it moved, it's the right sign, it's even statistically
+significant (t ≈ 5.6 across 32 windows). It is still **31× too small to gate
+on**. "The number moved" and "the number moved enough to catch the bug" are
+different claims, and only the second one protects you.
+
+The instrument that does catch this class of defect is the next technique.
+
 ## Technique 5: independent reimplementation
 
 The strongest correctness evidence available is **two implementations, derived

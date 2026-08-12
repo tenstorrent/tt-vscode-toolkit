@@ -459,6 +459,39 @@ one bug: **an optimizer update smaller than one ulp of your parameter dtype is
 computed and thrown away silently**, and the only instrument that sees it is
 the parameter itself.
 
+### What fixing it was worth
+
+Worth quantifying, because "13 of your layers weren't training" sounds
+catastrophic and the loss curve looked *fine* the whole time. The companion
+project retrained the identical architecture on the identical corpus, changing
+only `stochastic_rounding: false → true`:
+
+| | Frozen gammas | `stochastic_rounding: true` |
+|---|---|---|
+| Gamma sd (13 norms) | exactly **0.0** | **0.047 – 0.158** |
+| Held-out loss @ step 3000 | 1.878 | **1.783** |
+| Best held-out loss | 1.878 (at 3000) | **1.456** (at 17,000) |
+
+Paired against the same 32 held-out windows, the fixed model is **0.45 nats
+better** — every single window improved, with the two models' per-window losses
+correlating at r = 0.97, so the pairing is real rather than a lucky draw.
+
+The number that reframes the bug: **the fixed run passed the frozen run's
+*final* loss before step 3000** — roughly a **7× compute saving** from one
+config flag, before counting any of the extra training.
+
+Two honest caveats, because the headline oversells on its own. The fixed run
+also trained 7× longer, so that 1.878 → 1.456 gap is *both* effects together;
+the clean apples-to-apples comparison is the step-3000 row (1.878 → 1.783).
+And generated text is only **subtly** better to read — the gain is real and
+measurable but doesn't announce itself in a single sample. Past roughly step
+10,000 the curve flattened into a noisy 1.46–1.59 band, which is the signature
+of a **data**-bound model rather than a compute-bound one: more steps over the
+same corpus stopped paying. That matches what
+[Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"])
+found at ~80M parameters, and it's the argument for reaching for more or better
+data rather than a longer run.
+
 The next lab, [Prove It's Right: Verifying a Model You
 Trained](command:tenstorrent.showLesson?["lfs-06-verify-your-model"]), is
 entirely about this class of problem — checks that pass while the model is
