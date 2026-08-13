@@ -815,15 +815,15 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   START_QB2_AGENTS_SERVER_QWEN: {
     id: 'start-qb2-agents-server-qwen',
     name: 'Start Qwen3-32B Agent Server',
-    template: "cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 --workflow server --docker-server --no-auth --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"hermes\"}'",
-    description: 'Starts vLLM with Qwen3-32B and tool calling enabled via tt-inference-server (hermes parser)',
+    template: "tt-smi -r && cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"hermes\"}'",
+    description: 'Resets the board (tt-smi -r) then starts vLLM with Qwen3-32B and tool calling enabled via tt-inference-server (hermes parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
   },
 
   START_QB2_AGENTS_SERVER_LLAMA: {
     id: 'start-qb2-agents-server-llama',
     name: 'Start Llama-3.3-70B Agent Server',
-    template: "cd ~/code/tt-inference-server && python3 run.py --model Llama-3.3-70B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"llama3_json\"}'",
-    description: 'Starts vLLM with Llama-3.3-70B-Instruct and tool calling enabled via tt-inference-server (llama3_json parser)',
+    template: "tt-smi -r && cd ~/code/tt-inference-server && python3 run.py --model Llama-3.3-70B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"llama3_json\"}'",
+    description: 'Resets the board (tt-smi -r) then starts vLLM with Llama-3.3-70B-Instruct and tool calling enabled via tt-inference-server (llama3_json parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
   },
 
   CHECK_AGENT_SERVER_HEALTH: {
@@ -836,8 +836,10 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   CLONE_TT_AGENTS: {
     id: 'clone-tt-agents',
     name: 'Clone tt-agents Repository',
-    template: 'git clone https://github.com/tenstorrent/tt-agents.git ~/code/tt-agents 2>/dev/null || (cd ~/code/tt-agents && git pull origin main) && cd ~/code/tt-agents && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt',
-    description: 'Clones (or updates) tt-agents to ~/code/tt-agents and installs Python dependencies',
+    // tt-agents currently lives under the tsingletaryTT org, not tenstorrent — it hasn't
+    // moved into the Tenstorrent org yet.
+    template: 'git clone https://github.com/tsingletaryTT/tt-agents.git ~/code/tt-agents 2>/dev/null || (cd ~/code/tt-agents && git pull origin main) && cd ~/code/tt-agents && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt',
+    description: 'Clones (or updates) tt-agents (tsingletaryTT org) to ~/code/tt-agents and installs Python dependencies',
   },
 
   COPY_AGENTS_TO_SCRATCHPAD: {

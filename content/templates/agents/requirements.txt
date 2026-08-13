@@ -1,14 +1,25 @@
 # Core agent frameworks
-smolagents>=1.13.0
-openai-agents>=0.0.19
-crewai>=1.0.0
+# Pinned to latest as of 2026-08. openai-agents pins `openai<3`, so do not
+# bump openai to 3.0.0 in this environment — it breaks Demo 2.
+smolagents==1.26.0
+openai-agents==0.20.0
+crewai==1.15.15
 
 # smolagents tool deps
 # Note: smolagents 1.13+ requires 'ddgs' (not 'duckduckgo-search')
-ddgs>=9.0.0
+ddgs==9.14.4
 requests>=2.32.0
 beautifulsoup4>=4.12.0
 markdownify>=0.11.0
 
 # OpenAI client (used by all frameworks for local endpoint)
-openai>=1.75.0
+openai==2.54.0
+
+# NOTE: this is a vendored snapshot for offline reading. The live repo
+# (https://github.com/tsingletaryTT/tt-agents — currently under the
+# tsingletaryTT org, not tenstorrent yet) is the source of truth for the
+# full, current script set, including the shared `tt_agents_common.py`
+# helper (thinking-off-by-default across all frameworks; see the
+# TT_ENABLE_THINKING / TT_MAX_TOKENS / VLLM_BASE_URL env vars documented
+# in the lesson). Re-clone or `git pull` there if this file drifts from
+# upstream.
