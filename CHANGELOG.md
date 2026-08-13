@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.24] - 2026-08-13
+## [0.1.25] - 2026-08-13
 
 Lands the Build-an-LLM-from-Scratch arc's verification lab and hardens the training lab (`lfs-05`) with findings from a real four-chip TT-QuietBox® 2 run.
 
@@ -29,6 +29,7 @@ Lands the Build-an-LLM-from-Scratch arc's verification lab and hardens the train
 - **Corrected "two experimental models that go further on context"** in `qb2-local-agents` — `gemma-4-31B-it` serves 49K, below the 131K of Qwen3-32B and Llama-3.3-70B-Instruct. Only Qwen3.6-27B (262K) exceeds them.
 
 ### Removed
+- **Dropped the vendored `content/templates/agents/` snapshot** (7 demo scripts, `requirements.txt`, `world.json`). The `qb2-local-agents` lesson works exclusively against the cloned repo — `COPY_AGENTS_TO_SCRATCHPAD` copies from `~/code/tt-agents/`, and every `RUN_*` agent command executes from there — so nothing in the extension or the lesson ever read this copy. It had drifted behind the upstream repo (notably predating the shared `tt_agents_common.py` helper) while still shipping in the `.vsix`, making it a source of confusion rather than a fallback. Use the clone instead, via the **Clone tt-agents** button.
 - **~57,500 lines / ~1.9 MB of accidentally committed TT-Metal inspector + watcher output** under `generated/` (`kernels.yaml`, `programs_log.yaml`, `mesh_workloads_log.yaml`, `mesh_devices_log.yaml`, `startup.yaml`, `kernel_elf_paths.txt`, `kernel_names.txt`). These were dev-box runtime logs containing absolute host paths, untracked on `main`. `generated/` is now in `.gitignore` — it was previously only in `.vscodeignore`, so local runs kept re-committing it.
 
 ## [0.1.19] - 2026-07-16
