@@ -838,7 +838,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     name: 'Clone tt-agents Repository',
     // tt-agents currently lives under the tsingletaryTT org, not tenstorrent — it hasn't
     // moved into the Tenstorrent org yet.
-    template: 'git clone https://github.com/tsingletaryTT/tt-agents.git ~/code/tt-agents 2>/dev/null || (cd ~/code/tt-agents && git pull origin main) && cd ~/code/tt-agents && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt',
+    template: 'if [ -d ~/code/tt-agents/.git ]; then cd ~/code/tt-agents && git pull origin main; else git clone https://github.com/tsingletaryTT/tt-agents.git ~/code/tt-agents; fi && cd ~/code/tt-agents && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt',
     description: 'Clones (or updates) tt-agents (tsingletaryTT org) to ~/code/tt-agents and installs Python dependencies',
   },
 
