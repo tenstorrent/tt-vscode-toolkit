@@ -207,19 +207,20 @@ supposed to catch. Re-run. Record the number. If the check doesn't move, it is
 not protecting you; it's a comfort blanket. Here are the companion project's
 real measurements, against a correct held-out loss of **1.84**:
 
-| Deliberate defect | Loss impact |
-|---|---|
-| RoPE flipped to split-halves | 3.13 (vs 1.84) |
-| K/V split order reversed | 7.59 |
-| `tile` instead of `repeat_interleave` for GQA | 3.72 |
-| One layer's `q_proj` left un-permuted | +0.69 |
-| gate and up projections swapped | +0.43 |
-| **Two RMSNorm layers swapped** | **+0.0000** ← the blind spot |
+| Deliberate defect | Held-out loss | Δ vs baseline |
+|---|---|---|
+| *(none — correct model)* | 1.84 | — |
+| K/V split order reversed | 7.59 | **+5.75** |
+| `tile` instead of `repeat_interleave` for GQA | 3.72 | **+1.88** |
+| RoPE flipped to split-halves | 3.13 | **+1.29** |
+| One layer's `q_proj` left un-permuted | 2.53 | **+0.69** |
+| gate and up projections swapped | 2.27 | **+0.43** |
+| **Two RMSNorm layers swapped** | **1.84** | **+0.0000** ← the blind spot |
 
-Read that table as a calibration curve for your gate. A held-out-loss check
-with a **0.2-nat** tolerance catches everything above the line and **nothing**
-below it. Knowing exactly where your floor sits is the difference between a
-test and a ritual.
+Read the **Δ** column as a calibration curve for your gate — that is the column a
+tolerance is measured against, not the absolute loss. A held-out-loss check with a
+**0.2-nat** tolerance catches every defect above the last row and **nothing** on it.
+Knowing exactly where your floor sits is the difference between a test and a ritual.
 
 And that last row is the punchline of the whole lab. Swapping two RMSNorm
 layers changed the loss by **exactly zero** — because, as
@@ -326,10 +327,14 @@ a step where the top two logits were:
 
 ```
 ' She'   12.3750   p = 0.574
-' Lily'  11.9375   p = 0.370     margin 0.4375 logits, about 9 bfloat16 ulps
+' Lily'  11.9375   p = 0.370     margin 0.4375 logits, exactly 7 bfloat16 ulps
 ```
 
-Continuous analysis calls a 9-ulp perturbation a rounding artefact. Token space calls it a
+(At a logit of ~12.4 the values sit in the [8, 16) binade, where one bf16 ulp is
+2³·2⁻⁷ = 0.0625 — so a 0.4375 margin is 7 ulps. The ulp is *absolute* and scales with
+magnitude: the same 0.4375 gap down at 1.0 would be 56 ulps.)
+
+Continuous analysis calls a 7-ulp perturbation a rounding artefact. Token space calls it a
 different sentence. **PCC 0.9940–0.9998 and "the generated text is wrong" were both true at
 the same time.**
 

@@ -385,9 +385,11 @@ optimizer computed an update every step and then discarded it.
 
 **The cause is arithmetic, not a bug in anyone's code.** `gamma` is
 initialized to 1.0 (`core::ones(...)` in `tt-train/sources/ttml/modules/rms_norm_module.cpp`)
-and stored in **bf16**. bf16 keeps 8 bits of mantissa, so at 1.0 the distance
-to the next representable value — one **ulp** — is **0.0039**. A ~3e-4 Adam
-step is an order of magnitude smaller than the gap it would have to cross, so
+and stored in **bf16**. bf16 stores 7 mantissa bits, so at 1.0 the distance
+to the next representable value — one **ulp** — is 2⁻⁷ = **0.0078125** (the next
+bf16 above 1.0 is 1.0078125). Rounding to nearest, an increment has to clear
+*half* that gap — 0.0039 — to move the value at all. A ~3e-4 Adam step is more
+than an order of magnitude below even that threshold, so
 `1.0 + 3e-4` rounds straight back to `1.0`. Every step. For the entire run.
 
 This is why the failure is invisible from the loss: every *other* parameter in
@@ -419,7 +421,7 @@ gets you frozen norms.
 ```
 
 Stochastic rounding makes the update land probabilistically: an increment of
-3e-4 against a 0.0039 ulp rounds up roughly 1 time in 13 instead of never, so
+3e-4 against a 0.0078125 ulp rounds up roughly 1 time in 26 instead of never, so
 the gain performs a slow random walk in the right direction rather than
 standing still. This isn't exotic or experimental on this stack — **two
 configs that ship in `tt-train/configs/training_configs/` already set it**:
@@ -476,9 +478,10 @@ Paired against the same 32 held-out windows, the fixed model is **0.45 nats
 better** — every single window improved, with the two models' per-window losses
 correlating at r = 0.97, so the pairing is real rather than a lucky draw.
 
-The number that reframes the bug: **the fixed run passed the frozen run's
-*final* loss before step 3000** — roughly a **7× compute saving** from one
-config flag, before counting any of the extra training.
+The number that reframes the bug: **by step 3000 the fixed run had already beaten
+the best loss the frozen run ever reached** — 1.783 against a frozen best of 1.878.
+On an equal 3000-step budget, one config flag bought more than the frozen run's
+entire training run did, before counting any of the extra training below.
 
 Two honest caveats, because the headline oversells on its own. The fixed run
 also trained 7× longer, so that 1.878 → 1.456 gap is *both* effects together;

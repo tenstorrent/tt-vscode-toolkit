@@ -32,3 +32,9 @@ venv/
 # Vale downloaded style packages (fetched by `vale sync`, not committed)
 styles/Google/
 
+# TT-Metal inspector + watcher runtime output (written on every local run).
+# Machine-local dev-box logs — they contain absolute host paths and can reach tens
+# of thousands of lines. Already excluded from the .vsix via .vscodeignore; ignored
+# here so local runs stop re-committing them.
+generated/
+

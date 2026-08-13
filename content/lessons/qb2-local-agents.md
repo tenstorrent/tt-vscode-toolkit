@@ -217,7 +217,7 @@ openai==2.54.0         — OpenAI-compatible client (works against local vLLM)
 
 > **`openai-agents` pins `openai<3`.** If you're managing dependencies by hand rather than via the repo's `requirements.txt`, don't jump `openai` to `3.0.0` — it's incompatible with `openai-agents==0.20.0` and will break Demo 2.
 
-The repo also ships **`tt_agents_common.py`**, a small shared helper imported by every demo script — see the callout in Step 3 below for what it does and the environment variables it reads.
+The repo also ships **`tt_agents_common.py`**, a small shared helper imported by the five framework demos (`01`–`05`) — see the callout in Step 3 below for what it does and the environment variables it reads.
 
 **Copy to tt-scratchpad** so you can modify freely without touching the originals:
 
@@ -273,17 +273,23 @@ Endpoint: http://localhost:8000/v1
 
 **If tool_call fails:** The most common cause is a mismatch between the model and the parser flag. Check that you used `--tool-call-parser hermes` with Qwen3-32B, or `--tool-call-parser llama3_json` with Llama-3.3-70B-Instruct.
 
-> **Thinking is off by default.** Every demo script imports `tt_agents_common.py`, a small shared helper in the repo root that sets `enable_thinking=false` across smolagents, the OpenAI Agents SDK, CrewAI, and the raw OpenAI client — consistently, no matter which framework a given demo uses. Agents need reliable tool calls, not visible chain-of-thought, so the repo's default policy is thinking **off** everywhere.
+> **Thinking is off by default.** Agents need reliable tool calls, not visible chain-of-thought, so every script in the repo defaults thinking **off** — you should not see `<think>` blocks in normal use.
+>
+> The five framework demos (`01`–`05`) get this from `tt_agents_common.py`, a small shared helper in the repo root that applies `enable_thinking=false` uniformly across smolagents, the OpenAI Agents SDK, CrewAI, and the raw OpenAI client — consistently, no matter which framework a given demo uses. The two scripts that don't import it reach the same default on their own: `00_verify_tools.py` implements the same logic inline (and additionally strips any `<think>` block before parsing), and `06_landscape_svg.py` pins `enable_thinking: False` directly in its own client.
 >
 > Three environment variables let you override the defaults without editing any script:
 >
 > ```bash
 > export TT_ENABLE_THINKING=false   # set true to re-enable <think> blocks
-> export TT_MAX_TOKENS=2048         # response length cap passed to every demo
+> export TT_MAX_TOKENS=3072         # response length cap (3072 is the built-in default)
 > export VLLM_BASE_URL=http://localhost:8000/v1   # point at a different endpoint
 > ```
 >
+> `TT_ENABLE_THINKING` and `TT_MAX_TOKENS` are read by `00`–`05`. **`06_landscape_svg.py` is the exception** — it hardcodes non-thinking mode and its own token budget, so those two variables have no effect there; `VLLM_BASE_URL` still works everywhere.
+>
 > Each script also auto-detects whichever model is currently loaded, so you rarely need to pass `--model` explicitly.
+>
+> If you cloned `tt-agents` before August 2026 and don't have `tt_agents_common.py`, run the clone/update step above again — it now re-points `origin` at the current org and pulls the helper in.
 
 ---
 
@@ -1528,7 +1534,7 @@ You've run seven different patterns against your TT-QuietBox 2's local inference
 More importantly, you've seen the three things that make these patterns work:
 
 1. **32B+ models** that reliably format tool calls and follow multi-step instructions
-2. **Large context** — Qwen3-32B and Llama-3.3-70B-Instruct both serve up to 131K tokens of context on QB2, comfortably enough for multi-turn sessions and full research loops (see the model table earlier in this lesson for the full ceiling-and-concurrency picture, including the two experimental models that go further on context but lose reliability elsewhere)
+2. **Large context** — Qwen3-32B and Llama-3.3-70B-Instruct both serve up to 131K tokens of context on QB2, comfortably enough for multi-turn sessions and full research loops (see the model table earlier in this lesson for the full ceiling-and-concurrency picture, including the one experimental model that goes further on context — Qwen3.6-27B at 262K — but loses reliability elsewhere)
 3. **Local inference** that lets you iterate without API bills, rate limits, or data leaving your machine
 
 The scripts are short on purpose. Each one is a skeleton you can grow. The code explorer becomes your codebase assistant. The writing pipeline becomes your documentation tool. The dungeon master becomes your customer service bot or personal task tracker. The research agent becomes the thing that briefs you before every meeting. The storyboard pipeline becomes any multi-model workflow where different tasks genuinely need different model sizes. The landscape generator becomes any tool where structured prompting replaces a framework — data visualizations, diagrams, reports, config files.
