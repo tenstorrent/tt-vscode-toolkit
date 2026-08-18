@@ -135,11 +135,6 @@ Ubuntu 22.04 LTS is the most tested and recommended. Ubuntu 24.04 LTS is support
 - [Model Architecture Basics](https://docs.tenstorrent.com/tt-vscode-toolkit/lessons/ct7-architecture-basics/): Transformer internals — embeddings, attention, FFN; design custom architectures
 - [Training from Scratch](https://docs.tenstorrent.com/tt-vscode-toolkit/lessons/ct8-training-from-scratch/): Build and train nano-trickster (11M params) from random init; scaling laws in practice
 
-### Deployment
-
-- [Deploy tt-vscode-toolkit to Koyeb](https://docs.tenstorrent.com/tt-vscode-toolkit/lessons/deploy-vscode-to-koyeb/): Run a cloud-based VSCode IDE with the Tenstorrent extension pre-installed on Koyeb with N300 access
-- [Deploy Your Work to Koyeb](https://docs.tenstorrent.com/tt-vscode-toolkit/lessons/deploy-to-koyeb/): Deploy any Python app to Koyeb with TT N300 hardware; production vLLM deployment patterns
-
 ### Tenstorrent Cookbook
 
 Five hands-on TTNN projects, each a standalone lesson:

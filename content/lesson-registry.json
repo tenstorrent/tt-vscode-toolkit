@@ -59,13 +59,6 @@
       "icon": "beaker"
     },
     {
-      "id": "deployment",
-      "title": "☁️ Deployment",
-      "description": "Deploy your applications to cloud platforms",
-      "order": 8,
-      "icon": "cloud"
-    },
-    {
       "id": "cookbook",
       "title": "👨‍🍳 Tenstorrent Cookbook",
       "description": "Learn by building! 5 hands-on projects: Game of Life, Audio Processing, Mandelbrot Fractals, Image Filters, and Particle Life",
@@ -1303,78 +1296,10 @@
       "estimatedMinutes": 60,
       "order": 17,
       "previousLesson": "monkeypatch-ttnn",
-      "nextLesson": "deploy-vscode-to-koyeb",
       "completionEvents": [
         "onCommand:tenstorrent.runAnimateDiff2Frame"
       ],
       "markdownFile": "content/lessons/animatediff-video-generation.md"
-    },
-    {
-      "id": "deploy-vscode-to-koyeb",
-      "title": "Deploy TT-VSCode-Toolkit to Koyeb",
-      "description": "Deploy your own cloud-based VSCode IDE with the Tenstorrent extension pre-installed. Run on Koyeb with optional n300 hardware access.",
-      "category": "deployment",
-      "tags": [
-        "deployment",
-        "koyeb",
-        "cloud",
-        "vscode",
-        "ide"
-      ],
-      "supportedHardware": [
-        "n150",
-        "n300",
-        "t3k",
-        "p100",
-        "p150",
-        "galaxy"
-      ],
-      "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
-      "estimatedMinutes": 5,
-      "order": 18,
-      "previousLesson": "animatediff-video-generation",
-      "nextLesson": "deploy-to-koyeb",
-      "completionEvents": [],
-      "markdownFile": "content/lessons/deploy-vscode-to-koyeb.md",
-      "recommended_metal_version": "v0.65.1",
-      "minTTMetalVersion": "v0.65.1",
-      "validationDate": "2026-02-10",
-      "validationNotes": "Docker images updated to use TT-Metalium v0.65.1 base (Dockerfile.koyeb commit 558a19699f)"
-    },
-    {
-      "id": "deploy-to-koyeb",
-      "title": "Deploy Your Work to Koyeb",
-      "description": "Deploy any Python application to Koyeb with Tenstorrent n300 hardware access. Learn production deployment patterns with vLLM and adapt for any application.",
-      "category": "deployment",
-      "tags": [
-        "deployment",
-        "koyeb",
-        "production",
-        "vllm",
-        "n300"
-      ],
-      "supportedHardware": [
-        "n300",
-        "p100",
-        "p150",
-        "galaxy"
-      ],
-      "status": "validated",
-      "validatedOn": [
-        "n150"
-      ],
-      "estimatedMinutes": 10,
-      "order": 19,
-      "previousLesson": "deploy-vscode-to-koyeb",
-      "completionEvents": [],
-      "markdownFile": "content/lessons/deploy-to-koyeb.md",
-      "recommended_metal_version": "v0.65.1",
-      "minTTMetalVersion": "v0.65.1",
-      "validationDate": "2026-02-10",
-      "validationNotes": "Docker base images updated to TT-Metalium v0.65.1, extends ghcr.io/tenstorrent/tt-vscode-toolkit:latest"
     },
     {
       "id": "qb2-openclaw-assistant",

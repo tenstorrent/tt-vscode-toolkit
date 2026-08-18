@@ -71,7 +71,7 @@ The Docker images now include:
 - Old MOTD creation code (80+ lines)
 
 **Kept:**
-- Environment detection (Koyeb, Railway, Fly.io, Local)
+- Environment detection (Railway, Fly.io, Local)
 - Startup banner with access information
 - Device permission fixing
 - CLI tool verification
@@ -82,10 +82,6 @@ The Docker images now include:
 - Cleaner logs
 
 ### 4. Documentation Updates
-
-**Updated lessons:**
-- `deploy-vscode-to-koyeb.md` - Added TT-Metalium + MOTD to "What's Included"
-- `deploy-to-koyeb.md` - Added to base image benefits
 
 **Key messaging:**
 - "TT-Metalium pre-compiled at ~/tt-metal (Python environment ready)"
@@ -105,12 +101,8 @@ To customize the MOTD for your deployment:
    docker build -t myimage:latest .
    ```
 
-3. **Deploy your custom image:**
-   ```bash
-   koyeb services create vscode \
-     --docker myimage:latest \
-     [... other flags ...]
-   ```
+3. **Deploy your custom image:** push it to your registry and run it on your
+   container host of choice.
 
 The MOTD text is static and editable, while system information (RAM, CPU, hardware) is dynamically added by `show-motd.sh`.
 
@@ -157,16 +149,6 @@ docker run -d -p 8080:8080 -e PASSWORD=test tt-vscode-toolkit:test
 
 # Open terminal in the browser IDE
 # You should see the MOTD immediately
-```
-
-To test with Koyeb hardware:
-
-```bash
-koyeb services create vscode-test \
-  --docker ghcr.io/tenstorrent/tt-vscode-toolkit:latest \
-  --instance-type gpu-tenstorrent-n300s \
-  --privileged \
-  [...]
 ```
 
 Open a terminal and verify:

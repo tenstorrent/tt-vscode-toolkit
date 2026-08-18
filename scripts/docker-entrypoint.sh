@@ -1,6 +1,6 @@
 #!/bin/bash
 # Entrypoint script for Tenstorrent VSCode Toolkit container
-# Provides helpful logging for cloud environments like Koyeb
+# Provides helpful logging for cloud environments like Railway and Fly.io
 
 set -e
 
@@ -13,10 +13,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Detect environment
-if [ -n "$KOYEB_PUBLIC_DOMAIN" ]; then
-    ENVIRONMENT="Koyeb"
-    ACCESS_URL="https://${KOYEB_PUBLIC_DOMAIN}"
-elif [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
+if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
     ENVIRONMENT="Railway"
     ACCESS_URL="https://${RAILWAY_PUBLIC_DOMAIN}"
 elif [ -n "$FLY_APP_NAME" ]; then
@@ -52,17 +49,7 @@ echo -e "${YELLOW}════════════════════�
 echo ""
 
 # Instructions based on environment
-if [ "$ENVIRONMENT" = "Koyeb" ]; then
-    echo -e "${GREEN}📋 NEXT STEPS (Koyeb):${NC}"
-    echo ""
-    echo "  1. Wait for 'Service is ready' message below"
-    echo "  2. Click the URL in Koyeb dashboard or visit:"
-    echo -e "     ${BOLD}${ACCESS_URL}${NC}"
-    echo "  3. Enter password: ${BOLD}${PASSWORD:-tenstorrent}${NC}"
-    echo "  4. Look for 'Tenstorrent' in the VSCode sidebar (TT icon)"
-    echo "  5. Click 'Welcome Page' to start learning!"
-    echo ""
-elif [ "$ENVIRONMENT" = "Railway" ]; then
+if [ "$ENVIRONMENT" = "Railway" ]; then
     echo -e "${GREEN}📋 NEXT STEPS (Railway):${NC}"
     echo ""
     echo "  1. Wait for 'Deployed' status in Railway dashboard"

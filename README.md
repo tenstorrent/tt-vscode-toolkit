@@ -46,10 +46,6 @@ docker run -d -p 8080:8080 -e PASSWORD=demo \
 
 Access at: http://localhost:8080 (password: `demo`)
 
-### Deploy to Cloud with Real Hardware
-
-→ See the [Deploy to Koyeb lesson](./content/lessons/deploy-vscode-to-koyeb.md) for step-by-step instructions deploying to Tenstorrent n300 hardware on Koyeb.
-
 ---
 
 ## Installation
@@ -246,12 +242,6 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Attention from Scratch** — *draft*
 - **The Transformer Block & the Model** — *draft*
 - **Train It & Run for Real** — `P300C`
-
-### ☁️ Deployment
-*2 lessons, 2 validated*
-
-- **Deploy TT-VSCode-Toolkit to Koyeb** — `N150`
-- **Deploy Your Work to Koyeb** — `N150`
 
 ### 👨‍🍳 Tenstorrent Cookbook
 *6 lessons, 6 validated*
