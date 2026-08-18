@@ -76,6 +76,17 @@ Each decision is a place to fail. The math compounds:
 
 A 3-step loop with 7B succeeds barely half the time. The same loop with 32B works 3 out of 4 times. Your TT-QuietBox 2 runs Qwen3-32B at ~8 seconds per response and Llama-3.3-70B-Instruct at ~14 seconds. Both are genuinely usable. Neither requires a cloud subscription or an NVIDIA GPU.
 
+**Which model, and how much of each you get:**
+
+| Model | Tool parser | Context | Concurrency (`max_num_seqs`) | Verdict |
+|-------|-------------|---------|-------------------------------|---------|
+| Qwen3-32B | `hermes` | 131K | up to 8 | RELIABLE default; ships pre-cached on QB2 (zero download) |
+| Llama-3.3-70B-Instruct | `llama3_json` | 131K | up to 8 | max quality, slower |
+| gemma-4-31B-it | `gemma4` | 49K | 1 (single-stream) | EXPERIMENTAL — accurate for short/interactive use, but observed **crashing the tt-metal runtime** under sustained agentic load. Don't reach for it in these demos yet. |
+| Qwen3.6-27B | `qwen3_coder` | 262K | 1 | reasoning-first: it *reasons about* tools instead of calling them — unreliable in multi-step agent loops |
+
+Concurrency is **per-model**, not a single fixed number for the box — a 32B or 70B model here supports up to 8 concurrent sequences, while the two experimental/reasoning models are single-stream only. The practical takeaway: Qwen3-32B and Llama-3.3-70B-Instruct are the two models these demos are built and validated against. Treat the other two as exploratory — not because they're worse models in the abstract, but because one is known to crash under agentic load and the other fights the agent loop itself (see the "non-thinking vs. reasoning-first" note below).
+
 ---
 
 ## Performance at a Glance
@@ -115,6 +126,14 @@ tt-smi -s | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'{len(d[
 
 The demos need a vLLM endpoint running on port 8000. Use **Qwen3-32B** for the fastest iteration, or **Llama-3.3-70B-Instruct** for maximum output quality — especially for the Dungeon Master demo.
 
+> **Reset the board before every (re)start.** QB2's ethernet fabric doesn't cleanly cycle when a container just stops and restarts — the first serve after a reset or reboot works fine, but the *next* one can fault with an ethernet core error (see Troubleshooting below). Run `tt-smi -r` immediately before each command in this step, including the very first time:
+>
+> ```bash
+> tt-smi -r
+> ```
+>
+> Right after a reset, `tt-smi -s` may transiently report a failure even though the reset itself succeeded — give it a few seconds and check again before assuming something is wrong.
+
 ### Option A — Qwen3-32B (~8 s/response, recommended for most demos)
 
 ```bash
@@ -126,6 +145,7 @@ python3 run.py \
     --workflow server \
     --docker-server \
     --no-auth \
+    --host-hf-cache \
     --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "hermes"}'
 ```
 
@@ -142,10 +162,13 @@ python3 run.py \
     --workflow server \
     --docker-server \
     --no-auth \
+    --host-hf-cache \
     --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
 ```
 
 [Start Llama-3.3-70B Server](command:tenstorrent.startQb2AgentsServerLlama)
+
+> `--host-hf-cache` points `run.py` at your existing HuggingFace cache on the host instead of re-downloading weights into the container — for a 32B or 70B model that's tens of GB you only want to pull once. `--no-auth` skips the JWT_SECRET requirement for local-only use.
 
 > **`--enable_auto_tool_choice` is not optional.** Without it, the model will respond in prose instead of making tool calls. The `tool_call_parser` must match the model — `hermes` for Qwen, `llama3_json` for Llama.
 
@@ -166,7 +189,9 @@ Clone the demo repository and install Python dependencies:
 
 ```bash
 # Clone the demos (if not already present)
-git clone https://github.com/tenstorrent/tt-agents.git ~/code/tt-agents
+# NOTE: tt-agents currently lives under the tsingletaryTT org, not tenstorrent — it hasn't
+# moved into the Tenstorrent org yet.
+git clone https://github.com/tsingletaryTT/tt-agents.git ~/code/tt-agents
 cd ~/code/tt-agents
 
 # Upgrade pip first — some crewai sub-dependencies require it
@@ -178,17 +203,21 @@ pip install -r requirements.txt
 
 [Clone tt-agents](command:tenstorrent.cloneTtAgents)
 
-**What gets installed:**
+**What gets installed** (pinned to latest as of 2026-08 — see `requirements.txt` in the repo for the exact versions):
 
 ```
-smolagents     — HuggingFace's lightweight agent framework (CodeAgent + ToolCallingAgent)
-openai-agents  — OpenAI Agents SDK (@function_tool decorator, async Runner)
-crewai         — Role-based multi-agent orchestration
-ddgs           — DuckDuckGo search (smolagents 1.13+ requires ddgs, not duckduckgo-search)
-beautifulsoup4 — Web page parsing
-markdownify    — HTML-to-markdown converter (required by smolagents' visit_webpage tool)
-openai         — OpenAI-compatible client (works against local vLLM)
+smolagents==1.26.0     — HuggingFace's lightweight agent framework (CodeAgent + ToolCallingAgent)
+openai-agents==0.20.0  — OpenAI Agents SDK (@function_tool decorator, async Runner)
+crewai==1.15.15        — Role-based multi-agent orchestration
+ddgs==9.14.4           — DuckDuckGo search (smolagents 1.13+ requires ddgs, not duckduckgo-search)
+beautifulsoup4         — Web page parsing
+markdownify            — HTML-to-markdown converter (required by smolagents' visit_webpage tool)
+openai==2.54.0         — OpenAI-compatible client (works against local vLLM)
 ```
+
+> **`openai-agents` pins `openai<3`.** If you're managing dependencies by hand rather than via the repo's `requirements.txt`, don't jump `openai` to `3.0.0` — it's incompatible with `openai-agents==0.20.0` and will break Demo 2.
+
+The repo also ships **`tt_agents_common.py`**, a small shared helper imported by the five framework demos (`01`–`05`) — see the callout in Step 3 below for what it does and the environment variables it reads.
 
 **Copy to tt-scratchpad** so you can modify freely without touching the originals:
 
@@ -243,6 +272,24 @@ Endpoint: http://localhost:8000/v1
 ```
 
 **If tool_call fails:** The most common cause is a mismatch between the model and the parser flag. Check that you used `--tool-call-parser hermes` with Qwen3-32B, or `--tool-call-parser llama3_json` with Llama-3.3-70B-Instruct.
+
+> **Thinking is off by default.** Agents need reliable tool calls, not visible chain-of-thought, so every script in the repo defaults thinking **off** — you should not see `<think>` blocks in normal use.
+>
+> The five framework demos (`01`–`05`) get this from `tt_agents_common.py`, a small shared helper in the repo root that applies `enable_thinking=false` uniformly across smolagents, the OpenAI Agents SDK, CrewAI, and the raw OpenAI client — consistently, no matter which framework a given demo uses. The two scripts that don't import it reach the same default on their own: `00_verify_tools.py` implements the same logic inline (and additionally strips any `<think>` block before parsing), and `06_landscape_svg.py` pins `enable_thinking: False` directly in its own client.
+>
+> Three environment variables let you override the defaults without editing any script:
+>
+> ```bash
+> export TT_ENABLE_THINKING=false   # set true to re-enable <think> blocks
+> export TT_MAX_TOKENS=3072         # response length cap (3072 is the built-in default)
+> export VLLM_BASE_URL=http://localhost:8000/v1   # point at a different endpoint
+> ```
+>
+> `TT_ENABLE_THINKING` and `TT_MAX_TOKENS` are read by `00`–`05`. **`06_landscape_svg.py` is the exception** — it hardcodes non-thinking mode and its own token budget, so those two variables have no effect there; `VLLM_BASE_URL` still works everywhere.
+>
+> Each script also auto-detects whichever model is currently loaded, so you rarely need to pass `--model` explicitly.
+>
+> If you cloned `tt-agents` before August 2026 and don't have `tt_agents_common.py`, run the clone/update step above again — it now re-points `origin` at the current org and pulls the helper in.
 
 ---
 
@@ -338,7 +385,7 @@ and Llama-3.3-70B-Instruct at ~14 s/response on 4× Blackhole ASICs...
 ✓ Completed in 5 steps
 ```
 
-> **Qwen3 extended thinking:** Qwen3-32B uses chain-of-thought reasoning internally. You may see `<think>...</think>` blocks appear in step output before the actual tool call — this is the model working through its reasoning and is normal. The final answer does not include these tags.
+> **Qwen3 extended thinking is off by default here.** Qwen3-32B can reason internally via `<think>...</think>` blocks, but `tt_agents_common.py` sets `enable_thinking=false` for every demo in this repo, so you shouldn't see them in normal use — non-thinking mode is what makes tool-call timing predictable in a ReAct loop. If you set `TT_ENABLE_THINKING=true` to explore the model's reasoning, expect `<think>` blocks before the tool call; the final answer still won't include the tags.
 
 
 ### How It Works
@@ -477,7 +524,7 @@ def grep_code(pattern: str, directory: str, file_extension: str = ".py") -> str:
 
 Every tool call is a real JSON function call object — you can see exactly what the model decided to read and why. This is the right pattern for production tools where auditability matters.
 
-> **Qwen3 extended thinking:** With Qwen3-32B you may see `<think>...</think>` blocks in the raw output between tool calls — the model working through its reasoning before committing to a file read or search. The final answer is clean. If you prefer to suppress it, add `extra_body={"chat_template_kwargs": {"enable_thinking": False}}` when constructing the OpenAI client.
+> **Qwen3 extended thinking is off by default here.** With thinking enabled, Qwen3-32B emits `<think>...</think>` blocks between tool calls while it reasons. `tt_agents_common.py` suppresses this by default (`enable_thinking=false`) so the OpenAI Agents SDK's tool-call flow stays predictable. If you're constructing your own client outside the shared helper, the same effect is `extra_body={"chat_template_kwargs": {"enable_thinking": False}}` — or just set `TT_ENABLE_THINKING=false` before running any demo.
 
 ### Real-World Uses
 
@@ -1344,12 +1391,31 @@ print(asyncio.run(Runner.run(agent, "Summarize ~/code/tt-agents/README.md")).fin
 
 **Which model?**
 
-- Qwen3-32B: 8 s/response, reliable tool calling, `hermes` parser — use for everything except narrative tasks
-- Llama-3.3-70B: 14 s/response, better reasoning depth, `llama3_json` parser — use when output quality matters more than speed (writing pipeline, dungeon master, storyboard Stage 1)
+- Qwen3-32B: 8 s/response, reliable tool calling, `hermes` parser, 131K context, up to 8 concurrent sequences — the RELIABLE default for everything except narrative tasks, and it ships pre-cached on QB2 (zero download)
+- Llama-3.3-70B: 14 s/response, better reasoning depth, `llama3_json` parser, 131K context, up to 8 concurrent sequences — use when output quality matters more than speed (writing pipeline, dungeon master, storyboard Stage 1)
+- gemma-4-31B-it and Qwen3.6-27B are **not** used by any demo in this lesson. Both are EXPERIMENTAL on QB2 today — gemma-4-31B-it has been observed crashing the tt-metal runtime under sustained agentic load, and Qwen3.6-27B is reasoning-first (it tends to *reason about* calling a tool rather than actually calling it), which derails multi-step agent loops. See the model table earlier in this lesson for the full comparison.
+
+Non-thinking, instruct-tuned models are what make agent loops reliable. Reasoning-first models look smart in a single-shot answer and then stall out the moment they need to chain tool calls — that's the practical reason this lesson defaults `enable_thinking=false` everywhere (see the callout in Step 3).
 
 ---
 
 ## Troubleshooting
+
+### Server fails with "Device 0 ... ethernet core ... Try resetting the board"
+
+**Cause:** QB2's ethernet fabric doesn't cleanly cycle across a container stop→start. The first serve after a fresh reset or reboot works; the *next* attempt to start a server (same session, no reset in between) faults with this exact ethernet core error.
+
+```bash
+# Fix: reset the board, then retry the serve command
+tt-smi -r
+cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 \
+    --workflow server --docker-server --no-auth --host-hf-cache \
+    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "hermes"}'
+```
+
+If the fault recurs even right after `tt-smi -r`, a full reboot of the host is the durable fix — the soft reset doesn't always fully re-establish the ethernet link between the two p300 cards. Make `tt-smi -r` a habit before *every* (re)start, not just the first one (see the callout in Step 1).
+
+**Note:** immediately after running `tt-smi -r`, a `tt-smi -s` status check can transiently report failure even though the reset itself succeeded. Wait a few seconds and re-check before concluding the reset didn't work.
 
 ### Tool calls always fail / model responds in prose
 
@@ -1468,7 +1534,7 @@ You've run seven different patterns against your TT-QuietBox 2's local inference
 More importantly, you've seen the three things that make these patterns work:
 
 1. **32B+ models** that reliably format tool calls and follow multi-step instructions
-2. **Large context** — vLLM defaults to 32K tokens in this config, which is enough for multi-turn sessions and full research loops; bump `max_model_len` in the server config for longer sessions
+2. **Large context** — Qwen3-32B and Llama-3.3-70B-Instruct both serve up to 131K tokens of context on QB2, comfortably enough for multi-turn sessions and full research loops (see the model table earlier in this lesson for the full ceiling-and-concurrency picture, including the one experimental model that goes further on context — Qwen3.6-27B at 262K — but loses reliability elsewhere)
 3. **Local inference** that lets you iterate without API bills, rate limits, or data leaving your machine
 
 The scripts are short on purpose. Each one is a skeleton you can grow. The code explorer becomes your codebase assistant. The writing pipeline becomes your documentation tool. The dungeon master becomes your customer service bot or personal task tracker. The research agent becomes the thing that briefs you before every meeting. The storyboard pipeline becomes any multi-model workflow where different tasks genuinely need different model sizes. The landscape generator becomes any tool where structured prompting replaces a framework — data visualizations, diagrams, reports, config files.
@@ -1492,6 +1558,8 @@ OpenClaw is what you'd build if you took the dungeon master pattern seriously: p
 ```bash
 cat ~/code/tt-agents/framework_comparison.md
 ```
+
+**Prefer pre-built agent skills over hand-rolled scripts?** `tt-warp fastmodels sync` vendors tt-metal's fast-models-fast agent skills onto your box — a complementary path to the raw-Python patterns in this lesson, worth a look if you want ready-made skills rather than starting from these seven scripts.
 
 **Resources:**
 

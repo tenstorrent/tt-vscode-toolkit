@@ -113,13 +113,39 @@ def main() -> int:
     args = parser.parse_args()
 
     tt_metal_home = args.tt_metal_home
+    # The Python trainer moved, and the move is not a clean swap. tt-metal through
+    # ~v0.66 shipped sources/examples/nano_gpt/train_nanogpt.py, which is what this
+    # launcher drives. Newer checkouts removed it: the nano_gpt example there is C++
+    # (main.cpp, char-tokenizer only), and its Python successor
+    # sources/examples/python/transformers/training.py is currently stale — it does
+    # `from trainer import train` with no such module on its sys.path, and calls
+    # ttml.common.trainer.train() with a val_ids argument that signature does not
+    # accept. So we require the older script and explain the situation, rather than
+    # silently repointing at something that will not run either.
     train_script = os.path.join(
         tt_metal_home, "tt-train", "sources", "examples", "nano_gpt", "train_nanogpt.py"
     )
     if not os.path.isfile(train_script):
-        print(f"ERROR: canonical trainer not found at {train_script}")
-        print("Set --tt_metal_home / TT_METAL_HOME to a tt-metal source tree "
-              "and build ttml (see BUILD_TTML.md).")
+        successor = os.path.join(
+            tt_metal_home, "tt-train", "sources", "examples", "python",
+            "transformers", "training.py",
+        )
+        print(f"ERROR: trainer not found at {train_script}")
+        if os.path.isfile(successor):
+            print()
+            print("This tt-metal checkout is newer than this lab was written against.")
+            print(f"  It ships {successor}")
+            print("  instead, but that example is currently stale: it imports a")
+            print("  top-level `trainer` module that is not on its sys.path, and it")
+            print("  calls ttml.common.trainer.train() with a val_ids argument that")
+            print("  signature does not take.")
+            print()
+            print("  Until that is fixed upstream, either point --tt_metal_home at a")
+            print("  checkout that still ships train_nanogpt.py, or drive")
+            print("  ttml.common.trainer.train() directly.")
+        else:
+            print("Set --tt_metal_home / TT_METAL_HOME to a tt-metal source tree "
+                  "and build ttml (see BUILD_TTML.md).")
         return 1
 
     cmd = [

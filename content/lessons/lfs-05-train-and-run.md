@@ -298,13 +298,24 @@ since the altitude ladder in
 And there's a physical dimension to this that a cloud endpoint never gives you.
 Leave a real job running — scale past twenty steps into the thousands, or up to
 the 80M configuration below — and the machine makes its presence felt a few feet
-away. The Blackhole<sup>®</sup> chips settle in around **70–81&nbsp;°C** under
-sustained load, and the closed-loop liquid cooling holds them there with a steady,
-oddly companionable **tick-tock** — the pump modulating as the mesh works hard
-enough to stay fast without cooking. It's a small thing, but it changes your
-relationship with the model. You're not watching a billing meter climb in a
-browser tab; you're listening to chips on your own desk train a language model you
-built from nothing.
+away. The chip doing the work settles in around **73–81&nbsp;°C** under sustained
+load, and the closed-loop liquid cooling holds it there with a steady, oddly
+companionable **tick-tock** — the pump modulating as the chip works hard enough to
+stay fast without cooking. It's a small thing, but it changes your relationship
+with the model. You're not watching a billing meter climb in a browser tab; you're
+listening to silicon on your own desk train a language model you built from nothing.
+
+**One chip, and you can see it.** This run is `mesh_shape [1, 1]` — single-device,
+no DDP. On a multi-board host that is visible in the telemetry: run
+[`tt-smi -s`](command:tenstorrent.showLesson?["hardware-detection"]) or a monitor
+like `tt-toplike` mid-run and one device shows a clear power and temperature lead
+while the others idle. Measured on a TT-QuietBox<sup>®</sup> 2 (four Blackhole chips)
+during a real training run: **82 W / 73 °C on the working chip against
+61–73 W / 63–68 °C on the idle three.**
+Idle Blackhole<sup>®</sup> still holds its clock at 1350 MHz, so the idle boards
+are warm rather than cold — the *power* gap is the clearer tell. Spreading that
+load is what [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])
+is for.
 
 ### The honest caveat, stated plainly
 
@@ -350,6 +361,144 @@ designed, and overfitting a few hundred kilobytes of text is what working
 correctly looks like at that step count. It's the same honest distinction
 the next section draws in more depth: more steps, on their own, don't buy
 you a comparably *trained* model.
+
+### Gotcha: your RMSNorm layers may not be learning at all
+
+Stop on this one. It is the single most expensive thing this arc hit after the
+build, and **the loss curve gives you no warning whatsoever.**
+
+A longer run of this same architecture — the six-block `nanollama3` shape, but
+with a 32000-token BPE vocabulary instead of the char-level tokenizer, which
+is where the companion project below took it — drove the loss from **10.6875
+to 1.9219** over 3000 steps. A completely healthy curve. Then we loaded the
+checkpoint and looked at the parameters instead of the loss:
+
+**All 13 RMSNorm `gamma` tensors were exactly 1.0 — `mean=1.0, sd=0.0`.** Every
+normalization layer in the model, all twelve inside the six blocks plus the
+final one before the output projection, had learned nothing at all in 3000
+steps.
+
+The gradients were not the problem. Reading AdamW's own state out of the same
+checkpoint, `exp_avg` absmax was ≈ **3.6e-4** for block 0's gammas and
+≈ **2.5e-3** for the final norm — real, non-zero, well-formed momentum. The
+optimizer computed an update every step and then discarded it.
+
+**The cause is arithmetic, not a bug in anyone's code.** `gamma` is
+initialized to 1.0 (`core::ones(...)` in `tt-train/sources/ttml/modules/rms_norm_module.cpp`)
+and stored in **bf16**. bf16 stores 7 mantissa bits, so at 1.0 the distance
+to the next representable value — one **ulp** — is 2⁻⁷ = **0.0078125** (the next
+bf16 above 1.0 is 1.0078125). Rounding to nearest, an increment has to clear
+*half* that gap — 0.0039 — to move the value at all. A ~3e-4 Adam step is more
+than an order of magnitude below even that threshold, so
+`1.0 + 3e-4` rounds straight back to `1.0`. Every step. For the entire run.
+
+This is why the failure is invisible from the loss: every *other* parameter in
+the model — the projections, the embedding table, the output head — is
+initialized near zero, where bf16's resolution is far finer, so it trains
+normally and pulls the loss down while the norms sit frozen. **Parameters
+initialized at 1.0 with small gradients are the worst case for this**, which
+is exactly what RMSNorm gains are.
+
+**This is not a "use a newer `tt-metal`" fix.** `stochastic_rounding{false}` is
+the default in `AdamWConfig`
+(`tt-train/sources/ttml/optimizers/adamw.hpp`), and it is still the default as
+of **v0.75.0**. The shipped `training_shakespeare_nanollama3_char.yaml` this
+lab drives sets it explicitly to `false`, so following this lab as written
+gets you frozen norms.
+
+**Two remedies exist today.** The first is one line:
+
+```yaml
+  optimizer:
+    type: AdamW
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+    stochastic_rounding: true      # was false — this is the fix
+```
+
+Stochastic rounding makes the update land probabilistically: an increment of
+3e-4 against a 0.0078125 ulp rounds up roughly 1 time in 26 instead of never, so
+the gain performs a slow random walk in the right direction rather than
+standing still. This isn't exotic or experimental on this stack — **two
+configs that ship in `tt-train/configs/training_configs/` already set it**:
+`training_shakespeare_tiny_deepseek_char.yaml` and
+`training_shakespeare_tinyllama_muon.yaml`.
+
+The second remedy keeps fp32 master weights, sidestepping the ulp problem
+entirely:
+
+```yaml
+  optimizer:
+    type: AdamWFullPrecision       # registered in optimizer_registry.cpp
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+```
+
+`AdamWFullPrecision` is a first-class registered optimizer, selectable by name
+from YAML exactly like `AdamW`. Note that its config doesn't take a
+`stochastic_rounding` key — it doesn't need one, because the master copy of
+each parameter is fp32.
+
+**How to check that your own run didn't hit this.** Not by reading the loss —
+the loss is a liar here. Load a checkpoint and look at parameter statistics:
+
+```python
+# A gamma tensor with sd of exactly 0.0 after training is the tell.
+print(gamma.mean(), gamma.std())
+```
+
+A standard deviation of exactly `0.0` across a tensor that was initialized to
+a constant means not one element ever moved. Generalize the habit past this
+one bug: **an optimizer update smaller than one ulp of your parameter dtype is
+computed and thrown away silently**, and the only instrument that sees it is
+the parameter itself.
+
+### What fixing it was worth
+
+Worth quantifying, because "13 of your layers weren't training" sounds
+catastrophic and the loss curve looked *fine* the whole time. The companion
+project retrained the identical architecture on the identical corpus, changing
+only `stochastic_rounding: false → true`:
+
+| | Frozen gammas | `stochastic_rounding: true` |
+|---|---|---|
+| Gamma sd (13 norms) | exactly **0.0** | **0.047 – 0.158** |
+| Held-out loss @ step 3000 | 1.878 | **1.783** |
+| Best held-out loss | 1.878 (at 3000) | **1.456** (at 17,000) |
+
+Paired against the same 32 held-out windows, the fixed model is **0.45 nats
+better** — every single window improved, with the two models' per-window losses
+correlating at r = 0.97, so the pairing is real rather than a lucky draw.
+
+The number that reframes the bug: **by step 3000 the fixed run had already beaten
+the best loss the frozen run ever reached** — 1.783 against a frozen best of 1.878.
+On an equal 3000-step budget, one config flag bought more than the frozen run's
+entire training run did, before counting any of the extra training below.
+
+Two honest caveats, because the headline oversells on its own. The fixed run
+also trained 7× longer, so that 1.878 → 1.456 gap is *both* effects together;
+the clean apples-to-apples comparison is the step-3000 row (1.878 → 1.783).
+And generated text is only **subtly** better to read — the gain is real and
+measurable but doesn't announce itself in a single sample. Past roughly step
+10,000 the curve flattened into a noisy 1.46–1.59 band, which is the signature
+of a **data**-bound model rather than a compute-bound one: more steps over the
+same corpus stopped paying. That matches what
+[Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"])
+found at ~80M parameters, and it's the argument for reaching for more or better
+data rather than a longer run.
+
+The next lab, [Prove It's Right: Verifying a Model You
+Trained](command:tenstorrent.showLesson?["lfs-06-verify-your-model"]), is
+entirely about this class of problem — checks that pass while the model is
+wrong — and this gotcha is its opening exhibit.
 
 ## Scaling to ~80M — and being honest about the comparison
 
@@ -418,6 +567,16 @@ You've now done the whole arc:
 That is a complete, honest, from-scratch path from a 32×32 tile to a training
 run with a falsifiable result.
 
+**And there's one more lab, because a dropping loss is not the same as a
+correct model** — the frozen-gamma gotcha above is proof of that, and it is the
+mildest example. [Prove It's Right: Verifying a Model You
+Trained](command:tenstorrent.showLesson?["lfs-06-verify-your-model"]) is the
+verification lab: how to tell whether the thing you just trained (or converted,
+or resumed) is computing the function you think it is, with the measured
+numbers from a model that passed four independent checks and was still wrong.
+
+[→ Continue to Lab 6: Prove It's Right](command:tenstorrent.showLesson?["lfs-06-verify-your-model"])
+
 If you want to go deeper into `ttml`-based training beyond this arc's nano
 scope — different architectures, longer runs, the full custom-training
 workflow — this project's Custom Training track (re-authored and verified
@@ -438,7 +597,7 @@ revisit the build steps this lab's `ttml` recipe depends on:
 
 ## You built an LLM from scratch, TT-native, on Tenstorrent hardware
 
-That's it — that's the arc. Five labs ago you started with nothing but a
+That's the build, end to end. Five labs ago you started with nothing but a
 32×32 tile and a promise that you could build a real, modern language model
 without ever leaving TT-native ground. You wrote a tokenizer, a residual
 stream, attention with RoPE and grouped-query sharing, a full pre-norm

@@ -121,6 +121,30 @@ Modern models add one more move: **grouped-query attention (GQA)**. Instead of g
 
 Full derivation — Q·Kᵀ, scaling, causal masking, softmax, the GQA head-sharing, and a hand-authored TT-Lang kernel for the whole thing — lives in [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]).
 
+> **`num_groups` quietly decides which hardware you can serve on.** This is the one place in this tour where an architecture choice reaches all the way into deployment, so it's worth knowing before you pick a number rather than after.
+>
+> To split attention across a multi-chip mesh, the serving stack shards by head — which means both the query heads and the KV heads have to divide evenly by the number of mesh columns. `tt_transformers` asserts exactly that (`models/tt_transformers/tt/model_config.py:687-691`, re-asserted in `attention.py:234-237`):
+>
+> ```python
+> assert n_heads % cluster_shape[1] == 0
+> assert n_kv_heads % cluster_shape[1] == 0   # <- the one that bites
+> ```
+>
+> `num_heads` is usually a friendly power of two. **`num_groups` often isn't** — and it's the smaller number, so it constrains harder. The companion project [tt-nanollama3](https://github.com/tsingletaryTT/tt-nanollama3) chose `num_groups: 3`, a perfectly reasonable 2:1 sharing ratio against 6 query heads. The consequence:
+>
+> | Mesh | Columns | 3 KV heads divide evenly? |
+> |---|---|---|
+> | N150 / P150 (single chip) | 1 | ✅ |
+> | N300 / P300 | 2 | ❌ |
+> | T3000 | 8 | ❌ |
+> | Galaxy | configurable submesh (e.g. 1×8) | ❌ unless the width is 1 or 3 |
+>
+> (`cluster_shape` is read from the live `mesh_device.shape` at `model_config.py:532`, so it follows whatever submesh you open rather than a fixed per-board constant.)
+>
+> That model can only be served on a **single chip** — not because it's too small to benefit from a mesh, but because 3 shares no factor with any commonly used mesh width except 1. Nothing about the architecture is wrong, and the model trains fine; the constraint only appears at serving time, as an assertion failure that says nothing about GQA.
+>
+> Choosing `num_groups: 2` or `4` instead would have kept the multi-chip door open at essentially the same quality. If you know you'll want to serve across a mesh, **pick `num_groups` divisible by your target mesh width** while it's still a one-line config decision.
+
 ## 4. The MLP (Feed-Forward Network)
 
 Where attention mixes information *across* tokens, the MLP processes each token's vector *individually* — a small two-layer network applied at every position. It's unglamorous, but it's where most of a model's parameters actually live: in models this size, the MLP typically accounts for well over half the total parameter count, because its inner dimension is usually several times `embedding_dim`.

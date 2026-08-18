@@ -815,15 +815,23 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   START_QB2_AGENTS_SERVER_QWEN: {
     id: 'start-qb2-agents-server-qwen',
     name: 'Start Qwen3-32B Agent Server',
-    template: "cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 --workflow server --docker-server --no-auth --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"hermes\"}'",
-    description: 'Starts vLLM with Qwen3-32B and tool calling enabled via tt-inference-server (hermes parser)',
+    // The reset is deliberately non-fatal (`|| echo ...;` rather than `&&`). `tt-smi -r`
+    // legitimately fails in cases where we still want the server to come up: tt-smi not on
+    // PATH (exit 127 — the case this lesson's own troubleshooting section documents), or the
+    // device still held by a previously running container. Chaining with `&&` would make the
+    // button appear to do nothing at all in exactly those situations.
+    template: "tt-smi -r || echo '⚠️  Board reset failed (tt-smi missing, or device still in use) — starting the server anyway'; cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"hermes\"}'",
+    description: 'Attempts a board reset (tt-smi -r, non-fatal) then starts vLLM with Qwen3-32B and tool calling enabled via tt-inference-server (hermes parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
   },
 
   START_QB2_AGENTS_SERVER_LLAMA: {
     id: 'start-qb2-agents-server-llama',
     name: 'Start Llama-3.3-70B Agent Server',
-    template: "cd ~/code/tt-inference-server && python3 run.py --model Llama-3.3-70B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"llama3_json\"}'",
-    description: 'Starts vLLM with Llama-3.3-70B-Instruct and tool calling enabled via tt-inference-server (llama3_json parser)',
+    // Non-fatal reset — see the note on START_QB2_AGENTS_SERVER_QWEN above. This button is
+    // the most likely to hit a busy device, since it is typically clicked while the Qwen
+    // container still owns the hardware.
+    template: "tt-smi -r || echo '⚠️  Board reset failed (tt-smi missing, or device still in use) — starting the server anyway'; cd ~/code/tt-inference-server && python3 run.py --model Llama-3.3-70B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"llama3_json\"}'",
+    description: 'Attempts a board reset (tt-smi -r, non-fatal) then starts vLLM with Llama-3.3-70B-Instruct and tool calling enabled via tt-inference-server (llama3_json parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
   },
 
   CHECK_AGENT_SERVER_HEALTH: {
@@ -836,8 +844,28 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   CLONE_TT_AGENTS: {
     id: 'clone-tt-agents',
     name: 'Clone tt-agents Repository',
-    template: 'git clone https://github.com/tenstorrent/tt-agents.git ~/code/tt-agents 2>/dev/null || (cd ~/code/tt-agents && git pull origin main) && cd ~/code/tt-agents && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt',
-    description: 'Clones (or updates) tt-agents to ~/code/tt-agents and installs Python dependencies',
+    // tt-agents currently lives under the tsingletaryTT org, not tenstorrent — it hasn't
+    // moved into the Tenstorrent org yet.
+    //
+    // Two things this template is careful about:
+    //
+    //  1. It branches on whether a git repo already exists rather than running the clone and
+    //     discarding stderr. The old `git clone ... 2>/dev/null || (git pull)` form hid every
+    //     clone failure — bad URL, DNS, auth, unwritable ~/code — behind a `git pull` against
+    //     a directory that may not exist, so real errors surfaced as confusing pull errors.
+    //
+    //  2. The update path rewrites `origin` before pulling. The repo moved orgs, so anyone who
+    //     ran an earlier version of this button has origin pointing at tenstorrent/tt-agents.
+    //     Without the rewrite they would pull from the old org indefinitely and never receive
+    //     tt_agents_common.py, the shared helper the framework demos (01-05) import.
+    template: `mkdir -p ~/code
+if [ -d ~/code/tt-agents/.git ]; then
+  echo "Updating existing clone at ~/code/tt-agents"
+  cd ~/code/tt-agents && git remote set-url origin https://github.com/tsingletaryTT/tt-agents.git && git pull origin main
+else
+  git clone https://github.com/tsingletaryTT/tt-agents.git ~/code/tt-agents && cd ~/code/tt-agents
+fi && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt || echo "⚠️  tt-agents setup did not complete — see the errors above"`,
+    description: 'Clones (or updates, re-pointing origin at the tsingletaryTT org) tt-agents to ~/code/tt-agents and installs Python dependencies',
   },
 
   COPY_AGENTS_TO_SCRATCHPAD: {
