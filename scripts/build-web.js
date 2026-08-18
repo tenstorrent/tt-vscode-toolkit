@@ -2297,6 +2297,7 @@ function buildRedirects() {
     // from is '/lessons/<slug>/' — write it as <slug>/index.html so the
     // original directory-style URL keeps resolving.
     const outDir = path.join(SITE, from.replace(/^\/|\/$/g, ''));
+    assertWithin(SITE, outDir);
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
     console.log(`  [OK]   ${from} → ${to}`);
