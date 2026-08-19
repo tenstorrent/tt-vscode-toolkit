@@ -63,7 +63,6 @@ function protectTechnical(line, slots) {
   s = s.replace(/tt-vscode-toolkit-\*\.vsix/g, slot);
   s = s.replace(/tt-vscode-toolkit-[0-9][\w.-]*\.vsix/g, slot);
   s = s.replace(/tt-vscode-toolkit\.git/g, slot);
-  s = s.replace(/showLesson\?\[["']deploy-vscode-to-koyeb["']\]/g, slot);
 
   s = s.replace(/`?~?\/[\w./-]*tt-vscode-toolkit[\w./-]*`?/g, (m) =>
     m.includes('tt-vscode-toolkit') ? slot(m) : m
@@ -71,7 +70,7 @@ function protectTechnical(line, slots) {
   s = s.replace(/`tt-vscode-toolkit`/g, slot);
   s = s.replace(/\b(cd|ls|git clone|--repo|--app|--docker|FROM|fetch\()\b[^\n]*tt-vscode-toolkit/g, slot);
 
-  // Koyeb / docker CLI tokens (not prose)
+  // Container / CLI tokens (not prose)
   if (/\b(--app|--docker|container_name:|SITE_BASE_PATH:|name=)tt-vscode-toolkit\b/.test(s)) {
     s = s.replace(/(--app|--docker|container_name:|SITE_BASE_PATH:|name=)tt-vscode-toolkit/g, (m) =>
       slot(m)

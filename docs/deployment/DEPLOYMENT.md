@@ -80,14 +80,6 @@ All images are based on **Ubuntu 24.04 (noble) server variant** with code-server
 - **Use case:** Complete development environment with all tools
 - **Build:** `docker build -f Dockerfile.full -t TT-VSCode-Toolkit:full .`
 
-### Koyeb Image (`Dockerfile.koyeb`)
-- **Size:** ~2-2.5GB
-- **Base:** Ubuntu 24.04 (server/minimal, better TT-Installer compatibility)
-- **Contents:** code-server + extension + TT-Installer tools (tt-smi, tt-flash, etc.)
-- **Use case:** Koyeb cloud platform with n300 hardware
-- **Build:** `docker build -f Dockerfile.koyeb -t TT-VSCode-Toolkit:koyeb .`
-- **Note:** Uses TT-Installer with `--mode-container` to install Tenstorrent tools
-
 **Optimization:** All images use `--no-install-recommends` flag to avoid installing X11 libraries, documentation, and other bloat.
 
 ## Environment Variables
@@ -139,15 +131,6 @@ The `docker-compose.yml` / `podman-compose.yml` set up volumes for:
 - **workspace:** Bind mount to `./workspace` directory (optional)
 
 ## Cloud Deployment
-
-### Koyeb (Recommended)
-
-See [KOYEB.md](./KOYEB.md) for complete Koyeb deployment guide.
-
-Quick deploy buttons available for:
-- Git-based deployment (builds from source)
-- Docker image deployment (uses pre-built image)
-- Hardware-accelerated instances (n300 support)
 
 ### Railway
 
@@ -349,7 +332,6 @@ docker builder prune
 
 ## Resources
 
-- **Koyeb Deployment:** [KOYEB.md](./KOYEB.md)
 - **code-server Documentation:** https://coder.com/docs/code-server
 - **Docker Documentation:** https://docs.docker.com/
 - **Podman Documentation:** https://docs.podman.io/

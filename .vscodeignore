@@ -49,7 +49,6 @@ Dockerfile
 Dockerfile.*
 docker-compose.yml
 podman-compose.yml
-koyeb.yaml
 .dockerignore
 .env.example
 

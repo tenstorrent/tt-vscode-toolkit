@@ -146,13 +146,6 @@ Self-contained programs that showcase Tenstorrent capabilities with vivid visual
 
 A structured computer-science curriculum designed for the Tenstorrent architecture — covering RISC-V, memory hierarchies, parallel computing, networks, synchronization, abstraction, and computational complexity.
 
-### 🚢 Deployment *(2 lessons, validated)*
-
-| Lesson | Focus |
-|---|---|
-| Deploy TT-VSCode-Toolkit to Koyeb | Hosting the extension as a code-server instance |
-| Deploy Your Work to Koyeb | Deploying your own TT-accelerated applications |
-
 ---
 
 ## Hardware Filtering
@@ -175,7 +168,7 @@ Beyond lessons, the extension registers 70+ commands accessible via the Command 
 | **Metalium** | Build Programming Examples, Run RISC-V Addition Example |
 | **Video gen** | Clone tt-local-generator, Start Wan2.2 Video Server, Launch tt-gen GUI |
 | **Templates** | Create Coding Assistant Script, Create API Server Script, Create Chat Script |
-| **Deployment** | Clone tt-local-generator, Deploy to Koyeb |
+| **Deployment** | Clone tt-local-generator |
 
 Each command opens a terminal and runs the relevant shell invocation — the same command that appears in the lesson buttons.
 

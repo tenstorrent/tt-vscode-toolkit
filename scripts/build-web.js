@@ -170,6 +170,39 @@ const PAGES = [
 ];
 
 /* ------------------------------------------------------------------ *
+ * Retired URLs (redirect stubs)                                       *
+ *                                                                     *
+ * GitHub Pages has no server-side redirect config, and we emit a      *
+ * .nojekyll file — so the jekyll-redirect-from plugin isn't available  *
+ * either. The only mechanism left is a static stub page per retired    *
+ * URL: <meta http-equiv="refresh"> for browsers, <link rel="canonical">
+ * so search engines fold the old URL into the new one, and a JS        *
+ * location.replace() so the stub doesn't sit in the back-button chain. *
+ *                                                                     *
+ * Add an entry here whenever a published lesson slug is removed —      *
+ * these URLs are indexed and are cited in llms.txt, so a bare 404 is   *
+ * a dead end for anyone holding a bookmark.                            *
+ * ------------------------------------------------------------------ */
+
+const REDIRECTS = [
+  {
+    from: '/lessons/deploy-vscode-to-koyeb/',
+    to: '/lessons/',
+    title: 'Lesson Removed',
+    reason: 'Koyeb deployment support has been removed from the toolkit.',
+  },
+  {
+    from: '/lessons/deploy-to-koyeb/',
+    to: '/lessons/',
+    title: 'Lesson Removed',
+    reason: 'Koyeb deployment support has been removed from the toolkit.',
+  },
+];
+
+/** Seconds a redirect stub waits before navigating, so the note is readable. */
+const REDIRECT_DELAY = 3;
+
+/* ------------------------------------------------------------------ *
  * Load lesson registry                                                *
  * ------------------------------------------------------------------ */
 
@@ -595,7 +628,6 @@ const CATEGORY_LABELS = {
   'advanced':        'Advanced',
   'cs-fundamentals': 'CS Fundamentals',
   'custom-training': 'Custom Training',
-  'deployment':      'Deployment',
 };
 
 function categoryLabel(cat) {
@@ -2230,6 +2262,48 @@ function buildPages() {
  * Main build                                                          *
  * ------------------------------------------------------------------ */
 
+/**
+ * Emit one stub page per retired URL (see REDIRECTS).
+ *
+ * Each stub is a real page rather than a bare meta-refresh document: a visitor
+ * who bookmarked the old lesson gets told *why* they're being moved, instead of
+ * silently landing somewhere unrelated and assuming the site is broken.
+ */
+function buildRedirects() {
+  REDIRECTS.forEach(({ from, to, title, reason }) => {
+    const target = siteUrl(to);
+
+    const html = pageShell({
+      title,
+      bodyClass: 'redirect-page',
+      noSidebar: true,
+      // Browsers honour the refresh; crawlers fold the old URL into the new one
+      // via the canonical link rather than indexing this stub.
+      head: `  <meta http-equiv="refresh" content="${REDIRECT_DELAY};url=${escapeAttr(target)}">
+  <link rel="canonical" href="${escapeAttr(target)}">
+  <meta name="robots" content="noindex, follow">`,
+      content: `<h1>Lesson <strong>Removed</strong></h1>
+<p>${escapeHtml(reason)}</p>
+<p>Redirecting you to the lesson catalog in ${REDIRECT_DELAY} seconds —
+   or <a href="${escapeAttr(target)}">go there now</a>.</p>
+<script>
+  // replace() rather than assign() so the stub doesn't trap the back button.
+  setTimeout(function () {
+    window.location.replace(${JSON.stringify(target)});
+  }, ${REDIRECT_DELAY * 1000});
+</script>`,
+    });
+
+    // from is '/lessons/<slug>/' — write it as <slug>/index.html so the
+    // original directory-style URL keeps resolving.
+    const outDir = path.join(SITE, from.replace(/^\/|\/$/g, ''));
+    assertWithin(SITE, outDir);
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
+    console.log(`  [OK]   ${from} → ${to}`);
+  });
+}
+
 function build() {
   console.log(`\nBuilding Tenstorrent Lessons site → ${SITE}\n`);
 
@@ -2246,6 +2320,9 @@ function build() {
 
   console.log('\nReference pages:');
   buildPages();
+
+  console.log('\nRetired URLs:');
+  buildRedirects();
 
   // Emit a simple 404 page
   const notFoundHtml = pageShell({

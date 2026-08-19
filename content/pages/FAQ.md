@@ -51,9 +51,6 @@ Computer Architecture, Memory, Parallelism, Networks, Synchronization, Abstracti
 **🎓 Advanced Topics (2 lessons)**
 Bounty Program, Explore Metalium
 
-**☁️ Deployment (2 lessons)**
-Deploy to Koyeb, Deploy VSCode to Koyeb
-
 **Can I skip lessons?** Yes — categories are independent. See [Environment Reference](#environment-reference) if a command fails because something isn't set up.
 
 ### Q: Do I need to complete lessons in order?

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.26] - 2026-08-18
+
+### Added
+- **Redirect stubs for retired lesson URLs.** The two published Koyeb lesson URLs were indexed and cited in `llms.txt`, so `scripts/build-web.js` now emits a stub page per retired slug (`meta refresh` + canonical + `noindex`) pointing at the lesson catalog with a one-line note explaining the removal. GitHub Pages has no server-side redirects and the site sets `.nojekyll`, so a static stub is the only mechanism available. Add to the `REDIRECTS` list whenever a published slug is removed.
+
+### Removed
+- Removed support for Koyeb as a deployment option
+
 ## [0.1.25] - 2026-08-13
 
 Lands the Build-an-LLM-from-Scratch arc's verification lab and hardens the training lab (`lfs-05`) with findings from a real four-chip TT-QuietBox® 2 run.
