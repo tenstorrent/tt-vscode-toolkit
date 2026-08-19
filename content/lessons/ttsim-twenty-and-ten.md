@@ -4,7 +4,7 @@ title: "Twenty-and-Ten Things You Can Do with ttsim"
 description: >-
   32 things you can do with the ttsim hardware simulator — no Tenstorrent
   device required. Runs on any Linux machine, including WSL2 on Windows.
-  Includes N300 and Blackhole two-chip mesh simulation (v1.8.4). Escalates
+  Includes N300 and Blackhole two-chip mesh simulation (v1.10.1). Escalates
   from first kernel to DSP prototyping to a cliffhanger only real hardware
   can resolve.
 category: advanced
@@ -32,14 +32,14 @@ estimatedMinutes: 60
 ttsim is a hardware-accurate functional simulator for Tenstorrent Wormhole and Blackhole
 chips. It ships as a single `.so` file that plugs into TT-Metalium via an environment
 variable. Every kernel that compiles for silicon compiles for the simulator. Results are
-bit-exact. It runs on any Linux/x86_64 machine, including WSL2 on Windows.
+bit-exact. It runs on any Linux machine — x86_64 or aarch64 — including WSL2 on Windows.
 
 This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 
 > **Have hardware?** The simulator is still useful for debugging, architecture
 > exploration, and running experiments without tying up a device.
 
-[![ttsim highlight reel — 6 of 32 entries running against ttsim v1.8.4](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
+[![ttsim highlight reel — 6 of 32 entries running against ttsim v1.8.4 (setup below now pins v1.10.1)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif)](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/assets/img/ttsim-demo.gif "ttsim demo — click to open full size")
 
 ---
 
@@ -58,24 +58,31 @@ Or manually:
 
 ```bash
 mkdir -p ~/sim
-TTSIM_VERSION=v1.8.4
+TTSIM_VERSION=v1.10.1
 
-# Wormhole, Blackhole, and mesh variants
+# Single chip: libttsim_wh.so = Wormhole, libttsim_bh.so = Blackhole
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh.so \
      -O ~/sim/libttsim_wh.so
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh.so \
      -O ~/sim/libttsim_bh.so
+
+# Multi-chip: the suffix is the chip count, and the whole board is one .so
+#   wh_x2  = N300 (2 Wormhole)      — entry 31
+#   bh_x2  = P300 (2 Blackhole)     — entry 32
+#   wh_x8  = T3000 / LoudBox        — not yet exercised in this lesson
+#   bh_x4  = TT-QuietBox 2 (2x P300 cards, 4 Blackhole chips), new in v1.10.0
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh_x2.so \
      -O ~/sim/libttsim_wh_x2.so
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh_x2.so \
      -O ~/sim/libttsim_bh_x2.so
 wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_wh_x8.so \
      -O ~/sim/libttsim_wh_x8.so
+wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_bh_x4.so \
+     -O ~/sim/libttsim_bh_x4.so
 
-# libttsim_qsr.so — QuietBox simulation topology (4-chip Blackhole layout)
-# Download if targeting TT-QuietBox 2 specifically
-# wget https://github.com/tenstorrent/ttsim/releases/download/${TTSIM_VERSION}/libttsim_qsr.so \
-#      -O ~/sim/libttsim_qsr.so
+# Also published, not used below: wh_x32 / bh_x32 (Galaxy racks — bh_x32 is
+# x86_64 only), and libttsim_qsr.so, which is *Quasar*: a separate, pre-silicon
+# Tenstorrent architecture, not a Wormhole or Blackhole board.
 
 # Copy the SOC descriptor for Wormhole (switch for Blackhole in entries 3 and 27)
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
@@ -883,7 +890,7 @@ does not exist in this machine.
 
 ### 31. One more thing
 
-v1.8.4 ships `libttsim_wh_x2.so`: a virtual N300 that gives you **two Wormhole chips
+ttsim ships `libttsim_wh_x2.so`: a virtual N300 that gives you **two Wormhole chips
 connected by simulated Ethernet**. Open a `MeshDevice(1, 2)`, shard a tensor across both
 chips with `ShardTensorToMesh`, run an op — it dispatches to both chips simultaneously.
 Same TTNN API you'd use on a real N300.
@@ -947,10 +954,14 @@ First: the performance counter values. Reads from hardware cycle counters and pe
 monitors return values the README explicitly marks as divergent. The simulator does not
 model real-time execution.
 
-Second: fast dispatch. `TT_METAL_SLOW_DISPATCH_MODE=1` is required. The fast dispatch
-path is not yet implemented. On hardware, turning off slow dispatch mode is the moment
-the architecture behaves differently. The dispatch overhead collapses. The ratio you
-measured in entry 26 changes by an order of magnitude.
+Second: fast dispatch, honestly. This lesson sets `TT_METAL_SLOW_DISPATCH_MODE=1`
+throughout, and you should keep it. Fast dispatch is no longer missing from the simulator —
+as of v1.10.1 the README calls it "believed to be fully functional" — but its run-to-run
+determinism has not been characterized, and it can run *slower* than slow dispatch under
+simulation. So you can flip it on, and you will not learn what you want from it.
+On hardware, turning off slow dispatch mode is the moment the architecture behaves
+differently. The dispatch overhead collapses. The ratio you measured in entry 26 changes
+by an order of magnitude. That collapse is the thing the simulator cannot show you.
 
 There is a third thing, harder to describe. The biquad filter in entry 29 runs in the
 simulator. On silicon, with fast dispatch enabled, 1,024 samples of biquad filtering at
@@ -1007,9 +1018,13 @@ Wormhole N300 runs a 2-chip Blackhole system without a code change.
 > To return to single-chip Wormhole: `export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so`
 > and `unset TT_METAL_MOCK_CLUSTER_DESC_PATH`.
 
-Want to run a full 4-chip Blackhole topology (TT-QuietBox 2)?
-Use `libttsim_qsr.so` with its cluster descriptor on the host — see the commented-out
-download in the Setup section above.
+Want a full 4-chip Blackhole topology (TT-QuietBox 2)? That is `libttsim_bh_x4.so`,
+added in ttsim v1.10.0 and downloaded by the Setup block above — point
+`TT_METAL_SIMULATOR` at it and pair it with a matching 4-chip cluster descriptor.
+
+> **Not `libttsim_qsr.so`.** `qsr` is **Quasar**, a separate Tenstorrent architecture
+> that is still pre-silicon — it is not a four-chip Blackhole board. If you want QB2,
+> you want `bh_x4`.
 
 ---
 
@@ -1020,7 +1035,7 @@ download in the Setup section above.
 - ✅ **SFPU operations**: native transcendental functions, custom SFPI assembly, DSP use
 - ✅ **Memory hierarchy**: L1 reuse, DRAM sharding, NoC tile transfer
 - ✅ **Multi-core patterns**: grid dispatch, multicast, distributed mesh
-- ✅ **Multi-chip simulation**: N300 WH 1×2 and Blackhole 1×2 MeshDevice with ShardTensorToMesh (v1.8.4)
+- ✅ **Multi-chip simulation**: N300 WH 1×2 and Blackhole 1×2 MeshDevice with ShardTensorToMesh (v1.10.1)
 - ✅ **Simulator strictness**: named error categories, race detection, bit-exact NaN
 - ✅ **Architecture exploration**: Wormhole vs Blackhole vs N300 without owning any of them
 

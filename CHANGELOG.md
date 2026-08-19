@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.27] - 2026-08-18
+
+Correctness pass over the two ttsim lessons, which had drifted ten releases behind upstream (pinned `v1.8.4`; current is `v1.10.1`).
+
+### Fixed
+- **`libttsim_qsr.so` was described as a "QuietBox simulation topology (4-chip Blackhole layout)" — it is not.** `qsr` is **Quasar**, a separate, still-pre-silicon Tenstorrent architecture. The real TT-QuietBox 2 config is **`bh_x4`** (2× P300 cards), added upstream in ttsim v1.10.0. The mislabel appeared twice in `ttsim-twenty-and-ten` (Setup block and the entry 32 closer) and sent anyone chasing a four-chip Blackhole mesh at the wrong architecture entirely. Both now point at `bh_x4`, with an explicit callout naming the distinction. Worth noting the error had already escaped: Glean repeats it back when asked about ttsim, citing our own lesson as the source.
+- **"Fast dispatch is not yet implemented" is no longer true.** Upstream now describes it as believed fully functional, with uncharacterized run-to-run determinism and possible slowdowns under simulation. `TT_METAL_SLOW_DISPATCH_MODE=1` remains the recommendation, but for a different reason — corrected in `ttsim-twenty-and-ten`, `ttsim-qemu-bridge`, and `tt-lang-intro`.
+- **`ttsim` runs on aarch64, not just x86_64.** The lesson intro claimed "any Linux/x86_64 machine" while a later note correctly documented the aarch64 builds. (`bh_x32` genuinely is x86_64-only, and is now noted as such.)
+- **README lesson catalog regenerated** — `lfs-06-verify-your-model` was missing since 0.1.25.
+
+### Changed
+- **ttsim pinned to `v1.10.1`** across the lesson Setup block and the `setup-ttsim` command; `tt-lang-intro` (a peripheral mention with no version-specific claims) now tracks `releases/latest/download/`, matching the FAQ. `tt-lang-intro` had been pinned to `v1.5.4`.
+- **`setup-ttsim` rewritten around a single `TTSIM_VERSION` variable and a download loop** instead of five hardcoded URLs, so future bumps are a one-line change, and `bh_x4` added to the set it fetches.
+- **Setup block now labels each multi-chip build** (`wh_x2` = N300, `bh_x2` = P300, `wh_x8` = T3000, `bh_x4` = QB2) and notes what is published but unused here (`wh_x32`/`bh_x32` Galaxy, and `qsr`). `wh_x8` has been downloaded but never exercised by any entry; that is now stated rather than left implicit.
+
 ## [0.1.26] - 2026-08-18
 
 ### Added

@@ -234,7 +234,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Training from Scratch** — `P300C`
 
 ### 🔬 Build an LLM from Scratch
-*6 lessons, 0 validated*
+*7 lessons, 0 validated*
 
 - **Build an LLM from Scratch — Pick Your Altitude** — *draft*
 - **Tokenizer & Data from Scratch** — *draft*
@@ -242,6 +242,7 @@ code --install-extension tt-vscode-toolkit-*.vsix
 - **Attention from Scratch** — *draft*
 - **The Transformer Block & the Model** — *draft*
 - **Train It & Run for Real** — `P300C`
+- **Prove It's Right: Verifying a Model You Trained** — *draft*
 
 ### 👨‍🍳 Tenstorrent Cookbook
 *6 lessons, 6 validated*

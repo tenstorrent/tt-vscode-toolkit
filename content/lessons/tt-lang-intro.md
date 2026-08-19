@@ -500,17 +500,17 @@ matches your hardware:
 mkdir -p ~/sim && cd ~/sim
 
 # Wormhole (n150, n300, T3000, Galaxy)
-wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_wh.so
+wget https://github.com/tenstorrent/ttsim/releases/latest/download/libttsim_wh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml
 
 # OR: Blackhole (p100, p150, p300c, TT-QuietBox 2)
-wget https://github.com/tenstorrent/ttsim/releases/download/v1.5.4/libttsim_bh.so
+wget https://github.com/tenstorrent/ttsim/releases/latest/download/libttsim_bh.so
 cp $TT_METAL_HOME/tt_metal/soc_descriptors/blackhole_140_arch.yaml ~/sim/soc_descriptor.yaml
 ```
 
 ```bash
 export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so   # or libttsim_bh.so for Blackhole
-export TT_METAL_SLOW_DISPATCH_MODE=1              # required — fast dispatch is in progress
+export TT_METAL_SLOW_DISPATCH_MODE=1              # recommended — fast dispatch is undercharacterized
 
 cd $TT_METAL_HOME
 ./build/programming_examples/metal_example_add_2_integers_in_riscv
