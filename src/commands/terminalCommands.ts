@@ -82,7 +82,8 @@ const JAX_DEVICE_CHECK_PY =
  * base image (Ubuntu 24.04 cloud image); libttsim_wh.so runs on the host and is
  * bridged to the guest via the PCI device. Inside the VM, TT-Metal sees real
  * Wormhole hardware — no TT_METAL_SIMULATOR env var needed.
- * Constraint: slow dispatch only (TT_METAL_SLOW_DISPATCH_MODE=1).
+ * Constraint: slow dispatch recommended (TT_METAL_SLOW_DISPATCH_MODE=1) — fast
+ * dispatch works but its determinism under simulation is uncharacterized.
  */
 
 /**
@@ -930,20 +931,25 @@ fi && pip install --upgrade pip setuptools wheel && pip install -r requirements.
   SETUP_TTSIM: {
     id: 'setup-ttsim',
     name: 'Set Up ttsim Simulator',
+    // Bump TTSIM_VERSION in one place to move the lesson to a newer release.
+    // Keep it in sync with the Setup block in content/lessons/ttsim-twenty-and-ten.md.
+    // Config naming: the _xN suffix is the chip count for a whole board —
+    //   wh_x2 = N300, bh_x2 = P300, wh_x8 = T3000, bh_x4 = TT-QuietBox 2 (2x P300).
+    // libttsim_qsr.so is *Quasar*, a separate pre-silicon architecture, and is
+    // deliberately not downloaded here.
     template: `mkdir -p ~/sim
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh.so -O ~/sim/libttsim_wh.so || { echo "ERROR: failed to download libttsim_wh.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_bh.so -O ~/sim/libttsim_bh.so || { echo "ERROR: failed to download libttsim_bh.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh_x2.so -O ~/sim/libttsim_wh_x2.so || { echo "ERROR: failed to download libttsim_wh_x2.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_bh_x2.so -O ~/sim/libttsim_bh_x2.so || { echo "ERROR: failed to download libttsim_bh_x2.so"; exit 1; }
-wget -q https://github.com/tenstorrent/ttsim/releases/download/v1.8.4/libttsim_wh_x8.so -O ~/sim/libttsim_wh_x8.so || { echo "ERROR: failed to download libttsim_wh_x8.so"; exit 1; }
+TTSIM_VERSION=v1.10.1
+for SIM in wh bh wh_x2 bh_x2 wh_x8 bh_x4; do
+  wget -q https://github.com/tenstorrent/ttsim/releases/download/$TTSIM_VERSION/libttsim_$SIM.so -O ~/sim/libttsim_$SIM.so || { echo "ERROR: failed to download libttsim_$SIM.so"; exit 1; }
+done
 if [ -n "$TT_METAL_HOME" ]; then
   cp $TT_METAL_HOME/tt_metal/soc_descriptors/wormhole_b0_80_arch.yaml ~/sim/soc_descriptor.yaml || { echo "ERROR: failed to copy SOC descriptor"; exit 1; }
   cp $TT_METAL_HOME/tests/tt_metal/tt_fabric/custom_mock_cluster_descriptors/n300_cluster_desc.yaml ~/sim/n300_cluster_desc.yaml || { echo "WARNING: n300 cluster desc copy skipped (optional for N300 sim)"; }
 else
   echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
 fi
-echo "ttsim v1.8.4 ready (wh + bh + wh_x2 + bh_x2 + wh_x8)"`,
-    description: 'Downloads ttsim v1.8.4 Wormhole, Blackhole, N300 (wh_x2), BH-x2, and WH-x8 binaries and copies SOC descriptors',
+echo "ttsim $TTSIM_VERSION ready (wh + bh + wh_x2 + bh_x2 + wh_x8 + bh_x4)"`,
+    description: 'Downloads the pinned ttsim Wormhole, Blackhole, and multi-chip (wh_x2/bh_x2/wh_x8/bh_x4) binaries and copies SOC descriptors',
   },
 
   RUN_TTSIM_ATTENTION: {

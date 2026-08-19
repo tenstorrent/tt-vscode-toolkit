@@ -71,9 +71,12 @@ and all entries in ttsim-twenty-and-ten will work without any VM setup.
 
 ---
 
-## Important constraint: slow dispatch only
+## Important constraint: use slow dispatch
 
-`libttsim` does not yet implement fast dispatch. Inside the VM you must set:
+Fast dispatch is no longer missing from `libttsim` — as of v1.10.1 the ttsim README calls it
+"believed to be fully functional" — but its run-to-run determinism is uncharacterized and it
+can be slower than slow dispatch under simulation, so slow dispatch remains the recommended
+mode. Inside the VM, set:
 
 ```bash
 export TT_METAL_SLOW_DISPATCH_MODE=1
