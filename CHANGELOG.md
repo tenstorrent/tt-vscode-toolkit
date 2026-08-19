@@ -19,7 +19,7 @@ Correctness pass over the two ttsim lessons, which had drifted ten releases behi
 
 ### Changed
 - **ttsim pinned to `v1.10.1`** across the lesson Setup block and the `setup-ttsim` command; `tt-lang-intro` (a peripheral mention with no version-specific claims) now tracks `releases/latest/download/`, matching the FAQ. `tt-lang-intro` had been pinned to `v1.5.4`.
-- **`setup-ttsim` rewritten around a single `TTSIM_VERSION` variable and a download loop** instead of five hardcoded URLs, so future bumps are a one-line change, and `bh_x4` added to the set it fetches.
+- **`setup-ttsim` rewritten around a single `TTSIM_VERSION` variable and a download loop** instead of five hardcoded URLs, so future bumps really are a one-line change — the command-palette description no longer repeats the version either, and the script echoes the resolved value at runtime. `bh_x4` added to the set it fetches.
 - **Setup block now labels each multi-chip build** (`wh_x2` = N300, `bh_x2` = P300, `wh_x8` = T3000, `bh_x4` = QB2) and notes what is published but unused here (`wh_x32`/`bh_x32` Galaxy, and `qsr`). `wh_x8` has been downloaded but never exercised by any entry; that is now stated rather than left implicit.
 
 ## [0.1.26] - 2026-08-18

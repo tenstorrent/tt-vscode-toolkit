@@ -71,7 +71,7 @@ and all entries in ttsim-twenty-and-ten will work without any VM setup.
 
 ---
 
-## Important constraint: slow dispatch only
+## Important constraint: use slow dispatch
 
 Fast dispatch is no longer missing from `libttsim` — as of v1.10.1 the ttsim README calls it
 "believed to be fully functional" — but its run-to-run determinism is uncharacterized and it

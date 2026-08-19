@@ -82,7 +82,8 @@ const JAX_DEVICE_CHECK_PY =
  * base image (Ubuntu 24.04 cloud image); libttsim_wh.so runs on the host and is
  * bridged to the guest via the PCI device. Inside the VM, TT-Metal sees real
  * Wormhole hardware — no TT_METAL_SIMULATOR env var needed.
- * Constraint: slow dispatch only (TT_METAL_SLOW_DISPATCH_MODE=1).
+ * Constraint: slow dispatch recommended (TT_METAL_SLOW_DISPATCH_MODE=1) — fast
+ * dispatch works but its determinism under simulation is uncharacterized.
  */
 
 /**
@@ -948,7 +949,7 @@ else
   echo "TT_METAL_HOME not set — SOC descriptor copy skipped"
 fi
 echo "ttsim $TTSIM_VERSION ready (wh + bh + wh_x2 + bh_x2 + wh_x8 + bh_x4)"`,
-    description: 'Downloads ttsim v1.10.1 Wormhole, Blackhole, and multi-chip (wh_x2/bh_x2/wh_x8/bh_x4) binaries and copies SOC descriptors',
+    description: 'Downloads the pinned ttsim Wormhole, Blackhole, and multi-chip (wh_x2/bh_x2/wh_x8/bh_x4) binaries and copies SOC descriptors',
   },
 
   RUN_TTSIM_ATTENTION: {
