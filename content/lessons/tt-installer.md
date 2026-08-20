@@ -74,7 +74,9 @@ TT-Installer 2.0 is a comprehensive installation script that:
 
 TT-Installer 2.0 sets up:
 
-1. **System packages** - Build tools, dependencies (via apt/yum)
+1. **System packages** - Build tools, dependencies (via apt/yum), plus the
+   **Tenstorrent package repository** and its signing key
+   (see [The Tenstorrent Package Repository](#the-tenstorrent-package-repository-ppa))
 2. **Python environment** - Virtual environment with pip/pipx
 3. **Kernel-Mode Driver (KMD)** - Tenstorrent hardware driver
 4. **Firmware updater (tt-flash)** - Updates your card's firmware to latest
@@ -200,6 +202,103 @@ This verifies:
 > ```
 
 [🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
+
+## The Tenstorrent Package Repository (PPA)
+
+Before it can install `tenstorrent-dkms`, `tt-smi`, `tt-flash` and friends, the
+installer adds Tenstorrent's package repository at **https://ppa.tenstorrent.com**
+to your package manager — and, critically, installs the repository's **signing key**
+to `/etc/apt/keyrings/tt-pkg-key.asc`. apt refuses to install from a repository it
+cannot verify, so the key is not optional.
+
+TT-Installer does this for you. The commands below are what it runs — useful if you
+want to add the repository without running the full installer, or if you need to
+repair a broken setup.
+
+### Ubuntu
+
+```bash
+# 1. Create the keyring directory
+sudo mkdir -p /etc/apt/keyrings
+sudo chmod 755 /etc/apt/keyrings
+
+# 2. Download the Tenstorrent package signing key
+sudo curl -fsSL -o /etc/apt/keyrings/tt-pkg-key.asc https://ppa.tenstorrent.com/tt-pkg-key.asc
+
+# 3. Add the repository, pinned to that key
+echo "deb [signed-by=/etc/apt/keyrings/tt-pkg-key.asc] https://ppa.tenstorrent.com/ubuntu/ $(. /etc/os-release && echo "$VERSION_CODENAME") main" \
+  | sudo tee /etc/apt/sources.list.d/tenstorrent.list > /dev/null
+
+# 4. Refresh the package lists
+sudo apt-get update
+```
+
+### Debian
+
+Identical, except the repository path is `/debian/` instead of `/ubuntu/`:
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+sudo chmod 755 /etc/apt/keyrings
+sudo curl -fsSL -o /etc/apt/keyrings/tt-pkg-key.asc https://ppa.tenstorrent.com/tt-pkg-key.asc
+echo "deb [signed-by=/etc/apt/keyrings/tt-pkg-key.asc] https://ppa.tenstorrent.com/debian/ $(. /etc/os-release && echo "$VERSION_CODENAME") main" \
+  | sudo tee /etc/apt/sources.list.d/tenstorrent.list > /dev/null
+sudo apt-get update
+```
+
+### Fedora / RHEL / CentOS
+
+dnf reads the key straight from the URL, so there is no keyring file to manage:
+
+```bash
+sudo tee /etc/yum.repos.d/tenstorrent.repo > /dev/null << 'EOF'
+[Tenstorrent]
+name=Tenstorrent
+baseurl=https://ppa.tenstorrent.com/fedora
+enabled=1
+gpgcheck=1
+gpgkey=https://ppa.tenstorrent.com/tt-pkg-key.asc
+EOF
+```
+
+> **Note:** RHEL and CentOS are not officially supported — they use the Fedora
+> repository, which may or may not match your system's libraries.
+
+### Verify it worked
+
+```bash
+# The key should be a PGP public key block
+head -1 /etc/apt/keyrings/tt-pkg-key.asc
+# → -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+# The repository line should reference that key
+cat /etc/apt/sources.list.d/tenstorrent.list
+
+# And packages should now resolve to ppa.tenstorrent.com
+apt-cache policy tt-smi
+```
+
+### What's in the repository
+
+Confirmed packages on the Ubuntu 24.04 (noble) channel:
+
+| Package | What it is |
+|---------|-----------|
+| `tenstorrent-dkms` | Kernel-Mode Driver (KMD), built by DKMS on kernel updates |
+| `tt-smi` | System Management Interface — device status and reset |
+| `tt-flash`, `tt-burnin` | Firmware flashing and burn-in |
+| `tt-topology` | Multi-chip topology configuration |
+| `tt-metalium`, `tt-metalium-dev`, `tt-metalium-examples`, `tt-metalium-jit` | TT-Metalium<sup>™</sup> runtime and headers |
+| `tt-nn`, `tt-nn-dev`, `tt-nn-examples` | TT-NN<sup>™</sup> libraries |
+| `sfpi` | Scalar Floating Point Interface (kernel development) |
+| `tt-toplike`, `tt-toplike-app` | `top`-style live device monitor |
+| `tt-tools-common`, `python3-tt-tools-common`, `python3-pyluwen` | Shared Python tooling |
+
+Install any of them the usual way once the repository is configured:
+
+```bash
+sudo apt-get install tt-smi tt-toplike
+```
 
 ## Using TT-Metalium Containers
 
@@ -391,6 +490,60 @@ After installation completes, you're ready to:
    - [GitHub Discussions](https://github.com/tenstorrent/tt-metal/discussions)
 
 ## Troubleshooting
+
+### apt errors about the Tenstorrent repository signature
+
+**Problem:** `apt-get update` or `apt-get install` fails with one of:
+
+```
+E: The repository 'https://ppa.tenstorrent.com/ubuntu noble InRelease' is not signed.
+W: GPG error: ... NO_PUBKEY ...
+E: Failed to fetch ... 403 Forbidden
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+```
+
+**Cause:** the repository line in `/etc/apt/sources.list.d/tenstorrent.list` points at
+`/etc/apt/keyrings/tt-pkg-key.asc`, and that key file is missing, empty, truncated, or
+unreadable. This happens when the repository was added by hand without the key, when the
+key download was interrupted, or when an older setup used the deprecated
+`apt-key add` path.
+
+**Solution:** re-download the key and refresh:
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+sudo chmod 755 /etc/apt/keyrings
+sudo curl -fsSL -o /etc/apt/keyrings/tt-pkg-key.asc https://ppa.tenstorrent.com/tt-pkg-key.asc
+
+# Sanity-check: must be a PGP block, and world-readable (644)
+head -1 /etc/apt/keyrings/tt-pkg-key.asc
+ls -l /etc/apt/keyrings/tt-pkg-key.asc
+
+sudo apt-get update
+```
+
+**Still failing?** Check these in order:
+
+- **`curl: command not found`** — `sudo apt-get install -y curl` first.
+- **Zero-byte key file** — a proxy or captive portal returned an error page.
+  `curl -fsSL https://ppa.tenstorrent.com/tt-pkg-key.asc | head -1` should print
+  `-----BEGIN PGP PUBLIC KEY BLOCK-----`; if it prints HTML, fix the proxy
+  (`HTTPS_PROXY`) and retry. Note `sudo` does not inherit your proxy variables
+  by default — use `sudo -E curl ...`.
+- **Permissions** — the file must be readable by `_apt`. If you see
+  `Could not open file ... Permission denied`, run
+  `sudo chmod 644 /etc/apt/keyrings/tt-pkg-key.asc`.
+- **Wrong path** — the `signed-by=` path in `tenstorrent.list` must match the file
+  you downloaded exactly, including the `.asc` extension. Compare the two:
+  `cat /etc/apt/sources.list.d/tenstorrent.list`.
+- **Wrong codename** — the repository must reference your release
+  (`noble`, `jammy`, …). Confirm with
+  `. /etc/os-release && echo "$VERSION_CODENAME"`.
+- **Legacy `apt-key`** — if an old trusted key is also present, remove it
+  (`sudo apt-key del <keyid>`); the `signed-by=` pin is the supported mechanism.
+
+See [The Tenstorrent Package Repository](#the-tenstorrent-package-repository-ppa)
+for the full setup.
 
 ### Installation fails with "Permission denied"
 
