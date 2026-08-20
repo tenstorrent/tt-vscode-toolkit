@@ -764,6 +764,7 @@ sudo chmod 755 /etc/apt/keyrings
 
 # 2. The signing key (this is the step people miss)
 sudo curl -fsSL -o /etc/apt/keyrings/tt-pkg-key.asc https://ppa.tenstorrent.com/tt-pkg-key.asc
+sudo chmod 644 /etc/apt/keyrings/tt-pkg-key.asc
 
 # 3. The repository, pinned to that key
 echo "deb [signed-by=/etc/apt/keyrings/tt-pkg-key.asc] https://ppa.tenstorrent.com/ubuntu/ $(. /etc/os-release && echo "$VERSION_CODENAME") main" \
