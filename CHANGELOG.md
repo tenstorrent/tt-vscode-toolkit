@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.28] - 2026-08-20
+
+### Added
+- **Tenstorrent package repository (PPA) setup documented, keyring step included.** The `tt-installer` lesson gained a "The Tenstorrent Package Repository (PPA)" section covering what TT-Installer actually does before it can install `tenstorrent-dkms`, `tt-smi`, or `tt-flash`: create `/etc/apt/keyrings`, download the signing key from `https://ppa.tenstorrent.com/tt-pkg-key.asc` to `/etc/apt/keyrings/tt-pkg-key.asc`, then add a `signed-by=`-pinned repository line. Ubuntu, Debian, and Fedora/RHEL variants, verification commands, and a table of the packages the repository actually ships (verified against the noble channel).
+- **Troubleshooting for the "repository is not signed" / `NO_PUBKEY` failure**, in both the `tt-installer` lesson and the FAQ. This is the error users hit when the repository is added by hand and the key step is skipped, or when the download was intercepted by a proxy and left a zero-byte file. Covers the re-download fix plus the six things that keep it broken afterwards: missing `curl`, an HTML error page instead of a key, a key `_apt` can't read, a `signed-by=` path that doesn't match the file, the wrong release codename, and a stale legacy `apt-key` entry.
+- **FAQ: "How do I add the Tenstorrent apt repository (PPA) manually?"** under Installation & Setup, for people setting up a machine without running the full installer.
+
+### Changed
+- `qb2-video-generation` prerequisites now spell out what "Tenstorrent PPA installed" means (repository **plus** signing key) and link to the setup section.
+
 ## [0.1.27] - 2026-08-18
 
 Correctness pass over the two ttsim lessons, which had drifted ten releases behind upstream (pinned `v1.8.4`; current is `v1.10.1`).

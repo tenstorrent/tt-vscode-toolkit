@@ -750,6 +750,38 @@ python3 -c "import ttnn; print('✓ tt-metal ready')"
 - Verify TT-Metalium is built: `ls ~/tt-metal/build/lib`
 - Rebuild if needed: `cd ~/tt-metal && ./build_metal.sh`
 
+### Q: How do I add the Tenstorrent apt repository (PPA) manually?
+
+**A:** TT-Installer does this for you. If you need to add it by hand — or repair it —
+the important part is that the **signing key** goes to
+`/etc/apt/keyrings/tt-pkg-key.asc`, and the repository line points at that file.
+apt will not install from a repository it can't verify.
+
+```bash
+# 1. Keyring directory
+sudo mkdir -p /etc/apt/keyrings
+sudo chmod 755 /etc/apt/keyrings
+
+# 2. The signing key (this is the step people miss)
+sudo curl -fsSL -o /etc/apt/keyrings/tt-pkg-key.asc https://ppa.tenstorrent.com/tt-pkg-key.asc
+sudo chmod 644 /etc/apt/keyrings/tt-pkg-key.asc
+
+# 3. The repository, pinned to that key
+echo "deb [signed-by=/etc/apt/keyrings/tt-pkg-key.asc] https://ppa.tenstorrent.com/ubuntu/ $(. /etc/os-release && echo "$VERSION_CODENAME") main" \
+  | sudo tee /etc/apt/sources.list.d/tenstorrent.list > /dev/null
+
+# 4. Refresh
+sudo apt-get update
+```
+
+On **Debian**, use `https://ppa.tenstorrent.com/debian/` instead of `/ubuntu/`.
+On **Fedora**, write a `/etc/yum.repos.d/tenstorrent.repo` with
+`gpgkey=https://ppa.tenstorrent.com/tt-pkg-key.asc` — no keyring file needed.
+
+This is where `tenstorrent-dkms` (the KMD), `tt-smi`, `tt-flash`, `tt-topology`,
+`tt-toplike`, `tt-metalium`, `tt-nn` and `sfpi` come from. Full details in the
+[TT-Installer lesson](command:tenstorrent.showLesson?["tt-installer"]).
+
 ### Q: Which Python version do I need?
 
 **A:**
@@ -1109,6 +1141,45 @@ unset TT_METAL_VERSION
 ```
 
 **Why this happens:** Different versions of libraries loaded due to environment variables overriding build paths.
+
+### Q: apt says the Tenstorrent repository "is not signed" or reports NO_PUBKEY
+
+**A:** The repository is configured but its signing key is missing or damaged.
+Typical output:
+
+```
+E: The repository 'https://ppa.tenstorrent.com/ubuntu noble InRelease' is not signed.
+W: GPG error: https://ppa.tenstorrent.com/ubuntu noble InRelease: ... NO_PUBKEY ...
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+```
+
+**Fix — re-download the key to the path the repository expects:**
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+sudo chmod 755 /etc/apt/keyrings
+sudo curl -fsSL -o /etc/apt/keyrings/tt-pkg-key.asc https://ppa.tenstorrent.com/tt-pkg-key.asc
+sudo apt-get update
+```
+
+**Verify before retrying:**
+
+```bash
+head -1 /etc/apt/keyrings/tt-pkg-key.asc   # → -----BEGIN PGP PUBLIC KEY BLOCK-----
+ls -l /etc/apt/keyrings/tt-pkg-key.asc     # non-zero size, mode 644
+cat /etc/apt/sources.list.d/tenstorrent.list
+```
+
+**Common causes:**
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Key file is 0 bytes or contains HTML | Proxy/captive portal intercepted the download | `sudo -E curl ...` so `HTTPS_PROXY` is inherited |
+| `Could not open file ... Permission denied` | Key not readable by `_apt` | `sudo chmod 644 /etc/apt/keyrings/tt-pkg-key.asc` |
+| Repo added but no key | Repo line copied by hand, key step skipped | Run the download above |
+| `signed-by=` path mismatch | Key saved as `.gpg` or under a different name | Make the file and the `signed-by=` path match exactly |
+| `404` on `InRelease` | Wrong release codename in the repo line | `. /etc/os-release && echo "$VERSION_CODENAME"` |
+| Still warns after fixing | Stale legacy `apt-key` entry | `sudo apt-key del <keyid>` |
 
 ### Q: vLLM server won't start - what do I check?
 

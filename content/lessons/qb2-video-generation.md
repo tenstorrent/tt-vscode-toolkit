@@ -80,7 +80,10 @@ Your TT-QuietBox 2 can generate original AI video — 5–7 minute clips of cine
 ## Prerequisites
 
 - TT-QuietBox 2 hardware detected and healthy (`tt-smi` showing 4 chips)
-- Tenstorrent PPA installed (firmware + KMD current)
+- Tenstorrent PPA installed (firmware + KMD current) — repository plus its signing key at
+  `/etc/apt/keyrings/tt-pkg-key.asc`; see the
+  [TT-Installer lesson](command:tenstorrent.showLesson?["tt-installer"]) if `apt` reports the
+  repository is not signed
 - Docker CE installed and running
 - `python3-gi`, `python3-gi-cairo`, `gir1.2-gtk-4.0` installed (system apt, **not venv**)
 - ~180 GB free disk (`~/.cache/huggingface` + `TT_DIT_CACHE_DIR`)
