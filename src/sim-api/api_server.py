@@ -37,7 +37,19 @@ API_KEYS_RAW = os.environ.get("API_KEYS", "")
 VALID_API_KEYS: set[str] = {k.strip() for k in API_KEYS_RAW.split(",") if k.strip()}
 
 EXEC_TIMEOUT_SECS = int(os.environ.get("EXEC_TIMEOUT", "30"))
+# SIM_HOME/<chip>/libttsim_<chip>.so + SIM_HOME/<chip>/soc_descriptor.yaml -- one
+# subdirectory per chip, since ttsim resolves the descriptor as a sibling of the
+# .so file, and wh/bh can't share a directory without clobbering each other's
+# descriptor.
 SIM_HOME = Path(os.environ.get("SIM_HOME", Path.home() / "sim"))
+# Python interpreter with ttnn importable (the tt-metal python_env), NOT the
+# interpreter running this API server -- the server itself only needs
+# fastapi/uvicorn and never imports ttnn.
+TT_METAL_PYTHON = os.environ.get("TT_METAL_PYTHON", sys.executable)
+TT_METAL_HOME = os.environ.get("TT_METAL_HOME", "")
+# Extra dir(s) for LD_LIBRARY_PATH (e.g. Tenstorrent's ULFM OpenMPI build),
+# colon-separated.
+TT_EXTRA_LD_LIBRARY_PATH = os.environ.get("TT_EXTRA_LD_LIBRARY_PATH", "")
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
 log = logging.getLogger("tt-sim-api")
@@ -100,16 +112,19 @@ def _build_cmd(backend: Backend, script_path: str) -> list[str]:
 
     if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
         chip = "wh" if backend == Backend.ttsim_wh else "bh"
-        so_path = SIM_HOME / f"libttsim_{chip}.so"
-        tt_metal = shutil.which("tt_metal") or shutil.which("tt-metal")
+        so_path = SIM_HOME / chip / f"libttsim_{chip}.so"
         if not so_path.exists():
             raise HTTPException(
                 status_code=503,
                 detail=f"ttsim binary not found at {so_path}. Run the dev-container setup first.",
             )
-        if not tt_metal:
-            raise HTTPException(status_code=503, detail="tt-metal not found in PATH")
-        return [tt_metal, script_path]
+        if not TT_METAL_HOME:
+            raise HTTPException(status_code=503, detail="TT_METAL_HOME not configured")
+        if not Path(TT_METAL_PYTHON).exists():
+            raise HTTPException(
+                status_code=503, detail=f"TT_METAL_PYTHON not found at {TT_METAL_PYTHON}"
+            )
+        return [TT_METAL_PYTHON, script_path]
 
     raise HTTPException(status_code=400, detail=f"Unknown backend: {backend}")
 
@@ -117,12 +132,22 @@ def _build_cmd(backend: Backend, script_path: str) -> list[str]:
 def _build_env(backend: Backend) -> dict[str, str]:
     """Return extra environment variables needed by the backend."""
     env = os.environ.copy()
-    if backend == Backend.ttsim_wh:
-        env["TT_METAL_SIMULATOR"] = str(SIM_HOME / "libttsim_wh.so")
-        env.setdefault("TT_METAL_ARCH_NAME", "wormhole_b0")
-    elif backend == Backend.ttsim_bh:
-        env["TT_METAL_SIMULATOR"] = str(SIM_HOME / "libttsim_bh.so")
-        env.setdefault("TT_METAL_ARCH_NAME", "blackhole")
+    if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
+        chip = "wh" if backend == Backend.ttsim_wh else "bh"
+        env["TT_METAL_HOME"] = TT_METAL_HOME
+        env["TT_METAL_SIMULATOR"] = str(SIM_HOME / chip / f"libttsim_{chip}.so")
+        env["TT_METAL_ARCH_NAME"] = "wormhole_b0" if chip == "wh" else "blackhole"
+        env["TT_METAL_SLOW_DISPATCH_MODE"] = "1"
+        env["TT_METAL_DISABLE_SFPLOADMACRO"] = "1"
+        pythonpath = [TT_METAL_HOME, str(Path(TT_METAL_HOME) / "ttnn")]
+        if env.get("PYTHONPATH"):
+            pythonpath.append(env["PYTHONPATH"])
+        env["PYTHONPATH"] = ":".join(pythonpath)
+        if TT_EXTRA_LD_LIBRARY_PATH:
+            ld = [TT_EXTRA_LD_LIBRARY_PATH]
+            if env.get("LD_LIBRARY_PATH"):
+                ld.append(env["LD_LIBRARY_PATH"])
+            env["LD_LIBRARY_PATH"] = ":".join(ld)
     return env
 
 
@@ -141,11 +166,12 @@ async def _stream_output(
       {"type": "stderr", "data": "<chunk>"}
       {"type": "exit",   "code": <int>}
     """
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", prefix="ttsim_", delete=False
-    ) as tmp:
-        tmp.write(code)
-        script_path = tmp.name
+    # tt-metal writes JIT kernel-build artifacts to `generated/` relative to
+    # the process cwd, so each run gets its own writable working directory.
+    workdir = tempfile.mkdtemp(prefix="ttsim_run_")
+    script_path = str(Path(workdir) / "script.py")
+    with open(script_path, "w") as f:
+        f.write(code)
 
     try:
         cmd = _build_cmd(backend, script_path)
@@ -156,6 +182,7 @@ async def _stream_output(
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             env=env,
+            cwd=workdir,
         )
 
         async def _read_stream(stream: asyncio.StreamReader, kind: str):
@@ -187,7 +214,7 @@ async def _stream_output(
 
     finally:
         try:
-            Path(script_path).unlink()
+            shutil.rmtree(workdir, ignore_errors=True)
         except OSError:
             pass
 
@@ -300,8 +327,8 @@ async def health() -> dict:
         "status": "ok",
         "backends": {
             "ttlang-sim": bool(shutil.which("ttlang-sim")),
-            "ttsim-wh": (SIM_HOME / "libttsim_wh.so").exists(),
-            "ttsim-bh": (SIM_HOME / "libttsim_bh.so").exists(),
+            "ttsim-wh": (SIM_HOME / "wh" / "libttsim_wh.so").exists(),
+            "ttsim-bh": (SIM_HOME / "bh" / "libttsim_bh.so").exists(),
         },
     }
 
@@ -313,4 +340,4 @@ async def health() -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8080")), log_level="info")

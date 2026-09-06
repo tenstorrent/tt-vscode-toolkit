@@ -246,10 +246,15 @@ print("PASSED")
             const code = this._codeEl.value;
             const backend = this._backendSel.value;
 
-            // Build preamble that imports ttl/ttnn inside the server environment
-            const preamble = `
-import sys, importlib
-# Ensure ttlang-sim is importable if installed in the server environment
+            // Build preamble that opens a device inside the server environment.
+            // ttsim-wh/ttsim-bh run against real tt-metal/ttnn (no tt-lang
+            // installed there); ttlang-sim runs against tt-lang's ttl+ttnn.
+            const preamble = backend.startsWith('ttsim')
+                ? `
+import ttnn
+device = ttnn.open_device(device_id=0)
+`
+                : `
 try:
     import ttl
     import ttnn
