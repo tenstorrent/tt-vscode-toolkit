@@ -104,6 +104,17 @@ print("PASSED")
         },
     };
 
+    // Strip the minimum common leading whitespace from every non-empty line,
+    // preserving relative indentation (e.g. a try/except body). Used to keep
+    // multi-line Python template literals immune to how this file itself
+    // happens to be indented -- see the preamble construction below.
+    function _dedent(str) {
+        const lines = str.replace(/^\n/, '').replace(/\s+$/, '').split('\n');
+        const indents = lines.filter(l => l.trim().length > 0).map(l => l.match(/^ */)[0].length);
+        const minIndent = indents.length ? Math.min(...indents) : 0;
+        return lines.map(l => l.slice(minIndent)).join('\n');
+    }
+
     // ─── CloudPlaygroundController ────────────────────────────────────────────
 
     class CloudPlaygroundController {
@@ -249,19 +260,26 @@ print("PASSED")
             // Build preamble that opens a device inside the server environment.
             // ttsim-wh/ttsim-bh run against real tt-metal/ttnn (no tt-lang
             // installed there); ttlang-sim runs against tt-lang's ttl+ttnn.
+            //
+            // _dedent() below guards against a future re-indent of this file
+            // silently breaking the emitted Python: template literals keep
+            // whatever leading whitespace precedes each line in the source,
+            // and Python is indentation-sensitive, so an editor auto-format
+            // that nests these lines deeper would otherwise produce a
+            // hard-to-diagnose IndentationError at execution time.
             const preamble = backend.startsWith('ttsim')
-                ? `
-import ttnn
-device = ttnn.open_device(device_id=0)
-`
-                : `
-try:
-    import ttl
-    import ttnn
-    device = ttnn.open_device(device_id=0)
-except ImportError:
-    pass
-`;
+                ? _dedent(`
+                    import ttnn
+                    device = ttnn.open_device(device_id=0)
+                `)
+                : _dedent(`
+                    try:
+                        import ttl
+                        import ttnn
+                        device = ttnn.open_device(device_id=0)
+                    except ImportError as _e:
+                        print(f"[preamble] ttlang-sim environment unavailable: {_e}")
+                `);
             const fullCode = preamble + '\n' + code;
 
             const wsUrl = CLOUD_API_URL.endsWith('/execute')

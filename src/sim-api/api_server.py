@@ -120,11 +120,15 @@ def _build_cmd(backend: Backend, script_path: str) -> list[str]:
             )
         if not TT_METAL_HOME:
             raise HTTPException(status_code=503, detail="TT_METAL_HOME not configured")
-        if not Path(TT_METAL_PYTHON).exists():
+        # TT_METAL_PYTHON may be an absolute path or a bare command resolved
+        # via PATH (e.g. "python3") -- shutil.which() handles both; it
+        # returns absolute paths unchanged if they're executable.
+        resolved_python = shutil.which(TT_METAL_PYTHON)
+        if not resolved_python:
             raise HTTPException(
-                status_code=503, detail=f"TT_METAL_PYTHON not found at {TT_METAL_PYTHON}"
+                status_code=503, detail=f"TT_METAL_PYTHON not found: {TT_METAL_PYTHON}"
             )
-        return [TT_METAL_PYTHON, script_path]
+        return [resolved_python, script_path]
 
     raise HTTPException(status_code=400, detail=f"Unknown backend: {backend}")
 
