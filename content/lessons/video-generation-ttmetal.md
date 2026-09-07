@@ -73,7 +73,7 @@ sudo apt-get install -y ffmpeg
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
@@ -299,7 +299,7 @@ tt-smi -r   # Reset device
 ```bash
 # Re-activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 ```

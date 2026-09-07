@@ -193,13 +193,18 @@ This verifies:
 - ✅ Python environment is configured
 
 > **⚠️ TT-QuietBox 2 (and other pre-configured images):** this test needs the
-> TT-Metalium **container** (Podman + the `tt-metalium` wrapper) that the
-> installer sets up. Pre-built QB2 images ship TT-NN and vLLM directly but may
-> **not** include Podman or the container wrapper — in that case `tt-metalium`
-> won't be found. Verify TT-NN directly instead:
+> TT-Metalium **container** and the `tt-metalium` wrapper — and a QB2 **has**
+> both; the wrapper is how you reach TT-NN there. What a QB2 does *not* have is
+> a host-side TT-NN or vLLM: `~/.tenstorrent-venv` contains only `tt-smi` and
+> `tt-flash`, so running `python3 -c 'import ttnn'` on the host fails by design.
+> Go through the wrapper instead:
 > ```bash
-> python3 -c 'import ttnn; print(ttnn.__version__)'
+> tt-metalium -c 'python3 -c "import ttnn; print(ttnn.__version__)"'
 > ```
+> If `tt-metalium` is "not found", it is almost certainly installed but
+> unreachable: it lives in `~/.local/bin`, which is not on `PATH` in every shell
+> (zsh never reads `~/.profile`) — this installer warns about that itself. Run
+> `export PATH="$HOME/.local/bin:$PATH"` and try again.
 
 [🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
 

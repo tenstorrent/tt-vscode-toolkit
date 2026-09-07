@@ -18,10 +18,13 @@ RMSNorm + GQA + SwiGLU) with loss dropping 4.69 → 3.23 over 20 steps, ~65 ms/s
 ## Prerequisites
 
 - A tt-metal **source + build tree** (referred to as `$TT_METAL_HOME`; here
-  `/home/ttuser/tt-metal`). TT-QuietBox 2 images ship TT-NN + vLLM but **not**
-  the tt-metal source tree — clone and build it first (build-tt-metal lesson).
-- The Python venv you want `ttml` on (here `/home/ttuser/.tenstorrent-venv`,
-  Python 3.12).
+  `/home/ttuser/tt-metal`). A TT-QuietBox 2 has **no** tt-metal source tree —
+  and no host-side TT-NN or vLLM either, since TT-Metalium reaches it as a
+  container. Clone and build it first (build-tt-metal lesson).
+- The Python venv you want `ttml` on (Python 3.12). Make it a venv of your own:
+  **not** `~/.tenstorrent-venv`, which exists to hold `tt-smi` and `tt-flash`
+  and is activated in every login shell on a QB2 — a bad dependency resolution
+  in there costs you your hardware tooling.
 
 ## Recipe
 

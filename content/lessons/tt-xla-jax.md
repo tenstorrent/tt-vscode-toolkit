@@ -45,9 +45,20 @@ pre-installed. There is no installation step — just activate and start computi
 ```bash
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-forge                                         # QB2 — only if you opted into the Forge container
 # source /opt/venv-forge/bin/activate             # cloud / custom install
 ```
+
+> **On a QB2, Forge is not preinstalled.** `tt-installer`'s
+> `--install-forge-container` is **off** unless you ask for it, so there is
+> usually no Forge environment at all — and `~/.tenstorrent-venv` is not one
+> (it holds `tt-smi` and `tt-flash`). Either re-run the installer with
+> `--install-forge-container` to get the `tt-forge` wrapper, or install the
+> pip wheel into a venv of your own, as the
+> [TT-Forge docs](https://docs.tenstorrent.com/tt-forge/) describe. Don't
+> install it into `~/.tenstorrent-venv`: Forge pins its own torch stack, and
+> resolving that on top of your hardware tooling is how a bad Forge install
+> becomes a broken `tt-smi`.
 
 > **Note:** The PJRT plugin requires `tt_torch` to be imported before `jax` so the
 > TT shared libraries are loaded first. The verify command handles this automatically.
@@ -249,7 +260,7 @@ export TT_METAL_ARCH_NAME=blackhole   # p300c / TT-QuietBox 2 / p150
 export TT_METAL_ARCH_NAME=wormhole_b0 # n150 / n300 / T3000 / Galaxy
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-forge                                         # QB2 — only if you opted into the Forge container
 # source /opt/venv-forge/bin/activate             # cloud / custom install
 ```
 
@@ -265,7 +276,7 @@ git clone https://github.com/tenstorrent/tt-forge.git ~/tt-forge
 cd ~/tt-forge/demos/tt-xla/nlp/jax
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-forge                                         # QB2 — only if you opted into the Forge container
 # source /opt/venv-forge/bin/activate             # cloud / custom install
 pip install -r requirements.txt
 python3 gpt_demo.py

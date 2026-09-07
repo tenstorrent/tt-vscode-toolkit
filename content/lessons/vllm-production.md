@@ -97,6 +97,48 @@ graph TB
 - Python 3.10+ recommended
 - ~20GB disk space for vLLM installation
 
+## On a QB2 — read this first
+
+This lesson builds vLLM from source, which is the right path on a workstation you
+set up yourself. **A TT-QuietBox 2 does not need any of it**, and following it
+anyway will cost you an hour.
+
+vLLM is not installed on a QB2's host, and it never was:
+
+- `~/.tenstorrent-venv` holds **only** the hardware tooling — `tt-smi` and
+  `tt-flash` (plus `tt-topology` if it was asked for). Earlier versions of this
+  lesson offered it as the "QB2 pre-installed" vLLM environment; `import vllm`
+  fails there, and so does `import ttnn`. Verified against `tt-installer`'s
+  `install.m4`, which only ever installs those tools into it.
+- The vLLM a QB2 actually serves with lives **inside a container**, launched by
+  `tt-inference-server`. That is what `tt-studio` drives too.
+
+So on a QB2, skip to serving:
+
+```bash
+# tt-installer preinstalls both the checkout and this wrapper
+tt-inference-server \
+  --model Llama-3.1-8B-Instruct \
+  --workflow server \
+  --tt-device p300x2 \
+  --docker-server
+
+# equivalently, the launcher directly:
+python3 ~/.local/lib/tt-inference-server/run.py --help
+```
+
+`--tt-device p300x2` is the whole box — two P300 boards, four Blackhole chips.
+
+> **`tt-inference-server: command not found`?** It lives in `~/.local/bin`, which
+> is not on `PATH` in every shell — zsh never reads `~/.profile`, where Ubuntu's
+> rule for it lives, and `tt-installer` warns about this itself. Run
+> `export PATH="$HOME/.local/bin:$PATH"` and add it to your `~/.zshrc`.
+
+Everything below still applies if you *want* a hand-built vLLM on a QB2 for
+lower-level control — just build it in a venv of your own, never in
+`~/.tenstorrent-venv`, since a bad resolution there takes your hardware tooling
+with it.
+
 ## Starting Fresh?
 
 If you're jumping directly to this lesson, verify your setup first:
@@ -319,12 +361,11 @@ bash ~/tt-scratchpad/setup-vllm-env.sh
 ```bash
 # tt-developer-image / Docker:
 tt-vllm
-# QB2 pre-installed image:
-# source ~/.tenstorrent-venv/bin/activate
 # custom setup (script generated above):
 # source ~/activate-vllm-env.sh
 # cloud / custom install:
 # source /opt/venv-vllm/bin/activate
+# QB2: nothing to activate — see "On a QB2" below
 ```
 
 ---
@@ -471,7 +512,8 @@ Before starting the server, create the script that registers TT models with vLLM
 **✨ New in v0.0.101:** Ultra-simple one-command start with full hardware auto-detection!
 
 ```bash
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 ```
 
@@ -506,7 +548,8 @@ Now start vLLM with your chosen model and hardware configuration. These commands
 **Command (tested and working):**
 
 ```bash
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-0.6B \
     --served-model-name Qwen/Qwen3-0.6B \
@@ -531,7 +574,8 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 **Alternative: Gemma 3-1B-IT** (slightly larger, 32K context)
 
 ```bash
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/gemma-3-1b-it \
     --served-model-name google/gemma-3-1b-it \
@@ -551,7 +595,8 @@ Llama-3.1-8B typically exhausts DRAM on n150. Use Qwen3-0.6B or Gemma 3-1B-IT in
 If you must try Llama on n150:
 
 ```bash
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -571,7 +616,8 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 ### n300 (Wormhole - Dual Chip)
 
 ```bash
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -590,7 +636,8 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 ### T3000 (Wormhole - 8 Chips)
 
 ```bash
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-70B-Instruct \
     --served-model-name meta-llama/Llama-3.1-70B-Instruct \
@@ -613,7 +660,8 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 > **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** p300c is architecturally identical to p100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A TT-QuietBox 2 with 4× p300c = 4 independent single-chip devices; for most lessons use device 0 only.
 
 ```bash
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -724,7 +772,8 @@ INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 # Stop the current server (Ctrl+C in the server terminal)
 
 # Start with Qwen instead
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-8B \
     --host 0.0.0.0 \
@@ -1166,7 +1215,7 @@ Don't worry if you hit issues - they're usually straightforward to fix. Here are
 ```bash
 # Activate vLLM environment (choose for your setup):
 tt-vllm                                           # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# QB2: no host vLLM — see "On a QB2" below
 # source ~/activate-vllm-env.sh                   # custom script-based setup
 # source /opt/venv-vllm/bin/activate              # cloud / custom install
 
@@ -1254,7 +1303,8 @@ The `start-vllm-server.py` script now auto-detects p100 and sets `TT_METAL_ARCH_
 ```bash
 export TT_METAL_ARCH_NAME=blackhole
 export MESH_DEVICE=P100
-# Activate vLLM env: tt-vllm  OR  source ~/.tenstorrent-venv/bin/activate  OR  source /opt/venv-vllm/bin/activate
+# Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct
 ```

@@ -88,7 +88,7 @@ cd ~/tt-scratchpad/cookbook/particle_life
 
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 
 # Run simulation (creates particle_life.gif)

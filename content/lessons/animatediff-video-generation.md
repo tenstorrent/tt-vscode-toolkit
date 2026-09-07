@@ -162,7 +162,7 @@ Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole sil
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-projects/tt-animatediff
 
@@ -254,7 +254,7 @@ pip install -e ".[ui]"
 
 # Blackhole hardware — activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 python3 app.py
 # Open http://localhost:7860

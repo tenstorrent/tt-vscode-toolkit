@@ -50,7 +50,7 @@ If you have TT-Metalium built and your venv activated, you can be running real T
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
@@ -58,6 +58,14 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 # Run the first tutorial — adds two tensors on TT hardware
 python3 ~/tt-metal/ttnn/tutorials/basic_python/ttnn_add_tensors.py
 ```
+
+> **On a QB2, the two `export`s and the path above do not apply.** There is no
+> `~/tt-metal` on the host — TT-Metalium is a container, and `tt-metalium` puts
+> you inside it, where `TT_METAL_HOME` is already set and `python3` is
+> `/opt/venv/bin/python3`. Run `tt-metalium` first, then
+> `python3 "$TT_METAL_HOME"/ttnn/tutorials/basic_python/ttnn_add_tensors.py`.
+> `~/.tenstorrent-venv` is **not** an alternative: it holds `tt-smi` and
+> `tt-flash`, and `import ttnn` fails there.
 
 > **⚡ Sim-ready:** The `ttnn/tutorials/basic_python/` scripts all use `ttnn.open_device(device_id=0)`
 > and run on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]).
@@ -108,7 +116,7 @@ because they don't require Jupyter and have clear, commented code:
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-metal
 

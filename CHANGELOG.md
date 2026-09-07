@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.29] - 2026-09-07
+
+Correctness pass on what a TT-QuietBox 2 actually ships. The three-path venv
+activation blocks added in 0.1.25 offered `~/.tenstorrent-venv` as the "QB2
+pre-installed" environment for TT-NN and vLLM. It is neither, and never was.
+
+Verified against `tt-installer`'s `install.m4` on its default branch and the
+`ppa.tenstorrent.com` package index — deliberately not against other Tenstorrent
+docs, which descend from the same stale source note and so are not independent
+confirmation.
+
+### Fixed
+- **`~/.tenstorrent-venv` is not a TT-NN or vLLM environment.** `tt-installer`
+  only ever installs `tt-smi`, `tt-flash` and (opt-in) `tt-topology` into it, so
+  `import ttnn` and `import vllm` both fail there. On a QB2, TT-NN lives **only**
+  inside the TT-Metalium container, entered with `tt-metalium` — where `python3`
+  is `/opt/venv/bin/python3`. Corrected the "QB2 pre-installed image" line in all
+  11 TT-NN activation blocks across `explore-metalium`, `video-generation-ttmetal`,
+  `animatediff-video-generation`, `cookbook-game-of-life`, `cookbook-mandelbrot`,
+  `cookbook-particle-life`, `cookbook-image-filters` and `cookbook-audio-processor`.
+- **`tt-installer` lesson had the QB2 case exactly backwards.** It said pre-built
+  QB2 images "ship TT-NN and vLLM directly but may **not** include Podman or the
+  container wrapper". The reverse is true: a QB2 *has* the wrapper — it is the only
+  way to reach TT-NN — and ships no host-side TT-NN or vLLM. The suggested fallback
+  (`python3 -c 'import ttnn'` on the host) could therefore only ever fail. Replaced
+  with the wrapper form, plus the `~/.local/bin` PATH caveat the installer itself
+  warns about.
+- **Forge is not preinstalled on a QB2.** `--install-forge-container` is **off**
+  unless asked for, so there is usually no Forge environment at all — and
+  `~/.tenstorrent-venv` is not a substitute. Corrected all three activation blocks
+  in `tt-xla-jax` and added the two real options (re-run the installer with the
+  flag, or a pip wheel in a venv of your own).
+- **`vllm-production` now says what a QB2 owner should actually do.** vLLM is not
+  installed on a QB2's host; it runs in a container that `tt-inference-server`
+  launches. Added an "On a QB2 — read this first" section pointing at the
+  preinstalled `tt-inference-server` wrapper, and corrected all 11 activation
+  sites, which previously sent people to a venv where `import vllm` fails.
+- **"QB2 images ship TT-NN and vLLM pre-installed" corrected in four more
+  lessons** — `lfs-00-intro`, `lfs-05-train-and-run`, `ct1-understanding-training`
+  and `ct4-finetuning-basics`. Each used it as the premise for a true conclusion
+  (you must build tt-metal from source for `ttml`), so the conclusions stand; only
+  the premise changed.
+- **Guidance not to install into `~/.tenstorrent-venv`** added where the lessons
+  previously invited it. A QB2 activates that venv in every login shell, so a bad
+  dependency resolution there costs you the tooling you diagnose the machine with.
+  `BUILD_TTML.md` now asks for a venv of your own.
+
+### Changed
+- `docs/QB_follows.md` carries a **superseded** banner. Its January "CRITICAL
+  FINDING" that ttnn lives in `~/tt-metal/python_env` was true on that machine at
+  that time, but it outlived the layout it described and is the origin of the claim
+  this release removes — it had propagated into roughly a dozen lessons and into
+  `tt-developer-image`'s QB2 Dockerfile. Kept as a historical record, marked not to
+  be cited as current.
+
 ## [0.1.28] - 2026-08-20
 
 ### Added
