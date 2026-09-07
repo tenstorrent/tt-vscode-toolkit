@@ -140,7 +140,7 @@ def _build_env(backend: Backend) -> dict[str, str]:
         chip = "wh" if backend == Backend.ttsim_wh else "bh"
         env["TT_METAL_HOME"] = TT_METAL_HOME
         env["TT_METAL_SIMULATOR"] = str(SIM_HOME / chip / f"libttsim_{chip}.so")
-        env["TT_METAL_ARCH_NAME"] = "wormhole_b0" if chip == "wh" else "blackhole"
+        env.setdefault("TT_METAL_ARCH_NAME", "wormhole_b0" if chip == "wh" else "blackhole")
         env["TT_METAL_SLOW_DISPATCH_MODE"] = "1"
         env["TT_METAL_DISABLE_SFPLOADMACRO"] = "1"
         pythonpath = [TT_METAL_HOME, str(Path(TT_METAL_HOME) / "ttnn")]
@@ -325,14 +325,23 @@ async def execute_ws(websocket: WebSocket) -> None:
 # Health
 # ---------------------------------------------------------------------------
 
+def _ttsim_backend_ready(chip: str) -> bool:
+    """True only if this backend could actually execute: the .so exists AND
+    TT_METAL_HOME is configured AND TT_METAL_PYTHON resolves. The playground
+    UI uses /health to decide what's runnable, so checking just the .so
+    would report a backend as available when _build_cmd would 503 it."""
+    so_exists = (SIM_HOME / chip / f"libttsim_{chip}.so").exists()
+    return bool(so_exists and TT_METAL_HOME and shutil.which(TT_METAL_PYTHON))
+
+
 @app.get("/health")
 async def health() -> dict:
     return {
         "status": "ok",
         "backends": {
             "ttlang-sim": bool(shutil.which("ttlang-sim")),
-            "ttsim-wh": (SIM_HOME / "wh" / "libttsim_wh.so").exists(),
-            "ttsim-bh": (SIM_HOME / "bh" / "libttsim_bh.so").exists(),
+            "ttsim-wh": _ttsim_backend_ready("wh"),
+            "ttsim-bh": _ttsim_backend_ready("bh"),
         },
     }
 
