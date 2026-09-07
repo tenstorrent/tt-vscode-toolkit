@@ -54,6 +54,19 @@ confirmation.
   dependency resolution there costs you the tooling you diagnose the machine with.
   `BUILD_TTML.md` now asks for a venv of your own.
 
+- **`vllm-production` still called a QB2 "4 independent single-chip devices".** The
+  0.1.25-era topology sweep corrected that framing in `ct1`, `ct8` and `tt-xla-jax`
+  — README says "corrected everywhere" — but this file was missed. A QB2 is one
+  four-chip ring mesh (`P300_X2`, 2×2 across two dual-ASIC p300c boards), and
+  multi-chip work scales near-linearly across it (3.98× at 4 chips, per `ct5`).
+  The single-chip guidance in that note (`MESH_DEVICE=P100`, device 0) was fine and
+  is kept; only the claim about the machine's shape changed.
+- **The `tt-inference-server` launcher example needed a `cd`.** The preinstalled
+  wrapper is two lines — it cd's into `~/.local/lib/tt-inference-server` and *then*
+  runs `run.py` — so calling `run.py` by absolute path is not equivalent, since it
+  resolves paths from the working directory. The example now cd's first, and no
+  longer claims the two forms are equivalent (one of them only printed `--help`).
+
 ### Changed
 - `docs/QB_follows.md` carries a **superseded** banner. Its January "CRITICAL
   FINDING" that ttnn lives in `~/tt-metal/python_env` was true on that machine at

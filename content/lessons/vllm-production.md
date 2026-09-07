@@ -123,8 +123,10 @@ tt-inference-server \
   --tt-device p300x2 \
   --docker-server
 
-# equivalently, the launcher directly:
-python3 ~/.local/lib/tt-inference-server/run.py --help
+# The wrapper is two lines: it cd's into the checkout, then runs run.py. If you
+# call the launcher yourself, cd first — run.py resolves paths relative to cwd.
+cd ~/.local/lib/tt-inference-server
+python3 run.py --help          # the full flag list
 ```
 
 `--tt-device p300x2` is the whole box — two P300 boards, four Blackhole chips.
@@ -657,7 +659,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 ### p100 / p300c (Blackhole<sup>®</sup> - Single Chip)
 
-> **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** p300c is architecturally identical to p100. Use `MESH_DEVICE=P100` and `TT_METAL_ARCH_NAME=blackhole` for single-chip lessons. A TT-QuietBox 2 with 4× p300c = 4 independent single-chip devices; for most lessons use device 0 only.
+> **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** for **single-chip** work a p300c chip behaves like a p100 — use `MESH_DEVICE=P100`, `TT_METAL_ARCH_NAME=blackhole`, and device 0, which is what most lessons want. Don't read that as the machine's shape, though: a TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh across two dual-ASIC p300c boards), not four independent devices, and multi-chip work scales near-linearly across it — see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]).
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
