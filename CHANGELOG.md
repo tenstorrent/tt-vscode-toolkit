@@ -75,6 +75,29 @@ confirmation.
   `tt-developer-image`'s QB2 Dockerfile. Kept as a historical record, marked not to
   be cited as current.
 
+- **Verified on real hardware**, not just against upstream source: `~/.tenstorrent-venv`
+  genuinely lacks TT-NN/vLLM (confirmed via a fresh `tt-installer --mode-container`
+  run's own smoke assertions, on a live QB2-equivalent board), `tt-metalium -c '...'`
+  genuinely reaches `bash` with the command intact, `--install-forge-container`
+  defaults to `off` (confirmed in `install.m4`'s arg parser), the
+  `tt-inference-server` wrapper genuinely `cd`'s before running `run.py`, and the
+  4-chip mesh's fabric adjacency matches the "one ring, not four independent devices"
+  description. This surfaced two bugs this release's own review had missed:
+  - **`explore-metalium`'s new QB2 callout claimed `TT_METAL_HOME` is pre-set and
+    referenced a bundled `ttnn_add_tensors.py` tutorial.** Neither is true — confirmed
+    empty/absent on the real `tt-metalium-ubuntu-22.04-release-amd64` image (it's a
+    runtime-only image with no `ttnn/tutorials/` directory at all). Rewritten so the
+    reader writes the short script themselves, with the `torch` bootstrap it also
+    needs (no `torch`, no `pip` in that image either — only `uv`/`ensurepip`).
+  - **Every `ttnn.__version__` reference in `tt-installer` would itself crash** —
+    that attribute doesn't currently exist on the built package (confirmed on two
+    separate images) — and three of the four `tt-metalium "..."` invocations in that
+    lesson were missing `-c`, so `bash` tried to run the whole command string as a
+    **filename** and failed with `No such file or directory` before ever reaching
+    Python. Fixed to `tt-metalium -c "..."` throughout, and to
+    `getattr(ttnn, "__version__", "import OK")` so a working import reports success
+    instead of raising `AttributeError`.
+
 ## [0.1.28] - 2026-08-20
 
 ### Added

@@ -181,10 +181,16 @@ Once that shows your device, come back and test the container below.
 
 ### Test TT-Metalium Container
 
-Run a simple test inside the container:
+Run a simple test inside the container — note the `-c`: the wrapper is
+`docker run ... --entrypoint /bin/bash <image> "$@"`, so without it `bash` treats
+the whole command string as a **filename** and fails with `No such file or
+directory` (confirmed live) instead of running it. Also note `getattr` rather
+than a bare `ttnn.__version__` — that attribute doesn't currently exist on the
+built package (confirmed absent, both here and on other Metalium images), and
+a bare reference raises `AttributeError` instead of showing you TT-NN is fine:
 
 ```bash
-tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
+tt-metalium -c "python3 -c 'import ttnn; print(getattr(ttnn, \"__version__\", \"import OK\"))'"
 ```
 
 This verifies:
@@ -197,9 +203,11 @@ This verifies:
 > both; the wrapper is how you reach TT-NN there. What a QB2 does *not* have is
 > a host-side TT-NN or vLLM: `~/.tenstorrent-venv` contains only `tt-smi` and
 > `tt-flash`, so running `python3 -c 'import ttnn'` on the host fails by design.
-> Go through the wrapper instead:
+> Go through the wrapper instead (`getattr` because `ttnn.__version__` doesn't
+> currently exist on the built package — confirmed live, would otherwise raise
+> `AttributeError` instead of showing you it worked):
 > ```bash
-> tt-metalium -c 'python3 -c "import ttnn; print(ttnn.__version__)"'
+> tt-metalium -c 'python3 -c "import ttnn; print(getattr(ttnn, \"__version__\", \"import OK\"))"'
 > ```
 > If `tt-metalium` is "not found", it is almost certainly installed but
 > unreachable: it lives in `~/.local/bin`, which is not on `PATH` in every shell
@@ -325,17 +333,22 @@ This:
 
 ### Run Commands Directly
 
-Execute commands without entering the shell:
+Execute commands without entering the shell — note the `-c`: the wrapper is
+`docker run ... --entrypoint /bin/bash <image> "$@"`, so without it `bash` treats
+your whole command string as a **filename** to run as a script and fails with
+`No such file or directory` (confirmed live) rather than actually running it:
 
 ```bash
-# Check TTNN version
-tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
+# Check TTNN is importable (not ttnn.__version__ — confirmed absent from the
+# package as currently built, on this image and others; getattr degrades
+# gracefully instead of raising AttributeError)
+tt-metalium -c "python3 -c 'import ttnn; print(getattr(ttnn, \"__version__\", \"import OK\"))'"
 
 # Run a Python script
-tt-metalium "python3 ~/my-inference-script.py"
+tt-metalium -c "python3 ~/my-inference-script.py"
 
 # Use pytest (for demos)
-tt-metalium "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
+tt-metalium -c "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
 ```
 
 **Key benefit:** Your files in `~` are automatically accessible inside the container!

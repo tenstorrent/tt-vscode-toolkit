@@ -59,12 +59,31 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 python3 ~/tt-metal/ttnn/tutorials/basic_python/ttnn_add_tensors.py
 ```
 
-> **On a QB2, the two `export`s and the path above do not apply.** There is no
-> `~/tt-metal` on the host — TT-Metalium is a container, and `tt-metalium` puts
-> you inside it, where `TT_METAL_HOME` is already set and `python3` is
-> `/opt/venv/bin/python3`. Run `tt-metalium` first, then
-> `python3 "$TT_METAL_HOME"/ttnn/tutorials/basic_python/ttnn_add_tensors.py`.
-> `~/.tenstorrent-venv` is **not** an alternative: it holds `tt-smi` and
+> **On a QB2, the two `export`s and the path above do not apply — and there is no
+> bundled tutorial file to run either.** There is no `~/tt-metal` on the host —
+> TT-Metalium is a container, and `tt-metalium` puts you inside it, where
+> `python3` is `/opt/venv/bin/python3`. But `TT_METAL_HOME` is **not** set for
+> you there (confirmed empty in the real
+> `tt-metalium-ubuntu-22.04-release-amd64` image), and this is a runtime-only
+> image with no `ttnn/tutorials/` directory at all — `ttnn_add_tensors.py`
+> genuinely does not exist anywhere in it. Write the ~15-line script yourself
+> instead (it's short enough that typing it once is worth more than running
+> someone else's copy — save it as `~/tt-scratchpad/ttnn_add_tensors.py`):
+> ```bash
+> tt-metalium
+> # torch isn't preinstalled either, and there's no pip — only uv/ensurepip:
+> uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
+> python3 -c "
+> import ttnn, torch
+> device = ttnn.open_device(device_id=0)
+> a = ttnn.from_torch(torch.randn(32, 32), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+> b = ttnn.from_torch(torch.randn(32, 32), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+> c = ttnn.to_torch(ttnn.add(a, b))
+> ttnn.close_device(device)
+> print('Result shape:', c.shape)
+> "
+> ```
+> `~/.tenstorrent-venv` is **not** an alternative either: it holds `tt-smi` and
 > `tt-flash`, and `import ttnn` fails there.
 
 > **⚡ Sim-ready:** The `ttnn/tutorials/basic_python/` scripts all use `ttnn.open_device(device_id=0)`
