@@ -172,6 +172,15 @@ python3 examples/generate.py \
     --output output/blackhole.gif
 ```
 
+> **On a QB2:** `tt-metalium`'s `/opt/venv` is a separate Python environment
+> from whichever one you ran Step 1's `pip install -e ".[dev]"` in — entering
+> the container here does **not** give you the `tt-animatediff` package or its
+> dependencies (diffusers, transformers, etc.). Either run Step 1's install
+> inside `tt-metalium` too (`uv pip install --python /opt/venv/bin/python3 -e
+> ".[dev]"`, repeated every session — the container is stateless, and
+> `/opt/venv` isn't part of the `${HOME}` bind mount), or build a
+> persistent venv against a source `~/tt-metal` tree instead.
+
 **Expected:**
 
 ```
@@ -250,12 +259,17 @@ python3 examples/generate.py --motion-adapter --motion-adapter-skip up1 up2 \
 A point-and-click interface for all modes. Models stay loaded between generations — only the first run pays the ~7 s load cost and ~2–3 min kernel compilation.
 
 ```bash
-pip install -e ".[ui]"
-
 # Blackhole hardware — activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
+
+# pip install AFTER activating — it installs into whichever Python is
+# currently active, and on a QB2 that's tt-metalium's /opt/venv (no pip there,
+# only uv — see the QB2 note above — and it must be repeated every session)
+pip install -e ".[ui]"
+# uv pip install --python /opt/venv/bin/python3 -e ".[ui]"   # QB2 form
+
 python3 app.py
 # Open http://localhost:7860
 

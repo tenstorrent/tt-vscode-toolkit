@@ -98,6 +98,69 @@ confirmation.
     `getattr(ttnn, "__version__", "import OK")` so a working import reports success
     instead of raising `AttributeError`.
 
+- **A second review pass (jzhengTT) found the activation-line swaps left
+  several blocks broken end-to-end, and found the corrected claim still
+  living in files this release never touched.** Ten issues, all fixed:
+  - **The "Test TT-Metalium" button ran the exact broken form the lesson text
+    warns about.** `TEST_METALIUM_CONTAINER`'s template was still
+    `tt-metalium "python3 -c '...ttnn.__version__...'"` — no `-c`, and a bare
+    `ttnn.__version__` that doesn't exist. Fixed to match the lesson's own
+    `tt-metalium -c "python3 -c '...getattr(ttnn, \"__version__\", \"import
+    OK\")...'"` form (verified against the real wrapper); updated its test
+    fixture to match.
+  - **The "Install tt-train" button and its docblock still said QB2 images
+    ship TT-NN + vLLM preinstalled**, the exact premise this release
+    corrects everywhere else. Reworded to match `ct1`/`ct4`.
+  - **The QB2 `tt-inference-server` example was missing `--no-auth`.** Without
+    it, `--workflow server --docker-server` requires `JWT_SECRET` and prompts
+    for it, and the lesson's later `curl` examples send no token and would 401.
+  - **All 11 "see 'On a QB2' below" cross-references pointed the wrong way** —
+    the section is above them, not below. Fixed to "above".
+  - **`verify-installation`'s QB2 callout said Check 2 (`import ttnn` on the
+    host) should pass out of the box.** It doesn't — TT-NN is container-only.
+    Added the `tt-metalium` form of the check and corrected the remedy, which
+    previously treated `~/.tenstorrent-venv` as an equivalent.
+  - **Seven cookbook/video lessons swapped the activation line but left the
+    rest of the block host-only.** A `cd` before the `tt-metalium` option is
+    lost once you land back at `/home/user` inside the container, and
+    `pip install -r requirements.txt` doesn't work there (no `pip`, only
+    `uv`/`ensurepip`, and `ttnn` is already provided by the image). Reordered
+    `cd` after activation and added the `uv pip install --python
+    /opt/venv/bin/python3 ...` form throughout `cookbook-game-of-life`,
+    `cookbook-mandelbrot`, `cookbook-particle-life`, `cookbook-image-filters`,
+    and `cookbook-audio-processor`; noted the same for `pip install -e` in
+    `animatediff-video-generation`. `video-generation-ttmetal` needs the
+    `models/demos/` tree the standard `tt-metalium` image doesn't have —
+    switched its QB2 path to `tt-metalium-models`.
+  - **`explore-metalium`'s Part 1 "Quickest Path" block still offered
+    `tt-metalium` and then `cd ~/tt-metal`**, which the callout directly above
+    it says doesn't exist on a QB2. Removed the QB2 option there and pointed
+    at the callout / `tt-metalium-models` instead.
+  - **The from-scratch `ttnn_add_tensors.py` script promised a save that never
+    happened, and its `torch` install wasn't marked as session-scoped.** The
+    text said "save it as `~/tt-scratchpad/ttnn_add_tensors.py`" but only ran
+    an inline `python3 -c`; dropped that promise. Noted that the `torch`
+    install lands in `/opt/venv`, which isn't part of the `${HOME}` bind
+    mount, so it doesn't survive `exit` and must be repeated every session.
+  - **`tt-installer`'s pytest demo example used the wrong container and the
+    wrong architecture.** The standard `tt-metalium` image has no
+    `models/demos/` tree at all; switched to `tt-metalium-models` (which
+    starts you in the source tree) and to a Blackhole demo
+    (`models/demos/blackhole/ufld_v2`) instead of a Wormhole one, since this
+    lesson targets p150/p300c/QB2.
+  - **The refuted "QB2 ships TT-NN + vLLM preinstalled" / "4 independent
+    devices" claims survived in files this release didn't touch**: this
+    repo's own `CLAUDE.md` (the instructions future authors write lessons
+    against), `llms.txt` (copied verbatim into the published site),
+    `hardware-detection.md`, `tt-inference-server.md`, and
+    `docs/HARDWARE_ARCHITECTURE.md`. Corrected all five — `tt-inference-server`
+    keeps its per-chip `--tt-device p100` option for single-chip serving (a
+    legitimate choice) but no longer calls the chips "independent devices",
+    and now cross-references `--tt-device p300x2` for whole-box serving.
+  - **`vllm-production`'s "Starting Fresh?" checklist sent QB2 readers to
+    `verify-installation`**, which (see above) told them a host `import ttnn`
+    should pass "out of the box" — it doesn't on a QB2. Fixed at the source.
+
 ## [0.1.28] - 2026-08-20
 
 ### Added

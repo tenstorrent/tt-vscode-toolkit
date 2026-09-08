@@ -121,7 +121,8 @@ tt-inference-server \
   --model Llama-3.1-8B-Instruct \
   --workflow server \
   --tt-device p300x2 \
-  --docker-server
+  --docker-server \
+  --no-auth
 
 # The wrapper is two lines: it cd's into the checkout, then runs run.py. If you
 # call the launcher yourself, cd first — run.py resolves paths relative to cwd.
@@ -367,7 +368,7 @@ tt-vllm
 # source ~/activate-vllm-env.sh
 # cloud / custom install:
 # source /opt/venv-vllm/bin/activate
-# QB2: nothing to activate — see "On a QB2" below
+# QB2: nothing to activate — see "On a QB2" above
 ```
 
 ---
@@ -515,7 +516,7 @@ Before starting the server, create the script that registers TT models with vLLM
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py --model ~/models/Qwen3-0.6B
 ```
 
@@ -551,7 +552,7 @@ Now start vLLM with your chosen model and hardware configuration. These commands
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-0.6B \
     --served-model-name Qwen/Qwen3-0.6B \
@@ -577,7 +578,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/gemma-3-1b-it \
     --served-model-name google/gemma-3-1b-it \
@@ -598,7 +599,7 @@ If you must try Llama on n150:
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -619,7 +620,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -639,7 +640,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-70B-Instruct \
     --served-model-name meta-llama/Llama-3.1-70B-Instruct \
@@ -663,7 +664,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct \
     --served-model-name meta-llama/Llama-3.1-8B-Instruct \
@@ -775,7 +776,7 @@ INFO: Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 
 # Start with Qwen instead
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Qwen3-8B \
     --host 0.0.0.0 \
@@ -1217,7 +1218,7 @@ Don't worry if you hit issues - they're usually straightforward to fix. Here are
 ```bash
 # Activate vLLM environment (choose for your setup):
 tt-vllm                                           # tt-developer-image / Docker
-# QB2: no host vLLM — see "On a QB2" below
+# QB2: no host vLLM — see "On a QB2" above
 # source ~/activate-vllm-env.sh                   # custom script-based setup
 # source /opt/venv-vllm/bin/activate              # cloud / custom install
 
@@ -1306,7 +1307,7 @@ The `start-vllm-server.py` script now auto-detects p100 and sets `TT_METAL_ARCH_
 export TT_METAL_ARCH_NAME=blackhole
 export MESH_DEVICE=P100
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
-# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" below)
+# QB2: there is no host vLLM to activate — it runs in a container (see "On a QB2" above)
 python3 ~/tt-scratchpad/start-vllm-server.py \
     --model ~/models/Llama-3.1-8B-Instruct
 ```

@@ -505,12 +505,14 @@ class MandelbrotVisualizer:
 **Manual Commands:**
 
 ```bash
-cd ~/tt-scratchpad/cookbook/mandelbrot
-
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
+
+# cd after activating — tt-metalium opens a new shell, so a cd before it
+# would be lost when you land back at /home/user inside the container
+cd ~/tt-scratchpad/cookbook/mandelbrot
 
 # Basic render
 python3 renderer.py

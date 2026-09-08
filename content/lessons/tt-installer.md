@@ -347,8 +347,10 @@ tt-metalium -c "python3 -c 'import ttnn; print(getattr(ttnn, \"__version__\", \"
 # Run a Python script
 tt-metalium -c "python3 ~/my-inference-script.py"
 
-# Use pytest (for demos)
-tt-metalium -c "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
+# Use pytest (for demos) — the standard tt-metalium image has no
+# models/demos tree; this needs tt-metalium-models instead (see below), and
+# --workdir is the source tree already, so the path is relative:
+tt-metalium-models -c "cd tt-metal && pytest models/demos/blackhole/ufld_v2/demo/demo.py::test_ufld_v2_demo"
 ```
 
 **Key benefit:** Your files in `~` are automatically accessible inside the container!

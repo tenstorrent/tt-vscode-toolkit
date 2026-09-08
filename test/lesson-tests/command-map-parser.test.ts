@@ -46,14 +46,14 @@ describe('command-map parser', () => {
       const term = [
         'export const TERMINAL_COMMANDS = {',
         '  ESCAPED: {',
-        "    template: 'tt-metalium \"python3 -c \\\'import ttnn; print(ttnn.__version__)\\\'\"\\nsecond line',",
+        "    template: 'tt-metalium -c \"python3 -c \\'import ttnn; print(getattr(ttnn, \\\\\"__version__\\\\\", \\\\\"import OK\\\\\"))\\'\"\\nsecond line',",
         '  },',
         '};',
       ].join('\n');
 
       const map = buildCommandMap(term);
       expect(map.ESCAPED).to.equal(
-        'tt-metalium "python3 -c \'import ttnn; print(ttnn.__version__)\'"\nsecond line'
+        'tt-metalium -c "python3 -c \'import ttnn; print(getattr(ttnn, \\"__version__\\", \\"import OK\\"))\'"\nsecond line'
       );
     });
 

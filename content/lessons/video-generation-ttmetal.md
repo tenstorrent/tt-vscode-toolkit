@@ -73,12 +73,20 @@ sudo apt-get install -y ffmpeg
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 cd ~/tt-metal
 ```
+
+> **On a QB2:** this demo needs the `models/demos/` tree, which the standard
+> `tt-metalium` container doesn't have (it's a runtime-only image). Use
+> `tt-metalium-models` instead — it has no home mount, so skip the exports
+> above and `cd` to the source tree it already starts you in:
+> ```bash
+> tt-metalium-models
+> cd tt-metal
+> ```
 
 **For p100 / p300c (Blackhole):**
 ```bash
@@ -299,10 +307,12 @@ tt-smi -r   # Reset device
 ```bash
 # Re-activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 ```
+
+On a QB2, re-enter `tt-metalium-models` and `cd tt-metal` instead — see the QB2
+note under Step 1.
 
 **"huggingface-hub not authenticated"**
 ```bash

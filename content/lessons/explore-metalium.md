@@ -66,12 +66,15 @@ python3 ~/tt-metal/ttnn/tutorials/basic_python/ttnn_add_tensors.py
 > you there (confirmed empty in the real
 > `tt-metalium-ubuntu-22.04-release-amd64` image), and this is a runtime-only
 > image with no `ttnn/tutorials/` directory at all — `ttnn_add_tensors.py`
-> genuinely does not exist anywhere in it. Write the ~15-line script yourself
-> instead (it's short enough that typing it once is worth more than running
-> someone else's copy — save it as `~/tt-scratchpad/ttnn_add_tensors.py`):
+> genuinely does not exist anywhere in it. Type the ~15-line script yourself
+> instead — it's short enough that typing it once is worth more than running
+> someone else's copy:
 > ```bash
 > tt-metalium
-> # torch isn't preinstalled either, and there's no pip — only uv/ensurepip:
+> # torch isn't preinstalled either, and there's no pip — only uv/ensurepip. This
+> # install lands in /opt/venv, which is part of the image, not the ${HOME} bind
+> # mount — it does not survive `exit` and must be repeated every time you enter
+> # a fresh tt-metalium container:
 > uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
 > python3 -c "
 > import ttnn, torch
@@ -135,7 +138,6 @@ because they don't require Jupyter and have clear, commented code:
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-metal
 
@@ -164,6 +166,12 @@ python3 ttnn/tutorials/basic_python/ttnn_multihead_attention.py
 python3 ttnn/tutorials/basic_python/train_and_export_cnn.py
 python3 ttnn/tutorials/basic_python/ttnn_simplecnn_inference.py
 ```
+
+> **On a QB2:** the standard `tt-metalium` container has no `~/tt-metal` and
+> none of these tutorial files — see the callout above for the from-scratch
+> version of the first script. To run this exact set of tutorials unmodified,
+> use `tt-metalium-models` instead, which ships the full source tree (see
+> [Standard vs Model Demos Container](command:tenstorrent.showLesson?["tt-installer"])).
 
 > **Training step required:** `ttnn_mlp_inference_mnist.py` and `ttnn_simplecnn_inference.py`
 > load weights from `.pt` files. Without them the scripts use random weights and report

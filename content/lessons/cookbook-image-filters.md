@@ -313,15 +313,24 @@ if __name__ == "__main__":
 **Manual Commands:**
 
 ```bash
-cd ~/tt-scratchpad/cookbook/image_filters
-
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 
-# Install dependencies
+# cd after activating — tt-metalium opens a new shell, so a cd before it
+# would be lost when you land back at /home/user inside the container
+cd ~/tt-scratchpad/cookbook/image_filters
+
+# Install dependencies:
 pip install -r requirements.txt
+# On a QB2 there is no pip inside tt-metalium, only uv, and `ttnn` is already
+# provided by the image — don't reinstall it. Install the rest individually,
+# using the CPU wheel index for torch, and repeat this every session (the
+# install doesn't survive `exit`, since /opt/venv isn't part of the ${HOME}
+# bind mount):
+# uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
+# uv pip install --python /opt/venv/bin/python3 numpy matplotlib Pillow opencv-python
 
 # Run the demo — pass an image path, or create examples/sample.jpg first:
 mkdir -p examples

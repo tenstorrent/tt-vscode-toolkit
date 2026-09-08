@@ -206,7 +206,9 @@ All Blackhole variants (p100, p150, p300/p300c) share:
 - **Identical to p100** (single Blackhole chip)
 - p300c likely "compute" variant name
 - Runs in p100 mode for single-chip lessons
-- Each card is independently addressable
+- Each card is separately addressable, but on a TT-QuietBox 2 the 4 cards are
+  wired into **one four-chip ring mesh** (`P300_X2`), not 4 independent devices
+  with no interconnect — multi-chip work scales near-linearly across it
 
 **Best For:**
 - TT-QuietBox development systems
@@ -219,10 +221,13 @@ All Blackhole variants (p100, p150, p300/p300c) share:
 - TT-QuietBox Tower: Devices 0-3 (4 cards)
 
 **TT-QuietBox Multi-Device Pattern:**
-- **4x p300c ≠ 4-chip system**
-- **4x p300c = 4 separate single-chip cards**
-- For single-chip lessons: Use device 0
-- For multi-device lessons: Use all 4 devices
+- **TT-QuietBox 2 is one four-chip ring mesh (`P300_X2`), not 4 independent devices**
+- `tt-smi` enumerates 4 separate p300c cards, but they're wired together (2×2 mesh
+  across two dual-ASIC boards)
+- For single-chip lessons: use device 0 (treat like a p100) — correct and what
+  most lessons want
+- For multi-device lessons: use all 4 devices — scales near-linearly (not 4
+  unrelated workers), see `ct5-multi-device-training`
 
 **Validated:**
 - Lesson 7: vLLM Production (Qwen3-0.6B)
@@ -286,11 +291,12 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 - Configuration: `TT_METAL_NUM_DEVICES=4`, each device configured independently
 
 **TT-QuietBox Example:**
-- **4x p300c** = 4 separate devices
-- Each device has 1 Blackhole chip
-- Each device enumerated: 0, 1, 2, 3
+- **4x p300c**, each enumerated as a separate device (0, 1, 2, 3) with 1 Blackhole chip
+- On a TT-QuietBox 2 those 4 devices are wired into **one four-chip ring mesh**
+  (`P300_X2`), not 4 independent devices
 - For single-chip lesson: Use device 0 only
-- For multi-device lesson: Distribute workload across all 4
+- For multi-device lesson: Distribute workload across all 4 — near-linear scaling
+  across the mesh, not 4 unrelated workers
 
 ---
 
