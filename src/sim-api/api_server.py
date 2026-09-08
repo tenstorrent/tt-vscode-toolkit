@@ -37,19 +37,55 @@ API_KEYS_RAW = os.environ.get("API_KEYS", "")
 VALID_API_KEYS: set[str] = {k.strip() for k in API_KEYS_RAW.split(",") if k.strip()}
 
 EXEC_TIMEOUT_SECS = int(os.environ.get("EXEC_TIMEOUT", "30"))
-# SIM_HOME/<chip>/libttsim_<chip>.so + SIM_HOME/<chip>/soc_descriptor.yaml -- one
-# subdirectory per chip, since ttsim resolves the descriptor as a sibling of the
-# .so file, and wh/bh can't share a directory without clobbering each other's
-# descriptor.
-SIM_HOME = Path(os.environ.get("SIM_HOME", Path.home() / "sim"))
+# Preferred layout: SIM_HOME/<chip>/libttsim_<chip>.so + a sibling
+# SIM_HOME/<chip>/soc_descriptor.yaml -- one subdirectory per chip, since
+# ttsim resolves the descriptor as a sibling of the .so file, and wh/bh
+# can't share a directory without clobbering each other's descriptor.
+# _resolve_ttsim_so() below falls back to the legacy flat SIM_HOME/
+# libttsim_<chip>.so layout that SETUP_TTSIM (terminalCommands.ts), the
+# ttsim lesson, and .devcontainer/post-create.sh currently provision, so
+# existing deployments aren't broken by the new layout.
+#
+# Both SIM_HOME and TT_METAL_HOME are expanded here (not left for the shell)
+# because they commonly reach this process via a compose `environment:`
+# block or an env file, neither of which tilde-expands -- the lessons
+# universally teach `export TT_METAL_HOME=~/tt-metal`, so an operator
+# copying that pattern into non-shell config would otherwise get a literal
+# "~/tt-metal" that silently fails `is_dir()` checks downstream.
+SIM_HOME = Path(os.path.expanduser(os.environ.get("SIM_HOME", "~/sim")))
 # Python interpreter with ttnn importable (the tt-metal python_env), NOT the
 # interpreter running this API server -- the server itself only needs
 # fastapi/uvicorn and never imports ttnn.
 TT_METAL_PYTHON = os.environ.get("TT_METAL_PYTHON", sys.executable)
-TT_METAL_HOME = os.environ.get("TT_METAL_HOME", "")
+TT_METAL_HOME = os.path.expanduser(os.environ.get("TT_METAL_HOME", ""))
 # Extra dir(s) for LD_LIBRARY_PATH (e.g. Tenstorrent's ULFM OpenMPI build),
 # colon-separated.
 TT_EXTRA_LD_LIBRARY_PATH = os.environ.get("TT_EXTRA_LD_LIBRARY_PATH", "")
+
+
+def _resolve_ttsim_so(chip: str) -> Path | None:
+    """Resolve the .so for a chip: prefer SIM_HOME/<chip>/libttsim_<chip>.so,
+    fall back to the legacy flat SIM_HOME/libttsim_<chip>.so. Returns None if
+    neither exists."""
+    per_chip = SIM_HOME / chip / f"libttsim_{chip}.so"
+    if per_chip.exists():
+        return per_chip
+    flat = SIM_HOME / f"libttsim_{chip}.so"
+    if flat.exists():
+        return flat
+    return None
+
+
+def _resolve_ttsim_python() -> str | None:
+    """Resolve TT_METAL_PYTHON to an absolute path. shutil.which() leaves a
+    relative path containing a separator (e.g. "python_env/bin/python",
+    natural inside a tt-metal checkout) unchanged if it resolves against
+    this process's cwd -- but the child is launched with a different cwd
+    (each run's own temp workdir), so a relative result would silently fail
+    to exec. Absolutize once here so both bare commands (PATH-searched) and
+    checkout-relative paths keep working regardless of the child's cwd."""
+    resolved = shutil.which(TT_METAL_PYTHON)
+    return os.path.abspath(resolved) if resolved else None
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
 log = logging.getLogger("tt-sim-api")
@@ -105,25 +141,39 @@ def _check_auth(x_api_key: str | None) -> None:
 def _build_cmd(backend: Backend, script_path: str) -> list[str]:
     """Return the command list for the given backend."""
     if backend == Backend.ttlang_sim:
-        ttlang_sim = shutil.which("ttlang-sim")
+        # The Backend enum value ("ttlang-sim") is this API's own protocol
+        # name, unrelated to the OS binary name -- confirmed directly
+        # against ghcr.io/tenstorrent/tt-lang/tt-lang-dist-ubuntu-22-04
+        # (`which tt-lang-sim` resolves, `which ttlang-sim` does not): the
+        # tt-lang toolchain ships it as `tt-lang-sim` (hyphenated).
+        ttlang_sim = shutil.which("tt-lang-sim")
         if not ttlang_sim:
-            raise HTTPException(status_code=503, detail="ttlang-sim not found in PATH")
+            raise HTTPException(status_code=503, detail="tt-lang-sim not found in PATH")
         return [ttlang_sim, script_path]
 
     if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
         chip = "wh" if backend == Backend.ttsim_wh else "bh"
-        so_path = SIM_HOME / chip / f"libttsim_{chip}.so"
-        if not so_path.exists():
+        so_path = _resolve_ttsim_so(chip)
+        if so_path is None:
             raise HTTPException(
                 status_code=503,
-                detail=f"ttsim binary not found at {so_path}. Run the dev-container setup first.",
+                detail=(
+                    f"ttsim binary not found at {SIM_HOME / chip / f'libttsim_{chip}.so'} "
+                    f"or {SIM_HOME / f'libttsim_{chip}.so'}. Run the dev-container setup first."
+                ),
+            )
+        if not (so_path.parent / "soc_descriptor.yaml").exists():
+            raise HTTPException(
+                status_code=503,
+                detail=f"soc_descriptor.yaml not found next to {so_path}",
             )
         if not TT_METAL_HOME:
             raise HTTPException(status_code=503, detail="TT_METAL_HOME not configured")
-        # TT_METAL_PYTHON may be an absolute path or a bare command resolved
-        # via PATH (e.g. "python3") -- shutil.which() handles both; it
-        # returns absolute paths unchanged if they're executable.
-        resolved_python = shutil.which(TT_METAL_PYTHON)
+        if not Path(TT_METAL_HOME).is_dir():
+            raise HTTPException(
+                status_code=503, detail=f"TT_METAL_HOME is not a directory: {TT_METAL_HOME}"
+            )
+        resolved_python = _resolve_ttsim_python()
         if not resolved_python:
             raise HTTPException(
                 status_code=503, detail=f"TT_METAL_PYTHON not found: {TT_METAL_PYTHON}"
@@ -138,11 +188,24 @@ def _build_env(backend: Backend) -> dict[str, str]:
     env = os.environ.copy()
     if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
         chip = "wh" if backend == Backend.ttsim_wh else "bh"
+        so_path = _resolve_ttsim_so(chip)
         env["TT_METAL_HOME"] = TT_METAL_HOME
-        env["TT_METAL_SIMULATOR"] = str(SIM_HOME / chip / f"libttsim_{chip}.so")
-        env.setdefault("TT_METAL_ARCH_NAME", "wormhole_b0" if chip == "wh" else "blackhole")
-        env["TT_METAL_SLOW_DISPATCH_MODE"] = "1"
-        env["TT_METAL_DISABLE_SFPLOADMACRO"] = "1"
+        if so_path is not None:
+            env["TT_METAL_SIMULATOR"] = str(so_path)
+        # Unconditional, NOT setdefault: this is a per-chip correctness
+        # invariant (the .so being loaded must match the declared arch), not
+        # an operator-facing knob. A stray TT_METAL_ARCH_NAME in the
+        # environment (the lessons export it in shell profiles, and tt-metal
+        # images commonly set it) must never pair the wrong arch with a
+        # given chip's .so just because it got there first.
+        env["TT_METAL_ARCH_NAME"] = "wormhole_b0" if chip == "wh" else "blackhole"
+        # setdefault, unlike ARCH_NAME above: these two ARE operator-facing
+        # knobs the ttsim lesson content itself teaches people to flip (e.g.
+        # unsetting DISABLE_SFPLOADMACRO to trigger the documented
+        # UnimplementedFunctionality divergence), so an explicit operator
+        # value must win over this default.
+        env.setdefault("TT_METAL_SLOW_DISPATCH_MODE", "1")
+        env.setdefault("TT_METAL_DISABLE_SFPLOADMACRO", "1")
         pythonpath = [TT_METAL_HOME, str(Path(TT_METAL_HOME) / "ttnn")]
         if env.get("PYTHONPATH"):
             pythonpath.append(env["PYTHONPATH"])
@@ -177,6 +240,7 @@ async def _stream_output(
     with open(script_path, "w") as f:
         f.write(code)
 
+    proc: asyncio.subprocess.Process | None = None
     try:
         cmd = _build_cmd(backend, script_path)
         env = _build_env(backend)
@@ -189,38 +253,83 @@ async def _stream_output(
             cwd=workdir,
         )
 
-        async def _read_stream(stream: asyncio.StreamReader, kind: str):
-            while True:
-                chunk = await stream.read(4096)
-                if not chunk:
-                    break
-                yield {"type": kind, "data": chunk.decode("utf-8", errors="replace")}
+        # Draining stdout to EOF before starting stderr (or vice versa) can
+        # deadlock a real tt-metal/ttnn subprocess: it logs heavily to stderr
+        # at default verbosity, and once that pipe's ~64KB OS buffer plus the
+        # asyncio StreamReader's internal buffer fill, the child blocks on
+        # write() while stdout sits unread. Drain both concurrently instead.
+        #
+        # asyncio.timeout() needs Python 3.11+; track a deadline manually so
+        # this works on 3.10 too.
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + timeout
+        queue: asyncio.Queue = asyncio.Queue()
+        _EOF = object()  # sentinel: a pump reached EOF
 
-        async def _collect():
-            async for msg in _read_stream(proc.stdout, "stdout"):
-                yield msg
-            async for msg in _read_stream(proc.stderr, "stderr"):
-                yield msg
+        async def _pump(stream: asyncio.StreamReader, kind: str) -> None:
+            try:
+                while True:
+                    chunk = await stream.read(4096)
+                    if not chunk:
+                        break
+                    await queue.put({"type": kind, "data": chunk.decode("utf-8", errors="replace")})
+            except Exception as exc:  # rare (e.g. a stream read error) -- surface it, don't hang
+                await queue.put({"type": "stderr", "data": f"\n[stream error ({kind}): {exc}]\n"})
+            finally:
+                # Always put a sentinel, success or failure, so the
+                # consumer's queue.get() wakes up immediately once both
+                # pumps finish, instead of blocking until the full
+                # remaining timeout elapses with nothing left to wait for
+                # (checking `pumps[i].done()` between iterations isn't
+                # enough on its own: once the consumer is already suspended
+                # inside await queue.get(), nothing wakes it early without
+                # this).
+                await queue.put(_EOF)
 
-        try:
-            async with asyncio.timeout(timeout):
-                async for msg in _collect():
-                    yield msg
-                await proc.wait()
-        except TimeoutError:
+        pumps = [
+            asyncio.create_task(_pump(proc.stdout, "stdout")),
+            asyncio.create_task(_pump(proc.stderr, "stderr")),
+        ]
+
+        timed_out = False
+        pending = len(pumps)
+        while pending > 0:
+            remaining = deadline - loop.time()
+            if remaining <= 0:
+                timed_out = True
+                break
+            try:
+                item = await asyncio.wait_for(queue.get(), timeout=remaining)
+            except asyncio.TimeoutError:
+                timed_out = True
+                break
+            if item is _EOF:
+                pending -= 1
+                continue
+            yield item
+
+        if timed_out:
+            for p in pumps:
+                p.cancel()
             proc.kill()
             await proc.wait()
             yield {"type": "stderr", "data": f"\n[TIMEOUT after {timeout}s]\n"}
             yield {"type": "exit", "code": -1}
             return
 
+        await asyncio.wait_for(proc.wait(), timeout=max(deadline - loop.time(), 0))
         yield {"type": "exit", "code": proc.returncode}
 
     finally:
-        try:
-            shutil.rmtree(workdir, ignore_errors=True)
-        except OSError:
-            pass
+        # If the client disconnected mid-run (WebSocketDisconnect propagates
+        # as GeneratorExit into this generator's suspended yield), proc may
+        # still be alive. Kill it before removing its own cwd out from under
+        # it -- otherwise the still-running tt-metal process either ENOENTs
+        # on its own output paths or keeps running unbounded.
+        if proc is not None and proc.returncode is None:
+            proc.kill()
+            await proc.wait()
+        shutil.rmtree(workdir, ignore_errors=True)
 
 
 # ---------------------------------------------------------------------------
@@ -326,12 +435,21 @@ async def execute_ws(websocket: WebSocket) -> None:
 # ---------------------------------------------------------------------------
 
 def _ttsim_backend_ready(chip: str) -> bool:
-    """True only if this backend could actually execute: the .so exists AND
-    TT_METAL_HOME is configured AND TT_METAL_PYTHON resolves. The playground
-    UI uses /health to decide what's runnable, so checking just the .so
-    would report a backend as available when _build_cmd would 503 it."""
-    so_exists = (SIM_HOME / chip / f"libttsim_{chip}.so").exists()
-    return bool(so_exists and TT_METAL_HOME and shutil.which(TT_METAL_PYTHON))
+    """True only if this backend could actually execute: the .so exists (in
+    either layout) AND its sibling soc_descriptor.yaml exists AND
+    TT_METAL_HOME is a real directory AND TT_METAL_PYTHON resolves. The
+    playground UI uses /health to decide what's runnable, so checking only
+    the .so would report a backend as available when _build_cmd would 503
+    it -- e.g. a bare .so with no descriptor crashes inside open_device
+    instead of failing fast here."""
+    so_path = _resolve_ttsim_so(chip)
+    if so_path is None:
+        return False
+    if not (so_path.parent / "soc_descriptor.yaml").exists():
+        return False
+    if not TT_METAL_HOME or not Path(TT_METAL_HOME).is_dir():
+        return False
+    return _resolve_ttsim_python() is not None
 
 
 @app.get("/health")
@@ -339,7 +457,7 @@ async def health() -> dict:
     return {
         "status": "ok",
         "backends": {
-            "ttlang-sim": bool(shutil.which("ttlang-sim")),
+            "ttlang-sim": bool(shutil.which("tt-lang-sim")),
             "ttsim-wh": _ttsim_backend_ready("wh"),
             "ttsim-bh": _ttsim_backend_ready("bh"),
         },
