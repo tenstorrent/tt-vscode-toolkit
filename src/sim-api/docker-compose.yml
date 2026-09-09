@@ -10,9 +10,21 @@ services:
       API_KEYS: ""
       EXEC_TIMEOUT: "30"
       SIM_HOME: /sim
+      # ttsim-wh / ttsim-bh need a tt-metal checkout with ttnn importable --
+      # this compose file's base image (tt-lang-dist-ubuntu-22-04) does not
+      # ship one, so as configured only the ttlang-sim backend works and
+      # /health correctly reports ttsim-wh/ttsim-bh as not ready (503 rather
+      # than a crash). To enable them: bind-mount a built ~/tt-metal into the
+      # container, set TT_METAL_HOME to that path, and set TT_METAL_PYTHON to
+      # its python_env interpreter (e.g. $TT_METAL_HOME/python_env/bin/python)
+      # -- see api_server.py's _default_ttsim_python() for the exact contract.
+      # TT_METAL_HOME: /tt-metal
+      # TT_METAL_PYTHON: /tt-metal/python_env/bin/python
     volumes:
       # Mount local ~/sim directory containing libttsim_*.so binaries
       - "${HOME}/sim:/sim:ro"
+      # Uncomment alongside the env vars above to enable ttsim-wh/ttsim-bh:
+      # - "${TT_METAL_HOME}:/tt-metal:ro"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]

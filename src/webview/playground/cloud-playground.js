@@ -11,15 +11,22 @@
     // Injected by build-web.js from $TTSIM_API_URL env var (may be empty string).
     const CLOUD_API_URL = window.TTSIM_API_URL || '';
 
-    // ─── Kernel snippets (same set as playground.js) ─────────────────────────
+    // ─── Kernel snippets (overlaps playground.js on eltwise_add/hello_tensor;
+    // the ttsim-backed kernels below are specific to this cloud variant) ─────
 
+    // Each kernel declares which backend(s) it actually runs against.
+    // ttlang-sim's shim ttnn supports from_numpy/ttl.operation; the real
+    // tt-metal ttnn used by ttsim-wh/ttsim-bh supports neither (only
+    // from_torch, no ttl) -- these are genuinely different APIs, so a
+    // kernel written for one is not portable to the other by accident.
     const KERNELS = {
         'eltwise_add': {
             label: 'Element-wise Add',
+            backends: ['ttlang-sim'],
             code: `\
 import numpy as np
 
-# This code runs on the TT cloud simulator.
+# This code runs on the ttlang-sim backend specifically.
 # ttl / ttnn are pre-imported automatically.
 
 TILE = 32
@@ -71,6 +78,7 @@ print("PASSED" if max_err < 1e-4 else "FAILED")
         },
         'matmul_1d': {
             label: 'Matmul (row-partitioned)',
+            backends: ['ttlang-sim'],
             code: `\
 import numpy as np
 
@@ -92,6 +100,7 @@ print("PASSED" if max_err < 1e-3 else "FAILED")
         },
         'hello_tensor': {
             label: 'Hello Tensor',
+            backends: ['ttlang-sim'],
             code: `\
 import numpy as np
 
@@ -102,7 +111,98 @@ print("a + b =", ttnn.to_numpy(c))
 print("PASSED")
 `
         },
+        // The three kernels above use ttlang-sim's shim ttnn (from_numpy,
+        // ttl.operation) and are not portable to real tt-metal/ttnn. These
+        // three are the ttsim-wh/ttsim-bh equivalents, using the real API
+        // (from_torch; no ttl).
+        'hello_tensor_ttsim': {
+            label: 'Hello Tensor (ttsim)',
+            backends: ['ttsim-wh', 'ttsim-bh'],
+            code: `\
+import torch
+
+a = ttnn.from_torch(torch.tensor([[1.0, 2.0], [3.0, 4.0]]), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+b = ttnn.from_torch(torch.tensor([[10.0, 20.0], [30.0, 40.0]]), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+c = a + b
+print("a + b =", ttnn.to_torch(ttnn.from_device(c)))
+print("PASSED")
+`
+        },
+        'eltwise_add_ttsim': {
+            label: 'Element-wise Add (ttsim)',
+            backends: ['ttsim-wh', 'ttsim-bh'],
+            code: `\
+import numpy as np
+import torch
+
+# This code runs on the ttsim-wh/ttsim-bh backend (real tt-metal/ttnn).
+# dtype=ttnn.bfloat16 is required, not optional: the tensix unpacker on this
+# backend rejects float32 tiles outright. numpy has no bfloat16 of its own,
+# so .float() first is needed before .numpy() can convert the result back.
+dim = 64
+a_np = np.random.rand(dim, dim).astype(np.float32)
+b_np = np.random.rand(dim, dim).astype(np.float32)
+ref = a_np + b_np
+
+a = ttnn.from_torch(torch.from_numpy(a_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+b = ttnn.from_torch(torch.from_numpy(b_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+c = ttnn.add(a, b)
+result = ttnn.to_torch(ttnn.from_device(c)).float().numpy()
+
+max_err = float(np.abs(result - ref).max())
+print(f"eltwise_add  dim={dim}x{dim}  max_err={max_err:.6f}")
+print("PASSED" if max_err < 1e-2 else "FAILED")
+`
+        },
+        'matmul_ttsim': {
+            label: 'Matmul (ttsim)',
+            backends: ['ttsim-wh', 'ttsim-bh'],
+            code: `\
+import numpy as np
+import torch
+
+dim = 64
+a_np = np.random.rand(dim, dim).astype(np.float32)
+b_np = np.random.rand(dim, dim).astype(np.float32)
+ref = a_np @ b_np
+
+a = ttnn.from_torch(torch.from_numpy(a_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+b = ttnn.from_torch(torch.from_numpy(b_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+c = ttnn.matmul(a, b)
+result = ttnn.to_torch(ttnn.from_device(c)).float().numpy()
+
+max_err = float(np.abs(result - ref).max())
+print(f"matmul  dim={dim}x{dim}  max_err={max_err:.6f}")
+# bfloat16 has ~7 bits of mantissa; a dim=64 dot product accumulates that
+# per-element error across 64 terms, so max abs error routinely lands
+# between 0.1 and 0.3 against a float32 reference -- live-tested against
+# ttsim-wh, not just estimated. 1e-1 (tuned for float32-precision inputs)
+# false-failed on real bfloat16 output; 5e-1 has margin without being loose
+# enough to hide an actually-broken kernel.
+print("PASSED" if max_err < 5e-1 else "FAILED")
+`
+        },
     };
+
+    // Strip the minimum common leading whitespace from every non-empty line,
+    // preserving relative indentation (e.g. a try/except body). Used to keep
+    // multi-line Python template literals immune to how this file itself
+    // happens to be indented -- see the preamble construction below.
+    function _dedent(str) {
+        const lines = str.replace(/^\n/, '').replace(/\s+$/, '').split('\n');
+        // [ \t]*, not just space: a tab-indented source (nothing in this repo
+        // enforces spaces-only) would otherwise measure 0 for every line,
+        // leave the tabs in place, and produce an IndentationError on the
+        // first line of the emitted Python -- exactly the failure mode this
+        // helper exists to prevent.
+        const indents = lines.filter(l => l.trim().length > 0).map(l => l.match(/^[ \t]*/)[0].length);
+        const minIndent = indents.length ? Math.min(...indents) : 0;
+        return lines.map(l => l.slice(minIndent)).join('\n');
+    }
+
+    function _kernelsForBackend(backend) {
+        return Object.entries(KERNELS).filter(([, k]) => k.backends.includes(backend));
+    }
 
     // ─── CloudPlaygroundController ────────────────────────────────────────────
 
@@ -111,9 +211,10 @@ print("PASSED")
             this._mount = mount;
             this._ws = null;
             this._running = false;
+            this._currentKernel = null;
 
             this._buildUI();
-            this._selectKernel('eltwise_add');
+            this._onBackendChange();
         }
 
         _buildUI() {
@@ -141,14 +242,15 @@ print("PASSED")
   </div>
 </div>`;
 
-            const sel = this._mount.querySelector('#tt-pg-kernel-sel');
-            for (const [key, { label }] of Object.entries(KERNELS)) {
-                const opt = document.createElement('option');
-                opt.value = key;
-                opt.textContent = label;
-                sel.appendChild(opt);
-            }
-            sel.addEventListener('change', () => this._selectKernel(sel.value));
+            const kernelSel = this._mount.querySelector('#tt-pg-kernel-sel');
+            const backendSel = this._mount.querySelector('#tt-pg-backend-sel');
+            // Kernel options are populated per-backend in _onBackendChange(),
+            // not once here -- eltwise_add/matmul_1d/hello_tensor use
+            // ttlang-sim's shim ttnn (from_numpy, ttl.operation) and are not
+            // portable to real tt-metal/ttnn, so the list of runnable
+            // kernels genuinely differs by backend.
+            kernelSel.addEventListener('change', () => this._selectKernel(kernelSel.value));
+            backendSel.addEventListener('change', () => this._onBackendChange());
 
             this._mount.querySelector('#tt-pg-run').addEventListener('click', () => this._run());
             this._mount.querySelector('#tt-pg-clear').addEventListener('click', () => this._clearOutput());
@@ -157,14 +259,53 @@ print("PASSED")
             this._codeEl = this._mount.querySelector('#tt-pg-code');
             this._outputEl = this._mount.querySelector('#tt-pg-output');
             this._runBtn = this._mount.querySelector('#tt-pg-run');
-            this._backendSel = this._mount.querySelector('#tt-pg-backend-sel');
+            this._backendSel = backendSel;
+            this._kernelSel = kernelSel;
 
             this._showCloudStatus();
+        }
+
+        _onBackendChange() {
+            const compatible = _kernelsForBackend(this._backendSel.value);
+            const previousKey = this._currentKernel;
+            this._kernelSel.innerHTML = '';
+            for (const [key, { label }] of compatible) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = label;
+                this._kernelSel.appendChild(opt);
+            }
+            if (!compatible.length) {
+                this._currentKernel = null;
+                this._codeEl.value = '';
+                return;
+            }
+            // Only reload the template -- clobbering whatever the user is
+            // currently editing -- when the previously-selected kernel
+            // genuinely isn't runnable against the new backend. Several
+            // kernels (e.g. "Matmul (ttsim)") are compatible with BOTH
+            // ttsim-wh and ttsim-bh, and switching between those backends
+            // previously reloaded the pristine template over any
+            // in-progress edits on every single change, even though the
+            // same kernel key stays selectable either way.
+            const stillCompatible = compatible.some(([key]) => key === previousKey);
+            if (stillCompatible) {
+                this._kernelSel.value = previousKey;
+            } else {
+                this._selectKernel(compatible[0][0]);
+            }
         }
 
         _selectKernel(key) {
             if (KERNELS[key]) {
                 this._codeEl.value = KERNELS[key].code.trim();
+                this._currentKernel = key;
+                // Keep the dropdown in sync with the loaded code -- without
+                // this, calling _selectKernel() with anything other than
+                // whatever the browser defaults the <select> to (its first
+                // option) leaves the visible selection and the actual
+                // loaded code silently out of sync.
+                if (this._kernelSel) this._kernelSel.value = key;
             }
         }
 
@@ -246,18 +387,58 @@ print("PASSED")
             const code = this._codeEl.value;
             const backend = this._backendSel.value;
 
-            // Build preamble that imports ttl/ttnn inside the server environment
-            const preamble = `
-import sys, importlib
-# Ensure ttlang-sim is importable if installed in the server environment
-try:
-    import ttl
-    import ttnn
-    device = ttnn.open_device(device_id=0)
-except ImportError:
-    pass
-`;
-            const fullCode = preamble + '\n' + code;
+            // One preamble for every backend: ttnn and device are ALWAYS
+            // set up (unconditionally, outside any try/except), since every
+            // kernel needs them regardless of backend. Only `ttl` is
+            // guarded -- it exists in ttlang-sim's environment but not in
+            // ttsim-wh/ttsim-bh's real tt-metal/ttnn -- and set to None
+            // rather than left undefined on import failure, so a kernel
+            // that needs it but was run against an incompatible backend (it
+            // shouldn't be reachable via the UI, which filters the kernel
+            // list by backend in _onBackendChange(), but the API can be hit
+            // directly) fails with a clear AttributeError on `ttl.whatever`
+            // instead of leaving `device` undefined too and failing on an
+            // unrelated NameError first.
+            //
+            // _dedent() below guards against a future re-indent of this file
+            // silently breaking the emitted Python: template literals keep
+            // whatever leading whitespace precedes each line in the source,
+            // and Python is indentation-sensitive, so an editor auto-format
+            // that nests these lines deeper would otherwise produce a
+            // hard-to-diagnose IndentationError at execution time.
+            const preamble = _dedent(`
+                try:
+                    import ttl
+                except ImportError:
+                    ttl = None
+                import ttnn
+                device = ttnn.open_device(device_id=0)
+            `);
+            // Wrap the kernel body in try/finally so ttnn.close_device()
+            // always runs, even when the kernel raises -- without this, a
+            // failing run (or even a passing one, since nothing ever called
+            // it) leaves the simulated device open for the lifetime of the
+            // server process, and the next run's ttnn.open_device() either
+            // queues behind it or fails outright depending on the backend.
+            // Every line of the user's code is indented once to sit inside
+            // the try: block; a uniform per-line indent is always valid
+            // Python regardless of the kernel's own internal structure.
+            const indentedCode = code.split('\n').map(l => (l.length ? '    ' + l : l)).join('\n');
+            const fullCode =
+                preamble + '\n' +
+                'try:\n' +
+                indentedCode + '\n' +
+                'finally:\n' +
+                // A pasted kernel (every ttsim example elsewhere in this
+                // repo included) may already close its own device in its
+                // own finally/atexit -- swallow the resulting "already
+                // closed" error here rather than let our own close double
+                // up on top of that and mask what would otherwise be a
+                // clean PASSED with a spurious non-zero exit code.
+                '    try:\n' +
+                '        ttnn.close_device(device)\n' +
+                '    except Exception:\n' +
+                '        pass\n';
 
             const wsUrl = CLOUD_API_URL.endsWith('/execute')
                 ? CLOUD_API_URL
@@ -272,7 +453,12 @@ except ImportError:
             }
 
             this._ws.onopen = () => {
-                this._ws.send(JSON.stringify({ code: fullCode, backend, timeout: 30 }));
+                // No `timeout` field -- let the server apply its own
+                // EXEC_TIMEOUT-derived default per backend instead of a
+                // second hardcoded value here drifting out of sync with it
+                // (this previously sent 30s while the server's own default
+                // was already 60-180s, silently cutting every run short).
+                this._ws.send(JSON.stringify({ code: fullCode, backend }));
             };
 
             this._ws.onmessage = (evt) => {

@@ -18,9 +18,12 @@ import asyncio
 import json
 import logging
 import os
+import re
 import shutil
+import signal
 import sys
 import tempfile
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import AsyncIterator
@@ -37,7 +40,242 @@ API_KEYS_RAW = os.environ.get("API_KEYS", "")
 VALID_API_KEYS: set[str] = {k.strip() for k in API_KEYS_RAW.split(",") if k.strip()}
 
 EXEC_TIMEOUT_SECS = int(os.environ.get("EXEC_TIMEOUT", "30"))
-SIM_HOME = Path(os.environ.get("SIM_HOME", Path.home() / "sim"))
+# Preferred layout: SIM_HOME/<chip>/libttsim_<chip>.so + a sibling
+# SIM_HOME/<chip>/soc_descriptor.yaml -- one subdirectory per chip, since
+# ttsim resolves the descriptor as a sibling of the .so file, and wh/bh
+# can't share a directory without clobbering each other's descriptor.
+# _resolve_ttsim_so() below falls back to the legacy flat SIM_HOME/
+# libttsim_<chip>.so layout that SETUP_TTSIM (terminalCommands.ts), the
+# ttsim lesson, and .devcontainer/post-create.sh currently provision, so
+# existing deployments aren't broken by the new layout.
+#
+# Both SIM_HOME and TT_METAL_HOME are expanded here (not left for the shell)
+# because they commonly reach this process via a compose `environment:`
+# block or an env file, neither of which tilde-expands -- the lessons
+# universally teach `export TT_METAL_HOME=~/tt-metal`, so an operator
+# copying that pattern into non-shell config would otherwise get a literal
+# "~/tt-metal" that silently fails `is_dir()` checks downstream.
+SIM_HOME = Path(os.path.expanduser(os.environ.get("SIM_HOME", "~/sim")))
+TT_METAL_HOME = os.path.expanduser(os.environ.get("TT_METAL_HOME", ""))
+
+
+def _default_ttsim_python() -> str:
+    """Best-effort default for TT_METAL_PYTHON when the operator hasn't set
+    it. A tt-metal dev checkout's own python_env is guaranteed to have ttnn
+    importable; this process's own interpreter (the previous default) only
+    has fastapi/uvicorn and never imports ttnn, so it silently reported
+    ttsim backends as ready right up until the first real request 503'd."""
+    if TT_METAL_HOME:
+        venv_python = Path(TT_METAL_HOME) / "python_env" / "bin" / "python"
+        if venv_python.exists():
+            return str(venv_python)
+    return sys.executable
+
+
+# Python interpreter with ttnn importable (the tt-metal python_env), NOT the
+# interpreter running this API server -- the server itself only needs
+# fastapi/uvicorn and never imports ttnn.
+TT_METAL_PYTHON = os.environ.get("TT_METAL_PYTHON") or _default_ttsim_python()
+# Extra dir(s) for LD_LIBRARY_PATH (e.g. Tenstorrent's ULFM OpenMPI build),
+# colon-separated.
+TT_EXTRA_LD_LIBRARY_PATH = os.environ.get("TT_EXTRA_LD_LIBRARY_PATH", "")
+
+
+def _resolve_ttsim_so(chip: str) -> Path | None:
+    """Resolve the .so for a chip: prefer SIM_HOME/<chip>/libttsim_<chip>.so,
+    fall back to the legacy flat SIM_HOME/libttsim_<chip>.so. Returns None if
+    neither exists."""
+    per_chip = SIM_HOME / chip / f"libttsim_{chip}.so"
+    if per_chip.exists():
+        return per_chip
+    flat = SIM_HOME / f"libttsim_{chip}.so"
+    if flat.exists():
+        return flat
+    return None
+
+
+def _resolve_ttsim_python() -> str | None:
+    """Resolve TT_METAL_PYTHON to an absolute path. shutil.which() leaves a
+    relative path containing a separator (e.g. "python_env/bin/python",
+    natural inside a tt-metal checkout) unchanged if it resolves against
+    this process's cwd -- but the child is launched with a different cwd
+    (each run's own temp workdir), so a relative result would silently fail
+    to exec. Absolutize once here so both bare commands (PATH-searched) and
+    checkout-relative paths keep working regardless of the child's cwd."""
+    resolved = shutil.which(TT_METAL_PYTHON)
+    return os.path.abspath(resolved) if resolved else None
+
+
+def _ttsim_env_overrides(chip: str, so_path: Path) -> dict[str, str]:
+    """Environment for running (or merely importing) ttnn against ttsim for
+    `chip`, layered onto a copy of the current process environment. Shared
+    by _build_env (the actual kernel run) and _resolve_ttsim's ttnn-
+    importability probe below -- the probe MUST use these same overrides,
+    not the bare current environment: ttnn's import-time initialisation
+    only stays routed through ttsim instead of real PCI device enumeration
+    when TT_METAL_SIMULATOR is already set going in, so probing
+    importability without it would both give a wrong answer on a host with
+    no simulator configured at all, and, on a host with real Tenstorrent
+    hardware attached, risk exactly what the project's device-leasing rule
+    exists to prevent."""
+    env = os.environ.copy()
+    env["TT_METAL_HOME"] = TT_METAL_HOME
+    env["TT_METAL_SIMULATOR"] = str(so_path)
+    # Unconditional, NOT setdefault: this is a per-chip correctness
+    # invariant (the .so being loaded must match the declared arch), not an
+    # operator-facing knob. A stray TT_METAL_ARCH_NAME in the environment
+    # (the lessons export it in shell profiles, and tt-metal images commonly
+    # set it) must never pair the wrong arch with a given chip's .so just
+    # because it got there first.
+    env["TT_METAL_ARCH_NAME"] = "wormhole_b0" if chip == "wh" else "blackhole"
+    # setdefault, unlike ARCH_NAME above: these two ARE operator-facing
+    # knobs the ttsim lesson content itself teaches people to flip (e.g.
+    # unsetting DISABLE_SFPLOADMACRO to trigger the documented
+    # UnimplementedFunctionality divergence), so an explicit operator value
+    # must win over this default.
+    env.setdefault("TT_METAL_SLOW_DISPATCH_MODE", "1")
+    env.setdefault("TT_METAL_DISABLE_SFPLOADMACRO", "1")
+    pythonpath = [TT_METAL_HOME, str(Path(TT_METAL_HOME) / "ttnn")]
+    if env.get("PYTHONPATH"):
+        pythonpath.append(env["PYTHONPATH"])
+    env["PYTHONPATH"] = ":".join(pythonpath)
+    if TT_EXTRA_LD_LIBRARY_PATH:
+        ld = [TT_EXTRA_LD_LIBRARY_PATH]
+        if env.get("LD_LIBRARY_PATH"):
+            ld.append(env["LD_LIBRARY_PATH"])
+        env["LD_LIBRARY_PATH"] = ":".join(ld)
+    return env
+
+
+_TTNN_IMPORTABLE_CACHE: dict[str, tuple[bool, float]] = {}
+# A cold `import ttnn` (torch + libtt_metal, on a freshly started container)
+# can plausibly still be loading past a probe timeout well past the old 10s
+# -- 45s gives real room without hanging forever if the interpreter is
+# actually broken.
+_TTNN_IMPORTABLE_PROBE_TIMEOUT = 45.0
+# Only a NEGATIVE result gets a TTL: an interpreter that has already
+# successfully imported ttnn once will always be able to again, but a
+# "can't import yet" reading may just mean the probe caught it mid-cold-
+# start. Caching that transient reading as a permanent False would wedge
+# /health (and every real request behind it) in "unavailable" until the
+# server process restarts, even once the import would by then have
+# succeeded -- and the playground fires /health at page load, which is
+# exactly when a freshly started container is coldest.
+_TTNN_IMPORTABLE_NEGATIVE_TTL = 30.0
+
+
+async def _ttnn_importable(python_path: str, env: dict[str, str]) -> bool:
+    """Actually try to `import ttnn` via the resolved interpreter under the
+    given (already ttsim-routed) environment. `env` must already carry
+    TT_METAL_SIMULATOR (see _ttsim_env_overrides) so the check itself never
+    risks a real device open on a host that also has physical Tenstorrent
+    hardware attached. Runs as a genuine child process (not a blocking
+    subprocess.run) so a slow cold import doesn't stall the event loop this
+    server's other requests (including its own /health) share."""
+    loop = asyncio.get_running_loop()
+    cached = _TTNN_IMPORTABLE_CACHE.get(python_path)
+    if cached is not None:
+        ok, checked_at = cached
+        if ok or (loop.time() - checked_at) < _TTNN_IMPORTABLE_NEGATIVE_TTL:
+            return ok
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            python_path,
+            "-c",
+            "import ttnn",
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL,
+            env=env,
+        )
+        try:
+            await asyncio.wait_for(proc.wait(), timeout=_TTNN_IMPORTABLE_PROBE_TIMEOUT)
+            ok = proc.returncode == 0
+        except asyncio.TimeoutError:
+            proc.kill()
+            await proc.wait()
+            ok = False
+    except Exception:
+        ok = False
+    _TTNN_IMPORTABLE_CACHE[python_path] = (ok, loop.time())
+    return ok
+
+
+_ARCH_NAME_RE = re.compile(r"^\s*arch_name:\s*(\S+)", re.MULTILINE)
+_EXPECTED_ARCH = {"wh": "WORMHOLE_B0", "bh": "BLACKHOLE"}
+
+
+@dataclass
+class TtsimResolution:
+    so_path: Path
+    descriptor_path: Path
+    python_path: str
+
+
+async def _resolve_ttsim(chip: str) -> TtsimResolution:
+    """Resolve everything needed to run a ttsim backend for `chip`, raising
+    HTTPException(503, ...) with a precise reason otherwise. Single source of
+    truth for _build_cmd, _build_env, and the /health check, which previously
+    each re-derived a subset of this independently and had begun to drift
+    (e.g. _build_env re-resolved so_path behind a dead `is not None` guard
+    that _build_cmd's own resolution had already made unreachable)."""
+    so_path = _resolve_ttsim_so(chip)
+    if so_path is None:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"ttsim binary not found at {SIM_HOME / chip / f'libttsim_{chip}.so'} "
+                f"or {SIM_HOME / f'libttsim_{chip}.so'}. Run the dev-container setup first."
+            ),
+        )
+
+    descriptor_path = so_path.parent / "soc_descriptor.yaml"
+    if not descriptor_path.exists():
+        raise HTTPException(
+            status_code=503,
+            detail=f"soc_descriptor.yaml not found next to {so_path}",
+        )
+
+    # ttsim resolves the descriptor purely by sibling filename, with no arch
+    # check of its own -- the legacy flat SIM_HOME layout (both chips' .so
+    # sharing one directory) can end up with, say, a Wormhole descriptor left
+    # next to libttsim_bh.so (whichever chip's setup ran last wins the
+    # shared filename), and it loads without error. Catch the mismatch here
+    # via the descriptor's own arch_name: field rather than trusting mere
+    # existence.
+    match = _ARCH_NAME_RE.search(descriptor_path.read_text())
+    actual_arch = match.group(1).strip().upper() if match else None
+    expected_arch = _EXPECTED_ARCH[chip]
+    if actual_arch != expected_arch:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"{descriptor_path} has arch_name={actual_arch!r}, expected "
+                f"{expected_arch!r} for chip={chip!r} -- likely the flat "
+                f"SIM_HOME layout with both chips' .so sharing one "
+                f"soc_descriptor.yaml. Use SIM_HOME/<chip>/ subdirectories."
+            ),
+        )
+
+    if not TT_METAL_HOME:
+        raise HTTPException(status_code=503, detail="TT_METAL_HOME not configured")
+    if not Path(TT_METAL_HOME).is_dir():
+        raise HTTPException(
+            status_code=503, detail=f"TT_METAL_HOME is not a directory: {TT_METAL_HOME}"
+        )
+
+    resolved_python = _resolve_ttsim_python()
+    if not resolved_python:
+        raise HTTPException(
+            status_code=503, detail=f"TT_METAL_PYTHON not found: {TT_METAL_PYTHON}"
+        )
+    if not await _ttnn_importable(resolved_python, _ttsim_env_overrides(chip, so_path)):
+        raise HTTPException(
+            status_code=503,
+            detail=f"{resolved_python} cannot `import ttnn` -- check TT_METAL_PYTHON",
+        )
+
+    return TtsimResolution(so_path=so_path, descriptor_path=descriptor_path, python_path=resolved_python)
+
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
 log = logging.getLogger("tt-sim-api")
@@ -90,45 +328,51 @@ def _check_auth(x_api_key: str | None) -> None:
 # Backend resolution
 # ---------------------------------------------------------------------------
 
-def _build_cmd(backend: Backend, script_path: str) -> list[str]:
+async def _build_cmd(backend: Backend, script_path: str) -> list[str]:
     """Return the command list for the given backend."""
     if backend == Backend.ttlang_sim:
-        ttlang_sim = shutil.which("ttlang-sim")
+        # The Backend enum value ("ttlang-sim") is this API's own protocol
+        # name, unrelated to the OS binary name -- confirmed directly
+        # against ghcr.io/tenstorrent/tt-lang/tt-lang-dist-ubuntu-22-04
+        # (`which tt-lang-sim` resolves, `which ttlang-sim` does not): the
+        # tt-lang toolchain ships it as `tt-lang-sim` (hyphenated).
+        ttlang_sim = shutil.which("tt-lang-sim")
         if not ttlang_sim:
-            raise HTTPException(status_code=503, detail="ttlang-sim not found in PATH")
+            raise HTTPException(status_code=503, detail="tt-lang-sim not found in PATH")
         return [ttlang_sim, script_path]
 
     if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
         chip = "wh" if backend == Backend.ttsim_wh else "bh"
-        so_path = SIM_HOME / f"libttsim_{chip}.so"
-        tt_metal = shutil.which("tt_metal") or shutil.which("tt-metal")
-        if not so_path.exists():
-            raise HTTPException(
-                status_code=503,
-                detail=f"ttsim binary not found at {so_path}. Run the dev-container setup first.",
-            )
-        if not tt_metal:
-            raise HTTPException(status_code=503, detail="tt-metal not found in PATH")
-        return [tt_metal, script_path]
+        resolution = await _resolve_ttsim(chip)
+        return [resolution.python_path, script_path]
 
     raise HTTPException(status_code=400, detail=f"Unknown backend: {backend}")
 
 
-def _build_env(backend: Backend) -> dict[str, str]:
+async def _build_env(backend: Backend) -> dict[str, str]:
     """Return extra environment variables needed by the backend."""
-    env = os.environ.copy()
-    if backend == Backend.ttsim_wh:
-        env["TT_METAL_SIMULATOR"] = str(SIM_HOME / "libttsim_wh.so")
-        env.setdefault("TT_METAL_ARCH_NAME", "wormhole_b0")
-    elif backend == Backend.ttsim_bh:
-        env["TT_METAL_SIMULATOR"] = str(SIM_HOME / "libttsim_bh.so")
-        env.setdefault("TT_METAL_ARCH_NAME", "blackhole")
-    return env
+    if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
+        chip = "wh" if backend == Backend.ttsim_wh else "bh"
+        resolution = await _resolve_ttsim(chip)
+        return _ttsim_env_overrides(chip, resolution.so_path)
+    return os.environ.copy()
 
 
 # ---------------------------------------------------------------------------
 # Async subprocess streaming
 # ---------------------------------------------------------------------------
+
+def _kill_process_group(proc: asyncio.subprocess.Process) -> None:
+    """Kill the whole process group started with the child (see
+    start_new_session=True below), not just the direct child -- a plain
+    proc.kill() leaves any grandchild processes (e.g. MPI ranks a ttsim/
+    tt-metal run spawns) as orphans still holding the simulator device or
+    its socket open for the next run."""
+    try:
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    except ProcessLookupError:
+        pass  # already reaped
+
 
 async def _stream_output(
     backend: Backend,
@@ -141,44 +385,116 @@ async def _stream_output(
       {"type": "stderr", "data": "<chunk>"}
       {"type": "exit",   "code": <int>}
     """
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", prefix="ttsim_", delete=False
-    ) as tmp:
-        tmp.write(code)
-        script_path = tmp.name
+    # tt-metal writes JIT kernel-build artifacts to `generated/` relative to
+    # the process cwd, so each run gets its own writable working directory.
+    workdir = tempfile.mkdtemp(prefix="ttsim_run_")
+    script_path = str(Path(workdir) / "script.py")
+    with open(script_path, "w") as f:
+        f.write(code)
 
+    proc: asyncio.subprocess.Process | None = None
+    pumps: list[asyncio.Task] = []
     try:
-        cmd = _build_cmd(backend, script_path)
-        env = _build_env(backend)
+        cmd = await _build_cmd(backend, script_path)
+        env = await _build_env(backend)
 
+        # start_new_session=True puts the child in its own process group, so
+        # cleanup can signal the whole group (see _kill_process_group) --
+        # ttsim/tt-metal runs spawn helper processes (e.g. MPI ranks) that a
+        # plain proc.kill() leaves behind as orphans, still holding the
+        # simulator device or its socket open for the next run.
         proc = await asyncio.create_subprocess_exec(
             *cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             env=env,
+            cwd=workdir,
+            start_new_session=True,
         )
 
-        async def _read_stream(stream: asyncio.StreamReader, kind: str):
-            while True:
-                chunk = await stream.read(4096)
-                if not chunk:
-                    break
-                yield {"type": kind, "data": chunk.decode("utf-8", errors="replace")}
+        # Draining stdout to EOF before starting stderr (or vice versa) can
+        # deadlock a real tt-metal/ttnn subprocess: it logs heavily to stderr
+        # at default verbosity, and once that pipe's ~64KB OS buffer plus the
+        # asyncio StreamReader's internal buffer fill, the child blocks on
+        # write() while stdout sits unread. Drain both concurrently instead.
+        #
+        # asyncio.timeout() needs Python 3.11+; track a deadline manually so
+        # this works on 3.10 too.
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + timeout
+        queue: asyncio.Queue = asyncio.Queue()
+        _EOF = object()  # sentinel: a pump reached EOF
 
-        async def _collect():
-            async for msg in _read_stream(proc.stdout, "stdout"):
-                yield msg
-            async for msg in _read_stream(proc.stderr, "stderr"):
-                yield msg
+        async def _pump(stream: asyncio.StreamReader, kind: str) -> None:
+            try:
+                while True:
+                    chunk = await stream.read(4096)
+                    if not chunk:
+                        break
+                    await queue.put({"type": kind, "data": chunk.decode("utf-8", errors="replace")})
+            except Exception as exc:  # rare (e.g. a stream read error) -- surface it, don't hang
+                await queue.put({"type": "stderr", "data": f"\n[stream error ({kind}): {exc}]\n"})
+            finally:
+                # Always put a sentinel, success or failure, so the
+                # consumer's queue.get() wakes up immediately once both
+                # pumps finish, instead of blocking until the full
+                # remaining timeout elapses with nothing left to wait for
+                # (checking `pumps[i].done()` between iterations isn't
+                # enough on its own: once the consumer is already suspended
+                # inside await queue.get(), nothing wakes it early without
+                # this).
+                await queue.put(_EOF)
 
-        try:
-            async with asyncio.timeout(timeout):
-                async for msg in _collect():
-                    yield msg
-                await proc.wait()
-        except TimeoutError:
-            proc.kill()
+        pumps = [
+            asyncio.create_task(_pump(proc.stdout, "stdout")),
+            asyncio.create_task(_pump(proc.stderr, "stderr")),
+        ]
+
+        timed_out = False
+        pending = len(pumps)
+        while pending > 0:
+            remaining = deadline - loop.time()
+            if remaining <= 0:
+                timed_out = True
+                break
+            try:
+                item = await asyncio.wait_for(queue.get(), timeout=remaining)
+            except asyncio.TimeoutError:
+                timed_out = True
+                break
+            if item is _EOF:
+                pending -= 1
+                continue
+            yield item
+
+        if not timed_out:
+            # Both pumps hit EOF within the deadline -- normally only
+            # possible once the child has actually exited and closed its
+            # fds, but guard the reap with the same deadline anyway rather
+            # than awaiting it unbounded, and catch the TimeoutError here
+            # (previously this call sat outside any handler, so a deadline
+            # that expired in the gap between the last queue.get() and here
+            # propagated an uncaught TimeoutError instead of the intended
+            # `timed_out` handling below).
+            try:
+                await asyncio.wait_for(proc.wait(), timeout=max(deadline - loop.time(), 0))
+            except asyncio.TimeoutError:
+                timed_out = True
+
+        if timed_out:
+            for p in pumps:
+                p.cancel()
+            await asyncio.gather(*pumps, return_exceptions=True)
+            _kill_process_group(proc)
             await proc.wait()
+            # Drain whatever the pumps had already queued before
+            # cancellation -- e.g. a final chunk (or their own _EOF) queued
+            # in the instant before the deadline expired -- instead of
+            # silently discarding real output the child already produced.
+            while not queue.empty():
+                item = queue.get_nowait()
+                if item is not _EOF:
+                    yield item
             yield {"type": "stderr", "data": f"\n[TIMEOUT after {timeout}s]\n"}
             yield {"type": "exit", "code": -1}
             return
@@ -186,10 +502,21 @@ async def _stream_output(
         yield {"type": "exit", "code": proc.returncode}
 
     finally:
-        try:
-            Path(script_path).unlink()
-        except OSError:
-            pass
+        # If the client disconnected mid-run (WebSocketDisconnect propagates
+        # as GeneratorExit into this generator's suspended yield), proc may
+        # still be alive. Kill it (and any pumps still reading from it)
+        # before removing its own cwd out from under it -- otherwise the
+        # still-running tt-metal process either ENOENTs on its own output
+        # paths or keeps running unbounded.
+        for p in pumps:
+            if not p.done():
+                p.cancel()
+        if pumps:
+            await asyncio.gather(*pumps, return_exceptions=True)
+        if proc is not None and proc.returncode is None:
+            _kill_process_group(proc)
+            await proc.wait()
+        shutil.rmtree(workdir, ignore_errors=True)
 
 
 # ---------------------------------------------------------------------------
@@ -294,14 +621,25 @@ async def execute_ws(websocket: WebSocket) -> None:
 # Health
 # ---------------------------------------------------------------------------
 
+async def _ttsim_backend_ready(chip: str) -> bool:
+    """True only if this backend could actually execute -- delegates to the
+    same _resolve_ttsim() that _build_cmd/_build_env use, so /health can
+    never report a backend as available when a real request would 503 it."""
+    try:
+        await _resolve_ttsim(chip)
+        return True
+    except HTTPException:
+        return False
+
+
 @app.get("/health")
 async def health() -> dict:
     return {
         "status": "ok",
         "backends": {
-            "ttlang-sim": bool(shutil.which("ttlang-sim")),
-            "ttsim-wh": (SIM_HOME / "libttsim_wh.so").exists(),
-            "ttsim-bh": (SIM_HOME / "libttsim_bh.so").exists(),
+            "ttlang-sim": bool(shutil.which("tt-lang-sim")),
+            "ttsim-wh": await _ttsim_backend_ready("wh"),
+            "ttsim-bh": await _ttsim_backend_ready("bh"),
         },
     }
 
@@ -313,4 +651,4 @@ async def health() -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8080")), log_level="info")
