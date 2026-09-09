@@ -11,7 +11,8 @@
     // Injected by build-web.js from $TTSIM_API_URL env var (may be empty string).
     const CLOUD_API_URL = window.TTSIM_API_URL || '';
 
-    // ─── Kernel snippets (same set as playground.js) ─────────────────────────
+    // ─── Kernel snippets (overlaps playground.js on eltwise_add/hello_tensor;
+    // the ttsim-backed kernels below are specific to this cloud variant) ─────
 
     // Each kernel declares which backend(s) it actually runs against.
     // ttlang-sim's shim ttnn supports from_numpy/ttl.operation; the real
