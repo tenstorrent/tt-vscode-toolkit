@@ -53,7 +53,7 @@ Three venvs exist on a standard tt-installer system. Each is isolated — activa
 
 `~/tt-forge-venv` is a symlink to `/opt/venv-forge` on developer images. If the symlink is missing: `ln -s /opt/venv-forge ~/tt-forge-venv`. If `~/tt-metal/python_env` doesn't exist, the tt-metal source hasn't been built yet — see the [Build tt-metal from Source](https://docs.tenstorrent.com/tt-vscode-toolkit/lessons/build-tt-metal/) lesson.
 
-On TT-QuietBox 2 and tt-installer container environments, venvs may be pre-activated via `/etc/profile.d/tt-env-*.sh`. Run `which python3` to see what's active before sourcing another venv.
+None of these three venvs exist on a TT-QuietBox 2 — there's no `~/tt-metal` source tree to build them against. TTNN lives in the `tt-metalium` container there instead, and vLLM runs in the container `tt-inference-server` launches.
 
 ### `TT_METAL_HOME`
 

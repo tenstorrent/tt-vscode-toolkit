@@ -254,6 +254,13 @@ models/demos/blackhole/  — p100/p300c (Blackhole<sup>®</sup>)
 models/demos/tg/         — Galaxy (32-chip)
 ```
 
+> A January 2026 reorg moved many vision/generative models (stable diffusion,
+> segmentation, etc.) out of the flat per-hardware directories above into
+> `models/demos/vision/<category>/<model>/<hardware>/` instead — e.g.
+> `models/demos/blackhole/` now holds only a couple of models directly.
+> Confirm a specific demo's actual path in your checkout rather than assuming
+> the flat layout above still holds for it.
+
 **🎯 What's possible:**
 1. **Run a 685B parameter model** — DeepSeek-V3 on Galaxy
 2. **128K context windows** — Read entire books as context

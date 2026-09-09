@@ -11,217 +11,127 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Correctness pass on what a TT-QuietBox 2 actually ships. The three-path venv
 activation blocks added in 0.1.25 offered `~/.tenstorrent-venv` as the "QB2
-pre-installed" environment for TT-NN and vLLM. It is neither, and never was.
+pre-installed" environment for TT-NN and vLLM, and described a QB2 as "4
+independent single-chip devices". Neither claim is true, and this release
+corrects both everywhere they were found — including in this repo's own
+`CLAUDE.md`, `llms.txt`, and two lessons outside the original diff
+(`content/pages/FAQ.md`, `monkeypatch-ttnn.md`) that had never been touched
+by the earlier topology/venv corrections this built on.
 
-Verified against `tt-installer`'s `install.m4` on its default branch and the
-`ppa.tenstorrent.com` package index — deliberately not against other Tenstorrent
-docs, which descend from the same stale source note and so are not independent
-confirmation.
+Verified against `tt-installer`'s `install.m4`, the published `tt-metalium`/
+`tt-metalium-models` GHCR image configs, `tt-inference-server`'s `run.py`,
+and tt-metal `main` — plus live end-to-end testing on a QB2-equivalent
+board — rather than other Tenstorrent docs, which largely descend from the
+same stale source note this release supersedes.
 
 ### Fixed
-- **`~/.tenstorrent-venv` is not a TT-NN or vLLM environment.** `tt-installer`
-  only ever installs `tt-smi`, `tt-flash` and (opt-in) `tt-topology` into it, so
-  `import ttnn` and `import vllm` both fail there. On a QB2, TT-NN lives **only**
-  inside the TT-Metalium container, entered with `tt-metalium` — where `python3`
-  is `/opt/venv/bin/python3`. Corrected the "QB2 pre-installed image" line in all
-  11 TT-NN activation blocks across `explore-metalium`, `video-generation-ttmetal`,
-  `animatediff-video-generation`, `cookbook-game-of-life`, `cookbook-mandelbrot`,
-  `cookbook-particle-life`, `cookbook-image-filters` and `cookbook-audio-processor`.
-- **`tt-installer` lesson had the QB2 case exactly backwards.** It said pre-built
-  QB2 images "ship TT-NN and vLLM directly but may **not** include Podman or the
-  container wrapper". The reverse is true: a QB2 *has* the wrapper — it is the only
-  way to reach TT-NN — and ships no host-side TT-NN or vLLM. The suggested fallback
-  (`python3 -c 'import ttnn'` on the host) could therefore only ever fail. Replaced
-  with the wrapper form, plus the `~/.local/bin` PATH caveat the installer itself
-  warns about.
-- **Forge is not preinstalled on a QB2.** `--install-forge-container` is **off**
-  unless asked for, so there is usually no Forge environment at all — and
-  `~/.tenstorrent-venv` is not a substitute. Corrected all three activation blocks
-  in `tt-xla-jax` and added the two real options (re-run the installer with the
-  flag, or a pip wheel in a venv of your own).
-- **`vllm-production` now says what a QB2 owner should actually do.** vLLM is not
-  installed on a QB2's host; it runs in a container that `tt-inference-server`
-  launches. Added an "On a QB2 — read this first" section pointing at the
-  preinstalled `tt-inference-server` wrapper, and corrected all 11 activation
-  sites, which previously sent people to a venv where `import vllm` fails.
-- **"QB2 images ship TT-NN and vLLM pre-installed" corrected in four more
-  lessons** — `lfs-00-intro`, `lfs-05-train-and-run`, `ct1-understanding-training`
-  and `ct4-finetuning-basics`. Each used it as the premise for a true conclusion
-  (you must build tt-metal from source for `ttml`), so the conclusions stand; only
-  the premise changed.
-- **Guidance not to install into `~/.tenstorrent-venv`** added where the lessons
-  previously invited it. A QB2 activates that venv in every login shell, so a bad
-  dependency resolution there costs you the tooling you diagnose the machine with.
-  `BUILD_TTML.md` now asks for a venv of your own.
 
-- **`vllm-production` still called a QB2 "4 independent single-chip devices".** The
-  0.1.25-era topology sweep corrected that framing in `ct1`, `ct8` and `tt-xla-jax`
-  — README says "corrected everywhere" — but this file was missed. A QB2 is one
-  four-chip ring mesh (`P300_X2`, 2×2 across two dual-ASIC p300c boards), and
-  multi-chip work scales near-linearly across it (3.98× at 4 chips, per `ct5`).
-  The single-chip guidance in that note (`MESH_DEVICE=P100`, device 0) was fine and
-  is kept; only the claim about the machine's shape changed.
-- **The `tt-inference-server` launcher example needed a `cd`.** The preinstalled
-  wrapper is two lines — it cd's into `~/.local/lib/tt-inference-server` and *then*
-  runs `run.py` — so calling `run.py` by absolute path is not equivalent, since it
-  resolves paths from the working directory. The example now cd's first, and no
-  longer claims the two forms are equivalent (one of them only printed `--help`).
+**`~/.tenstorrent-venv` is not a TT-NN or vLLM environment.** `tt-installer`
+only ever installs `tt-smi`, `tt-flash` and (opt-in) `tt-topology` into it, so
+`import ttnn` and `import vllm` both fail there. TT-NN lives **only** inside
+the TT-Metalium container (`tt-metalium`, where `python3` is
+`/opt/venv/bin/python3`); vLLM runs in a container `tt-inference-server`
+launches. Corrected everywhere this was asserted or assumed:
+- The "QB2 pre-installed image" activation line in all 11 TT-NN blocks across
+  `explore-metalium`, `video-generation-ttmetal`, `animatediff-video-generation`,
+  `cookbook-game-of-life`, `cookbook-mandelbrot`, `cookbook-particle-life`,
+  `cookbook-image-filters`, `cookbook-audio-processor`, and the four lessons
+  that used it as a premise (`lfs-00-intro`, `lfs-05-train-and-run`,
+  `ct1-understanding-training`, `ct4-finetuning-basics` — their `ttml`-needs-a-
+  source-tree conclusions were already correct; only the premise changed).
+- `tt-installer`'s own "may not include the container wrapper" framing —
+  backwards: a QB2 *has* the wrapper (it's the only way to reach TT-NN) and
+  has no host-side TT-NN. Its "Test TT-Metalium" button and pytest demo
+  example were also broken independent of this: missing `-c` (so `bash` tried
+  to run the whole command string as a filename), a bare `ttnn.__version__`
+  that doesn't exist on the built package (now `getattr(ttnn, "__version__",
+  "import OK")`), and — for the demo — the wrong container and a Blackhole
+  demo path that moved in tt-metal's January 2026 reorg (now
+  `tt-metalium-models` + `models/demos/vision/segmentation/ufld_v2/blackhole`,
+  with `--install-metalium-models-container` named as off-by-default).
+- `vllm-production`'s new "On a QB2 — read this first" section (pointing at
+  the preinstalled `tt-inference-server` wrapper) and all 11 activation sites;
+  its QB2 server example was missing `--no-auth` (without it,
+  `--workflow server --docker-server` prompts for `JWT_SECRET` and the
+  lesson's own `curl` examples send no token and would 401); all 11 "see 'On a
+  QB2' below" cross-references pointed the wrong way (the section is above).
+- `verify-installation`'s QB2 callout claimed a host `import ttnn` should pass
+  "out of the box" — it doesn't; added the `tt-metalium` form of the check.
+  `vllm-production`'s "Starting Fresh?" checklist linked here, so this was
+  also the fix for that cross-reference.
+- Seven cookbook/video lessons offered `tt-metalium` as an activation choice
+  but left the rest of the block host-only: a `cd` issued before entering the
+  container is lost once you land back at `/home/user` inside it (reordered
+  after activation throughout), `pip install -r requirements.txt` doesn't work
+  there (no `pip`, only `uv` — added the `uv pip install --python
+  /opt/venv/bin/python3 ...` form, skipping `ttnn` since the image already has
+  it, in `cookbook-game-of-life`, `-mandelbrot`, `-particle-life`,
+  `-image-filters`, `-audio-processor`, and the `pip install -e` step in
+  `animatediff-video-generation`). `video-generation-ttmetal` and
+  `animatediff-video-generation` needed more than a path fix: both
+  genuinely require a real `~/tt-metal` source tree — `tt-animatediff`'s
+  `generate.py`/`app.py` hardcode `Path.home() / "tt-metal"` and import from
+  it directly, and `video-generation-ttmetal`'s demo needs `models/demos/`
+  plus host round-tripping (`prompts.json`, HF/kernel caches, output frames)
+  that no container option here can provide — both now point QB2 readers at
+  building tt-metal from source instead of a path that would fail partway
+  through.
+- `explore-metalium`'s Part 1 "Quickest Path" block offered `tt-metalium` then
+  `cd ~/tt-metal`, which doesn't exist in that image — removed the option
+  there and pointed at the callout above / `tt-metalium-models` instead. Its
+  from-scratch `ttnn_add_tensors.py` script promised a save that never
+  happened (dropped) and didn't note its `torch` install is lost on container
+  exit (`/opt/venv` isn't part of the `${HOME}` bind mount — now noted).
+- `content/pages/FAQ.md` (both copies) and `llms.txt` told readers three
+  build-from-source venvs "may be pre-activated" on a QB2 — none of the three
+  exist there at all, since there's no `~/tt-metal` to build them against.
+- `monkeypatch-ttnn.md`'s premise was a bare host `import ttnn` printing a
+  `site-packages` path, never mentioning `tt-metalium` — corrected there, in
+  `content/templates/monkeypatch/README.md`, and in the lesson's registry
+  description (regenerated via `npm run generate:lessons`).
+- The extension's own "Install tt-train" button and docblock repeated the
+  refuted premise — reworded to match `ct1`/`ct4`.
+
+**QB2 topology: one four-chip ring mesh (`P300_X2`, a 2×2 mesh across two
+dual-ASIC p300c boards), not four independent single-chip devices** —
+multi-chip work (e.g. tt-train DDP) scales near-linearly across it (3.98× at
+4 chips, per `ct5`); single-chip guidance (`MESH_DEVICE=P100`, device 0) is
+unaffected and correct as-is. Corrected in `vllm-production` (missed by the
+0.1.25-era topology sweep that fixed `ct1`/`ct8`/`tt-xla-jax`), plus
+`hardware-detection.md`, `tt-inference-server.md` (which keeps its per-chip
+`--tt-device p100` option for single-chip serving — a legitimate choice, not
+the bug — but no longer calls the chips "independent", and now
+cross-references `--tt-device p300x2` for whole-box serving), `CLAUDE.md`,
+`llms.txt`, `docs/LESSON_METADATA.md`, and `docs/HARDWARE_ARCHITECTURE.md`.
+
+**Other fixes surfaced along the way:**
+- `tt-inference-server`'s launcher example needed a `cd` first: the
+  preinstalled wrapper is two lines (`cd` into the checkout, *then* run
+  `run.py`), so calling `run.py` by absolute path isn't equivalent — it
+  resolves paths from the working directory.
+- Forge is not preinstalled on a QB2 (`--install-forge-container` defaults
+  off) — corrected all three `tt-xla-jax` activation blocks with the two real
+  options (re-run the installer with the flag, or a pip wheel in a venv of
+  your own), and added guidance not to install into `~/.tenstorrent-venv`
+  anywhere lessons previously invited it (`BUILD_TTML.md` now asks for a venv
+  of your own — a bad resolution in `~/.tenstorrent-venv` costs you the
+  hardware tooling it also holds, since a QB2 activates it in every login
+  shell).
+- A regression, caught and fixed within this same release: reformatting
+  `TEST_METALIUM_CONTAINER`'s template onto two lines broke the docs-site's
+  regex-based parser (`scripts/lib/command-map-parser.js` only matches
+  `template:` and its value on one line), silently reverting the "Test
+  TT-Metalium" button back to broken on the published site. Back to one
+  line; confirmed the parser resolves it and the built site renders the real
+  command.
 
 ### Changed
 - `docs/QB_follows.md` carries a **superseded** banner. Its January "CRITICAL
-  FINDING" that ttnn lives in `~/tt-metal/python_env` was true on that machine at
-  that time, but it outlived the layout it described and is the origin of the claim
-  this release removes — it had propagated into roughly a dozen lessons and into
-  `tt-developer-image`'s QB2 Dockerfile. Kept as a historical record, marked not to
-  be cited as current.
-
-- **Verified on real hardware**, not just against upstream source: `~/.tenstorrent-venv`
-  genuinely lacks TT-NN/vLLM (confirmed via a fresh `tt-installer --mode-container`
-  run's own smoke assertions, on a live QB2-equivalent board), `tt-metalium -c '...'`
-  genuinely reaches `bash` with the command intact, `--install-forge-container`
-  defaults to `off` (confirmed in `install.m4`'s arg parser), the
-  `tt-inference-server` wrapper genuinely `cd`'s before running `run.py`, and the
-  4-chip mesh's fabric adjacency matches the "one ring, not four independent devices"
-  description. This surfaced two bugs this release's own review had missed:
-  - **`explore-metalium`'s new QB2 callout claimed `TT_METAL_HOME` is pre-set and
-    referenced a bundled `ttnn_add_tensors.py` tutorial.** Neither is true — confirmed
-    empty/absent on the real `tt-metalium-ubuntu-22.04-release-amd64` image (it's a
-    runtime-only image with no `ttnn/tutorials/` directory at all). Rewritten so the
-    reader writes the short script themselves, with the `torch` bootstrap it also
-    needs (no `torch`, no `pip` in that image either — only `uv`/`ensurepip`).
-  - **Every `ttnn.__version__` reference in `tt-installer` would itself crash** —
-    that attribute doesn't currently exist on the built package (confirmed on two
-    separate images) — and three of the four `tt-metalium "..."` invocations in that
-    lesson were missing `-c`, so `bash` tried to run the whole command string as a
-    **filename** and failed with `No such file or directory` before ever reaching
-    Python. Fixed to `tt-metalium -c "..."` throughout, and to
-    `getattr(ttnn, "__version__", "import OK")` so a working import reports success
-    instead of raising `AttributeError`.
-
-- **A second review pass (jzhengTT) found the activation-line swaps left
-  several blocks broken end-to-end, and found the corrected claim still
-  living in files this release never touched.** Ten issues, all fixed:
-  - **The "Test TT-Metalium" button ran the exact broken form the lesson text
-    warns about.** `TEST_METALIUM_CONTAINER`'s template was still
-    `tt-metalium "python3 -c '...ttnn.__version__...'"` — no `-c`, and a bare
-    `ttnn.__version__` that doesn't exist. Fixed to match the lesson's own
-    `tt-metalium -c "python3 -c '...getattr(ttnn, \"__version__\", \"import
-    OK\")...'"` form (verified against the real wrapper); updated its test
-    fixture to match.
-  - **The "Install tt-train" button and its docblock still said QB2 images
-    ship TT-NN + vLLM preinstalled**, the exact premise this release
-    corrects everywhere else. Reworded to match `ct1`/`ct4`.
-  - **The QB2 `tt-inference-server` example was missing `--no-auth`.** Without
-    it, `--workflow server --docker-server` requires `JWT_SECRET` and prompts
-    for it, and the lesson's later `curl` examples send no token and would 401.
-  - **All 11 "see 'On a QB2' below" cross-references pointed the wrong way** —
-    the section is above them, not below. Fixed to "above".
-  - **`verify-installation`'s QB2 callout said Check 2 (`import ttnn` on the
-    host) should pass out of the box.** It doesn't — TT-NN is container-only.
-    Added the `tt-metalium` form of the check and corrected the remedy, which
-    previously treated `~/.tenstorrent-venv` as an equivalent.
-  - **Seven cookbook/video lessons swapped the activation line but left the
-    rest of the block host-only.** A `cd` before the `tt-metalium` option is
-    lost once you land back at `/home/user` inside the container, and
-    `pip install -r requirements.txt` doesn't work there (no `pip`, only
-    `uv`/`ensurepip`, and `ttnn` is already provided by the image). Reordered
-    `cd` after activation and added the `uv pip install --python
-    /opt/venv/bin/python3 ...` form throughout `cookbook-game-of-life`,
-    `cookbook-mandelbrot`, `cookbook-particle-life`, `cookbook-image-filters`,
-    and `cookbook-audio-processor`; noted the same for `pip install -e` in
-    `animatediff-video-generation`. `video-generation-ttmetal` needs the
-    `models/demos/` tree the standard `tt-metalium` image doesn't have —
-    switched its QB2 path to `tt-metalium-models`.
-  - **`explore-metalium`'s Part 1 "Quickest Path" block still offered
-    `tt-metalium` and then `cd ~/tt-metal`**, which the callout directly above
-    it says doesn't exist on a QB2. Removed the QB2 option there and pointed
-    at the callout / `tt-metalium-models` instead.
-  - **The from-scratch `ttnn_add_tensors.py` script promised a save that never
-    happened, and its `torch` install wasn't marked as session-scoped.** The
-    text said "save it as `~/tt-scratchpad/ttnn_add_tensors.py`" but only ran
-    an inline `python3 -c`; dropped that promise. Noted that the `torch`
-    install lands in `/opt/venv`, which isn't part of the `${HOME}` bind
-    mount, so it doesn't survive `exit` and must be repeated every session.
-  - **`tt-installer`'s pytest demo example used the wrong container and the
-    wrong architecture.** The standard `tt-metalium` image has no
-    `models/demos/` tree at all; switched to `tt-metalium-models` (which
-    starts you in the source tree) and to a Blackhole demo
-    (`models/demos/blackhole/ufld_v2`) instead of a Wormhole one, since this
-    lesson targets p150/p300c/QB2.
-  - **The refuted "QB2 ships TT-NN + vLLM preinstalled" / "4 independent
-    devices" claims survived in files this release didn't touch**: this
-    repo's own `CLAUDE.md` (the instructions future authors write lessons
-    against), `llms.txt` (copied verbatim into the published site),
-    `hardware-detection.md`, `tt-inference-server.md`, and
-    `docs/HARDWARE_ARCHITECTURE.md`. Corrected all five — `tt-inference-server`
-    keeps its per-chip `--tt-device p100` option for single-chip serving (a
-    legitimate choice) but no longer calls the chips "independent devices",
-    and now cross-references `--tt-device p300x2` for whole-box serving.
-  - **`vllm-production`'s "Starting Fresh?" checklist sent QB2 readers to
-    `verify-installation`**, which (see above) told them a host `import ttnn`
-    should pass "out of the box" — it doesn't on a QB2. Fixed at the source.
-
-- **A third review pass (jzhengTT) caught a regression in the previous fix and
-  three more places the `tt-metalium-models` recipe didn't hold up.** Verified
-  against the published `latest-rc` GHCR image config, `install.m4`, and
-  tt-metal `main` this time, not a stale local checkout.
-  - **Regression: wrapping `template:` onto its own line dropped
-    `TEST_METALIUM_CONTAINER` from the web build.** The docs-site's
-    regex-based parser (`scripts/lib/command-map-parser.js`) only matches
-    `template:` and its value on the same line; the previous commit's
-    multi-line reformat made `buildCommandMap` return `undefined` for it (91
-    keys instead of 170), so the "Test TT-Metalium" button — the one this PR
-    fixes — rendered as an inert unknown-command badge on the published site.
-    Back to one line; confirmed the parser now resolves both the extension
-    key and the published site's rendering.
-  - **`tt-metalium-models`'s working directory is `/tt-metal`, not a parent of
-    it** (confirmed in the image's own config). `cd tt-metal` inside it looks
-    for `/tt-metal/tt-metal` and fails. Fixed in `tt-installer` (two copies)
-    and dropped from `explore-metalium`'s pointer to it.
-  - **The `ufld_v2` Blackhole demo moved in tt-metal's January 2026 model
-    reorg** — `models/demos/blackhole/ufld_v2` is gone from `main`; it's now
-    `models/demos/vision/segmentation/ufld_v2/blackhole`. The previous fix
-    checked a local `vendor/tt-metal` checkout from before the move instead of
-    upstream `main`. Also named `--install-metalium-models-container`, which
-    defaults **off**, and corrected the "files in `~` are accessible" claim,
-    which is true for `tt-metalium` but not `tt-metalium-models` (no `${HOME}`
-    mount at all).
-  - **`video-generation-ttmetal` and `animatediff-video-generation`'s QB2
-    paths were unfixable as containers, not just mis-written.** Both need a
-    real `~/tt-metal` source tree — `tt-animatediff`'s `generate.py`/`app.py`
-    hardcode `Path.home() / "tt-metal"` and import from it directly, and
-    `video-generation-ttmetal`'s demo needs the `models/demos/` tree plus
-    host round-tripping (`prompts.json`, HF/kernel caches, output frames)
-    that `tt-metalium-models`'s missing `${HOME}` mount can't provide. Both
-    now point QB2 readers at building tt-metal from source instead of
-    offering a container path that was always going to fail partway through.
-  - **`cookbook-mandelbrot` and `cookbook-particle-life` still had no torch
-    install step** — the previous commit moved their `cd` but didn't add the
-    `uv pip install` line the sibling cookbook lessons got, even though
-    `renderer.py` and `particle_life.py` both import `torch` at module scope.
-    Added.
-  - **The topology correction hadn't reached every copy**:
-    `hardware-detection.md`'s device-enumeration paragraph (14 lines below
-    the note already fixed), `tt-inference-server.md`'s device-flag table row,
-    `docs/LESSON_METADATA.md`, and a second line in
-    `docs/HARDWARE_ARCHITECTURE.md`. Corrected all four.
-  - **Two files outside the diff still taught the refuted claims outright**:
-    `content/pages/FAQ.md` (both copies) told QB2 users three build-from-source
-    venvs "may be pre-activated via `/etc/profile.d/`" — none of the three
-    exist on a QB2 at all, since there's no `~/tt-metal` to build them
-    against. `monkeypatch-ttnn.md`'s premise was a bare host `import ttnn`
-    printing a `site-packages` path, with no mention of `tt-metalium`,
-    directly contradicting the CLAUDE.md rule this release adds. Fixed both,
-    plus the same wording in `content/templates/monkeypatch/README.md` and
-    the lesson's registry description (regenerated via
-    `npm run generate:lessons`, not hand-edited).
-  - **Not fixed, flagged as a follow-up**: the review noted all eight
-    cookbook "Click to Run" buttons in `terminalCommands.ts` still run their
-    commands on the host with no QB2 branch, and that the ~7 near-duplicate
-    QB2 paragraphs and 4 hand-typed `getattr(ttnn, "__version__", ...)`
-    one-liners this pass touched are the same copy-drift surface that
-    produced the original bug. Left for a follow-up pass — explicitly called
-    out as not blocking.
+  FINDING" that ttnn lives in `~/tt-metal/python_env` was true on that machine
+  at that time, but it outlived the layout it described and is the origin of
+  the claim this release removes — it had propagated into roughly a dozen
+  lessons and into `tt-developer-image`'s QB2 Dockerfile. Kept as a historical
+  record, marked not to be cited as current.
 
 ## [0.1.28] - 2026-08-20
 

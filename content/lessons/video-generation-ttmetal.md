@@ -35,7 +35,7 @@ a single n150 to a T3000 (8 chips). Each frame is a text-to-image generation
 pass. A handful of carefully worded prompts becomes a short film.
 
 **Hardware this works on:**
-- **n150 / n300** (Wormhole<sup>™</sup>): `models/demos/wormhole/stable_diffusion/`
+- **n150 / n300** (Wormhole<sup>™</sup>): `models/demos/vision/generative/stable_diffusion/wormhole/`
 - **p100 / p300c** (Blackhole<sup>®</sup>): same demo, set `TT_METAL_ARCH_NAME=blackhole`
 - **T3000 (8 chips)**: same code, passes more context in parallel
 
@@ -147,7 +147,7 @@ on first run (a few hundred MB) then compiles kernels before the first image.
 cd ~/tt-metal
 pytest --disable-warnings \
   --input-path="$HOME/tt-scratchpad/worldsfair-video/prompts.json" \
-  models/demos/wormhole/stable_diffusion/demo/demo.py::test_demo
+  models/demos/vision/generative/stable_diffusion/wormhole/demo/demo.py::test_demo
 ```
 
 **What happens:**
@@ -226,8 +226,19 @@ For a more exploratory workflow — type a prompt, see the image immediately:
 
 ```bash
 cd ~/tt-metal
-pytest models/demos/wormhole/stable_diffusion/demo/demo.py::test_interactive_demo
+pytest models/demos/vision/generative/stable_diffusion/wormhole/demo/demo.py::test_interactive_demo
 ```
+
+> **⚠️ Unverified on current tt-metal `main`.** As of the January 2026 model
+> reorg, `demo.py` still has an internal `run_interactive_demo_inference()`
+> function, but no `test_interactive_demo` pytest entry point calling it — the
+> command above will likely fail with "test not found". There's also a
+> `web_demo/streamlit_app.py` alongside `demo.py` that may be the current
+> replacement, but that's a browser UI, not this terminal prompt loop, and
+> wiring it up is beyond what's verified here. If you hit this, check
+> `models/demos/vision/generative/stable_diffusion/wormhole/README.md` in your
+> checkout for the current interactive workflow before assuming this lesson's
+> command is right.
 
 The model stays loaded between prompts. Type a prompt, press Enter, and
 `interactive_512x512_ttnn.png` (or `interactive_256x256_ttnn.png`) appears in the
