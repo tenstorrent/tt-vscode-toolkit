@@ -52,7 +52,29 @@ function buildCommandMap(termSrc, extSrc) {
   let currentKey = null;
   // Keys can contain digits (e.g. START_TT_INFERENCE_SERVER_N150, DOWNLOAD_WAN22_MODEL).
   const keyRe = /^\s{2}([A-Z][A-Z0-9_]*):\s*\{/;
-  const lines = termSrc.split('\n');
+
+  // Merge a bare "template:" line with the line that follows it, so a
+  // template's opening quote/backtick on its own next line parses exactly
+  // like it being on the same line as `template:`. This isn't hypothetical:
+  // reformatting a template across two lines once silently dropped it from
+  // this map (and therefore from the published site) with no error, only a
+  // rendered "unknown command" badge -- and roughly a dozen *pre-existing*
+  // templates in terminalCommands.ts already use this two-line style, so
+  // without this merge they were silently broken on the site the whole time.
+  // Safe for every downstream matcher below: it only guarantees the value's
+  // first line is on the same physical line as `template:`, which is all
+  // the single-/double-quoted (necessarily single-line) and backtick
+  // (single- or multi-line, via its own continuation loop) matchers need.
+  const rawLines = termSrc.split('\n');
+  const lines = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    if (rawLines[i].trim() === 'template:' && i + 1 < rawLines.length) {
+      lines.push(rawLines[i].replace(/template:\s*$/, 'template: ') + rawLines[i + 1].trim());
+      i++; // the next line is now merged into the one just pushed
+    } else {
+      lines.push(rawLines[i]);
+    }
+  }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];

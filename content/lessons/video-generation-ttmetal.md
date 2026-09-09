@@ -35,7 +35,7 @@ a single n150 to a T3000 (8 chips). Each frame is a text-to-image generation
 pass. A handful of carefully worded prompts becomes a short film.
 
 **Hardware this works on:**
-- **n150 / n300** (Wormhole<sup>™</sup>): `models/demos/wormhole/stable_diffusion/`
+- **n150 / n300** (Wormhole<sup>™</sup>): `models/demos/vision/generative/stable_diffusion/wormhole/`
 - **p100 / p300c** (Blackhole<sup>®</sup>): same demo, set `TT_METAL_ARCH_NAME=blackhole`
 - **T3000 (8 chips)**: same code, passes more context in parallel
 
@@ -73,12 +73,20 @@ sudo apt-get install -y ffmpeg
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 cd ~/tt-metal
 ```
+
+> **On a QB2:** this lesson genuinely needs a source `~/tt-metal` build, not a
+> container. The standard `tt-metalium` container has no `models/demos/` tree,
+> and `tt-metalium-models` isn't a substitute either — it has no `${HOME}`
+> mount and is removed on `exit`, so the model/HF caches this lesson builds up
+> across steps, the `prompts.json` you write, and the frames it generates
+> would all vanish or never be visible to begin with. Build tt-metal from
+> source first — see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) —
+> then follow this lesson as written.
 
 **For p100 / p300c (Blackhole):**
 ```bash
@@ -139,7 +147,7 @@ on first run (a few hundred MB) then compiles kernels before the first image.
 cd ~/tt-metal
 pytest --disable-warnings \
   --input-path="$HOME/tt-scratchpad/worldsfair-video/prompts.json" \
-  models/demos/wormhole/stable_diffusion/demo/demo.py::test_demo
+  models/demos/vision/generative/stable_diffusion/wormhole/demo/demo.py::test_demo
 ```
 
 **What happens:**
@@ -218,8 +226,19 @@ For a more exploratory workflow — type a prompt, see the image immediately:
 
 ```bash
 cd ~/tt-metal
-pytest models/demos/wormhole/stable_diffusion/demo/demo.py::test_interactive_demo
+pytest models/demos/vision/generative/stable_diffusion/wormhole/demo/demo.py::test_interactive_demo
 ```
+
+> **⚠️ Unverified on current tt-metal `main`.** As of the January 2026 model
+> reorg, `demo.py` still has an internal `run_interactive_demo_inference()`
+> function, but no `test_interactive_demo` pytest entry point calling it — the
+> command above will likely fail with "test not found". There's also a
+> `web_demo/streamlit_app.py` alongside `demo.py` that may be the current
+> replacement, but that's a browser UI, not this terminal prompt loop, and
+> wiring it up is beyond what's verified here. If you hit this, check
+> `models/demos/vision/generative/stable_diffusion/wormhole/README.md` in your
+> checkout for the current interactive workflow before assuming this lesson's
+> command is right.
 
 The model stays loaded between prompts. Type a prompt, press Enter, and
 `interactive_512x512_ttnn.png` (or `interactive_256x256_ttnn.png`) appears in the
@@ -299,10 +318,12 @@ tt-smi -r   # Reset device
 ```bash
 # Re-activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 ```
+
+On a QB2, this means your `~/tt-metal` build — see the QB2 note under Step 1
+for why a container isn't a substitute here.
 
 **"huggingface-hub not authenticated"**
 ```bash

@@ -9,10 +9,10 @@ The TT Developer Toolkit is a VSCode extension and companion docs site that guid
 Tenstorrent ships two current chip families:
 
 - **Wormhole** — N150 (single chip), N300 (dual chip, Ethernet mesh), T3K (8-chip PCIe card), Galaxy (32-chip server)
-- **Blackhole** — P100 (single chip), P150, P300c (single Blackhole chip; treat identically to P100), TT-QuietBox 2 (4× P300c as 4 independent single-chip devices)
+- **Blackhole** — P100 (single chip), P150, P300c (single Blackhole chip; treat identically to P100), TT-QuietBox 2 (one four-chip ring mesh across two dual-ASIC P300c boards, not four independent devices)
 
 Key constraints every developer must know:
-- **TT-QuietBox 2 ships without `~/tt-metal`**: pre-configured images have TTNN and vLLM pre-installed but no tt-metal source tree
+- **TT-QuietBox 2 ships without `~/tt-metal`, and TTNN/vLLM are container-only**: pre-configured images have no tt-metal source tree, and no host-side TTNN or vLLM either — both live in the `tt-metalium` container / `tt-inference-server`
 - **`hf` CLI, not `huggingface-cli`**: use `hf auth login`, `hf auth whoami`, `hf download`
 - **`DispatchCoreAxis.ROW` crashes on Blackhole**: use `ttnn.DispatchCoreConfig(ttnn.DispatchCoreType.WORKER)` — TTNN auto-selects the correct axis
 - **`TT_METAL_ARCH_NAME`**: must be `blackhole` for P-series, `wormhole_b0` for N-series
@@ -53,7 +53,7 @@ Three venvs exist on a standard tt-installer system. Each is isolated — activa
 
 `~/tt-forge-venv` is a symlink to `/opt/venv-forge` on developer images. If the symlink is missing: `ln -s /opt/venv-forge ~/tt-forge-venv`. If `~/tt-metal/python_env` doesn't exist, the tt-metal source hasn't been built yet — see the [Build tt-metal from Source](https://docs.tenstorrent.com/tt-vscode-toolkit/lessons/build-tt-metal/) lesson.
 
-On TT-QuietBox 2 and tt-installer container environments, venvs may be pre-activated via `/etc/profile.d/tt-env-*.sh`. Run `which python3` to see what's active before sourcing another venv.
+None of these three venvs exist on a TT-QuietBox 2 — there's no `~/tt-metal` source tree to build them against. TTNN lives in the `tt-metalium` container there instead, and vLLM runs in the container `tt-inference-server` launches.
 
 ### `TT_METAL_HOME`
 

@@ -162,7 +162,6 @@ Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole sil
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-projects/tt-animatediff
 
@@ -171,6 +170,14 @@ python3 examples/generate.py \
     --frames 8 --steps 25 --temporal-alpha 0.35 \
     --output output/blackhole.gif
 ```
+
+> **On a QB2:** `tt-metalium` is **not** an option for Phase 2.5/3, and no amount
+> of `pip`/`uv` installing fixes it — `examples/generate.py` hardcodes
+> `Path.home() / "tt-metal"` and imports
+> `models.demos.vision.generative.stable_diffusion...` straight from that source
+> tree, which the container doesn't have. This needs a real `~/tt-metal` build
+> — see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+> — with Step 1's `pip install -e ".[dev]"` run in a venv against that build.
 
 **Expected:**
 
@@ -250,12 +257,12 @@ python3 examples/generate.py --motion-adapter --motion-adapter-skip up1 up2 \
 A point-and-click interface for all modes. Models stay loaded between generations — only the first run pays the ~7 s load cost and ~2–3 min kernel compilation.
 
 ```bash
-pip install -e ".[ui]"
-
 # Blackhole hardware — activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
 # source /opt/venv-metal/bin/activate             # cloud / custom install
+cd ~/tt-projects/tt-animatediff
+
+pip install -e ".[ui]"
 python3 app.py
 # Open http://localhost:7860
 

@@ -43,7 +43,10 @@ TT-Metalium<sup>™</sup> + vLLM), downloads model weights, and starts an OpenAI
 inference server.
 
 > **TT-QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware
-> (🛠️ Experimental status). Use `--tt-device p100` for p300c or TT-QuietBox 2.
+> (🛠️ Experimental status). For **single-chip** serving, use `--tt-device p100` — a p300c
+> chip behaves like a p100. A TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`), not
+> four independent devices; for whole-box multi-chip serving of a single larger model, use
+> `--tt-device p300x2` instead — see [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
 
 ---
 
@@ -96,7 +99,8 @@ every current Tenstorrent board:
 | n150 | `--tt-device n150` | 🟢 Complete | 64 K |
 | n300 | `--tt-device n300` | 🟢 Complete | 128 K |
 | T3000 (WH TT-QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
-| p100 / p300c / TT-QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| p100 / p300c / TT-QuietBox 2 (single-chip) | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| TT-QuietBox 2 (whole-box, multi-chip) | `--tt-device p300x2` | 🛠️ Experimental | 64 K |
 | p150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
 | Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
 
@@ -186,9 +190,13 @@ python3 run.py \
   --no-auth
 ```
 
-> TT-QuietBox 2 exposes each p300c chip as an independent `p100` device. Run one server
-> per chip, each on a different `--service-port`, or use the T3000-class
-> configurations when available on future firmware.
+> This treats each p300c chip as an independent `p100` device for **single-chip**
+> serving — you can run one server per chip this way, each on a different
+> `--service-port`. That's a deliberate choice, not the machine's shape: a
+> TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`), and its chips are not
+> independent devices with no interconnect. For whole-box multi-chip serving of a
+> single larger model instead of four separate single-chip servers, use
+> `--tt-device p300x2` — see [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
 
 ---
 

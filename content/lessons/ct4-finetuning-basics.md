@@ -66,7 +66,7 @@ graph LR
 
 ## Install `ttml`
 
-`ttml` is source-only — there's no pip wheel. If you don't already have a built `~/tt-metal` source tree, do [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first. This matters especially on a TT-QuietBox<sup>®</sup> 2: those images ship TT-NN<sup>™</sup> and vLLM pre-installed, but **not** the tt-metal source tree — there's nothing to build `ttml` against until that tree exists.
+`ttml` is source-only — there's no pip wheel. If you don't already have a built `~/tt-metal` source tree, do [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first. This matters especially on a TT-QuietBox<sup>®</sup> 2: those images have no `~/tt-metal` at all — TT-NN<sup>™</sup> arrives as a container (`tt-metalium`) rather than on the host, so there's nothing to build `ttml` against until you make a source tree yourself.
 
 Once you have a tt-metal build, this extension's **Install tt-train** command builds `ttml` for you:
 

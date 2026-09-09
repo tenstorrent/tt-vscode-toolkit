@@ -153,10 +153,11 @@ hardware. A first-ever tt-metal build from cold (no ccache) is much longer;
 budget accordingly.
 
 **This matters especially if you're on a TT-QuietBox<sup>®</sup> 2.** A
-pre-configured TT-QuietBox 2 image ships TT-NN<sup>™</sup> and vLLM
-pre-installed, but it does **not** include the `~/tt-metal` source tree —
-there's nothing to build `ttml` against until you clone and build tt-metal
-yourself. Don't assume `~/tt-metal` exists; if it's missing, the
+pre-configured TT-QuietBox 2 image has **no `~/tt-metal` at all** — not the
+source tree, and not a host-side TT-NN<sup>™</sup> or vLLM either. TT-NN reaches
+you as a container (`tt-metalium`), and `~/.tenstorrent-venv` holds only
+`tt-smi` and `tt-flash`. So there is nothing to build `ttml` against until you
+clone and build tt-metal yourself. Don't assume `~/tt-metal` exists; if it's missing, the
 [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) is exactly the gap-filler.
 
 The full, verified recipe lives in

@@ -34,9 +34,12 @@ and (optionally) tt-metal source are ready. If anything fails, follow the link f
 check — then come back here to confirm you're green before moving on.
 
 > **TT-QuietBox<sup>®</sup> 2 / Pre-configured image users:** TT-QuietBox 2 ships with a pre-installed environment but
-> does **not** include `~/tt-metal`. Check 1 and Check 2 should pass out of the box.
-> Check 3 will fail unless you clone and build TT-Metalium<sup>™</sup> yourself — that's expected and
-> fine for most lessons.
+> does **not** include `~/tt-metal`. Check 1 passes on the host out of the box. Check 2 does
+> **not** — `~/.tenstorrent-venv` holds only the hardware tooling (`tt-smi`, `tt-flash`,
+> `tt-topology`), not TT-NN<sup>™</sup> or vLLM, so a bare host `import ttnn` fails with
+> `ModuleNotFoundError`. Run Check 2 inside the `tt-metalium` container instead (see the QB2 note
+> under Check 2 below). Check 3 will fail unless you clone and build TT-Metalium<sup>™</sup>
+> yourself — that's expected and fine for most lessons.
 
 ---
 
@@ -80,13 +83,20 @@ tt-smi -s
 python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source build)'))"
 ```
 
+> **On a TT-QuietBox 2:** the command above will fail on the bare host —
+> `~/.tenstorrent-venv` doesn't contain TT-NN. Run it inside the `tt-metalium`
+> container instead:
+> ```bash
+> tt-metalium -c "python3 -c \"import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source build)'))\""
+> ```
+
 **Interpreting results:**
 
 - Prints `✓ TT-NN <version>` → **✅ TT-NN ready**, continue to Check 3
 - `ModuleNotFoundError: No module named 'ttnn'` → TT-NN is not importable in your current
   Python environment. You need one of:
-  - **TT-QuietBox 2 / TT-Installer users:** activate the pre-installed container or venv
-    (check your setup guide for the activate command)
+  - **TT-QuietBox 2 / TT-Installer users:** run the check inside the `tt-metalium` container
+    (see above) — `~/.tenstorrent-venv` is hardware tooling only, not a TT-NN environment
   - **Build-from-source users:** activate your tt-metal venv and set `TT_METAL_HOME`:
     ```bash
     source ~/tt-metal/python_env_3.12/bin/activate   # or python_env for Python 3.10
