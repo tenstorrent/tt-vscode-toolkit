@@ -286,7 +286,8 @@ All Wormhole variants (n150, n300, T3000, Galaxy) share:
 
 ### Multi-Device System
 - **Multiple devices**, each with 1 or more chips
-- Example: TT-QuietBox Tower (4x p300c = 4 devices, 4 chips total)
+- Example: TT-QuietBox 2 (4x p300c = 4 devices, 4 chips total, wired into one
+  four-chip ring mesh — see the TT-QuietBox Example below)
 - Example: T3000 could be (8 devices × 1 chip) or (4 devices × 2 chips)
 - Configuration: `TT_METAL_NUM_DEVICES=4`, each device configured independently
 

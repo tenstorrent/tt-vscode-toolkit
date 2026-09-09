@@ -148,7 +148,10 @@ Device 2: 0000:03:00.0 | P300c | FW 19.4.0.0
 Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
 ```
 
-Each device is a **separate single-chip Blackhole card**. For single-chip lessons, use device 0. For multi-chip lessons, all 4 devices are available for workload distribution.
+`tt-smi` enumerates each as a separate p300c device, but on a TT-QuietBox 2 they're
+wired into **one four-chip ring mesh** (`P300_X2`), not 4 independent cards. For
+single-chip lessons, use device 0 (treat it like a p100). For multi-chip lessons,
+all 4 devices are available, and workloads scale near-linearly across the mesh.
 
 ### Quick Hardware Check
 

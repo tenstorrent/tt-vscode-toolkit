@@ -79,14 +79,14 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 cd ~/tt-metal
 ```
 
-> **On a QB2:** this demo needs the `models/demos/` tree, which the standard
-> `tt-metalium` container doesn't have (it's a runtime-only image). Use
-> `tt-metalium-models` instead — it has no home mount, so skip the exports
-> above and `cd` to the source tree it already starts you in:
-> ```bash
-> tt-metalium-models
-> cd tt-metal
-> ```
+> **On a QB2:** this lesson genuinely needs a source `~/tt-metal` build, not a
+> container. The standard `tt-metalium` container has no `models/demos/` tree,
+> and `tt-metalium-models` isn't a substitute either — it has no `${HOME}`
+> mount and is removed on `exit`, so the model/HF caches this lesson builds up
+> across steps, the `prompts.json` you write, and the frames it generates
+> would all vanish or never be visible to begin with. Build tt-metal from
+> source first — see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) —
+> then follow this lesson as written.
 
 **For p100 / p300c (Blackhole):**
 ```bash
@@ -311,8 +311,8 @@ tt-metal                                          # tt-developer-image / Docker
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 ```
 
-On a QB2, re-enter `tt-metalium-models` and `cd tt-metal` instead — see the QB2
-note under Step 1.
+On a QB2, this means your `~/tt-metal` build — see the QB2 note under Step 1
+for why a container isn't a substitute here.
 
 **"huggingface-hub not authenticated"**
 ```bash

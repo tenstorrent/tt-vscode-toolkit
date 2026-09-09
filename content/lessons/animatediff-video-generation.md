@@ -162,7 +162,6 @@ Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole sil
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-projects/tt-animatediff
 
@@ -172,14 +171,13 @@ python3 examples/generate.py \
     --output output/blackhole.gif
 ```
 
-> **On a QB2:** `tt-metalium`'s `/opt/venv` is a separate Python environment
-> from whichever one you ran Step 1's `pip install -e ".[dev]"` in — entering
-> the container here does **not** give you the `tt-animatediff` package or its
-> dependencies (diffusers, transformers, etc.). Either run Step 1's install
-> inside `tt-metalium` too (`uv pip install --python /opt/venv/bin/python3 -e
-> ".[dev]"`, repeated every session — the container is stateless, and
-> `/opt/venv` isn't part of the `${HOME}` bind mount), or build a
-> persistent venv against a source `~/tt-metal` tree instead.
+> **On a QB2:** `tt-metalium` is **not** an option for Phase 2.5/3, and no amount
+> of `pip`/`uv` installing fixes it — `examples/generate.py` hardcodes
+> `Path.home() / "tt-metal"` and imports
+> `models.demos.vision.generative.stable_diffusion...` straight from that source
+> tree, which the container doesn't have. This needs a real `~/tt-metal` build
+> — see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+> — with Step 1's `pip install -e ".[dev]"` run in a venv against that build.
 
 **Expected:**
 
@@ -261,15 +259,10 @@ A point-and-click interface for all modes. Models stay loaded between generation
 ```bash
 # Blackhole hardware — activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
+cd ~/tt-projects/tt-animatediff
 
-# pip install AFTER activating — it installs into whichever Python is
-# currently active, and on a QB2 that's tt-metalium's /opt/venv (no pip there,
-# only uv — see the QB2 note above — and it must be repeated every session)
 pip install -e ".[ui]"
-# uv pip install --python /opt/venv/bin/python3 -e ".[ui]"   # QB2 form
-
 python3 app.py
 # Open http://localhost:7860
 

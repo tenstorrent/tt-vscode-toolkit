@@ -514,6 +514,12 @@ tt-metal                                          # tt-developer-image / Docker
 # would be lost when you land back at /home/user inside the container
 cd ~/tt-scratchpad/cookbook/mandelbrot
 
+# On a QB2, renderer.py imports torch at the top, which the slim tt-metalium
+# image doesn't have (no pip either, only uv) — ttnn is already provided, so
+# don't reinstall it, and repeat this every session (lost on container exit):
+# uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
+# uv pip install --python /opt/venv/bin/python3 numpy matplotlib
+
 # Basic render
 python3 renderer.py
 ```

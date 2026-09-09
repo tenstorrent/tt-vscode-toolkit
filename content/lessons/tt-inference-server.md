@@ -99,7 +99,8 @@ every current Tenstorrent board:
 | n150 | `--tt-device n150` | 🟢 Complete | 64 K |
 | n300 | `--tt-device n300` | 🟢 Complete | 128 K |
 | T3000 (WH TT-QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
-| p100 / p300c / TT-QuietBox 2 | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| p100 / p300c / TT-QuietBox 2 (single-chip) | `--tt-device p100` | 🛠️ Experimental | 64 K |
+| TT-QuietBox 2 (whole-box, multi-chip) | `--tt-device p300x2` | 🛠️ Experimental | 64 K |
 | p150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
 | Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
 

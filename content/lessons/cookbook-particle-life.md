@@ -93,6 +93,13 @@ tt-metal                                          # tt-developer-image / Docker
 # would be lost when you land back at /home/user inside the container
 cd ~/tt-scratchpad/cookbook/particle_life
 
+# On a QB2, particle_life.py imports torch at the top, which the slim
+# tt-metalium image doesn't have (no pip either, only uv) — ttnn is already
+# provided, so don't reinstall it, and repeat this every session (lost on
+# container exit):
+# uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
+# uv pip install --python /opt/venv/bin/python3 numpy matplotlib Pillow
+
 # Run simulation (creates particle_life.gif)
 python3 test_particle_life.py
 

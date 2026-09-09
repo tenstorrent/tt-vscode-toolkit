@@ -161,6 +161,68 @@ confirmation.
     `verify-installation`**, which (see above) told them a host `import ttnn`
     should pass "out of the box" — it doesn't on a QB2. Fixed at the source.
 
+- **A third review pass (jzhengTT) caught a regression in the previous fix and
+  three more places the `tt-metalium-models` recipe didn't hold up.** Verified
+  against the published `latest-rc` GHCR image config, `install.m4`, and
+  tt-metal `main` this time, not a stale local checkout.
+  - **Regression: wrapping `template:` onto its own line dropped
+    `TEST_METALIUM_CONTAINER` from the web build.** The docs-site's
+    regex-based parser (`scripts/lib/command-map-parser.js`) only matches
+    `template:` and its value on the same line; the previous commit's
+    multi-line reformat made `buildCommandMap` return `undefined` for it (91
+    keys instead of 170), so the "Test TT-Metalium" button — the one this PR
+    fixes — rendered as an inert unknown-command badge on the published site.
+    Back to one line; confirmed the parser now resolves both the extension
+    key and the published site's rendering.
+  - **`tt-metalium-models`'s working directory is `/tt-metal`, not a parent of
+    it** (confirmed in the image's own config). `cd tt-metal` inside it looks
+    for `/tt-metal/tt-metal` and fails. Fixed in `tt-installer` (two copies)
+    and dropped from `explore-metalium`'s pointer to it.
+  - **The `ufld_v2` Blackhole demo moved in tt-metal's January 2026 model
+    reorg** — `models/demos/blackhole/ufld_v2` is gone from `main`; it's now
+    `models/demos/vision/segmentation/ufld_v2/blackhole`. The previous fix
+    checked a local `vendor/tt-metal` checkout from before the move instead of
+    upstream `main`. Also named `--install-metalium-models-container`, which
+    defaults **off**, and corrected the "files in `~` are accessible" claim,
+    which is true for `tt-metalium` but not `tt-metalium-models` (no `${HOME}`
+    mount at all).
+  - **`video-generation-ttmetal` and `animatediff-video-generation`'s QB2
+    paths were unfixable as containers, not just mis-written.** Both need a
+    real `~/tt-metal` source tree — `tt-animatediff`'s `generate.py`/`app.py`
+    hardcode `Path.home() / "tt-metal"` and import from it directly, and
+    `video-generation-ttmetal`'s demo needs the `models/demos/` tree plus
+    host round-tripping (`prompts.json`, HF/kernel caches, output frames)
+    that `tt-metalium-models`'s missing `${HOME}` mount can't provide. Both
+    now point QB2 readers at building tt-metal from source instead of
+    offering a container path that was always going to fail partway through.
+  - **`cookbook-mandelbrot` and `cookbook-particle-life` still had no torch
+    install step** — the previous commit moved their `cd` but didn't add the
+    `uv pip install` line the sibling cookbook lessons got, even though
+    `renderer.py` and `particle_life.py` both import `torch` at module scope.
+    Added.
+  - **The topology correction hadn't reached every copy**:
+    `hardware-detection.md`'s device-enumeration paragraph (14 lines below
+    the note already fixed), `tt-inference-server.md`'s device-flag table row,
+    `docs/LESSON_METADATA.md`, and a second line in
+    `docs/HARDWARE_ARCHITECTURE.md`. Corrected all four.
+  - **Two files outside the diff still taught the refuted claims outright**:
+    `content/pages/FAQ.md` (both copies) told QB2 users three build-from-source
+    venvs "may be pre-activated via `/etc/profile.d/`" — none of the three
+    exist on a QB2 at all, since there's no `~/tt-metal` to build them
+    against. `monkeypatch-ttnn.md`'s premise was a bare host `import ttnn`
+    printing a `site-packages` path, with no mention of `tt-metalium`,
+    directly contradicting the CLAUDE.md rule this release adds. Fixed both,
+    plus the same wording in `content/templates/monkeypatch/README.md` and
+    the lesson's registry description (regenerated via
+    `npm run generate:lessons`, not hand-edited).
+  - **Not fixed, flagged as a follow-up**: the review noted all eight
+    cookbook "Click to Run" buttons in `terminalCommands.ts` still run their
+    commands on the host with no QB2 branch, and that the ~7 near-duplicate
+    QB2 paragraphs and 4 hand-typed `getattr(ttnn, "__version__", ...)`
+    one-liners this pass touched are the same copy-drift surface that
+    produced the original bug. Left for a follow-up pass — explicitly called
+    out as not blocking.
+
 ## [0.1.28] - 2026-08-20
 
 ### Added

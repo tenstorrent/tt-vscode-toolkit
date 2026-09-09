@@ -348,12 +348,17 @@ tt-metalium -c "python3 -c 'import ttnn; print(getattr(ttnn, \"__version__\", \"
 tt-metalium -c "python3 ~/my-inference-script.py"
 
 # Use pytest (for demos) — the standard tt-metalium image has no
-# models/demos tree; this needs tt-metalium-models instead (see below), and
-# --workdir is the source tree already, so the path is relative:
-tt-metalium-models -c "cd tt-metal && pytest models/demos/blackhole/ufld_v2/demo/demo.py::test_ufld_v2_demo"
+# models/demos tree; this needs tt-metalium-models instead (see below, and note
+# the different flag it requires). Its working directory is already /tt-metal
+# (confirmed in the published image config), so the path is relative with no
+# leading `cd`:
+tt-metalium-models -c "pytest models/demos/vision/segmentation/ufld_v2/blackhole/demo/demo.py::test_ufld_v2_demo"
 ```
 
-**Key benefit:** Your files in `~` are automatically accessible inside the container!
+**Key benefit:** Your files in `~` are automatically accessible inside the container —
+true for `tt-metalium`. **Not true for `tt-metalium-models`** (see below): it has no
+`${HOME}` mount at all, so nothing you write there is visible inside it, and nothing
+the container writes survives `exit`.
 
 ### Standard vs Model Demos Container
 
@@ -372,6 +377,12 @@ tt-metalium-models -c "cd tt-metal && pytest models/demos/blackhole/ufld_v2/demo
 - ✅ Source code for learning
 - ❌ Large download (10GB)
 - ❌ Slower to update
+- ❌ No `${HOME}` mount — files don't round-trip with the host, and nothing
+  survives `exit`
+
+**Off by default** — TT-Installer's `--install-metalium-models-container` flag
+defaults to `off`. Re-run `install.sh` with `--install-metalium-models-container=on`
+if you want it.
 
 **Recommendation:**
 - Start with standard container (1GB)
@@ -493,11 +504,12 @@ After installation completes, you're ready to:
    - Compile models with TT-Forge<sup>™</sup> (Lesson 11)
    - Use JAX with TT-XLA (Lesson 12)
 
-2. **Try Model Demos** (if you installed Model Demos container):
+2. **Try Model Demos** (if you installed Model Demos container with
+   `--install-metalium-models-container=on`):
    ```bash
    tt-metalium-models
-   cd tt-metal/models/demos
-   pytest wormhole/llama31_8b/demo/demo.py
+   # Already in /tt-metal — no cd needed
+   pytest models/demos/vision/segmentation/ufld_v2/blackhole/demo/demo.py::test_ufld_v2_demo
 ```
 
 3. **Read Official Documentation**:

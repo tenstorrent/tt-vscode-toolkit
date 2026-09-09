@@ -170,8 +170,11 @@ python3 ttnn/tutorials/basic_python/ttnn_simplecnn_inference.py
 > **On a QB2:** the standard `tt-metalium` container has no `~/tt-metal` and
 > none of these tutorial files — see the callout above for the from-scratch
 > version of the first script. To run this exact set of tutorials unmodified,
-> use `tt-metalium-models` instead, which ships the full source tree (see
-> [Standard vs Model Demos Container](command:tenstorrent.showLesson?["tt-installer"])).
+> use `tt-metalium-models` instead, which ships the full source tree — but note
+> it's **off by default** (`--install-metalium-models-container=on` at install
+> time), has **no `${HOME}` mount**, and starts you already in `/tt-metal` (no
+> `cd` needed, and `cd ~/tt-metal` or `cd tt-metal` will fail there). See
+> [Standard vs Model Demos Container](command:tenstorrent.showLesson?["tt-installer"]).
 
 > **Training step required:** `ttnn_mlp_inference_mnist.py` and `ttnn_simplecnn_inference.py`
 > load weights from `.pt` files. Without them the scripts use random weights and report
