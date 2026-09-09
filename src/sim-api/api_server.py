@@ -21,7 +21,6 @@ import os
 import re
 import shutil
 import signal
-import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -148,32 +147,56 @@ def _ttsim_env_overrides(chip: str, so_path: Path) -> dict[str, str]:
     return env
 
 
-_TTNN_IMPORTABLE_CACHE: dict[str, bool] = {}
+_TTNN_IMPORTABLE_CACHE: dict[str, tuple[bool, float]] = {}
+# A cold `import ttnn` (torch + libtt_metal, on a freshly started container)
+# can plausibly still be loading past a probe timeout well past the old 10s
+# -- 45s gives real room without hanging forever if the interpreter is
+# actually broken.
+_TTNN_IMPORTABLE_PROBE_TIMEOUT = 45.0
+# Only a NEGATIVE result gets a TTL: an interpreter that has already
+# successfully imported ttnn once will always be able to again, but a
+# "can't import yet" reading may just mean the probe caught it mid-cold-
+# start. Caching that transient reading as a permanent False would wedge
+# /health (and every real request behind it) in "unavailable" until the
+# server process restarts, even once the import would by then have
+# succeeded -- and the playground fires /health at page load, which is
+# exactly when a freshly started container is coldest.
+_TTNN_IMPORTABLE_NEGATIVE_TTL = 30.0
 
 
-def _ttnn_importable(python_path: str, env: dict[str, str]) -> bool:
+async def _ttnn_importable(python_path: str, env: dict[str, str]) -> bool:
     """Actually try to `import ttnn` via the resolved interpreter under the
-    given (already ttsim-routed) environment, cached per interpreter path. A
-    resolved TT_METAL_PYTHON that exists but lacks ttnn (e.g. still defaulted
-    to this server's own venv) previously reported /health as ready and only
-    failed on the first real request -- cheap to check for real since the
-    interpreter's installed packages don't change while this process is
-    running. `env` must already carry TT_METAL_SIMULATOR (see
-    _ttsim_env_overrides) so the check itself never risks a real device
-    open on a host that also has physical Tenstorrent hardware attached."""
-    if python_path in _TTNN_IMPORTABLE_CACHE:
-        return _TTNN_IMPORTABLE_CACHE[python_path]
+    given (already ttsim-routed) environment. `env` must already carry
+    TT_METAL_SIMULATOR (see _ttsim_env_overrides) so the check itself never
+    risks a real device open on a host that also has physical Tenstorrent
+    hardware attached. Runs as a genuine child process (not a blocking
+    subprocess.run) so a slow cold import doesn't stall the event loop this
+    server's other requests (including its own /health) share."""
+    loop = asyncio.get_running_loop()
+    cached = _TTNN_IMPORTABLE_CACHE.get(python_path)
+    if cached is not None:
+        ok, checked_at = cached
+        if ok or (loop.time() - checked_at) < _TTNN_IMPORTABLE_NEGATIVE_TTL:
+            return ok
     try:
-        result = subprocess.run(
-            [python_path, "-c", "import ttnn"],
-            capture_output=True,
-            timeout=10,
+        proc = await asyncio.create_subprocess_exec(
+            python_path,
+            "-c",
+            "import ttnn",
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL,
             env=env,
         )
-        ok = result.returncode == 0
+        try:
+            await asyncio.wait_for(proc.wait(), timeout=_TTNN_IMPORTABLE_PROBE_TIMEOUT)
+            ok = proc.returncode == 0
+        except asyncio.TimeoutError:
+            proc.kill()
+            await proc.wait()
+            ok = False
     except Exception:
         ok = False
-    _TTNN_IMPORTABLE_CACHE[python_path] = ok
+    _TTNN_IMPORTABLE_CACHE[python_path] = (ok, loop.time())
     return ok
 
 
@@ -188,7 +211,7 @@ class TtsimResolution:
     python_path: str
 
 
-def _resolve_ttsim(chip: str) -> TtsimResolution:
+async def _resolve_ttsim(chip: str) -> TtsimResolution:
     """Resolve everything needed to run a ttsim backend for `chip`, raising
     HTTPException(503, ...) with a precise reason otherwise. Single source of
     truth for _build_cmd, _build_env, and the /health check, which previously
@@ -245,7 +268,7 @@ def _resolve_ttsim(chip: str) -> TtsimResolution:
         raise HTTPException(
             status_code=503, detail=f"TT_METAL_PYTHON not found: {TT_METAL_PYTHON}"
         )
-    if not _ttnn_importable(resolved_python, _ttsim_env_overrides(chip, so_path)):
+    if not await _ttnn_importable(resolved_python, _ttsim_env_overrides(chip, so_path)):
         raise HTTPException(
             status_code=503,
             detail=f"{resolved_python} cannot `import ttnn` -- check TT_METAL_PYTHON",
@@ -305,7 +328,7 @@ def _check_auth(x_api_key: str | None) -> None:
 # Backend resolution
 # ---------------------------------------------------------------------------
 
-def _build_cmd(backend: Backend, script_path: str) -> list[str]:
+async def _build_cmd(backend: Backend, script_path: str) -> list[str]:
     """Return the command list for the given backend."""
     if backend == Backend.ttlang_sim:
         # The Backend enum value ("ttlang-sim") is this API's own protocol
@@ -320,17 +343,17 @@ def _build_cmd(backend: Backend, script_path: str) -> list[str]:
 
     if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
         chip = "wh" if backend == Backend.ttsim_wh else "bh"
-        resolution = _resolve_ttsim(chip)
+        resolution = await _resolve_ttsim(chip)
         return [resolution.python_path, script_path]
 
     raise HTTPException(status_code=400, detail=f"Unknown backend: {backend}")
 
 
-def _build_env(backend: Backend) -> dict[str, str]:
+async def _build_env(backend: Backend) -> dict[str, str]:
     """Return extra environment variables needed by the backend."""
     if backend in (Backend.ttsim_wh, Backend.ttsim_bh):
         chip = "wh" if backend == Backend.ttsim_wh else "bh"
-        resolution = _resolve_ttsim(chip)
+        resolution = await _resolve_ttsim(chip)
         return _ttsim_env_overrides(chip, resolution.so_path)
     return os.environ.copy()
 
@@ -372,8 +395,8 @@ async def _stream_output(
     proc: asyncio.subprocess.Process | None = None
     pumps: list[asyncio.Task] = []
     try:
-        cmd = _build_cmd(backend, script_path)
-        env = _build_env(backend)
+        cmd = await _build_cmd(backend, script_path)
+        env = await _build_env(backend)
 
         # start_new_session=True puts the child in its own process group, so
         # cleanup can signal the whole group (see _kill_process_group) --
@@ -598,12 +621,12 @@ async def execute_ws(websocket: WebSocket) -> None:
 # Health
 # ---------------------------------------------------------------------------
 
-def _ttsim_backend_ready(chip: str) -> bool:
+async def _ttsim_backend_ready(chip: str) -> bool:
     """True only if this backend could actually execute -- delegates to the
     same _resolve_ttsim() that _build_cmd/_build_env use, so /health can
     never report a backend as available when a real request would 503 it."""
     try:
-        _resolve_ttsim(chip)
+        await _resolve_ttsim(chip)
         return True
     except HTTPException:
         return False
@@ -615,8 +638,8 @@ async def health() -> dict:
         "status": "ok",
         "backends": {
             "ttlang-sim": bool(shutil.which("tt-lang-sim")),
-            "ttsim-wh": _ttsim_backend_ready("wh"),
-            "ttsim-bh": _ttsim_backend_ready("bh"),
+            "ttsim-wh": await _ttsim_backend_ready("wh"),
+            "ttsim-bh": await _ttsim_backend_ready("bh"),
         },
     }
 

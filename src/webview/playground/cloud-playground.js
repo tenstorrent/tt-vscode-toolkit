@@ -429,7 +429,16 @@ print("PASSED" if max_err < 5e-1 else "FAILED")
                 'try:\n' +
                 indentedCode + '\n' +
                 'finally:\n' +
-                '    ttnn.close_device(device)\n';
+                // A pasted kernel (every ttsim example elsewhere in this
+                // repo included) may already close its own device in its
+                // own finally/atexit -- swallow the resulting "already
+                // closed" error here rather than let our own close double
+                // up on top of that and mask what would otherwise be a
+                // clean PASSED with a spurious non-zero exit code.
+                '    try:\n' +
+                '        ttnn.close_device(device)\n' +
+                '    except Exception:\n' +
+                '        pass\n';
 
             const wsUrl = CLOUD_API_URL.endsWith('/execute')
                 ? CLOUD_API_URL
