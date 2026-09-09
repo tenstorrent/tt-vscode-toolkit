@@ -120,8 +120,8 @@ print("PASSED")
             code: `\
 import torch
 
-a = ttnn.from_torch(torch.tensor([[1.0, 2.0], [3.0, 4.0]]), device=device)
-b = ttnn.from_torch(torch.tensor([[10.0, 20.0], [30.0, 40.0]]), device=device)
+a = ttnn.from_torch(torch.tensor([[1.0, 2.0], [3.0, 4.0]]), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+b = ttnn.from_torch(torch.tensor([[10.0, 20.0], [30.0, 40.0]]), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
 c = a + b
 print("a + b =", ttnn.to_torch(ttnn.from_device(c)))
 print("PASSED")
@@ -135,15 +135,18 @@ import numpy as np
 import torch
 
 # This code runs on the ttsim-wh/ttsim-bh backend (real tt-metal/ttnn).
+# dtype=ttnn.bfloat16 is required, not optional: the tensix unpacker on this
+# backend rejects float32 tiles outright. numpy has no bfloat16 of its own,
+# so .float() first is needed before .numpy() can convert the result back.
 dim = 64
 a_np = np.random.rand(dim, dim).astype(np.float32)
 b_np = np.random.rand(dim, dim).astype(np.float32)
 ref = a_np + b_np
 
-a = ttnn.from_torch(torch.from_numpy(a_np), layout=ttnn.TILE_LAYOUT, device=device)
-b = ttnn.from_torch(torch.from_numpy(b_np), layout=ttnn.TILE_LAYOUT, device=device)
+a = ttnn.from_torch(torch.from_numpy(a_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+b = ttnn.from_torch(torch.from_numpy(b_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
 c = ttnn.add(a, b)
-result = ttnn.to_torch(ttnn.from_device(c)).numpy()
+result = ttnn.to_torch(ttnn.from_device(c)).float().numpy()
 
 max_err = float(np.abs(result - ref).max())
 print(f"eltwise_add  dim={dim}x{dim}  max_err={max_err:.6f}")
@@ -162,14 +165,20 @@ a_np = np.random.rand(dim, dim).astype(np.float32)
 b_np = np.random.rand(dim, dim).astype(np.float32)
 ref = a_np @ b_np
 
-a = ttnn.from_torch(torch.from_numpy(a_np), layout=ttnn.TILE_LAYOUT, device=device)
-b = ttnn.from_torch(torch.from_numpy(b_np), layout=ttnn.TILE_LAYOUT, device=device)
+a = ttnn.from_torch(torch.from_numpy(a_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+b = ttnn.from_torch(torch.from_numpy(b_np), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
 c = ttnn.matmul(a, b)
-result = ttnn.to_torch(ttnn.from_device(c)).numpy()
+result = ttnn.to_torch(ttnn.from_device(c)).float().numpy()
 
 max_err = float(np.abs(result - ref).max())
 print(f"matmul  dim={dim}x{dim}  max_err={max_err:.6f}")
-print("PASSED" if max_err < 1e-1 else "FAILED")
+# bfloat16 has ~7 bits of mantissa; a dim=64 dot product accumulates that
+# per-element error across 64 terms, so max abs error routinely lands
+# between 0.1 and 0.3 against a float32 reference -- live-tested against
+# ttsim-wh, not just estimated. 1e-1 (tuned for float32-precision inputs)
+# false-failed on real bfloat16 output; 5e-1 has margin without being loose
+# enough to hide an actually-broken kernel.
+print("PASSED" if max_err < 5e-1 else "FAILED")
 `
         },
     };
@@ -201,6 +210,7 @@ print("PASSED" if max_err < 1e-1 else "FAILED")
             this._mount = mount;
             this._ws = null;
             this._running = false;
+            this._currentKernel = null;
 
             this._buildUI();
             this._onBackendChange();
@@ -256,6 +266,7 @@ print("PASSED" if max_err < 1e-1 else "FAILED")
 
         _onBackendChange() {
             const compatible = _kernelsForBackend(this._backendSel.value);
+            const previousKey = this._currentKernel;
             this._kernelSel.innerHTML = '';
             for (const [key, { label }] of compatible) {
                 const opt = document.createElement('option');
@@ -263,16 +274,31 @@ print("PASSED" if max_err < 1e-1 else "FAILED")
                 opt.textContent = label;
                 this._kernelSel.appendChild(opt);
             }
-            if (compatible.length) {
-                this._selectKernel(compatible[0][0]);
-            } else {
+            if (!compatible.length) {
+                this._currentKernel = null;
                 this._codeEl.value = '';
+                return;
+            }
+            // Only reload the template -- clobbering whatever the user is
+            // currently editing -- when the previously-selected kernel
+            // genuinely isn't runnable against the new backend. Several
+            // kernels (e.g. "Matmul (ttsim)") are compatible with BOTH
+            // ttsim-wh and ttsim-bh, and switching between those backends
+            // previously reloaded the pristine template over any
+            // in-progress edits on every single change, even though the
+            // same kernel key stays selectable either way.
+            const stillCompatible = compatible.some(([key]) => key === previousKey);
+            if (stillCompatible) {
+                this._kernelSel.value = previousKey;
+            } else {
+                this._selectKernel(compatible[0][0]);
             }
         }
 
         _selectKernel(key) {
             if (KERNELS[key]) {
                 this._codeEl.value = KERNELS[key].code.trim();
+                this._currentKernel = key;
                 // Keep the dropdown in sync with the loaded code -- without
                 // this, calling _selectKernel() with anything other than
                 // whatever the browser defaults the <select> to (its first
@@ -387,7 +413,22 @@ print("PASSED" if max_err < 1e-1 else "FAILED")
                 import ttnn
                 device = ttnn.open_device(device_id=0)
             `);
-            const fullCode = preamble + '\n' + code;
+            // Wrap the kernel body in try/finally so ttnn.close_device()
+            // always runs, even when the kernel raises -- without this, a
+            // failing run (or even a passing one, since nothing ever called
+            // it) leaves the simulated device open for the lifetime of the
+            // server process, and the next run's ttnn.open_device() either
+            // queues behind it or fails outright depending on the backend.
+            // Every line of the user's code is indented once to sit inside
+            // the try: block; a uniform per-line indent is always valid
+            // Python regardless of the kernel's own internal structure.
+            const indentedCode = code.split('\n').map(l => (l.length ? '    ' + l : l)).join('\n');
+            const fullCode =
+                preamble + '\n' +
+                'try:\n' +
+                indentedCode + '\n' +
+                'finally:\n' +
+                '    ttnn.close_device(device)\n';
 
             const wsUrl = CLOUD_API_URL.endsWith('/execute')
                 ? CLOUD_API_URL
@@ -402,7 +443,12 @@ print("PASSED" if max_err < 1e-1 else "FAILED")
             }
 
             this._ws.onopen = () => {
-                this._ws.send(JSON.stringify({ code: fullCode, backend, timeout: 30 }));
+                // No `timeout` field -- let the server apply its own
+                // EXEC_TIMEOUT-derived default per backend instead of a
+                // second hardcoded value here drifting out of sync with it
+                // (this previously sent 30s while the server's own default
+                // was already 60-180s, silently cutting every run short).
+                this._ws.send(JSON.stringify({ code: fullCode, backend }));
             };
 
             this._ws.onmessage = (evt) => {
