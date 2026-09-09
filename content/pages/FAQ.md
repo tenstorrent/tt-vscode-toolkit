@@ -110,7 +110,13 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 | vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
 | TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
 
-**TT-QuietBox 2 / tt-installer container environments:** These may be pre-activated via `/etc/profile.d/`. Check what's active with `which python3` before activating another venv.
+**TT-QuietBox 2:** none of these three venvs exist on a QB2 — there's no `~/tt-metal`
+source tree, so nothing to build `python_env`, `python_env_vllm`, or `tt-forge-venv`
+against. TT-NN lives in the `tt-metalium` container instead (`tt-metalium -c "..."`,
+or the interactive shell), and vLLM runs in the container `tt-inference-server`
+launches — see the "On a QB2" section in [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
+`~/.tenstorrent-venv` is not a substitute for any of the three; it holds only
+`tt-smi`/`tt-flash`/`tt-topology`.
 
 **Can't find a venv?**
 
@@ -249,7 +255,13 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 | vLLM serving | `source ~/tt-metal/build/python_env_vllm/bin/activate` |
 | TT-Forge / TT-XLA / JAX | `source ~/tt-forge-venv/bin/activate` |
 
-**QB2 / tt-installer container environments:** These may be pre-activated via `/etc/profile.d/`. Check what's active with `which python3` before activating another venv.
+**TT-QuietBox 2:** none of these three venvs exist on a QB2 — there's no `~/tt-metal`
+source tree, so nothing to build `python_env`, `python_env_vllm`, or `tt-forge-venv`
+against. TT-NN lives in the `tt-metalium` container instead (`tt-metalium -c "..."`,
+or the interactive shell), and vLLM runs in the container `tt-inference-server`
+launches — see the "On a QB2" section in [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
+`~/.tenstorrent-venv` is not a substitute for any of the three; it holds only
+`tt-smi`/`tt-flash`/`tt-topology`.
 
 **Can't find a venv?**
 

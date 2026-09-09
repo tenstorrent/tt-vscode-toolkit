@@ -124,7 +124,7 @@ There isn't one training stack on Tenstorrent hardware — there are three, and 
 
 **This is the framework the rest of this track uses.** Later lessons run `train_nanogpt.py` against it: real gradient descent, real loss curves dropping step by step, on real Tenstorrent silicon.
 
-`ttml` is source-only — no pip wheel — and builds as a cmake subproject of TT-Metalium. If you don't already have a built `~/tt-metal` source tree (TT-QuietBox<sup>®</sup> 2 images ship TT-NN and vLLM pre-installed but not the tt-metal source tree), start with [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]). Once that tree exists, the **Install tt-train** command in this extension automates the `ttml` build.
+`ttml` is source-only — no pip wheel — and builds as a cmake subproject of TT-Metalium. If you don't already have a built `~/tt-metal` source tree (TT-QuietBox<sup>®</sup> 2 images have none — TT-NN arrives as a container, not on the host), start with [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]). Once that tree exists, the **Install tt-train** command in this extension automates the `ttml` build.
 
 ### tt-blacksmith — a separate stack, not this track
 

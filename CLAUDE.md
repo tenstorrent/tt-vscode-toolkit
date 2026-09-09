@@ -27,9 +27,14 @@ All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy
   `TT_MESH_GRAPH_DESC_PATH` to a matching descriptor (shipped `p300_mesh_graph_descriptor.textproto`
   for [1,2]; a custom `[1,4]` `dim_types [LINE, RING]` descriptor for [1,4]) — otherwise fabric
   router sync times out. See lesson `ct5-multi-device-training` and `reference_ttml_build_blackhole`.
-- **TT-QuietBox 2 ships without `~/tt-metal`**: Pre-configured TT-QuietBox 2 images have TT-NN<sup>™</sup> and vLLM
-  pre-installed but do not include the tt-metal source tree. Lessons must not assume
-  `~/tt-metal` exists — link to `build-tt-metal` lesson for users who need it.
+- **TT-QuietBox 2 ships without `~/tt-metal`, and TT-NN/vLLM are container-only**:
+  Pre-configured TT-QuietBox 2 images have no tt-metal source tree, and no
+  host-side TT-NN<sup>™</sup> or vLLM either — `~/.tenstorrent-venv` holds only the
+  hardware tooling (`tt-smi`, `tt-flash`, `tt-topology`). TT-NN lives in the
+  `tt-metalium` container; vLLM lives in the container `tt-inference-server`
+  launches. Lessons must not assume `~/tt-metal` exists, or that a bare host
+  `import ttnn` / `import vllm` succeeds on a QB2 — link to `build-tt-metal`
+  for users who need a source tree.
 - **`hf` CLI, not `huggingface-cli`**: All lessons and templates must use the new
   `hf` CLI commands: `hf auth login`, `hf auth whoami`, `hf download`.
 - **`DispatchCoreAxis.ROW` crashes on Blackhole**: Never use

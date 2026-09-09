@@ -84,12 +84,21 @@ This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 **Manual commands:**
 
 ```bash
-cd ~/tt-scratchpad/cookbook/particle_life
-
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
+
+# cd after activating — tt-metalium opens a new shell, so a cd before it
+# would be lost when you land back at /home/user inside the container
+cd ~/tt-scratchpad/cookbook/particle_life
+
+# On a QB2, particle_life.py imports torch at the top, which the slim
+# tt-metalium image doesn't have (no pip either, only uv) — ttnn is already
+# provided, so don't reinstall it, and repeat this every session (lost on
+# container exit):
+# uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
+# uv pip install --python /opt/venv/bin/python3 numpy matplotlib Pillow
 
 # Run simulation (creates particle_life.gif)
 python3 test_particle_life.py

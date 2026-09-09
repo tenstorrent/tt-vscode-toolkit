@@ -5,6 +5,19 @@
 **Environment:** Production TT-QuietBox with fresh TT-Installer setup
 **Starting State:** TT-Metalium<sup>™</sup> installed, no models downloaded
 
+> **⚠️ Superseded, 2026-09-07 — kept as a historical record, do not cite as
+> current.** The environment layout below was real on this machine in January,
+> but `tt-installer` no longer produces it. There is now **no
+> `~/tt-metal/python_env`** — the installer never creates one, and TT-Metalium
+> ships as a container reached via the `tt-metalium` wrapper. `~/.tenstorrent-venv`
+> holds only `tt-smi` and `tt-flash`, so `import ttnn` fails there too.
+>
+> The "CRITICAL FINDING" below is the origin of a claim that propagated into
+> roughly a dozen lessons and into `tt-developer-image`'s QB2 Dockerfile, and
+> outlived the layout it described. Current facts live in the `tt-installer`
+> lesson; verify against `tt-installer`'s `install.m4` rather than against this
+> file or anything descended from it.
+
 ---
 
 ## Mission

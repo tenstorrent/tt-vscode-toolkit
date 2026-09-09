@@ -505,12 +505,20 @@ class MandelbrotVisualizer:
 **Manual Commands:**
 
 ```bash
-cd ~/tt-scratchpad/cookbook/mandelbrot
-
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
+
+# cd after activating — tt-metalium opens a new shell, so a cd before it
+# would be lost when you land back at /home/user inside the container
+cd ~/tt-scratchpad/cookbook/mandelbrot
+
+# On a QB2, renderer.py imports torch at the top, which the slim tt-metalium
+# image doesn't have (no pip either, only uv) — ttnn is already provided, so
+# don't reinstall it, and repeat this every session (lost on container exit):
+# uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
+# uv pip install --python /opt/venv/bin/python3 numpy matplotlib
 
 # Basic render
 python3 renderer.py
