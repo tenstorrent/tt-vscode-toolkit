@@ -259,7 +259,8 @@ All Blackhole cards share the same core architecture and instruction set:
 - Dual-chip lessons: Use `MESH_DEVICE=P150` (p150 only)
 
 **Multi-Device TT-QuietBox Systems:**
-- TT-QuietBox Tower (4x p300c) = 4 separate devices, each single-chip
+- TT-QuietBox 2 (4x p300c) is one four-chip ring mesh (`P300_X2`), enumerated as
+  4 separate devices, not 4 independent single-chip devices
 - For single-chip lessons: Use device 0 only
 - For multi-device lessons: All 4 devices available for parallelization
 - Example: Particle Life multi-device achieves 2x speedup on 4x p300c

@@ -134,7 +134,7 @@ Look for the `board_type` field to identify your hardware:
   - Architecture: Blackhole (identical to p100)
   - Common in: Multi-device TT-QuietBox Tower systems
   - MESH_DEVICE: Use P100 for single-chip lessons
-  - Example: 4x p300c = 4 separate single-chip devices
+  - Note: a TT-QuietBox 2's 4x p300c is **one four-chip ring mesh** (`P300_X2`), not 4 independent devices — see below
 
 **Blackhole Architecture Equivalence:**
 All Blackhole cards (p100, p150, p300/p300c) share the same instruction set and capabilities. Lessons supporting p100 will work on p300/p300c without modification.
@@ -148,7 +148,10 @@ Device 2: 0000:03:00.0 | P300c | FW 19.4.0.0
 Device 3: 0000:04:00.0 | P300c | FW 19.4.0.0
 ```
 
-Each device is a **separate single-chip Blackhole card**. For single-chip lessons, use device 0. For multi-chip lessons, all 4 devices are available for workload distribution.
+`tt-smi` enumerates each as a separate p300c device, but on a TT-QuietBox 2 they're
+wired into **one four-chip ring mesh** (`P300_X2`), not 4 independent cards. For
+single-chip lessons, use device 0 (treat it like a p100). For multi-chip lessons,
+all 4 devices are available, and workloads scale near-linearly across the mesh.
 
 ### Quick Hardware Check
 
@@ -298,14 +301,16 @@ dmesg | grep -i tenstorrent
 ## TT-QuietBox Multi-Device Systems
 
 **What is TT-QuietBox?**
-TT-QuietBox is a Tenstorrent multi-chip development system. The TT-QuietBox Blackhole Tower contains **4x p300c cards** (4 separate single-chip Blackhole devices).
+TT-QuietBox is a Tenstorrent multi-chip development system. The TT-QuietBox 2 (Blackhole Tower) contains **two dual-ASIC p300c boards** — 4 Blackhole chips total.
 
 **Key Concepts:**
 
-**4x p300c ≠ 4-chip System**
-- **4x p300c** = 4 separate cards, each with 1 Blackhole chip
-- Total: 4 devices, each independently addressable
-- Each device runs in p100 mode (single Blackhole chip)
+**TT-QuietBox 2 is one 4-chip ring mesh, not 4 independent devices**
+- `tt-smi` enumerates 4 separate p300c devices, and for **single-chip** lessons treating
+  each like a p100 (device 0, `MESH_DEVICE=P100`) is correct and is what most lessons want
+- But the machine's actual shape is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh) —
+  multi-chip work (e.g. tt-train DDP) scales near-linearly across it rather than running as
+  4 unrelated devices; see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])
 
 **Device Enumeration:**
 ```bash

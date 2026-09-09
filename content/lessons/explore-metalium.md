@@ -50,7 +50,7 @@ If you have TT-Metalium built and your venv activated, you can be running real T
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
+# tt-metalium                                      # QB2 — TTNN is in this container
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
@@ -58,6 +58,36 @@ export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 # Run the first tutorial — adds two tensors on TT hardware
 python3 ~/tt-metal/ttnn/tutorials/basic_python/ttnn_add_tensors.py
 ```
+
+> **On a QB2, the two `export`s and the path above do not apply — and there is no
+> bundled tutorial file to run either.** There is no `~/tt-metal` on the host —
+> TT-Metalium is a container, and `tt-metalium` puts you inside it, where
+> `python3` is `/opt/venv/bin/python3`. But `TT_METAL_HOME` is **not** set for
+> you there (confirmed empty in the real
+> `tt-metalium-ubuntu-22.04-release-amd64` image), and this is a runtime-only
+> image with no `ttnn/tutorials/` directory at all — `ttnn_add_tensors.py`
+> genuinely does not exist anywhere in it. Type the ~15-line script yourself
+> instead — it's short enough that typing it once is worth more than running
+> someone else's copy:
+> ```bash
+> tt-metalium
+> # torch isn't preinstalled either, and there's no pip — only uv/ensurepip. This
+> # install lands in /opt/venv, which is part of the image, not the ${HOME} bind
+> # mount — it does not survive `exit` and must be repeated every time you enter
+> # a fresh tt-metalium container:
+> uv pip install --python /opt/venv/bin/python3 torch --index-url https://download.pytorch.org/whl/cpu
+> python3 -c "
+> import ttnn, torch
+> device = ttnn.open_device(device_id=0)
+> a = ttnn.from_torch(torch.randn(32, 32), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+> b = ttnn.from_torch(torch.randn(32, 32), dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)
+> c = ttnn.to_torch(ttnn.add(a, b))
+> ttnn.close_device(device)
+> print('Result shape:', c.shape)
+> "
+> ```
+> `~/.tenstorrent-venv` is **not** an alternative either: it holds `tt-smi` and
+> `tt-flash`, and `import ttnn` fails there.
 
 > **⚡ Sim-ready:** The `ttnn/tutorials/basic_python/` scripts all use `ttnn.open_device(device_id=0)`
 > and run on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]).
@@ -108,7 +138,6 @@ because they don't require Jupyter and have clear, commented code:
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source ~/.tenstorrent-venv/bin/activate         # QB2 pre-installed image
 # source /opt/venv-metal/bin/activate             # cloud / custom install
 cd ~/tt-metal
 
@@ -137,6 +166,15 @@ python3 ttnn/tutorials/basic_python/ttnn_multihead_attention.py
 python3 ttnn/tutorials/basic_python/train_and_export_cnn.py
 python3 ttnn/tutorials/basic_python/ttnn_simplecnn_inference.py
 ```
+
+> **On a QB2:** the standard `tt-metalium` container has no `~/tt-metal` and
+> none of these tutorial files — see the callout above for the from-scratch
+> version of the first script. To run this exact set of tutorials unmodified,
+> use `tt-metalium-models` instead, which ships the full source tree — but note
+> it's **off by default** (`--install-metalium-models-container=on` at install
+> time), has **no `${HOME}` mount**, and starts you already in `/tt-metal` (no
+> `cd` needed, and `cd ~/tt-metal` or `cd tt-metal` will fail there). See
+> [Standard vs Model Demos Container](command:tenstorrent.showLesson?["tt-installer"]).
 
 > **Training step required:** `ttnn_mlp_inference_mnist.py` and `ttnn_simplecnn_inference.py`
 > load weights from `.pt` files. Without them the scripts use random weights and report
@@ -215,6 +253,13 @@ models/demos/t3000/      — T3000 (8-chip) configurations
 models/demos/blackhole/  — p100/p300c (Blackhole<sup>®</sup>)
 models/demos/tg/         — Galaxy (32-chip)
 ```
+
+> A January 2026 reorg moved many vision/generative models (stable diffusion,
+> segmentation, etc.) out of the flat per-hardware directories above into
+> `models/demos/vision/<category>/<model>/<hardware>/` instead — e.g.
+> `models/demos/blackhole/` now holds only a couple of models directly.
+> Confirm a specific demo's actual path in your checkout rather than assuming
+> the flat layout above still holds for it.
 
 **🎯 What's possible:**
 1. **Run a 685B parameter model** — DeepSeek-V3 on Galaxy

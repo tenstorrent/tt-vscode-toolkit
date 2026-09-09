@@ -1680,7 +1680,7 @@
     {
       "id": "monkeypatch-ttnn",
       "title": "Monkeypatching TT-NN",
-      "description": "Change TT-NN / TT-Metalium behavior with the smallest possible trace and without forking tt-metal — add logging, work around a bug, tweak a default, or register a model, all while staying upgrade-safe. Built for TT-QuietBox 2, where ttnn is an installed package with no source tree.",
+      "description": "Change TT-NN / TT-Metalium behavior with the smallest possible trace and without forking tt-metal — add logging, work around a bug, tweak a default, or register a model, all while staying upgrade-safe. Built for TT-QuietBox 2, where ttnn is an installed package with no source tree — reached via the tt-metalium container, not a host-level install.",
       "category": "advanced",
       "tags": [
         "ttnn",

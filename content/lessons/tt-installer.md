@@ -181,10 +181,16 @@ Once that shows your device, come back and test the container below.
 
 ### Test TT-Metalium Container
 
-Run a simple test inside the container:
+Run a simple test inside the container — note the `-c`: the wrapper is
+`docker run ... --entrypoint /bin/bash <image> "$@"`, so without it `bash` treats
+the whole command string as a **filename** and fails with `No such file or
+directory` (confirmed live) instead of running it. Also note `getattr` rather
+than a bare `ttnn.__version__` — that attribute doesn't currently exist on the
+built package (confirmed absent, both here and on other Metalium images), and
+a bare reference raises `AttributeError` instead of showing you TT-NN is fine:
 
 ```bash
-tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
+tt-metalium -c "python3 -c 'import ttnn; print(getattr(ttnn, \"__version__\", \"import OK\"))'"
 ```
 
 This verifies:
@@ -193,13 +199,20 @@ This verifies:
 - ✅ Python environment is configured
 
 > **⚠️ TT-QuietBox 2 (and other pre-configured images):** this test needs the
-> TT-Metalium **container** (Podman + the `tt-metalium` wrapper) that the
-> installer sets up. Pre-built QB2 images ship TT-NN and vLLM directly but may
-> **not** include Podman or the container wrapper — in that case `tt-metalium`
-> won't be found. Verify TT-NN directly instead:
+> TT-Metalium **container** and the `tt-metalium` wrapper — and a QB2 **has**
+> both; the wrapper is how you reach TT-NN there. What a QB2 does *not* have is
+> a host-side TT-NN or vLLM: `~/.tenstorrent-venv` contains only `tt-smi` and
+> `tt-flash`, so running `python3 -c 'import ttnn'` on the host fails by design.
+> Go through the wrapper instead (`getattr` because `ttnn.__version__` doesn't
+> currently exist on the built package — confirmed live, would otherwise raise
+> `AttributeError` instead of showing you it worked):
 > ```bash
-> python3 -c 'import ttnn; print(ttnn.__version__)'
+> tt-metalium -c 'python3 -c "import ttnn; print(getattr(ttnn, \"__version__\", \"import OK\"))"'
 > ```
+> If `tt-metalium` is "not found", it is almost certainly installed but
+> unreachable: it lives in `~/.local/bin`, which is not on `PATH` in every shell
+> (zsh never reads `~/.profile`) — this installer warns about that itself. Run
+> `export PATH="$HOME/.local/bin:$PATH"` and try again.
 
 [🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
 
@@ -320,20 +333,32 @@ This:
 
 ### Run Commands Directly
 
-Execute commands without entering the shell:
+Execute commands without entering the shell — note the `-c`: the wrapper is
+`docker run ... --entrypoint /bin/bash <image> "$@"`, so without it `bash` treats
+your whole command string as a **filename** to run as a script and fails with
+`No such file or directory` (confirmed live) rather than actually running it:
 
 ```bash
-# Check TTNN version
-tt-metalium "python3 -c 'import ttnn; print(ttnn.__version__)'"
+# Check TTNN is importable (not ttnn.__version__ — confirmed absent from the
+# package as currently built, on this image and others; getattr degrades
+# gracefully instead of raising AttributeError)
+tt-metalium -c "python3 -c 'import ttnn; print(getattr(ttnn, \"__version__\", \"import OK\"))'"
 
 # Run a Python script
-tt-metalium "python3 ~/my-inference-script.py"
+tt-metalium -c "python3 ~/my-inference-script.py"
 
-# Use pytest (for demos)
-tt-metalium "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
+# Use pytest (for demos) — the standard tt-metalium image has no
+# models/demos tree; this needs tt-metalium-models instead (see below, and note
+# the different flag it requires). Its working directory is already /tt-metal
+# (confirmed in the published image config), so the path is relative with no
+# leading `cd`:
+tt-metalium-models -c "pytest models/demos/vision/segmentation/ufld_v2/blackhole/demo/demo.py::test_ufld_v2_demo"
 ```
 
-**Key benefit:** Your files in `~` are automatically accessible inside the container!
+**Key benefit:** Your files in `~` are automatically accessible inside the container —
+true for `tt-metalium`. **Not true for `tt-metalium-models`** (see below): it has no
+`${HOME}` mount at all, so nothing you write there is visible inside it, and nothing
+the container writes survives `exit`.
 
 ### Standard vs Model Demos Container
 
@@ -352,6 +377,12 @@ tt-metalium "pytest models/demos/wormhole/llama31_8b/demo/demo.py"
 - ✅ Source code for learning
 - ❌ Large download (10GB)
 - ❌ Slower to update
+- ❌ No `${HOME}` mount — files don't round-trip with the host, and nothing
+  survives `exit`
+
+**Off by default** — TT-Installer's `--install-metalium-models-container` flag
+defaults to `off`. Re-run `install.sh` with `--install-metalium-models-container=on`
+if you want it.
 
 **Recommendation:**
 - Start with standard container (1GB)
@@ -473,11 +504,12 @@ After installation completes, you're ready to:
    - Compile models with TT-Forge<sup>™</sup> (Lesson 11)
    - Use JAX with TT-XLA (Lesson 12)
 
-2. **Try Model Demos** (if you installed Model Demos container):
+2. **Try Model Demos** (if you installed Model Demos container with
+   `--install-metalium-models-container=on`):
    ```bash
    tt-metalium-models
-   cd tt-metal/models/demos
-   pytest wormhole/llama31_8b/demo/demo.py
+   # Already in /tt-metal — no cd needed
+   pytest models/demos/vision/segmentation/ufld_v2/blackhole/demo/demo.py::test_ufld_v2_demo
 ```
 
 3. **Read Official Documentation**:

@@ -4502,10 +4502,11 @@ async function exploreAnimateDiffPackage(): Promise<void> {
  * `import ttml`. Finally, since there's no install step to wire ttml onto
  * the venv, a `.pth` file is added pointing at the built sources.
  *
- * TT-QuietBox 2 images ship TT-NN + vLLM preinstalled but NOT the tt-metal
- * source tree, so we check for $TT_METAL_HOME (or ~/tt-metal) first and
- * point users at the "Build TT-Metalium from Source" lesson if it's
- * missing rather than let the terminal command fail deep into the build.
+ * TT-QuietBox 2 images have no tt-metal source tree at all — TT-NN and vLLM
+ * arrive as a container (`tt-metalium`), not on the host — so we check for
+ * $TT_METAL_HOME (or ~/tt-metal) first and point users at the "Build
+ * TT-Metalium from Source" lesson if it's missing rather than let the
+ * terminal command fail deep into the build.
  */
 async function installTtTrain(): Promise<void> {
   const os = await import('os');
@@ -4515,7 +4516,7 @@ async function installTtTrain(): Promise<void> {
 
   if (!fs.existsSync(ttMetalHome)) {
     const choice = await vscode.window.showWarningMessage(
-      `No tt-metal source tree found at ${ttMetalHome}. TT-QuietBox 2 images ship TT-NN + vLLM but not the tt-metal source tree — ttml needs a built tt-metal tree first.`,
+      `No tt-metal source tree found at ${ttMetalHome}. TT-QuietBox 2 images have no ~/tt-metal at all — TT-NN and vLLM arrive as a container, not on the host — so ttml needs a built tt-metal tree first.`,
       'Open Build TT-Metalium Lesson',
       'Cancel'
     );

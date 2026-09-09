@@ -5,7 +5,8 @@ description: >-
   Change TT-NN / TT-Metalium behavior with the smallest possible trace and
   without forking tt-metal — add logging, work around a bug, tweak a default,
   or register a model, all while staying upgrade-safe. Built for TT-QuietBox 2,
-  where ttnn is an installed package with no source tree.
+  where ttnn is an installed package with no source tree — reached via the
+  tt-metalium container, not a host-level install.
 category: advanced
 tags:
   - ttnn
@@ -35,8 +36,12 @@ package. This lesson teaches monkeypatching as a discipline: change behavior wit
 the **smallest possible trace**, and in a way that stays **upgrade-safe**.
 
 This matters most on a **TT-QuietBox<sup>®</sup> 2**, where `ttnn` arrives as a *pre-installed
-Python package* and there is usually **no `~/tt-metal` source tree at all**. There's
-nothing to fork. So you reach into the package at runtime instead — carefully.
+Python package* **inside the `tt-metalium` container** — not on the host, and there is
+usually **no `~/tt-metal` source tree at all**. There's nothing to fork, and no
+host-level `import ttnn` to reach into either: every command below that touches
+`ttnn` needs to run inside `tt-metalium` on a QB2 (see the orientation command
+just below for the exact form). So you reach into the package at runtime
+instead — carefully.
 
 ## The two axes every technique is judged on
 
@@ -67,7 +72,14 @@ First, see where the package you're about to patch lives:
 python3 -c "import ttnn, os; print(ttnn.__file__)"
 ```
 
-On a TT-QuietBox 2 this prints somewhere under `site-packages`, **not** your home directory.
+On a TT-QuietBox<sup>®</sup> 2, run this inside the `tt-metalium` container instead — there is
+no host-level `ttnn` to import:
+
+```bash
+tt-metalium -c "python3 -c 'import ttnn, os; print(ttnn.__file__)'"
+```
+
+Either way, this prints somewhere under `site-packages`, **not** your home directory.
 
 > ⚠️ **Editing files under `site-packages` is not a patch.** It's invisible to
 > anyone reading your project, it's not in your git history, and the next

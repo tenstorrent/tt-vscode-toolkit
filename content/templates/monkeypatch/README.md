@@ -5,8 +5,9 @@ Change TT-NN behavior with the **smallest possible trace**, and stay
 
 ## Why
 
-On a TT-QuietBox 2, `ttnn` is an installed Python package with **no
-`~/tt-metal` source tree**. Editing files under `site-packages` is invisible
+On a TT-QuietBox 2, `ttnn` is an installed Python package **inside the
+`tt-metalium` container** (not on the host), with **no `~/tt-metal` source
+tree**. Editing files under `site-packages` is invisible
 and gets wiped by the next upgrade. This harness patches at runtime instead:
 every change is saved, reversible, logged, and fails loud if upstream renames
 the thing you patched.
