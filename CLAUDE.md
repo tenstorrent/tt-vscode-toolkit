@@ -86,6 +86,16 @@ n150 on the pod.
   The HF cache mount also needs `~/.cache/huggingface/hub/blobs`, since the model's
   snapshot symlinks point there. The rig's chip is a p300c, so the run used
   `MESH_DEVICE=P100`; the pod is an n150, and the lesson is not yet proven on one.
+- **Connect Software (Task 7, a6ec41e..):** host: `tt launch list` (qwencode/hermes
+  `ready`, Node.js on the box), `tt launch qwencode|aider --dry-run` against another
+  session's bundle server on 8011 (shows the non-catalog warning path),
+  `tt serve Qwen3-32B --port 8000 --dry-run` (`--service-port 8000`, parser `hermes` from
+  the catalog), `tt serve Qwen3-32B --studio --dry-run`. Rig (pod image, no Docker):
+  web UIs read `needs docker or podman`, `uv tool install aider-chat` makes aider `ready`,
+  `tt launch aider --dry-run` with no server names port 20000. **Not run:** Open WebUI
+  launch/stop (the box's container is another session's, pinned to 20000) and the
+  extension's guard inside a code-server (unit-tested in `environment.test.ts`; the rig
+  carries both `TT_*_VENV` markers).
 
 ## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
