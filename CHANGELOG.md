@@ -31,6 +31,14 @@ Also in this release:
   `tt serve <model> --port 8000`, replacing the hand-typed `run.py` commands. Open WebUI
   and TT-Studio buttons refuse on the cloud pod (no Docker) and say so. Removed the
   pre-Aider coding-assistant script commands and the `run.py` server starters.
+- **Build on the Stack** lessons say which environment to use where. The cloud pod
+  needs no activation for TT-NN (`python_env` is active in every shell) and ships
+  TT-Lang in `~/tt-lang-venv` and Forge/XLA in `~/tt-forge-venv` (tt-forge 1.4.0);
+  TT-Lang's install section now matches the package's own instructions (`tt-lang-setup`
+  is a command, `tt-lang-sim` is the simulator-only package, 1.1.6 current). New buttons
+  run the first TT-NN tutorial and a TT-Lang tutorial on the simulator. Each lesson ends
+  with the matching tt-awesome category (`?cat=kernels`, `compilers`, `games-demos`,
+  `media`, `guides`) and a developer-blog post where one fits.
 
 ---
 

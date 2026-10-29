@@ -61,12 +61,13 @@ That's the entire setup. No LLVM build, no Python version juggling, no CMake.
 > sudo ln -s ~/tt-forge-venv /opt/venv-forge
 > ```
 
-> **n150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
-> which provides the `tt_torch` API (`torch.compile(model, backend='tt')`) rather than
-> `forge.compile()`. JAX and the PJRT plugin work correctly when `tt_torch` is imported
-> first (which pre-loads the TT shared libraries). The verify command handles this
-> automatically. The Python compilation script above uses `forge.compile()` — on
-> n150 cloud, you would use `torch.compile(model, backend='tt')` instead.
+> **Cloud pod note:** `~/tt-forge-venv` on the pod ships `tt-forge 1.4.0` with
+> `pjrt-plugin-tt 1.4.0`, JAX 0.7.1 and torch-xla (Python 3.12; checked 2026-10-29). It
+> provides the `tt_torch` API (`torch.compile(model, backend='tt')`); `forge.compile()` as
+> used in the script below may not be present. JAX and the PJRT plugin work when
+> `tt_torch` is imported first (it pre-loads the TT shared libraries); the verify command
+> does that. On the pod, use `torch.compile(model, backend='tt')` where the script says
+> `forge.compile()`.
 
 [▶ Activate Forge Environment](command:tenstorrent.forge.activateEnv)
 
@@ -277,6 +278,14 @@ No manual kernel programming, no multi-step build, no environment wrestling.
 That's the point of TT-Forge.
 
 ---
+
+## Where to go next
+
+- **[tt-awesome: Compilers & Frontends](https://docs.tenstorrent.com/tt-awesome/?cat=compilers)**
+  — [tt-forge](https://docs.tenstorrent.com/tt-awesome/entry/tt-forge/),
+  [tt-forge-models](https://docs.tenstorrent.com/tt-awesome/entry/tt-forge-models/),
+  [tt-torch](https://docs.tenstorrent.com/tt-awesome/entry/tt-torch/) and the rest of the
+  compiler stack, with the community projects built on them.
 
 ## Next steps
 

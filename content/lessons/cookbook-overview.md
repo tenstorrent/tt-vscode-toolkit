@@ -80,6 +80,12 @@ Simulate emergent patterns from simple particle interactions. Includes multi-chi
 
 ## How the Cookbook Works
 
+Every recipe is plain Python on TT-NN, so it runs wherever `import ttnn` works. On the
+cloud pod that is every shell (`~/tt-metal`'s `python_env` is active). On a TT-QuietBox 2
+it is the `tt-metalium` container. On a machine with a source build it is `~/tt-metal`'s
+venv. [Explore TT-Metalium](command:tenstorrent.lesson.show?["explore-metalium"]) checks
+that first.
+
 ### 1. Deploy All Projects
 [📦 Deploy All Cookbook Projects](command:tenstorrent.cookbook.createProjects)
 
@@ -137,6 +143,18 @@ After completing the cookbook, you'll have:
 - **Transformers** → `models/demos/gemma3/` (multimodal AI)
 - **Vision** → `models/demos/mobilenetv2/` (mobile inference)
 - **Audio** → `models/demos/whisper/` (speech recognition)
+
+### Where to go next
+
+- **[tt-awesome: Games & Demos](https://docs.tenstorrent.com/tt-awesome/?cat=games-demos)**
+  — what others built the same way: [tt-gol](https://docs.tenstorrent.com/tt-awesome/entry/tt-gol/),
+  [tt-mandelbrot](https://docs.tenstorrent.com/tt-awesome/entry/tt-mandelbrot/),
+  [tt-zork-and-more](https://docs.tenstorrent.com/tt-awesome/entry/tt-zork-and-more/).
+  The cookbook's own recipes are listed there too.
+- **[tt-awesome: Media](https://docs.tenstorrent.com/tt-awesome/?cat=media)** — image,
+  video and audio projects, the next step after the audio and image-filter recipes.
+- **[Generating Spooky Loops with AnimateDiff on Blackhole](https://tenstorrent.com/developers/blog/generating-spooky-loops-with-animatediff-on-tenstorrent-blackhole)**
+  on the developer blog — a full media pipeline on TT-NN.
 
 ### Contribute
 - Submit your projects as examples

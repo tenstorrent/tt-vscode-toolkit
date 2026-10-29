@@ -522,6 +522,17 @@ function modelServeQb2AgentsLlama(): void {
   vscode.window.showInformationMessage('Serving Llama-3.3-70B-Instruct on port 8000. Warmup takes ~5 min (up to 20 min on first run).');
 }
 
+// ---- Build on the Stack: first runnable step per environment ----
+function metalRunAddTensors(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.METAL_RUN_ADD_TENSORS.template);
+}
+function ttlangSetupCloud(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.TTLANG_SETUP_CLOUD.template);
+}
+function ttlangRunTutorialSim(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.TTLANG_RUN_TUTORIAL_SIM.template);
+}
+
 // ============================================================================
 // LESSON 1: Hardware Detection
 // ============================================================================
@@ -4707,6 +4718,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.launch.studioQb2', launchStudioQb2),
     vscode.commands.registerCommand('tenstorrent.model.serveQb2AgentsQwen', modelServeQb2AgentsQwen),
     vscode.commands.registerCommand('tenstorrent.model.serveQb2AgentsLlama', modelServeQb2AgentsLlama),
+    vscode.commands.registerCommand('tenstorrent.metal.runAddTensors', metalRunAddTensors),
+    vscode.commands.registerCommand('tenstorrent.ttlang.setupCloud', ttlangSetupCloud),
+    vscode.commands.registerCommand('tenstorrent.ttlang.runTutorialSim', ttlangRunTutorialSim),
     vscode.commands.registerCommand('tenstorrent.setup.whereAmI', setupWhereAmI),
     vscode.commands.registerCommand('tenstorrent.setup.installTt', setupInstallTt),
     vscode.commands.registerCommand('tenstorrent.setup.useInstalledTools', setupUseInstalledTools),

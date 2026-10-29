@@ -46,7 +46,7 @@ pre-installed. There is no installation step — just activate and start computi
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
 # tt-forge                                         # QB2 — only if you opted into the Forge container
-# source /opt/venv-forge/bin/activate             # cloud / custom install
+# source ~/tt-forge-venv/bin/activate              # cloud pod (tt-forge 1.4.0, JAX 0.7.1) / custom install
 ```
 
 > **On a QB2, Forge is not preinstalled.** `tt-installer`'s
@@ -261,7 +261,7 @@ export TT_METAL_ARCH_NAME=wormhole_b0 # n150 / n300 / T3000 / Galaxy
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
 # tt-forge                                         # QB2 — only if you opted into the Forge container
-# source /opt/venv-forge/bin/activate             # cloud / custom install
+# source ~/tt-forge-venv/bin/activate              # cloud pod / custom install
 ```
 
 ---
@@ -277,7 +277,7 @@ cd ~/tt-forge/demos/tt-xla/nlp/jax
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
 # tt-forge                                         # QB2 — only if you opted into the Forge container
-# source /opt/venv-forge/bin/activate             # cloud / custom install
+# source ~/tt-forge-venv/bin/activate              # cloud pod / custom install
 pip install -r requirements.txt
 python3 gpt_demo.py
 ```
@@ -318,6 +318,13 @@ One activation command → tensors on silicon.
 No new venv, no pip install, no Python version change, no library compilation.
 
 ---
+
+## Where to go next
+
+- **[tt-awesome: Compilers & Frontends](https://docs.tenstorrent.com/tt-awesome/?cat=compilers)**
+  — [tt-xla](https://docs.tenstorrent.com/tt-awesome/entry/tt-xla/),
+  [tt-mlir](https://docs.tenstorrent.com/tt-awesome/entry/tt-mlir/) and the projects that
+  target them.
 
 ## Next steps
 

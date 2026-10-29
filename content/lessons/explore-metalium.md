@@ -49,15 +49,18 @@ If you have TT-Metalium built and your venv activated, you can be running real T
 
 ```bash
 # Activate TT environment (choose for your setup):
+#   Cloud pod: nothing to do. Every shell has ~/tt-metal's python_env active and
+#   TT_METAL_HOME set; `python3 -c "import ttnn"` already works.
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
-# source /opt/venv-metal/bin/activate             # cloud / custom install
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 
 # Run the first tutorial — adds two tensors on TT hardware
 python3 ~/tt-metal/ttnn/tutorials/basic_python/ttnn_add_tensors.py
 ```
+
+[▶ Run the first tutorial: add two tensors](command:tenstorrent.metal.runAddTensors)
 
 > **On a QB2, the two `export`s and the path above do not apply — and there is no
 > bundled tutorial file to run either.** There is no `~/tt-metal` on the host —
@@ -138,7 +141,7 @@ because they don't require Jupyter and have clear, commented code:
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: already active
 cd ~/tt-metal
 
 # Tensor basics: create, fill, add on device
@@ -534,6 +537,21 @@ In the **Metalium Cookbook**, you'll apply these concepts building four creative
 [🚀 Continue to JAX Inference with TT-XLA](command:tenstorrent.lesson.show?["tt-xla-jax"])
 
 ---
+
+## Where to Go Next
+
+- **[tt-awesome: Custom Kernels & Low-Level](https://docs.tenstorrent.com/tt-awesome/?cat=kernels)**
+  — curated kernel projects from the community and the team, from
+  [ttnn-helloworld-cpp](https://docs.tenstorrent.com/tt-awesome/entry/ttnn-helloworld-cpp/)
+  to [metalium-rs](https://docs.tenstorrent.com/tt-awesome/entry/metalium-rs/) and the
+  [Tensix field guide](https://docs.tenstorrent.com/tt-awesome/entry/tensix-field-guide/).
+- **[tt-awesome: Guides, Tutorials & Education](https://docs.tenstorrent.com/tt-awesome/?cat=guides)**
+  — university labs and walkthroughs that start where this lesson ends, such as
+  [tt-sim Lab](https://docs.tenstorrent.com/tt-awesome/entry/tt-sim-lab/), which runs on
+  the simulator with no card.
+- **[Serving Prefill and Decode for Agentic AI](https://tenstorrent.com/developers/blog/serving-prefill-and-decode-for-agentic-ai)**
+  on the developer blog — what the model code in `models/demos/` is doing when `tt serve`
+  runs it.
 
 ## Resources
 

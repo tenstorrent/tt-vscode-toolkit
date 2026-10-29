@@ -441,6 +441,31 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   // ========================================
+  // Build on the Stack: environment-aware first steps
+  // ========================================
+
+  METAL_RUN_ADD_TENSORS: {
+    id: 'metal-run-add-tensors',
+    name: 'Run the first TT-NN tutorial',
+    template: 'cd ~/tt-metal && python3 ttnn/tutorials/basic_python/ttnn_add_tensors.py',
+    description: 'Adds two tensors on the device with the tutorial script in ~/tt-metal (cloud pod: python_env is already active)',
+  },
+
+  TTLANG_SETUP_CLOUD: {
+    id: 'ttlang-setup-cloud',
+    name: 'Activate TT-Lang and copy the tutorials',
+    template: 'source ~/tt-lang-venv/bin/activate && tt-lang-setup-tutorials -t ~/ttlang-tutorials',
+    description: "Activates the pod's TT-Lang venv and copies its bundled tutorials to ~/ttlang-tutorials",
+  },
+
+  TTLANG_RUN_TUTORIAL_SIM: {
+    id: 'ttlang-run-tutorial-sim',
+    name: 'Run a TT-Lang tutorial on the simulator',
+    template: 'source ~/tt-lang-venv/bin/activate && ttlang-sim ~/ttlang-tutorials/elementwise/step_4_multinode_grid_auto.py',
+    description: 'Runs the elementwise tutorial on the functional simulator; no hardware is touched',
+  },
+
+  // ========================================
   // Lesson 6: Production Inference with tt-inference-server
   // ========================================
 
