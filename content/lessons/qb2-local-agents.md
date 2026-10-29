@@ -2,7 +2,7 @@
 id: qb2-local-agents
 title: Local AI Agents on TT-QuietBox 2
 description: Build real AI agents in pure Python — web research, codebase navigation, multi-agent pipelines, and stateful text adventures — all running locally on your TT-QuietBox 2's 32B/70B models
-category: applications
+category: connect
 tags:
   - qb2
   - p300x2

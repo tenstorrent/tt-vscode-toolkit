@@ -2,7 +2,7 @@
 id: interactive-chat
 title: Interactive Chat with Direct API
 description: Build a custom chat application using TT-Metalium's Generator API directly.
-category: first-inference
+category: serve
 tags:
   - chat
   - api

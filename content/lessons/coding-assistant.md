@@ -5,7 +5,7 @@ description: >-
   Run a real AI coding assistant (Aider) against your local Tenstorrent
   vLLM server. One install, one command — then pair-program with your own
   on-device LLM. Also covers prompt engineering to customize behavior.
-category: applications
+category: connect
 tags:
   - coding
   - assistant

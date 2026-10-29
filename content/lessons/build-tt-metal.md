@@ -6,7 +6,7 @@ description: >-
   lessons and for running TT-Metalium examples directly. TT-QuietBox 2 and pre-configured
   images do not ship with ~/tt-metal — start here if Check 3 in Verify Your
   Setup failed.
-category: first-inference
+category: deeper
 tags:
   - installation
   - build

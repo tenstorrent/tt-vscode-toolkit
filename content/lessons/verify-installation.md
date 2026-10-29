@@ -5,7 +5,7 @@ description: >-
   Check that your Tenstorrent hardware, TT-NN, and optional TT-Metalium source are
   ready before running your first model. A diagnostic checkpoint — returns you
   here after any setup work.
-category: first-inference
+category: setup
 tags:
   - installation
 supportedHardware:

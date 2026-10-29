@@ -5,7 +5,7 @@ description: >-
   The fastest way to get started with Tenstorrent! Use TT-Installer 2.0 for
   one-command installation of the full stack including drivers, firmware,
   TT-Metalium containers, and Python environment.
-category: first-inference
+category: setup
 tags:
   - installation
   - setup

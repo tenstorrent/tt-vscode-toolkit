@@ -7,7 +7,7 @@ description: >-
   or register a model, all while staying upgrade-safe. Built for TT-QuietBox 2,
   where ttnn is an installed package with no source tree — reached via the
   tt-metalium container, not a host-level install.
-category: advanced
+category: deeper
 tags:
   - ttnn
   - metalium

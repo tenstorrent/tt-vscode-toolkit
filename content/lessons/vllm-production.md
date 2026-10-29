@@ -4,7 +4,7 @@ title: Production Inference with vLLM
 description: >-
   Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise
   features.
-category: serving
+category: deeper
 tags:
   - vllm
   - production

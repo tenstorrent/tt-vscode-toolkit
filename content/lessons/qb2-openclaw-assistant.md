@@ -2,7 +2,7 @@
 id: qb2-openclaw-assistant
 title: OpenClaw AI Assistant on TT-QuietBox 2
 description: Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your TT-QuietBox 2 hardware
-category: applications
+category: connect
 tags:
   - qb2
   - p300x2

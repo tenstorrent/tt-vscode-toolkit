@@ -10,67 +10,74 @@
       "icon": "home"
     },
     {
-      "id": "first-inference",
-      "title": "🚀 Your First Inference",
-      "description": "Set up hardware and run your first model",
+      "id": "setup",
+      "title": "🧭 Set Up",
+      "description": "Arrive, install tt, check your hardware, bring the stack current",
       "order": 2,
       "icon": "rocket"
     },
     {
-      "id": "serving",
-      "title": "🏭 Serving Models",
-      "description": "Production deployment and serving infrastructure",
+      "id": "serve",
+      "title": "🤖 Serve Models",
+      "description": "Find, pull and serve models with tt",
       "order": 3,
       "icon": "server"
     },
     {
-      "id": "compilers",
-      "title": "🔧 Compilers & Tools",
-      "description": "TT-Forge, TT-XLA, and compiler toolchains",
+      "id": "connect",
+      "title": "🔌 Connect Software",
+      "description": "tt launch: web UIs, coding agents and TT-Studio on your model",
       "order": 4,
+      "icon": "plug"
+    },
+    {
+      "id": "build",
+      "title": "🛠️ Build on the Stack",
+      "description": "Metalium, TTNN, tt-lang, Forge and XLA for your own work",
+      "order": 5,
       "icon": "tools"
+    },
+    {
+      "id": "deeper",
+      "title": "🔬 Go Deeper",
+      "description": "Serve by hand, build tt-metal, patch, simulate, contribute",
+      "order": 6,
+      "icon": "beaker"
     },
     {
       "id": "applications",
       "title": "🎯 Applications",
       "description": "Build real-world applications with AI",
-      "order": 5,
-      "icon": "lightbulb"
-    },
-    {
-      "id": "advanced",
-      "title": "🎓 Advanced Topics",
-      "description": "Low-level programming, installation, and community contributions",
-      "order": 6,
-      "icon": "mortar-board"
-    },
-    {
-      "id": "custom-training",
-      "title": "🎓 Custom Training",
-      "description": "Fine-tune and train custom AI models on Tenstorrent hardware",
       "order": 7,
-      "icon": "graduation-cap"
-    },
-    {
-      "id": "llm-from-scratch",
-      "title": "🔬 Build an LLM from Scratch",
-      "description": "Build a small GPT from scratch, TT-native from line one — with TT-Lang for inception",
-      "order": 11,
-      "icon": "beaker"
+      "icon": "lightbulb"
     },
     {
       "id": "cookbook",
       "title": "👨‍🍳 Tenstorrent Cookbook",
       "description": "Learn by building! 5 hands-on projects: Game of Life, Audio Processing, Mandelbrot Fractals, Image Filters, and Particle Life",
-      "order": 9,
+      "order": 8,
       "icon": "beaker"
     },
     {
       "id": "cs-fundamentals",
       "title": "🧠 CS Fundamentals",
       "description": "Computer architecture, memory, parallelism, and systems programming on real hardware",
-      "order": 10,
+      "order": 9,
       "icon": "circuit-board"
+    },
+    {
+      "id": "llm-from-scratch",
+      "title": "🔬 Build an LLM from Scratch",
+      "description": "Build a small GPT from scratch, TT-native from line one — with TT-Lang for inception",
+      "order": 10,
+      "icon": "beaker"
+    },
+    {
+      "id": "custom-training",
+      "title": "🎓 Custom Training",
+      "description": "Fine-tune and train custom AI models on Tenstorrent hardware",
+      "order": 11,
+      "icon": "graduation-cap"
     }
   ],
   "lessons": [
@@ -78,7 +85,7 @@
       "id": "tt-installer",
       "title": "Modern Setup with TT-Installer 2.0",
       "description": "The fastest way to get started with Tenstorrent! Use TT-Installer 2.0 for one-command installation of the full stack including drivers, firmware, TT-Metalium containers, and Python environment.",
-      "category": "first-inference",
+      "category": "setup",
       "tags": [
         "installation",
         "setup"
@@ -109,7 +116,7 @@
       "id": "hardware-detection",
       "title": "Hardware Detection",
       "description": "Scan for connected Tenstorrent devices and verify they're properly recognized by the system.",
-      "category": "first-inference",
+      "category": "setup",
       "tags": [
         "hardware"
       ],
@@ -128,7 +135,7 @@
         "p300c"
       ],
       "estimatedMinutes": 5,
-      "order": 1,
+      "order": 2,
       "previousLesson": "tt-installer",
       "nextLesson": "download-model",
       "completionEvents": [
@@ -140,7 +147,7 @@
       "id": "verify-installation",
       "title": "Verify Your Setup",
       "description": "Check that your Tenstorrent hardware, TT-NN, and optional TT-Metalium source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
-      "category": "first-inference",
+      "category": "setup",
       "tags": [
         "installation"
       ],
@@ -171,7 +178,7 @@
       "id": "download-model",
       "title": "Download Model and Run Inference",
       "description": "Download Qwen3-0.6B (the recommended model — no license gate, works on all hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware. Optionally download Llama-3.1-8B-Instruct for n300+ hardware.",
-      "category": "first-inference",
+      "category": "serve",
       "tags": [
         "hardware",
         "inference",
@@ -192,7 +199,7 @@
         "p300c"
       ],
       "estimatedMinutes": 10,
-      "order": 2,
+      "order": 1,
       "previousLesson": "hardware-detection",
       "nextLesson": "verify-installation",
       "completionEvents": [
@@ -204,7 +211,7 @@
       "id": "interactive-chat",
       "title": "Interactive Chat with Direct API",
       "description": "Build a custom chat application using TT-Metalium's Generator API directly.",
-      "category": "first-inference",
+      "category": "serve",
       "tags": [
         "chat",
         "api"
@@ -223,7 +230,7 @@
         "n150"
       ],
       "estimatedMinutes": 10,
-      "order": 4,
+      "order": 2,
       "previousLesson": "download-model",
       "nextLesson": "api-server",
       "completionEvents": [
@@ -235,7 +242,7 @@
       "id": "api-server",
       "title": "HTTP API Server with Direct API",
       "description": "Create a production-ready Flask API with the model loaded in memory.",
-      "category": "first-inference",
+      "category": "serve",
       "tags": [
         "production",
         "api",
@@ -256,7 +263,7 @@
         "n150"
       ],
       "estimatedMinutes": 10,
-      "order": 5,
+      "order": 3,
       "previousLesson": "interactive-chat",
       "nextLesson": "tt-inference-server",
       "completionEvents": [
@@ -268,7 +275,7 @@
       "id": "tt-inference-server",
       "title": "Production Inference with TT-Inference-Server",
       "description": "Deploy Llama-3.1-8B on any Tenstorrent hardware in minutes — n150, n300, T3000, p100, p300c, or TT-QuietBox 2. TT-Inference-Server automates Docker image selection, model download, and server startup with a single command. OpenAI-compatible API ready immediately.",
-      "category": "serving",
+      "category": "deeper",
       "tags": [
         "production",
         "deployment",
@@ -291,7 +298,7 @@
         "p100"
       ],
       "estimatedMinutes": 20,
-      "order": 6,
+      "order": 1,
       "previousLesson": "api-server",
       "nextLesson": "vllm-production",
       "completionEvents": [
@@ -303,7 +310,7 @@
       "id": "vllm-production",
       "title": "Production Inference with vLLM",
       "description": "Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise features.",
-      "category": "serving",
+      "category": "deeper",
       "tags": [
         "vllm",
         "production",
@@ -323,7 +330,7 @@
         "p300c"
       ],
       "estimatedMinutes": 30,
-      "order": 7,
+      "order": 2,
       "previousLesson": "tt-inference-server",
       "nextLesson": "image-generation",
       "completionEvents": [
@@ -335,7 +342,7 @@
       "id": "image-generation",
       "title": "Image Generation with Stable Diffusion XL",
       "description": "Generate high-resolution 1024x1024 images using Stable Diffusion XL Base running natively on your Tenstorrent hardware!",
-      "category": "serving",
+      "category": "serve",
       "tags": [
         "hardware",
         "image",
@@ -355,7 +362,7 @@
         "n150"
       ],
       "estimatedMinutes": 20,
-      "order": 8,
+      "order": 4,
       "previousLesson": "vllm-production",
       "nextLesson": "video-generation-ttmetal",
       "completionEvents": [
@@ -371,7 +378,7 @@
       "id": "video-generation-ttmetal",
       "title": "Video Generation via Frame-by-Frame Diffusion",
       "description": "Create videos by generating frames with Stable Diffusion on Tenstorrent hardware. Demonstrates hardware scaling from n150 to T3000 - same code, faster performance!",
-      "category": "serving",
+      "category": "serve",
       "tags": [
         "hardware",
         "video",
@@ -390,7 +397,7 @@
       ],
       "status": "draft",
       "estimatedMinutes": 60,
-      "order": 9,
+      "order": 5,
       "previousLesson": "image-generation",
       "nextLesson": "coding-assistant",
       "completionEvents": [
@@ -402,7 +409,7 @@
       "id": "coding-assistant",
       "title": "Coding Assistant with Aider",
       "description": "Run a real AI coding assistant (Aider) against your local Tenstorrent vLLM server. One install, one command — then pair-program with your own on-device LLM. Also covers prompt engineering to customize behavior.",
-      "category": "applications",
+      "category": "connect",
       "tags": [
         "coding",
         "assistant",
@@ -421,7 +428,7 @@
       ],
       "status": "draft",
       "estimatedMinutes": 15,
-      "order": 10,
+      "order": 1,
       "previousLesson": "video-generation-ttmetal",
       "nextLesson": "ct1-understanding-training",
       "completionEvents": [
@@ -680,7 +687,7 @@
       "id": "cookbook-overview",
       "title": "Tenstorrent Cookbook Overview",
       "description": "Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metalium techniques: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, Image Filters, and Particle Life. Each recipe is a standalone lesson with full source code and visual output.",
-      "category": "cookbook",
+      "category": "build",
       "tags": [
         "ttnn",
         "projects",
@@ -701,7 +708,7 @@
         "p300c"
       ],
       "estimatedMinutes": 5,
-      "order": 1,
+      "order": 5,
       "previousLesson": "ct8-training-from-scratch",
       "nextLesson": "cookbook-game-of-life",
       "completionEvents": [
@@ -877,7 +884,7 @@
       "id": "forge-image-classification",
       "title": "Image Classification with TT-Forge",
       "description": "Compile a PyTorch MobileNetV2 model for Tenstorrent hardware using forge.compile() — no build required. The forge env is pre-installed: one command to activate, then classify images on real TT silicon.",
-      "category": "compilers",
+      "category": "build",
       "tags": [
         "hardware",
         "image",
@@ -899,7 +906,7 @@
         "p300c"
       ],
       "estimatedMinutes": 10,
-      "order": 11,
+      "order": 3,
       "previousLesson": "cookbook-particle-life",
       "nextLesson": "tt-xla-jax",
       "completionEvents": [
@@ -911,7 +918,7 @@
       "id": "tt-xla-jax",
       "title": "JAX and PyTorch/XLA on Tenstorrent",
       "description": "Run JAX and PyTorch/XLA computations directly on TT hardware — no install needed. venv-forge ships pjrt_plugin_tt, JAX 0.7.1, and torch-xla pre-installed. Activate, import, and start dispatching tensors to silicon.",
-      "category": "compilers",
+      "category": "build",
       "tags": [
         "production",
         "xla",
@@ -933,7 +940,7 @@
         "p300c"
       ],
       "estimatedMinutes": 10,
-      "order": 12,
+      "order": 4,
       "previousLesson": "forge-image-classification",
       "nextLesson": "cs-fundamentals-01-computer",
       "completionEvents": [
@@ -1172,7 +1179,7 @@
       "id": "build-tt-metal",
       "title": "Build TT-Metalium from Source",
       "description": "Clone and build TT-Metalium from source. Required for Direct API (Generator API) lessons and for running TT-Metalium examples directly. TT-QuietBox 2 and pre-configured images do not ship with ~/tt-metal — start here if Check 3 in Verify Your Setup failed.",
-      "category": "first-inference",
+      "category": "deeper",
       "tags": [
         "installation",
         "build",
@@ -1193,7 +1200,7 @@
         "p300c"
       ],
       "estimatedMinutes": 60,
-      "order": 13,
+      "order": 3,
       "completionEvents": [],
       "markdownFile": "content/lessons/build-tt-metal.md"
     },
@@ -1201,7 +1208,7 @@
       "id": "bounty-program",
       "title": "Bounty Program: Model Bring-Up",
       "description": "Learn how to contribute to the Tenstorrent Bounty Program by bringing up new models. Master TT-Metalium while becoming part of the open source ecosystem. Uses the successful Phi-3 contribution as a case study.",
-      "category": "advanced",
+      "category": "deeper",
       "tags": [
         "model"
       ],
@@ -1215,7 +1222,7 @@
       ],
       "status": "draft",
       "estimatedMinutes": 10,
-      "order": 14,
+      "order": 7,
       "previousLesson": "cs-fundamentals-07-complexity",
       "nextLesson": "explore-metalium",
       "completionEvents": [
@@ -1227,7 +1234,7 @@
       "id": "explore-metalium",
       "title": "Exploring TT-Metalium",
       "description": "Discover what's possible with TT-Metalium! Run TT-NN operations immediately, explore the model zoo, and understand the architecture that powers Tenstorrent hardware — from first script to custom kernels.",
-      "category": "advanced",
+      "category": "build",
       "tags": [
         "model",
         "ttnn",
@@ -1249,7 +1256,7 @@
         "p300c"
       ],
       "estimatedMinutes": 30,
-      "order": 15,
+      "order": 1,
       "previousLesson": "bounty-program",
       "nextLesson": "monkeypatch-ttnn",
       "completionEvents": [
@@ -1282,7 +1289,7 @@
         "p300c"
       ],
       "estimatedMinutes": 60,
-      "order": 17,
+      "order": 1,
       "previousLesson": "monkeypatch-ttnn",
       "completionEvents": [
         "onCommand:tenstorrent.apps.runAnimateDiff2Frame"
@@ -1293,7 +1300,7 @@
       "id": "qb2-openclaw-assistant",
       "title": "OpenClaw AI Assistant on TT-QuietBox 2",
       "description": "Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your TT-QuietBox 2 hardware",
-      "category": "applications",
+      "category": "connect",
       "tags": [
         "qb2",
         "p300x2",
@@ -1312,7 +1319,8 @@
         "p300x2"
       ],
       "estimatedMinutes": 45,
-      "markdownFile": "content/lessons/qb2-openclaw-assistant.md"
+      "markdownFile": "content/lessons/qb2-openclaw-assistant.md",
+      "order": 3
     },
     {
       "id": "qb2-video-generation",
@@ -1340,13 +1348,14 @@
       "nextLesson": "qb2-local-agents",
       "markdownFile": "content/lessons/qb2-video-generation.md",
       "validationDate": "2026-04-15",
-      "validationNotes": "Full pipeline validated on TT-QuietBox 2 (2× p300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs."
+      "validationNotes": "Full pipeline validated on TT-QuietBox 2 (2× p300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs.",
+      "order": 2
     },
     {
       "id": "qb2-local-agents",
       "title": "Local AI Agents on TT-QuietBox 2",
       "description": "Build real AI agents in pure Python — web research, codebase navigation, multi-agent pipelines, and stateful text adventures — all running locally on your TT-QuietBox 2's 32B/70B models",
-      "category": "applications",
+      "category": "connect",
       "tags": [
         "qb2",
         "p300x2",
@@ -1370,13 +1379,14 @@
       "previousLesson": "qb2-video-generation",
       "markdownFile": "content/lessons/qb2-local-agents.md",
       "validationDate": "2026-04-21",
-      "validationNotes": "All five demo scripts validated on TT-QuietBox 2 (p300x2) with Qwen3-32B (hermes parser) and Llama-3.3-70B-Instruct (llama3_json parser). Tool calling confirmed working. Research agent, code explorer, writing pipeline, and dungeon master all produce expected output."
+      "validationNotes": "All five demo scripts validated on TT-QuietBox 2 (p300x2) with Qwen3-32B (hermes parser) and Llama-3.3-70B-Instruct (llama3_json parser). Tool calling confirmed working. Research agent, code explorer, writing pipeline, and dungeon master all produce expected output.",
+      "order": 2
     },
     {
       "id": "tt-lang-intro",
       "title": "Introduction to TT-Lang",
       "description": "Write your first TT-Lang kernel: a concurrent compute + data-movement program that runs on the Tensix grid. Try it live in the browser via ttlang-sim-lite.",
-      "category": "compilers",
+      "category": "build",
       "tags": [
         "TT-Lang",
         "sim",
@@ -1395,7 +1405,7 @@
       ],
       "status": "draft",
       "estimatedMinutes": 25,
-      "order": 8,
+      "order": 2,
       "previousLesson": "cs-fundamentals-07-complexity",
       "nextLesson": null,
       "completionEvents": [],
@@ -1405,7 +1415,7 @@
       "id": "ttsim-twenty-and-ten",
       "title": "Twenty-and-Ten Things You Can Do with ttsim",
       "description": "32 things you can do with the ttsim hardware simulator — no Tenstorrent device required. Runs on any Linux machine, including WSL2 on Windows. Includes N300 and Blackhole two-chip mesh simulation (v1.10.1). Escalates from first kernel to DSP prototyping to a cliffhanger only real hardware can resolve.",
-      "category": "advanced",
+      "category": "deeper",
       "tags": [
         "ttsim",
         "simulator",
@@ -1425,7 +1435,7 @@
       ],
       "status": "draft",
       "estimatedMinutes": 60,
-      "order": 99,
+      "order": 5,
       "previousLesson": null,
       "nextLesson": null,
       "completionEvents": [],
@@ -1435,7 +1445,7 @@
       "id": "ttsim-qemu-bridge",
       "title": "ttsim QEMU Bridge: Full-System Simulation",
       "description": "Architecture guide for the ttsim QEMU Bridge — a QEMU fork that presents a virtual Tenstorrent Wormhole PCI device to a Linux VM. Currently draft: two ttsim register stubs are missing before end-to-end ttnn.open_device() works via this path.",
-      "category": "advanced",
+      "category": "deeper",
       "tags": [
         "ttsim",
         "simulator",
@@ -1448,7 +1458,7 @@
       ],
       "status": "draft",
       "estimatedMinutes": 20,
-      "order": 100,
+      "order": 6,
       "previousLesson": "ttsim-twenty-and-ten",
       "nextLesson": null,
       "markdownFile": "content/lessons/ttsim-qemu-bridge.md"
@@ -1669,7 +1679,7 @@
       "id": "monkeypatch-ttnn",
       "title": "Monkeypatching TT-NN",
       "description": "Change TT-NN / TT-Metalium behavior with the smallest possible trace and without forking tt-metal — add logging, work around a bug, tweak a default, or register a model, all while staying upgrade-safe. Built for TT-QuietBox 2, where ttnn is an installed package with no source tree — reached via the tt-metalium container, not a host-level install.",
-      "category": "advanced",
+      "category": "deeper",
       "tags": [
         "ttnn",
         "metalium",
@@ -1690,7 +1700,7 @@
         "p300c"
       ],
       "estimatedMinutes": 25,
-      "order": 16,
+      "order": 4,
       "previousLesson": "explore-metalium",
       "nextLesson": "animatediff-video-generation",
       "completionEvents": [],

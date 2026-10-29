@@ -5,7 +5,7 @@ description: >-
   Architecture guide for the ttsim QEMU Bridge — a QEMU fork that presents a virtual
   Tenstorrent Wormhole PCI device to a Linux VM. Currently draft: two ttsim register
   stubs are missing before end-to-end ttnn.open_device() works via this path.
-category: advanced
+category: deeper
 tags:
   - ttsim
   - simulator

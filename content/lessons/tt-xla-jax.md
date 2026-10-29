@@ -5,7 +5,7 @@ description: >-
   Run JAX and PyTorch/XLA computations directly on TT hardware — no install
   needed. venv-forge ships pjrt_plugin_tt, JAX 0.7.1, and torch-xla
   pre-installed. Activate, import, and start dispatching tensors to silicon.
-category: compilers
+category: build
 tags:
   - production
   - xla

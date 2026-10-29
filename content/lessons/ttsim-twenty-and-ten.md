@@ -7,7 +7,7 @@ description: >-
   Includes N300 and Blackhole two-chip mesh simulation (v1.10.1). Escalates
   from first kernel to DSP prototyping to a cliffhanger only real hardware
   can resolve.
-category: advanced
+category: deeper
 tags:
   - ttsim
   - simulator

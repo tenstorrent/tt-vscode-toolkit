@@ -4,7 +4,7 @@ title: "Introduction to TT-Lang"
 description: >-
   Write your first TT-Lang kernel: a concurrent compute + data-movement program
   that runs on the Tensix grid. Try it live in the browser via ttlang-sim-lite.
-category: compilers
+category: build
 tags:
   - TT-Lang
   - sim

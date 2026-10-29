@@ -620,12 +620,13 @@ function renderLesson(markdownPath) {
  * ------------------------------------------------------------------ */
 
 const CATEGORY_LABELS = {
-  'first-inference': 'Your First Inference',
-  'serving':         'Serving & APIs',
-  'compilers':       'Compilers & Frameworks',
+  'setup':           'Set Up',
+  'serve':           'Serve Models',
+  'connect':         'Connect Software',
+  'build':           'Build on the Stack',
+  'deeper':          'Go Deeper',
   'cookbook':        'Cookbook',
   'applications':    'Applications',
-  'advanced':        'Advanced',
   'cs-fundamentals': 'CS Fundamentals',
   'custom-training': 'Custom Training',
 };

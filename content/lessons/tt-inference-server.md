@@ -6,7 +6,7 @@ description: >-
   p100, p300c, or TT-QuietBox 2. TT-Inference-Server automates Docker image selection,
   model download, and server startup with a single command. OpenAI-compatible
   API ready immediately.
-category: serving
+category: deeper
 tags:
   - production
   - deployment

@@ -5,7 +5,7 @@ description: >-
   Discover what's possible with TT-Metalium! Run TT-NN operations immediately,
   explore the model zoo, and understand the architecture that powers
   Tenstorrent hardware — from first script to custom kernels.
-category: advanced
+category: build
 tags:
   - model
   - ttnn

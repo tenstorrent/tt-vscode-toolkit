@@ -5,7 +5,7 @@ description: >-
   Learn how to contribute to the Tenstorrent Bounty Program by bringing up new
   models. Master TT-Metalium while becoming part of the open source ecosystem. Uses
   the successful Phi-3 contribution as a case study.
-category: advanced
+category: deeper
 tags:
   - model
 supportedHardware:

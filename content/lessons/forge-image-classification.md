@@ -5,7 +5,7 @@ description: >-
   Compile a PyTorch MobileNetV2 model for Tenstorrent hardware using
   forge.compile() — no build required. The forge env is pre-installed: one
   command to activate, then classify images on real TT silicon.
-category: compilers
+category: build
 tags:
   - hardware
   - image

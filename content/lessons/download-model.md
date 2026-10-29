@@ -5,7 +5,7 @@ description: >-
   Download Qwen3-0.6B (the recommended model — no license gate, works on all
   hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware.
   Optionally download Llama-3.1-8B-Instruct for n300+ hardware.
-category: first-inference
+category: serve
 tags:
   - hardware
   - inference

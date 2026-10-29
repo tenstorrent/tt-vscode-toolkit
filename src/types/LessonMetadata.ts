@@ -31,9 +31,16 @@ export type LessonStatus =
  */
 export type LessonCategory =
   | 'welcome'           // Welcome page, FAQ, getting started resources
-  | 'first-inference'   // Setup, first model, basic inference
-  | 'serving'           // Production deployment, serving infrastructure
-  | 'ecosystem';        // Advanced topics, tools, community
+  | 'setup'             // Golden path 1: arrive, install tt, check the device, update
+  | 'serve'             // Golden path 2: find, pull and serve models with tt
+  | 'connect'           // Golden path 3: tt launch, web UIs, agents, TT-Studio
+  | 'build'             // Golden path 4: Metalium, TTNN, tt-lang, Forge, XLA
+  | 'deeper'            // By-hand serving, building tt-metal, monkeypatching, ttsim, bounties
+  | 'applications'      // Video generation and other end-to-end apps
+  | 'cookbook'          // Project series
+  | 'cs-fundamentals'
+  | 'llm-from-scratch'
+  | 'custom-training';
 
 /**
  * Prerequisite lesson requirement

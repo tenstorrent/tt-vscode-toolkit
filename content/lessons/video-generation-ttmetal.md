@@ -4,7 +4,7 @@ title: Video Generation via Frame-by-Frame Diffusion
 description: >-
   Create videos by generating frames with Stable Diffusion on Tenstorrent hardware.
   Demonstrates hardware scaling from n150 to T3000 - same code, faster performance!
-category: serving
+category: serve
 tags:
   - hardware
   - video

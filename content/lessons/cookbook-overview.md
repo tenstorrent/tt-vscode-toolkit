@@ -3,7 +3,7 @@ id: cookbook-overview
 title: Tenstorrent Cookbook Overview
 description: >-
   Welcome to the Tenstorrent Cookbook! Build 5 complete projects that teach fundamental TT-Metalium techniques: Conway's Game of Life, Audio Signal Processing, Mandelbrot Fractals, Image Filters, and Particle Life. Each recipe is a standalone lesson with full source code and visual output.
-category: cookbook
+category: build
 tags:
   - ttnn
   - projects
