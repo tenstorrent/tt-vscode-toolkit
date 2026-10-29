@@ -18,6 +18,7 @@
 import * as vscode from 'vscode';
 import { TERMINAL_COMMANDS, replaceVariables } from './commands/terminalCommands';
 import { registerVizCommands } from './commands/vizCommands';
+import { guardCloud } from './utils/environment';
 
 // Configuration imports
 import { getModelConfig, getModelBasePath, getModelOriginalPath, DEFAULT_MODEL_KEY } from './config';
@@ -328,12 +329,22 @@ async function promptRecommendedExtensions(): Promise<void> {
 // ============================================================================
 
 /**
+ * True when a guarded command may run in this environment. On the Tenstorrent Cloud
+ * pod it tells the reader why not (one information message) and the caller runs
+ * nothing. See src/utils/environment.ts for what marks the pod.
+ */
+function canRunHere(action: string): boolean {
+  return guardCloud(action, process.env, (m) => vscode.window.showInformationMessage(m));
+}
+
+/**
  * Command: tenstorrent.setup.quickInstall
  *
  * Runs the one-command tt-installer quickstart.
  * Downloads and executes the latest installer with interactive prompts.
  */
 function runQuickInstall(): void {
+  if (!canRunHere('tt-installer')) return;
   const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.QUICK_INSTALL.template;
 
@@ -1283,6 +1294,7 @@ function verifyInferenceServerPrereqs(): void {
  * Starts vLLM server via tt-inference-server with hardware auto-detection
  */
 function startTtInferenceServer(): void {
+  if (!canRunHere('tt-inference-server (Docker)')) return;
   const terminal = getOrCreateSimpleTerminal();
   const command = TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER.template;
 
@@ -1298,6 +1310,7 @@ function startTtInferenceServer(): void {
  * Starts vLLM server pinned to N150 (Wormhole)
  */
 function startTtInferenceServerN150(): void {
+  if (!canRunHere('tt-inference-server (Docker)')) return;
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER_N150.template);
   vscode.window.showInformationMessage(
@@ -1310,6 +1323,7 @@ function startTtInferenceServerN150(): void {
  * Starts vLLM server pinned to N300 (Wormhole dual-chip)
  */
 function startTtInferenceServerN300(): void {
+  if (!canRunHere('tt-inference-server (Docker)')) return;
   const terminal = getOrCreateSimpleTerminal();
   runInTerminal(terminal, TERMINAL_COMMANDS.START_TT_INFERENCE_SERVER_N300.template);
   vscode.window.showInformationMessage(
