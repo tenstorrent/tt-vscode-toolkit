@@ -82,9 +82,41 @@
   ],
   "lessons": [
     {
+      "id": "arrive",
+      "title": "Where Am I?",
+      "description": "Find out which Tenstorrent environment you landed in and which setup steps apply to it: the cloud pod, a TT-QuietBox 2, or a machine of your own.",
+      "category": "setup",
+      "tags": [
+        "setup",
+        "cloud"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy",
+        "simulator"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300c"
+      ],
+      "estimatedMinutes": 3,
+      "order": 1,
+      "nextLesson": "tt-installer",
+      "completionEvents": [
+        "onCommand:tenstorrent.setup.whereAmI"
+      ],
+      "markdownFile": "content/lessons/arrive.md"
+    },
+    {
       "id": "tt-installer",
-      "title": "Modern Setup with TT-Installer 2.0",
-      "description": "The fastest way to get started with Tenstorrent! Use TT-Installer 2.0 for one-command installation of the full stack including drivers, firmware, TT-Metalium containers, and Python environment.",
+      "title": "Install and Upgrade with tt",
+      "description": "Install the tt command line with uv, see what your machine has, preview and apply the tested golden set of driver, firmware and tools, and keep tt itself current.",
       "category": "setup",
       "tags": [
         "installation",
@@ -105,17 +137,18 @@
         "p300c"
       ],
       "estimatedMinutes": 15,
-      "order": 1,
+      "order": 2,
       "nextLesson": "hardware-detection",
       "completionEvents": [
-        "onCommand:tenstorrent.setup.quickInstall"
+        "onCommand:tenstorrent.setup.updateDryRun"
       ],
-      "markdownFile": "content/lessons/tt-installer.md"
+      "markdownFile": "content/lessons/tt-installer.md",
+      "previousLesson": "arrive"
     },
     {
       "id": "hardware-detection",
       "title": "Hardware Detection",
-      "description": "Scan for connected Tenstorrent devices and verify they're properly recognized by the system.",
+      "description": "Confirm the hardware is alive and the software can see it: tt device status first, then tt-smi for the raw fields and the diagnosis steps.",
       "category": "setup",
       "tags": [
         "hardware"
@@ -135,18 +168,18 @@
         "p300c"
       ],
       "estimatedMinutes": 5,
-      "order": 2,
+      "order": 3,
       "previousLesson": "tt-installer",
-      "nextLesson": "download-model",
+      "nextLesson": "verify-installation",
       "completionEvents": [
-        "onCommand:tenstorrent.setup.hardwareDetection"
+        "onCommand:tenstorrent.setup.deviceStatus"
       ],
       "markdownFile": "content/lessons/hardware-detection.md"
     },
     {
       "id": "verify-installation",
       "title": "Verify Your Setup",
-      "description": "Check that your Tenstorrent hardware, TT-NN, and optional TT-Metalium source are ready before running your first model. A diagnostic checkpoint — returns you here after any setup work.",
+      "description": "Four quick checks before your first model: the stack is current, the hardware is visible, TT-NN imports where it should, and tt-metal source is present if you need it. A diagnostic checkpoint you can come back to.",
       "category": "setup",
       "tags": [
         "installation"
@@ -166,11 +199,11 @@
         "p300c"
       ],
       "estimatedMinutes": 5,
-      "order": 3,
-      "previousLesson": "download-model",
-      "nextLesson": "interactive-chat",
+      "order": 4,
+      "previousLesson": "hardware-detection",
+      "nextLesson": "download-model",
       "completionEvents": [
-        "onCommand:tenstorrent.setup.hardwareDetection"
+        "onCommand:tenstorrent.setup.updateDryRun"
       ],
       "markdownFile": "content/lessons/verify-installation.md"
     },
@@ -200,7 +233,7 @@
       ],
       "estimatedMinutes": 10,
       "order": 1,
-      "previousLesson": "hardware-detection",
+      "previousLesson": "verify-installation",
       "nextLesson": "verify-installation",
       "completionEvents": [
         "onCommand:tenstorrent.model.download"
@@ -1229,6 +1262,34 @@
         "onCommand:tenstorrent.bounty.browseOpen"
       ],
       "markdownFile": "content/lessons/bounty-program-model-bringup.md"
+    },
+    {
+      "id": "tt-installer-by-hand",
+      "title": "tt-installer by Hand",
+      "description": "The installer tt update runs for you, on its own terms: flags, container mode, the Tenstorrent package repository and signing key, and the tt-metalium containers. For specific versions, container-only installs and repairs.",
+      "category": "deeper",
+      "tags": [
+        "installation",
+        "setup"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "n150",
+        "p300c"
+      ],
+      "estimatedMinutes": 20,
+      "order": 8,
+      "previousLesson": "tt-installer",
+      "markdownFile": "content/lessons/tt-installer-by-hand.md"
     },
     {
       "id": "explore-metalium",

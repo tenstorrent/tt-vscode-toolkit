@@ -338,89 +338,79 @@ function canRunHere(action: string): boolean {
 }
 
 /**
- * Command: tenstorrent.setup.quickInstall
- *
- * Runs the one-command tt-installer quickstart.
- * Downloads and executes the latest installer with interactive prompts.
+ * Command: tenstorrent.setup.whereAmI
+ * Reports uv, tt, chip count, tt-metal source and Docker (the Where Am I? lesson).
  */
-function runQuickInstall(): void {
-  if (!canRunHere('tt-installer')) return;
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.QUICK_INSTALL.template;
+function setupWhereAmI(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_WHERE_AM_I.template);
+}
 
-  vscode.window.showWarningMessage(
-    '⚠️ This will download and run the tt-installer script. Review the script at https://github.com/tenstorrent/tt-installer before continuing.'
-  );
-
-  runInTerminal(terminal, command);
-
+/**
+ * Command: tenstorrent.setup.installTt
+ * Installs the tt CLI with uv. Works everywhere, including the cloud pod.
+ */
+function setupInstallTt(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_INSTALL_TT.template);
   vscode.window.showInformationMessage(
-    '🚀 Running tt-installer. Follow the prompts in the terminal. Installation may take 5-15 minutes.'
+    'Installing tt. If "tt: command not found" follows, run `uv tool update-shell` and open a new terminal.'
   );
 }
 
 /**
- * Command: tenstorrent.setup.downloadInstaller
- *
- * Downloads the tt-installer script for inspection.
+ * Command: tenstorrent.setup.deviceStatus
  */
-function downloadInstaller(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.DOWNLOAD_INSTALLER.template;
+function setupDeviceStatus(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_DEVICE_STATUS.template);
+}
 
-  runInTerminal(terminal, command);
+/**
+ * Command: tenstorrent.setup.deviceInfo
+ */
+function setupDeviceInfo(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_DEVICE_INFO.template);
+}
 
+/**
+ * Command: tenstorrent.setup.updateDryRun
+ * Safe everywhere: changes nothing.
+ */
+function setupUpdateDryRun(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_UPDATE_DRY_RUN.template);
+}
+
+/**
+ * Command: tenstorrent.setup.update
+ * Guarded: the cloud pod must not change drivers or firmware.
+ */
+function setupUpdate(): void {
+  if (!canRunHere('tt update')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_UPDATE.template);
   vscode.window.showInformationMessage(
-    '📥 Downloaded install.sh to your home directory. Review it with: less ~/install.sh'
+    'Running tt update. It asks for sudo and before flashing firmware; stop any served model first.'
   );
 }
 
 /**
- * Command: tenstorrent.setup.interactiveInstall
- *
- * Runs tt-installer with interactive prompts for customization.
+ * Command: tenstorrent.setup.selfUpdate
  */
-function runInteractiveInstall(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.RUN_INTERACTIVE_INSTALL.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '⚙️ Running interactive installation. Follow the prompts in the terminal.'
-  );
+function setupSelfUpdate(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_SELF_UPDATE.template);
 }
 
 /**
- * Command: tenstorrent.setup.nonInteractiveInstall
- *
- * Runs tt-installer in non-interactive mode with recommended defaults.
+ * Command: tenstorrent.setup.verifyTtnnCloud
+ * import ttnn in the active Python env (cloud pod: ~/tt-metal/python_env).
  */
-function runNonInteractiveInstall(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.RUN_NON_INTERACTIVE_INSTALL.template;
-
-  vscode.window.showInformationMessage(
-    '🤖 Running non-interactive installation with recommended defaults. Check the terminal for progress.'
-  );
-
-  runInTerminal(terminal, command);
+function setupVerifyTtnnCloud(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_VERIFY_TTNN_CLOUD.template);
 }
 
 /**
- * Command: tenstorrent.setup.testMetaliumContainer
- *
- * Tests that the tt-metalium container is installed and working.
+ * Command: tenstorrent.setup.verifyTtnnQb2
+ * import ttnn inside the tt-metalium container (TT-QuietBox 2).
  */
-function testMetaliumContainer(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.TEST_METALIUM_CONTAINER.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🧪 Testing tt-metalium container. Check the terminal for TTNN version output.'
-  );
+function setupVerifyTtnnQb2(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_VERIFY_TTNN_QB2.template);
 }
 
 // ============================================================================
@@ -5364,11 +5354,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Walkthrough step commands
 
     // Lesson 0 - Modern Setup with tt-installer 2.0
-    vscode.commands.registerCommand('tenstorrent.setup.quickInstall', runQuickInstall),
-    vscode.commands.registerCommand('tenstorrent.setup.downloadInstaller', downloadInstaller),
-    vscode.commands.registerCommand('tenstorrent.setup.interactiveInstall', runInteractiveInstall),
-    vscode.commands.registerCommand('tenstorrent.setup.nonInteractiveInstall', runNonInteractiveInstall),
-    vscode.commands.registerCommand('tenstorrent.setup.testMetaliumContainer', testMetaliumContainer),
+    vscode.commands.registerCommand('tenstorrent.setup.whereAmI', setupWhereAmI),
+    vscode.commands.registerCommand('tenstorrent.setup.installTt', setupInstallTt),
+    vscode.commands.registerCommand('tenstorrent.setup.deviceStatus', setupDeviceStatus),
+    vscode.commands.registerCommand('tenstorrent.setup.deviceInfo', setupDeviceInfo),
+    vscode.commands.registerCommand('tenstorrent.setup.updateDryRun', setupUpdateDryRun),
+    vscode.commands.registerCommand('tenstorrent.setup.update', setupUpdate),
+    vscode.commands.registerCommand('tenstorrent.setup.selfUpdate', setupSelfUpdate),
+    vscode.commands.registerCommand('tenstorrent.setup.verifyTtnnCloud', setupVerifyTtnnCloud),
+    vscode.commands.registerCommand('tenstorrent.setup.verifyTtnnQb2', setupVerifyTtnnQb2),
 
     // Lesson 1 - Hardware Detection
     vscode.commands.registerCommand('tenstorrent.setup.hardwareDetection', runHardwareDetection),

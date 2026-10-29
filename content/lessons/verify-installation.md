@@ -2,9 +2,9 @@
 id: verify-installation
 title: Verify Your Setup
 description: >-
-  Check that your Tenstorrent hardware, TT-NN, and optional TT-Metalium source are
-  ready before running your first model. A diagnostic checkpoint — returns you
-  here after any setup work.
+  Four quick checks before your first model: the stack is current, the hardware
+  is visible, TT-NN imports where it should, and tt-metal source is present if
+  you need it. A diagnostic checkpoint you can come back to.
 category: setup
 tags:
   - installation
@@ -29,31 +29,35 @@ validationNotes: Rewritten as diagnostic hub for TT-QuietBox 2/WH/BH parity
 
 # Verify Your Setup
 
-This is your diagnostic checkpoint. Run three quick checks to confirm hardware, TT-NN<sup>™</sup>,
-and (optionally) tt-metal source are ready. If anything fails, follow the link for that
-check — then come back here to confirm you're green before moving on.
+This is your diagnostic checkpoint. Four quick checks confirm the stack is current, the
+hardware is visible, TT-NN<sup>™</sup> imports where it should, and (optionally) tt-metal
+source is present. If anything fails, follow the link for that check, then come back here
+to confirm you're green before moving on.
 
-> **TT-QuietBox<sup>®</sup> 2 / Pre-configured image users:** TT-QuietBox 2 ships with a pre-installed environment but
-> does **not** include `~/tt-metal`. Check 1 passes on the host out of the box. Check 2 does
-> **not** — `~/.tenstorrent-venv` holds only the hardware tooling (`tt-smi`, `tt-flash`,
-> `tt-topology`), not TT-NN<sup>™</sup> or vLLM, so a bare host `import ttnn` fails with
-> `ModuleNotFoundError`. Run Check 2 inside the `tt-metalium` container instead (see the QB2 note
-> under Check 2 below). Check 3 will fail unless you clone and build TT-Metalium<sup>™</sup>
-> yourself — that's expected and fine for most lessons.
+> **Which Check 2 is yours:** on the **cloud pod**, TT-NN lives in `~/tt-metal/python_env`,
+> which is active in every shell, so the plain Python check passes. On a **TT-QuietBox 2**,
+> TT-NN lives in the `tt-metalium` container, so use the container check. Check 4 fails on
+> a QuietBox unless you built TT-Metalium<sup>™</sup> yourself; that is expected and fine
+> for every lesson that uses `tt serve`.
 
 ---
 
-## Which path are you on?
+## Check 0: Is the stack current?
 
-Before running checks, pick the path that matches your goal:
+```bash
+tt update --dry-run
+```
 
-| Goal | What you need | Next lesson after green |
-|------|--------------|------------------------|
-| Interactive chat with Llama (Generator API) | Hardware + TT-NN + tt-metal source | [Interactive Chat](command:tenstorrent.lesson.show?["interactive-chat"]) |
-| Production vLLM serving (Qwen3-0.6B, no source needed) | Hardware + TT-NN | [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]) |
-| Image generation, TT-Forge<sup>™</sup>, TT-XLA | Hardware + TT-NN (source optional) | See individual lesson |
+[👀 Preview upgrade](command:tenstorrent.setup.updateDryRun)
 
-Not sure? Start with the vLLM path — it works on all hardware without needing to build from source.
+**Interpreting results:**
+
+- Every row `up-to-date` → **✅ Current**, continue to Check 1
+- A tools row says `install` or `update` → run `tt update` from
+  [Install and Upgrade with tt](command:tenstorrent.lesson.show?["tt-installer"]). On the
+  cloud pod a tools row saying `install` is normal: `tt` fetches the tool the first time a
+  command needs it, and the pod's driver and firmware are managed for you.
+- `tt: command not found` → install it in the same lesson
 
 ---
 
@@ -62,41 +66,44 @@ Not sure? Start with the vLLM path — it works on all hardware without needing 
 Run this in your terminal:
 
 ```bash
-tt-smi -s
+tt device status
 ```
 
-[▶ Run Hardware Check](command:tenstorrent.setup.hardwareDetection)
+[🔍 Device status](command:tenstorrent.setup.deviceStatus)
 
 **Interpreting results:**
 
-- JSON output shows your device(s) → **✅ Hardware OK**, continue to Check 2
-- `command not found` → drivers or tt-smi not installed →
-  go to [TT-Installer](command:tenstorrent.lesson.show?["tt-installer"]) and return here when done
-- Device shown but with error flags → firmware or driver issue; consult
-  [TT-Installer](command:tenstorrent.lesson.show?["tt-installer"]) troubleshooting
+- One row per chip, `DRAM True` → **✅ Hardware OK**, continue to Check 2
+- Fewer rows than chips, or an error → go to
+  [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]) for the
+  diagnosis steps (`tt-smi -s` has the raw fields)
 
 ---
 
 ## Check 2: TT-NN
 
+**Cloud pod, or any machine with a built tt-metal and its venv active:**
+
 ```bash
-python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source build)'))"
+python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source build)'), ttnn.__file__)"
 ```
 
-> **On a TT-QuietBox 2:** the command above will fail on the bare host —
-> `~/.tenstorrent-venv` doesn't contain TT-NN. Run it inside the `tt-metalium`
-> container instead:
-> ```bash
-> tt-metalium -c "python3 -c \"import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source build)'))\""
-> ```
+[🐍 Check TT-NN (Python env)](command:tenstorrent.setup.verifyTtnnCloud)
+
+**TT-QuietBox 2 (TT-NN lives in the `tt-metalium` container):**
+
+```bash
+tt-metalium -c "python3 -c \"import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source build)'))\""
+```
+
+[📦 Check TT-NN (container)](command:tenstorrent.setup.verifyTtnnQb2)
 
 **Interpreting results:**
 
-- Prints `✓ TT-NN <version>` → **✅ TT-NN ready**, continue to Check 3
+- Prints `✓ TTNN <version>` → **✅ TT-NN ready**, continue to Check 3
 - `ModuleNotFoundError: No module named 'ttnn'` → TT-NN is not importable in your current
   Python environment. You need one of:
-  - **TT-QuietBox 2 / TT-Installer users:** run the check inside the `tt-metalium` container
-    (see above) — `~/.tenstorrent-venv` is hardware tooling only, not a TT-NN environment
+  - **TT-QuietBox 2:** use the container button above; the host has no TT-NN by design
   - **Build-from-source users:** activate your tt-metal venv and set `TT_METAL_HOME`:
     ```bash
     source ~/tt-metal/python_env_3.12/bin/activate   # or python_env for Python 3.10

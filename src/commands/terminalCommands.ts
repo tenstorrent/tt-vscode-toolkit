@@ -91,42 +91,73 @@ const JAX_DEVICE_CHECK_PY =
  */
 export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // ========================================
-  // Lesson 0: Modern Setup with tt-installer 2.0
+  // Set Up: Where Am I? / Install and Upgrade with tt
   // ========================================
+  // Templates are the bare command the reader types. Environment guards live in the
+  // handler (src/utils/environment.ts), never here, so the docs site prints the
+  // command as written.
 
-  QUICK_INSTALL: {
-    id: 'quick-install',
-    name: 'Quick Install with tt-installer',
-    template: '/bin/bash -c "$(curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh)"',
-    description: 'One-command installation of the full Tenstorrent stack (interactive prompts)',
+  SETUP_WHERE_AM_I: {
+    id: 'setup-where-am-i',
+    name: 'Where am I?',
+    template: 'echo "uv:       $(uv --version 2>/dev/null || echo none)"; echo "tt:       $(which -a tt 2>/dev/null | tr \'\\n\' \' \')"; echo "chips:    $(tt-smi -s 2>/dev/null | python3 -c \'import sys,json; print(len(json.load(sys.stdin)["device_info"]))\' 2>/dev/null || echo 0)"; echo "tt-metal: $([ -d ~/tt-metal ] && echo ~/tt-metal || echo none)"; echo "docker:   $(docker --version 2>/dev/null || echo none)"',
+    description: 'Reports uv, tt, chip count, tt-metal source and Docker so the reader knows which lessons apply',
   },
 
-  DOWNLOAD_INSTALLER: {
-    id: 'download-installer',
-    name: 'Download tt-installer Script',
-    template: 'cd ~ && curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh -O && chmod +x install.sh',
-    description: 'Downloads the tt-installer script for inspection and customization',
+  SETUP_INSTALL_TT: {
+    id: 'setup-install-tt',
+    name: 'Install tt',
+    template: 'uv tool install tenstorrent',
+    description: 'Installs the tt CLI (PyPI package "tenstorrent") as a uv tool',
   },
 
-  RUN_INTERACTIVE_INSTALL: {
-    id: 'run-interactive-install',
-    name: 'Run Interactive Installation',
-    template: 'cd ~ && ./install.sh',
-    description: 'Runs tt-installer with interactive prompts for customization',
+  SETUP_DEVICE_STATUS: {
+    id: 'setup-device-status',
+    name: 'Device status',
+    template: 'tt --version && tt device status',
+    description: 'One row per chip: board, bus id, temperature, power, clock, DRAM state',
   },
 
-  RUN_NON_INTERACTIVE_INSTALL: {
-    id: 'run-non-interactive-install',
-    name: 'Run Non-Interactive Installation',
-    template: 'cd ~ && ./install.sh --mode-non-interactive --python-choice=new-venv --install-metalium-models-container=off --reboot-option=never',
-    description: 'Runs tt-installer in automated mode with recommended defaults',
+  SETUP_DEVICE_INFO: {
+    id: 'setup-device-info',
+    name: 'Device info',
+    template: 'tt device info',
+    description: 'Board ids, PCIe speed and width, firmware versions, one column per chip',
   },
 
-  TEST_METALIUM_CONTAINER: {
-    id: 'test-metalium-container',
-    name: 'Test tt-metalium Container',
+  SETUP_UPDATE_DRY_RUN: {
+    id: 'setup-update-dry-run',
+    name: 'Preview upgrade',
+    template: 'tt update --dry-run',
+    description: 'Shows the golden-set update plan without changing anything (safe on the cloud pod)',
+  },
+
+  SETUP_UPDATE: {
+    id: 'setup-update',
+    name: 'Upgrade to the golden set',
+    template: 'tt update',
+    description: 'Installs or upgrades tools, driver, firmware and HugePages to the tested golden set (guarded on the cloud pod)',
+  },
+
+  SETUP_SELF_UPDATE: {
+    id: 'setup-self-update',
+    name: 'Upgrade tt',
+    template: 'tt self update --check && tt self update',
+    description: 'Upgrades the tt command itself to the newest release',
+  },
+
+  SETUP_VERIFY_TTNN_CLOUD: {
+    id: 'setup-verify-ttnn-cloud',
+    name: 'Check TT-NN (Python env)',
+    template: 'python3 -c "import ttnn; print(\'✓ TTNN\', getattr(ttnn, \'__version__\', \'(source build)\'), ttnn.__file__)"',
+    description: 'Imports ttnn in the active Python environment (cloud pod: ~/tt-metal/python_env)',
+  },
+
+  SETUP_VERIFY_TTNN_QB2: {
+    id: 'setup-verify-ttnn-qb2',
+    name: 'Check TT-NN (container)',
     template: 'tt-metalium -c "python3 -c \'import ttnn; print(getattr(ttnn, \\"__version__\\", \\"import OK\\"))\'"',
-    description: 'Verifies tt-metalium container is installed and TTNN is accessible',
+    description: 'Imports ttnn inside the tt-metalium container (TT-QuietBox 2)',
   },
 
   // ========================================
