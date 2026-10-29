@@ -13,6 +13,49 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
+## tt CLI leads the way (2026-10-29, in progress)
+
+**Prompt:** apply the tt-first rework done on tt-quietbox2-guide (PR #27) and
+tenstorrent.github.io to the whole toolkit corpus, one sidebar group at a time, with
+Taylor reviewing each. Spec: `docs/superpowers/specs/2026-10-29-tt-cli-leads-the-way-design.md`,
+plan: `docs/superpowers/plans/2026-10-29-tt-cli-leads-the-way.md`, ledger under
+`.superpowers/sdd/2026-10-29-tt-cli-leads-the-way/`.
+
+**Decisions:** four golden paths as sidebar groups (Set Up, Serve Models, Connect
+Software, Build on the Stack), then Go Deeper, Applications and the series. Every
+command id is `tenstorrent.<feature>.<action>`, hard cut, map in
+`scripts/command-rename-map.json`. Templates stay the bare command; the cloud-pod guard
+lives in the handler (`src/utils/environment.ts`, keyed on the tt-code-server image's
+`TT_VLLM_VENV` + `TT_INSTALLER_VENV`). `tt` is verified against the `v1.2.1` tag on the
+QuietBox (`~/code/tt-cli`, editable install, pinned); `tt agent` is unreleased and gets
+one sentence.
+
+**Test rig for the cloud pod:** `tt-code-server:local`, built on the QuietBox from
+`~/code/tt-code-server/tt-code-server` (the pull from ghcr was denied; the build takes
+about an hour, 55 GB). Run it with one leased chip:
+`docker run -d --name tt-cloud-rig --entrypoint sleep --device /dev/tenstorrent/N -v /dev/hugepages-1G:/dev/hugepages-1G tt-code-server:local infinity`,
+then `docker exec -u user -w /home/user tt-cloud-rig bash -lc '...'`. One difference
+from the real pod: the rig's chip is a p300c, so `tt model list` detects p300 there and
+n150 on the pod.
+
+**Set Up group (Task 5), what was run where:**
+- QuietBox host (`tt` 1.2.1, lease 4b159e, chips 2-3): Where-am-I block, `tt --version &&
+  tt device status`, `tt device info`, `tt update --dry-run`, `tt self update --check`,
+  `tt-metalium -c "python3 -c 'import ttnn...'"`. All as the lessons show. **Not run:**
+  `tt update` (interactive sudo, reflashes a shared box) and `tt self update` (would
+  overwrite the pinned editable install).
+- Cloud rig: `uv tool install tenstorrent` on the pod's default Python 3.10 resolved
+  **tt 1.0.1**; `--python 3.12` gives 1.2.1, and the lesson and template say so.
+  `tt device status` then failed with TOOL_MISSING because `tt` wants its own pinned
+  tt-smi, which only `tt update` installs; `tt config set tools.override.tt-smi
+  ~/.tt-installer-venv/bin/tt-smi` (and tt-flash) resolves it (`registry.py` checks env
+  `TT_TOOL_BIN_<NAME>`, then `tools.override.<name>`, then the pinned copy, then
+  `~/.tenstorrent-venv/bin`). After that: `tt device status` (one chip), `tt device
+  info`, `tt model list`, `tt update --dry-run` (tt-smi/tt-flash rows read `external`),
+  `import ttnn` in `python_env`, all pass. The guard markers are present in the image's
+  env. The extension itself was not opened inside the rig's code-server; the guard is
+  proven by its unit test plus the markers.
+
 ## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
 All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy) and
