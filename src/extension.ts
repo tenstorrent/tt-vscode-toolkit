@@ -357,6 +357,14 @@ function setupInstallTt(): void {
 }
 
 /**
+ * Command: tenstorrent.setup.useInstalledTools
+ * Cloud pod: tt resolves tools from `tools.override.<name>` before its own pinned copies.
+ */
+function setupUseInstalledTools(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_USE_INSTALLED_TOOLS.template);
+}
+
+/**
  * Command: tenstorrent.setup.deviceStatus
  */
 function setupDeviceStatus(): void {
@@ -5356,6 +5364,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Lesson 0 - Modern Setup with tt-installer 2.0
     vscode.commands.registerCommand('tenstorrent.setup.whereAmI', setupWhereAmI),
     vscode.commands.registerCommand('tenstorrent.setup.installTt', setupInstallTt),
+    vscode.commands.registerCommand('tenstorrent.setup.useInstalledTools', setupUseInstalledTools),
     vscode.commands.registerCommand('tenstorrent.setup.deviceStatus', setupDeviceStatus),
     vscode.commands.registerCommand('tenstorrent.setup.deviceInfo', setupDeviceInfo),
     vscode.commands.registerCommand('tenstorrent.setup.updateDryRun', setupUpdateDryRun),

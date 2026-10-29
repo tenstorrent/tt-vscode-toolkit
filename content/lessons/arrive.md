@@ -67,7 +67,8 @@ echo "docker:   $(docker --version 2>/dev/null || echo none)"
 ## Read the Answer
 
 - **`tt:` is empty** → go to [Install and Upgrade with tt](command:tenstorrent.lesson.show?["tt-installer"])
-  and install it with `uv`. On the cloud pod this is the expected state.
+  and install it with `uv`. On the cloud pod this is the expected state, and that lesson
+  has one extra pod step: pointing `tt` at the `tt-smi` the pod already has.
 - **`chips: 1`, `tt-metal: /home/user/tt-metal`, `docker: none`** → you are on the cloud
   pod. Set Up and Build on the Stack are yours in full. In Serve Models, use the lesson
   for serving without containers.

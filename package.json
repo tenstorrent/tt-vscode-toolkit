@@ -796,6 +796,11 @@
         "command": "tenstorrent.setup.verifyTtnnQb2",
         "title": "Setup: Check TT-NN (container)",
         "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.setup.useInstalledTools",
+        "title": "Setup: Use the Pod's tt-smi and tt-flash",
+        "category": "Tenstorrent"
       }
     ]
   },

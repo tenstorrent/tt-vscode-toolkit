@@ -107,8 +107,15 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   SETUP_INSTALL_TT: {
     id: 'setup-install-tt',
     name: 'Install tt',
-    template: 'uv tool install tenstorrent',
-    description: 'Installs the tt CLI (PyPI package "tenstorrent") as a uv tool',
+    template: 'uv tool install --python 3.12 tenstorrent',
+    description: 'Installs the tt CLI (PyPI package "tenstorrent") as a uv tool on Python 3.12 (3.10 resolves an old release)',
+  },
+
+  SETUP_USE_INSTALLED_TOOLS: {
+    id: 'setup-use-installed-tools',
+    name: "Use the pod's tt-smi and tt-flash",
+    template: 'tt config set tools.override.tt-smi ~/.tt-installer-venv/bin/tt-smi && tt config set tools.override.tt-flash ~/.tt-installer-venv/bin/tt-flash',
+    description: 'Cloud pod: points tt at the tt-smi/tt-flash tt-installer already put in ~/.tt-installer-venv, since tt update is not for the pod',
   },
 
   SETUP_DEVICE_STATUS: {

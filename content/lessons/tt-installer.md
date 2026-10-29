@@ -44,10 +44,15 @@ the upgrade step.
 tracker.) The cloud pod and the QuietBox both have `uv` already.
 
 ```bash
-uv tool install tenstorrent
+uv tool install --python 3.12 tenstorrent
 ```
 
 [📦 Install tt](command:tenstorrent.setup.installTt)
+
+`--python 3.12` matters. On the cloud pod the default interpreter is Python 3.10 (the
+tt-metal environment), and with it `uv` resolved an old `tt` (1.0.1) instead of the
+current release. With 3.12 it installed 1.2.1. `uv` downloads 3.12 if the machine does
+not have it.
 
 If you get `tt: command not found` afterwards, `~/.local/bin` is not on your `PATH` in
 this shell. Run `uv tool update-shell`, or add `export PATH="$HOME/.local/bin:$PATH"` to
@@ -56,6 +61,23 @@ this shell. Run `uv tool update-shell`, or add `export PATH="$HOME/.local/bin:$P
 If `tt --help` does not list `device`, `model`, `serve` and `update`, another program
 named `tt` is earlier on your `PATH`. `which -a tt` lists every match in the order the
 shell tries them. Put `~/.local/bin` first.
+
+### Cloud pod: point `tt` at the tools it already has
+
+`tt` normally installs its own pinned copies of `tt-smi` and `tt-flash` during
+`tt update`. The pod already has both (tt-installer put them in `~/.tt-installer-venv`),
+and `tt update` is not for the pod. Tell `tt` where they are once:
+
+```bash
+tt config set tools.override.tt-smi ~/.tt-installer-venv/bin/tt-smi
+tt config set tools.override.tt-flash ~/.tt-installer-venv/bin/tt-flash
+```
+
+[🔗 Use the pod's tt-smi and tt-flash](command:tenstorrent.setup.useInstalledTools)
+
+After this, `tt device status` and `tt model list` work on the pod, and `tt update
+--dry-run` shows those two rows as `external`. Skip this on a QuietBox or your own
+machine: there, `tt update` installs the pinned copies.
 
 ## See What You Have
 
@@ -121,10 +143,28 @@ Read the `action` column:
 | `optional` | Fetched the first time a command needs it (`tt-studio` here). Add `--include-lazy` to fetch it now. |
 | `converge` | The system layer (driver, firmware, HugePages) is checked and brought to the golden versions by `tt-installer`. |
 
-**On the cloud pod, stop here.** The `system-stack` row is the driver and firmware, which
-the pod manages for you. The tools rows (`tt-smi`, `tt-flash`, `tt-inference-server`) are
-installed by `tt` under your home directory as you use them. The upgrade button below
-refuses to run on the pod.
+**On the cloud pod, stop here.** This is the pod's plan after the override step above
+(captured in the tt-code-server image, `tt` 1.2.1):
+
+```
+  Update plan (goldens: bundled supplement.toml + golden.json v4.0.0 (cached))
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ component           ┃ kind     ┃ installed ┃ golden               ┃ action   ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ tt-flash            │ uv-tool  │ —         │ 4.1.0                │ external │
+│ tt-inference-server │ git-venv │ —         │ v0.25.0              │ optional │
+│ tt-model            │ uv-tool  │ —         │ 713eeb2f33354881bec… │ install  │
+│ tt-smi              │ uv-tool  │ —         │ 6.7.0                │ external │
+│ tt-studio           │ git-venv │ —         │ v2.12.0              │ optional │
+│ system-stack        │ system   │ —         │ hugepages 1.4.1, kmd │ converge │
+│                     │          │           │ 2.11.0, ...          │          │
+└─────────────────────┴──────────┴───────────┴──────────────────────┴──────────┘
+```
+
+`external` is the override from the step above. `install` and `optional` tools are put
+under your home directory by `tt` the first time a command needs them. The
+`system-stack` row is the driver and firmware, which the pod manages for you; that is
+why the upgrade button below refuses to run there.
 
 ## Upgrade
 
