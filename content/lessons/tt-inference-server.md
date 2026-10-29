@@ -49,11 +49,12 @@ Give `run.py` a model name and your hardware type and it handles everything: pul
 right Docker image (pre-built TT-Metalium<sup>™</sup> + vLLM), downloads model weights,
 and starts an OpenAI-compatible inference server.
 
-> **TT-QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware
-> (🛠️ Experimental status). For **single-chip** serving, use `--tt-device p100` — a p300c
-> chip behaves like a p100. A TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`), not
-> four independent devices; for whole-box multi-chip serving of a single larger model, use
-> `--tt-device p300x2` instead — see [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]).
+> **TT-QuietBox<sup>®</sup> 2 / p300c users:** in the v0.25.0 release catalog, Llama-3.1-8B's
+> only single-chip Blackhole entry is `p150` (there is no `p100` entry; `--device p100`
+> fails with `No model spec matches`). A p300c chip serves as `p150`: verified 2026-10-29
+> with `--local-server --device p150` on one chip of a p300c. A TT-QuietBox 2 is **one
+> four-chip ring mesh** (`P300_X2`); for whole-box serving of a larger model use
+> `--device p300x2`, or `tt serve`, which picks it.
 
 ---
 
@@ -579,6 +580,7 @@ host, no Docker. The cloud pod is exactly that machine: `~/tt-metal` is built an
 
 ```bash
 cd ~/tt-inference-server && source .venv/bin/activate
+export HF_TOKEN=$(cat ~/models/token)       # run.py asks for it; tt model login stored it here
 python run.py \
   --model Llama-3.1-8B-Instruct \
   --device n150 \
@@ -591,6 +593,13 @@ python run.py \
 ```
 
 [▶ Run the server without a container (cloud pod)](command:tenstorrent.inferenceServer.runServerLocal)
+
+`run.py` asks for `HF_TOKEN` at a prompt when the variable is unset, which a button's
+terminal can answer, but exporting it first is simpler; on the pod `tt model login` wrote
+it to `~/models/token` (`$HF_HOME/token`). The run prints the exact `run_vllm_api_server.py`
+command it starts, waits on `/health`, and reports the server's PID and log path;
+verified 2026-10-29 on one Blackhole chip as `--device p150`: ready in about 3 minutes
+from a warm cache, chat completion answered, and `tt launch list` saw the server.
 
 `--local-server` uses `REPO_ROOT/persistent_volume/` for logs and caches and runs as
 you, with no Docker volume permissions to manage. `--service-port 20000` matches

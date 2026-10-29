@@ -475,7 +475,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   INFERENCE_SERVER_RUN_SERVER_LOCAL: {
     id: 'inference-server-run-server-local',
     name: 'Run the server without a container (cloud pod)',
-    template: 'cd ~/tt-inference-server && source .venv/bin/activate && python run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --local-server --tt-metal-home ~/tt-metal --tt-metal-python-venv-dir ~/tt-metal/build/python_env_vllm --host-hf-cache ~/models --no-auth --service-port 20000',
+    template: 'cd ~/tt-inference-server && source .venv/bin/activate && export HF_TOKEN=$(cat ~/models/token) && python run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --local-server --tt-metal-home ~/tt-metal --tt-metal-python-venv-dir ~/tt-metal/build/python_env_vllm --host-hf-cache ~/models --no-auth --service-port 20000',
     description: "run.py --local-server against the pod's built tt-metal and its vLLM venv; same port as tt serve so tt launch finds it",
   },
 

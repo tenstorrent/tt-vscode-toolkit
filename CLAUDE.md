@@ -105,7 +105,20 @@ n150 on the pod.
   lines at exit are noise); `~/tt-forge-venv` = tt-forge 1.4.0, pjrt-plugin-tt 1.4.0,
   JAX 0.7.1, `import tt_torch` ok. PyPI tt-lang 1.1.6; `tt-lang-setup` is a command,
   not a package (404 on PyPI). tt-awesome category links use `?cat=<id>`. **Not run:**
-  `ttnn_add_tensors.py` on a chip (boards held; lease queued).
+  `ttnn_add_tensors.py` on a chip (boards held; lease queued). Later, under lease
+  58051b: ran on a p300c chip from the pod image, exit 0.
+- **Go Deeper (Task 9, 7e9d302..):** host: tt's pinned copy at
+  `~/.local/share/tenstorrent/tools/tt-inference-server-v0.25.0/src` + `../venv`
+  (packaging, pyyaml only) runs `run.py --help`; `installed.toml` and `tt update
+  --dry-run` captured (goldens v4.0.0: metal-version v0.78.0, firmware 19.15.0). Rig
+  (image `tt-code-server:deeper-rig` = tt-cli-metal + a v0.25.0 clone with the same
+  two-package venv): `run.py --local-server --device p150 --tt-metal-home ~/tt-metal
+  --tt-metal-python-venv-dir ~/tt-metal/build/python_env_vllm` ready in ~210 s, chat
+  answered, `tt launch list` found it. Findings: v0.25.0 prod catalog has Llama-3.1-8B on
+  P150 and N150, not P100; run.py prompts for HF_TOKEN (exported from `~/models/token`).
+  Image tag format `0.2.0-9b67e09-a91b644` = spec-ttmetal-vllm, also in
+  `release_model_spec.json` (`tt_metal_commit`, `vllm_commit`). **Not run:** a
+  `--device-id` boot on the host (no single-board spec for the catalog models).
 
 ## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
