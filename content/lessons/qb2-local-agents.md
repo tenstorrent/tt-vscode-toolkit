@@ -107,8 +107,8 @@ Concurrency is **per-model**, not a single fixed number for the box — a 32B or
 ## Prerequisites
 
 - TT-QuietBox 2 hardware healthy: `tt-smi -s` shows 4 chips
-- `~/code/tt-inference-server` cloned and working
-- Docker running
+- `tt` installed ([Install the Tenstorrent Software](command:tenstorrent.lesson.show?["tt-installer"]))
+- Docker running (`tt serve` runs the model in a container)
 - Internet access (for the web-search demo and model downloads)
 
 **Verify your TT-QuietBox 2:**
@@ -124,53 +124,45 @@ tt-smi -s | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'{len(d[
 
 ## Step 1: Start the Inference Server
 
-The demos need a vLLM endpoint running on port 8000. Use **Qwen3-32B** for the fastest iteration, or **Llama-3.3-70B-Instruct** for maximum output quality — especially for the Dungeon Master demo.
+The demos need an OpenAI-compatible endpoint on port 8000. Use **Qwen3-32B** for the
+fastest iteration, or **Llama-3.3-70B-Instruct** for maximum output quality, especially
+for the Dungeon Master demo. `tt serve` runs either in a container, with tool calling and
+the right tool-call parser (`hermes` for Qwen, `llama3_json` for Llama) set from the
+model catalog; `--port 8000` puts it where the scripts look. The weights come from the
+Hugging Face cache or a pre-seeded volume, so the second start downloads nothing.
 
-> **Reset the board before every (re)start.** QB2's ethernet fabric doesn't cleanly cycle when a container just stops and restarts — the first serve after a reset or reboot works fine, but the *next* one can fault with an ethernet core error (see Troubleshooting below). Run `tt-smi -r` immediately before each command in this step, including the very first time:
->
-> ```bash
-> tt-smi -r
-> ```
->
-> Right after a reset, `tt-smi -s` may transiently report a failure even though the reset itself succeeded — give it a few seconds and check again before assuming something is wrong.
+> **If a restart faults with an ethernet core error**, reset the board and serve again:
+> QB2's ethernet fabric does not always cycle cleanly when a container stops and another
+> starts. `tt model stop` first, then `tt-smi -r`, then the serve command. Right after a
+> reset, `tt-smi -s` may transiently report a failure even though the reset succeeded;
+> give it a few seconds and check again.
 
 ### Option A — Qwen3-32B (~8 s/response, recommended for most demos)
 
 ```bash
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Qwen3-32B \
-    --tt-device p300x2 \
-    --workflow server \
-    --docker-server \
-    --no-auth \
-    --host-hf-cache \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "hermes"}'
+tt serve Qwen3-32B --port 8000
 ```
 
-[Start Qwen3-32B Server](command:tenstorrent.launch.startQb2AgentsServerQwen)
+[Serve Qwen3-32B on port 8000](command:tenstorrent.model.serveQb2AgentsQwen)
 
 ### Option B — Llama-3.3-70B-Instruct (~14 s/response, best for Dungeon Master)
 
 ```bash
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Llama-3.3-70B-Instruct \
-    --tt-device p300x2 \
-    --workflow server \
-    --docker-server \
-    --no-auth \
-    --host-hf-cache \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
+tt serve Llama-3.3-70B-Instruct --port 8000
 ```
 
-[Start Llama-3.3-70B Server](command:tenstorrent.launch.startQb2AgentsServerLlama)
+[Serve Llama-3.3-70B-Instruct on port 8000](command:tenstorrent.model.serveQb2AgentsLlama)
 
-> `--host-hf-cache` points `run.py` at your existing HuggingFace cache on the host instead of re-downloading weights into the container — for a 32B or 70B model that's tens of GB you only want to pull once. `--no-auth` skips the JWT_SECRET requirement for local-only use.
+> Both models are `FUNCTIONAL` on a p300x2 (`tt model info <name>` shows the row). The
+> 70B model needs 160 GB of disk and 175 GB of RAM; its first serve downloads 140 GB.
+> Preview either with `--dry-run` to see the image, weights and parser before anything
+> starts.
 
-> **`--enable_auto_tool_choice` is not optional.** Without it, the model will respond in prose instead of making tool calls. The `tool_call_parser` must match the model — `hermes` for Qwen, `llama3_json` for Llama.
+> **Serving by hand instead?** The `run.py` command `tt serve` wraps is in
+> [tt-inference-server by Hand](command:tenstorrent.lesson.show?["tt-inference-server"]).
+> The two flags that matter for agents are `--vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "hermes"}'`
+> (or `llama3_json` for Llama); without them the model answers in prose instead of
+> calling tools. `tt serve` sets both for you.
 
 **Wait for warmup** (5 minutes on a warm cache, up to 20 minutes if downloading for the first time). The server is ready when:
 

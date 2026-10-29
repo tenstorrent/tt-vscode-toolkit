@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -303,21 +303,6 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.launch.verifyCodingModel",
-        "title": "Verify Llama 3.1 8B Model",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.launch.createCodingAssistantScript",
-        "title": "Create Coding Assistant Script",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.launch.startCodingAssistant",
-        "title": "Start Coding Assistant",
-        "category": "Tenstorrent"
-      },
-      {
         "command": "tenstorrent.forge.buildFromSource",
         "title": "Activate TT-Forge Environment (Recommended)",
         "category": "Tenstorrent"
@@ -500,16 +485,6 @@
       {
         "command": "tenstorrent.cookbook.particleLife",
         "title": "Run Particle Life Simulation",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.launch.startQb2AgentsServerQwen",
-        "title": "Start Qwen3-32B Agent Server",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.launch.startQb2AgentsServerLlama",
-        "title": "Start Llama-3.3-70B Agent Server",
         "category": "Tenstorrent"
       },
       {
@@ -775,6 +750,71 @@
       {
         "command": "tenstorrent.vllm.curlCloud",
         "title": "vLLM: Ask the Model (curl)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.list",
+        "title": "tt launch: What Can Connect",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.openwebuiDryRun",
+        "title": "tt launch: Dry Run Open WebUI",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.openwebui",
+        "title": "tt launch: Open WebUI",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.stopOpenwebui",
+        "title": "tt launch: Stop Open WebUI",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.installAider",
+        "title": "Install Aider (uv)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.aiderDryRun",
+        "title": "tt launch: Dry Run Aider",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.aider",
+        "title": "tt launch: Aider",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.qwencodeDryRun",
+        "title": "tt launch: Dry Run Qwen Code",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.qwencode",
+        "title": "tt launch: Qwen Code",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.studioN150",
+        "title": "TT-Studio: Llama-3.1-8B-Instruct",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.launch.studioQb2",
+        "title": "TT-Studio: Qwen3-32B",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.serveQb2AgentsQwen",
+        "title": "tt serve: Qwen3-32B on Port 8000",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.serveQb2AgentsLlama",
+        "title": "tt serve: Llama-3.3-70B-Instruct on Port 8000",
         "category": "Tenstorrent"
       },
       {

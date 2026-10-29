@@ -342,6 +342,105 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   // ========================================
+  // Connect Software: tt launch (launch-software lesson)
+  // ========================================
+  // Templates stay bare tt commands; the cloud guard lives in the handlers.
+
+  LAUNCH_LIST: {
+    id: 'launch-list',
+    name: 'What can connect',
+    template: 'tt launch list',
+    description: 'Every client tt can connect to the served model, and whether each is usable now',
+  },
+
+  LAUNCH_OPENWEBUI_DRY_RUN: {
+    id: 'launch-openwebui-dry-run',
+    name: 'Dry run: Open WebUI',
+    template: 'tt launch openwebui --dry-run',
+    description: 'Shows the model, endpoint and container tt launch would use for Open WebUI; changes nothing',
+  },
+
+  LAUNCH_OPENWEBUI: {
+    id: 'launch-openwebui',
+    name: 'Launch Open WebUI',
+    template: 'tt launch openwebui',
+    description: 'Runs Open WebUI in a container pointed at the served model (needs Docker; guarded on the cloud pod)',
+  },
+
+  LAUNCH_STOP_OPENWEBUI: {
+    id: 'launch-stop-openwebui',
+    name: 'Stop Open WebUI',
+    template: 'tt launch stop openwebui',
+    description: 'Stops the Open WebUI container and keeps its chats and settings (needs Docker; guarded on the cloud pod)',
+  },
+
+  LAUNCH_INSTALL_AIDER: {
+    id: 'launch-install-aider',
+    name: 'Install Aider',
+    template: 'uv tool install aider-chat',
+    description: 'Installs Aider as a uv tool; works on the cloud pod, which has uv and no Node.js',
+  },
+
+  LAUNCH_AIDER_DRY_RUN: {
+    id: 'launch-aider-dry-run',
+    name: 'Dry run: Aider',
+    template: 'tt launch aider --dry-run',
+    description: 'Shows the exact aider command tt launch would run against the served model',
+  },
+
+  LAUNCH_AIDER: {
+    id: 'launch-aider',
+    name: 'Launch Aider',
+    template: 'tt launch aider',
+    description: 'Starts Aider in this terminal, pointed at the served model',
+  },
+
+  LAUNCH_QWENCODE_DRY_RUN: {
+    id: 'launch-qwencode-dry-run',
+    name: 'Dry run: Qwen Code',
+    template: 'tt launch qwencode --dry-run',
+    description: 'Shows the exact qwen command tt launch would run against the served model',
+  },
+
+  LAUNCH_QWENCODE: {
+    id: 'launch-qwencode',
+    name: 'Launch Qwen Code',
+    template: 'tt launch qwencode',
+    description: 'Starts Qwen Code in this terminal, pointed at the served model (needs Node.js and @qwen-code/qwen-code)',
+  },
+
+  LAUNCH_STUDIO_N150: {
+    id: 'launch-studio-n150',
+    name: 'TT-Studio: Llama-3.1-8B-Instruct',
+    template: 'tt serve Llama-3.1-8B-Instruct --studio',
+    description: 'Serves the one-chip model through TT-Studio, which brings its own web UI on port 3000 (needs Docker; guarded on the cloud pod)',
+  },
+
+  LAUNCH_STUDIO_QB2: {
+    id: 'launch-studio-qb2',
+    name: 'TT-Studio: Qwen3-32B',
+    template: 'tt serve Qwen3-32B --studio',
+    description: 'Serves the TT-QuietBox 2 model through TT-Studio, which brings its own web UI on port 3000 (needs Docker; guarded on the cloud pod)',
+  },
+
+  // Agent lessons (qb2-local-agents, qb2-openclaw-assistant) keep their scripts on
+  // port 8000, so these serve there instead of tt's default 20000. Tool calling and the
+  // parser come from the model catalog; nothing to pass.
+  MODEL_SERVE_QB2_AGENTS_QWEN: {
+    id: 'model-serve-qb2-agents-qwen',
+    name: 'Serve Qwen3-32B on port 8000',
+    template: 'tt serve Qwen3-32B --port 8000',
+    description: 'Serves Qwen3-32B on port 8000, where the agent lessons expect it (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_SERVE_QB2_AGENTS_LLAMA: {
+    id: 'model-serve-qb2-agents-llama',
+    name: 'Serve Llama-3.3-70B-Instruct on port 8000',
+    template: 'tt serve Llama-3.3-70B-Instruct --port 8000',
+    description: 'Serves Llama-3.3-70B-Instruct on port 8000, where the agent lessons expect it (needs Docker; guarded on the cloud pod)',
+  },
+
+  // ========================================
   // Lesson 6: Production Inference with tt-inference-server
   // ========================================
 
@@ -441,13 +540,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     variables: ['ttMetalPath'],
   },
 
-  // Coding Assistant with Prompt Engineering (Lesson 9)
-  VERIFY_CODING_MODEL: {
-    id: 'verify-coding-model',
-    name: 'Verify Llama 3.1 8B',
-    template: 'ls -lh ~/models/Llama-3.1-8B-Instruct/original/',
-    description: 'Verifies Llama 3.1 8B model is downloaded (should be from Lesson 3)',
-  },
 
 
 
@@ -795,27 +887,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // QB2 Local Agents (qb2-local-agents lesson)
   // ========================================
 
-  START_QB2_AGENTS_SERVER_QWEN: {
-    id: 'start-qb2-agents-server-qwen',
-    name: 'Start Qwen3-32B Agent Server',
-    // The reset is deliberately non-fatal (`|| echo ...;` rather than `&&`). `tt-smi -r`
-    // legitimately fails in cases where we still want the server to come up: tt-smi not on
-    // PATH (exit 127 — the case this lesson's own troubleshooting section documents), or the
-    // device still held by a previously running container. Chaining with `&&` would make the
-    // button appear to do nothing at all in exactly those situations.
-    template: "tt-smi -r || echo '⚠️  Board reset failed (tt-smi missing, or device still in use) — starting the server anyway'; cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"hermes\"}'",
-    description: 'Attempts a board reset (tt-smi -r, non-fatal) then starts vLLM with Qwen3-32B and tool calling enabled via tt-inference-server (hermes parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
-  },
 
-  START_QB2_AGENTS_SERVER_LLAMA: {
-    id: 'start-qb2-agents-server-llama',
-    name: 'Start Llama-3.3-70B Agent Server',
-    // Non-fatal reset — see the note on START_QB2_AGENTS_SERVER_QWEN above. This button is
-    // the most likely to hit a busy device, since it is typically clicked while the Qwen
-    // container still owns the hardware.
-    template: "tt-smi -r || echo '⚠️  Board reset failed (tt-smi missing, or device still in use) — starting the server anyway'; cd ~/code/tt-inference-server && python3 run.py --model Llama-3.3-70B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"llama3_json\"}'",
-    description: 'Attempts a board reset (tt-smi -r, non-fatal) then starts vLLM with Llama-3.3-70B-Instruct and tool calling enabled via tt-inference-server (llama3_json parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
-  },
 
   CHECK_AGENT_SERVER_HEALTH: {
     id: 'check-agent-server-health',

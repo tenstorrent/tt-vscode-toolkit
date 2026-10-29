@@ -24,6 +24,13 @@ Also in this release:
   completion events that could never fire, and removed 15 unused templates.
 - The docs-site command map reads dotted ids, so the command under each button on the
   published site survives the rename.
+- **Connect Software** is now `tt launch`. New lesson *Launch Software* (`tt launch
+  list`, Open WebUI with its no-sign-in warning, Aider via `uv tool install`, Qwen Code,
+  the `tt agent` preview, TT-Studio via `tt serve --studio`). *Coding Assistant with
+  Aider* starts with `tt launch aider`; the two TT-QuietBox 2 agent lessons serve with
+  `tt serve <model> --port 8000`, replacing the hand-typed `run.py` commands. Open WebUI
+  and TT-Studio buttons refuse on the cloud pod (no Docker) and say so. Removed the
+  pre-Aider coding-assistant script commands and the `run.py` server starters.
 
 ---
 

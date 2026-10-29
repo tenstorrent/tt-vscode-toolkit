@@ -435,16 +435,50 @@
       "estimatedMinutes": 60,
       "order": 5,
       "previousLesson": "image-generation",
-      "nextLesson": "coding-assistant",
+      "nextLesson": "launch-software",
       "completionEvents": [
         "onCommand:tenstorrent.apps.startInteractiveImageGen"
       ],
       "markdownFile": "content/lessons/video-generation-ttmetal.md"
     },
     {
+      "id": "launch-software",
+      "title": "Launch Software",
+      "description": "tt launch connects a chat window or a coding agent to the model you are serving. See what can connect, preview, launch Open WebUI or a terminal agent, and meet TT-Studio.",
+      "category": "connect",
+      "tags": [
+        "launch",
+        "open-webui",
+        "coding",
+        "agent",
+        "studio"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "p300c"
+      ],
+      "estimatedMinutes": 15,
+      "order": 1,
+      "previousLesson": "video-generation-ttmetal",
+      "nextLesson": "coding-assistant",
+      "completionEvents": [
+        "onCommand:tenstorrent.launch.list"
+      ],
+      "markdownFile": "content/lessons/launch-software.md"
+    },
+    {
       "id": "coding-assistant",
       "title": "Coding Assistant with Aider",
-      "description": "Run a real AI coding assistant (Aider) against your local Tenstorrent vLLM server. One install, one command — then pair-program with your own on-device LLM. Also covers prompt engineering to customize behavior.",
+      "description": "Pair-program with Aider against the model tt is serving: one uv install, one tt launch. Then shape how it codes with a system prompt.",
       "category": "connect",
       "tags": [
         "coding",
@@ -462,15 +496,18 @@
         "p300c",
         "galaxy"
       ],
-      "status": "draft",
+      "status": "validated",
       "estimatedMinutes": 15,
-      "order": 1,
-      "previousLesson": "video-generation-ttmetal",
-      "nextLesson": "ct1-understanding-training",
+      "order": 2,
+      "previousLesson": "launch-software",
+      "nextLesson": "qb2-local-agents",
       "completionEvents": [
-        "onCommand:tenstorrent.launch.startCodingAssistant"
+        "onCommand:tenstorrent.launch.aider"
       ],
-      "markdownFile": "content/lessons/coding-assistant.md"
+      "markdownFile": "content/lessons/coding-assistant.md",
+      "validatedOn": [
+        "p300c"
+      ]
     },
     {
       "id": "ct1-understanding-training",
@@ -1321,7 +1358,7 @@
       ],
       "estimatedMinutes": 30,
       "order": 1,
-      "previousLesson": "bounty-program",
+      "previousLesson": "qb2-openclaw-assistant",
       "nextLesson": "monkeypatch-ttnn",
       "completionEvents": [
         "onCommand:tenstorrent.metal.ttnnTutorials"
@@ -1384,7 +1421,9 @@
       ],
       "estimatedMinutes": 45,
       "markdownFile": "content/lessons/qb2-openclaw-assistant.md",
-      "order": 3
+      "order": 4,
+      "previousLesson": "qb2-local-agents",
+      "nextLesson": "explore-metalium"
     },
     {
       "id": "qb2-video-generation",
@@ -1440,11 +1479,12 @@
         "p300x2"
       ],
       "estimatedMinutes": 60,
-      "previousLesson": "qb2-video-generation",
+      "previousLesson": "coding-assistant",
       "markdownFile": "content/lessons/qb2-local-agents.md",
       "validationDate": "2026-04-21",
       "validationNotes": "All five demo scripts validated on TT-QuietBox 2 (p300x2) with Qwen3-32B (hermes parser) and Llama-3.3-70B-Instruct (llama3_json parser). Tool calling confirmed working. Research agent, code explorer, writing pipeline, and dungeon master all produce expected output.",
-      "order": 2
+      "order": 3,
+      "nextLesson": "qb2-openclaw-assistant"
     },
     {
       "id": "tt-lang-intro",

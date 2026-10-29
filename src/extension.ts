@@ -21,7 +21,7 @@ import { registerVizCommands } from './commands/vizCommands';
 import { guardCloud } from './utils/environment';
 
 // Configuration imports
-import { getModelConfig, getModelBasePath, getModelOriginalPath, DEFAULT_MODEL_KEY } from './config';
+import { getModelConfig, getModelBasePath, DEFAULT_MODEL_KEY } from './config';
 
 // New lesson system imports
 import { LessonRegistry } from './utils';
@@ -470,6 +470,56 @@ function vllmServeCloudN150(): void {
 }
 function vllmCurlCloud(): void {
   runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.VLLM_CURL_CLOUD.template);
+}
+
+// ---- Connect Software: tt launch (launch-software lesson). One function per command so
+// the docs-site command map can pair each id with its template. ----
+function launchList(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_LIST.template);
+}
+function launchOpenwebuiDryRun(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_OPENWEBUI_DRY_RUN.template);
+}
+function launchOpenwebui(): void {
+  if (!canRunHere('tt launch openwebui')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_OPENWEBUI.template);
+}
+function launchStopOpenwebui(): void {
+  if (!canRunHere('tt launch stop openwebui')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_STOP_OPENWEBUI.template);
+}
+function launchInstallAider(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_INSTALL_AIDER.template);
+}
+function launchAiderDryRun(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_AIDER_DRY_RUN.template);
+}
+function launchAider(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_AIDER.template);
+}
+function launchQwencodeDryRun(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_QWENCODE_DRY_RUN.template);
+}
+function launchQwencode(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_QWENCODE.template);
+}
+function launchStudioN150(): void {
+  if (!canRunHere('tt serve --studio')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_STUDIO_N150.template);
+}
+function launchStudioQb2(): void {
+  if (!canRunHere('tt serve --studio')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_STUDIO_QB2.template);
+}
+function modelServeQb2AgentsQwen(): void {
+  if (!canRunHere('tt serve')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_QB2_AGENTS_QWEN.template);
+  vscode.window.showInformationMessage('Serving Qwen3-32B on port 8000. Warmup takes ~5 min (up to 20 min on first run).');
+}
+function modelServeQb2AgentsLlama(): void {
+  if (!canRunHere('tt serve')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_QB2_AGENTS_LLAMA.template);
+  vscode.window.showInformationMessage('Serving Llama-3.3-70B-Instruct on port 8000. Warmup takes ~5 min (up to 20 min on first run).');
 }
 
 // ============================================================================
@@ -1562,100 +1612,6 @@ async function openLatestImage(): Promise<void> {
     // Just open the only image
     await openGeneratedImage(files[0].path);
   }
-}
-
-/**
- * Command: tenstorrent.launch.verifyCodingModel
- * Verifies Llama 3.1 8B model is available for coding assistant
- */
-function verifyCodingModel(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.VERIFY_CODING_MODEL.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🔍 Checking for Llama 3.1 8B model. Should be installed from Lesson 3.'
-  );
-}
-
-/**
- * Command: tenstorrent.launch.createCodingAssistantScript
- * Creates the coding assistant CLI script and opens it in editor
- */
-async function createCodingAssistantScript(): Promise<void> {
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-coding-assistant.py');
-
-  if (!fs.existsSync(templatePath)) {
-    vscode.window.showErrorMessage(
-      `Template not found at ${templatePath}. Please reinstall the extension.`
-    );
-    return;
-  }
-
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-
-  // Create scratchpad directory if it doesn't exist
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  const destPath = path.join(scratchpadDir, 'tt-coding-assistant.py');
-
-  // Check if file exists and ask for overwrite confirmation
-  if (!(await shouldOverwriteFile(destPath))) {
-    return; // User cancelled
-  }
-
-  try {
-    fs.copyFileSync(templatePath, destPath);
-    fs.chmodSync(destPath, 0o755);
-
-    // Open the file in the editor (to the side, preserving focus on terminal)
-    const doc = await vscode.workspace.openTextDocument(destPath);
-    await vscode.window.showTextDocument(doc, {
-      viewColumn: vscode.ViewColumn.Beside,
-      preserveFocus: true,
-      preview: false
-    });
-
-    vscode.window.showInformationMessage(
-      `✅ Created coding assistant script at ${destPath}. The file is now open - review the code!`
-    );
-  } catch (error) {
-    vscode.window.showErrorMessage(`Failed to create coding assistant script: ${error}`);
-  }
-}
-
-/**
- * Command: tenstorrent.launch.startCodingAssistant
- * Starts the coding assistant CLI using Llama 3.1 8B with Direct API and prompt engineering
- */
-async function startCodingAssistant(): Promise<void> {
-  const os = await import('os');
-  const path = await import('path');
-  const homeDir = os.homedir();
-  const defaultPath = path.join(homeDir, 'tt-metal');
-  const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
-
-  // Model path for Llama 3.1 8B (original subdirectory for Direct API)
-  const modelPath = await getModelOriginalPath();
-
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `cd "${ttMetalPath}" && export LLAMA_DIR="${modelPath}" && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-coding-assistant.py`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '💬 Starting coding assistant with prompt engineering. Model loads once (2-5 min), then fast responses (1-3 sec)!'
-  );
 }
 
 // ============================================================================
@@ -3935,30 +3891,6 @@ function launchTtGen(): void {
 // ============================================================================
 
 /**
- * Command: tenstorrent.launch.startQb2AgentsServerQwen
- * Starts vLLM with Qwen3-32B and hermes tool-call parser.
- */
-function startQb2AgentsServerQwen(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  runInTerminal(terminal, TERMINAL_COMMANDS.START_QB2_AGENTS_SERVER_QWEN.template);
-  vscode.window.showInformationMessage(
-    'Starting Qwen3-32B agent server. Warmup takes ~5 min (up to 20 min on first run).'
-  );
-}
-
-/**
- * Command: tenstorrent.launch.startQb2AgentsServerLlama
- * Starts vLLM with Llama-3.3-70B-Instruct and llama3_json tool-call parser.
- */
-function startQb2AgentsServerLlama(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  runInTerminal(terminal, TERMINAL_COMMANDS.START_QB2_AGENTS_SERVER_LLAMA.template);
-  vscode.window.showInformationMessage(
-    'Starting Llama-3.3-70B-Instruct agent server. Warmup takes ~5 min (up to 20 min on first run).'
-  );
-}
-
-/**
  * Command: tenstorrent.launch.checkAgentServerHealth
  * Lists available models from the vLLM server on port 8000.
  */
@@ -4119,8 +4051,6 @@ async function showCommandMenu(): Promise<void> {
     { label: '$(play) Run Llama Inference', description: 'Test model with pytest demo', command: 'tenstorrent.model.runInference' },
     { label: '$(comment) Create Chat Script', description: 'Generate interactive chat script', command: 'tenstorrent.model.createChatScriptDirect' },
     { label: '$(comment-discussion) Start Chat Session', description: 'Run interactive chat with Direct API', command: 'tenstorrent.model.startChatSessionDirect' },
-    { label: '$(code) Create Coding Assistant', description: 'AI coding assistant with prompt engineering', command: 'tenstorrent.launch.createCodingAssistantScript' },
-    { label: '$(robot) Start Coding Assistant', description: 'Launch coding assistant chat', command: 'tenstorrent.launch.startCodingAssistant' },
 
     // API Server
     { label: '🌐 API Server', kind: vscode.QuickPickItemKind.Separator },
@@ -4764,6 +4694,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.model.stop', modelStop),
     vscode.commands.registerCommand('tenstorrent.vllm.serveCloudN150', vllmServeCloudN150),
     vscode.commands.registerCommand('tenstorrent.vllm.curlCloud', vllmCurlCloud),
+    vscode.commands.registerCommand('tenstorrent.launch.list', launchList),
+    vscode.commands.registerCommand('tenstorrent.launch.openwebuiDryRun', launchOpenwebuiDryRun),
+    vscode.commands.registerCommand('tenstorrent.launch.openwebui', launchOpenwebui),
+    vscode.commands.registerCommand('tenstorrent.launch.stopOpenwebui', launchStopOpenwebui),
+    vscode.commands.registerCommand('tenstorrent.launch.installAider', launchInstallAider),
+    vscode.commands.registerCommand('tenstorrent.launch.aiderDryRun', launchAiderDryRun),
+    vscode.commands.registerCommand('tenstorrent.launch.aider', launchAider),
+    vscode.commands.registerCommand('tenstorrent.launch.qwencodeDryRun', launchQwencodeDryRun),
+    vscode.commands.registerCommand('tenstorrent.launch.qwencode', launchQwencode),
+    vscode.commands.registerCommand('tenstorrent.launch.studioN150', launchStudioN150),
+    vscode.commands.registerCommand('tenstorrent.launch.studioQb2', launchStudioQb2),
+    vscode.commands.registerCommand('tenstorrent.model.serveQb2AgentsQwen', modelServeQb2AgentsQwen),
+    vscode.commands.registerCommand('tenstorrent.model.serveQb2AgentsLlama', modelServeQb2AgentsLlama),
     vscode.commands.registerCommand('tenstorrent.setup.whereAmI', setupWhereAmI),
     vscode.commands.registerCommand('tenstorrent.setup.installTt', setupInstallTt),
     vscode.commands.registerCommand('tenstorrent.setup.useInstalledTools', setupUseInstalledTools),
@@ -4821,9 +4764,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.viz.show', showVisualization),
 
     // Lesson 10 - Coding Assistant with Prompt Engineering (previously Lesson 9)
-    vscode.commands.registerCommand('tenstorrent.launch.verifyCodingModel', verifyCodingModel),
-    vscode.commands.registerCommand('tenstorrent.launch.createCodingAssistantScript', createCodingAssistantScript),
-    vscode.commands.registerCommand('tenstorrent.launch.startCodingAssistant', startCodingAssistant),
 
     // Lesson 11 - Image Classification with TT-Forge
     vscode.commands.registerCommand('tenstorrent.forge.buildFromSource', buildForgeFromSource),
@@ -4899,8 +4839,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.apps.launchTtGen', launchTtGen),
 
     // QB2 Local Agents (qb2-local-agents lesson)
-    vscode.commands.registerCommand('tenstorrent.launch.startQb2AgentsServerQwen', startQb2AgentsServerQwen),
-    vscode.commands.registerCommand('tenstorrent.launch.startQb2AgentsServerLlama', startQb2AgentsServerLlama),
     vscode.commands.registerCommand('tenstorrent.launch.checkAgentServerHealth', checkAgentServerHealth),
     vscode.commands.registerCommand('tenstorrent.launch.cloneTtAgents', cloneTtAgents),
     vscode.commands.registerCommand('tenstorrent.launch.copyAgentsToScratchpad', copyAgentsToScratchpad),

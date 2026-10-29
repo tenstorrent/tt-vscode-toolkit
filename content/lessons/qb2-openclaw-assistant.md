@@ -110,7 +110,7 @@ free -h
 
 ```bash
 # TT-Inference-Server available?
-ls ~/code/tt-inference-server/run.py
+tt --version    # tt installed (Install the Tenstorrent Software lesson)
 
 # OpenClaw installed?
 which openclaw || ls ~/openclaw/openclaw.sh
@@ -139,88 +139,40 @@ The first step is getting Llama-3.3-70B-Instruct running on your TT-QuietBox 2 w
 
 ### The Deployment Command
 
-This exact configuration is validated and working:
-
 ```bash
-# Clean environment
-docker stop $(docker ps -q) 2>/dev/null || true
-tt-smi -r
-sleep 5
-
-# Deploy 70B with tool calling
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Llama-3.3-70B-Instruct \
-    --tt-device p300x2 \
-    --workflow server \
-    --docker-server \
-    --dev-mode \
-    --host-hf-cache ~/.cache/huggingface \
-    --skip-system-sw-validation \
-    --no-auth \
-    --override-docker-image ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-dev-ubuntu-22.04-amd64:0.9.0-e867533-22be241 \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
+tt serve Llama-3.3-70B-Instruct --port 8000
 ```
 
-**🚀 Deploy 70B Model**
+[🚀 Serve Llama-3.3-70B-Instruct on port 8000](command:tenstorrent.model.serveQb2AgentsLlama)
 
-### Critical Flags Explained
+`tt serve` runs tt-inference-server in a container with the settings OpenClaw needs, all
+of them read from the model catalog:
 
-**`--enable-auto-tool-choice`** (REQUIRED for OpenClaw)
-- Allows agents to automatically select which tools to use
-- Without this, you get "400 auto tool choice requires..." errors
-- Enables the memory_search, file operations, and system commands
+- **tool calling on, parser `llama3_json`** (REQUIRED for OpenClaw). Without these you get
+  `400 auto tool choice requires...` errors, and the memory_search, file and system tools
+  never fire. The dry run shows them: `tt serve Llama-3.3-70B-Instruct --dry-run`.
+- **the validated image** for the model, so you never pin a tag by hand.
+- **weights from your Hugging Face cache** or a pre-seeded volume, so a 140 GB download
+  happens once.
+- **`--port 8000`**, where `~/tt-claw/runtime/openclaw.json` points. Leave it off and the
+  server lands on 20000; then change `baseUrl` in that file instead.
 
-**`--tool-call-parser llama3_json`** (REQUIRED for OpenClaw)
-- Uses Llama 3's native JSON tool calling format
-- Ensures reliable tool invocation parsing
-- Matches OpenClaw's expected tool response format
+If the board is busy or faulting, `tt model stop` first and, if the fabric does not
+cycle cleanly, `tt-smi -r` before serving again.
 
-**`--override-docker-image`** (Exact version)
-- This specific image (0.9.0-e867533-22be241) is validated
-- Includes necessary patches for P300X2 multi-chip support
-- Different versions may have compatibility issues
+### Logging In
 
-**`--no-auth`** (Simplifies local setup)
-- No API keys needed for local-only deployment
-- Safe for single-user local deployments
-- Safe for single-user systems
-
-**`--dev-mode`** (Enables advanced features)
-- Allows mounting of custom model specs
-- Provides more verbose logging
-- Useful for troubleshooting
-
-### Interactive Prompts
-
-During deployment, you'll see prompts:
-
-**1. Model source:**
-```
-Select model source:
-  1. Download from HuggingFace (requires HF_TOKEN)
-  2. Use local model files
-
-Choice: 1 or 2
-```
-
-Choose **1** for first run (will download 140 GB), **2** for subsequent runs if model is cached.
-
-**2. JWT secret:**
-```
-Enter JWT secret (press Enter for default):
-```
-
-Just press **Enter** (we're using `--no-auth`).
+The first serve asks for a Hugging Face token when none is stored (`tt model login`
+stores one; the model is gated, so accept Meta's license on its Hugging Face page first).
+There is no JWT prompt: local serving through `tt` needs no API key.
 
 ### Monitoring Deployment
 
 **Watch for these phases:**
 
 ```bash
-# In another terminal, monitor container logs
-docker logs -f $(docker ps -q --filter ancestor=*vllm-tt-metal*)
+# tt serve shows the boot as a checklist; for the server's own output:
+tt model logs
 
 # Key messages to watch for:
 # "Fabric initialized" - Hardware ready
@@ -234,7 +186,7 @@ docker logs -f $(docker ps -q --filter ancestor=*vllm-tt-metal*)
 
 ### Verify Deployment
 
-Once you see "Readiness file created", test the endpoint:
+`tt serve` returns when the endpoint answers (`tt model ps` shows `healthy`). Test it:
 
 ```bash
 # Check model is loaded
@@ -253,7 +205,7 @@ curl http://localhost:8000/v1/completions \
   }'
 ```
 
-**✅ Test vLLM**
+[✅ Check the endpoint](command:tenstorrent.launch.checkAgentServerHealth)
 
 ---
 
@@ -576,20 +528,13 @@ If you have an n150 (single chip) instead of TT-QuietBox 2, you can run OpenClaw
 ### Deployment for n150
 
 ```bash
-# Same process, different model and device
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Llama-3.1-8B-Instruct \
-    --tt-device n150 \
-    --workflow server \
-    --docker-server \
-    --dev-mode \
-    --host-hf-cache ~/.cache/huggingface \
-    --no-auth \
-    --override-docker-image ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-dev-ubuntu-22.04-amd64:0.9.0-e867533-22be241 \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
+tt serve Llama-3.1-8B-Instruct --port 8000
 ```
+
+`tt` detects the n150 and serves the 8B model with the same tool-calling settings. On the
+cloud pod, which has no Docker, use the no-container route in
+[Serve Without Containers](command:tenstorrent.lesson.show?["api-server"]) and add
+`--port 8000` to its `vllm serve` command.
 
 ### Update OpenClaw Configuration
 
@@ -927,7 +872,7 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 
 **Support:**
 - Hardware Detection: [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"])
-- Model Deployment: [Deploy Models](command:tenstorrent.lesson.show?["model-deployment"])
+- Serving: [Serve a Model](command:tenstorrent.lesson.show?["interactive-chat"]) and [Launch Software](command:tenstorrent.lesson.show?["launch-software"])
 
 ---
 
