@@ -67,13 +67,16 @@ The `PYTHONPATH` line is there because the pod's vLLM environment finds `ttnn` t
 path file but not tt-metal's `tracy` package beside it; without it `import ttnn` fails
 with `No module named 'tracy'` and the server never starts.
 
-> **If `vllm` stops with `operator torchvision::nms does not exist`,** the image's
-> `torchvision` does not match its `torch` (found in tt-code-server v0.63.0: torch 2.14.1
-> with torchvision 0.26.0). Until the image is rebuilt with the fix, install the matching
-> build into the venv once:
-> ```bash
-> uv pip install --no-deps --index-url https://download.pytorch.org/whl/cpu "torchvision==0.29.*"
-> ```
+> **⚠️ Verified state, 2026-10-29.** On the tt-code-server image as shipped (v0.63.0) this
+> route does not start. Three things are wrong with its `python_env_vllm`, found in order:
+> `import ttnn` cannot find `tracy` (the `PYTHONPATH` line above fixes that); its
+> `torchvision` 0.26 does not match its `torch` 2.14 (`uv pip install --no-deps --index-url
+> https://download.pytorch.org/whl/cpu "torchvision==0.29.*"` fixes that); and then vLLM
+> cannot load `TTLlamaForCausalLM`, because the image pairs tt-metal v0.69.0 (April 2026)
+> with vllm-tt-plugin `main` and vLLM 0.30.0 (October 2026), and tt-metal's
+> `models/tt_transformers/tt/generator_vllm.py` imports a vLLM API that no longer exists.
+> That one needs the image rebuilt with a matched tt-metal and plugin pair. Until then, the
+> cloud pod has no working serving route; the Build on the Stack lessons do not need one.
 
 `MESH_DEVICE` names the board the plugin should open: `N150` on the pod, `N300`, `T3K`,
 `P100`, `P150` and so on elsewhere. `--max-model-len 32768` is the plugin's documented

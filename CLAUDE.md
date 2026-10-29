@@ -56,6 +56,27 @@ n150 on the pod.
   env. The extension itself was not opened inside the rig's code-server; the guard is
   proven by its unit test plus the markers.
 
+**Serve Models group (Task 6), what was run where:**
+- QuietBox host (lease ab99ec, chips 2-3, so `tt` detected `p300`): `tt model list`,
+  `tt model list --catalog`, `tt model info Llama-3.1-8B-Instruct` (pasted into the
+  lesson), `tt model search qwen3|coder`, `tt serve Llama-3.1-8B-Instruct --dry-run`
+  (prints the full run.py command), `tt serve Qwen3-32B --dry-run` (refuses on one board:
+  "no support entry for p300", as the lesson says). **Not run:** a real `tt serve` on the
+  host. `tt serve` maps every `/dev/tenstorrent` node, and the other two boards were held by
+  other agents the whole day; the serve buttons are proven by dry run only.
+- Cloud rig: `tt model list/info/search` pass. **The no-container vLLM route does not
+  start on image v0.63.0.** Three defects, each found after fixing the previous one: (1)
+  `import ttnn` in `python_env_vllm` fails, `No module named 'tracy'` (needs
+  `~/tt-metal/tools` on `PYTHONPATH`; the template now exports it); (2) torchvision 0.26.0
+  vs torch 2.14.1, `operator torchvision::nms does not exist` (0.29.2 cpu wheel fixes
+  it); (3) with both fixed, vLLM cannot load `TTLlamaForCausalLM`: tt-metal v0.69.0's
+  `generator_vllm.py` imports `vllm.multimodal.inputs.MultiModalDataDict`, gone from vLLM
+  0.30.0. The image pairs an April tt-metal with an October plugin. (1) and (2) are fixed
+  on tt-code-server branch `tt-cli-ready` (local commit 25b0fe2, image
+  `tt-code-server:tt-cli` built); (3) needs a matched tt-metal/plugin pair, which is a
+  TT_METAL_VERSION bump and a full rebuild — not done, Taylor's call. The lesson says so.
+  The rig's chip is a p300c, so the run used `MESH_DEVICE=P100`; the pod is an n150.
+
 ## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
 All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy) and
