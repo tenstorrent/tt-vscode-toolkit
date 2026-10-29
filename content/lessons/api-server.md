@@ -57,10 +57,23 @@ On the pod, `HF_HOME` is `~/models`, so the token and the weights both land ther
 
 ```bash
 source ~/tt-metal/build/python_env_vllm/bin/activate
+export PYTHONPATH=$HOME/tt-metal/tools:$HOME/tt-metal/ttnn:$PYTHONPATH
 MESH_DEVICE=N150 vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --port 20000
 ```
 
 [🚀 Serve Llama-3.1-8B-Instruct (vLLM, no container)](command:tenstorrent.vllm.serveCloudN150)
+
+The `PYTHONPATH` line is there because the pod's vLLM environment finds `ttnn` through a
+path file but not tt-metal's `tracy` package beside it; without it `import ttnn` fails
+with `No module named 'tracy'` and the server never starts.
+
+> **If `vllm` stops with `operator torchvision::nms does not exist`,** the image's
+> `torchvision` does not match its `torch` (found in tt-code-server v0.63.0: torch 2.14.1
+> with torchvision 0.26.0). Until the image is rebuilt with the fix, install the matching
+> build into the venv once:
+> ```bash
+> uv pip install --no-deps --index-url https://download.pytorch.org/whl/cpu "torchvision==0.29.*"
+> ```
 
 `MESH_DEVICE` names the board the plugin should open: `N150` on the pod, `N300`, `T3K`,
 `P100`, `P150` and so on elsewhere. `--max-model-len 32768` is the plugin's documented

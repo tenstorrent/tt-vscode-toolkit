@@ -61,14 +61,22 @@ tt model info Llama-3.1-8B-Instruct
 ```
 │ hf_repo       │ meta-llama/Llama-3.1-8B-Instruct                             │
 │ type          │ llm                                                          │
-│ engines       │ vLLM                                                         │
+│ engines       │ vLLM, forge                                                  │
+│ via           │ inference-server, studio                                     │
 │ servable      │ yes — `tt serve Llama-3.1-8B-Instruct` (`--studio` deploys   │
+│               │ it with TT-Studio)                                           │
+│ parameters    │ 8B                                                           │
+│ min disk      │ 36 GB                                                        │
+│ min ram       │ 20 GB                                                        │
+│ cached        │ yes (15.0 GB)                                                │
 │ on n150       │ vLLM — COMPLETE, max context 65536                           │
 │ on n300       │ vLLM — COMPLETE, max context 131072                          │
-│ on p150       │ vLLM, forge — EXPERIMENTAL, max context 65536                │
-│ on p150x4     │ vLLM — FUNCTIONAL, max context 131072                        │
-│ on p150x8     │ vLLM — FUNCTIONAL, max context 131072                        │
+│ on t3k        │ vLLM — COMPLETE, max context 131072                          │
+│ ...           │                                                              │
 ```
+
+`cached` says the weights are already in the Hugging Face cache on this machine (captured
+on a TT-QuietBox 2 that had pulled them earlier).
 
 Validation status goes `EXPERIMENTAL`, `FUNCTIONAL`, `COMPLETE`. `COMPLETE` is fully
 validated; `FUNCTIONAL` runs correctly and is not fully tuned. The status is per board, so
