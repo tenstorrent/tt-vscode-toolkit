@@ -9,15 +9,6 @@
  * When updating commands, update them here and they'll automatically sync everywhere.
  */
 
-import { MODEL_REGISTRY, DEFAULT_MODEL_KEY, type ModelConfig } from '../config';
-
-/**
- * Get the default model config
- */
-function getDefaultModel(): ModelConfig {
-  return MODEL_REGISTRY[DEFAULT_MODEL_KEY];
-}
-
 /**
  * Command template that can include variables to be replaced at runtime
  */
@@ -204,23 +195,11 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   LOGIN_HF: {
     id: 'login-hf',
     name: 'Login to Hugging Face',
-    template: 'hf auth login --token "$HF_TOKEN"',
+    template: 'tt model login',
     description: 'Authenticates with Hugging Face using your token',
   },
 
   // Model Download
-  DOWNLOAD_MODEL: {
-    id: 'download-model',
-    name: 'Download Llama Model',
-    template: (() => {
-      const model = getDefaultModel();
-      return `mkdir -p ~/models && hf download ${model.huggingfaceId} --local-dir ~/models/${model.localDirName}`;
-    })(),
-    description: (() => {
-      const model = getDefaultModel();
-      return `Creates ~/models directory and downloads ${model.displayName} model (full model with all formats, ~16GB)`;
-    })(),
-  },
 
   // Clone TT-Metal
   CLONE_TT_METAL: {
@@ -242,65 +221,124 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   // Run Inference
-  RUN_INFERENCE: {
-    id: 'run-inference',
-    name: 'Run Llama Inference',
-    template:
-      'cd "{{ttMetalPath}}" && export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && pytest models/tt_transformers/demo/simple_text_demo.py -k performance-batch-1 --max_seq_len 1024 --max_generated_tokens 128',
-    description: 'Runs Llama inference demo with HF_MODEL and LLAMA_DIR set to the downloaded model',
-    variables: ['ttMetalPath', 'modelPath'],
-  },
 
   // Interactive Chat (Lesson 4)
-  INSTALL_INFERENCE_DEPS: {
-    id: 'install-inference-deps',
-    name: 'Install Inference Dependencies',
-    template: 'pip install pi && pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag',
-    description: 'Installs pi package and llama-models from Tenstorrent GitHub for inference',
-  },
 
 
-  START_CHAT_SESSION: {
-    id: 'start-chat-session',
-    name: 'Start Interactive Chat',
-    template:
-      'cd "{{ttMetalPath}}" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-chat.py',
-    description: 'Starts the interactive chat REPL with the Llama model on tt-metal',
-    variables: ['ttMetalPath', 'modelPath'],
-  },
 
   // HTTP API Server (Lesson 5)
 
-  INSTALL_FLASK: {
-    id: 'install-flask',
-    name: 'Install Flask',
-    template: 'pip install flask',
-    description: 'Installs Flask web framework for the API server',
+
+
+
+
+  // ========================================
+  // Serve Models: tt model / tt serve
+  // ========================================
+
+  MODEL_LIST: {
+    id: 'model-list',
+    name: 'Models for this hardware',
+    template: 'tt model list',
+    description: 'Models with a serving profile for the detected board',
   },
 
-  START_API_SERVER: {
-    id: 'start-api-server',
-    name: 'Start API Server',
-    template:
-      'cd "{{ttMetalPath}}" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-api-server.py --port 8080',
-    description: 'Starts the Flask API server with the Llama model on tt-metal',
-    variables: ['ttMetalPath', 'modelPath'],
+  MODEL_LIST_CATALOG: {
+    id: 'model-list-catalog',
+    name: 'Released catalog',
+    template: 'tt model list --catalog',
+    description: 'Only the released catalog Tenstorrent ships and tests through tt-inference-server',
   },
 
-  TEST_API_BASIC: {
-    id: 'test-api-basic',
-    name: 'Test API with Basic Query',
-    template:
-      'curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d \'{"prompt": "What is machine learning?"}\'',
-    description: 'Tests the API server with a basic curl request',
+  MODEL_INFO: {
+    id: 'model-info',
+    name: 'Model info',
+    template: 'tt model info Llama-3.1-8B-Instruct',
+    description: 'What a model needs (disk, RAM) and its validation status per board',
   },
 
-  TEST_API_MULTIPLE: {
-    id: 'test-api-multiple',
-    name: 'Test API with Multiple Queries',
-    template:
-      'echo "Testing Tenstorrent query..." && curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d \'{"prompt": "Tell me about Tenstorrent hardware"}\' && echo "\n\nTesting haiku..." && curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d \'{"prompt": "Write a haiku about AI"}\'',
-    description: 'Tests the API server with multiple sequential curl requests',
+  MODEL_SEARCH: {
+    id: 'model-search',
+    name: 'Search the Hub',
+    template: 'tt model search qwen3 --limit 5',
+    description: 'Community tt-model bundles on the Hugging Face Hub matching a name (untested by Tenstorrent)',
+  },
+
+  MODEL_PULL: {
+    id: 'model-pull',
+    name: 'Pull weights',
+    template: 'tt model pull Llama-3.1-8B-Instruct',
+    description: 'Downloads the weights into the Hugging Face cache ahead of serving',
+  },
+
+  MODEL_SERVE_DRY_RUN_N150: {
+    id: 'model-serve-dry-run-n150',
+    name: 'Dry run: Llama-3.1-8B-Instruct',
+    template: 'tt serve Llama-3.1-8B-Instruct --dry-run',
+    description: 'Shows what tt serve would run for the one-chip model; starts nothing',
+  },
+
+  MODEL_SERVE_N150: {
+    id: 'model-serve-n150',
+    name: 'Serve Llama-3.1-8B-Instruct',
+    template: 'tt serve Llama-3.1-8B-Instruct',
+    description: 'Serves the one-chip model in a container (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_SERVE_DRY_RUN_QB2: {
+    id: 'model-serve-dry-run-qb2',
+    name: 'Dry run: Qwen3-32B',
+    template: 'tt serve Qwen3-32B --dry-run',
+    description: 'Shows what tt serve would run for the TT-QuietBox 2 model; starts nothing',
+  },
+
+  MODEL_SERVE_QB2: {
+    id: 'model-serve-qb2',
+    name: 'Serve Qwen3-32B',
+    template: 'tt serve Qwen3-32B',
+    description: 'Serves the model a TT-QuietBox 2 ships with (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_PS: {
+    id: 'model-ps',
+    name: 'What is running',
+    template: 'tt model ps',
+    description: 'Every server tt started: backend, container, port, health, uptime',
+  },
+
+  MODEL_LOGS: {
+    id: 'model-logs',
+    name: 'Server log',
+    template: 'tt model logs',
+    description: 'The newest server log (add --follow to tail it)',
+  },
+
+  MODEL_CURL: {
+    id: 'model-curl',
+    name: 'Ask the model',
+    template: 'tt model curl "Explain what an API is in one sentence." --max-tokens 256',
+    description: 'Sends one chat completion to the served model and prints the JSON reply',
+  },
+
+  MODEL_STOP: {
+    id: 'model-stop',
+    name: 'Stop the model',
+    template: 'tt model stop',
+    description: 'Stops the served model (name it when more than one is running)',
+  },
+
+  VLLM_SERVE_CLOUD_N150: {
+    id: 'vllm-serve-cloud-n150',
+    name: 'Serve Llama-3.1-8B-Instruct (vLLM, no container)',
+    template: 'source ~/tt-metal/build/python_env_vllm/bin/activate && MESH_DEVICE=N150 vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --port 20000',
+    description: "Cloud pod: serves from the pod's vLLM environment with the Tenstorrent plugin, same /v1 endpoint as tt serve",
+  },
+
+  VLLM_CURL_CLOUD: {
+    id: 'vllm-curl-cloud',
+    name: 'Ask the model (curl)',
+    template: 'curl -s http://localhost:20000/v1/chat/completions -H "Content-Type: application/json" -d \'{"model": "meta-llama/Llama-3.1-8B-Instruct", "messages": [{"role": "user", "content": "Explain what an API is in one sentence."}], "max_tokens": 256}\' | python3 -m json.tool',
+    description: 'One chat completion against the no-container server',
   },
 
   // ========================================

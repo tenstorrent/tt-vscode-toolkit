@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.35",
+  "version": "0.1.36",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -178,11 +178,6 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.model.download",
-        "title": "Download Model from Hugging Face",
-        "category": "Tenstorrent"
-      },
-      {
         "command": "tenstorrent.metal.clone",
         "title": "Check for TT-Metal / Clone Repository",
         "category": "Tenstorrent"
@@ -193,83 +188,8 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.model.runInference",
-        "title": "Run Llama Inference Demo",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.model.installInferenceDeps",
-        "title": "Install Inference Dependencies",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.model.createChatScript",
-        "title": "Create Interactive Chat Script",
-        "category": "Tenstorrent"
-      },
-      {
         "command": "tenstorrent.monkeypatch.copyHarness",
         "title": "Copy tt_patches Monkeypatch Harness to Scratchpad",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.model.startChatSession",
-        "title": "Start Interactive Chat Session",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.createApiServer",
-        "title": "Create API Server Script",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.installFlask",
-        "title": "Install Flask Web Framework",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.startApiServer",
-        "title": "Start API Server",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.testApiBasic",
-        "title": "Test API with Basic Query",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.testApiMultiple",
-        "title": "Test API with Multiple Queries",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.model.createChatScriptDirect",
-        "title": "Create Direct API Chat Script",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.model.startChatSessionDirect",
-        "title": "Start Direct API Chat Session",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.createApiServerDirect",
-        "title": "Create Direct API Server Script",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.startApiServerDirect",
-        "title": "Start Direct API Server",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.testApiBasicDirect",
-        "title": "Test Direct API (Basic)",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.apps.testApiMultipleDirect",
-        "title": "Test Direct API (Multiple Queries)",
         "category": "Tenstorrent"
       },
       {
@@ -320,21 +240,6 @@
       {
         "command": "tenstorrent.metal.update",
         "title": "Update and Build TT-Metal",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.vllm.clone",
-        "title": "Clone TT vLLM Repository",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.vllm.install",
-        "title": "Install vLLM",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.vllm.start",
-        "title": "Start vLLM Server",
         "category": "Tenstorrent"
       },
       {
@@ -673,11 +578,6 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.vllm.installAllScripts",
-        "title": "Install All Scripts",
-        "category": "Tenstorrent"
-      },
-      {
         "command": "tenstorrent.forge.activateEnv",
         "title": "Activate Forge Env",
         "category": "Tenstorrent"
@@ -800,6 +700,86 @@
       {
         "command": "tenstorrent.setup.useInstalledTools",
         "title": "Setup: Use the Pod's tt-smi and tt-flash",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.list",
+        "title": "Model: List for This Hardware",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.listCatalog",
+        "title": "Model: Released Catalog",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.info",
+        "title": "Model: Info",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.search",
+        "title": "Model: Search the Hub",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.pull",
+        "title": "Model: Pull Weights",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.serveDryRunN150",
+        "title": "Serve: Dry Run Llama-3.1-8B-Instruct",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.serveN150",
+        "title": "Serve: Llama-3.1-8B-Instruct",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.serveDryRunQb2",
+        "title": "Serve: Dry Run Qwen3-32B",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.serveQb2",
+        "title": "Serve: Qwen3-32B",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.ps",
+        "title": "Model: What Is Running",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.logs",
+        "title": "Model: Server Log",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.curl",
+        "title": "Model: Ask the Model",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.model.stop",
+        "title": "Model: Stop",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.vllm.serveCloudN150",
+        "title": "vLLM: Serve Llama-3.1-8B-Instruct Without a Container",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.vllm.curlCloud",
+        "title": "vLLM: Ask the Model (curl)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.vllm.clone",
+        "title": "vLLM: Clone the Repository",
         "category": "Tenstorrent"
       }
     ]

@@ -27,6 +27,26 @@ estimatedMinutes: 20
 
 Generate images on your Tenstorrent hardware using Stable Diffusion XL Base - turn text prompts into high-resolution images powered by your hardware!
 
+## Serve It with `tt`
+
+The catalog has image models with a serving profile for your hardware, and `tt serve`
+runs them the same way it runs an LLM:
+
+```bash
+tt model list --catalog --type image
+```
+
+On a TT-QuietBox 2 that lists `FLUX.1-dev` and `FLUX.1-schnell` (`p300`, `p300x2`); on an
+n150 it lists `stable-diffusion-xl-base-1.0` (`tt model list --all --type image` shows
+every board). `tt serve FLUX.1-schnell` or `tt serve stable-diffusion-xl-base-1.0` gives
+you an endpoint, and `tt serve <model> --studio` puts TT-Studio's image UI in front of it.
+`tt serve` needs Docker, so on the cloud pod this section does not apply; the rest of the
+lesson, which runs the model demo from the tt-metal source tree, does.
+
+## Go Deeper: Run the Demo by Hand
+
+Everything below runs Stable Diffusion XL from the tt-metal source tree, outside `tt`.
+
 ## What is Stable Diffusion XL?
 
 **Stable Diffusion XL Base** is a powerful text-to-image diffusion model that generates high-quality 1024x1024 images from text descriptions. SDXL uses a two-stage architecture with dual text encoders (CLIP-L and OpenCLIP-G) for improved prompt understanding.

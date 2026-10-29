@@ -224,29 +224,6 @@ function getOrCreateSimpleTerminal(): vscode.Terminal {
 }
 
 /**
- * Gets or creates a dedicated "API Test" terminal for API testing commands.
- * Reuses an existing "API Test" terminal if found to avoid terminal clutter.
- *
- * @returns Existing or newly created "API Test" terminal instance
- */
-function getOrCreateApiTestTerminal(): vscode.Terminal {
-  // Look for an existing "API Test" terminal
-  const existingTerminal = vscode.window.terminals.find(
-    (t) => t.name === 'API Test'
-  );
-
-  if (existingTerminal) {
-    return existingTerminal;
-  }
-
-  // Create a new dedicated API test terminal
-  return vscode.window.createTerminal({
-    name: 'API Test',
-    cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
-  });
-}
-
-/**
  * Executes a command in the specified terminal.
  * Shows the terminal to the user so they can see the output.
  * Uses preserveFocus: false to ensure terminal is visible and focused.
@@ -421,6 +398,80 @@ function setupVerifyTtnnQb2(): void {
   runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_VERIFY_TTNN_QB2.template);
 }
 
+/**
+ * Command: tenstorrent.vllm.clone
+ * Clones the TT vLLM repository
+ */
+function cloneVllm(): void {
+  const terminal = getOrCreateSimpleTerminal();
+
+  const command = `cd ~ && git clone --branch dev https://github.com/tenstorrent/vllm.git tt-vllm && cd tt-vllm`;
+
+  runInTerminal(terminal, command);
+
+  vscode.window.showInformationMessage(
+    'Cloning TT vLLM repository. This may take 1-2 minutes...'
+  );
+}
+
+// ============================================================================
+// SERVE MODELS: tt model / tt serve
+// ============================================================================
+
+function modelList(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_LIST.template);
+}
+function modelListCatalog(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_LIST_CATALOG.template);
+}
+function modelInfo(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_INFO.template);
+}
+function modelSearch(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SEARCH.template);
+}
+function modelPull(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_PULL.template);
+}
+function modelServeDryRunN150(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_DRY_RUN_N150.template);
+}
+/** Guarded: tt serve needs Docker, which the cloud pod does not have. */
+function modelServeN150(): void {
+  if (!canRunHere('tt serve')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_N150.template);
+}
+function modelServeDryRunQb2(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_DRY_RUN_QB2.template);
+}
+/** Guarded: tt serve needs Docker, which the cloud pod does not have. */
+function modelServeQb2(): void {
+  if (!canRunHere('tt serve')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_QB2.template);
+}
+function modelPs(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_PS.template);
+}
+function modelLogs(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_LOGS.template);
+}
+function modelCurl(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_CURL.template);
+}
+function modelStop(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_STOP.template);
+}
+/** Cloud pod route: vLLM from the pod's own venv, no container. */
+function vllmServeCloudN150(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.VLLM_SERVE_CLOUD_N150.template);
+  vscode.window.showInformationMessage(
+    'Serving with vLLM in this terminal. Ready when the log says "Application startup complete". Ask it from a second terminal.'
+  );
+}
+function vllmCurlCloud(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.VLLM_CURL_CLOUD.template);
+}
+
 // ============================================================================
 // LESSON 1: Hardware Detection
 // ============================================================================
@@ -509,26 +560,6 @@ function loginHuggingFace(): void {
 
   vscode.window.showInformationMessage(
     'Authenticating with Hugging Face. Check the terminal for results.'
-  );
-}
-
-/**
- * Command: tenstorrent.model.download
- *
- * Downloads the Llama-3.1-8B-Instruct model from Hugging Face to ~/models/.
- * Uses absolute path to ensure predictable location for inference scripts.
- * This is Step 3c in the walkthrough.
- */
-function downloadModel(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.DOWNLOAD_MODEL.template;
-
-  // Create models directory and download to absolute path
-  // This ensures the model is in a predictable location for the inference script
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    'Downloading model to ~/models/Llama-3.1-8B-Instruct. This is ~16GB and may take several minutes. Check the terminal for progress.'
   );
 }
 
@@ -710,113 +741,6 @@ async function setupEnvironment(): Promise<void> {
 }
 
 /**
- * Command: tenstorrent.model.runInference
- *
- * Runs the Llama inference demo using pytest.
- * Sets LLAMA_DIR environment variable to point to the downloaded model.
- * This is Step 3f in the walkthrough - the final step!
- */
-async function runInference(): Promise<void> {
-  // Get the tt-metal path from stored state (default to ~/tt-metal if not found)
-  const os = await import('os');
-  const path = await import('path');
-  const homeDir = os.homedir();
-  const defaultPath = path.join(homeDir, 'tt-metal');
-  const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
-
-  // Model path using constants
-  const modelPath = await getModelOriginalPath();
-
-  const terminal = getOrCreateSimpleTerminal();
-
-  // Run inference demo with LLAMA_DIR set to the model location
-  // and reasonable default parameters for seq length and token generation
-  const command = replaceVariables(TERMINAL_COMMANDS.RUN_INFERENCE.template, {
-    ttMetalPath,
-    modelPath,
-  });
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🚀 Running Llama inference on Tenstorrent hardware! First run may take a few minutes for kernel compilation. Check the terminal for output.'
-  );
-}
-
-/**
- * Command: tenstorrent.model.installInferenceDeps
- *
- * Installs additional Python dependencies required for interactive inference.
- * This is Step 4-1 in the walkthrough - Interactive Chat
- */
-function installInferenceDeps(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.INSTALL_INFERENCE_DEPS.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    'Installing inference dependencies (pi and llama-models). This may take 1-2 minutes. Check the terminal for progress.'
-  );
-}
-
-/**
- * Command: tenstorrent.model.createChatScript
- *
- * Creates the interactive chat script by copying the template to ~/tt-scratchpad/tt-chat.py
- * This is Step 4-2 in the walkthrough - Interactive Chat
- */
-async function createChatScript(): Promise<void> {
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  // Get the template path from the extension
-  const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-chat.py');
-
-  // Check if template exists
-  if (!fs.existsSync(templatePath)) {
-    vscode.window.showErrorMessage(
-      `Template not found at ${templatePath}. Please reinstall the extension.`
-    );
-    return;
-  }
-
-  // Destination path in ~/tt-scratchpad/
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-
-  // Create scratchpad directory if it doesn't exist
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  const destPath = path.join(scratchpadDir, 'tt-chat.py');
-
-  // Check if file exists and ask for overwrite confirmation
-  if (!(await shouldOverwriteFile(destPath))) {
-    return; // User cancelled
-  }
-
-  try {
-    // Copy the template to scratchpad directory
-    fs.copyFileSync(templatePath, destPath);
-
-    // Make it executable
-    fs.chmodSync(destPath, 0o755);
-
-    vscode.window.showInformationMessage(
-      `✅ Created interactive chat script at ${destPath}. You can now start a chat session!`
-    );
-  } catch (error) {
-    vscode.window.showErrorMessage(
-      `Failed to create chat script: ${error}`
-    );
-  }
-}
-
-/**
  * Command: tenstorrent.monkeypatch.copyHarness
  *
  * Copies the tt_patches monkeypatch harness folder (tt_patches.py +
@@ -901,372 +825,9 @@ async function copyMonkeypatchHarness(): Promise<void> {
   }
 }
 
-/**
- * Command: tenstorrent.model.startChatSession
- *
- * Starts an interactive chat session with the Llama model.
- * This is Step 4-3 in the walkthrough - Interactive Chat
- */
-async function startChatSession(): Promise<void> {
-  // Get the tt-metal path from stored state (default to ~/tt-metal if not found)
-  const os = await import('os');
-  const path = await import('path');
-  const homeDir = os.homedir();
-  const defaultPath = path.join(homeDir, 'tt-metal');
-  const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
-
-  // Model path using constants
-  const modelPath = await getModelOriginalPath();
-
-  const terminal = getOrCreateSimpleTerminal();
-
-  // Run the interactive chat script with proper environment setup
-  const command = replaceVariables(TERMINAL_COMMANDS.START_CHAT_SESSION.template, {
-    ttMetalPath,
-    modelPath,
-  });
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '💬 Starting interactive chat session. First load may take a few minutes. Type your prompts in the terminal!'
-  );
-}
-
-/**
- * Command: tenstorrent.apps.createApiServer
- *
- * Creates the API server script by copying the template to ~/tt-scratchpad/tt-api-server.py
- * This is Step 5a in the walkthrough - HTTP API Server
- */
-async function createApiServer(): Promise<void> {
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  // Get the template path from the extension
-  const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-api-server.py');
-
-  // Check if template exists
-  if (!fs.existsSync(templatePath)) {
-    vscode.window.showErrorMessage(
-      `Template not found at ${templatePath}. Please reinstall the extension.`
-    );
-    return;
-  }
-
-  // Destination path in ~/tt-scratchpad/
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-
-  // Create scratchpad directory if it doesn't exist
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  const destPath = path.join(scratchpadDir, 'tt-api-server.py');
-
-  // Check if file exists and ask for overwrite confirmation
-  if (!(await shouldOverwriteFile(destPath))) {
-    return; // User cancelled
-  }
-
-  try {
-    // Copy the template to scratchpad directory
-    fs.copyFileSync(templatePath, destPath);
-
-    // Make it executable
-    fs.chmodSync(destPath, 0o755);
-
-    vscode.window.showInformationMessage(
-      `✅ Created API server script at ${destPath}. Next, install Flask if you haven't already!`
-    );
-  } catch (error) {
-    vscode.window.showErrorMessage(
-      `Failed to create API server script: ${error}`
-    );
-  }
-}
-
-/**
- * Command: tenstorrent.apps.installFlask
- *
- * Installs Flask web framework using pip.
- * This is Step 5b in the walkthrough - HTTP API Server
- */
-function installFlask(): void {
-  const terminal = getOrCreateSimpleTerminal();
-  const command = TERMINAL_COMMANDS.INSTALL_FLASK.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    'Installing Flask. This should only take a few seconds. Check the terminal for progress.'
-  );
-}
-
-/**
- * Command: tenstorrent.apps.startApiServer
- *
- * Starts the Flask API server with the Llama model.
- * This is Step 5c in the walkthrough - HTTP API Server
- */
-async function startApiServer(): Promise<void> {
-  // Get the tt-metal path from stored state (default to ~/tt-metal if not found)
-  const os = await import('os');
-  const path = await import('path');
-  const homeDir = os.homedir();
-  const defaultPath = path.join(homeDir, 'tt-metal');
-  const ttMetalPath = extensionContext.globalState.get<string>(STATE_KEYS.TT_METAL_PATH, defaultPath);
-
-  // Model path using constants
-  const modelPath = await getModelOriginalPath();
-
-  const terminal = getOrCreateSimpleTerminal();
-
-  // Run the API server with proper environment setup
-  const command = replaceVariables(TERMINAL_COMMANDS.START_API_SERVER.template, {
-    ttMetalPath,
-    modelPath,
-  });
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🚀 Starting API server on port 8080. First load may take a few minutes. Open a second terminal to test with curl!'
-  );
-}
-
-/**
- * Command: tenstorrent.apps.testApiBasic
- *
- * Tests the API server with a basic curl query.
- * This is Step 5d in the walkthrough - HTTP API Server
- */
-function testApiBasic(): void {
-  // Get or reuse dedicated API test terminal to avoid terminal clutter
-  const terminal = getOrCreateApiTestTerminal();
-  const command = TERMINAL_COMMANDS.TEST_API_BASIC.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🧪 Testing API with basic query. Check the "API Test" terminal for the response!'
-  );
-}
-
-/**
- * Command: tenstorrent.apps.testApiMultiple
- *
- * Tests the API server with multiple curl queries.
- * This is Step 5e in the walkthrough - HTTP API Server
- */
-function testApiMultiple(): void {
-  // Get or reuse dedicated API test terminal to avoid terminal clutter
-  const terminal = getOrCreateApiTestTerminal();
-  const command = TERMINAL_COMMANDS.TEST_API_MULTIPLE.template;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🧪 Testing API with multiple queries. Check the "API Test" terminal for the responses!'
-  );
-}
-
 // ============================================================================
 // Direct API Commands (Lessons 4-6)
 // ============================================================================
-
-/**
- * Command: tenstorrent.model.createChatScriptDirect
- * Creates the direct API chat script and opens it in the editor
- */
-async function createChatScriptDirect(): Promise<void> {
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-chat-direct.py');
-
-  if (!fs.existsSync(templatePath)) {
-    vscode.window.showErrorMessage(
-      `Template not found at ${templatePath}. Please reinstall the extension.`
-    );
-    return;
-  }
-
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-
-  // Create scratchpad directory if it doesn't exist
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  const destPath = path.join(scratchpadDir, 'tt-chat-direct.py');
-
-  // Check if file exists and ask for overwrite confirmation
-  if (!(await shouldOverwriteFile(destPath))) {
-    return; // User cancelled
-  }
-
-  try {
-    fs.copyFileSync(templatePath, destPath);
-    fs.chmodSync(destPath, 0o755);
-
-    // Open the file in the editor (to the side, preserving focus on terminal)
-    const doc = await vscode.workspace.openTextDocument(destPath);
-    await vscode.window.showTextDocument(doc, {
-      viewColumn: vscode.ViewColumn.Beside,
-      preserveFocus: true,
-      preview: false
-    });
-
-    vscode.window.showInformationMessage(
-      `✅ Created direct API chat script at ${destPath}. The file is now open - review the code!`
-    );
-  } catch (error) {
-    vscode.window.showErrorMessage(`Failed to create chat script: ${error}`);
-  }
-}
-
-/**
- * Command: tenstorrent.model.startChatSessionDirect
- * Starts the direct API chat session
- */
-async function startChatSessionDirect(): Promise<void> {
-  const os = await import('os');
-  const path = await import('path');
-  const homeDir = os.homedir();
-  const ttMetalPath = path.join(homeDir, 'tt-metal');
-  const modelPath = await getModelBasePath();
-
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `cd ${ttMetalPath} && export HF_MODEL=${modelPath} && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-chat-direct.py`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '💬 Starting direct API chat. Model loads once (2-5 min), then queries are fast (1-3 sec)!'
-  );
-}
-
-/**
- * Command: tenstorrent.apps.createApiServerDirect
- * Creates the direct API server script and opens it in the editor
- */
-async function createApiServerDirect(): Promise<void> {
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  const extensionPath = extensionContext.extensionPath;
-  const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'tt-api-server-direct.py');
-
-  if (!fs.existsSync(templatePath)) {
-    vscode.window.showErrorMessage(
-      `Template not found at ${templatePath}. Please reinstall the extension.`
-    );
-    return;
-  }
-
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-
-  // Create scratchpad directory if it doesn't exist
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  const destPath = path.join(scratchpadDir, 'tt-api-server-direct.py');
-
-  // Check if file exists and ask for overwrite confirmation
-  if (!(await shouldOverwriteFile(destPath))) {
-    return; // User cancelled
-  }
-
-  try {
-    fs.copyFileSync(templatePath, destPath);
-    fs.chmodSync(destPath, 0o755);
-
-    // Open the file in the editor (to the side, preserving focus on terminal)
-    const doc = await vscode.workspace.openTextDocument(destPath);
-    await vscode.window.showTextDocument(doc, {
-      viewColumn: vscode.ViewColumn.Beside,
-      preserveFocus: true,
-      preview: false
-    });
-
-    vscode.window.showInformationMessage(
-      `✅ Created direct API server at ${destPath}. The file is now open - review the code!`
-    );
-  } catch (error) {
-    vscode.window.showErrorMessage(`Failed to create API server: ${error}`);
-  }
-}
-
-/**
- * Command: tenstorrent.apps.startApiServerDirect
- * Starts the direct API server
- */
-async function startApiServerDirect(): Promise<void> {
-  const os = await import('os');
-  const path = await import('path');
-  const homeDir = os.homedir();
-  const ttMetalPath = path.join(homeDir, 'tt-metal');
-  const modelPath = await getModelBasePath();
-
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `cd ${ttMetalPath} && export HF_MODEL=${modelPath} && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-api-server-direct.py --port 8080`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🚀 Starting direct API server. Model loads once (2-5 min), then handles requests fast!'
-  );
-}
-
-/**
- * Command: tenstorrent.apps.testApiBasicDirect
- * Tests the direct API server with a basic query
- */
-function testApiBasicDirect(): void {
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d '{"prompt": "What is machine learning?"}'`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    'Testing direct API server. Check terminal for response!'
-  );
-}
-
-/**
- * Command: tenstorrent.apps.testApiMultipleDirect
- * Tests the direct API with multiple queries
- */
-function testApiMultipleDirect(): void {
-  const terminal = getOrCreateSimpleTerminal();
-
-  const commands = [
-    `curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d '{"prompt": "Explain neural networks"}'`,
-    `echo "\n--- Second query ---\n"`,
-    `curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d '{"prompt": "Write a haiku about programming"}'`,
-    `echo "\n--- Third query ---\n"`,
-    `curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d '{"prompt": "What are transformers?"}'`
-  ];
-
-  runInTerminal(terminal, commands.join(' && '));
-
-  vscode.window.showInformationMessage(
-    'Running multiple API tests. Watch the terminal for fast responses!'
-  );
-}
 
 // ============================================================================
 // LESSON 6: Production Inference with tt-inference-server
@@ -1428,80 +989,6 @@ async function updateTTMetal(): Promise<void> {
 
   vscode.window.showInformationMessage(
     '🔧 Updating and rebuilding TT-Metal (including dependencies). This takes 5-15 minutes. Watch terminal for progress.'
-  );
-}
-
-/**
- * Command: tenstorrent.vllm.clone
- * Clones the TT vLLM repository
- */
-function cloneVllm(): void {
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `cd ~ && git clone --branch dev https://github.com/tenstorrent/vllm.git tt-vllm && cd tt-vllm`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    'Cloning TT vLLM repository. This may take 1-2 minutes...'
-  );
-}
-
-/**
- * Command: tenstorrent.vllm.install
- * Creates a dedicated venv and installs vLLM and dependencies
- */
-function installVllm(): void {
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `cd ~/tt-vllm && python3 -m venv ~/tt-vllm-venv && source ~/tt-vllm-venv/bin/activate && pip install --upgrade pip && export vllm_dir=$(pwd) && source $vllm_dir/tt_metal/setup-metal.sh && pip install --upgrade ttnn pytest && pip install fairscale termcolor loguru blobfile fire pytz llama-models==0.0.48 && pip install -e . --extra-index-url https://download.pytorch.org/whl/cpu`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    'Creating venv and installing vLLM with all dependencies (ttnn, pytest, etc). This will take 5-10 minutes. Check terminal for progress.'
-  );
-}
-
-/**
- * Command: tenstorrent.vllm.start
- * Starts the vLLM OpenAI-compatible server with N150 configuration.
- * Creates a custom starter script that registers TT models and uses local model path.
- */
-async function startVllmServer(): Promise<void> {
-  if (await guardHardwareOnly('vLLM server')) return;
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  // Create starter script if it doesn't exist
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-  const starterPath = path.join(scratchpadDir, 'start-vllm-server.py');
-
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  if (!fs.existsSync(starterPath)) {
-    const extensionPath = extensionContext.extensionPath;
-    const templatePath = path.join(extensionPath, 'dist', 'content', 'templates', 'start-vllm-server.py');
-
-    if (fs.existsSync(templatePath)) {
-      fs.copyFileSync(templatePath, starterPath);
-      fs.chmodSync(starterPath, 0o755);
-    }
-  }
-
-  const modelPath = await getModelBasePath();
-  const terminal = getOrCreateSimpleTerminal();
-
-  const command = `cd ~/tt-vllm && source ~/tt-vllm-venv/bin/activate && export TT_METAL_HOME=~/tt-metal && export MESH_DEVICE=N150 && export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH && source ~/tt-vllm/tt_metal/setup-metal.sh && python ~/tt-scratchpad/start-vllm-server.py --model ${modelPath} --host 0.0.0.0 --port 8000 --max-model-len 8192 --max-num-seqs 4 --block-size 64`;
-
-  runInTerminal(terminal, command);
-
-  vscode.window.showInformationMessage(
-    '🚀 Starting vLLM server on N150 with 8K context (memory-optimized). First load takes 2-5 minutes...'
   );
 }
 
@@ -1748,106 +1235,6 @@ async function createVllmStarter(): Promise<void> {
     await vscode.window.showTextDocument(doc);
   } else if (selection === 'Show in Folder') {
     await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(starterPath));
-  }
-}
-
-/**
- * Command: tenstorrent.vllm.installAllScripts
- * Installs all template scripts to ~/tt-scratchpad/ in one go.
- * This creates the environment setup scripts and starter scripts needed by lessons.
- */
-async function installAllScripts(): Promise<void> {
-  const path = await import('path');
-  const fs = await import('fs');
-  const os = await import('os');
-
-  const homeDir = os.homedir();
-  const scratchpadDir = path.join(homeDir, 'tt-scratchpad');
-
-  // Create directory if it doesn't exist
-  if (!fs.existsSync(scratchpadDir)) {
-    fs.mkdirSync(scratchpadDir, { recursive: true });
-  }
-
-  const extensionPath = extensionContext.extensionPath;
-  const templatesDir = path.join(extensionPath, 'dist', 'content', 'templates');
-
-  // List of scripts to install (the ones referenced in lessons)
-  const scriptsToInstall = [
-    'setup-vllm-env.sh',
-    'start-vllm-server.py',
-    'setup-aider.sh',
-    'setup-tt-forge.sh',
-    'setup-tt-xla.sh',
-    'generate_video_frames.py',
-    'tt-coding-assistant.py',
-    'tt-api-server-direct.py',
-    'tt-chat-direct.py',
-    'tt-image-gen.py',
-    'tt-forge-classifier.py'
-  ];
-
-  let installedCount = 0;
-  let skippedCount = 0;
-  const errors: string[] = [];
-
-  for (const scriptName of scriptsToInstall) {
-    const templatePath = path.join(templatesDir, scriptName);
-    const destPath = path.join(scratchpadDir, scriptName);
-
-    // Check if template exists
-    if (!fs.existsSync(templatePath)) {
-      errors.push(`Template not found: ${scriptName}`);
-      continue;
-    }
-
-    // Check if destination already exists
-    if (fs.existsSync(destPath)) {
-      skippedCount++;
-      continue; // Skip existing files
-    }
-
-    try {
-      fs.copyFileSync(templatePath, destPath);
-      // Make shell scripts executable
-      if (scriptName.endsWith('.sh')) {
-        fs.chmodSync(destPath, 0o755);
-      } else if (scriptName.endsWith('.py')) {
-        fs.chmodSync(destPath, 0o755);
-      }
-      installedCount++;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      errors.push(`Failed to install ${scriptName}: ${errorMessage}`);
-    }
-  }
-
-  // Show summary
-  let message = `✅ Installed ${installedCount} script(s) to ~/tt-scratchpad/`;
-  if (skippedCount > 0) {
-    message += `\n⏭️  Skipped ${skippedCount} existing file(s)`;
-  }
-  if (errors.length > 0) {
-    message += `\n❌ ${errors.length} error(s):\n${errors.join('\n')}`;
-    vscode.window.showWarningMessage(message, 'Open Folder').then(selection => {
-      if (selection === 'Open Folder') {
-        vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(scratchpadDir));
-      }
-    });
-  } else {
-    const selection = await vscode.window.showInformationMessage(
-      message,
-      'Open Folder',
-      'View Scripts'
-    );
-
-    if (selection === 'Open Folder') {
-      await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(scratchpadDir));
-    } else if (selection === 'View Scripts') {
-      // Open the folder in VSCode explorer
-      const folderUri = vscode.Uri.file(scratchpadDir);
-      await vscode.commands.executeCommand('vscode.openFolder', folderUri, { forceNewWindow: false });
-    }
   }
 }
 
@@ -5362,6 +4749,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Walkthrough step commands
 
     // Lesson 0 - Modern Setup with tt-installer 2.0
+    vscode.commands.registerCommand('tenstorrent.model.list', modelList),
+    vscode.commands.registerCommand('tenstorrent.model.listCatalog', modelListCatalog),
+    vscode.commands.registerCommand('tenstorrent.model.info', modelInfo),
+    vscode.commands.registerCommand('tenstorrent.model.search', modelSearch),
+    vscode.commands.registerCommand('tenstorrent.model.pull', modelPull),
+    vscode.commands.registerCommand('tenstorrent.model.serveDryRunN150', modelServeDryRunN150),
+    vscode.commands.registerCommand('tenstorrent.model.serveN150', modelServeN150),
+    vscode.commands.registerCommand('tenstorrent.model.serveDryRunQb2', modelServeDryRunQb2),
+    vscode.commands.registerCommand('tenstorrent.model.serveQb2', modelServeQb2),
+    vscode.commands.registerCommand('tenstorrent.model.ps', modelPs),
+    vscode.commands.registerCommand('tenstorrent.model.logs', modelLogs),
+    vscode.commands.registerCommand('tenstorrent.model.curl', modelCurl),
+    vscode.commands.registerCommand('tenstorrent.model.stop', modelStop),
+    vscode.commands.registerCommand('tenstorrent.vllm.serveCloudN150', vllmServeCloudN150),
+    vscode.commands.registerCommand('tenstorrent.vllm.curlCloud', vllmCurlCloud),
     vscode.commands.registerCommand('tenstorrent.setup.whereAmI', setupWhereAmI),
     vscode.commands.registerCommand('tenstorrent.setup.installTt', setupInstallTt),
     vscode.commands.registerCommand('tenstorrent.setup.useInstalledTools', setupUseInstalledTools),
@@ -5382,29 +4784,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Lesson 3 - Download Model
     vscode.commands.registerCommand('tenstorrent.model.setHfToken', setHuggingFaceToken),
     vscode.commands.registerCommand('tenstorrent.model.login', loginHuggingFace),
-    vscode.commands.registerCommand('tenstorrent.model.download', downloadModel),
     vscode.commands.registerCommand('tenstorrent.metal.clone', cloneTTMetal),
     vscode.commands.registerCommand('tenstorrent.metal.setupEnvironment', setupEnvironment),
-    vscode.commands.registerCommand('tenstorrent.model.runInference', runInference),
-    vscode.commands.registerCommand('tenstorrent.model.installInferenceDeps', installInferenceDeps),
-    vscode.commands.registerCommand('tenstorrent.model.createChatScript', createChatScript),
     vscode.commands.registerCommand('tenstorrent.monkeypatch.copyHarness', copyMonkeypatchHarness),
-    vscode.commands.registerCommand('tenstorrent.model.startChatSession', startChatSession),
-    vscode.commands.registerCommand('tenstorrent.apps.createApiServer', createApiServer),
-    vscode.commands.registerCommand('tenstorrent.apps.installFlask', installFlask),
-    vscode.commands.registerCommand('tenstorrent.apps.startApiServer', startApiServer),
-    vscode.commands.registerCommand('tenstorrent.apps.testApiBasic', testApiBasic),
-    vscode.commands.registerCommand('tenstorrent.apps.testApiMultiple', testApiMultiple),
 
     // Lesson 4 - Direct API Chat
-    vscode.commands.registerCommand('tenstorrent.model.createChatScriptDirect', createChatScriptDirect),
-    vscode.commands.registerCommand('tenstorrent.model.startChatSessionDirect', startChatSessionDirect),
 
     // Lesson 5 - Direct API Server
-    vscode.commands.registerCommand('tenstorrent.apps.createApiServerDirect', createApiServerDirect),
-    vscode.commands.registerCommand('tenstorrent.apps.startApiServerDirect', startApiServerDirect),
-    vscode.commands.registerCommand('tenstorrent.apps.testApiBasicDirect', testApiBasicDirect),
-    vscode.commands.registerCommand('tenstorrent.apps.testApiMultipleDirect', testApiMultipleDirect),
 
     // Lesson 6 - tt-inference-server
     vscode.commands.registerCommand('tenstorrent.inferenceServer.verifyPrereqs', verifyInferenceServerPrereqs),
@@ -5420,11 +4806,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Lesson 7 - vLLM (previously Lesson 6)
     vscode.commands.registerCommand('tenstorrent.metal.update', updateTTMetal),
     vscode.commands.registerCommand('tenstorrent.vllm.clone', cloneVllm),
-    vscode.commands.registerCommand('tenstorrent.vllm.install', installVllm),
-    vscode.commands.registerCommand('tenstorrent.vllm.start', startVllmServer),
     vscode.commands.registerCommand('tenstorrent.vllm.startWithHardware', startVllmServerWithHardware), // Parameterized command (replaces N150/N300/T3K/P100 variants)
     vscode.commands.registerCommand('tenstorrent.vllm.createStarter', createVllmStarter),
-    vscode.commands.registerCommand('tenstorrent.vllm.installAllScripts', installAllScripts),
     vscode.commands.registerCommand('tenstorrent.vllm.testOpenai', testVllmOpenai),
     vscode.commands.registerCommand('tenstorrent.vllm.testCurl', testVllmCurl),
 

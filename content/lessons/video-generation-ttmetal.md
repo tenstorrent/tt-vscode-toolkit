@@ -25,6 +25,21 @@ estimatedMinutes: 60
 
 # Video Generation via Frame-by-Frame Diffusion
 
+## Serve It with `tt`
+
+A native video model is in the catalog for the larger boards:
+
+```bash
+tt model list --catalog --type video
+```
+
+On a TT-QuietBox 2 that lists `Wan2.2-T2V-A14B-Diffusers` (`p150x4`, `p300x2`), and
+`tt serve Wan2.2-T2V-A14B-Diffusers` runs it (needs Docker). No video model has an n150
+profile, so on a single chip, and on the cloud pod, the frame-by-frame route below is the
+one that works.
+
+## Go Deeper: Frame by Frame from the Source Tree
+
 ## The Idea
 
 **Generate video one frame at a time, then stitch with ffmpeg.**

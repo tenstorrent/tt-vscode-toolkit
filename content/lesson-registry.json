@@ -209,11 +209,10 @@
     },
     {
       "id": "download-model",
-      "title": "Download Model and Run Inference",
-      "description": "Download Qwen3-0.6B (the recommended model — no license gate, works on all hardware) from Hugging Face to run AI workloads on your Tenstorrent hardware. Optionally download Llama-3.1-8B-Instruct for n300+ hardware.",
+      "title": "Find and Pull a Model",
+      "description": "Use tt model to see which models run on your hardware, read what each one needs, search the community bundles on Hugging Face, log in, and pull weights ahead of time.",
       "category": "serve",
       "tags": [
-        "hardware",
         "inference",
         "model"
       ],
@@ -234,19 +233,20 @@
       "estimatedMinutes": 10,
       "order": 1,
       "previousLesson": "verify-installation",
-      "nextLesson": "verify-installation",
+      "nextLesson": "interactive-chat",
       "completionEvents": [
-        "onCommand:tenstorrent.model.download"
+        "onCommand:tenstorrent.model.list"
       ],
       "markdownFile": "content/lessons/download-model.md"
     },
     {
       "id": "interactive-chat",
-      "title": "Interactive Chat with Direct API",
-      "description": "Build a custom chat application using TT-Metalium's Generator API directly.",
+      "title": "Serve a Model",
+      "description": "tt serve starts a model in a container, waits until it answers, and gives you an OpenAI-compatible endpoint. Preview, serve, ask it a question, watch logs, stop it.",
       "category": "serve",
       "tags": [
-        "chat",
+        "inference",
+        "model",
         "api"
       ],
       "supportedHardware": [
@@ -260,27 +260,29 @@
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
-      "estimatedMinutes": 10,
+      "estimatedMinutes": 15,
       "order": 2,
       "previousLesson": "download-model",
       "nextLesson": "api-server",
       "completionEvents": [
-        "onCommand:tenstorrent.model.startChatSessionDirect"
+        "onCommand:tenstorrent.model.serveDryRunN150",
+        "onCommand:tenstorrent.model.serveDryRunQb2"
       ],
       "markdownFile": "content/lessons/interactive-chat.md"
     },
     {
       "id": "api-server",
-      "title": "HTTP API Server with Direct API",
-      "description": "Create a production-ready Flask API with the model loaded in memory.",
+      "title": "Serve Without Containers",
+      "description": "The cloud pod has no Docker. Serve Llama-3.1-8B-Instruct from the vLLM environment the pod already has, and get the same OpenAI-compatible endpoint tt serve gives everywhere else.",
       "category": "serve",
       "tags": [
-        "production",
+        "inference",
+        "model",
         "api",
-        "flask",
-        "model"
+        "cloud"
       ],
       "supportedHardware": [
         "n150",
@@ -293,14 +295,15 @@
       ],
       "status": "validated",
       "validatedOn": [
-        "n150"
+        "n150",
+        "p300c"
       ],
-      "estimatedMinutes": 10,
+      "estimatedMinutes": 20,
       "order": 3,
       "previousLesson": "interactive-chat",
-      "nextLesson": "tt-inference-server",
+      "nextLesson": "image-generation",
       "completionEvents": [
-        "onCommand:tenstorrent.apps.testApiBasicDirect"
+        "onCommand:tenstorrent.vllm.serveCloudN150"
       ],
       "markdownFile": "content/lessons/api-server.md"
     },
@@ -367,7 +370,7 @@
       "previousLesson": "tt-inference-server",
       "nextLesson": "image-generation",
       "completionEvents": [
-        "onCommand:tenstorrent.vllm.start"
+        "onCommand:tenstorrent.vllm.startWithHardware"
       ],
       "markdownFile": "content/lessons/vllm-production.md"
     },
