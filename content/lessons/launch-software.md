@@ -72,6 +72,10 @@ The `status` column says what is missing: `needs opencode` means the agent is no
 installed, `ready` means it can launch now, and `stopped` is a web UI container that
 exists and is not running.
 
+On the cloud pod the same listing reads `needs docker or podman` for both web UIs and
+`needs qwen` / `needs hermes` for the agents that need Node.js. Aider is the one that
+installs there; it reads `ready` once `uv tool install aider-chat` has run (below).
+
 ## Where the Model Comes From
 
 `tt launch` looks at the containers `tt` started and asks each one. With no Docker, or
