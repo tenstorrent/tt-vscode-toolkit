@@ -101,7 +101,7 @@
       "order": 1,
       "nextLesson": "hardware-detection",
       "completionEvents": [
-        "onCommand:tenstorrent.runQuickInstall"
+        "onCommand:tenstorrent.setup.quickInstall"
       ],
       "markdownFile": "content/lessons/tt-installer.md"
     },
@@ -132,7 +132,7 @@
       "previousLesson": "tt-installer",
       "nextLesson": "download-model",
       "completionEvents": [
-        "onCommand:tenstorrent.runHardwareDetection"
+        "onCommand:tenstorrent.setup.hardwareDetection"
       ],
       "markdownFile": "content/lessons/hardware-detection.md"
     },
@@ -163,7 +163,7 @@
       "previousLesson": "download-model",
       "nextLesson": "interactive-chat",
       "completionEvents": [
-        "onCommand:tenstorrent.runHardwareDetection"
+        "onCommand:tenstorrent.setup.hardwareDetection"
       ],
       "markdownFile": "content/lessons/verify-installation.md"
     },
@@ -196,7 +196,7 @@
       "previousLesson": "hardware-detection",
       "nextLesson": "verify-installation",
       "completionEvents": [
-        "onCommand:tenstorrent.downloadModel"
+        "onCommand:tenstorrent.model.download"
       ],
       "markdownFile": "content/lessons/download-model.md"
     },
@@ -227,7 +227,7 @@
       "previousLesson": "download-model",
       "nextLesson": "api-server",
       "completionEvents": [
-        "onCommand:tenstorrent.startChatSessionDirect"
+        "onCommand:tenstorrent.model.startChatSessionDirect"
       ],
       "markdownFile": "content/lessons/interactive-chat.md"
     },
@@ -260,7 +260,7 @@
       "previousLesson": "interactive-chat",
       "nextLesson": "tt-inference-server",
       "completionEvents": [
-        "onCommand:tenstorrent.testApiBasicDirect"
+        "onCommand:tenstorrent.apps.testApiBasicDirect"
       ],
       "markdownFile": "content/lessons/api-server.md"
     },
@@ -295,7 +295,7 @@
       "previousLesson": "api-server",
       "nextLesson": "vllm-production",
       "completionEvents": [
-        "onCommand:tenstorrent.testTtInferenceServerSimple"
+        "onCommand:tenstorrent.inferenceServer.testSimple"
       ],
       "markdownFile": "content/lessons/tt-inference-server.md"
     },
@@ -327,7 +327,7 @@
       "previousLesson": "tt-inference-server",
       "nextLesson": "image-generation",
       "completionEvents": [
-        "onCommand:tenstorrent.startVllmServer"
+        "onCommand:tenstorrent.vllm.start"
       ],
       "markdownFile": "content/lessons/vllm-production.md"
     },
@@ -359,7 +359,7 @@
       "previousLesson": "vllm-production",
       "nextLesson": "video-generation-ttmetal",
       "completionEvents": [
-        "onCommand:tenstorrent.generateRetroImage"
+        "onCommand:tenstorrent.apps.generateRetroImage"
       ],
       "markdownFile": "content/lessons/image-generation.md",
       "recommended_metal_version": "v0.65.1",
@@ -394,7 +394,7 @@
       "previousLesson": "image-generation",
       "nextLesson": "coding-assistant",
       "completionEvents": [
-        "onCommand:tenstorrent.startInteractiveImageGen"
+        "onCommand:tenstorrent.apps.startInteractiveImageGen"
       ],
       "markdownFile": "content/lessons/video-generation-ttmetal.md"
     },
@@ -425,7 +425,7 @@
       "previousLesson": "video-generation-ttmetal",
       "nextLesson": "ct1-understanding-training",
       "completionEvents": [
-        "onCommand:tenstorrent.startCodingAssistant"
+        "onCommand:tenstorrent.launch.startCodingAssistant"
       ],
       "markdownFile": "content/lessons/coding-assistant.md"
     },
@@ -670,7 +670,7 @@
       "previousLesson": "ct7-architecture-basics",
       "nextLesson": "cookbook-overview",
       "completionEvents": [
-        "onCommand:tenstorrent.trainFromScratch"
+        "onCommand:tenstorrent.training.trainFromScratch"
       ],
       "markdownFile": "content/lessons/ct8-training-from-scratch.md",
       "recommended_metal_version": "v0.73.1",
@@ -705,7 +705,7 @@
       "previousLesson": "ct8-training-from-scratch",
       "nextLesson": "cookbook-game-of-life",
       "completionEvents": [
-        "onCommand:tenstorrent.createCookbookProjects"
+        "onCommand:tenstorrent.cookbook.createProjects"
       ],
       "markdownFile": "content/lessons/cookbook-overview.md"
     },
@@ -740,7 +740,7 @@
       "previousLesson": "cookbook-overview",
       "nextLesson": "cookbook-audio-processor",
       "completionEvents": [
-        "onCommand:tenstorrent.runGameOfLife"
+        "onCommand:tenstorrent.cookbook.gameOfLife"
       ],
       "markdownFile": "content/lessons/cookbook-game-of-life.md"
     },
@@ -772,7 +772,7 @@
       "previousLesson": "cookbook-game-of-life",
       "nextLesson": "cookbook-mandelbrot",
       "completionEvents": [
-        "onCommand:tenstorrent.runAudioProcessor"
+        "onCommand:tenstorrent.cookbook.audioProcessor"
       ],
       "markdownFile": "content/lessons/cookbook-audio-processor.md"
     },
@@ -804,7 +804,7 @@
       "previousLesson": "cookbook-audio-processor",
       "nextLesson": "cookbook-image-filters",
       "completionEvents": [
-        "onCommand:tenstorrent.runMandelbrotExplorer"
+        "onCommand:tenstorrent.cookbook.mandelbrotExplorer"
       ],
       "markdownFile": "content/lessons/cookbook-mandelbrot.md"
     },
@@ -836,7 +836,7 @@
       "previousLesson": "cookbook-mandelbrot",
       "nextLesson": "cookbook-particle-life",
       "completionEvents": [
-        "onCommand:tenstorrent.runImageFilters"
+        "onCommand:tenstorrent.cookbook.imageFilters"
       ],
       "markdownFile": "content/lessons/cookbook-image-filters.md"
     },
@@ -869,7 +869,7 @@
       "previousLesson": "cookbook-image-filters",
       "nextLesson": "forge-image-classification",
       "completionEvents": [
-        "onCommand:tenstorrent.runParticleLife"
+        "onCommand:tenstorrent.cookbook.particleLife"
       ],
       "markdownFile": "content/lessons/cookbook-particle-life.md"
     },
@@ -903,7 +903,7 @@
       "previousLesson": "cookbook-particle-life",
       "nextLesson": "tt-xla-jax",
       "completionEvents": [
-        "onCommand:tenstorrent.runForgeClassifier"
+        "onCommand:tenstorrent.forge.runClassifier"
       ],
       "markdownFile": "content/lessons/forge-image-classification.md"
     },
@@ -937,7 +937,7 @@
       "previousLesson": "forge-image-classification",
       "nextLesson": "cs-fundamentals-01-computer",
       "completionEvents": [
-        "onCommand:tenstorrent.testTtXlaInstall"
+        "onCommand:tenstorrent.xla.testInstall"
       ],
       "markdownFile": "content/lessons/tt-xla-jax.md"
     },
@@ -966,7 +966,7 @@
       "previousLesson": "tt-xla-jax",
       "nextLesson": "cs-fundamentals-02-memory",
       "completionEvents": [
-        "onCommand:tenstorrent.runRiscvExample"
+        "onCommand:tenstorrent.metal.runRiscvExample"
       ],
       "markdownFile": "content/lessons/cs-fundamentals-01-computer.md"
     },
@@ -1164,7 +1164,7 @@
       "previousLesson": "cs-fundamentals-07-complexity",
       "nextLesson": "bounty-program",
       "completionEvents": [
-        "onCommand:tenstorrent.buildProgrammingExamples"
+        "onCommand:tenstorrent.metal.buildProgrammingExamples"
       ],
       "markdownFile": "content/lessons/cs-fundamentals-08-matmul-labs.md"
     },
@@ -1219,7 +1219,7 @@
       "previousLesson": "cs-fundamentals-07-complexity",
       "nextLesson": "explore-metalium",
       "completionEvents": [
-        "onCommand:tenstorrent.browseOpenBounties"
+        "onCommand:tenstorrent.bounty.browseOpen"
       ],
       "markdownFile": "content/lessons/bounty-program-model-bringup.md"
     },
@@ -1253,7 +1253,7 @@
       "previousLesson": "bounty-program",
       "nextLesson": "monkeypatch-ttnn",
       "completionEvents": [
-        "onCommand:tenstorrent.launchTtnnTutorials"
+        "onCommand:tenstorrent.metal.ttnnTutorials"
       ],
       "markdownFile": "content/lessons/explore-metalium.md"
     },
@@ -1285,7 +1285,7 @@
       "order": 17,
       "previousLesson": "monkeypatch-ttnn",
       "completionEvents": [
-        "onCommand:tenstorrent.runAnimateDiff2Frame"
+        "onCommand:tenstorrent.apps.runAnimateDiff2Frame"
       ],
       "markdownFile": "content/lessons/animatediff-video-generation.md"
     },

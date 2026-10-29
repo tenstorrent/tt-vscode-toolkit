@@ -46,7 +46,7 @@ inference server.
 > (🛠️ Experimental status). For **single-chip** serving, use `--tt-device p100` — a p300c
 > chip behaves like a p100. A TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`), not
 > four independent devices; for whole-box multi-chip serving of a single larger model, use
-> `--tt-device p300x2` instead — see [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
+> `--tt-device p300x2` instead — see [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]).
 
 ---
 
@@ -83,9 +83,9 @@ ls ~/.local/lib/tt-inference-server/run.py
   ```
 - **Hardware detected** — confirm your card is visible:
 
-[▶ Detect Hardware](command:tenstorrent.runHardwareDetection)
+[▶ Detect Hardware](command:tenstorrent.setup.hardwareDetection)
 
-[▶ Verify Prerequisites](command:tenstorrent.verifyInferenceServerPrereqs)
+[▶ Verify Prerequisites](command:tenstorrent.inferenceServer.verifyPrereqs)
 
 ---
 
@@ -147,7 +147,7 @@ python3 run.py \
   --no-auth
 ```
 
-[▶ Start Server (n150)](command:tenstorrent.startTtInferenceServerN150)
+[▶ Start Server (n150)](command:tenstorrent.inferenceServer.startN150)
 
 ---
 
@@ -162,7 +162,7 @@ python3 run.py \
   --no-auth
 ```
 
-[▶ Start Server (n300)](command:tenstorrent.startTtInferenceServerN300)
+[▶ Start Server (n300)](command:tenstorrent.inferenceServer.startN300)
 
 ---
 
@@ -196,7 +196,7 @@ python3 run.py \
 > TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`), and its chips are not
 > independent devices with no interconnect. For whole-box multi-chip serving of a
 > single larger model instead of four separate single-chip servers, use
-> `--tt-device p300x2` — see [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
+> `--tt-device p300x2` — see [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]).
 
 ---
 
@@ -289,7 +289,7 @@ curl http://localhost:8000/v1/completions \
        "max_tokens": 60}'
 ```
 
-[▶ Test Server](command:tenstorrent.testTtInferenceServerSimple)
+[▶ Test Server](command:tenstorrent.inferenceServer.testSimple)
 
 **Streaming (token-by-token):**
 
@@ -302,7 +302,7 @@ curl http://localhost:8000/v1/completions \
        "stream": true}'
 ```
 
-[▶ Test Streaming](command:tenstorrent.testTtInferenceServerStreaming)
+[▶ Test Streaming](command:tenstorrent.inferenceServer.testStreaming)
 
 **Python client (OpenAI SDK):**
 
@@ -319,7 +319,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-[▶ Create Python Client](command:tenstorrent.createTtInferenceServerClient)
+[▶ Create Python Client](command:tenstorrent.inferenceServer.createClient)
 
 ---
 
@@ -537,7 +537,7 @@ Stable Diffusion, FLUX, Mochi video, and more — see
 
 ### 2. Run vLLM directly (no MODEL_SPECS constraint)
 
-The [vLLM Production lesson](command:tenstorrent.showLesson?["vllm-production"])
+The [vLLM Production lesson](command:tenstorrent.lesson.show?["vllm-production"])
 shows how to run vLLM directly on the host without TT-Inference-Server. This
 accepts any model path or HF repo and gives you full control over every vLLM
 flag — useful for models in development or private repos.
@@ -805,6 +805,6 @@ high-speed fabric.
 
 ## Next Steps
 
-- [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — run vLLM directly without the workflow wrapper
-- [VSCode Chat →](command:tenstorrent.showLesson?["vscode-chat"]) — connect the inference server to the VSCode @tenstorrent chat participant
+- [vLLM Production →](command:tenstorrent.lesson.show?["vllm-production"]) — run vLLM directly without the workflow wrapper
+- [VSCode Chat →](command:tenstorrent.lesson.show?["vscode-chat"]) — connect the inference server to the VSCode @tenstorrent chat participant
 - [TT-Inference-Server docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/workflows_user_guide.md) — full CLI reference

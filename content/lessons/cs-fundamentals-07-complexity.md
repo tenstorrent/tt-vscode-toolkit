@@ -1023,4 +1023,4 @@ You've completed the CS Fundamentals series. You now have:
 
 **The foundation is RISC-V. The sky is the limit.** 🚀
 
-[→ Continue to Module 8: Matrix Math and Matmul Labs](command:tenstorrent.showLesson?["cs-fundamentals-08-matmul-labs"])
+[→ Continue to Module 8: Matrix Math and Matmul Labs](command:tenstorrent.lesson.show?["cs-fundamentals-08-matmul-labs"])

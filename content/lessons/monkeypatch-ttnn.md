@@ -481,7 +481,7 @@ reach for a wrapper when you're *adding* it.
 
 > 🛑 **This is the heaviest, least TT-QuietBox 2-friendly option.** It requires a cloned and
 > built `tt-metal` — which a stock TT-QuietBox 2 does **not** have. See
-> [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+> [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
 > if you need one. Exhaust Goals 1–4 first.
 
 Some changes a runtime patch simply can't reach: compiled C++ / kernel behavior,

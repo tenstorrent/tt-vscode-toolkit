@@ -28,7 +28,7 @@ Build your own interactive chat application using TT-Metalium<sup>™</sup>'s Ge
 > - Haven't accepted [Meta's data terms](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) for Llama access, or
 > - Don't have `~/tt-metal` built (TT-QuietBox<sup>®</sup> 2 and pre-configured images don't ship it)
 >
-> → Use the **[vLLM path with Qwen3-0.6B](command:tenstorrent.showLesson?["vllm-production"])** instead — no source build, no license gate, works on all hardware.
+> → Use the **[vLLM path with Qwen3-0.6B](command:tenstorrent.lesson.show?["vllm-production"])** instead — no source build, no license gate, works on all hardware.
 
 ## Why Use the Direct API?
 
@@ -132,9 +132,9 @@ ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
 
 | Issue | Solution |
 |-------|----------|
-| No hardware detected | [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) |
-| No TT-Metalium installed | [Verify Installation](command:tenstorrent.showLesson?["verify-installation"]) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
-| No model downloaded | [Download Model](command:tenstorrent.showLesson?["download-model"]) |
+| No hardware detected | [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]) |
+| No TT-Metalium installed | [Verify Installation](command:tenstorrent.lesson.show?["verify-installation"]) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
+| No model downloaded | [Download Model](command:tenstorrent.lesson.show?["download-model"]) |
 
 **Quick model download:**
 ```bash
@@ -178,7 +178,7 @@ The Direct API needs specific Python packages:
 pip install pi && pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag
 ```
 
-[🔧 Install Direct API Dependencies](command:tenstorrent.installInferenceDeps)
+[🔧 Install Direct API Dependencies](command:tenstorrent.model.installInferenceDeps)
 
 **What this installs:**
 - `pi` - Required by Generator API for inference
@@ -197,7 +197,7 @@ This command creates `~/tt-scratchpad/tt-chat-direct.py` - a standalone chat cli
 mkdir -p ~/tt-scratchpad && cp template ~/tt-scratchpad/tt-chat-direct.py && chmod +x ~/tt-scratchpad/tt-chat-direct.py
 ```
 
-[📝 Create Direct API Chat Script](command:tenstorrent.createChatScriptDirect)
+[📝 Create Direct API Chat Script](command:tenstorrent.model.createChatScriptDirect)
 
 **What this does:**
 - Creates `~/tt-scratchpad/tt-chat-direct.py` with full Generator API implementation
@@ -223,7 +223,7 @@ cd ~/tt-metal && \
   python3 ~/tt-scratchpad/tt-chat-direct.py
 ```
 
-[💬 Start Direct API Chat](command:tenstorrent.startChatSessionDirect)
+[💬 Start Direct API Chat](command:tenstorrent.model.startChatSessionDirect)
 
 **What you'll see:**
 

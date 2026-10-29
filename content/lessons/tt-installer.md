@@ -108,7 +108,7 @@ The fastest way to get started:
 **Safety note:** Always review scripts before running them. You can inspect the installer at:
 https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh
 
-[🚀 Run Quick Install](command:tenstorrent.runQuickInstall)
+[🚀 Run Quick Install](command:tenstorrent.setup.quickInstall)
 
 ## Step 1: Download and Inspect the Installer
 
@@ -126,7 +126,7 @@ Then review it:
 less install.sh
 ```
 
-[📥 Download Installer](command:tenstorrent.downloadInstaller)
+[📥 Download Installer](command:tenstorrent.setup.downloadInstaller)
 
 ## Step 2: Run Interactive Installation
 
@@ -147,7 +147,7 @@ cd ~
 - Model Demos: `no` (can install later if needed)
 - Reboot: `yes` (required for kernel driver to load)
 
-[⚙️ Run Interactive Install](command:tenstorrent.runInteractiveInstall)
+[⚙️ Run Interactive Install](command:tenstorrent.setup.interactiveInstall)
 
 ## Step 3: Non-Interactive Installation (Optional)
 
@@ -169,14 +169,14 @@ For automated deployments or cloud environments, use non-interactive mode:
 - `--no-install-hugepages` - Skip HugePages config
 - `--metalium-image-tag=latest-rc` - Pin specific container version
 
-[🤖 Run Non-Interactive Install](command:tenstorrent.runNonInteractiveInstall)
+[🤖 Run Non-Interactive Install](command:tenstorrent.setup.nonInteractiveInstall)
 
 ## Step 4: Verify Installation
 
 After installation (and reboot if prompted), confirm the pieces are in place.
 
 **Detecting your hardware** (`tt-smi`) is covered in depth in the next lesson —
-see [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]).
+see [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]).
 Once that shows your device, come back and test the container below.
 
 ### Test TT-Metalium Container
@@ -214,7 +214,7 @@ This verifies:
 > (zsh never reads `~/.profile`) — this installer warns about that itself. Run
 > `export PATH="$HOME/.local/bin:$PATH"` and try again.
 
-[🧪 Test TT-Metalium](command:tenstorrent.testMetaliumContainer)
+[🧪 Test TT-Metalium](command:tenstorrent.setup.testMetaliumContainer)
 
 ## The Tenstorrent Package Repository (PPA)
 

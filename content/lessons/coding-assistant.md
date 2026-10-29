@@ -36,7 +36,7 @@ speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM ser
 
 > **Prerequisites:**
 > Your vLLM server must be running before launching Aider.
-> See [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) to start it.
+> See [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]) to start it.
 
 ---
 

@@ -926,8 +926,8 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 - OpenClaw GitHub: https://github.com/OpenClawIO/openclaw
 
 **Support:**
-- Hardware Detection: [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])
-- Model Deployment: [Deploy Models](command:tenstorrent.showLesson?["model-deployment"])
+- Hardware Detection: [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"])
+- Model Deployment: [Deploy Models](command:tenstorrent.lesson.show?["model-deployment"])
 
 ---
 

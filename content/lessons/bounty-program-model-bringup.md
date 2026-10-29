@@ -827,9 +827,9 @@ Response: "Good point! Updated to support all Phi-3 variants (3.5, 4) with long_
 
 Ready to make your first contribution? Try the hands-on example:
 
-[🚀 Browse Open Bounties on GitHub](command:tenstorrent.browseOpenBounties)
+[🚀 Browse Open Bounties on GitHub](command:tenstorrent.bounty.browseOpen)
 
-[📋 Copy Bounty Workflow Checklist](command:tenstorrent.copyBountyChecklist)
+[📋 Copy Bounty Workflow Checklist](command:tenstorrent.bounty.copyChecklist)
 
 ---
 

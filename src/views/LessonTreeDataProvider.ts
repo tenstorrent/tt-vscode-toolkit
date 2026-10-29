@@ -89,7 +89,7 @@ export class LessonTreeItem extends vscode.TreeItem {
 
     // Make it clickable
     this.command = {
-      command: 'tenstorrent.showLesson',
+      command: 'tenstorrent.lesson.show',
       title: 'Show Lesson',
       arguments: [lesson.id],
     };
@@ -305,7 +305,7 @@ export class LessonTreeDataProvider implements vscode.TreeDataProvider<LessonTre
 
     // Make it clickable to open welcome page
     item.command = {
-      command: 'tenstorrent.showWelcome',
+      command: 'tenstorrent.lesson.welcome',
       title: 'Open Welcome Page',
       arguments: [],
     };
@@ -328,7 +328,7 @@ export class LessonTreeDataProvider implements vscode.TreeDataProvider<LessonTre
         undefined,
         '🏠 Welcome Page',
         vscode.TreeItemCollapsibleState.None,
-        'tenstorrent.showWelcome'
+        'tenstorrent.lesson.welcome'
       ));
 
       // Step Zero - Platform Overview
@@ -338,7 +338,7 @@ export class LessonTreeDataProvider implements vscode.TreeDataProvider<LessonTre
         undefined,
         '🧭 Tenstorrent Platform Overview',
         vscode.TreeItemCollapsibleState.None,
-        'tenstorrent.showStepZero'
+        'tenstorrent.lesson.stepZero'
       ));
 
       // FAQ
@@ -348,7 +348,7 @@ export class LessonTreeDataProvider implements vscode.TreeDataProvider<LessonTre
         undefined,
         '❓ Frequently Asked Questions',
         vscode.TreeItemCollapsibleState.None,
-        'tenstorrent.showFaq'
+        'tenstorrent.lesson.faq'
       ));
 
       return items;

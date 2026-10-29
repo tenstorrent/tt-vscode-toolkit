@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -88,147 +88,147 @@
     },
     "commands": [
       {
-        "command": "tenstorrent.showLesson",
+        "command": "tenstorrent.lesson.show",
         "title": "Show Lesson",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showTensixViz",
+        "command": "tenstorrent.viz.tensix",
         "title": "Open Tensix Visualizer",
         "category": "Tenstorrent",
         "icon": "$(circuit-board)"
       },
       {
-        "command": "tenstorrent.runInCloudSimulator",
+        "command": "tenstorrent.viz.runInCloudSimulator",
         "title": "Run in Cloud Simulator",
         "category": "Tenstorrent",
         "icon": "$(cloud-upload)"
       },
       {
-        "command": "tenstorrent.refreshLessons",
+        "command": "tenstorrent.lesson.refresh",
         "title": "Refresh Lessons",
         "category": "Tenstorrent",
         "icon": "$(refresh)"
       },
       {
-        "command": "tenstorrent.filterLessons",
+        "command": "tenstorrent.lesson.filter",
         "title": "Filter Lessons",
         "category": "Tenstorrent",
         "icon": "$(filter)"
       },
       {
-        "command": "tenstorrent.toggleShowAllLessons",
+        "command": "tenstorrent.lesson.toggleShowAll",
         "title": "Toggle Show All Lessons",
         "category": "Tenstorrent",
         "icon": "$(eye)"
       },
       {
-        "command": "tenstorrent.showCommandMenu",
+        "command": "tenstorrent.lesson.commandMenu",
         "title": "Show Command Menu",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showWelcome",
+        "command": "tenstorrent.lesson.welcome",
         "title": "Show Welcome Page",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showFaq",
+        "command": "tenstorrent.lesson.faq",
         "title": "Show FAQ",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showRiscvGuide",
+        "command": "tenstorrent.lesson.riscvGuide",
         "title": "Show RISC-V Exploration Guide",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showStepZero",
+        "command": "tenstorrent.lesson.stepZero",
         "title": "Show Step Zero: Getting Started Guide",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.openWalkthrough",
+        "command": "tenstorrent.lesson.walkthrough",
         "title": "Open Setup Walkthrough",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.resetProgress",
+        "command": "tenstorrent.lesson.resetProgress",
         "title": "Reset Walkthrough Progress",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runQuickInstall",
+        "command": "tenstorrent.setup.quickInstall",
         "title": "Run tt-installer Quick Install",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.downloadInstaller",
+        "command": "tenstorrent.setup.downloadInstaller",
         "title": "Download tt-installer Script",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runInteractiveInstall",
+        "command": "tenstorrent.setup.interactiveInstall",
         "title": "Run tt-installer Interactive Mode",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runNonInteractiveInstall",
+        "command": "tenstorrent.setup.nonInteractiveInstall",
         "title": "Run tt-installer Non-Interactive Mode",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testMetaliumContainer",
+        "command": "tenstorrent.setup.testMetaliumContainer",
         "title": "Test tt-metalium Container",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runHardwareDetection",
+        "command": "tenstorrent.setup.hardwareDetection",
         "title": "Run Hardware Detection (tt-smi)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.verifyInstallation",
+        "command": "tenstorrent.setup.verifyInstallation",
         "title": "Verify tt-metal Installation",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.setHuggingFaceToken",
+        "command": "tenstorrent.model.setHfToken",
         "title": "Set Hugging Face Token",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.loginHuggingFace",
+        "command": "tenstorrent.model.login",
         "title": "Login to Hugging Face",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.downloadModel",
+        "command": "tenstorrent.model.download",
         "title": "Download Model from Hugging Face",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.cloneTTMetal",
+        "command": "tenstorrent.metal.clone",
         "title": "Check for TT-Metal / Clone Repository",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.setupEnvironment",
+        "command": "tenstorrent.metal.setupEnvironment",
         "title": "Setup Python Environment for Inference",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runInference",
+        "command": "tenstorrent.model.runInference",
         "title": "Run Llama Inference Demo",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.installInferenceDeps",
+        "command": "tenstorrent.model.installInferenceDeps",
         "title": "Install Inference Dependencies",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createChatScript",
+        "command": "tenstorrent.model.createChatScript",
         "title": "Create Interactive Chat Script",
         "category": "Tenstorrent"
       },
@@ -238,502 +238,502 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startChatSession",
+        "command": "tenstorrent.model.startChatSession",
         "title": "Start Interactive Chat Session",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createApiServer",
+        "command": "tenstorrent.apps.createApiServer",
         "title": "Create API Server Script",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.installFlask",
+        "command": "tenstorrent.apps.installFlask",
         "title": "Install Flask Web Framework",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startApiServer",
+        "command": "tenstorrent.apps.startApiServer",
         "title": "Start API Server",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testApiBasic",
+        "command": "tenstorrent.apps.testApiBasic",
         "title": "Test API with Basic Query",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testApiMultiple",
+        "command": "tenstorrent.apps.testApiMultiple",
         "title": "Test API with Multiple Queries",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createChatScriptDirect",
+        "command": "tenstorrent.model.createChatScriptDirect",
         "title": "Create Direct API Chat Script",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startChatSessionDirect",
+        "command": "tenstorrent.model.startChatSessionDirect",
         "title": "Start Direct API Chat Session",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createApiServerDirect",
+        "command": "tenstorrent.apps.createApiServerDirect",
         "title": "Create Direct API Server Script",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startApiServerDirect",
+        "command": "tenstorrent.apps.startApiServerDirect",
         "title": "Start Direct API Server",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testApiBasicDirect",
+        "command": "tenstorrent.apps.testApiBasicDirect",
         "title": "Test Direct API (Basic)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testApiMultipleDirect",
+        "command": "tenstorrent.apps.testApiMultipleDirect",
         "title": "Test Direct API (Multiple Queries)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.verifyInferenceServerPrereqs",
+        "command": "tenstorrent.inferenceServer.verifyPrereqs",
         "title": "Verify tt-inference-server Prerequisites",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startTtInferenceServer",
+        "command": "tenstorrent.inferenceServer.start",
         "title": "Start tt-inference-server (Basic)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startTtInferenceServerN150",
+        "command": "tenstorrent.inferenceServer.startN150",
         "title": "Start tt-inference-server (N150 Config)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startTtInferenceServerN300",
+        "command": "tenstorrent.inferenceServer.startN300",
         "title": "Start tt-inference-server (N300 Config)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testTtInferenceServerSimple",
+        "command": "tenstorrent.inferenceServer.testSimple",
         "title": "Test tt-inference-server (Simple)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testTtInferenceServerStreaming",
+        "command": "tenstorrent.inferenceServer.testStreaming",
         "title": "Test tt-inference-server (Streaming)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testTtInferenceServerSampling",
+        "command": "tenstorrent.inferenceServer.testSampling",
         "title": "Test tt-inference-server (Sampling)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createTtInferenceServerClient",
+        "command": "tenstorrent.inferenceServer.createClient",
         "title": "Create Python Client for tt-inference-server",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createTtInferenceServerConfig",
+        "command": "tenstorrent.inferenceServer.createConfig",
         "title": "Create tt-inference-server Config File",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.updateTTMetal",
+        "command": "tenstorrent.metal.update",
         "title": "Update and Build TT-Metal",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.cloneVllm",
+        "command": "tenstorrent.vllm.clone",
         "title": "Clone TT vLLM Repository",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.installVllm",
+        "command": "tenstorrent.vllm.install",
         "title": "Install vLLM",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startVllmServer",
+        "command": "tenstorrent.vllm.start",
         "title": "Start vLLM Server",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testVllmOpenai",
+        "command": "tenstorrent.vllm.testOpenai",
         "title": "Test vLLM with OpenAI SDK",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testVllmCurl",
+        "command": "tenstorrent.vllm.testCurl",
         "title": "Test vLLM with curl",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.resetDevice",
+        "command": "tenstorrent.setup.resetDevice",
         "title": "Reset Device",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.clearDeviceState",
+        "command": "tenstorrent.setup.clearDeviceState",
         "title": "Clear Device State",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showDeviceActions",
+        "command": "tenstorrent.setup.deviceActions",
         "title": "Show Device Actions",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.selectPythonEnvironment",
+        "command": "tenstorrent.setup.selectPythonEnvironment",
         "title": "Select Python Environment",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.refreshEnvironmentStatus",
+        "command": "tenstorrent.setup.refreshEnvironmentStatus",
         "title": "Refresh Environment Status",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.generateRetroImage",
+        "command": "tenstorrent.apps.generateRetroImage",
         "title": "Generate Sample Image with SD 3.5 Large",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startInteractiveImageGen",
+        "command": "tenstorrent.apps.startInteractiveImageGen",
         "title": "Start Interactive SD 3.5 Image Generation",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.copyImageGenDemo",
+        "command": "tenstorrent.apps.copyImageGenDemo",
         "title": "Copy SD 3.5 Demo to Scratchpad",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.openLatestImage",
+        "command": "tenstorrent.apps.openLatestImage",
         "title": "Open Latest Generated Image",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showVisualization",
+        "command": "tenstorrent.viz.show",
         "title": "Show Visualization in Output Preview",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.verifyCodingModel",
+        "command": "tenstorrent.launch.verifyCodingModel",
         "title": "Verify Llama 3.1 8B Model",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createCodingAssistantScript",
+        "command": "tenstorrent.launch.createCodingAssistantScript",
         "title": "Create Coding Assistant Script",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startCodingAssistant",
+        "command": "tenstorrent.launch.startCodingAssistant",
         "title": "Start Coding Assistant",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.buildForgeFromSource",
+        "command": "tenstorrent.forge.buildFromSource",
         "title": "Activate TT-Forge Environment (Recommended)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.installForge",
+        "command": "tenstorrent.forge.install",
         "title": "Activate TT-Forge Environment",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testForgeInstall",
+        "command": "tenstorrent.forge.testInstall",
         "title": "Test TT-Forge Installation",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createForgeClassifier",
+        "command": "tenstorrent.forge.createClassifier",
         "title": "Create Forge Image Classifier Script",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runForgeClassifier",
+        "command": "tenstorrent.forge.runClassifier",
         "title": "Run Forge Image Classifier",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.installTtXla",
+        "command": "tenstorrent.xla.install",
         "title": "Install TT-XLA PJRT Plugin",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.testTtXlaInstall",
+        "command": "tenstorrent.xla.testInstall",
         "title": "Test TT-XLA Installation",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runTtXlaDemo",
+        "command": "tenstorrent.xla.runDemo",
         "title": "Run TT-XLA GPT-2 Demo",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.buildProgrammingExamples",
+        "command": "tenstorrent.metal.buildProgrammingExamples",
         "title": "Build Programming Examples",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runRiscvExample",
+        "command": "tenstorrent.metal.runRiscvExample",
         "title": "Run RISC-V Addition Example",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.openRiscvKernel",
+        "command": "tenstorrent.metal.openRiscvKernel",
         "title": "Open RISC-V Kernel Source",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.openRiscvGuide",
+        "command": "tenstorrent.metal.openRiscvGuide",
         "title": "Open RISC-V Exploration Guide",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.cloneTtLocalGenerator",
+        "command": "tenstorrent.apps.cloneTtLocalGenerator",
         "title": "Clone tt-local-generator",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.setupVideoGenVendor",
+        "command": "tenstorrent.apps.setupVideoGenVendor",
         "title": "Set Up Vendored Inference Server (Video Gen)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.applyVideoGenPatches",
+        "command": "tenstorrent.apps.applyVideoGenPatches",
         "title": "Apply QB2 Video Generation Patches",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.downloadWan22Model",
+        "command": "tenstorrent.apps.downloadWan22Model",
         "title": "Download Wan2.2-T2V-A14B Model",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.downloadQwen3Small",
+        "command": "tenstorrent.apps.downloadQwen3Small",
         "title": "Download Qwen3-0.6B Prompt Model",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startWan22Server",
+        "command": "tenstorrent.apps.startWan22Server",
         "title": "Start Wan2.2 Video Server (QB2)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startPromptGenServer",
+        "command": "tenstorrent.apps.startPromptGenServer",
         "title": "Start Prompt Generation Server",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.checkVideoServerHealth",
+        "command": "tenstorrent.apps.checkVideoServerHealth",
         "title": "Check Video Server Health",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.launchTtGen",
+        "command": "tenstorrent.apps.launchTtGen",
         "title": "Launch tt-gen GUI",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.browseOpenBounties",
+        "command": "tenstorrent.bounty.browseOpen",
         "title": "Browse Open Bounties on GitHub",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.copyBountyChecklist",
+        "command": "tenstorrent.bounty.copyChecklist",
         "title": "Copy Bounty Workflow Checklist",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.launchTtnnTutorials",
+        "command": "tenstorrent.metal.ttnnTutorials",
         "title": "Launch TTNN Tutorials",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.browseModelZoo",
+        "command": "tenstorrent.model.browseZoo",
         "title": "Browse Model Zoo",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.exploreProgrammingExamples",
+        "command": "tenstorrent.metal.exploreProgrammingExamples",
         "title": "Explore Programming Examples",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createCookbookProjects",
+        "command": "tenstorrent.cookbook.createProjects",
         "title": "Create Cookbook Projects",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.llmFromScratch.createProject",
+        "command": "tenstorrent.lfs.createProject",
         "title": "Create LLM-from-Scratch Project",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runGameOfLife",
+        "command": "tenstorrent.cookbook.gameOfLife",
         "title": "Run Game of Life (Random)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runGameOfLifeGlider",
+        "command": "tenstorrent.cookbook.gameOfLifeGlider",
         "title": "Run Game of Life (Glider Pattern)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runGameOfLifeGliderGun",
+        "command": "tenstorrent.cookbook.gameOfLifeGliderGun",
         "title": "Run Game of Life (Glider Gun)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runMandelbrotExplorer",
+        "command": "tenstorrent.cookbook.mandelbrotExplorer",
         "title": "Run Mandelbrot Explorer",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runMandelbrotJulia",
+        "command": "tenstorrent.cookbook.mandelbrotJulia",
         "title": "Run Julia Sets Comparison",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runAudioProcessor",
+        "command": "tenstorrent.cookbook.audioProcessor",
         "title": "Run Audio Processor Demo",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runImageFilters",
+        "command": "tenstorrent.cookbook.imageFilters",
         "title": "Run Image Filters Demo",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createParticleLife",
+        "command": "tenstorrent.cookbook.createParticleLife",
         "title": "Create Particle Life Project",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runParticleLife",
+        "command": "tenstorrent.cookbook.particleLife",
         "title": "Run Particle Life Simulation",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startQb2AgentsServerQwen",
+        "command": "tenstorrent.launch.startQb2AgentsServerQwen",
         "title": "Start Qwen3-32B Agent Server",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startQb2AgentsServerLlama",
+        "command": "tenstorrent.launch.startQb2AgentsServerLlama",
         "title": "Start Llama-3.3-70B Agent Server",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.checkAgentServerHealth",
+        "command": "tenstorrent.launch.checkAgentServerHealth",
         "title": "Check Agent Server Health",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.cloneTtAgents",
+        "command": "tenstorrent.launch.cloneTtAgents",
         "title": "Clone tt-agents Repository",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.copyAgentsToScratchpad",
+        "command": "tenstorrent.launch.copyAgentsToScratchpad",
         "title": "Copy Agent Scripts to Scratchpad",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runAgentsVerify",
+        "command": "tenstorrent.launch.runAgentsVerify",
         "title": "Run Agent Tool Verification",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runResearchAgent",
+        "command": "tenstorrent.launch.runResearchAgent",
         "title": "Run Research Agent (Demo 1)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runCodeExplorer",
+        "command": "tenstorrent.launch.runCodeExplorer",
         "title": "Run Code Explorer (Demo 2)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runWritingPipeline",
+        "command": "tenstorrent.launch.runWritingPipeline",
         "title": "Run Writing Pipeline (Demo 3)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runDungeonMaster",
+        "command": "tenstorrent.launch.runDungeonMaster",
         "title": "Run Dungeon Master (Demo 4)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runStoryboardPipeline",
+        "command": "tenstorrent.launch.runStoryboardPipeline",
         "title": "Run Storyboard Pipeline (Demo 5)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runLandscapeSvg",
+        "command": "tenstorrent.launch.runLandscapeSvg",
         "title": "Generate Landscape SVG (Demo 6)",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.showTelemetryDetails",
+        "command": "tenstorrent.lesson.telemetryDetails",
         "title": "Show Telemetry Details",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.startVllmServerWithHardware",
+        "command": "tenstorrent.vllm.startWithHardware",
         "title": "Start Vllm Server With Hardware",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.createVllmStarter",
+        "command": "tenstorrent.vllm.createStarter",
         "title": "Create Vllm Starter",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.installAllScripts",
+        "command": "tenstorrent.vllm.installAllScripts",
         "title": "Install All Scripts",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.activateForgeEnv",
+        "command": "tenstorrent.forge.activateEnv",
         "title": "Activate Forge Env",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.verifyForgeStack",
+        "command": "tenstorrent.forge.verifyStack",
         "title": "Verify Forge Stack",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runJaxQuickstart",
+        "command": "tenstorrent.xla.runJaxQuickstart",
         "title": "Run Jax Quickstart",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runJaxPmapDemo",
+        "command": "tenstorrent.xla.runJaxPmapDemo",
         "title": "Run Jax Pmap Demo",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runPytorchXlaDemo",
+        "command": "tenstorrent.xla.runPytorchDemo",
         "title": "Run Pytorch Xla Demo",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.setupTtsim",
+        "command": "tenstorrent.ttsim.setup",
         "title": "Setup Ttsim",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runTtsimAttention",
+        "command": "tenstorrent.ttsim.runAttention",
         "title": "Run Ttsim Attention",
         "category": "Tenstorrent"
       },
@@ -753,27 +753,27 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.setupAnimateDiffProject",
+        "command": "tenstorrent.apps.setupAnimateDiffProject",
         "title": "Setup Animate Diff Project",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runAnimateDiff2Frame",
+        "command": "tenstorrent.apps.runAnimateDiff2Frame",
         "title": "Run Animate Diff2 Frame",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runAnimateDiff16Frame",
+        "command": "tenstorrent.apps.runAnimateDiff16Frame",
         "title": "Run Animate Diff16 Frame",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.installTtTrain",
+        "command": "tenstorrent.training.installTtTrain",
         "title": "Install Tt Train",
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.trainFromScratch",
+        "command": "tenstorrent.training.trainFromScratch",
         "title": "Train From Scratch",
         "category": "Tenstorrent"
       }

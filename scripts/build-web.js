@@ -243,8 +243,8 @@ function commandTextForId(commandId) {
     ? commandId.slice('tenstorrent.'.length)
     : commandId;
 
-  // Handle showLesson — not a terminal command
-  if (suffix.startsWith('showLesson')) return null;
+  // lesson.show opens another lesson — not a terminal command
+  if (suffix.startsWith('lesson.show')) return null;
 
   // 1. Direct extension.ts mapping (most accurate — handles naming mismatches)
   if (COMMAND_MAP['__ext__' + suffix]) return COMMAND_MAP['__ext__' + suffix];

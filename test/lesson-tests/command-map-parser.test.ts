@@ -114,6 +114,21 @@ describe('command-map parser', () => {
       expect(map['__ext__runGameOfLife']).to.equal('python3 game_of_life.py');
     });
 
+    it('maps a namespaced (dotted) command suffix too', () => {
+      // Every id is tenstorrent.<feature>.<action> since the 2026-10-29 rename;
+      // a \w-only suffix regex silently drops all of them from the site.
+      const ext = [
+        'function runGameOfLife() {',
+        '  const command = TERMINAL_COMMANDS.GAME_OF_LIFE.template;',
+        '  runInTerminal(command);',
+        '}',
+        "registerCommand('tenstorrent.cookbook.gameOfLife', runGameOfLife);",
+      ].join('\n');
+
+      const map = buildCommandMap(term, ext);
+      expect(map['__ext__cookbook.gameOfLife']).to.equal('python3 game_of_life.py');
+    });
+
     it('does NOT let a keyless function steal the next function\'s key', () => {
       // openKernelSource has no TERMINAL_COMMANDS reference. Before the boundary
       // guard, its body scan bled into runGameOfLife and grabbed GAME_OF_LIFE.

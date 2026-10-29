@@ -90,7 +90,7 @@ python3 ~/tt-metal/ttnn/tutorials/basic_python/ttnn_add_tensors.py
 > `tt-flash`, and `import ttnn` fails there.
 
 > **⚡ Sim-ready:** The `ttnn/tutorials/basic_python/` scripts all use `ttnn.open_device(device_id=0)`
-> and run on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]).
+> and run on the [ttsim simulator](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"]).
 > Add `export TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` before the commands above to run without hardware.
 
 You'll see the device open, the computation run, and the device close. That's real
@@ -104,7 +104,7 @@ silicon doing real work (or the simulator, if you set `TT_METAL_SIMULATOR`). The
 directly.
 
 > **Don't have `~/tt-metal` built yet?** Start with
-> [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+> [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
 > first, then return here.
 
 ---
@@ -174,7 +174,7 @@ python3 ttnn/tutorials/basic_python/ttnn_simplecnn_inference.py
 > it's **off by default** (`--install-metalium-models-container=on` at install
 > time), has **no `${HOME}` mount**, and starts you already in `/tt-metal` (no
 > `cd` needed, and `cd ~/tt-metal` or `cd tt-metal` will fail there). See
-> [Standard vs Model Demos Container](command:tenstorrent.showLesson?["tt-installer"]).
+> [Standard vs Model Demos Container](command:tenstorrent.lesson.show?["tt-installer"]).
 
 > **Training step required:** `ttnn_mlp_inference_mnist.py` and `ttnn_simplecnn_inference.py`
 > load weights from `.pt` files. Without them the scripts use random weights and report
@@ -192,7 +192,7 @@ files in the same directory:
 ~/tt-metal/ttnn/tutorials/
 ```
 
-[📓 Open TT-NN Tutorials](command:tenstorrent.launchTtnnTutorials)
+[📓 Open TT-NN Tutorials](command:tenstorrent.metal.ttnnTutorials)
 
 **Available notebooks:**
 - `ttnn_intro.ipynb` — Introduction to TT-NN concepts
@@ -212,7 +212,7 @@ files in the same directory:
 Tenstorrent's model repository is one of the most extensive collections of
 hardware-optimized AI models available. Here's what you can run right now:
 
-[🔍 Browse Model Zoo](command:tenstorrent.browseModelZoo)
+[🔍 Browse Model Zoo](command:tenstorrent.model.browseZoo)
 
 ### Production-Ready (models/demos/)
 
@@ -531,7 +531,7 @@ In the **Metalium Cookbook**, you'll apply these concepts building four creative
 3. **Mandelbrot Explorer** — GPU-style fractal rendering
 4. **Custom Image Filters** — Creative visual effects
 
-[🚀 Continue to JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])
+[🚀 Continue to JAX Inference with TT-XLA](command:tenstorrent.lesson.show?["tt-xla-jax"])
 
 ---
 

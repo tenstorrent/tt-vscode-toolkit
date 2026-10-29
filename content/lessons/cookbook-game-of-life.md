@@ -64,7 +64,7 @@ neighbourhood in a single pair of Matrix Engine matmuls, no SFPU required.
 
 ## Deploy the Project
 
-[📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
+[📦 Deploy All Cookbook Projects](command:tenstorrent.cookbook.createProjects)
 
 This creates the project in `~/tt-scratchpad/cookbook/game_of_life/`.
 
@@ -93,7 +93,7 @@ Then `K_row @ G @ K_col` gives each cell's 3×3 neighbourhood sum using two
 Matrix Engine matmuls.  Subtracting `G` removes the self-count → 8-neighbour total.
 
 > **⚡ Sim-ready:** Set `TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` to run on
-> [ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) — the code
+> [ttsim](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"]) — the code
 > automatically routes neighbour counting through `torch.mm` on CPU in sim mode
 > and `ttnn.matmul` on the Matrix Engine on real hardware.
 
@@ -393,11 +393,11 @@ def compare_patterns(patterns_dict):
 
 **Quick Start - Click to Run:**
 
-[🎮 Run with Random Pattern](command:tenstorrent.runGameOfLife)
+[🎮 Run with Random Pattern](command:tenstorrent.cookbook.gameOfLife)
 
-[⬆️ Run Glider Pattern](command:tenstorrent.runGameOfLifeGlider)
+[⬆️ Run Glider Pattern](command:tenstorrent.cookbook.gameOfLifeGlider)
 
-[♾️ Run Glider Gun (Infinite)](command:tenstorrent.runGameOfLifeGliderGun)
+[♾️ Run Glider Gun (Infinite)](command:tenstorrent.cookbook.gameOfLifeGliderGun)
 
 **Manual Commands:**
 
@@ -536,4 +536,4 @@ for size in sizes:
 - ✅ **Simulator compatibility**: Detect `TT_METAL_SIMULATOR` to swap backend without changing logic
 - ✅ **Visual output generation**: Creating animations from simulation data
 
-[Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])
+[Return to Cookbook Overview](command:tenstorrent.lesson.show?["cookbook-overview"])

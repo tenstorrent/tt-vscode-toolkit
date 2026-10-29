@@ -73,7 +73,7 @@ This command will scan for connected Tenstorrent devices:
 tt-smi
 ```
 
-[🔍 Detect Tenstorrent Hardware](command:tenstorrent.runHardwareDetection)
+[🔍 Detect Tenstorrent Hardware](command:tenstorrent.setup.hardwareDetection)
 
 ## Understanding Your Hardware
 
@@ -310,7 +310,7 @@ TT-QuietBox is a Tenstorrent multi-chip development system. The TT-QuietBox 2 (B
   each like a p100 (device 0, `MESH_DEVICE=P100`) is correct and is what most lessons want
 - But the machine's actual shape is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh) —
   multi-chip work (e.g. tt-train DDP) scales near-linearly across it rather than running as
-  4 unrelated devices; see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])
+  4 unrelated devices; see [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"])
 
 **Device Enumeration:**
 ```bash

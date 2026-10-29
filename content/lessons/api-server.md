@@ -97,10 +97,10 @@ python3 -c "import flask; print('✓ flask installed')"
 **If any checks fail:**
 
 **No hardware or TT-Metalium<sup>™</sup>?**
-- See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) and [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
+- See [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]) and [Verify Installation](command:tenstorrent.lesson.show?["verify-installation"])
 
 **No model?**
-- See [Download Model](command:tenstorrent.showLesson?["download-model"])
+- See [Download Model](command:tenstorrent.lesson.show?["download-model"])
 - Quick download:
   ```bash
   hf auth login --token "$HF_TOKEN"
@@ -134,7 +134,7 @@ Flask is a lightweight Python web framework:
 pip install flask
 ```
 
-[📦 Install Flask](command:tenstorrent.installFlask)
+[📦 Install Flask](command:tenstorrent.apps.installFlask)
 
 **What this does:**
 - Installs Flask and its dependencies
@@ -150,7 +150,7 @@ This command creates `~/tt-scratchpad/tt-api-server-direct.py`:
 mkdir -p ~/tt-scratchpad && cp template ~/tt-scratchpad/tt-api-server-direct.py && chmod +x ~/tt-scratchpad/tt-api-server-direct.py
 ```
 
-[🌐 Create API Server Script](command:tenstorrent.createApiServerDirect)
+[🌐 Create API Server Script](command:tenstorrent.apps.createApiServerDirect)
 
 **What this does:**
 - Creates `~/tt-scratchpad/tt-api-server-direct.py` with Flask + Generator API
@@ -174,7 +174,7 @@ cd ~/tt-metal && \
   python3 ~/tt-scratchpad/tt-api-server-direct.py --port 8080
 ```
 
-[🚀 Start API Server (Direct API)](command:tenstorrent.startApiServerDirect)
+[🚀 Start API Server (Direct API)](command:tenstorrent.apps.startApiServerDirect)
 
 **What you'll see:**
 
@@ -238,7 +238,7 @@ curl -X POST http://localhost:8080/chat \
   -d '{"prompt": "What is machine learning?"}'
 ```
 
-[💬 Test: Basic Inference](command:tenstorrent.testApiBasicDirect)
+[💬 Test: Basic Inference](command:tenstorrent.apps.testApiBasicDirect)
 
 **Response:**
 ```json
@@ -274,7 +274,7 @@ curl -X POST http://localhost:8080/chat \
   -d '{"prompt": "What are transformers in AI?"}'
 ```
 
-[🔄 Test: Multiple Queries](command:tenstorrent.testApiMultipleDirect)
+[🔄 Test: Multiple Queries](command:tenstorrent.apps.testApiMultipleDirect)
 
 **Each request takes ~1-3 seconds** because the model stays loaded!
 

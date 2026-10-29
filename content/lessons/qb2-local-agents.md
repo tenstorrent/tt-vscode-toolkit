@@ -118,7 +118,7 @@ tt-smi -s | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'{len(d[
 # Should print: 4 chips detected
 ```
 
-[Run Hardware Detection](command:tenstorrent.runHardwareDetection)
+[Run Hardware Detection](command:tenstorrent.setup.hardwareDetection)
 
 ---
 
@@ -149,7 +149,7 @@ python3 run.py \
     --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "hermes"}'
 ```
 
-[Start Qwen3-32B Server](command:tenstorrent.startQb2AgentsServerQwen)
+[Start Qwen3-32B Server](command:tenstorrent.launch.startQb2AgentsServerQwen)
 
 ### Option B — Llama-3.3-70B-Instruct (~14 s/response, best for Dungeon Master)
 
@@ -166,7 +166,7 @@ python3 run.py \
     --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
 ```
 
-[Start Llama-3.3-70B Server](command:tenstorrent.startQb2AgentsServerLlama)
+[Start Llama-3.3-70B Server](command:tenstorrent.launch.startQb2AgentsServerLlama)
 
 > `--host-hf-cache` points `run.py` at your existing HuggingFace cache on the host instead of re-downloading weights into the container — for a 32B or 70B model that's tens of GB you only want to pull once. `--no-auth` skips the JWT_SECRET requirement for local-only use.
 
@@ -179,7 +179,7 @@ curl http://localhost:8000/v1/models
 # → {"data":[{"id":"Qwen/Qwen3-32B",...}]}
 ```
 
-[Check Server Health](command:tenstorrent.checkAgentServerHealth)
+[Check Server Health](command:tenstorrent.launch.checkAgentServerHealth)
 
 ---
 
@@ -201,7 +201,7 @@ pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 ```
 
-[Clone tt-agents](command:tenstorrent.cloneTtAgents)
+[Clone tt-agents](command:tenstorrent.launch.cloneTtAgents)
 
 **What gets installed** (pinned to latest as of 2026-08 — see `requirements.txt` in the repo for the exact versions):
 
@@ -228,7 +228,7 @@ cp ~/code/tt-agents/requirements.txt ~/tt-scratchpad/agents/
 cp ~/code/tt-agents/world.json ~/tt-scratchpad/agents/
 ```
 
-[Copy Scripts to Scratchpad](command:tenstorrent.copyAgentsToScratchpad)
+[Copy Scripts to Scratchpad](command:tenstorrent.launch.copyAgentsToScratchpad)
 
 > Scripts in `~/tt-scratchpad/agents/` are yours to hack. The originals in `~/code/tt-agents/` stay clean.
 
@@ -242,7 +242,7 @@ Before running any demos, confirm inference and tool calling are both functionin
 python3 ~/code/tt-agents/00_verify_tools.py
 ```
 
-[Run Tool Verification](command:tenstorrent.runAgentsVerify)
+[Run Tool Verification](command:tenstorrent.launch.runAgentsVerify)
 
 **Expected output:**
 
@@ -303,7 +303,7 @@ An agent that searches the web, reads pages, and synthesizes a cited report. Thi
 python3 ~/code/tt-agents/01_research_agent.py
 ```
 
-[Run Research Agent](command:tenstorrent.runResearchAgent)
+[Run Research Agent](command:tenstorrent.launch.runResearchAgent)
 
 The script opens a **topic picker** — eight research prompts across tech, travel, philosophy, gaming, and more. Pick a number, paste your own query, or just press Enter to accept today's highlighted suggestion. It auto-continues after 10 seconds if you walk away.
 
@@ -442,7 +442,7 @@ cd ~/code/tt-agents
 python3 02_code_explorer.py
 ```
 
-[Run Code Explorer](command:tenstorrent.runCodeExplorer)
+[Run Code Explorer](command:tenstorrent.launch.runCodeExplorer)
 
 **Point it at a specific directory:**
 
@@ -578,7 +578,7 @@ python3 ~/code/tt-agents/01_research_agent.py   # saves last_research.txt
 python3 ~/code/tt-agents/03_writing_pipeline.py  # picks it up automatically
 ```
 
-[Run Writing Pipeline](command:tenstorrent.runWritingPipeline)
+[Run Writing Pipeline](command:tenstorrent.launch.runWritingPipeline)
 
 The pipeline opens a **format picker** — choose how the piece is written, not just what it covers:
 
@@ -730,7 +730,7 @@ python3 ~/code/tt-agents/04_dungeon_master.py --reset
 
 > If you started Qwen3-32B (Option A) in Step 1, pass `--model "Qwen/Qwen3-32B"` to all DM commands. The default assumes Llama-3.3-70B-Instruct is loaded. Both work well — 70B has richer narrative prose, 32B responds in ~8 s.
 
-[Start Dungeon Master](command:tenstorrent.runDungeonMaster)
+[Start Dungeon Master](command:tenstorrent.launch.runDungeonMaster)
 
 > **State persists between sessions** in `world_session.json`. Quit and come back — the DM remembers where you were.
 
@@ -948,7 +948,7 @@ The Dungeon Master is the smallest possible version of all of these. Once you un
 
 **Frameworks:** CrewAI (Stage 1) + smolagents ToolCallingAgent (Stage 2) | **~280 lines** | **Models:** Llama-3.3-70B → Qwen3-32B
 
-[Run Storyboard Pipeline](command:tenstorrent.runStoryboardPipeline)
+[Run Storyboard Pipeline](command:tenstorrent.launch.runStoryboardPipeline)
 
 > The VSCode button runs with `--simulate` so it works even when your TT-QuietBox 2 is busy. Remove that flag when you want to see the full server lifecycle.
 
@@ -1545,13 +1545,13 @@ The scripts are short on purpose. Each one is a skeleton you can grow. The code 
 
 **See how OpenClaw packages these patterns into a production service:**
 
-[OpenClaw AI Assistant on TT-QuietBox 2](command:tenstorrent.showLesson?["qb2-openclaw-assistant"])
+[OpenClaw AI Assistant on TT-QuietBox 2](command:tenstorrent.lesson.show?["qb2-openclaw-assistant"])
 
 OpenClaw is what you'd build if you took the dungeon master pattern seriously: persistent memory, multi-agent routing, a WebSocket API, and a terminal UI. Now that you've seen the raw version, the architecture makes more sense.
 
 **Generate video on your TT-QuietBox 2:**
 
-[Generating Video on TT-QuietBox 2](command:tenstorrent.showLesson?["qb2-video-generation"])
+[Generating Video on TT-QuietBox 2](command:tenstorrent.lesson.show?["qb2-video-generation"])
 
 **Explore the framework comparison** (included in the tt-agents repo):
 

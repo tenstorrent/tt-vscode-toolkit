@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.32] - 2026-10-29
+
+Every command id is now `tenstorrent.<feature>.<action>` (`tenstorrent.setup.quickInstall`,
+`tenstorrent.lesson.show`, `tenstorrent.cookbook.gameOfLife`, ...). The old flat ids are
+removed, with no aliases. If you bound one in `keybindings.json`, re-bind it: the full
+old-to-new table is `scripts/command-rename-map.json`.
+
+Also in this release:
+
+- `npm test` now fails on a lesson button whose command is not declared, a declared
+  command nobody registers, a `completionEvent` naming a command that does not exist,
+  or a `TERMINAL_COMMANDS` entry no handler reads (`test/lesson-tests/command-links.test.ts`).
+  Reconciling the existing drift declared 19 commands lessons already used, removed 5
+  never registered, deleted 10 handlers nothing called, dropped 6 CS Fundamentals
+  completion events that could never fire, and removed 15 unused templates.
+- The docs-site command map reads dotted ids, so the command under each button on the
+  published site survives the rename.
+
+---
+
 ## [0.1.29] - 2026-09-07
 
 Correctness pass on what a TT-QuietBox 2 actually ships. The three-path venv

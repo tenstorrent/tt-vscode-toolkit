@@ -49,8 +49,8 @@ Before running checks, pick the path that matches your goal:
 
 | Goal | What you need | Next lesson after green |
 |------|--------------|------------------------|
-| Interactive chat with Llama (Generator API) | Hardware + TT-NN + tt-metal source | [Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"]) |
-| Production vLLM serving (Qwen3-0.6B, no source needed) | Hardware + TT-NN | [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) |
+| Interactive chat with Llama (Generator API) | Hardware + TT-NN + tt-metal source | [Interactive Chat](command:tenstorrent.lesson.show?["interactive-chat"]) |
+| Production vLLM serving (Qwen3-0.6B, no source needed) | Hardware + TT-NN | [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]) |
 | Image generation, TT-Forge<sup>™</sup>, TT-XLA | Hardware + TT-NN (source optional) | See individual lesson |
 
 Not sure? Start with the vLLM path — it works on all hardware without needing to build from source.
@@ -65,15 +65,15 @@ Run this in your terminal:
 tt-smi -s
 ```
 
-[▶ Run Hardware Check](command:tenstorrent.runHardwareDetection)
+[▶ Run Hardware Check](command:tenstorrent.setup.hardwareDetection)
 
 **Interpreting results:**
 
 - JSON output shows your device(s) → **✅ Hardware OK**, continue to Check 2
 - `command not found` → drivers or tt-smi not installed →
-  go to [TT-Installer](command:tenstorrent.showLesson?["tt-installer"]) and return here when done
+  go to [TT-Installer](command:tenstorrent.lesson.show?["tt-installer"]) and return here when done
 - Device shown but with error flags → firmware or driver issue; consult
-  [TT-Installer](command:tenstorrent.showLesson?["tt-installer"]) troubleshooting
+  [TT-Installer](command:tenstorrent.lesson.show?["tt-installer"]) troubleshooting
 
 ---
 
@@ -104,7 +104,7 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
     export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
     ```
   - **Don't have TT-Metalium yet:** go to
-    [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
+    [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) and
     return here when done
 - `ImportError: undefined symbol: MPIX_Comm_revoke` → OpenMPI libraries missing from
   `LD_LIBRARY_PATH`:
@@ -129,11 +129,11 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 - `✓ tt-metal source present` → **✅ Source ready.** Generator API lessons will work.
   If TT-Metalium is present but not yet built, run `bash /tmp/build_tt_metal.sh` inside the
   developer container, or go to
-  [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+  [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]).
 - `✗ ~/tt-metal not found` → Source not present. That's expected on TT-QuietBox 2 pre-installed images
   and fine for all vLLM production lessons. Only needed for the Generator API (Interactive Chat).
   If you need it, go to
-  [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) and
+  [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) and
   return here when done.
 
 ---
@@ -143,8 +143,8 @@ python3 -c "import ttnn; print('✓ TTNN', getattr(ttnn, '__version__', '(source
 Choose your next step based on your goal:
 
 - **vLLM production serving** (Qwen3-0.6B, no source needed) →
-  [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"])
+  [vLLM Production →](command:tenstorrent.lesson.show?["vllm-production"])
 - **Interactive chat** (requires tt-metal source + Llama model) →
-  [Interactive Chat →](command:tenstorrent.showLesson?["interactive-chat"])
+  [Interactive Chat →](command:tenstorrent.lesson.show?["interactive-chat"])
 - **Still something failing?** →
-  [Build TT-Metalium from Source →](command:tenstorrent.showLesson?["build-tt-metal"])
+  [Build TT-Metalium from Source →](command:tenstorrent.lesson.show?["build-tt-metal"])

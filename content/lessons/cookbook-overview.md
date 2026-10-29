@@ -33,7 +33,7 @@ Welcome to the Tenstorrent Cookbook! This series of hands-on projects teaches yo
 
 Each recipe is a complete, working project that demonstrates core TT-Metalium techniques:
 
-### 🎮 [Recipe 1: Conway's Game of Life](command:tenstorrent.showLesson?["cookbook-game-of-life"])
+### 🎮 [Recipe 1: Conway's Game of Life](command:tenstorrent.lesson.show?["cookbook-game-of-life"])
 **Learn:** Cellular automata, parallel tile computing, convolution operations
 
 Build the classic cellular automaton where simple rules create complex emergent behavior. Perfect introduction to parallel computation on TT hardware.
@@ -42,7 +42,7 @@ Build the classic cellular automaton where simple rules create complex emergent 
 
 ---
 
-### 🎵 [Recipe 2: Audio Signal Processing](command:tenstorrent.showLesson?["cookbook-audio-processor"])
+### 🎵 [Recipe 2: Audio Signal Processing](command:tenstorrent.lesson.show?["cookbook-audio-processor"])
 **Learn:** FFT, mel-spectrograms, real-time audio effects
 
 Process audio files on TT hardware - compute spectrograms, detect beats, extract pitch. Foundation for speech recognition models like Whisper.
@@ -51,7 +51,7 @@ Process audio files on TT hardware - compute spectrograms, detect beats, extract
 
 ---
 
-### 🌀 [Recipe 3: Mandelbrot Fractal Explorer](command:tenstorrent.showLesson?["cookbook-mandelbrot"])
+### 🌀 [Recipe 3: Mandelbrot Fractal Explorer](command:tenstorrent.lesson.show?["cookbook-mandelbrot"])
 **Learn:** GPU-style parallel computation, complex number operations
 
 Render beautiful fractals with an interactive zoom explorer. Demonstrates embarrassingly parallel computation - ideal for understanding performance.
@@ -60,7 +60,7 @@ Render beautiful fractals with an interactive zoom explorer. Demonstrates embarr
 
 ---
 
-### 🖼️ [Recipe 4: Custom Image Filters](command:tenstorrent.showLesson?["cookbook-image-filters"])
+### 🖼️ [Recipe 4: Custom Image Filters](command:tenstorrent.lesson.show?["cookbook-image-filters"])
 **Learn:** 2D convolution, computer vision kernels
 
 Build a library of image filters from edge detection to artistic effects. Same techniques used in ResNet50, MobileNetV2, and ViT models.
@@ -69,7 +69,7 @@ Build a library of image filters from edge detection to artistic effects. Same t
 
 ---
 
-### 🌌 [Recipe 5: Particle Life - Emergent Complexity](command:tenstorrent.showLesson?["cookbook-particle-life"])
+### 🌌 [Recipe 5: Particle Life - Emergent Complexity](command:tenstorrent.lesson.show?["cookbook-particle-life"])
 **Learn:** N² algorithms, physics simulation, multi-device parallelization
 
 Simulate emergent patterns from simple particle interactions. Includes multi-chip acceleration bonus for TT-QuietBox systems!
@@ -81,7 +81,7 @@ Simulate emergent patterns from simple particle interactions. Includes multi-chi
 ## How the Cookbook Works
 
 ### 1. Deploy All Projects
-[📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
+[📦 Deploy All Cookbook Projects](command:tenstorrent.cookbook.createProjects)
 
 This creates all 5 projects in `~/tt-scratchpad/cookbook/` with one command.
 
@@ -155,6 +155,6 @@ After completing the cookbook, you'll have:
 
 ---
 
-Ready to start? Pick a recipe above or [deploy all projects](command:tenstorrent.createCookbookProjects) and dive in!
+Ready to start? Pick a recipe above or [deploy all projects](command:tenstorrent.cookbook.createProjects) and dive in!
 
 Happy coding! 🚀

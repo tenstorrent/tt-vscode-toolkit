@@ -54,7 +54,7 @@ The Mandelbrot set is a fractal defined by the iterative equation `z = z² + c`.
 
 ## Deploy the Project
 
-[📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
+[📦 Deploy All Cookbook Projects](command:tenstorrent.cookbook.createProjects)
 
 This creates the project in `~/tt-scratchpad/cookbook/mandelbrot/`.
 
@@ -498,9 +498,9 @@ class MandelbrotVisualizer:
 
 **Quick Start - Click to Run:**
 
-[🌀 Launch Interactive Explorer](command:tenstorrent.runMandelbrotExplorer)
+[🌀 Launch Interactive Explorer](command:tenstorrent.cookbook.mandelbrotExplorer)
 
-[🎨 Compare 6 Julia Sets](command:tenstorrent.runMandelbrotJulia)
+[🎨 Compare 6 Julia Sets](command:tenstorrent.cookbook.mandelbrotJulia)
 
 **Manual Commands:**
 
@@ -625,4 +625,4 @@ for size in [512, 1024, 2048, 4096]:
 - ✅ **Performance optimization**: Benchmarking and scaling analysis
 - ✅ **Interactive visualization**: Zoom, pan, and color mapping
 
-[Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])
+[Return to Cookbook Overview](command:tenstorrent.lesson.show?["cookbook-overview"])

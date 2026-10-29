@@ -54,7 +54,7 @@ So what follows is **both**: the documented `tt-train` pattern for n300, T3000 (
 - Coordinated multi-device init/teardown (`CreateDevices`/`CloseDevices`) — and why per-chip loops break
 - Performance and scaling considerations for DDP
 
-**Time:** 15 minutes | **Prerequisites:** [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])
+**Time:** 15 minutes | **Prerequisites:** [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])
 
 ---
 
@@ -79,9 +79,9 @@ graph LR
 
 ### Single Device (n150, p150, p300c) — No DDP Here
 
-A single chip is one node in a mesh of size 1. There's nothing to split a batch across and nothing to synchronize gradients with. `enable_ddp: true` on a single-chip mesh has no effect — [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) covers this exact misconfiguration.
+A single chip is one node in a mesh of size 1. There's nothing to split a batch across and nothing to synchronize gradients with. `enable_ddp: true` on a single-chip mesh has no effect — [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) covers this exact misconfiguration.
 
-- ✅ Simple, easy to debug — the workflow [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) walks through
+- ✅ Simple, easy to debug — the workflow [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) walks through
 - ⚠️ One device's worth of throughput — that's it
 
 ### Multi-Device (n300, T3000/LoudBox, Galaxy, QB2/p300c) — Where DDP Applies
@@ -171,7 +171,7 @@ graph TD
 
 ## Real `mesh_shape` Values
 
-`device_config` — the same block [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) introduced for single-chip runs — has two fields that matter for DDP: `enable_ddp` and `mesh_shape`. Per `tt-train/configs/README.md`, the real device mesh shapes are:
+`device_config` — the same block [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) introduced for single-chip runs — has two fields that matter for DDP: `enable_ddp` and `mesh_shape`. Per `tt-train/configs/README.md`, the real device mesh shapes are:
 
 | Hardware | `mesh_shape` |
 |---|---|
@@ -191,7 +191,7 @@ device_config:
   mesh_shape: [1, 1]
 ```
 
-As [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) notes, this is also `tt-train`'s default when `device_config` is omitted entirely.
+As [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) notes, this is also `tt-train`'s default when `device_config` is omitted entirely.
 
 ### n300 — DDP Enabled (real shipped config)
 
@@ -253,7 +253,7 @@ Device 1: Wormhole (n300)
 
 ### Step 2: Launch Training
 
-Same entry point [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) uses on a single chip — `train_nanogpt.py` — just pointed at the DDP config:
+Same entry point [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) uses on a single chip — `train_nanogpt.py` — just pointed at the DDP config:
 
 ```bash
 python tt-metal/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
@@ -567,7 +567,7 @@ Use logging to track:
 **Tools:**
 - `tt-smi` - Real-time device monitoring
 - `ttnn.profiler` - Performance profiling
-- [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"]) - multi-run comparison, including across hardware configurations
+- [Experiment Tracking](command:tenstorrent.lesson.show?["ct6-experiment-tracking"]) - multi-run comparison, including across hardware configurations
 
 ### 4. Start Small, Scale Up
 
@@ -629,11 +629,11 @@ Device 0 ←→ Device 1 ←→ ... ←→ Device N
 
 ## Next Steps
 
-**Next: [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"])**
+**Next: [Experiment Tracking](command:tenstorrent.lesson.show?["ct6-experiment-tracking"])**
 
 Whether you trained on one chip or eight, the next problem is the same: keeping track of what you ran and what it produced. That lesson covers file-based logging and WandB integration for comparing runs — including runs across different hardware configurations, which is exactly what multi-device training gives you more of.
 
-**Or, if you'd rather go deeper on the model itself:** [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) covers transformer components before [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) designs a full architecture.
+**Or, if you'd rather go deeper on the model itself:** [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"]) covers transformer components before [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"]) designs a full architecture.
 
 ---
 
@@ -648,7 +648,7 @@ Whether you trained on one chip or eight, the next problem is the same: keeping 
 - **The real schema:** `tt-train/configs/README.md` — the source for every `mesh_shape`/`enable_ddp`/`enable_tp` value in this lesson
 - **The real configs:** `tt-train/configs/training_configs/training_shakespeare_nanogpt_ddp_n300.yaml` (plain DDP), `training_llama8b_dp2_tp4.yaml` and `training_llama8b_tp_ddp_galaxy.yaml` (DDP+TP combined)
 - **Mesh graph descriptors:** `tt_metal/fabric/mesh_graph_descriptors/p300_mesh_graph_descriptor.textproto` (shipped, use for QB2 2-chip DDP) — the 4-chip `[1,4]`/`RING` descriptor used in this lesson isn't shipped yet; build it from the key fields in the MGD fix section above
-- [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) — the full single-chip config schema this lesson builds on
+- [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) — the full single-chip config schema this lesson builds on
 
 ### Profiling Tools
 - `tt-smi` - Device monitoring and reset

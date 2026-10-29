@@ -101,7 +101,7 @@ Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN<sup>™<
 
 **Quick Check:** Not sure which hardware you have?
 
-[🔍 Detect Hardware](command:tenstorrent.runHardwareDetection)
+[🔍 Detect Hardware](command:tenstorrent.setup.hardwareDetection)
 
 Look for the "Board Type" field in the output (e.g., n150, n300, T3000, p100).
 
@@ -145,7 +145,7 @@ The model will be automatically downloaded from Hugging Face the first time you 
 hf auth login --token "$HF_TOKEN"
 ```
 
-[🔐 Login to Hugging Face](command:tenstorrent.loginHuggingFace)
+[🔐 Login to Hugging Face](command:tenstorrent.model.login)
 
 **Note:** SDXL Base 1.0 is publicly available and doesn't require special access permissions.
 
@@ -215,7 +215,7 @@ Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
 
 **TT-QuietBox 2 note:** TT-QuietBox 2 ships without `~/tt-metal`. You must clone and build
 TT-Metalium from source before running SDXL. See
-[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+[Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]).
 
 **⚠️ Note:** Blackhole SDXL support is experimental. Please report any issues!
 
@@ -242,7 +242,7 @@ export PYTHONPATH=~/tt-metal:$PYTHONPATH
 pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py
 ```
 
-[🎨 Generate Sample Image](command:tenstorrent.generateRetroImage)
+[🎨 Generate Sample Image](command:tenstorrent.apps.generateRetroImage)
 
 **What you'll see:**
 
@@ -423,7 +423,7 @@ pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo_base_an
 
 **Ready to go beyond button-pressing?** Copy the demo to your scratchpad and modify it:
 
-[📝 Copy Demo to Scratchpad](command:tenstorrent.copyImageGenDemo)
+[📝 Copy Demo to Scratchpad](command:tenstorrent.apps.copyImageGenDemo)
 
 This copies `demo.py` to `~/tt-scratchpad/sdxl_demo.py` and opens it for editing.
 

@@ -82,7 +82,7 @@ Your TT-QuietBox 2 can generate original AI video — 5–7 minute clips of cine
 - TT-QuietBox 2 hardware detected and healthy (`tt-smi` showing 4 chips)
 - Tenstorrent PPA installed (firmware + KMD current) — repository plus its signing key at
   `/etc/apt/keyrings/tt-pkg-key.asc`; see the
-  [TT-Installer lesson](command:tenstorrent.showLesson?["tt-installer"]) if `apt` reports the
+  [TT-Installer lesson](command:tenstorrent.lesson.show?["tt-installer"]) if `apt` reports the
   repository is not signed
 - Docker CE installed and running
 - `python3-gi`, `python3-gi-cairo`, `gir1.2-gtk-4.0` installed (system apt, **not venv**)
@@ -96,7 +96,7 @@ tt-smi -s | python3 -m json.tool
 # Expect: 4 chips, all status "OK"
 ```
 
-[Verify Hardware](command:tenstorrent.runHardwareDetection)
+[Verify Hardware](command:tenstorrent.setup.hardwareDetection)
 
 ---
 
@@ -108,7 +108,7 @@ Before starting, confirm all four Blackhole chips are healthy:
 tt-smi -s
 ```
 
-[Run Hardware Detection](command:tenstorrent.runHardwareDetection)
+[Run Hardware Detection](command:tenstorrent.setup.hardwareDetection)
 
 Look for four entries with `"status": "OK"` and no `"error"` fields. If chips are missing or unhealthy:
 
@@ -119,7 +119,7 @@ sleep 5
 tt-smi -s
 ```
 
-[Reset Device](command:tenstorrent.resetDevice)
+[Reset Device](command:tenstorrent.setup.resetDevice)
 
 ---
 
@@ -129,7 +129,7 @@ tt-smi -s
 git clone https://github.com/tenstorrent/tt-local-generator.git ~/code/tt-local-generator
 ```
 
-[Clone tt-local-generator](command:tenstorrent.cloneTtLocalGenerator)
+[Clone tt-local-generator](command:tenstorrent.apps.cloneTtLocalGenerator)
 
 This clones the GTK4 video generation UI. The repo is small (~5 MB); the heavy content (model weights, Docker image) is downloaded separately.
 
@@ -149,7 +149,7 @@ sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0
 cd ~/code/tt-local-generator && ./bin/setup_vendor.sh
 ```
 
-[Set Up Vendored Server](command:tenstorrent.setupVideoGenVendor)
+[Set Up Vendored Server](command:tenstorrent.apps.setupVideoGenVendor)
 
 This clones a shallow copy of the TT-Inference-Server repository at a pinned, tested commit into `vendor/tt-inference-server/`. It never touches `~/code/tt-inference-server` if you have one — the vendor copy is isolated.
 
@@ -174,7 +174,7 @@ cat ~/code/tt-local-generator/vendor/VENDOR_SHA
 cd ~/code/tt-local-generator && ./bin/apply_patches.sh
 ```
 
-[Apply TT-QuietBox 2 Patches](command:tenstorrent.applyVideoGenPatches)
+[Apply TT-QuietBox 2 Patches](command:tenstorrent.apps.applyVideoGenPatches)
 
 This injects two sets of patches into the vendored server:
 
@@ -191,13 +191,13 @@ This injects two sets of patches into the vendored server:
 
 Wan2.2-T2V-A14B requires a HuggingFace account. Get a token at https://huggingface.co/settings/tokens and accept the model terms at https://huggingface.co/Wan-AI.
 
-[Set HuggingFace Token](command:tenstorrent.setHuggingFaceToken)
+[Set HuggingFace Token](command:tenstorrent.model.setHfToken)
 
 ```bash
 hf auth login --token "$HF_TOKEN"
 ```
 
-[Login to HuggingFace](command:tenstorrent.loginHuggingFace)
+[Login to HuggingFace](command:tenstorrent.model.login)
 
 Verify auth works:
 
@@ -215,7 +215,7 @@ hf auth whoami
 hf download Wan-AI/Wan2.2-T2V-A14B-Diffusers
 ```
 
-[Download Wan2.2 Model](command:tenstorrent.downloadWan22Model)
+[Download Wan2.2 Model](command:tenstorrent.apps.downloadWan22Model)
 
 This streams to `~/.cache/huggingface/hub/`. The Docker container bind-mounts this directory, so the weights are available to the server without copying.
 
@@ -227,7 +227,7 @@ This streams to `~/.cache/huggingface/hub/`. The Docker container bind-mounts th
 hf download Qwen/Qwen3-0.6B
 ```
 
-[Download Qwen3-0.6B](command:tenstorrent.downloadQwen3Small)
+[Download Qwen3-0.6B](command:tenstorrent.apps.downloadQwen3Small)
 
 Qwen3-0.6B is the prompt polish LLM. It runs on CPU (no TT hardware required) and uses only ~2.9 GB RAM. It loads in under 30 seconds.
 
@@ -267,7 +267,7 @@ Open **two terminals** — one for each server.
 cd ~/code/tt-local-generator && ./bin/start_wan_qb2.sh
 ```
 
-[Start Wan2.2 Server](command:tenstorrent.startWan22Server)
+[Start Wan2.2 Server](command:tenstorrent.apps.startWan22Server)
 
 Watch the output. You will see phases:
 
@@ -286,7 +286,7 @@ Application startup complete.
 cd ~/code/tt-local-generator && ./bin/start_prompt_gen.sh
 ```
 
-[Start Prompt Server](command:tenstorrent.startPromptGenServer)
+[Start Prompt Server](command:tenstorrent.apps.startPromptGenServer)
 
 This starts Qwen3-0.6B on port 8001. It loads in ~30 seconds. The prompt server is optional but makes the ✨ Generate Prompt button in the UI work.
 
@@ -302,7 +302,7 @@ curl -s http://localhost:8001/health | python3 -m json.tool
 # Expect: {"status": "ok", "model_ready": true}
 ```
 
-[Check Server Health](command:tenstorrent.checkVideoServerHealth)
+[Check Server Health](command:tenstorrent.apps.checkVideoServerHealth)
 
 If the video server returns nothing or an error, it's still warming up — wait and retry.
 
@@ -314,7 +314,7 @@ If the video server returns nothing or an error, it's still warming up — wait 
 cd ~/code/tt-local-generator && ./tt-gen
 ```
 
-[Launch tt-gen](command:tenstorrent.launchTtGen)
+[Launch tt-gen](command:tenstorrent.apps.launchTtGen)
 
 The GTK4 window opens. Confirm the server status indicator in the toolbar shows green (healthy). If it shows red, wait for warmup to finish and the indicator will update automatically.
 

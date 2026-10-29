@@ -25,7 +25,7 @@
 
 ### Q: Which lesson should I start with?
 
-**A:** Start with **[tt-installer](command:tenstorrent.showLesson?["tt-installer"])** if you're on a fresh system, or **[Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])** if drivers are already installed. Lessons are organized into 9 categories:
+**A:** Start with **[tt-installer](command:tenstorrent.lesson.show?["tt-installer"])** if you're on a fresh system, or **[Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"])** if drivers are already installed. Lessons are organized into 9 categories:
 
 **🚀 Your First Inference (7 lessons)**
 tt-installer → Hardware Detection → Verify Installation → Download Model → Interactive Chat → API Server → Build tt-metal
@@ -61,8 +61,8 @@ Bounty Program, Explore Metalium
 - **Advanced topics** (compilers, RISC-V, bounty program) are more independent
 
 **Quick start for experienced users:**
-1. Run [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) (2 minutes - verify hardware)
-2. Skip to [Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"]) (production serving)
+1. Run [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]) (2 minutes - verify hardware)
+2. Skip to [Production Inference with vLLM](command:tenstorrent.lesson.show?["vllm-production"]) (production serving)
 3. Explore advanced topics (compilers, RISC-V, bounty program)
 
 ### Q: What's the difference between the different tools?
@@ -77,9 +77,9 @@ Bounty Program, Explore Metalium
 | **TT-XLA** | XLA compiler | JAX/PyTorch (production) | Production |
 
 **Simple guide:**
-- Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])**
-- Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.showLesson?["forge-image-classification"])**
-- Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.showLesson?["tt-xla-jax"])**
+- Need to run LLMs? → **[Production Inference with vLLM](command:tenstorrent.lesson.show?["vllm-production"])**
+- Want to experiment with PyTorch? → **[Image Classification with TT-Forge](command:tenstorrent.lesson.show?["forge-image-classification"])**
+- Need JAX support? → **[JAX Inference with TT-XLA](command:tenstorrent.lesson.show?["tt-xla-jax"])**
 - Building custom kernels? → **TT-Metalium** (Hardware Detection, Verify Installation, Download Model, RISC-V Programming)
 
 ---
@@ -114,7 +114,7 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 source tree, so nothing to build `python_env`, `python_env_vllm`, or `tt-forge-venv`
 against. TT-NN lives in the `tt-metalium` container instead (`tt-metalium -c "..."`,
 or the interactive shell), and vLLM runs in the container `tt-inference-server`
-launches — see the "On a QB2" section in [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
+launches — see the "On a QB2" section in [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]).
 `~/.tenstorrent-venv` is not a substitute for any of the three; it holds only
 `tt-smi`/`tt-flash`/`tt-topology`.
 
@@ -127,7 +127,7 @@ ls ~/tt-metal/build/python_env_vllm/bin/activate 2>/dev/null && echo "✓ vLLM v
 ls ~/tt-forge-venv/bin/activate 2>/dev/null && echo "✓ Forge/XLA venv"
 ```
 
-If `~/tt-metal/python_env` doesn't exist, you need to build tt-metal first → [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+If `~/tt-metal/python_env` doesn't exist, you need to build tt-metal first → [Build tt-metal from Source](command:tenstorrent.lesson.show?["build-tt-metal"]).
 
 If `~/tt-forge-venv` doesn't exist, check `/opt/venv-forge`:
 
@@ -156,7 +156,7 @@ export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
 echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
 ```
 
-**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) first.
 
 **Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
 
@@ -259,7 +259,7 @@ Most lessons that use it also create subdirectories (e.g. `~/tt-scratchpad/cookb
 source tree, so nothing to build `python_env`, `python_env_vllm`, or `tt-forge-venv`
 against. TT-NN lives in the `tt-metalium` container instead (`tt-metalium -c "..."`,
 or the interactive shell), and vLLM runs in the container `tt-inference-server`
-launches — see the "On a QB2" section in [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]).
+launches — see the "On a QB2" section in [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]).
 `~/.tenstorrent-venv` is not a substitute for any of the three; it holds only
 `tt-smi`/`tt-flash`/`tt-topology`.
 
@@ -272,7 +272,7 @@ ls ~/tt-metal/build/python_env_vllm/bin/activate 2>/dev/null && echo "✓ vLLM v
 ls ~/tt-forge-venv/bin/activate 2>/dev/null && echo "✓ Forge/XLA venv"
 ```
 
-If `~/tt-metal/python_env` doesn't exist, you need to build tt-metal first → [Build tt-metal from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+If `~/tt-metal/python_env` doesn't exist, you need to build tt-metal first → [Build tt-metal from Source](command:tenstorrent.lesson.show?["build-tt-metal"]).
 
 If `~/tt-forge-venv` doesn't exist, check `/opt/venv-forge`:
 
@@ -301,7 +301,7 @@ export LD_LIBRARY_PATH=$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH
 echo 'export TT_METAL_HOME=~/tt-metal' >> ~/.bashrc
 ```
 
-**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+**TT-QuietBox 2 users:** `~/tt-metal` does not exist on TT-QuietBox 2 pre-configured images. Use TT-Inference-Server or vLLM instead. If you specifically need the Direct API, run [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) first.
 
 **Forge/XLA users:** Unset `TT_METAL_HOME` before activating `venv-forge` — leaving it set causes conflicts:
 
@@ -692,7 +692,7 @@ tt-smi -s | grep -o '"board_type": "[^"]*"'
    tt-smi -r
    ```
 
-**Still not working?** Check the [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) lesson troubleshooting section for detailed steps.
+**Still not working?** Check the [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]) lesson troubleshooting section for detailed steps.
 
 ### Q: What's the difference between Wormhole and Blackhole?
 
@@ -792,7 +792,7 @@ On **Fedora**, write a `/etc/yum.repos.d/tenstorrent.repo` with
 
 This is where `tenstorrent-dkms` (the KMD), `tt-smi`, `tt-flash`, `tt-topology`,
 `tt-toplike`, `tt-metalium`, `tt-nn` and `sfpi` come from. Full details in the
-[TT-Installer lesson](command:tenstorrent.showLesson?["tt-installer"]).
+[TT-Installer lesson](command:tenstorrent.lesson.show?["tt-installer"]).
 
 ### Q: Which Python version do I need?
 
@@ -915,10 +915,10 @@ login(token="your_token_from_huggingface")
 | **vLLM** | Production Inference | Production serving | 1-3 sec per query |
 
 **Quick guide:**
-- Just testing? → **[Download Model](command:tenstorrent.showLesson?["download-model"])** (one-shot demo)
-- Learning/experimenting? → **[Interactive Chat](command:tenstorrent.showLesson?["interactive-chat"])** (interactive)
-- Building custom app? → **[API Server](command:tenstorrent.showLesson?["api-server"])** (Flask API)
-- Production deployment? → **[Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])** (vLLM)
+- Just testing? → **[Download Model](command:tenstorrent.lesson.show?["download-model"])** (one-shot demo)
+- Learning/experimenting? → **[Interactive Chat](command:tenstorrent.lesson.show?["interactive-chat"])** (interactive)
+- Building custom app? → **[API Server](command:tenstorrent.lesson.show?["api-server"])** (Flask API)
+- Production deployment? → **[Production Inference with vLLM](command:tenstorrent.lesson.show?["vllm-production"])** (vLLM)
 
 ### Q: Why does first load take 2-5 minutes?
 
@@ -1577,7 +1577,7 @@ Steps to reproduce: [numbered list]
 
 **A:** Yes! Several ways:
 
-**1. [Bounty Program](command:tenstorrent.showLesson?["bounty-program"])**
+**1. [Bounty Program](command:tenstorrent.lesson.show?["bounty-program"])**
 - Bring up new models
 - Earn rewards
 - Official contribution path
@@ -1676,7 +1676,7 @@ python3 --version
 
 ### Q: Where can I learn about low-level RISC-V programming on Tenstorrent hardware?
 
-**A:** Check out the **[CS Fundamentals series](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"])** - Module 1 covers RISC-V & Computer Architecture!
+**A:** Check out the **[CS Fundamentals series](command:tenstorrent.lesson.show?["cs-fundamentals-01-computer"])** - Module 1 covers RISC-V & Computer Architecture!
 
 Each Tensix core contains **five RISC-V processors** (RV32IM ISA):
 - **BRISC (RISCV_0)** - Primary data movement
@@ -1704,10 +1704,10 @@ With 176 Tensix cores on Wormhole, that's **880 RISC-V cores** you can program d
 
 **Access the series:**
 - From Welcome page → CS Fundamentals section
-- Or start with [Module 1: RISC-V & Computer Architecture](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"])
+- Or start with [Module 1: RISC-V & Computer Architecture](command:tenstorrent.lesson.show?["cs-fundamentals-01-computer"])
 
 **View the full guide:**
-- [Open RISC-V Exploration Guide](command:tenstorrent.showRiscvGuide) - Comprehensive deep-dive documentation
+- [Open RISC-V Exploration Guide](command:tenstorrent.lesson.riscvGuide) - Comprehensive deep-dive documentation
 
 **Perfect for:**
 - Developers who want to understand the hardware at the lowest level

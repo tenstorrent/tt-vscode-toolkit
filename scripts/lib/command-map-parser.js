@@ -166,7 +166,8 @@ function buildCommandMap(termSrc, extSrc) {
     }
 
     // Map: tenstorrent.commandSuffix → funcName (from registerCommand calls)
-    const regRe = /registerCommand\(['"]tenstorrent\.(\w+)['"]\s*,\s*(\w+)/g;
+    // The suffix is dotted (tenstorrent.<feature>.<action>) since the 2026-10-29 rename.
+    const regRe = /registerCommand\(['"]tenstorrent\.([\w.]+)['"]\s*,\s*(\w+)/g;
     let regMatch;
     while ((regMatch = regRe.exec(extSrc)) !== null) {
       const suffix   = regMatch[1];

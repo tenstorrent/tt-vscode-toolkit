@@ -267,7 +267,7 @@ cd ~/tt-metal && \
   ./build_metal.sh --build-programming-examples
 ```
 
-[🔨 Build Programming Examples](command:tenstorrent.buildProgrammingExamples)
+[🔨 Build Programming Examples](command:tenstorrent.metal.buildProgrammingExamples)
 
 **This takes 5-10 minutes.** The build system:
 1. Compiles host C++ code (x86/ARM)
@@ -284,7 +284,7 @@ cd ~/tt-metal && \
   ./build_Release/programming_examples/metal_example_add_2_integers_in_riscv
 ```
 
-[🚀 Run RISC-V Addition](command:tenstorrent.runRiscvExample)
+[🚀 Run RISC-V Addition](command:tenstorrent.metal.runRiscvExample)
 
 **Expected output:**
 ```
@@ -342,7 +342,7 @@ This is **bare-metal programming**. No OS, no abstractions, complete control.
 
 Let's examine the actual kernel code:
 
-[📖 Open Kernel Source](command:tenstorrent.openRiscvKernel)
+[📖 Open Kernel Source](command:tenstorrent.metal.openRiscvKernel)
 
 **File:** `~/tt-metal/tt_metal/programming_examples/add_2_integers_in_riscv/kernels/reader_writer_add_in_riscv.cpp`
 
@@ -687,4 +687,4 @@ We ran it on real hardware:
 
 Welcome to CS fundamentals on real hardware. Let's continue! 🚀
 
-[→ Continue to Module 2: Memory Hierarchy](command:tenstorrent.showLesson?["cs-fundamentals-02-memory"])
+[→ Continue to Module 2: Memory Hierarchy](command:tenstorrent.lesson.show?["cs-fundamentals-02-memory"])

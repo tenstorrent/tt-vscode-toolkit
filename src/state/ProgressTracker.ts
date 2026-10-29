@@ -223,7 +223,7 @@ export class ProgressTracker {
       )
       .then(selection => {
         if (selection === 'Next Lesson' && lesson.nextLesson) {
-          vscode.commands.executeCommand('tenstorrent.showLesson', lesson.nextLesson);
+          vscode.commands.executeCommand('tenstorrent.lesson.show', lesson.nextLesson);
         } else if (selection === 'View Progress') {
           vscode.commands.executeCommand('tenstorrent.showProgress');
         }

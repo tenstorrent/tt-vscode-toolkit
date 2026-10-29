@@ -20,7 +20,7 @@ estimatedMinutes: 20
 
 # ttsim QEMU Bridge: Full-System Simulation
 
-The [ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) simulator ships as
+The [ttsim](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"]) simulator ships as
 a `.so` shared library that TT-Metalium loads on the host when you set
 `TT_METAL_SIMULATOR`. That requires a working TT-Metalium install on your machine.
 
@@ -66,7 +66,7 @@ the guest is none the wiser.
 > register coverage for UMD topology discovery.
 
 For a fully working simulator path today, use the host
-[TT_METAL_SIMULATOR approach](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
+[TT_METAL_SIMULATOR approach](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"])
 and all entries in ttsim-twenty-and-ten will work without any VM setup.
 
 ---
@@ -88,10 +88,10 @@ inference environment. LLM serving, training runs, and image generation are too 
 to be practical. What works well:
 
 - TTNN operations and kernel authoring
-- All entries in [Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
-- The [CS Fundamentals](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"]) series
-- Cookbook examples: [Game of Life](command:tenstorrent.showLesson?["cookbook-game-of-life"]),
-  [Particle Life](command:tenstorrent.showLesson?["cookbook-particle-life"])
+- All entries in [Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"])
+- The [CS Fundamentals](command:tenstorrent.lesson.show?["cs-fundamentals-01-computer"]) series
+- Cookbook examples: [Game of Life](command:tenstorrent.lesson.show?["cookbook-game-of-life"]),
+  [Particle Life](command:tenstorrent.lesson.show?["cookbook-particle-life"])
 
 ---
 
@@ -109,9 +109,9 @@ to be practical. What works well:
   Adds `qemu-system-x86_64` with the `ttsim` device to `~/.local/bin/`.
 
 - **libttsim_wh.so** in `~/sim/` (run Setup ttsim from the
-  [ttsim lesson](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) first):
+  [ttsim lesson](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"]) first):
 
-  [▶ Setup ttsim](command:tenstorrent.setupTtsim)
+  [▶ Setup ttsim](command:tenstorrent.ttsim.setup)
 
 - **Ubuntu 24.04 minimal cloud image** (~600 MB) — the Launch command offers to
   download it automatically.
@@ -312,7 +312,7 @@ any in-progress writes may not flush if the process exits abruptly.
 ## Go deeper
 
 All single-chip Wormhole entries in
-[Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
+[Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"])
 run on the **host simulator path** (`TT_METAL_SIMULATOR=~/sim/libttsim_wh.so`)
 without any QEMU VM — entries 1–17 and 22–30. That path works completely today
 with ttsim v1.9.1 and ttnn 0.72.0.
@@ -321,5 +321,5 @@ The QEMU VM path will unlock when ttsim implements the remaining ARC tile regist
 needed by UMD topology discovery. Watch
 [tenstorrent/ttsim releases](https://github.com/tenstorrent/ttsim/releases) for updates.
 
-The [CS Fundamentals](command:tenstorrent.showLesson?["cs-fundamentals-01-computer"]) series
+The [CS Fundamentals](command:tenstorrent.lesson.show?["cs-fundamentals-01-computer"]) series
 walks through computer architecture concepts directly on simulated Tensix cores.

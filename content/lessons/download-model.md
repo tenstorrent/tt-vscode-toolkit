@@ -63,7 +63,7 @@ which hf || pip install huggingface-hub
 **All checks passed?** Continue below to download the model.
 
 **If hardware check failed:**
-- See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) to set up tt-smi
+- See [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]) to set up tt-smi
 
 ---
 
@@ -125,7 +125,7 @@ echo $HF_TOKEN
 When you click the button below, you'll be prompted to enter your token
 securely:
 
-[🔑 Enter Your Hugging Face Token](command:tenstorrent.setHuggingFaceToken)
+[🔑 Enter Your Hugging Face Token](command:tenstorrent.model.setHfToken)
 
 ### Method 2: Manually in Terminal
 
@@ -160,7 +160,7 @@ hf auth whoami
 hf auth login --token "$HF_TOKEN"
 ```
 
-[✓ Authenticate with Hugging Face](command:tenstorrent.loginHuggingFace)
+[✓ Authenticate with Hugging Face](command:tenstorrent.model.login)
 
 ---
 
@@ -186,7 +186,7 @@ mkdir -p ~/models && hf download Qwen/Qwen3-0.6B \
   --local-dir ~/models/Qwen3-0.6B
 ```
 
-[⬇️ Download Qwen3-0.6B Model](command:tenstorrent.downloadQwen3Small)
+[⬇️ Download Qwen3-0.6B Model](command:tenstorrent.apps.downloadQwen3Small)
 
 ## What Gets Downloaded
 
@@ -230,7 +230,7 @@ mkdir -p ~/models && hf download meta-llama/Llama-3.1-8B-Instruct \
 
 You've successfully downloaded your model and are ready to run inference.
 
-**Next: Verify Your Setup →** [verify-installation](command:tenstorrent.showLesson?["verify-installation"])
+**Next: Verify Your Setup →** [verify-installation](command:tenstorrent.lesson.show?["verify-installation"])
 
 ## Learn More
 
