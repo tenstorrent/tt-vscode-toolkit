@@ -58,25 +58,23 @@ On the pod, `HF_HOME` is `~/models`, so the token and the weights both land ther
 ```bash
 source ~/tt-metal/build/python_env_vllm/bin/activate
 export PYTHONPATH=$HOME/tt-metal/tools:$HOME/tt-metal/ttnn:$PYTHONPATH
-MESH_DEVICE=N150 vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --port 20000
+MESH_DEVICE=N150 HF_MODEL=meta-llama/Llama-3.1-8B-Instruct \
+  vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --max-num-seqs 32 --block-size 64 --port 20000
 ```
 
 [🚀 Serve Llama-3.1-8B-Instruct (vLLM, no container)](command:tenstorrent.vllm.serveCloudN150)
 
-The `PYTHONPATH` line is there because the pod's vLLM environment finds `ttnn` through a
-path file but not tt-metal's `tracy` package beside it; without it `import ttnn` fails
-with `No module named 'tracy'` and the server never starts.
+`HF_MODEL` repeats the model name because tt-metal's model code reads it from the
+environment. `--max-num-seqs 32 --block-size 64` are the plugin's own example settings; the
+vLLM default of 256 sequences is refused on Tenstorrent hardware.
 
-> **⚠️ Verified state, 2026-10-29.** On the tt-code-server image as shipped (v0.63.0) this
-> route does not start. Three things are wrong with its `python_env_vllm`, found in order:
-> `import ttnn` cannot find `tracy` (the `PYTHONPATH` line above fixes that); its
-> `torchvision` 0.26 does not match its `torch` 2.14 (`uv pip install --no-deps --index-url
-> https://download.pytorch.org/whl/cpu "torchvision==0.29.*"` fixes that); and then vLLM
-> cannot load `TTLlamaForCausalLM`, because the image pairs tt-metal v0.69.0 (April 2026)
-> with vllm-tt-plugin `main` and vLLM 0.30.0 (October 2026), and tt-metal's
-> `models/tt_transformers/tt/generator_vllm.py` imports a vLLM API that no longer exists.
-> That one needs the image rebuilt with a matched tt-metal and plugin pair. Until then, the
-> cloud pod has no working serving route; the Build on the Stack lessons do not need one.
+> **⚠️ Image version matters.** This route works on tt-code-server images built from
+> tt-metal **v0.80.0** or later with the plugin pinned to match (verified 2026-10-29 with a
+> chat completion on hardware). On the v0.63.0 image, which pairs tt-metal v0.69.0 with
+> vLLM 0.30, the server fails at `Model architectures ['TTLlamaForCausalLM'] failed to be
+> inspected`, and no flag fixes it. Check with `cd ~/tt-metal && git describe --tags`. If
+> you are on the old image, the Build on the Stack lessons do not need a server; come back
+> to this one after the pod is refreshed.
 
 `MESH_DEVICE` names the board the plugin should open: `N150` on the pod, `N300`, `T3K`,
 `P100`, `P150` and so on elsewhere. `--max-model-len 32768` is the plugin's documented

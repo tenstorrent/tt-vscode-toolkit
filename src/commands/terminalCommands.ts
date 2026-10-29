@@ -330,7 +330,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   VLLM_SERVE_CLOUD_N150: {
     id: 'vllm-serve-cloud-n150',
     name: 'Serve Llama-3.1-8B-Instruct (vLLM, no container)',
-    template: 'source ~/tt-metal/build/python_env_vllm/bin/activate && export PYTHONPATH=$HOME/tt-metal/tools:$HOME/tt-metal/ttnn:$PYTHONPATH && MESH_DEVICE=N150 vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --port 20000',
+    template: 'source ~/tt-metal/build/python_env_vllm/bin/activate && export PYTHONPATH=$HOME/tt-metal/tools:$HOME/tt-metal/ttnn:$PYTHONPATH && MESH_DEVICE=N150 HF_MODEL=meta-llama/Llama-3.1-8B-Instruct vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --max-num-seqs 32 --block-size 64 --port 20000',
     description: "Cloud pod: serves from the pod's vLLM environment with the Tenstorrent plugin, same /v1 endpoint as tt serve",
   },
 

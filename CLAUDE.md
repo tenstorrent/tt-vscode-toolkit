@@ -73,9 +73,19 @@ n150 on the pod.
   `generator_vllm.py` imports `vllm.multimodal.inputs.MultiModalDataDict`, gone from vLLM
   0.30.0. The image pairs an April tt-metal with an October plugin. (1) and (2) are fixed
   on tt-code-server branch `tt-cli-ready` (local commit 25b0fe2, image
-  `tt-code-server:tt-cli` built); (3) needs a matched tt-metal/plugin pair, which is a
-  TT_METAL_VERSION bump and a full rebuild — not done, Taylor's call. The lesson says so.
-  The rig's chip is a p300c, so the run used `MESH_DEVICE=P100`; the pod is an n150.
+  `tt-code-server:tt-cli` built); (3) needs a matched tt-metal/plugin pair.
+  **Fixed the same day** (subagent, tt-code-server commit 0f5193d on `tt-cli-ready`, not
+  pushed): `TT_METAL_VERSION=v0.80.0` (latest non-prerelease; the compat import landed in
+  v0.74.0) and the plugin pinned to `82322af` as a build ARG. Image
+  `tt-code-server:tt-cli-metal` (59.7 GB) built on the QuietBox; under a gozer lease
+  `vllm serve meta-llama/Llama-3.1-8B-Instruct` answered a chat completion (200, 50
+  tokens, `system_fingerprint vllm-0.30.0`), log `~/logs/tt-code-server-vllm-serve-metal.log`.
+  Two runtime requirements came out of it and are now in the template and lesson:
+  `HF_MODEL=<name>` must be set (tt_transformers' `ModelArgs` raises without it) and
+  `--max-num-seqs 32 --block-size 64` (vLLM's default 256 is refused; 1..32 supported).
+  The HF cache mount also needs `~/.cache/huggingface/hub/blobs`, since the model's
+  snapshot symlinks point there. The rig's chip is a p300c, so the run used
+  `MESH_DEVICE=P100`; the pod is an n150, and the lesson is not yet proven on one.
 
 ## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
