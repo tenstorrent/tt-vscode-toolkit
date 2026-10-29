@@ -151,26 +151,8 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Runs a test operation to verify tt-metal is working correctly',
   },
 
-  INSTALL_DEPENDENCIES: {
-    id: 'install-dependencies',
-    name: 'Install System Dependencies',
-    template: 'cd ~/tt-metal && sudo ./install_dependencies.sh',
-    description: 'Installs required system libraries, drivers, and dependencies for tt-metal',
-  },
 
-  COPY_ENVIRONMENT_SETUP: {
-    id: 'copy-environment-setup',
-    name: 'Copy Environment Setup Commands',
-    template: 'export TT_METAL_HOME=~/tt-metal\nexport PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\nexport LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH',
-    description: 'Sets up environment variables for tt-metal (TT_METAL_HOME, PYTHONPATH, LD_LIBRARY_PATH)',
-  },
 
-  PERSIST_ENVIRONMENT: {
-    id: 'persist-environment',
-    name: 'Add Environment Variables to ~/.bashrc',
-    template: '(grep -q "export TT_METAL_HOME=~/tt-metal" ~/.bashrc || echo \'export TT_METAL_HOME=~/tt-metal\' >> ~/.bashrc) && (grep -q "export PYTHONPATH=\\$TT_METAL_HOME:\\$PYTHONPATH" ~/.bashrc || echo \'export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\' >> ~/.bashrc) && (grep -q "export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:\\$LD_LIBRARY_PATH" ~/.bashrc || echo \'export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH\' >> ~/.bashrc) && echo "✓ Environment variables added to ~/.bashrc. Restart your terminal or run: source ~/.bashrc"',
-    description: 'Permanently adds tt-metal environment variables to ~/.bashrc (idempotent - safe to run multiple times)',
-  },
 
   // Hugging Face Authentication
   SET_HF_TOKEN: {
@@ -239,13 +221,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Installs pi package and llama-models from Tenstorrent GitHub for inference',
   },
 
-  CREATE_CHAT_SCRIPT: {
-    id: 'create-chat-script',
-    name: 'Create Interactive Chat Script',
-    template: 'mkdir -p ~/tt-scratchpad && cp "{{templatePath}}" ~/tt-scratchpad/tt-chat.py && chmod +x ~/tt-scratchpad/tt-chat.py',
-    description: 'Copies the chat script template to ~/tt-scratchpad and makes it executable',
-    variables: ['templatePath'],
-  },
 
   START_CHAT_SESSION: {
     id: 'start-chat-session',
@@ -257,13 +232,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   // HTTP API Server (Lesson 5)
-  CREATE_API_SERVER: {
-    id: 'create-api-server',
-    name: 'Create API Server Script',
-    template: 'mkdir -p ~/tt-scratchpad && cp "{{templatePath}}" ~/tt-scratchpad/tt-api-server.py && chmod +x ~/tt-scratchpad/tt-api-server.py',
-    description: 'Copies the API server script template to ~/tt-scratchpad and makes it executable',
-    variables: ['templatePath'],
-  },
 
   INSTALL_FLASK: {
     id: 'install-flask',
@@ -405,19 +373,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Verifies Llama 3.1 8B model is downloaded (should be from Lesson 3)',
   },
 
-  CREATE_CODING_ASSISTANT_SCRIPT: {
-    id: 'create-coding-assistant-script',
-    name: 'Create Coding Assistant Script',
-    template: 'mkdir -p ~/tt-scratchpad',
-    description: 'Creates the coding assistant script with prompt engineering in ~/tt-scratchpad',
-  },
 
-  START_CODING_ASSISTANT: {
-    id: 'start-coding-assistant',
-    name: 'Start Coding Assistant',
-    template: 'cd ~/tt-metal && export LLAMA_DIR=~/models/Llama-3.1-8B-Instruct/original && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-coding-assistant.py',
-    description: 'Starts interactive CLI coding assistant with Llama 3.1 8B using Direct API and prompt engineering',
-  },
 
   // Image Classification with TT-Forge (Lesson 11)
   // forge + torch-xla live in ~/tt-forge-venv (symlink → /opt/venv-forge in developer images).
@@ -442,20 +398,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
-  TEST_FORGE_INSTALL_WHEEL: {
-    id: 'test-forge-install-wheel',
-    name: 'Verify Forge Stack',
-    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${FORGE_FULL_VERIFY_PY}\n"`,
-    description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
-  },
 
-  CREATE_FORGE_CLASSIFIER: {
-    id: 'create-forge-classifier',
-    name: 'Create Image Classifier Script',
-    template: 'mkdir -p ~/tt-scratchpad && cp \"{{templatePath}}\" ~/tt-scratchpad/tt-forge-classifier.py && chmod +x ~/tt-scratchpad/tt-forge-classifier.py',
-    description: 'Copies tt-forge-classifier.py template to ~/tt-scratchpad',
-    variables: ['templatePath'],
-  },
 
   RUN_FORGE_CLASSIFIER: {
     id: 'run-forge-classifier',
@@ -464,20 +407,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Activates venv-forge and runs MobileNetV2 image classification on TT hardware',
   },
 
-  RUN_FORGE_CLASSIFIER_WHEEL: {
-    id: 'run-forge-classifier-wheel',
-    name: 'Run Image Classifier (legacy)',
-    template: 'source ~/tt-forge-venv/bin/activate && cd ~/tt-scratchpad && python3 tt-forge-classifier.py',
-    description: 'Activates venv-forge and runs MobileNetV2 image classifier (alias)',
-  },
 
-  RUN_FORGE_CUSTOM_IMAGE: {
-    id: 'run-forge-custom-image',
-    name: 'Classify Custom Image',
-    template: 'source ~/tt-forge-venv/bin/activate && cd ~/tt-scratchpad && python3 tt-forge-classifier.py --image {{imagePath}}',
-    description: 'Classifies a user-provided image with TT-Forge compiled model',
-    variables: ['imagePath'],
-  },
 
   // ──────────────────────────────────────────────────────────────────────────
   // venv-forge activation & verification (shared by forge + XLA lessons)
@@ -638,12 +568,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // Lesson 17: Native Video Animation with AnimateDiff
   // ========================================
 
-  INSTALL_ANIMATEDIFF: {
-    id: 'install-animatediff',
-    name: 'Install AnimateDiff Package',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff package installed successfully\')"',
-    description: 'Install the animatediff-ttnn standalone package',
-  },
 
   RUN_ANIMATEDIFF_2FRAME: {
     id: 'run-animatediff-phase1',
@@ -659,12 +583,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Generate frames using TTNN UNet + cross-frame temporal attention on Blackhole hardware (P100/P300C/QB2)',
   },
 
-  VIEW_ANIMATEDIFF_OUTPUT: {
-    id: 'view-animatediff-output',
-    name: 'View Generated Frames',
-    template: 'ls -lh ~/tt-projects/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2.5 first"',
-    description: 'List generated GIF files in the output directory',
-  },
 
   SETUP_ANIMATEDIFF_PROJECT: {
     id: 'setup-animatediff-project',
@@ -721,12 +639,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Download and prepare tiny-shakespeare dataset for training from scratch',
   },
 
-  CREATE_NANO_TRICKSTER: {
-    id: 'create-nano-trickster',
-    name: 'Create Nano-Trickster Architecture',
-    template: 'cd ~/tt-scratchpad/training && python nano_trickster.py',
-    description: 'Test the nano-trickster architecture (11M parameters)',
-  },
 
   TRAIN_FROM_SCRATCH: {
     id: 'train-from-scratch',
@@ -735,12 +647,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Train nano-trickster from random initialization on tiny-shakespeare',
   },
 
-  TEST_NANO_TRICKSTER: {
-    id: 'test-nano-trickster',
-    name: 'Test Nano-Trickster',
-    template: 'cd ~/tt-scratchpad/training && python -c "import torch; from nano_trickster import NanoTrickster; model = NanoTrickster(); model.load_state_dict(torch.load(\'output/nano_trickster/final_model.pt\')); model.eval(); tokenizer = torch.load(\'data/tokenizer.pt\'); stoi = tokenizer[\'stoi\']; itos = tokenizer[\'itos\']; prompt = \'ROMEO:\'; input_ids = torch.tensor([[stoi.get(c, 0) for c in prompt]]); generated = model.generate(input_ids, max_new_tokens=200, temperature=0.8); text = \'\'.join([itos.get(int(t), \'?\') for t in generated[0]]); print(text)"',
-    description: 'Generate text with the trained nano-trickster model',
-  },
 
   // ========================================
   // QB2 Video Generation (qb2-video-generation)

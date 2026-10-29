@@ -995,9 +995,7 @@
       "order": 2,
       "previousLesson": "cs-fundamentals-01-computer",
       "nextLesson": "cs-fundamentals-03-parallelism",
-      "completionEvents": [
-        "onCommand:tenstorrent.runMemoryHierarchyExample"
-      ],
+      "completionEvents": [],
       "markdownFile": "content/lessons/cs-fundamentals-02-memory.md"
     },
     {
@@ -1025,9 +1023,7 @@
       "order": 3,
       "previousLesson": "cs-fundamentals-02-memory",
       "nextLesson": "cs-fundamentals-04-networks",
-      "completionEvents": [
-        "onCommand:tenstorrent.runParallelismExample"
-      ],
+      "completionEvents": [],
       "markdownFile": "content/lessons/cs-fundamentals-03-parallelism.md"
     },
     {
@@ -1055,9 +1051,7 @@
       "order": 4,
       "previousLesson": "cs-fundamentals-03-parallelism",
       "nextLesson": "cs-fundamentals-05-synchronization",
-      "completionEvents": [
-        "onCommand:tenstorrent.runNetworkExample"
-      ],
+      "completionEvents": [],
       "markdownFile": "content/lessons/cs-fundamentals-04-networks.md"
     },
     {
@@ -1085,9 +1079,7 @@
       "order": 5,
       "previousLesson": "cs-fundamentals-04-networks",
       "nextLesson": "cs-fundamentals-06-abstraction",
-      "completionEvents": [
-        "onCommand:tenstorrent.runSynchronizationExample"
-      ],
+      "completionEvents": [],
       "markdownFile": "content/lessons/cs-fundamentals-05-synchronization.md"
     },
     {
@@ -1115,9 +1107,7 @@
       "order": 6,
       "previousLesson": "cs-fundamentals-05-synchronization",
       "nextLesson": "cs-fundamentals-07-complexity",
-      "completionEvents": [
-        "onCommand:tenstorrent.runAbstractionExample"
-      ],
+      "completionEvents": [],
       "markdownFile": "content/lessons/cs-fundamentals-06-abstraction.md"
     },
     {
@@ -1145,9 +1135,7 @@
       "order": 7,
       "previousLesson": "cs-fundamentals-06-abstraction",
       "nextLesson": "cs-fundamentals-08-matmul-labs",
-      "completionEvents": [
-        "onCommand:tenstorrent.runComplexityExample"
-      ],
+      "completionEvents": [],
       "markdownFile": "content/lessons/cs-fundamentals-07-complexity.md"
     },
     {

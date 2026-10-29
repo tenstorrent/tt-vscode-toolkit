@@ -358,33 +358,8 @@
         "category": "Tenstorrent"
       },
       {
-        "command": "tenstorrent.runVllmOffline",
-        "title": "Run vLLM Offline Inference",
-        "category": "Tenstorrent"
-      },
-      {
         "command": "tenstorrent.startVllmServer",
         "title": "Start vLLM Server",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.startVllmServerN150",
-        "title": "Start vLLM Server (N150)",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.startVllmServerN300",
-        "title": "Start vLLM Server (N300)",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.startVllmServerT3K",
-        "title": "Start vLLM Server (T3K)",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.startVllmServerP100",
-        "title": "Start vLLM Server (P100)",
         "category": "Tenstorrent"
       },
       {
@@ -705,6 +680,101 @@
       {
         "command": "tenstorrent.runLandscapeSvg",
         "title": "Generate Landscape SVG (Demo 6)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.showTelemetryDetails",
+        "title": "Show Telemetry Details",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.startVllmServerWithHardware",
+        "title": "Start Vllm Server With Hardware",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.createVllmStarter",
+        "title": "Create Vllm Starter",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.installAllScripts",
+        "title": "Install All Scripts",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.activateForgeEnv",
+        "title": "Activate Forge Env",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.verifyForgeStack",
+        "title": "Verify Forge Stack",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runJaxQuickstart",
+        "title": "Run Jax Quickstart",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runJaxPmapDemo",
+        "title": "Run Jax Pmap Demo",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runPytorchXlaDemo",
+        "title": "Run Pytorch Xla Demo",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.setupTtsim",
+        "title": "Setup Ttsim",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runTtsimAttention",
+        "title": "Run Ttsim Attention",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.ttsim.launchQemu",
+        "title": "Launch Qemu",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.ttsim.stopQemu",
+        "title": "Stop Qemu",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.ttsim.setupQemu",
+        "title": "Setup Qemu",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.setupAnimateDiffProject",
+        "title": "Setup Animate Diff Project",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runAnimateDiff2Frame",
+        "title": "Run Animate Diff2 Frame",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.runAnimateDiff16Frame",
+        "title": "Run Animate Diff16 Frame",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.installTtTrain",
+        "title": "Install Tt Train",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.trainFromScratch",
+        "title": "Train From Scratch",
         "category": "Tenstorrent"
       }
     ]
