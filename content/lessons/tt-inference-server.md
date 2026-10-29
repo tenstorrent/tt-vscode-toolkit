@@ -36,11 +36,18 @@ validationNotes: >-
 
 # Production Inference with TT-Inference-Server
 
-[TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server) is
-Tenstorrent's official workflow automation tool. Give it a model name and your
-hardware type and it handles everything: pulls the right Docker image (pre-built
-TT-Metalium<sup>™</sup> + vLLM), downloads model weights, and starts an OpenAI-compatible
-inference server.
+`tt serve` runs this for you. Under the hood it calls
+[tt-inference-server](https://github.com/tenstorrent/tt-inference-server)'s `run.py`
+with the model spec's settings; `tt serve <model> --dry-run` prints the exact command.
+This lesson is how to run `run.py` yourself, for the things `tt serve` does not expose:
+pin which chips it uses (`--device-id 0,1`), bind the port to loopback
+(`--bind-host 127.0.0.1`), pass a different image (`--override-docker-image`), run from
+an older or newer release, or run without a container at all (`--local-server`, against
+a tt-metal you built or the cloud pod's).
+
+Give `run.py` a model name and your hardware type and it handles everything: pulls the
+right Docker image (pre-built TT-Metalium<sup>™</sup> + vLLM), downloads model weights,
+and starts an OpenAI-compatible inference server.
 
 > **TT-QuietBox<sup>®</sup> 2 / p300c users:** Llama-3.1-8B is supported on p100/p150 hardware
 > (🛠️ Experimental status). For **single-chip** serving, use `--tt-device p100` — a p300c
@@ -52,22 +59,35 @@ inference server.
 
 ## Prerequisites
 
-### Install TT-Inference-Server
+### Where `run.py` Lives
 
-**TT-QuietBox 2 / pre-configured images:** TT-Inference-Server is pre-installed at
-`~/.local/lib/tt-inference-server`. Skip to the next section.
+Three copies can exist, and they are different versions. Use the one that matches the
+job:
 
-**All other hardware (n150/n300/T3000/p100/p150):** Clone it:
+| Machine | Path | Version |
+|---|---|---|
+| any machine with `tt` | `~/.local/share/tenstorrent/tools/tt-inference-server-<ver>/src/run.py`, with its venv at `../venv/bin/python` | the release `tt` pins (`cat ~/.local/share/tenstorrent/installed.toml`); earlier pins stay beside it |
+| cloud pod, or a machine without `tt` | `~/tt-inference-server` (clone it, below) | the tag you clone |
+| older `tt-installer` setups | `~/.local/lib/tt-inference-server` | whatever it left; `tt` neither uses nor updates it |
+
+`tt` fetches its copy the first time `tt serve` runs, so on a fresh install the first row
+is empty until then. The buttons in this lesson use the newest copy under
+`~/.local/share/tenstorrent/tools/`.
+
+**Clone it yourself** (the cloud pod has no `tt`-managed copy and must not run
+`tt update`):
 
 ```bash
-git clone https://github.com/tenstorrent/tt-inference-server.git \
-  ~/.local/lib/tt-inference-server
+git clone --depth 1 --branch v0.25.0 https://github.com/tenstorrent/tt-inference-server.git ~/tt-inference-server
+cd ~/tt-inference-server && uv venv --python 3.10 .venv && uv pip install --python .venv/bin/python pyyaml packaging
 ```
 
-Verify:
-```bash
-ls ~/.local/lib/tt-inference-server/run.py
-```
+[📦 Clone tt-inference-server v0.25.0](command:tenstorrent.inferenceServer.clone)
+
+That venv is all `run.py` itself needs (it is what `tt` installs too: `packaging` and
+`pyyaml`). `run.py` builds the per-workflow environments on first use. Pick the tag from
+[the releases page](https://github.com/tenstorrent/tt-inference-server/releases); v0.25.0
+is what `tt` 1.2.1 pins.
 
 ---
 
@@ -553,21 +573,35 @@ model name, and any performance requirements.
 
 ## Non-Container Deployment (--local-server)
 
-If you have a built TT-Metalium checkout (e.g. via the Build TT-Metalium lesson),
-you can run vLLM directly on the host — no Docker required:
+With a built tt-metal and a vLLM venv beside it, `run.py` can run the server on the
+host, no Docker. The cloud pod is exactly that machine: `~/tt-metal` is built and
+`~/tt-metal/build/python_env_vllm` has vLLM and the Tenstorrent plugin.
 
 ```bash
-python3 run.py \
+cd ~/tt-inference-server && source .venv/bin/activate
+python run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150 \
+  --device n150 \
   --workflow server \
   --local-server \
-  --tt-metal-home /opt/tt-metal \
-  --host-hf-cache       # reuse your existing HF cache
+  --tt-metal-home ~/tt-metal \
+  --tt-metal-python-venv-dir ~/tt-metal/build/python_env_vllm \
+  --host-hf-cache ~/models \
+  --no-auth --service-port 20000
 ```
 
-`--local-server` uses `REPO_ROOT/persistent_volume/` for logs and caches, and
-runs as the invoking user (no Docker volume permissions to manage).
+[▶ Run the server without a container (cloud pod)](command:tenstorrent.inferenceServer.runServerLocal)
+
+`--local-server` uses `REPO_ROOT/persistent_volume/` for logs and caches and runs as
+you, with no Docker volume permissions to manage. `--service-port 20000` matches
+`tt serve`, so `tt launch` finds the server. Compared with the plain `vllm serve` in
+[Serve Without Containers](command:tenstorrent.lesson.show?["api-server"]), this route adds
+the model spec's settings and warm-up; the plain route is fewer moving parts.
+
+> **Image version matters here too.** `--local-server` imports tt-metal's model code
+> into the vLLM venv, the same pairing the plain `vllm serve` route needs, so it works on
+> a tt-code-server image built from tt-metal v0.80.0 or later and fails the same way on
+> v0.63.0 (see that lesson's callout).
 
 ---
 

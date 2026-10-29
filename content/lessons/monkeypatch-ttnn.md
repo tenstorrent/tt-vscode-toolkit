@@ -29,6 +29,9 @@ estimatedMinutes: 25
 
 # Monkeypatching TT-NN<sup>™</sup>
 
+`tt` never changes TT-NN; it runs whichever copy a container or venv holds. When
+you want to, this is the route that keeps `tt serve` and `tt update` working afterwards.
+
 You want to change how **TT-NN** or **TT-Metalium<sup>™</sup>** behaves — add a log line, work
 around a bug, bump a default, register a new model — but you *don't* want to fork
 `tt-metal` and you *definitely* don't want to hand-edit files inside an installed

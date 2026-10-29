@@ -25,6 +25,14 @@ estimatedMinutes: 30
 
 # Production Inference with vLLM
 
+> **`tt serve` runs vLLM for you**, inside tt-inference-server's container, with the
+> model spec's settings and a validated tt-metal and vLLM pair. This lesson is the by-hand
+> route: your own vLLM checkout, your own venv, your own flags, for a model or a version
+> the spec does not carry. For the pod's pre-built venv see
+> [Serve Without Containers](command:tenstorrent.lesson.show?["api-server"]); for which
+> versions go together see
+> [Mix and Match Versions](command:tenstorrent.lesson.show?["mix-and-match"]).
+
 **⚠️ Note:** vLLM requires the HuggingFace model format. If you downloaded the model in Lesson 3 before this update, you may need to re-download to get both Meta and HuggingFace formats. The latest Lesson 3 downloads the complete model with all formats.
 
 Take your AI deployment to the next level with vLLM - a production-grade inference engine that provides OpenAI-compatible APIs, continuous batching, and enterprise features for Tenstorrent hardware.

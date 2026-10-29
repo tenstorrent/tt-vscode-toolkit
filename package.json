@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -830,6 +830,21 @@
       {
         "command": "tenstorrent.ttlang.runTutorialSim",
         "title": "TT-Lang: Run a Tutorial on the Simulator",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.inferenceServer.clone",
+        "title": "Clone tt-inference-server v0.25.0",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.inferenceServer.runServerLocal",
+        "title": "tt-inference-server: Run Without a Container (cloud pod)",
+        "category": "Tenstorrent"
+      },
+      {
+        "command": "tenstorrent.setup.listTools",
+        "title": "tt: What Is Installed",
         "category": "Tenstorrent"
       },
       {

@@ -28,6 +28,10 @@ estimatedMinutes: 60
 
 # Build TT-Metalium<sup>™</sup> from Source
 
+You do not need this to run models: `tt serve` uses a container with tt-metal built in,
+and the cloud pod ships a built `~/tt-metal`. Build from source when you need a commit no
+image has, want to change TT-NN itself, or are on a machine with neither.
+
 This lesson walks you through cloning and building TT-Metalium from source on your
 Tenstorrent hardware. Once complete, return to
 [Verify Your Setup](command:tenstorrent.lesson.show?["verify-installation"]) to

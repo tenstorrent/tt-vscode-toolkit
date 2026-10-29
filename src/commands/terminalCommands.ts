@@ -465,6 +465,27 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Runs the elementwise tutorial on the functional simulator; no hardware is touched',
   },
 
+  INFERENCE_SERVER_CLONE: {
+    id: 'inference-server-clone',
+    name: 'Clone tt-inference-server v0.25.0',
+    template: 'git clone --depth 1 --branch v0.25.0 https://github.com/tenstorrent/tt-inference-server.git ~/tt-inference-server && cd ~/tt-inference-server && uv venv --python 3.10 .venv && uv pip install --python .venv/bin/python pyyaml packaging',
+    description: "Clones the release tt 1.2.1 pins and makes the small venv run.py itself needs (the cloud pod has no tt-managed copy)",
+  },
+
+  INFERENCE_SERVER_RUN_SERVER_LOCAL: {
+    id: 'inference-server-run-server-local',
+    name: 'Run the server without a container (cloud pod)',
+    template: 'cd ~/tt-inference-server && source .venv/bin/activate && python run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --local-server --tt-metal-home ~/tt-metal --tt-metal-python-venv-dir ~/tt-metal/build/python_env_vllm --host-hf-cache ~/models --no-auth --service-port 20000',
+    description: "run.py --local-server against the pod's built tt-metal and its vLLM venv; same port as tt serve so tt launch finds it",
+  },
+
+  SETUP_LIST_TOOLS: {
+    id: 'setup-list-tools',
+    name: 'What tt installed',
+    template: 'cat ~/.local/share/tenstorrent/installed.toml; echo; ls ~/.local/share/tenstorrent/tools/',
+    description: "tt's installed-tools manifest (version, path, date) and the tools directory",
+  },
+
   // ========================================
   // Lesson 6: Production Inference with tt-inference-server
   // ========================================
@@ -472,29 +493,29 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   VERIFY_INFERENCE_SERVER_PREREQS: {
     id: 'verify-inference-server-prereqs',
     name: 'Verify tt-inference-server Prerequisites',
-    template: 'echo "=== Checking Prerequisites ===" && which docker && docker --version && ls ~/.local/lib/tt-inference-server/run.py && tt-smi -s | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f\'  board: {c[\"board_type\"]}\') for c in d[\"device_info\"]]" 2>/dev/null || tt-smi && echo "=== ✓ Prerequisites OK ==="',
+    template: 'echo "=== Checking Prerequisites ===" && which docker && docker --version && ls ~/.local/share/tenstorrent/tools/tt-inference-server-*/src/run.py ~/tt-inference-server/run.py 2>/dev/null | tail -1 && tt-smi -s | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f\'  board: {c[\"board_type\"]}\') for c in d[\"device_info\"]]" 2>/dev/null || tt-smi && echo "=== ✓ Prerequisites OK ==="',
     description: 'Verifies Docker is installed, tt-inference-server run.py exists, and hardware is detected',
   },
 
   START_TT_INFERENCE_SERVER: {
     id: 'start-tt-inference-server',
     name: 'Start tt-inference-server (auto-detect hardware)',
-    // --tt-device omitted: run.py auto-detects via tt-smi. --no-auth skips JWT_SECRET requirement.
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --workflow server --docker-server --no-auth',
-    description: 'Starts vLLM server via tt-inference-server; hardware is auto-detected by run.py via tt-smi (no --tt-device flag needed)',
+    // --device omitted: run.py auto-detects via tt-smi. --no-auth skips JWT_SECRET requirement.
+    template: 'cd $(ls -d ~/.local/share/tenstorrent/tools/tt-inference-server-*/src 2>/dev/null | sort -V | tail -1) && ../venv/bin/python run.py --model Llama-3.1-8B-Instruct --workflow server --docker-server --no-auth',
+    description: 'Starts vLLM server via tt-inference-server; hardware is auto-detected by run.py via tt-smi (no --device flag needed)',
   },
 
   START_TT_INFERENCE_SERVER_N150: {
     id: 'start-tt-inference-server-n150',
     name: 'Start tt-inference-server (N150)',
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 --workflow server --docker-server --no-auth',
+    template: 'cd $(ls -d ~/.local/share/tenstorrent/tools/tt-inference-server-*/src 2>/dev/null | sort -V | tail -1) && ../venv/bin/python run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --docker-server --no-auth',
     description: 'Starts vLLM server for Llama-3.1-8B-Instruct on N150 (Wormhole, 64K context)',
   },
 
   START_TT_INFERENCE_SERVER_N300: {
     id: 'start-tt-inference-server-n300',
     name: 'Start tt-inference-server (N300)',
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --tt-device n300 --workflow server --docker-server --no-auth',
+    template: 'cd $(ls -d ~/.local/share/tenstorrent/tools/tt-inference-server-*/src 2>/dev/null | sort -V | tail -1) && ../venv/bin/python run.py --model Llama-3.1-8B-Instruct --device n300 --workflow server --docker-server --no-auth',
     description: 'Starts vLLM server for Llama-3.1-8B-Instruct on N300 (Wormhole dual-chip, 128K context)',
   },
 

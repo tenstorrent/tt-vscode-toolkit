@@ -533,6 +533,17 @@ function ttlangRunTutorialSim(): void {
   runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.TTLANG_RUN_TUTORIAL_SIM.template);
 }
 
+// ---- Go Deeper: by-hand serving and tt's tool manifest ----
+function inferenceServerClone(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.INFERENCE_SERVER_CLONE.template);
+}
+function inferenceServerRunServerLocal(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.INFERENCE_SERVER_RUN_SERVER_LOCAL.template);
+}
+function setupListTools(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.SETUP_LIST_TOOLS.template);
+}
+
 // ============================================================================
 // LESSON 1: Hardware Detection
 // ============================================================================
@@ -4721,6 +4732,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.metal.runAddTensors', metalRunAddTensors),
     vscode.commands.registerCommand('tenstorrent.ttlang.setupCloud', ttlangSetupCloud),
     vscode.commands.registerCommand('tenstorrent.ttlang.runTutorialSim', ttlangRunTutorialSim),
+    vscode.commands.registerCommand('tenstorrent.inferenceServer.clone', inferenceServerClone),
+    vscode.commands.registerCommand('tenstorrent.inferenceServer.runServerLocal', inferenceServerRunServerLocal),
+    vscode.commands.registerCommand('tenstorrent.setup.listTools', setupListTools),
     vscode.commands.registerCommand('tenstorrent.setup.whereAmI', setupWhereAmI),
     vscode.commands.registerCommand('tenstorrent.setup.installTt', setupInstallTt),
     vscode.commands.registerCommand('tenstorrent.setup.useInstalledTools', setupUseInstalledTools),

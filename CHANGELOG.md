@@ -39,6 +39,13 @@ Also in this release:
   run the first TT-NN tutorial and a TT-Lang tutorial on the simulator. Each lesson ends
   with the matching tt-awesome category (`?cat=kernels`, `compilers`, `games-demos`,
   `media`, `guides`) and a developer-blog post where one fits.
+- **Go Deeper**: *tt-inference-server by Hand* and *vLLM Production* open by saying what
+  `tt serve` does for you and what the by-hand route adds (`--device-id`, `--bind-host`,
+  another release, `--local-server`). The `run.py` buttons use `tt`'s pinned copy under
+  `~/.local/share/tenstorrent/tools/` instead of the retired `~/.local/lib` path; a clone
+  button and a `--local-server` button cover the cloud pod. New short lesson *Mix and
+  Match Versions*: where each copy of the software lives, and how an image tag pins the
+  tt-metal and vLLM commits a model was validated on.
 
 ---
 

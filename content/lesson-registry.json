@@ -1329,7 +1329,41 @@
       "estimatedMinutes": 20,
       "order": 8,
       "previousLesson": "tt-installer",
-      "markdownFile": "content/lessons/tt-installer-by-hand.md"
+      "markdownFile": "content/lessons/tt-installer-by-hand.md",
+      "nextLesson": "mix-and-match"
+    },
+    {
+      "id": "mix-and-match",
+      "title": "Mix and Match Versions",
+      "description": "Where tt keeps its pinned tools, how they relate to a tt-metal you built, the cloud pod's venvs and a container, when each applies, and how to find the exact commits a release was tested with.",
+      "category": "deeper",
+      "tags": [
+        "versions",
+        "environments",
+        "tt-cli",
+        "tt-inference-server"
+      ],
+      "supportedHardware": [
+        "n150",
+        "n300",
+        "t3k",
+        "p100",
+        "p150",
+        "p300c",
+        "galaxy"
+      ],
+      "status": "validated",
+      "validatedOn": [
+        "p300c"
+      ],
+      "estimatedMinutes": 10,
+      "order": 9,
+      "previousLesson": "tt-installer-by-hand",
+      "nextLesson": "tt-inference-server",
+      "completionEvents": [
+        "onCommand:tenstorrent.setup.listTools"
+      ],
+      "markdownFile": "content/lessons/mix-and-match.md"
     },
     {
       "id": "explore-metalium",
