@@ -96,6 +96,16 @@ n150 on the pod.
   launch/stop (the box's container is another session's, pinned to 20000) and the
   extension's guard inside a code-server (unit-tested in `environment.test.ts`; the rig
   carries both `TT_*_VENV` markers).
+  Later, under lease 45212d: vLLM on 20000 in the rig, `tt launch list` → aider `ready`,
+  `tt launch aider --dry-run` resolved the model and `llama3_json`, chat answered.
+- **Build on the Stack (Task 8, 5879aa7):** rig (no hardware): `import ttnn` in the
+  default shell (`~/tt-metal/python_env`, TT_METAL_HOME set), tutorial files present at
+  v0.80.0; `~/tt-lang-venv` = tt-lang 1.1.1 (module `ttl`), `tt-lang-setup-tutorials`
+  copied 15 scripts and `ttlang-sim elementwise/step_4` printed tensors (nanobind leak
+  lines at exit are noise); `~/tt-forge-venv` = tt-forge 1.4.0, pjrt-plugin-tt 1.4.0,
+  JAX 0.7.1, `import tt_torch` ok. PyPI tt-lang 1.1.6; `tt-lang-setup` is a command,
+  not a package (404 on PyPI). tt-awesome category links use `?cat=<id>`. **Not run:**
+  `ttnn_add_tensors.py` on a chip (boards held; lease queued).
 
 ## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
