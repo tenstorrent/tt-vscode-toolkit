@@ -78,12 +78,25 @@ A 3-step loop with 7B succeeds barely half the time. The same loop with 32B work
 
 **Which model, and how much of each you get:**
 
-| Model | Tool parser | Context | Concurrency (`max_num_seqs`) | Verdict |
-|-------|-------------|---------|-------------------------------|---------|
-| Qwen3-32B | `hermes` | 131K | up to 8 | RELIABLE default; ships pre-cached on QB2 (zero download) |
-| Llama-3.3-70B-Instruct | `llama3_json` | 131K | up to 8 | max quality, slower |
-| gemma-4-31B-it | `gemma4` | 49K | 1 (single-stream) | EXPERIMENTAL — accurate for short/interactive use, but observed **crashing the tt-metal runtime** under sustained agentic load. Don't reach for it in these demos yet. |
-| Qwen3.6-27B | `qwen3_coder` | 262K | 1 | reasoning-first: it *reasons about* tools instead of calling them — unreliable in multi-step agent loops |
+| Model | Where | Tool parser | Context | Concurrency (`max_num_seqs`) | Verdict |
+|-------|-------|-------------|---------|-------------------------------|---------|
+| Qwen3-Coder-30B-A3B | community bundle `raahemnabeel/qwen3-coder-30b-a3b` | `qwen3_coder` | 256K | up to 32 | FASTEST: 3B parameters active per token. Measured 80 tok/s on two dies (2026-10-30); the bundle card reports 95 tok/s on four. Validated for this lesson (below). |
+| Qwen3-Coder-Next | community bundle `raahemnabeel/qwen3-coder-next` | `qwen3_coder` | 262K | up to 32 | 80B total, 3B active. 148 GB of weights. Measured 107 tok/s on two dies (2026-10-30). |
+| Qwen3-32B | catalog | `hermes` | 131K | up to 8 | RELIABLE default; the demos were built against it; ships pre-cached on QB2 (zero download) |
+| Llama-3.3-70B-Instruct | catalog | `llama3_json` | 131K | up to 8 | max quality, slower |
+| gemma-4-31B-it | catalog | `gemma4` | 49K | 1 (single-stream) | EXPERIMENTAL — accurate for short/interactive use, but observed **crashing the tt-metal runtime** under sustained agentic load. Don't reach for it in these demos yet. |
+| Qwen3.6-27B | catalog | `qwen3_coder` | 262K | 1 | reasoning-first: it *reasons about* tools instead of calling them — unreliable in multi-step agent loops |
+
+The first two rows come from the **community catalog**: bundles published by whoever
+brought the model up, with the serving recipe, the engine build and the tool-call parser
+inside. `tt model list --community --hw p300x2` lists the ones that declare a TT-QuietBox 2
+profile. Both are mixture-of-experts models. 30B or 80B parameters sit on disk, but only
+3B are active per token, and decode speed tracks the active count: a response that takes
+Qwen3-32B eight seconds takes Qwen3-Coder-30B-A3B about one. Tenstorrent does not test or
+maintain community bundles, so the speeds are the author's measurements and ours, and
+`tt launch` prints `not in the model catalog` for them. The demos read the model name from
+the server (`/v1/models`), so switching between any of these rows is one serve command;
+no script changes.
 
 Concurrency is **per-model**, not a single fixed number for the box — a 32B or 70B model here supports up to 8 concurrent sequences, while the two experimental/reasoning models are single-stream only. The practical takeaway: Qwen3-32B and Llama-3.3-70B-Instruct are the two models these demos are built and validated against. Treat the other two as exploratory — not because they're worse models in the abstract, but because one is known to crash under agentic load and the other fights the agent loop itself (see the "non-thinking vs. reasoning-first" note below).
 
@@ -93,7 +106,9 @@ Concurrency is **per-model**, not a single fixed number for the box — a 32B or
 
 | What | Time | Model |
 |------|------|-------|
+| Single tool call | ~1–2 s | Qwen3-Coder-30B-A3B (community, two dies) |
 | Single tool call | ~8–14 s | Qwen3-32B / Llama-3.3-70B |
+| Research agent (11 steps) | ~3 min | Qwen3-Coder-30B-A3B (community, two dies) |
 | Research agent (5 steps) | ~3–5 min | Qwen3-32B |
 | Code explorer (3 hops) | ~1–2 min | Qwen3-32B or Llama-3.3-70B |
 | Writing pipeline (3 agents) | ~5–15 min | Qwen3-32B |
@@ -126,12 +141,11 @@ The button opens `tt-smi`'s own view; the one-liner above prints just the count.
 
 ## Step 1: Start the Inference Server
 
-The demos need an OpenAI-compatible endpoint on port 8000. Use **Qwen3-32B** for the
-fastest iteration, or **Llama-3.3-70B-Instruct** for maximum output quality, especially
-for the Dungeon Master demo. `tt serve` runs either in a container, with tool calling and
-the right tool-call parser (`hermes` for Qwen, `llama3_json` for Llama) set from the
-model catalog; `--port 8000` puts it where the scripts look. The weights come from the
-Hugging Face cache or a pre-seeded volume, so the second start downloads nothing.
+The demos need an OpenAI-compatible endpoint on port 8000 with tool calling. Three ways
+to get one, fastest first. `tt serve` runs each in a container with the right tool-call
+parser (`qwen3_coder`, `hermes` or `llama3_json`) set from the catalog or the bundle, and
+`--port 8000` puts it where the scripts look. The weights come from the Hugging Face cache
+or a pre-seeded volume, so the second start downloads nothing.
 
 > **If a restart faults with an ethernet core error**, reset the board and serve again:
 > QB2's ethernet fabric does not always cycle cleanly when a container stops and another
@@ -139,7 +153,38 @@ Hugging Face cache or a pre-seeded volume, so the second start downloads nothing
 > reset, `tt-smi -s` may transiently report a failure even though the reset succeeded;
 > give it a few seconds and check again.
 
-### Option A — Qwen3-32B (~8 s/response, recommended for most demos)
+### Option A — Qwen3-Coder-30B-A3B from the community catalog (~1 s/response)
+
+See what the community has published for a TT-QuietBox 2, then serve the coder:
+
+```bash
+tt model list --community --hw p300x2
+tt serve raahemnabeel/qwen3-coder-30b-a3b --profile p300x2 --port 8000
+```
+
+[📋 Community models for a TT-QuietBox 2](command:tenstorrent.model.listCommunityQb2)
+[🚀 Serve Qwen3-Coder-30B-A3B on port 8000](command:tenstorrent.model.serveQb2AgentsCoder)
+
+`--profile p300x2` spreads the experts over all four dies, the bundle's fastest profile;
+the bundle's own default is one p300 board. We validated on one board (`--profile p300`)
+while the other was busy: ready in 20 minutes from a cold cache, 80 tok/s on a real
+prompt, `00_verify_tools.py` passing all three checks in 5 seconds, and the research
+agent finishing an 11-step run in 3 minutes 17 seconds. The first start pulls the image, downloads the weights (about 60 GB) and
+compiles kernels for ten minutes or so; later starts take a few minutes. Preview it with
+`tt serve raahemnabeel/qwen3-coder-30b-a3b --dry-run`: the image, the `qwen3_coder`
+parser and the weights id. The server reports the model as
+`Qwen/Qwen3-Coder-30B-A3B-Instruct`, the weights id, which is what the scripts and
+`tt launch` use.
+
+> **Two things look wrong and are not.** `tt serve` says `not in the model catalog —
+> serving it as a tt-model bundle`, and `tt launch` shows `tool-call parser —` with a
+> warning that it cannot confirm tool calling. Both mean the same thing: the model is a
+> community bundle, outside the released catalog, so `tt` has no row to check against.
+> The bundle card and the dry run show the parser is set. If a bundle you pulled earlier
+> lacks a profile its card now lists (`no serve profile named ...`), add `-- --refresh`
+> to the serve command to fetch the current revision.
+
+### Option B — Qwen3-32B (~8 s/response; the demos were built against it)
 
 ```bash
 tt serve Qwen3-32B --port 8000
@@ -147,7 +192,7 @@ tt serve Qwen3-32B --port 8000
 
 [Serve Qwen3-32B on port 8000](command:tenstorrent.model.serveQb2AgentsQwen)
 
-### Option B — Llama-3.3-70B-Instruct (~14 s/response, best for Dungeon Master)
+### Option C — Llama-3.3-70B-Instruct (~14 s/response, best for Dungeon Master)
 
 ```bash
 tt serve Llama-3.3-70B-Instruct --port 8000
@@ -155,7 +200,7 @@ tt serve Llama-3.3-70B-Instruct --port 8000
 
 [Serve Llama-3.3-70B-Instruct on port 8000](command:tenstorrent.model.serveQb2AgentsLlama)
 
-> Both models are `FUNCTIONAL` on a p300x2 (`tt model info <name>` shows the row). The
+> Both catalog models are `FUNCTIONAL` on a p300x2 (`tt model info <name>` shows the row). The
 > 70B model needs 160 GB of disk and 175 GB of RAM; its first serve downloads 140 GB.
 > Preview either with `--dry-run` to see the image, weights and parser before anything
 > starts.
@@ -1513,6 +1558,215 @@ which tt-smi && tt-smi -s   # tt-smi must be on PATH
 
 ---
 
+## Teach `tt launch` Your Own Tool
+
+`tt launch` configures a fixed list of clients (`tt launch list`). smolagents is not on
+it in tt 1.2.1, and neither is your favourite tool. The list lives in tt-cli itself, one
+Python file per client, so adding one is a small pull request; there is no plugin
+mechanism. This section adds `tt launch smolagent`, which runs one smolagents `CodeAgent` task against
+whatever model you are serving. The same shape fits any tool that takes an endpoint on its
+command line or in its environment.
+
+### What an adapter is
+
+Every client is a class that satisfies the `Launcher` protocol in
+`src/tenstorrent/launchers/base.py`. Four things matter:
+
+| Member | What it says |
+|---|---|
+| `id`, `binaries`, `install_hint` | the name after `tt launch`, the executables to look for on PATH, and what to tell someone who lacks them. `tt` never installs a client. |
+| `requires_tool_calling` | `True` for an agent. `tt` then refuses a catalog model without a tool-call parser, and warns for a community bundle. |
+| `plan()` | returns a `Preparation`: the command `tt` would run (`steps`), any environment (`env`) or config file (`config`) it would write, and the one thing that needs a yes (`consent`). `--dry-run` prints exactly this. |
+| `apply()` and `handoff()` | write the config, then `exec` the client in this terminal. `disconnect()` undoes `apply()`. |
+
+There are three existing shapes to copy from. OpenCode and pi write a provider block into
+the client's JSON config (`apps/opencode.py`). Aider and Hermes set environment variables
+for one run (`apps/aider.py`). Qwen Code passes everything as command-line flags
+(`apps/qwencode.py`). smolagents' CLI, `smolagent`, takes `--model-type`, `--model-id`,
+`--api-base` and `--api-key`, so it is the third shape.
+
+### Set up a tt-cli checkout
+
+```bash
+git clone https://github.com/tenstorrent/tt-cli ~/tt-cli
+cd ~/tt-cli && uv sync && uv run tt launch list
+```
+
+[📦 Clone tt-cli for development](command:tenstorrent.launch.ttCliDevSetup)
+
+`uv run tt` is the checkout's own copy; the `tt` on your PATH is untouched. The tests run
+with no hardware: `uv run pytest`.
+
+### Write the adapter
+
+One wrinkle: `smolagent` with no task on its command line ignores every flag and starts
+its own interactive setup, which asks for the endpoint again. So the adapter asks for the
+task once at hand-off and passes it as the first argument. `src/tenstorrent/launchers/apps/smolagent.py`:
+
+```python
+"""smolagents adapter: the `smolagent` CLI, configured on the command line."""
+
+from __future__ import annotations
+
+import typer
+
+from ..base import LaunchEnv, LaunchOptions, Preparation, RunningModel
+
+_PLACEHOLDER_KEY = "tt-local"
+_TASK_PLACEHOLDER = "<task>"  # stands in for the task on a dry run
+
+
+class Smolagent:
+    id = "smolagent"
+    binaries = ("smolagent",)
+    install_hint = (
+        "Install smolagents (uv tool install 'smolagents[toolkit,openai]'): "
+        "https://huggingface.co/docs/smolagents, then re-run."
+    )
+    requires_tool_calling = True
+    hands_over_terminal = True
+
+    def target(self) -> str:
+        return "command-line arguments (this run only)"
+
+    def plan(self, model: RunningModel, options: LaunchOptions, *, executable, runner) -> Preparation:
+        return Preparation(
+            steps=[self._argv(executable or self.binaries[0], model, _TASK_PLACEHOLDER)]
+        )
+
+    def apply(self, model: RunningModel, prep: Preparation, env: LaunchEnv) -> None:
+        """Nothing on disk: everything is passed as CLI arguments at hand-off."""
+
+    def handoff(self, model: RunningModel, prep: Preparation, env: LaunchEnv) -> None:
+        task = typer.prompt("Task for the agent")
+        env.runner.exec_tty(self._argv(env.executable, model, task))
+
+    def disconnect_plan(self, executable, runner) -> str | None:
+        return None  # nothing persists, so there is never anything to undo
+
+    def disconnect(self, env: LaunchEnv) -> None:
+        pass
+
+    def _argv(self, executable: str, model: RunningModel, task: str) -> list[str]:
+        return [
+            executable, task,
+            "--model-type", "OpenAIModel",
+            "--model-id", model.served_id,
+            "--api-base", model.base_url,
+            "--api-key", _PLACEHOLDER_KEY,
+        ]
+```
+
+`model.served_id` is whatever the server reported in `/v1/models`, and `model.base_url`
+ends in `/v1`. The key is a placeholder: models `tt` serves ignore it.
+
+> smolagents 1.26 names the OpenAI-compatible model class `OpenAIModel`. Its interactive
+> setup still offers the older name `OpenAIServerModel`, which `load_model` rejects.
+> The adapter was first written against that menu and failed on the real CLI; the
+> `--help` text is the one to trust.
+
+### Register it
+
+`src/tenstorrent/launchers/__init__.py` is the only other file that has to change:
+
+```python
+from .apps.smolagent import Smolagent
+...
+LAUNCHERS: dict[str, Launcher] = {
+    launcher.id: launcher
+    for launcher in (OpenCode(), Pi(), Aider(), QwenCode(), Hermes(), Smolagent(), OpenWebUI(), AnythingLLM())
+}
+```
+
+`tt launch list` now shows a `smolagent` row, `needs smolagent` until it is installed.
+
+### Test it
+
+Two tests, next to the ones for the other clients. The unit test pins the plan; the CLI
+test fakes the executable, answers the task prompt, and checks what `tt` execs:
+
+```python
+# tests/unit/test_launchers.py
+def test_smolagent_passes_the_endpoint_as_cli_arguments_with_a_task_placeholder():
+    launcher = LAUNCHERS["smolagent"]
+    model = RunningModel(served_id="Qwen/Qwen3-32B", base_url="http://127.0.0.1:8000/v1")
+    prep = launcher.plan(model, LaunchOptions(), executable=None, runner=None)
+    assert prep.config is None and prep.env == {}
+    assert prep.steps == [[
+        "smolagent", "<task>", "--model-type", "OpenAIModel", "--model-id", "Qwen/Qwen3-32B",
+        "--api-base", "http://127.0.0.1:8000/v1", "--api-key", "tt-local",
+    ]]
+
+# tests/cli/test_launch_cmd.py
+@pytest.mark.fakes_only
+def test_smolagent_asks_for_the_task_then_passes_it_first(runner, served, fake_client_named, execed, monkeypatch):
+    exe = fake_client_named("smolagent")
+    base = served("Qwen/Qwen3-32B")
+    monkeypatch.setattr("tenstorrent.launchers.apps.smolagent.typer.prompt", lambda *a, **k: "count the files")
+    result = runner.invoke(app, ["launch", "smolagent", "--url", base])
+    assert result.exit_code == 0, result.output
+    assert execed == [[str(exe), "count the files", "--model-type", "OpenAIModel", "--model-id", "Qwen/Qwen3-32B",
+                       "--api-base", base, "--api-key", "tt-local"]]
+```
+
+```bash
+cd ~/tt-cli && uv run pytest tests/unit/test_launchers.py tests/cli/test_launch_cmd.py -q
+```
+
+[🧪 Test the tt launch adapters](command:tenstorrent.launch.ttCliTestLaunchers)
+
+Then the real thing, with the model from Step 1 still serving:
+
+```bash
+uv tool install 'smolagents[toolkit,openai]'
+uv run tt launch smolagent --dry-run --port 8000
+uv run tt launch smolagent --port 8000
+```
+
+The dry run against a community bundle (2026-10-30, Qwen3-Coder-Next on a QB2):
+
+```
+warning: Qwen/Qwen3-Coder-Next is not in the model catalog — tt cannot confirm
+it supports the tool calling smolagent needs.
+      tt launch smolagent — would connect
+┌──────────────────┬──────────────────────────┐
+│ model            │ Qwen/Qwen3-Coder-Next    │
+│ endpoint         │ http://127.0.0.1:8000/v1 │
+│ tool-call parser │ —                        │
+└──────────────────┴──────────────────────────┘
+
+commands:
+smolagent '<task>' --model-type OpenAIModel --model-id Qwen/Qwen3-Coder-Next --api-base http://127.0.0.1:8000/v1 --api-key tt-local
+```
+
+Without `--dry-run`, `tt` asks `Task for the agent:` and hands the terminal to
+`smolagent`, which writes and runs Python against your model until the task is done.
+The same model, the same day:
+
+```
+Task for the agent: What is 17 times 23? Reply with just the number.
+╭─ OpenAIModel - Qwen/Qwen3-Coder-Next ─────────────────────────────╮
+━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 1 ━━━━━━━━━━━━━━━━━━━━━━━━━━
+Thought: I will compute the multiplication of 17 and 23 using Python code.
+ ─ Executing parsed code: ─────────────────────────────────────────
+  result = 17 * 23
+  final_answer(result)
+Final answer: 391
+[Step 1: Duration 2.01 seconds| Input tokens: 2,091 | Output tokens: 39]
+```
+
+### Send it upstream
+
+Add a row to `docs/client-launchers.md` and `docs/prerequisites.md` (the two tables that
+list clients), keep `uv run pytest` green, and open a pull request on
+[tenstorrent/tt-cli](https://github.com/tenstorrent/tt-cli). The
+[contributing guide](https://github.com/tenstorrent/tt-cli/blob/main/CONTRIBUTING.md)
+covers the rest. An adapter that writes a config file (the OpenClaw shape, in the next
+lesson) adds a `config_path()`, a `ConfigChange` in `plan()`, and a `disconnect()` that
+removes only the block `tt` wrote; `apps/opencode.py` is the model to copy.
+
+---
+
 ## What You've Built
 
 You've run seven different patterns against your TT-QuietBox 2's local inference endpoint:
@@ -1558,6 +1812,7 @@ cat ~/code/tt-agents/framework_comparison.md
 **Resources:**
 
 - [smolagents docs](https://huggingface.co/docs/smolagents)
+- [tt-cli client launchers](https://github.com/tenstorrent/tt-cli/blob/main/docs/client-launchers.md) and [community models](https://github.com/tenstorrent/tt-cli/blob/main/docs/community-models.md)
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/)
 - [CrewAI docs](https://docs.crewai.com)
 - [TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server)

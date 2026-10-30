@@ -440,6 +440,41 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Serves Llama-3.3-70B-Instruct on port 8000, where the agent lessons expect it (needs Docker; guarded on the cloud pod)',
   },
 
+  MODEL_LIST_COMMUNITY_QB2: {
+    id: 'model-list-community-qb2',
+    name: 'Community models for a TT-QuietBox 2',
+    template: 'tt model list --community --hw p300x2',
+    description: 'Lists the community bundles that declare a p300x2 profile, without touching the hardware',
+  },
+
+  MODEL_SERVE_QB2_AGENTS_CODER: {
+    id: 'model-serve-qb2-agents-coder',
+    name: 'Serve Qwen3-Coder-30B-A3B (community) on port 8000',
+    template: 'tt serve raahemnabeel/qwen3-coder-30b-a3b --profile p300x2 --port 8000',
+    description: 'Serves the community Qwen3-Coder-30B-A3B bundle on all four dies, port 8000, for the agent lessons (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_SERVE_QB2_CLAW_CODER_NEXT: {
+    id: 'model-serve-qb2-claw-coder-next',
+    name: 'Serve Qwen3-Coder-Next (community) on port 8000',
+    template: 'tt serve raahemnabeel/qwen3-coder-next --profile p300x2 --port 8000',
+    description: 'Serves the community Qwen3-Coder-Next bundle on all four dies, port 8000, for OpenClaw (needs Docker; guarded on the cloud pod)',
+  },
+
+  LAUNCH_TT_CLI_DEV_SETUP: {
+    id: 'launch-tt-cli-dev-setup',
+    name: 'Clone tt-cli for development',
+    template: 'git clone https://github.com/tenstorrent/tt-cli ~/tt-cli && cd ~/tt-cli && uv sync && uv run tt launch list',
+    description: 'Clones tt-cli, creates its uv environment and runs the development copy once, for writing a tt launch adapter',
+  },
+
+  LAUNCH_TT_CLI_TEST_LAUNCHERS: {
+    id: 'launch-tt-cli-test-launchers',
+    name: 'Test the tt launch adapters',
+    template: 'cd ~/tt-cli && uv run pytest tests/unit/test_launchers.py tests/cli/test_launch_cmd.py -q',
+    description: 'Runs the launcher unit and CLI tests in a tt-cli checkout (no hardware)',
+  },
+
   // ========================================
   // Build on the Stack: environment-aware first steps
   // ========================================

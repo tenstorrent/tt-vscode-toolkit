@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.41] - 2026-10-30
+
+### Community models on the TT-QuietBox 2 lessons, and `tt launch` for your own tool
+
+- **Local AI Agents**: Step 1 leads with a community bundle,
+  `tt serve raahemnabeel/qwen3-coder-30b-a3b --profile p300x2 --port 8000` (3B active
+  parameters, `qwen3_coder` parser). Validated on one p300 board: 80 tok/s on a real
+  prompt, `00_verify_tools.py` green in 5 s, the research agent's 11-step run in 3 min 17 s.
+  The model table gains the two community coders and explains why mixture-of-experts
+  bundles answer in a second where Qwen3-32B takes eight. New buttons
+  `tenstorrent.model.listCommunityQb2` and `tenstorrent.model.serveQb2AgentsCoder`.
+- **Local AI Agents, new section "Teach `tt launch` Your Own Tool"**: the `Launcher`
+  protocol, a complete `smolagent` adapter (`tt launch smolagent`), its unit and CLI tests,
+  and the pull request. Run end to end against Qwen3-Coder-Next on a QB2: a task answered
+  in one 2 s step. Buttons `tenstorrent.launch.ttCliDevSetup` and
+  `tenstorrent.launch.ttCliTestLaunchers`. The adapter is in
+  `.superpowers/sdd/2026-10-29-tt-cli-leads-the-way/tt-cli-smolagent-adapter.patch`.
+- **OpenClaw**: a "Faster: Qwen3-Coder-Next from the community catalog" option (measured
+  107 tok/s on two dies; 148 GB of weights) with the `openclaw.json` provider entry, a
+  three-column performance comparison, and a "`tt launch openclaw`?" section describing
+  the adapter tt 1.2.1 lacks. Button `tenstorrent.model.serveQb2ClawCoderNext`.
+- **Launch Software**: how `tt launch` treats a community bundle (the `not in the model
+  catalog` warning is expected; the dry run shows the parser) and a pointer to the adapter
+  walkthrough.
+
 ## [0.1.40] - 2026-10-29
 
 Every command id is now `tenstorrent.<feature>.<action>` (`tenstorrent.setup.quickInstall`,

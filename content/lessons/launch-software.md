@@ -85,6 +85,13 @@ cloud pod uses `--port 20000`: a server you started by hand on that port is foun
 same way. For any other address, say so: `tt launch aider --port 8000`, or `--url
 http://host:port/v1`.
 
+A community bundle (`tt serve someone/model`, from `tt model list --community`) is found
+the same way. `tt launch` adds a warning that the model is `not in the model catalog` and
+shows `tool-call parser —`: it has no catalog row to check, so it cannot confirm tool
+calling. The bundle's card and `tt serve someone/model --dry-run` show the parser the
+bundle sets. On a TT-QuietBox 2 the fastest agent models are community bundles; see
+[Local AI Agents](command:tenstorrent.lesson.show?["qb2-local-agents"]).
+
 ## A Chat Window in Your Browser
 
 > **Your own machine only.** Open WebUI runs in a container, so this section needs Docker.
@@ -209,6 +216,10 @@ agent then never acts, that is why.
 
 `tt` shows what it will change and asks before writing a config file.
 `tt launch disconnect opencode` removes what it wrote.
+
+A tool that is not on the list can be added with one Python file in tt-cli; the
+smolagents walkthrough in [Local AI Agents](command:tenstorrent.lesson.show?["qb2-local-agents"])
+shows the adapter, its tests and the pull request.
 
 The developer blog walks through the same flow with a community model:
 [Deploying Community Models with the Tenstorrent CLI](https://tenstorrent.com/developers/blog/tt-cli-and-community-model-bundles).

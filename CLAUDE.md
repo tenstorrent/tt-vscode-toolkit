@@ -777,3 +777,45 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 Prior to v0.0.268, this file contained extensive changelog entries spanning 500+ lines. This has been consolidated to improve maintainability and reduce duplication. All historical version information remains available in `CHANGELOG.md`.
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
+
+## Community models in the QB2 lessons; `tt launch smolagent` (2026-10-30)
+
+**Prompt:** make the qb2 lessons aware of the community model list (fast models for the
+agents and OpenClaw lessons), note the `tt launch openclaw` idea, and add a lesson on
+adding a `tt launch` command for a tool of your own, such as smolagents.
+
+**What the community catalog gives a QB2.** `tt model list --community --hw p300x2`
+lists bundles with a p300x2 profile. The fast ones are mixture-of-experts coders with 3B
+active parameters: `raahemnabeel/qwen3-coder-30b-a3b` (60 GB of weights, `qwen3_coder`
+parser, 256K context) and `raahemnabeel/qwen3-coder-next` (148 GB, 262K). Measured
+2026-10-30: coder-next 107 tok/s on two dies (another agent's server on port 8011);
+coder-30b-a3b 80 tok/s on two dies under our own lease, `00_verify_tools.py` all three
+checks in 5 s, `01_research_agent.py` 11 steps in 3 min 17 s. Qwen3-32B in the same
+lesson takes ~8 s a response.
+
+**Gotchas.**
+- `tt launch` prints `not in the model catalog` and `tool-call parser —` for every
+  bundle. It is a warning, not a refusal; the parser is in the bundle and `tt serve
+  --dry-run` shows it.
+- An installed bundle keeps the revision it was pulled at. The box's copy of
+  qwen3-coder-30b-a3b had only a `default` (p300x2) profile while the card listed
+  `p300`; `tt serve ... -- --refresh` fetched the current one. `--device-id 2,3` also
+  passes through `--` to tt-model, which is how the proof ran beside another agent's
+  server on chips 0,1 (lease via `gozer run`, with `sleep` after `tt serve` so the lease
+  outlived the detached container).
+- `pkill -f "sleep 10800"` over ssh kills the `bash -lc` that carries the pattern. Kill
+  the holder by pid.
+
+**`tt launch` has no plugin point.** Clients are modules in
+`src/tenstorrent/launchers/apps/` registered in `LAUNCHERS`; adding one is a tt-cli PR. The
+smolagents adapter (`tt launch smolagent`) was written, tested (2 new tests; the 4 failures
+in the full suite fail on the clean v1.2.1 tag too on macOS) and run end to end through an
+ssh tunnel to the QB2: task answered in one 2 s step. Two upstream facts found the hard
+way: smolagents 1.26 names the class `OpenAIModel` (its interactive menu still says
+`OpenAIServerModel`, which `load_model` rejects), and the CLI needs the `openai` extra
+(`uv tool install 'smolagents[toolkit,openai]'`). The adapter asks for the task at
+hand-off because `smolagent` with no task ignores its flags. Patch saved at
+`.superpowers/sdd/2026-10-29-tt-cli-leads-the-way/tt-cli-smolagent-adapter.patch`; not
+opened as a PR yet. An `openclaw` adapter is the opencode shape (JSON provider block +
+`agents.defaults.model.primary`); described in the OpenClaw lesson, not built.
+

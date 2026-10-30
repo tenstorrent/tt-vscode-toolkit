@@ -160,6 +160,56 @@ of them read from the model catalog:
 If the board is busy or faulting, `tt model stop` first and, if the fabric does not
 cycle cleanly, `tt-smi -r` before serving again.
 
+### Faster: Qwen3-Coder-Next from the community catalog
+
+The 70B model is the quality choice and the slow one: 14 seconds a turn. The community
+catalog (`tt model list --community --hw p300x2`) has mixture-of-experts coding models
+with 3B parameters active per token that answer in two to four seconds and call tools
+with the `qwen3_coder` parser. Qwen3-Coder-Next (80B total, 3B active, 262K context)
+measured 107 tok/s on two dies on 2026-10-30; its card reports 178 tok/s on four.
+
+```bash
+tt serve raahemnabeel/qwen3-coder-next --profile p300x2 --port 8000
+```
+
+[🚀 Serve Qwen3-Coder-Next on port 8000](command:tenstorrent.model.serveQb2ClawCoderNext)
+
+The first start downloads 148 GB of weights. The smaller
+`raahemnabeel/qwen3-coder-30b-a3b` (60 GB, 256K context) is the same shape and the one
+the [Local AI Agents](command:tenstorrent.lesson.show?["qb2-local-agents"]) lesson
+validates. `tt serve` and `tt launch` both say the model is `not in the model catalog`;
+that is what a community bundle is, and the dry run shows the parser is set.
+
+OpenClaw needs to know the model, so add it to the `vllm` provider in
+`~/tt-claw/runtime/openclaw.json` and make it the primary:
+
+```json
+{
+  "models": {
+    "providers": {
+      "vllm": {
+        "baseUrl": "http://127.0.0.1:8000/v1",
+        "api": "openai-completions",
+        "models": [{
+          "id": "Qwen/Qwen3-Coder-Next",
+          "name": "Qwen3 Coder Next",
+          "reasoning": false,
+          "input": ["text"],
+          "cost": {"input": 0, "output": 0},
+          "contextWindow": 262144,
+          "maxTokens": 4096
+        }]
+      }
+    }
+  },
+  "agents": {"defaults": {"model": {"primary": "vllm/Qwen/Qwen3-Coder-Next"}}}
+}
+```
+
+The `id` is the weights id the server reports in `/v1/models`, which is what OpenClaw
+sends back in every request.
+
+
 ### Logging In
 
 The first serve asks for a Hugging Face token when none is stored (`tt model login`
@@ -512,6 +562,28 @@ Source: ../../code/tt-vscode-toolkit/content/lessons/cookbook-overview.md#L28-L8
 
 ---
 
+## `tt launch openclaw`?
+
+Not in tt 1.2.1. `tt launch` points a client at the model you are serving and writes the
+smallest config it needs; OpenCode and pi get a `tenstorrent` provider in their JSON
+config, and that is exactly the shape OpenClaw's `openclaw.json` has. An `openclaw`
+adapter would:
+
+1. read `openclaw.json` (the path from `OPENCLAW_CONFIG_PATH`, else `~/.openclaw/openclaw.json`),
+2. add a `tenstorrent` entry under `models.providers` with `baseUrl` from the running
+   server and one `models[]` row for its reported id and context length,
+3. set `agents.defaults.model.primary` to `tenstorrent/<id>`, after showing the change and
+   asking once,
+4. hand the terminal to `openclaw tui`, and on `tt launch disconnect openclaw` remove only
+   the block it wrote.
+
+That is a pull request against tt-cli of the same size as the smolagents adapter in
+[Teach `tt launch` Your Own Tool](command:tenstorrent.lesson.show?["qb2-local-agents"]),
+with `apps/opencode.py` as the file to copy. Until it lands, the edit to `openclaw.json`
+above is the connection, and `tt model ps` plus `curl /v1/models` are the check.
+
+---
+
 ## Alternative: n150 with 8B Model
 
 If you have an n150 (single chip) instead of TT-QuietBox 2, you can run OpenClaw with a smaller model.
@@ -564,17 +636,17 @@ Edit `~/tt-claw/runtime/openclaw.json`:
 }
 ```
 
-### Performance Comparison: 70B vs 8B
+### Performance Comparison: 70B vs community vs 8B
 
-| Feature              | TT-QuietBox 2 (70B)          | n150 (8B)         |
-|----------------------|--------------------|-------------------|
-| Response time        | 14+ seconds        | 2-3 seconds       |
-| Context window       | 131K tokens        | 8K tokens         |
-| Reasoning depth      | Excellent          | Good              |
-| Hardware required    | 4x p300c           | 1x n150           |
-| Power consumption    | ~300W              | ~75W              |
-| Model loading time   | 10-20 minutes      | 2-5 minutes       |
-| Best for             | Complex reasoning  | Fast responses    |
+| Feature              | TT-QuietBox 2 (70B) | TT-QuietBox 2 (Qwen3-Coder-Next, community) | n150 (8B)         |
+|----------------------|--------------------|---------------------------------------------|-------------------|
+| Response time        | 14+ seconds        | 2-4 seconds (107 tok/s measured on two dies) | 2-3 seconds       |
+| Context window       | 131K tokens        | 262K tokens                                 | 8K tokens         |
+| Reasoning depth      | Excellent          | Very good for code and tools; 3B active     | Good              |
+| Hardware required    | 2x p300c           | 2x p300c (or one, `--profile p300`)         | 1x n150           |
+| Power consumption    | ~300W              | ~300W                                       | ~75W              |
+| Model loading time   | 10-20 minutes      | 10 minutes first start, then minutes         | 2-5 minutes       |
+| Best for             | Complex reasoning  | Fast agents and coding                      | Fast responses    |
 
 **When to use 8B:**
 - ✅ Quick Q&A and chat

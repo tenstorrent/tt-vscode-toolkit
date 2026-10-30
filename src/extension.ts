@@ -521,6 +521,25 @@ function modelServeQb2AgentsLlama(): void {
   runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_QB2_AGENTS_LLAMA.template);
   vscode.window.showInformationMessage('Serving Llama-3.3-70B-Instruct on port 8000. Warmup takes ~5 min (up to 20 min on first run).');
 }
+function modelListCommunityQb2(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_LIST_COMMUNITY_QB2.template);
+}
+function modelServeQb2AgentsCoder(): void {
+  if (!canRunHere('tt serve')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_QB2_AGENTS_CODER.template);
+  vscode.window.showInformationMessage('Serving Qwen3-Coder-30B-A3B on port 8000. First start downloads 61 GB of weights and compiles kernels (~10 min); later starts take a few minutes.');
+}
+function modelServeQb2ClawCoderNext(): void {
+  if (!canRunHere('tt serve')) return;
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.MODEL_SERVE_QB2_CLAW_CODER_NEXT.template);
+  vscode.window.showInformationMessage('Serving Qwen3-Coder-Next on port 8000. First start downloads 148 GB of weights and compiles kernels; later starts take a few minutes.');
+}
+function launchTtCliDevSetup(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_TT_CLI_DEV_SETUP.template);
+}
+function launchTtCliTestLaunchers(): void {
+  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_TT_CLI_TEST_LAUNCHERS.template);
+}
 
 // ---- Build on the Stack: first runnable step per environment ----
 function metalRunAddTensors(): void {
@@ -4729,6 +4748,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand('tenstorrent.launch.studioQb2', launchStudioQb2),
     vscode.commands.registerCommand('tenstorrent.model.serveQb2AgentsQwen', modelServeQb2AgentsQwen),
     vscode.commands.registerCommand('tenstorrent.model.serveQb2AgentsLlama', modelServeQb2AgentsLlama),
+    vscode.commands.registerCommand('tenstorrent.model.listCommunityQb2', modelListCommunityQb2),
+    vscode.commands.registerCommand('tenstorrent.model.serveQb2AgentsCoder', modelServeQb2AgentsCoder),
+    vscode.commands.registerCommand('tenstorrent.model.serveQb2ClawCoderNext', modelServeQb2ClawCoderNext),
+    vscode.commands.registerCommand('tenstorrent.launch.ttCliDevSetup', launchTtCliDevSetup),
+    vscode.commands.registerCommand('tenstorrent.launch.ttCliTestLaunchers', launchTtCliTestLaunchers),
     vscode.commands.registerCommand('tenstorrent.metal.runAddTensors', metalRunAddTensors),
     vscode.commands.registerCommand('tenstorrent.ttlang.setupCloud', ttlangSetupCloud),
     vscode.commands.registerCommand('tenstorrent.ttlang.runTutorialSim', ttlangRunTutorialSim),
