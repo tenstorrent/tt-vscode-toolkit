@@ -508,7 +508,7 @@ class MandelbrotVisualizer:
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 
 # cd after activating — tt-metalium opens a new shell, so a cd before it
 # would be lost when you land back at /home/user inside the container

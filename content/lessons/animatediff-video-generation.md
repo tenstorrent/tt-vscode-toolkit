@@ -162,7 +162,7 @@ Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole sil
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 cd ~/tt-projects/tt-animatediff
 
 python3 examples/generate.py \
@@ -259,7 +259,7 @@ A point-and-click interface for all modes. Models stay loaded between generation
 ```bash
 # Blackhole hardware — activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 cd ~/tt-projects/tt-animatediff
 
 pip install -e ".[ui]"

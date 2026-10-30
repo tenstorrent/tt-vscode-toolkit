@@ -177,7 +177,7 @@ python3 ttnn/tutorials/basic_python/ttnn_simplecnn_inference.py
 > it's **off by default** (`--install-metalium-models-container=on` at install
 > time), has **no `${HOME}` mount**, and starts you already in `/tt-metal` (no
 > `cd` needed, and `cd ~/tt-metal` or `cd tt-metal` will fail there). See
-> [Standard vs Model Demos Container](command:tenstorrent.lesson.show?["tt-installer"]).
+> [Standard vs Model Demos Container](command:tenstorrent.lesson.show?["tt-installer-by-hand"]).
 
 > **Training step required:** `ttnn_mlp_inference_mnist.py` and `ttnn_simplecnn_inference.py`
 > load weights from `.pt` files. Without them the scripts use random weights and report

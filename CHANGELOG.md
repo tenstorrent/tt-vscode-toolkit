@@ -46,6 +46,9 @@ Also in this release:
   button and a `--local-server` button cover the cloud pod. New short lesson *Mix and
   Match Versions*: where each copy of the software lives, and how an image tag pins the
   tt-metal and vLLM commits a model was validated on.
+- README learning paths and `llms.txt` describe the four paths; the README catalog is
+  regenerated for the new groups (57 lessons). Stale cloud activation lines
+  (`/opt/venv-metal`) in the cookbook and video lessons now say the pod needs none.
 
 ---
 

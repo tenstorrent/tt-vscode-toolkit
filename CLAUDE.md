@@ -13,7 +13,7 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
-## tt CLI leads the way (2026-10-29, in progress)
+## tt CLI leads the way (2026-10-29)
 
 **Prompt:** apply the tt-first rework done on tt-quietbox2-guide (PR #27) and
 tenstorrent.github.io to the whole toolkit corpus, one sidebar group at a time, with
@@ -29,6 +29,25 @@ lives in the handler (`src/utils/environment.ts`, keyed on the tt-code-server im
 `TT_VLLM_VENV` + `TT_INSTALLER_VENV`). `tt` is verified against the `v1.2.1` tag on the
 QuietBox (`~/code/tt-cli`, editable install, pinned); `tt agent` is unreleased and gets
 one sentence.
+
+**Shape of the change:** 3 new lessons (`arrive`, `launch-software`, `mix-and-match`),
+1 moved (`tt-installer-by-hand`), 6 rewritten (tt-installer, hardware-detection,
+verify-installation, download-model, interactive-chat, api-server), ~20 edited; 57
+lessons in 11 groups. Templates +40 / -20; package.json commands reconciled against
+registrations and lesson links by `test/lesson-tests/command-links.test.ts`. The docs
+site prints the `tt` command under every button (checked on every built page: button
+count equals rendered-command count). README learning paths and `llms.txt` describe the
+four paths. Versions 0.1.32 → 0.1.40 across the branch.
+
+**Still unverified at PR time:** a real `tt serve` on the QuietBox host (`tt serve` maps
+every device node and the other boards were held all day); `tt update` and `tt self
+update` on the host (interactive sudo, pinned editable install); the extension's cloud
+guard inside a real code-server (unit-tested, markers present); Open WebUI launch/stop
+(dry run only; the box's container belongs to another session); `run.py --device-id`
+as a real boot; every pod route on an actual n150 (the rig's chip is a p300c, run as
+P100/P150). tt-code-server branch `tt-cli-ready` (0f5193d: tt-metal v0.80.0, plugin
+pinned, tt 1.2.1 baked in) is **not pushed**; the pod routes in Serve Without Containers
+and tt-inference-server by Hand need it.
 
 **Test rig for the cloud pod:** `tt-code-server:local`, built on the QuietBox from
 `~/code/tt-code-server/tt-code-server` (the pull from ghcr was denied; the build takes
