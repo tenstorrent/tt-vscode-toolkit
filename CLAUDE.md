@@ -807,15 +807,13 @@ lesson takes ~8 s a response.
   the holder by pid.
 
 **`tt launch` has no plugin point.** Clients are modules in
-`src/tenstorrent/launchers/apps/` registered in `LAUNCHERS`; adding one is a tt-cli PR. The
-smolagents adapter (`tt launch smolagent`) was written, tested (2 new tests; the 4 failures
-in the full suite fail on the clean v1.2.1 tag too on macOS) and run end to end through an
-ssh tunnel to the QB2: task answered in one 2 s step. Two upstream facts found the hard
-way: smolagents 1.26 names the class `OpenAIModel` (its interactive menu still says
-`OpenAIServerModel`, which `load_model` rejects), and the CLI needs the `openai` extra
-(`uv tool install 'smolagents[toolkit,openai]'`). The adapter asks for the task at
-hand-off because `smolagent` with no task ignores its flags. Patch saved at
-`.superpowers/sdd/2026-10-29-tt-cli-leads-the-way/tt-cli-smolagent-adapter.patch`; not
-opened as a PR yet. An `openclaw` adapter is the opencode shape (JSON provider block +
-`agents.defaults.model.primary`); described in the OpenClaw lesson, not built.
-
+`src/tenstorrent/launchers/apps/` registered in `LAUNCHERS`; adding one is a tt-cli PR per
+tool. A smolagent adapter was written and run end to end (task answered in one 2 s step;
+smolagents 1.26 names the class `OpenAIModel`, and its CLI needs the `openai` extra), and
+an OpenClaw adapter was drafted in the opencode shape. Neither is in a PR, by decision
+(2026-10-30): the smolagent one needed a `typer.prompt` inside `handoff()`, which no
+shipped adapter does and which breaks `--yes`/`--json`, and a PR per client does not
+scale. The micro-lesson that showed the adapter shipped in 0.1.41 and was removed in
+0.1.42. Instead a design proposal for YAML/JSON launcher definitions lives in the Claude
+Docs page "tt launch plugin definitions"; the toolkit can gain a lesson on it once tt-cli
+has something like it.

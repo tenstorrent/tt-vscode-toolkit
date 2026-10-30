@@ -217,10 +217,6 @@ agent then never acts, that is why.
 `tt` shows what it will change and asks before writing a config file.
 `tt launch disconnect opencode` removes what it wrote.
 
-A tool that is not on the list can be added with one Python file in tt-cli; the
-smolagents walkthrough in [Local AI Agents](command:tenstorrent.lesson.show?["qb2-local-agents"])
-shows the adapter, its tests and the pull request.
-
 The developer blog walks through the same flow with a community model:
 [Deploying Community Models with the Tenstorrent CLI](https://tenstorrent.com/developers/blog/tt-cli-and-community-model-bundles).
 

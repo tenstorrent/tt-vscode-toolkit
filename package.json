@@ -2,7 +2,7 @@
   "name": "tt-vscode-toolkit",
   "displayName": "TT Developer Toolkit",
   "description": "Interactive lessons, hardware monitoring, and production templates for AI silicon development",
-  "version": "0.1.41",
+  "version": "0.1.42",
   "icon": "dist/assets/img/marketplace-icon.png",
   "galleryBanner": {
     "color": "#1e1e2e",
@@ -830,16 +830,6 @@
       {
         "command": "tenstorrent.model.serveQb2ClawCoderNext",
         "title": "tt serve: Qwen3-Coder-Next (community) on Port 8000",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.launch.ttCliDevSetup",
-        "title": "tt launch: Clone tt-cli for an Adapter",
-        "category": "Tenstorrent"
-      },
-      {
-        "command": "tenstorrent.launch.ttCliTestLaunchers",
-        "title": "tt launch: Test the Adapters",
         "category": "Tenstorrent"
       },
       {

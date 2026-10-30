@@ -461,20 +461,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Serves the community Qwen3-Coder-Next bundle on all four dies, port 8000, for OpenClaw (needs Docker; guarded on the cloud pod)',
   },
 
-  LAUNCH_TT_CLI_DEV_SETUP: {
-    id: 'launch-tt-cli-dev-setup',
-    name: 'Clone tt-cli for development',
-    template: 'git clone https://github.com/tenstorrent/tt-cli ~/tt-cli && cd ~/tt-cli && uv sync && uv run tt launch list',
-    description: 'Clones tt-cli, creates its uv environment and runs the development copy once, for writing a tt launch adapter',
-  },
-
-  LAUNCH_TT_CLI_TEST_LAUNCHERS: {
-    id: 'launch-tt-cli-test-launchers',
-    name: 'Test the tt launch adapters',
-    template: 'cd ~/tt-cli && uv run pytest tests/unit/test_launchers.py tests/cli/test_launch_cmd.py -q',
-    description: 'Runs the launcher unit and CLI tests in a tt-cli checkout (no hardware)',
-  },
-
   // ========================================
   // Build on the Stack: environment-aware first steps
   // ========================================

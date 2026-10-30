@@ -577,10 +577,11 @@ adapter would:
 4. hand the terminal to `openclaw tui`, and on `tt launch disconnect openclaw` remove only
    the block it wrote.
 
-That is a pull request against tt-cli of the same size as the smolagents adapter in
-[Teach `tt launch` Your Own Tool](command:tenstorrent.lesson.show?["qb2-local-agents"]),
-with `apps/opencode.py` as the file to copy. Until it lands, the edit to `openclaw.json`
-above is the connection, and `tt model ps` plus `curl /v1/models` are the check.
+Today each client is a Python module inside tt-cli, so this would be a tt-cli change. A
+lighter route, a client described by a small YAML or JSON definition that `tt` loads from
+a user directory, is proposed separately. Until one of those lands, the edit to
+`openclaw.json` above is the connection, and `tt model ps` plus `curl /v1/models` are
+the check.
 
 ---
 
