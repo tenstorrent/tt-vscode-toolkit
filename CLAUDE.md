@@ -49,6 +49,23 @@ P100/P150). tt-code-server branch `tt-cli-ready` (0f5193d: tt-metal v0.80.0, plu
 pinned, tt 1.2.1 baked in) is **not pushed**; the pod routes in Serve Without Containers
 and tt-inference-server by Hand need it.
 
+**Final review (fresh reviewer, after PR #53 opened) found and this branch fixed:**
+`scripts/build-web.js` still tested `tenstorrent.showLesson`, so every in-body
+cross-lesson link on the docs site (371 of them) rendered as a dead
+`tt-unknown-command` span after the rename; the site's page map had the old
+`showStepZero/showFaq/showWelcome` ids. `command-map-parser`'s function regex could start
+a match on the word "function" inside a comment ("one function per command") and bind
+`LAUNCH_LIST` to the name `per`; the name must now be followed by a parameter list, with
+a regression test seen red on the old regex. Three `src/extension.ts.bak*` files had been
+committed (removed). Registry prev/next chains made reciprocal; a dead `vscode-chat`
+lesson link replaced; `--tt-device` unified to `--device` in the tt-inference-server
+lesson; fences aligned with their buttons; a no-auth warning beside the `--local-server`
+block; the rename map annotated with the 29 targets later commits deleted. Lesson:
+**the rename test checks ids against package.json, and nothing checked the docs-site
+renderer, which keys on an id string of its own.** The site build is now in the
+pre-commit hook's link test, but a renderer comparison against a literal id still needs
+a grep whenever an id changes.
+
 **Test rig for the cloud pod:** `tt-code-server:local`, built on the QuietBox from
 `~/code/tt-code-server/tt-code-server` (the pull from ghcr was denied; the build takes
 about an hour, 55 GB). Run it with one leased chip:

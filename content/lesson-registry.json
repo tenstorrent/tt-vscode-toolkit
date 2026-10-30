@@ -335,7 +335,7 @@
       ],
       "estimatedMinutes": 20,
       "order": 1,
-      "previousLesson": "api-server",
+      "previousLesson": "mix-and-match",
       "nextLesson": "vllm-production",
       "completionEvents": [
         "onCommand:tenstorrent.inferenceServer.testSimple"
@@ -368,7 +368,7 @@
       "estimatedMinutes": 30,
       "order": 2,
       "previousLesson": "tt-inference-server",
-      "nextLesson": "image-generation",
+      "nextLesson": "build-tt-metal",
       "completionEvents": [
         "onCommand:tenstorrent.vllm.startWithHardware"
       ],
@@ -399,7 +399,7 @@
       ],
       "estimatedMinutes": 20,
       "order": 4,
-      "previousLesson": "vllm-production",
+      "previousLesson": "api-server",
       "nextLesson": "video-generation-ttmetal",
       "completionEvents": [
         "onCommand:tenstorrent.apps.generateRetroImage"
@@ -1275,7 +1275,8 @@
       "estimatedMinutes": 60,
       "order": 3,
       "completionEvents": [],
-      "markdownFile": "content/lessons/build-tt-metal.md"
+      "markdownFile": "content/lessons/build-tt-metal.md",
+      "previousLesson": "vllm-production"
     },
     {
       "id": "bounty-program",
@@ -1296,8 +1297,8 @@
       "status": "draft",
       "estimatedMinutes": 10,
       "order": 7,
-      "previousLesson": "cs-fundamentals-07-complexity",
-      "nextLesson": "explore-metalium",
+      "previousLesson": "cs-fundamentals-08-matmul-labs",
+      "nextLesson": "tt-installer-by-hand",
       "completionEvents": [
         "onCommand:tenstorrent.bounty.browseOpen"
       ],
@@ -1328,7 +1329,7 @@
       ],
       "estimatedMinutes": 20,
       "order": 8,
-      "previousLesson": "tt-installer",
+      "previousLesson": "bounty-program",
       "markdownFile": "content/lessons/tt-installer-by-hand.md",
       "nextLesson": "mix-and-match"
     },
@@ -1482,7 +1483,6 @@
         "p300x2"
       ],
       "estimatedMinutes": 90,
-      "nextLesson": "qb2-local-agents",
       "markdownFile": "content/lessons/qb2-video-generation.md",
       "validationDate": "2026-04-15",
       "validationNotes": "Full pipeline validated on TT-QuietBox 2 (2× p300 cards): vendor setup, patches, Wan2.2-T2V-A14B generation (480×832, 80 frames, ~370 s/clip), SkyReels-1.3B (~28 s/clip), Qwen3-0.6B prompt server. Timing data from April 2026 hardware runs.",

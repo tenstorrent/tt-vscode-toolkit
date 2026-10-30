@@ -154,8 +154,10 @@ function buildCommandMap(termSrc, extSrc) {
     // bleed-through was rendering a game-of-life command under CS-Fundamentals'
     // "Open Kernel Source" (issue #42).
     // Keys can contain digits (START_TT_INFERENCE_SERVER_N150, RUN_ANIMATEDIFF_2FRAME, …).
+    // The name must be followed by a parameter list, so the word "function" inside a
+    // comment ("one function per command") cannot start a match and swallow the real one.
     const funcToKey = {};
-    const funcKeyRe = /(?:export\s+)?(?:async\s+)?function\s+(\w+)[^{]*\{(?:(?!\n(?:export )?(?:async )?function )[\s\S])*?TERMINAL_COMMANDS\.([A-Z0-9_]+)\./g;
+    const funcKeyRe = /(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)[^{]*\{(?:(?!\n(?:export )?(?:async )?function )[\s\S])*?TERMINAL_COMMANDS\.([A-Z0-9_]+)\./g;
     let fkMatch;
     while ((fkMatch = funcKeyRe.exec(extSrc)) !== null) {
       const funcName = fkMatch[1];

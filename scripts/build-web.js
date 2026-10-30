@@ -291,7 +291,7 @@ if (hljsExtension) {
  *                                                                     *
  * We override marked's link renderer to intercept command: URIs.      *
  *                                                                     *
- *  showLesson?["id"]  →  <a href="/lessons/id/">Label</a>             *
+ *  lesson.show?["id"] →  <a href="/lessons/id/">Label</a>             *
  *  other command:...  →  <div class="tt-web-command"> ... </div>      *
  * ------------------------------------------------------------------ */
 
@@ -409,8 +409,8 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
     } catch (_) {}
   }
 
-  // showLesson → internal navigation link
-  if (commandId === 'tenstorrent.showLesson' && parsedArgs && parsedArgs[0]) {
+  // lesson.show → internal navigation link
+  if (commandId === 'tenstorrent.lesson.show' && parsedArgs && parsedArgs[0]) {
     // Validate the lesson ID before embedding in a URL/HTML attribute.
     let lessonId;
     try {
@@ -2090,9 +2090,9 @@ body.sidebar-body-lock {
 
 /** VSCode commands that correspond to reference pages on this site. */
 const COMMAND_PAGE_MAP = {
-  'tenstorrent.showStepZero': siteUrl('/step-zero/'),
-  'tenstorrent.showFaq':      siteUrl('/faq/'),
-  'tenstorrent.showWelcome':  siteUrl('/welcome/'),
+  'tenstorrent.lesson.stepZero': siteUrl('/step-zero/'),
+  'tenstorrent.lesson.faq':      siteUrl('/faq/'),
+  'tenstorrent.lesson.welcome':  siteUrl('/welcome/'),
 };
 
 function transformWelcomeHtml(rawHtml) {

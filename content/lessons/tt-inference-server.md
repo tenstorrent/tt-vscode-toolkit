@@ -30,7 +30,7 @@ minTTMetalVersion: v0.65.1
 recommended_metal_version: v0.65.1
 validationDate: 2026-04-15
 validationNotes: >-
-  Rewritten for v0.12.0 Docker images; --tt-device auto-detection; Llama-3.1-8B
+  Rewritten for v0.12.0 Docker images; --device auto-detection; Llama-3.1-8B
   validated Complete on WH (n150/n300/T3000) and Experimental on BH (p100/p300c).
 ---
 
@@ -117,13 +117,13 @@ every current Tenstorrent board:
 
 | Hardware | Device flag | Status | Max context |
 |----------|-------------|--------|-------------|
-| n150 | `--tt-device n150` | 🟢 Complete | 64 K |
-| n300 | `--tt-device n300` | 🟢 Complete | 128 K |
-| T3000 (WH TT-QuietBox/LoudBox) | `--tt-device t3k` | 🟢 Complete | 128 K |
-| p100 / p300c / TT-QuietBox 2 (single-chip) | `--tt-device p100` | 🛠️ Experimental | 64 K |
-| TT-QuietBox 2 (whole-box, multi-chip) | `--tt-device p300x2` | 🛠️ Experimental | 64 K |
-| p150 | `--tt-device p150` | 🛠️ Experimental | 64 K |
-| Galaxy | `--tt-device galaxy` | 🟢 Complete | — |
+| n150 | `--device n150` | 🟢 Complete | 64 K |
+| n300 | `--device n300` | 🟢 Complete | 128 K |
+| T3000 (WH TT-QuietBox/LoudBox) | `--device t3k` | 🟢 Complete | 128 K |
+| p100 / p300c / TT-QuietBox 2 (single-chip) | `--device p100` | 🛠️ Experimental | 64 K |
+| TT-QuietBox 2 (whole-box, multi-chip) | `--device p300x2` | 🛠️ Experimental | 64 K |
+| p150 | `--device p150` | 🛠️ Experimental | 64 K |
+| Galaxy | `--device galaxy` | 🟢 Complete | — |
 
 Two weight variants are available via MODEL_SPECS:
 - `Llama-3.1-8B` — base model (default)
@@ -138,7 +138,7 @@ Two weight variants are available via MODEL_SPECS:
 `run.py` selects the correct Docker image for your hardware, handles the
 volume, and downloads weights inside the container on first run.
 
-`--tt-device` can be omitted and will be **auto-detected** from your hardware
+`--device` can be omitted and will be **auto-detected** from your hardware
 via `tt-smi`:
 
 ```bash
@@ -151,7 +151,7 @@ python3 run.py \
   --no-auth
 ```
 
-Add `--tt-device <device>` if auto-detection doesn't match your hardware.
+Add `--device <device>` if auto-detection doesn't match your hardware.
 
 ---
 
@@ -162,7 +162,7 @@ Add `--tt-device <device>` if auto-detection doesn't match your hardware.
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150 \
+  --device n150 \
   --workflow server \
   --docker-server \
   --no-auth
@@ -177,7 +177,7 @@ python3 run.py \
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n300 \
+  --device n300 \
   --workflow server \
   --docker-server \
   --no-auth
@@ -192,7 +192,7 @@ python3 run.py \
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device t3k \
+  --device t3k \
   --workflow server \
   --docker-server \
   --no-auth
@@ -205,7 +205,7 @@ python3 run.py \
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device p100 \
+  --device p100 \
   --workflow server \
   --docker-server \
   --no-auth
@@ -217,14 +217,14 @@ python3 run.py \
 > TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`), and its chips are not
 > independent devices with no interconnect. For whole-box multi-chip serving of a
 > single larger model instead of four separate single-chip servers, use
-> `--tt-device p300x2` — see [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]).
+> `--device p300x2` — see [vLLM Production](command:tenstorrent.lesson.show?["vllm-production"]).
 
 ---
 
 ### Option B — Direct docker run
 
 For full transparency, or when you want to run without `run.py`, use the
-container directly. Pass `--model` and `--tt-device` as container args; the
+container directly. Pass `--model` and `--device` as container args; the
 container resolves the config from its bundled model spec catalog.
 
 **Wormhole (n150 / n300 / T3000):**
@@ -239,10 +239,10 @@ docker run \
   --volume volume_id_Llama-3.1-8B:/home/container_app_user/cache_root \
   ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-22.04-amd64:0.12.0-25305db-6e67d2d \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150
+  --device n150
 ```
 
-Change `--tt-device` to `n300` or `t3k` for those boards — same image.
+Change `--device` to `n300` or `t3k` for those boards — same image.
 
 **Blackhole (p100 / p300c / TT-QuietBox 2):**
 
@@ -256,13 +256,13 @@ docker run \
   --volume volume_id_Llama-3.1-8B:/home/container_app_user/cache_root \
   ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-22.04-amd64:0.12.0-55fd115-aa4ae1e \
   --model Llama-3.1-8B-Instruct \
-  --tt-device p100
+  --device p100
 ```
 
 Use `--print-docker-cmd` with `run.py` to see the exact command it would run:
 
 ```bash
-python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+python3 run.py --model Llama-3.1-8B-Instruct --device n150 \
   --workflow server --docker-server --no-auth --print-docker-cmd
 ```
 
@@ -372,15 +372,15 @@ without restarting:
 cd ~/.local/lib/tt-inference-server
 
 # Quick smoke test (reduced samples)
-python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+python3 run.py --model Llama-3.1-8B-Instruct --device n150 \
   --workflow benchmarks --limit-samples-mode smoke-test
 
 # Full accuracy evals
-python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+python3 run.py --model Llama-3.1-8B-Instruct --device n150 \
   --workflow evals
 
 # Benchmarks + evals + reports in one pass (release certification)
-python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+python3 run.py --model Llama-3.1-8B-Instruct --device n150 \
   --workflow release --docker-server --no-auth
 ```
 
@@ -403,7 +403,7 @@ Enable the OpenAI tool-calling API by passing two flags to vLLM:
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150 \
+  --device n150 \
   --workflow server \
   --docker-server \
   --no-auth \
@@ -416,7 +416,7 @@ python3 run.py \
 docker run ... \
   ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-22.04-amd64:0.12.0-25305db-6e67d2d \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150 \
+  --device n150 \
   --enable-auto-tool-choice \
   --tool-call-parser llama3_json
 ```
@@ -473,14 +473,14 @@ can speed up model load:
 # Via run.py
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150 \
+  --device n150 \
   --workflow server \
   --docker-server \
   --no-auth \
   --vllm-override-args '{"max-model-len": 8192}'
 
 # Via docker run (passthrough)
-... <image> --model Llama-3.1-8B-Instruct --tt-device n150 --max-model-len 8192
+... <image> --model Llama-3.1-8B-Instruct --device n150 --max-model-len 8192
 ```
 
 `max-model-len` must be a multiple of `block-size` (default 64). Values like
@@ -514,7 +514,7 @@ JSON keys are merged, so all overrides can go in one `--vllm-override-args`:
 ```bash
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150 \
+  --device n150 \
   --workflow server \
   --docker-server \
   --no-auth \
@@ -548,8 +548,8 @@ of the path). So `Llama-3.1-8B-Instruct` and
 
 ```bash
 # These are equivalent
-... --model Llama-3.1-8B-Instruct --tt-device n150
-... --model meta-llama/Llama-3.1-8B-Instruct --tt-device n150
+... --model Llama-3.1-8B-Instruct --device n150
+... --model meta-llama/Llama-3.1-8B-Instruct --device n150
 ```
 
 The full catalog includes Llama, Qwen, Mistral, Gemma, DeepSeek, Whisper,
@@ -594,6 +594,11 @@ python run.py \
 
 [▶ Run the server without a container (cloud pod)](command:tenstorrent.inferenceServer.runServerLocal)
 
+> **⚠️ `--no-auth` and every interface.** This server takes no key and vLLM binds
+> `0.0.0.0`; anyone who can reach port 20000 can use the model. On the pod only the pod's
+> own network reaches it. Anywhere else, front it with a reverse proxy or firewall, or
+> drop `--no-auth` and set `JWT_SECRET`, as `run.py --help` describes.
+
 `run.py` asks for `HF_TOKEN` at a prompt when the variable is unset, which a button's
 terminal can answer, but exporting it first is simpler; on the pod `tt model login` wrote
 it to `~/models/token` (`$HF_HOME/token`). The run prints the exact `run_vllm_api_server.py`
@@ -621,12 +626,12 @@ If you've already downloaded model weights (e.g. via `hf download`), point
 
 ```bash
 # Reuse ~/.cache/huggingface (bare flag uses HF_HOME / ~/.cache/huggingface)
-python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+python3 run.py --model Llama-3.1-8B-Instruct --device n150 \
   --workflow server --docker-server --no-auth \
   --host-hf-cache
 
 # Or point at a specific directory
-python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+python3 run.py --model Llama-3.1-8B-Instruct --device n150 \
   --workflow server --docker-server --no-auth \
   --host-weights-dir ~/models/meta-llama/Llama-3.1-8B-Instruct
 ```
@@ -690,7 +695,7 @@ With `run.py`:
 
 ```bash
 TT_DIT_CACHE_DIR=/home/container_app_user/cache_root/tt_dit_cache \
-python3 run.py --model Wan-2.2-T2V-1.3B --tt-device p100 \
+python3 run.py --model Wan-2.2-T2V-1.3B --device p100 \
   --workflow server --docker-server --no-auth
 ```
 
@@ -701,7 +706,7 @@ docker run \
   -e "HF_TOKEN=$HF_TOKEN" \
   -e "TT_DIT_CACHE_DIR=/home/container_app_user/cache_root/tt_dit_cache" \
   --volume volume_id_Wan-2.2:/home/container_app_user/cache_root \
-  ... <image> --model Wan-2.2-T2V-1.3B --tt-device p100
+  ... <image> --model Wan-2.2-T2V-1.3B --device p100
 ```
 
 ---
@@ -719,7 +724,7 @@ sudo chown 1000 ~/tt-cache
 
 python3 run.py \
   --model Llama-3.1-8B-Instruct \
-  --tt-device n150 \
+  --device n150 \
   --workflow server \
   --docker-server \
   --no-auth \
@@ -731,7 +736,7 @@ it within the bound directory:
 
 ```bash
 TT_DIT_CACHE_DIR=~/tt-cache/tt_dit_cache \
-python3 run.py --model Wan-2.2-T2V-1.3B --tt-device p100 \
+python3 run.py --model Wan-2.2-T2V-1.3B --device p100 \
   --workflow server --docker-server --no-auth \
   --host-volume ~/tt-cache
 ```
@@ -745,7 +750,7 @@ check for updates. Disable this to cut several seconds off every startup:
 
 ```bash
 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
-python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 \
+python3 run.py --model Llama-3.1-8B-Instruct --device n150 \
   --workflow server --docker-server --no-auth
 ```
 
@@ -763,7 +768,7 @@ docker run \
   -e "HF_TOKEN=$HF_TOKEN" \
   -e "HF_HUB_OFFLINE=1" \
   -e "TRANSFORMERS_OFFLINE=1" \
-  ... <image> --model Llama-3.1-8B-Instruct --tt-device n150
+  ... <image> --model Llama-3.1-8B-Instruct --device n150
 ```
 
 > **Note:** Set these only after the model is fully downloaded. With
@@ -793,7 +798,7 @@ unless overridden. Point `TT_DIT_CACHE_DIR` at a shared path if you want
 
 ```bash
 TT_DIT_CACHE_DIR=~/tt-cache/tt_dit_cache \
-python3 run.py --model Wan-2.2-T2V-1.3B --tt-device p100 \
+python3 run.py --model Wan-2.2-T2V-1.3B --device p100 \
   --workflow server --local-server \
   --tt-metal-home /opt/tt-metal
 ```
@@ -849,5 +854,5 @@ high-speed fabric.
 ## Next Steps
 
 - [vLLM Production →](command:tenstorrent.lesson.show?["vllm-production"]) — run vLLM directly without the workflow wrapper
-- [VSCode Chat →](command:tenstorrent.lesson.show?["vscode-chat"]) — connect the inference server to the VSCode @tenstorrent chat participant
+- [Launch Software →](command:tenstorrent.lesson.show?["launch-software"]) — connect a chat window or a coding agent to this server with `tt launch`
 - [TT-Inference-Server docs](https://github.com/tenstorrent/tt-inference-server/blob/main/docs/workflows_user_guide.md) — full CLI reference

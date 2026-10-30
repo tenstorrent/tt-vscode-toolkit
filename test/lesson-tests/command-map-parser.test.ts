@@ -240,3 +240,20 @@ describe('command-map parser', () => {
     });
   });
 });
+
+describe('command-map-parser: comments cannot start a function match', () => {
+  it('does not let the word "function" in a comment swallow the next handler', () => {
+    // Regression: "One function per command so ..." in a comment bound LAUNCH_LIST to the
+    // bogus name "per", leaving launch.list with no command text on the docs site.
+    const extSrc = [
+      '// One function per command so the docs-site map can pair each id with its template.',
+      'function launchList(): void {',
+      '  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_LIST.template);',
+      '}',
+      "vscode.commands.registerCommand('tenstorrent.launch.list', launchList),",
+    ].join('\n');
+    const tcSrc = "export const TERMINAL_COMMANDS = {\n  LAUNCH_LIST: {\n    id: 'launch-list',\n    name: 'What can connect',\n    template: 'tt launch list',\n  },\n};\n";
+    const map = buildCommandMap(tcSrc, extSrc);
+    expect(map["__ext__launch.list"]).to.equal("tt launch list");
+  });
+});

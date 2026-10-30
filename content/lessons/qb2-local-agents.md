@@ -120,6 +120,8 @@ tt-smi -s | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'{len(d[
 
 [Run Hardware Detection](command:tenstorrent.setup.hardwareDetection)
 
+The button opens `tt-smi`'s own view; the one-liner above prints just the count.
+
 ---
 
 ## Step 1: Start the Inference Server

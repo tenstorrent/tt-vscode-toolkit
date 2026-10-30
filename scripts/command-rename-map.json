@@ -1,6 +1,5 @@
 {
   "_comment": "Old command id -> namespaced id (tenstorrent.<feature>.<action>). Applied once by scripts/rename-commands.js on 2026-10-29; kept for the record. Hard cut: no aliases.",
-
   "tenstorrent.showLesson": "tenstorrent.lesson.show",
   "tenstorrent.refreshLessons": "tenstorrent.lesson.refresh",
   "tenstorrent.filterLessons": "tenstorrent.lesson.filter",
@@ -13,11 +12,9 @@
   "tenstorrent.openWalkthrough": "tenstorrent.lesson.walkthrough",
   "tenstorrent.resetProgress": "tenstorrent.lesson.resetProgress",
   "tenstorrent.showTelemetryDetails": "tenstorrent.lesson.telemetryDetails",
-
   "tenstorrent.showTensixViz": "tenstorrent.viz.tensix",
   "tenstorrent.showVisualization": "tenstorrent.viz.show",
   "tenstorrent.runInCloudSimulator": "tenstorrent.viz.runInCloudSimulator",
-
   "tenstorrent.runQuickInstall": "tenstorrent.setup.quickInstall",
   "tenstorrent.downloadInstaller": "tenstorrent.setup.downloadInstaller",
   "tenstorrent.runInteractiveInstall": "tenstorrent.setup.interactiveInstall",
@@ -30,7 +27,6 @@
   "tenstorrent.showDeviceActions": "tenstorrent.setup.deviceActions",
   "tenstorrent.selectPythonEnvironment": "tenstorrent.setup.selectPythonEnvironment",
   "tenstorrent.refreshEnvironmentStatus": "tenstorrent.setup.refreshEnvironmentStatus",
-
   "tenstorrent.setHuggingFaceToken": "tenstorrent.model.setHfToken",
   "tenstorrent.loginHuggingFace": "tenstorrent.model.login",
   "tenstorrent.downloadModel": "tenstorrent.model.download",
@@ -41,7 +37,6 @@
   "tenstorrent.createChatScriptDirect": "tenstorrent.model.createChatScriptDirect",
   "tenstorrent.startChatSessionDirect": "tenstorrent.model.startChatSessionDirect",
   "tenstorrent.browseModelZoo": "tenstorrent.model.browseZoo",
-
   "tenstorrent.createApiServer": "tenstorrent.apps.createApiServer",
   "tenstorrent.installFlask": "tenstorrent.apps.installFlask",
   "tenstorrent.startApiServer": "tenstorrent.apps.startApiServer",
@@ -51,7 +46,6 @@
   "tenstorrent.startApiServerDirect": "tenstorrent.apps.startApiServerDirect",
   "tenstorrent.testApiBasicDirect": "tenstorrent.apps.testApiBasicDirect",
   "tenstorrent.testApiMultipleDirect": "tenstorrent.apps.testApiMultipleDirect",
-
   "tenstorrent.verifyInferenceServerPrereqs": "tenstorrent.inferenceServer.verifyPrereqs",
   "tenstorrent.startTtInferenceServer": "tenstorrent.inferenceServer.start",
   "tenstorrent.startTtInferenceServerN150": "tenstorrent.inferenceServer.startN150",
@@ -61,7 +55,6 @@
   "tenstorrent.testTtInferenceServerSampling": "tenstorrent.inferenceServer.testSampling",
   "tenstorrent.createTtInferenceServerClient": "tenstorrent.inferenceServer.createClient",
   "tenstorrent.createTtInferenceServerConfig": "tenstorrent.inferenceServer.createConfig",
-
   "tenstorrent.cloneVllm": "tenstorrent.vllm.clone",
   "tenstorrent.installVllm": "tenstorrent.vllm.install",
   "tenstorrent.startVllmServer": "tenstorrent.vllm.start",
@@ -70,7 +63,6 @@
   "tenstorrent.testVllmCurl": "tenstorrent.vllm.testCurl",
   "tenstorrent.createVllmStarter": "tenstorrent.vllm.createStarter",
   "tenstorrent.installAllScripts": "tenstorrent.vllm.installAllScripts",
-
   "tenstorrent.cloneTTMetal": "tenstorrent.metal.clone",
   "tenstorrent.setupEnvironment": "tenstorrent.metal.setupEnvironment",
   "tenstorrent.updateTTMetal": "tenstorrent.metal.update",
@@ -80,7 +72,6 @@
   "tenstorrent.runRiscvExample": "tenstorrent.metal.runRiscvExample",
   "tenstorrent.openRiscvKernel": "tenstorrent.metal.openRiscvKernel",
   "tenstorrent.openRiscvGuide": "tenstorrent.metal.openRiscvGuide",
-
   "tenstorrent.buildForgeFromSource": "tenstorrent.forge.buildFromSource",
   "tenstorrent.installForge": "tenstorrent.forge.install",
   "tenstorrent.testForgeInstall": "tenstorrent.forge.testInstall",
@@ -88,17 +79,14 @@
   "tenstorrent.runForgeClassifier": "tenstorrent.forge.runClassifier",
   "tenstorrent.activateForgeEnv": "tenstorrent.forge.activateEnv",
   "tenstorrent.verifyForgeStack": "tenstorrent.forge.verifyStack",
-
   "tenstorrent.installTtXla": "tenstorrent.xla.install",
   "tenstorrent.testTtXlaInstall": "tenstorrent.xla.testInstall",
   "tenstorrent.runTtXlaDemo": "tenstorrent.xla.runDemo",
   "tenstorrent.runJaxQuickstart": "tenstorrent.xla.runJaxQuickstart",
   "tenstorrent.runJaxPmapDemo": "tenstorrent.xla.runJaxPmapDemo",
   "tenstorrent.runPytorchXlaDemo": "tenstorrent.xla.runPytorchDemo",
-
   "tenstorrent.setupTtsim": "tenstorrent.ttsim.setup",
   "tenstorrent.runTtsimAttention": "tenstorrent.ttsim.runAttention",
-
   "tenstorrent.createCookbookProjects": "tenstorrent.cookbook.createProjects",
   "tenstorrent.runGameOfLife": "tenstorrent.cookbook.gameOfLife",
   "tenstorrent.runGameOfLifeGlider": "tenstorrent.cookbook.gameOfLifeGlider",
@@ -109,12 +97,9 @@
   "tenstorrent.runImageFilters": "tenstorrent.cookbook.imageFilters",
   "tenstorrent.createParticleLife": "tenstorrent.cookbook.createParticleLife",
   "tenstorrent.runParticleLife": "tenstorrent.cookbook.particleLife",
-
   "tenstorrent.llmFromScratch.createProject": "tenstorrent.lfs.createProject",
-
   "tenstorrent.installTtTrain": "tenstorrent.training.installTtTrain",
   "tenstorrent.trainFromScratch": "tenstorrent.training.trainFromScratch",
-
   "tenstorrent.verifyCodingModel": "tenstorrent.launch.verifyCodingModel",
   "tenstorrent.createCodingAssistantScript": "tenstorrent.launch.createCodingAssistantScript",
   "tenstorrent.startCodingAssistant": "tenstorrent.launch.startCodingAssistant",
@@ -130,7 +115,6 @@
   "tenstorrent.runDungeonMaster": "tenstorrent.launch.runDungeonMaster",
   "tenstorrent.runStoryboardPipeline": "tenstorrent.launch.runStoryboardPipeline",
   "tenstorrent.runLandscapeSvg": "tenstorrent.launch.runLandscapeSvg",
-
   "tenstorrent.generateRetroImage": "tenstorrent.apps.generateRetroImage",
   "tenstorrent.startInteractiveImageGen": "tenstorrent.apps.startInteractiveImageGen",
   "tenstorrent.copyImageGenDemo": "tenstorrent.apps.copyImageGenDemo",
@@ -147,7 +131,45 @@
   "tenstorrent.setupAnimateDiffProject": "tenstorrent.apps.setupAnimateDiffProject",
   "tenstorrent.runAnimateDiff2Frame": "tenstorrent.apps.runAnimateDiff2Frame",
   "tenstorrent.runAnimateDiff16Frame": "tenstorrent.apps.runAnimateDiff16Frame",
-
   "tenstorrent.browseOpenBounties": "tenstorrent.bounty.browseOpen",
-  "tenstorrent.copyBountyChecklist": "tenstorrent.bounty.copyChecklist"
+  "tenstorrent.copyBountyChecklist": "tenstorrent.bounty.copyChecklist",
+  "_removed_after_rename": {
+    "_comment": "Targets below were deleted in later commits on the same branch (lesson rewrites in 0.1.33-0.1.40). A key bound to one of these has no replacement; the lesson it served now uses a tt command, see CHANGELOG.",
+    "ids": [
+      "tenstorrent.apps.createApiServer",
+      "tenstorrent.apps.createApiServerDirect",
+      "tenstorrent.apps.installFlask",
+      "tenstorrent.apps.startApiServer",
+      "tenstorrent.apps.startApiServerDirect",
+      "tenstorrent.apps.testApiBasic",
+      "tenstorrent.apps.testApiBasicDirect",
+      "tenstorrent.apps.testApiMultiple",
+      "tenstorrent.apps.testApiMultipleDirect",
+      "tenstorrent.launch.createCodingAssistantScript",
+      "tenstorrent.launch.startCodingAssistant",
+      "tenstorrent.launch.startQb2AgentsServerLlama",
+      "tenstorrent.launch.startQb2AgentsServerQwen",
+      "tenstorrent.launch.verifyCodingModel",
+      "tenstorrent.model.createChatScript",
+      "tenstorrent.model.createChatScriptDirect",
+      "tenstorrent.model.download",
+      "tenstorrent.model.installInferenceDeps",
+      "tenstorrent.model.runInference",
+      "tenstorrent.model.startChatSession",
+      "tenstorrent.model.startChatSessionDirect",
+      "tenstorrent.setup.downloadInstaller",
+      "tenstorrent.setup.interactiveInstall",
+      "tenstorrent.setup.nonInteractiveInstall",
+      "tenstorrent.setup.quickInstall",
+      "tenstorrent.setup.testMetaliumContainer",
+      "tenstorrent.vllm.install",
+      "tenstorrent.vllm.installAllScripts",
+      "tenstorrent.vllm.start"
+    ]
+  },
+  "tenstorrent.runVllmOffline": null,
+  "tenstorrent.startVllmServerN150": null,
+  "tenstorrent.startVllmServerN300": null,
+  "tenstorrent.startVllmServerT3K": null,
+  "tenstorrent.startVllmServerP100": null
 }

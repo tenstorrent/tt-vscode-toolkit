@@ -66,7 +66,7 @@ tt update --dry-run
 Run this in your terminal:
 
 ```bash
-tt device status
+tt --version && tt device status
 ```
 
 [🔍 Device status](command:tenstorrent.setup.deviceStatus)

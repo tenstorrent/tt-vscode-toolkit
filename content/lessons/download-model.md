@@ -136,8 +136,8 @@ own token.
 > are published by their owners. Tenstorrent does not test or maintain them, and a bundle
 > can run code and download weights you have not looked at. Read `tt model info` and the
 > author's page before you pull one, and do not point one at data you would not trust to
-> a stranger's software. Compatibility checks catch a wrong chip architecture, not a bad or
-> unsafe model.
+> a stranger's software. The compatibility check only confirms the chip architecture; it says
+> nothing about whether the model is safe.
 
 To browse instead of search, the
 [tt-awesome model browser](https://docs.tenstorrent.com/tt-awesome/models/) lists every

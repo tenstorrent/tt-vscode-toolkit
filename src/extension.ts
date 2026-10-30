@@ -472,7 +472,7 @@ function vllmCurlCloud(): void {
   runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.VLLM_CURL_CLOUD.template);
 }
 
-// ---- Connect Software: tt launch (launch-software lesson). One function per command so
+// ---- Connect Software: tt launch (launch-software lesson). One handler per command so
 // the docs-site command map can pair each id with its template. ----
 function launchList(): void {
   runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_LIST.template);

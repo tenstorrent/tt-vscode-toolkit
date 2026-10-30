@@ -104,7 +104,7 @@ the commands to look at logs and stop the model.
 To watch the raw server log while it boots, run this in a second terminal:
 
 ```bash
-tt model logs Llama-3.1-8B-Instruct --follow
+tt model logs                  # names the model when more than one is running --follow
 ```
 
 Pressing Ctrl-C in the `tt serve` terminal stops *watching*. The server is a separate
@@ -186,7 +186,7 @@ running and not answering yet. Keep the model running for the Connect Software l
 When you are finished with it:
 
 ```bash
-tt model stop Llama-3.1-8B-Instruct
+tt model stop                  # names the model when more than one is running
 ```
 
 [⏹ Stop the model](command:tenstorrent.model.stop)

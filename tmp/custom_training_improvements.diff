@@ -1,0 +1,360 @@
+diff --git a/content/templates/training/data/preprocess_shakespeare.py b/content/templates/training/data/preprocess_shakespeare.py
+new file mode 100644
+index 0000000..63f4a70
+--- /dev/null
++++ b/content/templates/training/data/preprocess_shakespeare.py
+@@ -0,0 +1,97 @@
++#!/usr/bin/env python3
++"""
++Preprocess Shakespeare text files into PyTorch tensors for training.
++Converts shakespeare_train.txt and shakespeare_val.txt into train.pt and val.pt
++
++Usage:
++    python preprocess_shakespeare.py
++"""
++
++import sys
++from pathlib import Path
++
++def create_tokenizer(text):
++    """Create character-level tokenizer"""
++    chars = sorted(list(set(text)))
++    vocab_size = len(chars)
++
++    stoi = {ch: i for i, ch in enumerate(chars)}
++    itos = {i: ch for i, ch in enumerate(chars)}
++
++    print(f"  Vocabulary size: {vocab_size} characters")
++    if len(chars) <= 30:
++        print(f"  Characters: {chars}")
++    else:
++        print(f"  Sample characters: {chars[:30]}...")
++
++    return vocab_size, stoi, itos
++
++def encode_text(text, stoi):
++    """Encode text to token IDs"""
++    return [stoi[c] for c in text]
++
++def main():
++    try:
++        import torch
++    except ImportError:
++        print("❌ Error: PyTorch not found")
++        print("   Fix: pip install torch")
++        sys.exit(1)
++
++    data_dir = Path(".")
++
++    # Check for input files
++    train_file = data_dir / "shakespeare_train.txt"
++    val_file = data_dir / "shakespeare_val.txt"
++
++    if not train_file.exists() or not val_file.exists():
++        print("❌ Error: shakespeare_train.txt or shakespeare_val.txt not found")
++        print("   Run: python prepare_shakespeare.py --output . --split")
++        sys.exit(1)
++
++    print("📖 Loading text files...")
++    train_text = train_file.read_text()
++    val_text = val_file.read_text()
++
++    print(f"  Train: {len(train_text):,} characters")
++    print(f"  Val: {len(val_text):,} characters")
++
++    print("\n🔤 Creating character-level tokenizer...")
++    vocab_size, stoi, itos = create_tokenizer(train_text)
++
++    print("\n🔢 Encoding text to token IDs...")
++    train_ids = encode_text(train_text, stoi)
++    val_ids = encode_text(val_text, stoi)
++
++    print(f"  Train: {len(train_ids):,} tokens")
++    print(f"  Val: {len(val_ids):,} tokens")
++
++    print("\n💾 Converting to PyTorch tensors...")
++    train_tensor = torch.tensor(train_ids, dtype=torch.long)
++    val_tensor = torch.tensor(val_ids, dtype=torch.long)
++
++    print(f"  Train tensor shape: {train_tensor.shape}")
++    print(f"  Val tensor shape: {val_tensor.shape}")
++
++    print("\n💾 Saving tensors...")
++    torch.save(train_tensor, data_dir / "train.pt")
++    torch.save(val_tensor, data_dir / "val.pt")
++
++    # Save tokenizer metadata
++    tokenizer = {
++        'vocab_size': vocab_size,
++        'stoi': stoi,
++        'itos': itos,
++    }
++    torch.save(tokenizer, data_dir / "tokenizer.pt")
++
++    print(f"  ✅ Saved train.pt ({train_tensor.numel():,} tokens)")
++    print(f"  ✅ Saved val.pt ({val_tensor.numel():,} tokens)")
++    print(f"  ✅ Saved tokenizer.pt (vocab_size={vocab_size})")
++
++    print("\n✅ Preprocessing complete!")
++    print(f"   Ready for training with {vocab_size} character vocabulary")
++    print("\n🚀 Next step: python train_from_scratch.py --config configs/nano_trickster.yaml")
++
++if __name__ == "__main__":
++    main()
+diff --git a/content/templates/training/setup_training_env.sh b/content/templates/training/setup_training_env.sh
+new file mode 100644
+index 0000000..f410b00
+--- /dev/null
++++ b/content/templates/training/setup_training_env.sh
+@@ -0,0 +1,58 @@
++#!/bin/bash
++#
++# Custom Training Environment Setup
++# Use for CT4-CT8 lessons
++#
++# This script sets up the environment for custom training on Tenstorrent hardware.
++# Run: source setup_training_env.sh
++#
++
++echo "🎭 Setting up Custom Training environment..."
++
++# Detect tt-metal installation
++if [ -z "$TT_METAL_HOME" ]; then
++    # Try common locations
++    if [ -d "$HOME/tt-metal" ]; then
++        export TT_METAL_HOME="$HOME/tt-metal"
++    elif [ -d "$HOME/tt-metal-v0.64.5" ]; then
++        export TT_METAL_HOME="$HOME/tt-metal-v0.64.5"
++    else
++        echo "❌ Error: TT_METAL_HOME not set and tt-metal not found in common locations"
++        echo "   Please set TT_METAL_HOME to your tt-metal installation directory"
++        return 1
++    fi
++fi
++
++# Set library paths
++export LD_LIBRARY_PATH="$TT_METAL_HOME/build/lib:$LD_LIBRARY_PATH"
++export PYTHONPATH="$TT_METAL_HOME:$PYTHONPATH"
++
++# Detect hardware (default to N150 if not set)
++if [ -z "$MESH_DEVICE" ]; then
++    export MESH_DEVICE=N150
++    echo "ℹ️  MESH_DEVICE not set, defaulting to N150"
++fi
++
++# Activate Python environment if it exists
++if [ -f "$TT_METAL_HOME/python_env/bin/activate" ]; then
++    source "$TT_METAL_HOME/python_env/bin/activate"
++else
++    echo "⚠️  Warning: python_env not found at $TT_METAL_HOME/python_env"
++fi
++
++echo ""
++echo "✅ Environment configured:"
++echo "   TT_METAL_HOME: $TT_METAL_HOME"
++echo "   MESH_DEVICE: $MESH_DEVICE"
++echo "   Python: $(which python)"
++echo ""
++
++# Verify critical imports
++echo "Verifying imports..."
++python -c "import ttml; print('   ✅ ttml')" 2>/dev/null || echo "   ❌ ttml (pip install may be needed)"
++python -c "import torch; print('   ✅ PyTorch')" 2>/dev/null || echo "   ❌ PyTorch"
++python -c "import transformers; print('   ✅ transformers')" 2>/dev/null || echo "   ⚠️  transformers (needed for CT4: pip install transformers)"
++
++echo ""
++echo "🚀 Ready for Custom Training lessons (CT4-CT8)!"
++echo "   Run: python test_training_startup.py (for full validation)"
+diff --git a/content/templates/training/test_training_startup.py b/content/templates/training/test_training_startup.py
+new file mode 100644
+index 0000000..7ff0b65
+--- /dev/null
++++ b/content/templates/training/test_training_startup.py
+@@ -0,0 +1,187 @@
++#!/usr/bin/env python3
++"""
++Custom Training Startup Validation
++Tests all prerequisites before running training.
++Use for CT4-CT8 lessons.
++
++Usage:
++    python test_training_startup.py [--config CONFIG_PATH] [--dataset DATASET_PATH]
++"""
++
++import sys
++import os
++from pathlib import Path
++
++def test_environment():
++    """Test environment variables"""
++    print("🔍 Testing environment variables...")
++
++    tt_metal_home = os.environ.get('TT_METAL_HOME')
++    if not tt_metal_home:
++        print("  ❌ TT_METAL_HOME not set")
++        print("     Run: source setup_training_env.sh")
++        return False
++
++    if not Path(tt_metal_home).exists():
++        print(f"  ❌ TT_METAL_HOME points to non-existent directory: {tt_metal_home}")
++        return False
++
++    print(f"  ✅ TT_METAL_HOME: {tt_metal_home}")
++
++    mesh_device = os.environ.get('MESH_DEVICE')
++    if mesh_device:
++        print(f"  ✅ MESH_DEVICE: {mesh_device}")
++    else:
++        print("  ⚠️  MESH_DEVICE not set (will default to N150)")
++
++    return True
++
++def test_imports():
++    """Test critical imports"""
++    print("\n🔍 Testing imports...")
++
++    all_ok = True
++
++    try:
++        import ttml
++        print("  ✅ ttml")
++    except ImportError as e:
++        print(f"  ❌ ttml: {e}")
++        print("     Fix: cd $TT_METAL_HOME/tt-train && pip install -e .")
++        all_ok = False
++
++    try:
++        import torch
++        print(f"  ✅ PyTorch {torch.__version__}")
++    except ImportError as e:
++        print(f"  ❌ PyTorch: {e}")
++        print("     Fix: pip install torch")
++        all_ok = False
++
++    try:
++        import transformers
++        print(f"  ✅ transformers {transformers.__version__}")
++    except ImportError:
++        print("  ⚠️  transformers not installed")
++        print("     Note: Required for CT4 fine-tuning")
++        print("     Fix: pip install transformers")
++        # Don't fail - only needed for CT4
++
++    try:
++        import yaml
++        print(f"  ✅ yaml")
++    except ImportError:
++        print("  ⚠️  yaml not installed")
++        print("     Fix: pip install pyyaml")
++
++    return all_ok
++
++def test_config(config_path="configs/trickster_n150.yaml"):
++    """Test config loading"""
++    if not Path(config_path).exists():
++        print(f"\n⚠️  Config {config_path} not found (skipping - OK if not using)")
++        return True
++
++    print(f"\n🔍 Testing config: {config_path}...")
++
++    try:
++        import yaml
++        with open(config_path) as f:
++            config = yaml.safe_load(f)
++
++        sections = len(config)
++        print(f"  ✅ Config loaded: {sections} sections")
++
++        # Check for expected sections
++        expected = ['training_config', 'model_config', 'device_config']
++        for section in expected:
++            if section in config:
++                print(f"     ✅ {section}")
++            else:
++                print(f"     ⚠️  {section} missing")
++
++        return True
++    except Exception as e:
++        print(f"  ❌ Config error: {e}")
++        return False
++
++def test_dataset(dataset_path="trickster_dataset_starter.jsonl"):
++    """Test dataset loading"""
++    if not Path(dataset_path).exists():
++        print(f"\n⚠️  Dataset {dataset_path} not found (skipping - OK if not using)")
++        return True
++
++    print(f"\n🔍 Testing dataset: {dataset_path}...")
++
++    try:
++        import json
++        with open(dataset_path) as f:
++            examples = [json.loads(line) for line in f]
++        print(f"  ✅ Dataset loaded: {len(examples)} examples")
++
++        # Validate format
++        if examples and isinstance(examples[0], dict):
++            keys = examples[0].keys()
++            print(f"     Keys: {list(keys)}")
++
++        return True
++    except Exception as e:
++        print(f"  ❌ Dataset error: {e}")
++        return False
++
++def test_library_conflicts():
++    """Test for common library conflicts"""
++    print("\n🔍 Testing for library conflicts...")
++
++    try:
++        # Check if pip-installed ttnn exists (conflicts with local build)
++        import subprocess
++        result = subprocess.run(
++            ['pip', 'list'],
++            capture_output=True,
++            text=True
++        )
++
++        if 'ttnn' in result.stdout:
++            print("  ⚠️  pip-installed 'ttnn' detected - may conflict with local tt-metal build")
++            print("     Fix: pip uninstall -y ttnn")
++            return False
++        else:
++            print("  ✅ No conflicting pip packages")
++            return True
++    except Exception:
++        print("  ⚠️  Could not check for conflicts")
++        return True
++
++def main():
++    import argparse
++    parser = argparse.ArgumentParser(description="Validate Custom Training prerequisites")
++    parser.add_argument("--config", default="configs/trickster_n150.yaml", help="Config file path")
++    parser.add_argument("--dataset", default="trickster_dataset_starter.jsonl", help="Dataset file path")
++    args = parser.parse_args()
++
++    print("=" * 60)
++    print("🎭 Custom Training Startup Validation")
++    print("=" * 60)
++
++    tests = [
++        test_environment(),
++        test_imports(),
++        test_library_conflicts(),
++        test_config(args.config),
++        test_dataset(args.dataset),
++    ]
++
++    print("\n" + "=" * 60)
++    if all(tests):
++        print("✅ All critical tests passed! Ready to train.")
++        print("\n🚀 Next steps:")
++        print("   CT4 Fine-tuning: python finetune_trickster.py --config configs/trickster_n150.yaml")
++        print("   CT8 From-scratch: python train_from_scratch.py --config configs/nano_trickster.yaml")
++        return 0
++    else:
++        print("❌ Some tests failed. Fix errors above before training.")
++        return 1
++
++if __name__ == "__main__":
++    sys.exit(main())

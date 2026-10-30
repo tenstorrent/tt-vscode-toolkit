@@ -73,8 +73,8 @@ installed, `ready` means it can launch now, and `stopped` is a web UI container 
 exists and is not running.
 
 On the cloud pod the same listing reads `needs docker or podman` for both web UIs and
-`needs qwen` / `needs hermes` for the agents that need Node.js. Aider is the one that
-installs there; it reads `ready` once `uv tool install aider-chat` has run (below).
+`needs qwen` / `needs hermes` for the agents that need Node.js. Aider installs there
+with `uv`; it reads `ready` once `uv tool install aider-chat` has run (below).
 
 ## Where the Model Comes From
 

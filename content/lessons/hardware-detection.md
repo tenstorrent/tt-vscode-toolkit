@@ -30,7 +30,7 @@ which `tt` runs for you, has the raw fields for when you are diagnosing.
 ## Ask `tt`
 
 ```bash
-tt device status
+tt --version && tt device status
 ```
 
 [🔍 Device status](command:tenstorrent.setup.deviceStatus)
