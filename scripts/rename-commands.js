@@ -28,6 +28,8 @@ const files = [
   'package.json',
   ...walk('src', ['.ts', '.js', '.html', '.css'], ['.bak']),
   ...walk('content', ['.md', '.html', '.json']),
+  // command-map-parser.test.ts holds synthetic extension.ts fixtures; their ids are test data.
+  ...walk('test', ['.ts', '.js'], ['command-map-parser.test.ts']),
 ];
 
 const escape = (s) => s.replace(/\./g, '\\.');

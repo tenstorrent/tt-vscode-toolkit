@@ -59,7 +59,7 @@ On the pod, `HF_HOME` is `~/models`, so the token and the weights both land ther
 source ~/tt-metal/build/python_env_vllm/bin/activate
 export PYTHONPATH=$HOME/tt-metal/tools:$HOME/tt-metal/ttnn:$PYTHONPATH
 MESH_DEVICE=N150 HF_MODEL=meta-llama/Llama-3.1-8B-Instruct \
-  vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --max-num-seqs 32 --block-size 64 --port 20000
+  vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --max-num-seqs 32 --block-size 64 --host 127.0.0.1 --port 20000
 ```
 
 [🚀 Serve Llama-3.1-8B-Instruct (vLLM, no container)](command:tenstorrent.vllm.serveCloudN150)
@@ -78,17 +78,18 @@ vLLM default of 256 sequences is refused on Tenstorrent hardware.
 
 `MESH_DEVICE` names the board the plugin should open: `N150` on the pod, `N300`, `T3K`,
 `P100`, `P150` and so on elsewhere. `--max-model-len 32768` is the plugin's documented
-setting for Llama 3.1 8B on an n150. `--port 20000` matches `tt serve`, so the Connect
-Software lessons find it in the same place.
+setting for Llama 3.1 8B on an n150. `--host 127.0.0.1 --port 20000` matches where `tt serve`
+puts a model, so the Connect Software lessons find it in the same place.
 
 The first run downloads the weights (16 GB) and compiles the kernels for your chip; both
 are cached, so the next start is minutes. The server is ready when the log says
 `Application startup complete` and `Uvicorn running on http://0.0.0.0:20000`.
 
-> **⚠️ The endpoint has no password**, and `vllm serve` binds every interface by default.
-> Add `--host 127.0.0.1` to keep it on the pod, or set `--api-key` to require a key. On
-> the pod the only route in is the pod's own network, which is yours; treat any other host
-> with the same care as in [Serve a Model](command:tenstorrent.lesson.show?["interactive-chat"]).
+> **⚠️ The endpoint has no password.** `--host 127.0.0.1` keeps it on this machine, which
+> is where `tt launch` and the Connect Software lessons reach it. Without that flag
+> `vllm serve` binds every interface. If another machine must reach it, set `--api-key`
+> to require a key and treat the host with the same care as in
+> [Serve a Model](command:tenstorrent.lesson.show?["interactive-chat"]).
 
 ## Ask It a Question
 

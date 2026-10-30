@@ -38,3 +38,4 @@ styles/Google/
 # here so local runs stop re-committing them.
 generated/
 
+tmp/
