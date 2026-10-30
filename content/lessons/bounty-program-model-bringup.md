@@ -5,7 +5,7 @@ description: >-
   Learn how to contribute to the Tenstorrent Bounty Program by bringing up new
   models. Master TT-Metalium while becoming part of the open source ecosystem. Uses
   the successful Phi-3 contribution as a case study.
-category: advanced
+category: deeper
 tags:
   - model
 supportedHardware:
@@ -20,6 +20,9 @@ estimatedMinutes: 10
 ---
 
 # Bounty Program: Model Bring-Up from Scratch
+
+Every model `tt serve` can run was first brought up in tt-metal by someone.
+This is that work.
 
 Learn how to tackle open bounties in the **Tenstorrent Bounty Program** by bringing up a new model on TT hardware. We'll use the successful **Phi-3-mini-128k-instruct** bounty (Issue #19416) as a real-world case study.
 
@@ -827,9 +830,9 @@ Response: "Good point! Updated to support all Phi-3 variants (3.5, 4) with long_
 
 Ready to make your first contribution? Try the hands-on example:
 
-[🚀 Browse Open Bounties on GitHub](command:tenstorrent.browseOpenBounties)
+[🚀 Browse Open Bounties on GitHub](command:tenstorrent.bounty.browseOpen)
 
-[📋 Copy Bounty Workflow Checklist](command:tenstorrent.copyBountyChecklist)
+[📋 Copy Bounty Workflow Checklist](command:tenstorrent.bounty.copyChecklist)
 
 ---
 

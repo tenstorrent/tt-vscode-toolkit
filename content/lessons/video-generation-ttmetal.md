@@ -4,7 +4,7 @@ title: Video Generation via Frame-by-Frame Diffusion
 description: >-
   Create videos by generating frames with Stable Diffusion on Tenstorrent hardware.
   Demonstrates hardware scaling from n150 to T3000 - same code, faster performance!
-category: serving
+category: serve
 tags:
   - hardware
   - video
@@ -25,6 +25,21 @@ estimatedMinutes: 60
 
 # Video Generation via Frame-by-Frame Diffusion
 
+## Serve It with `tt`
+
+A native video model is in the catalog for the larger boards:
+
+```bash
+tt model list --catalog --type video
+```
+
+On a TT-QuietBox 2 that lists `Wan2.2-T2V-A14B-Diffusers` (`p150x4`, `p300x2`), and
+`tt serve Wan2.2-T2V-A14B-Diffusers` runs it (needs Docker). No video model has an n150
+profile, so on a single chip, and on the cloud pod, the frame-by-frame route below is the
+one that works.
+
+## Go Deeper: Frame by Frame from the Source Tree
+
 ## The Idea
 
 **Generate video one frame at a time, then stitch with ffmpeg.**
@@ -40,7 +55,7 @@ pass. A handful of carefully worded prompts becomes a short film.
 - **T3000 (8 chips)**: same code, passes more context in parallel
 
 **Requires `~/tt-metal` built from source.** If you don't have that yet, see
-[Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+[Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) first.
 
 ---
 
@@ -73,7 +88,7 @@ sudo apt-get install -y ffmpeg
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 export TT_METAL_HOME=~/tt-metal
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 cd ~/tt-metal
@@ -85,7 +100,7 @@ cd ~/tt-metal
 > mount and is removed on `exit`, so the model/HF caches this lesson builds up
 > across steps, the `prompts.json` you write, and the frames it generates
 > would all vanish or never be visible to begin with. Build tt-metal from
-> source first — see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) —
+> source first — see [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) —
 > then follow this lesson as written.
 
 **For p100 / p300c (Blackhole):**
@@ -318,7 +333,7 @@ tt-smi -r   # Reset device
 ```bash
 # Re-activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH
 ```
 
@@ -354,8 +369,8 @@ Rename already-completed frames before re-running to preserve them.
 ## What's Next?
 
 - **AnimateDiff** — For native video animation with temporal consistency between frames:
-  [Native Video Animation with AnimateDiff](command:tenstorrent.showLesson?["animatediff-video-generation"])
+  [Native Video Animation with AnimateDiff](command:tenstorrent.lesson.show?["animatediff-video-generation"])
 - **Image Generation** — Single image generation with Stable Diffusion:
-  [Image Generation](command:tenstorrent.showLesson?["image-generation"])
+  [Image Generation](command:tenstorrent.lesson.show?["image-generation"])
 - **Explore Metalium** — Understand the architecture running under these demos:
-  [Exploring TT-Metalium](command:tenstorrent.showLesson?["explore-metalium"])
+  [Exploring TT-Metalium](command:tenstorrent.lesson.show?["explore-metalium"])

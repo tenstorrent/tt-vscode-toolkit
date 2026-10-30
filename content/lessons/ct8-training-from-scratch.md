@@ -32,7 +32,7 @@ minTTMetalVersion: v0.73.1
 
 Every other lesson in this track hands `train_nanogpt.py` a checkpoint to load. This one doesn't hand it anything — you launch a job that starts from **random weights** and watch it become a model, entirely from the numbers a loss curve prints to your terminal.
 
-That's the whole job: pick a config, launch it, watch the loss, checkpoint along the way, generate from a checkpoint, and know how to scale the next run up. This lesson does **not** ask you to hand-write a transformer's internals — [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) already toured what `num_heads`, `embedding_dim`, `num_blocks`, and `theta` mean conceptually. If you want to write RoPE, grouped-query attention, and a SwiGLU block yourself instead of pointing `ttml` at a YAML file, that's a different track entirely — see **Build It Yourself** near the end.
+That's the whole job: pick a config, launch it, watch the loss, checkpoint along the way, generate from a checkpoint, and know how to scale the next run up. This lesson does **not** ask you to hand-write a transformer's internals — [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"]) already toured what `num_heads`, `embedding_dim`, `num_blocks`, and `theta` mean conceptually. If you want to write RoPE, grouped-query attention, and a SwiGLU block yourself instead of pointing `ttml` at a YAML file, that's a different track entirely — see **Build It Yourself** near the end.
 
 Every number below — the loss curve, the wall-clock time, the generated text — is copied verbatim from a real training run against this extension's verified `ttml` build, on a Blackhole<sup>®</sup> p300c. Nothing here is projected, and nothing here overclaims what the output actually reads like.
 
@@ -44,7 +44,7 @@ Every number below — the loss curve, the wall-clock time, the generated text �
 - The overfitting lesson this run demonstrates: a much lower loss did **not** buy more readable text than a smaller, less-trained run already produced
 - Scaling a job three ways — more steps, a bigger model config, more data — and the `mesh_shape` boundary where a single chip stops being enough
 
-**Time:** 25-30 minutes (5-10 min hands-on, ~3.5 min hardware run) | **Prerequisites:** [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) and [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"])
+**Time:** 25-30 minutes (5-10 min hands-on, ~3.5 min hardware run) | **Prerequisites:** [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"]) and [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"])
 
 ---
 
@@ -67,7 +67,7 @@ graph LR
 
 ## Set Up the Job
 
-Same `ttml` build every other lesson in this track uses. If you haven't built it, [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) covers the **Install tt-train** command and the `std::bad_cast` fix in full — this lesson assumes that's done.
+Same `ttml` build every other lesson in this track uses. If you haven't built it, [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) covers the **Install tt-train** command and the `std::bad_cast` fix in full — this lesson assumes that's done.
 
 Set your environment honoring any value you've already exported, rather than overwriting it:
 
@@ -80,13 +80,13 @@ export TT_LOGGER_LEVEL=FATAL
 cd ~/tt-metal/tt-train/sources/examples/nano_gpt
 ```
 
-You'll need a Shakespeare corpus — either the one you built in [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"]), or the copy `tt-metal` ships at `tt-train/data/shakespeare.txt`, which is what the run below actually used.
+You'll need a Shakespeare corpus — either the one you built in [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"]), or the copy `tt-metal` ships at `tt-train/data/shakespeare.txt`, which is what the run below actually used.
 
 ---
 
 ## Launch: the `nanollama3_char` Config
 
-`tt-train/configs/model_configs/` ships two architecture families for this size of job: `nanogpt*` (GPT-2-style — LayerNorm, learned position embeddings, plain multi-head attention) and `nanollama3*` (Llama-3-style — RoPE, RMSNorm, SwiGLU, grouped-query attention). [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) ran the GPT-2-style config. This lesson features the modern one — `nanollama3_char` — because it's the exact architecture the from-scratch arc builds by hand, component by component (see **Build It Yourself** below).
+`tt-train/configs/model_configs/` ships two architecture families for this size of job: `nanogpt*` (GPT-2-style — LayerNorm, learned position embeddings, plain multi-head attention) and `nanollama3*` (Llama-3-style — RoPE, RMSNorm, SwiGLU, grouped-query attention). [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) ran the GPT-2-style config. This lesson features the modern one — `nanollama3_char` — because it's the exact architecture the from-scratch arc builds by hand, component by component (see **Build It Yourself** below).
 
 The shapes that matter, quoted from the real files in `tt-train/configs/`:
 
@@ -116,7 +116,7 @@ python train_nanogpt.py \
 
 **Before committing to the full 3,000-step run:** sanity-check your setup with a much shorter smoke test — just swap `--max_steps 3000` for `--max_steps 20`. On this hardware that finishes in about 14 seconds, plenty to confirm the config loads, the data path resolves, and the device initializes. It still pays the one-time kernel-compile cost on step 1, same as the full run — a smoke test skips steps, not the compile tax.
 
-`--fresh` matters: it says "ignore any existing checkpoint at this path, start from random initialization." That's the entire meaning of "from scratch" — everything else in this command is the same job-launching mechanic [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) already used.
+`--fresh` matters: it says "ignore any existing checkpoint at this path, start from random initialization." That's the entire meaning of "from scratch" — everything else in this command is the same job-launching mechanic [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) already used.
 
 ---
 
@@ -134,7 +134,7 @@ This ran on this extension's Blackhole p300c, against tt-metal v0.73. Total wall
 | 2500 | 0.2891 | `ct8_nanollama3_step_2500.pkl` |
 | 3000 (final) | 0.1836 | `ct8_nanollama3_final.pkl` |
 
-Loss `4.6875` at step 1 sits close to `ln(96)` ≈ 4.56 — the entropy of guessing uniformly among 96 possible next characters. That's the honest random baseline. By step 3000 that error is down to `0.18`, a much steeper drop than [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])'s GPT-2-style run saw over the same 3000 steps (loss `1.406`, on the same corpus and step budget). `model_save_interval: 500` is why a checkpoint lands every 500 steps automatically — the table above is what actually appeared on disk, no extra flag required.
+Loss `4.6875` at step 1 sits close to `ln(96)` ≈ 4.56 — the entropy of guessing uniformly among 96 possible next characters. That's the honest random baseline. By step 3000 that error is down to `0.18`, a much steeper drop than [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])'s GPT-2-style run saw over the same 3000 steps (loss `1.406`, on the same corpus and step budget). `model_save_interval: 500` is why a checkpoint lands every 500 steps automatically — the table above is what actually appeared on disk, no extra flag required.
 
 ---
 
@@ -163,17 +163,17 @@ From the cause of thy bestray'd the death,
 Must I that had body t
 ```
 
-Read this for what it is. There's real **structure**: an ALL-CAPS speaker name (`LAGENIAYO:`) followed by a colon, line breaks, dialogue layout, an apostrophe used correctly (`submiss'd`, `bestray'd`). There's a genuine **mix of real and invented words** — "the," "there," "in," "we," "should," "sun," "thou," "must," "that," "from," "cause," "death" are real; "etwaiynwiyounismanot," "priscian," "racom," "stiffot," "bestray'd" are not. **This is not coherent Shakespeare, and it is not correct grammar.** It's the same class of output [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])'s GPT-2-style run produced at loss 1.406 — structure and a scattering of real words, no more.
+Read this for what it is. There's real **structure**: an ALL-CAPS speaker name (`LAGENIAYO:`) followed by a colon, line breaks, dialogue layout, an apostrophe used correctly (`submiss'd`, `bestray'd`). There's a genuine **mix of real and invented words** — "the," "there," "in," "we," "should," "sun," "thou," "must," "that," "from," "cause," "death" are real; "etwaiynwiyounismanot," "priscian," "racom," "stiffot," "bestray'd" are not. **This is not coherent Shakespeare, and it is not correct grammar.** It's the same class of output [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])'s GPT-2-style run produced at loss 1.406 — structure and a scattering of real words, no more.
 
 ---
 
 ## The Overfitting Lesson
 
-Here's the part worth sitting with: this run drove loss to **0.18** — nearly eight times lower than [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])'s `1.406`. If loss were the whole story, this output should read dramatically more coherent. It doesn't. Both runs land in the same tier: recognizable structure, a handful of real words, mostly invented syllables.
+Here's the part worth sitting with: this run drove loss to **0.18** — nearly eight times lower than [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])'s `1.406`. If loss were the whole story, this output should read dramatically more coherent. It doesn't. Both runs land in the same tier: recognizable structure, a handful of real words, mostly invented syllables.
 
 That gap between "loss went way down" and "text didn't get more readable" **is** the lesson. `tt-train/data/shakespeare.txt` is about one megabyte of text. A 9.8M-parameter model has more than enough capacity to start memorizing that corpus's exact character sequences well before it has enough exposure to learn general English structure from them. Driving train loss to 0.18 on a dataset this small is **overfitting**, not mastery — the model is increasingly good at predicting *this specific text*, not increasingly good at *language*. Low loss on a tiny corpus is not a proxy for coherent output, and this run is the concrete evidence: a much lower loss bought no visible improvement in readability.
 
-Real coherence needs scale, not just more steps against the same small file. [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) — the from-scratch arc lab that builds this exact `nanollama3` architecture by hand — makes the same comparison against [Mini-LLM](https://github.com/Ashx098/Mini-LLM), the project this whole from-scratch design follows: **~80M parameters, 361M training tokens, ~5 hours on a single A100**, to get language that actually reads as language. Nine million parameters and one megabyte of characters, however low you push the loss, isn't that project — it's a controlled demonstration that the training mechanism works.
+Real coherence needs scale, not just more steps against the same small file. [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]) — the from-scratch arc lab that builds this exact `nanollama3` architecture by hand — makes the same comparison against [Mini-LLM](https://github.com/Ashx098/Mini-LLM), the project this whole from-scratch design follows: **~80M parameters, 361M training tokens, ~5 hours on a single A100**, to get language that actually reads as language. Nine million parameters and one megabyte of characters, however low you push the loss, isn't that project — it's a controlled demonstration that the training mechanism works.
 
 ---
 
@@ -183,22 +183,22 @@ Three independent knobs, each with a real config to point at:
 
 **More steps.** The featured config's own default is `max_steps: 5000`, not the 3000 this lesson ran — try it, but expect the same overfitting ceiling above, not qualitatively better prose, on this same corpus.
 
-**A bigger model.** `tt-train/configs/model_configs/` ships larger `llama`-family configs on the same architecture family — `nanollama3.yaml` (same 6-head/6-block shape, but a real 32,000-token BPE vocabulary instead of characters) and `llama3_gpt2s_size.yaml` (12 heads, 12 blocks, `embedding_dim: 768`, GPT-2-small-sized). Point `--config` at a training config referencing one of these via its `model_config:` field — every `transformer_config:` field maps to the concepts [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) covers, and to the DRAM math [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"]) works through for scaling toward Mini-LLM's ~80M-parameter target.
+**A bigger model.** `tt-train/configs/model_configs/` ships larger `llama`-family configs on the same architecture family — `nanollama3.yaml` (same 6-head/6-block shape, but a real 32,000-token BPE vocabulary instead of characters) and `llama3_gpt2s_size.yaml` (12 heads, 12 blocks, `embedding_dim: 768`, GPT-2-small-sized). Point `--config` at a training config referencing one of these via its `model_config:` field — every `transformer_config:` field maps to the concepts [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"]) covers, and to the DRAM math [The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"]) works through for scaling toward Mini-LLM's ~80M-parameter target.
 
-**More data.** Swap `--data_path` for a larger plain-text corpus — `train_nanogpt.py` takes any text file, not just Shakespeare. [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"]) covers building one.
+**More data.** Swap `--data_path` for a larger plain-text corpus — `train_nanogpt.py` takes any text file, not just Shakespeare. [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"]) covers building one.
 
-**The `mesh_shape` boundary.** Every config above still runs on a single chip (`mesh_shape: [1, 1]`, the default) — p300c, p100, or n150, and everything in the nano-to-~80M range fits comfortably in one chip's DRAM. But you don't *have* to stay on one chip: a **TT-QuietBox<sup>®</sup> 2 is a mesh** — four Blackhole chips wired in a `P300_X2` ring (a 2×2 mesh), not four independent chips — and data-parallel training across them scales near-linearly (measured ~1.95× on 2 chips, ~3.98× on 4). `tt-train` ships multi-chip examples (`training_shakespeare_nanogpt_ddp_n300.yaml` sets `enable_ddp: true`, `mesh_shape: [1, 2]`), and **[Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]) is now hardware-verified on a TT-QuietBox 2** — including the one non-obvious catch (you must set `TT_MESH_GRAPH_DESC_PATH` for 2/4-chip Blackhole or the fabric router times out). Concretely: the ~80M `nanollama3` architecture trains from scratch across all four chips in ~2.4 hours to the structure-and-vocabulary tier; reaching *coherent* prose is data-bound (the Mini-LLM reference used 361M tokens), not a matter of more chips.
+**The `mesh_shape` boundary.** Every config above still runs on a single chip (`mesh_shape: [1, 1]`, the default) — p300c, p100, or n150, and everything in the nano-to-~80M range fits comfortably in one chip's DRAM. But you don't *have* to stay on one chip: a **TT-QuietBox<sup>®</sup> 2 is a mesh** — four Blackhole chips wired in a `P300_X2` ring (a 2×2 mesh), not four independent chips — and data-parallel training across them scales near-linearly (measured ~1.95× on 2 chips, ~3.98× on 4). `tt-train` ships multi-chip examples (`training_shakespeare_nanogpt_ddp_n300.yaml` sets `enable_ddp: true`, `mesh_shape: [1, 2]`), and **[Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]) is now hardware-verified on a TT-QuietBox 2** — including the one non-obvious catch (you must set `TT_MESH_GRAPH_DESC_PATH` for 2/4-chip Blackhole or the fabric router times out). Concretely: the ~80M `nanollama3` architecture trains from scratch across all four chips in ~2.4 hours to the structure-and-vocabulary tier; reaching *coherent* prose is data-bound (the Mini-LLM reference used 361M tokens), not a matter of more chips.
 
 ---
 
 ## Build It Yourself: The From-Scratch Arc
 
-Everything above configures and launches `ttml` — you never touch a matrix multiply. If you want to **write** this architecture instead of configuring it, that's a different track, the "Build an LLM from Scratch" arc, starting at [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]):
+Everything above configures and launches `ttml` — you never touch a matrix multiply. If you want to **write** this architecture instead of configuring it, that's a different track, the "Build an LLM from Scratch" arc, starting at [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]):
 
-- [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]) — the token embedding table and RoPE's rotation math, hand-written.
-- [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]) — grouped-query attention with RoPE'd Q/K, derived fully and authored as a TT-Lang kernel.
-- [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"]) — the SwiGLU MLP, RMSNorm, and residuals assembled into a full, runnable model.
-- [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) — the hero lab: the **same** 9,810,816-parameter `nanollama3` architecture this lesson just ran, but with a training loop (cross-entropy, backprop, AdamW) you write yourself instead of calling into `ttml`, verified end-to-end on Blackhole.
+- [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"]) — the token embedding table and RoPE's rotation math, hand-written.
+- [Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"]) — grouped-query attention with RoPE'd Q/K, derived fully and authored as a TT-Lang kernel.
+- [The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"]) — the SwiGLU MLP, RMSNorm, and residuals assembled into a full, runnable model.
+- [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]) — the hero lab: the **same** 9,810,816-parameter `nanollama3` architecture this lesson just ran, but with a training loop (cross-entropy, backprop, AdamW) you write yourself instead of calling into `ttml`, verified end-to-end on Blackhole.
 
 Same architecture, same config shape, two altitudes: point `ttml` at a YAML file (this lesson), or write every gradient step yourself (that arc).
 
@@ -208,7 +208,7 @@ Same architecture, same config shape, two altitudes: point `ttml` at a YAML file
 
 ### `ImportError: No module named 'ttml'` or `std::bad_cast` on `import ttml`
 
-Covered in [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) — rebuild `_ttnn.so` after enabling tt-train, don't do a partial `--target _ttml` build.
+Covered in [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) — rebuild `_ttnn.so` after enabling tt-train, don't do a partial `--target _ttml` build.
 
 ### `RuntimeError: Device out of memory`
 
@@ -228,7 +228,7 @@ Three real causes, in order of how often they bite:
 
 ### Multi-chip DDP dies at `Fabric Router Sync: Timeout`
 
-On a TT-QuietBox 2 a 2- or 4-chip run can time out at fabric-router sync during mesh open — and it survives both a full reboot and `tt-smi -r`, so it looks like dead hardware. It isn't: ttml ships default mesh-graph descriptors only for T3000/Galaxy, so on a 2/4-device Blackhole mesh you must set `TT_MESH_GRAPH_DESC_PATH` yourself. The full fix (with the `[1,4]` ring descriptor) is in [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]).
+On a TT-QuietBox 2 a 2- or 4-chip run can time out at fabric-router sync during mesh open — and it survives both a full reboot and `tt-smi -r`, so it looks like dead hardware. It isn't: ttml ships default mesh-graph descriptors only for T3000/Galaxy, so on a 2/4-device Blackhole mesh you must set `TT_MESH_GRAPH_DESC_PATH` yourself. The full fix (with the `[1,4]` ring descriptor) is in [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]).
 
 ### `argument --resume: expected one argument` (auto-resume is broken)
 
@@ -246,19 +246,19 @@ Same root cause both ways: an **undertrained** model plus a bare decoder. The st
 
 ## Key Takeaways
 
-- **A from-scratch job is a config choice, not a hand-build.** `--fresh` plus a `model_type: llama` config (`nanollama3_char`) is the entire mechanic — the components inside it are covered conceptually in [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) and built by hand in the from-scratch arc.
+- **A from-scratch job is a config choice, not a hand-build.** `--fresh` plus a `model_type: llama` config (`nanollama3_char`) is the entire mechanic — the components inside it are covered conceptually in [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"]) and built by hand in the from-scratch arc.
 - Real numbers from this p300c: loss `4.6875 → 0.1836` over 3000 steps, ~65 ms/step, ~3.3 minutes total, checkpointed every 500 steps.
 - **Low loss is not a proxy for coherent output.** This run's loss was ~8x lower than a comparable GPT-2-style run, and the generated text landed in the same tier: Shakespeare-shaped structure, a mix of real and invented words, not readable prose. On a ~1 MB corpus, driving loss this low is overfitting, not mastery.
 - Real coherence is a **data** problem. An ~80M model trained from scratch on 100M TinyStories tokens (verified on a TT-QuietBox 2, 4-chip DDP, ~2.4 h) plateaus at the structure-and-vocabulary tier — real words, names, story cadence, but repetitive and not coherent. The Mini-LLM comparison that reaches readable output used **361M** tokens; the corpus, not the step count or the chip count, is the lever.
-- Scaling a job is three independent knobs — steps, model config, data — plus **data-parallel across chips**: a TT-QuietBox 2's four-chip ring mesh trains the same job ~3.98× faster (see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])). You don't need multiple chips for capacity below billions of parameters, but you can use them for *speed* at any size.
+- Scaling a job is three independent knobs — steps, model config, data — plus **data-parallel across chips**: a TT-QuietBox 2's four-chip ring mesh trains the same job ~3.98× faster (see [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"])). You don't need multiple chips for capacity below billions of parameters, but you can use them for *speed* at any size.
 
 ---
 
 ## What's Next
 
-**Next: [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"])** — capture runs like the one above to a file (or Weights & Biases) instead of watching numbers scroll past in a terminal, and compare hyperparameter variations properly.
+**Next: [Experiment Tracking](command:tenstorrent.lesson.show?["ct6-experiment-tracking"])** — capture runs like the one above to a file (or Weights & Biases) instead of watching numbers scroll past in a terminal, and compare hyperparameter variations properly.
 
-**Or build every component by hand:** start the from-scratch arc at [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) and work through the tokenizer, embeddings, attention kernel, and training loop yourself — culminating in [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]), which trains this exact architecture with code you wrote.
+**Or build every component by hand:** start the from-scratch arc at [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) and work through the tokenizer, embeddings, attention kernel, and training loop yourself — culminating in [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]), which trains this exact architecture with code you wrote.
 
 ---
 

@@ -4,7 +4,7 @@ title: Production Inference with vLLM
 description: >-
   Deploy with vLLM - OpenAI-compatible APIs, continuous batching, and enterprise
   features.
-category: serving
+category: deeper
 tags:
   - vllm
   - production
@@ -24,6 +24,14 @@ estimatedMinutes: 30
 ---
 
 # Production Inference with vLLM
+
+> **`tt serve` runs vLLM for you**, inside tt-inference-server's container, with the
+> model spec's settings and a validated tt-metal and vLLM pair. This lesson is the by-hand
+> route: your own vLLM checkout, your own venv, your own flags, for a model or a version
+> the spec does not carry. For the pod's pre-built venv see
+> [Serve Without Containers](command:tenstorrent.lesson.show?["api-server"]); for which
+> versions go together see
+> [Mix and Match Versions](command:tenstorrent.lesson.show?["mix-and-match"]).
 
 **⚠️ Note:** vLLM requires the HuggingFace model format. If you downloaded the model in Lesson 3 before this update, you may need to re-download to get both Meta and HuggingFace formats. The latest Lesson 3 downloads the complete model with all formats.
 
@@ -163,9 +171,9 @@ python3 --version  # Need 3.10+
 
 **If any checks fail:**
 
-- **No hardware?** → See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])
-- **No TT-Metalium?** → See [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
-- **No model?** → See [Download Model](command:tenstorrent.showLesson?["download-model"]) or download now:
+- **No hardware?** → See [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"])
+- **No TT-Metalium?** → See [Verify Installation](command:tenstorrent.lesson.show?["verify-installation"])
+- **No model?** → See [Download Model](command:tenstorrent.lesson.show?["download-model"]) or download now:
 
   ```bash
   hf download meta-llama/Llama-3.1-8B-Instruct \
@@ -276,7 +284,7 @@ cd ~/tt-metal && \
   ./build_metal.sh
 ```
 
-[🔧 Update and Build TT-Metalium](command:tenstorrent.updateTTMetal)
+[🔧 Update and Build TT-Metalium](command:tenstorrent.metal.update)
 
 **What this does:**
 - Updates TT-Metalium to latest main branch
@@ -330,7 +338,7 @@ cd ~ && \
   cd tt-vllm
 ```
 
-[📦 Clone TT vLLM Repository](command:tenstorrent.cloneVllm)
+[📦 Clone TT vLLM Repository](command:tenstorrent.vllm.clone)
 
 **What this does:**
 - Clones the `dev` branch (Tenstorrent's main branch)
@@ -495,7 +503,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 Before starting the server, create the script that registers TT models with vLLM:
 
-[📝 Create vLLM Starter Script](command:tenstorrent.createVllmStarter)
+[📝 Create vLLM Starter Script](command:tenstorrent.vllm.createStarter)
 
 **What this does:**
 - Creates `~/tt-scratchpad/start-vllm-server.py`
@@ -610,7 +618,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
     --block-size 64
 ```
 
-[🚀 Start vLLM with Llama (n150 - Not Recommended)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N150"}])
+[🚀 Start vLLM with Llama (n150 - Not Recommended)](command:tenstorrent.vllm.startWithHardware?[{"hardware":"N150"}])
 
 **Warning:** Expect DRAM exhaustion errors. Qwen3-0.6B is 13x smaller and works reliably.
 
@@ -632,7 +640,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
     --tensor-parallel-size 2
 ```
 
-[🚀 Start vLLM Server (n300)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"N300"}])
+[🚀 Start vLLM Server (n300)](command:tenstorrent.vllm.startWithHardware?[{"hardware":"N300"}])
 
 ---
 
@@ -652,7 +660,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
     --tensor-parallel-size 8
 ```
 
-[🚀 Start vLLM Server (T3000)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"T3K"}])
+[🚀 Start vLLM Server (T3000)](command:tenstorrent.vllm.startWithHardware?[{"hardware":"T3K"}])
 
 **Note:** This uses the 70B model. Make sure you've downloaded it first.
 
@@ -660,7 +668,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 ### p100 / p300c (Blackhole<sup>®</sup> - Single Chip)
 
-> **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** for **single-chip** work a p300c chip behaves like a p100 — use `MESH_DEVICE=P100`, `TT_METAL_ARCH_NAME=blackhole`, and device 0, which is what most lessons want. Don't read that as the machine's shape, though: a TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh across two dual-ASIC p300c boards), not four independent devices, and multi-chip work scales near-linearly across it — see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]).
+> **TT-QuietBox<sup>®</sup> 2 / TT-QuietBox users:** for **single-chip** work a p300c chip behaves like a p100 — use `MESH_DEVICE=P100`, `TT_METAL_ARCH_NAME=blackhole`, and device 0, which is what most lessons want. Don't read that as the machine's shape, though: a TT-QuietBox 2 is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh across two dual-ASIC p300c boards), not four independent devices, and multi-chip work scales near-linearly across it — see [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]).
 
 ```bash
 # Activate vLLM env: tt-vllm (tt-developer-image)  OR  source /opt/venv-vllm/bin/activate (cloud / custom)
@@ -675,7 +683,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
     --block-size 64
 ```
 
-[🚀 Start vLLM Server (p100)](command:tenstorrent.startVllmServerWithHardware?[{"hardware":"P100"}])
+[🚀 Start vLLM Server (p100)](command:tenstorrent.vllm.startWithHardware?[{"hardware":"P100"}])
 
 **⚠️ Remember:** p100/p300c requires `TT_METAL_ARCH_NAME=blackhole` environment variable.
 
@@ -687,7 +695,7 @@ python3 ~/tt-scratchpad/start-vllm-server.py \
 
 **First time setup?** Create the starter script before using any of the commands above:
 
-[📝 Create vLLM Starter Script](command:tenstorrent.createVllmStarter)
+[📝 Create vLLM Starter Script](command:tenstorrent.vllm.createStarter)
 
 This creates `~/tt-scratchpad/start-vllm-server.py` which registers TT models with vLLM. The hardware-specific buttons above will create this automatically if it doesn't exist, but you can also create it manually with this button.
 
@@ -827,7 +835,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-[💬 Test with OpenAI SDK](command:tenstorrent.testVllmOpenai)
+[💬 Test with OpenAI SDK](command:tenstorrent.vllm.testOpenai)
 
 **Response:**
 ```bash
@@ -853,7 +861,7 @@ curl http://localhost:8000/v1/chat/completions \
   }'
 ```
 
-[🔧 Test with curl](command:tenstorrent.testVllmCurl)
+[🔧 Test with curl](command:tenstorrent.vllm.testCurl)
 
 **Response:**
 ```json

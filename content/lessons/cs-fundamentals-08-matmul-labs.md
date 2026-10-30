@@ -100,7 +100,7 @@ In Lab 3, the first arrow is optimized further with NoC multicast so multiple co
 
 If `~/tt-metal` is missing (common on TT-QuietBox<sup>®</sup> 2 preconfigured images), start here first:
 
-[🛠️ Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+[🛠️ Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
 
 Build programming examples used by this module:
 
@@ -109,11 +109,11 @@ cd ~/tt-metal
 ./build_metal.sh --build-programming-examples
 ```
 
-[🔨 Build Programming Examples](command:tenstorrent.buildProgrammingExamples)
+[🔨 Build Programming Examples](command:tenstorrent.metal.buildProgrammingExamples)
 
 ### Optional simulator path (hardware-free)
 
-[🧪 Set Up ttsim Simulator](command:tenstorrent.setupTtsim)
+[🧪 Set Up ttsim Simulator](command:tenstorrent.ttsim.setup)
 
 ```bash
 # Wormhole simulator
@@ -128,7 +128,7 @@ export TT_METAL_SLOW_DISPATCH_MODE=1
 cd ~/tt-metal
 ```
 
-More simulator workflows: [Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"])
+More simulator workflows: [Twenty-and-Ten Things You Can Do with ttsim](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"])
 
 ---
 
@@ -442,7 +442,7 @@ Before moving on, confirm you can explain:
 
 ## What's Next?
 
-- Revisit simulator experiments in [ttsim Twenty-and-Ten](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) and repeat the flow with controlled dimensions.
-- Continue with [Explore Metalium](command:tenstorrent.showLesson?["explore-metalium"]) to inspect lower-level kernel/runtime details.
+- Revisit simulator experiments in [ttsim Twenty-and-Ten](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"]) and repeat the flow with controlled dimensions.
+- Continue with [Explore Metalium](command:tenstorrent.lesson.show?["explore-metalium"]) to inspect lower-level kernel/runtime details.
 
-[→ Continue to Bounty Program: Model Bring-Up](command:tenstorrent.showLesson?["bounty-program"])
+[→ Continue to Bounty Program: Model Bring-Up](command:tenstorrent.lesson.show?["bounty-program"])

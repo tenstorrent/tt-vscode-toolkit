@@ -51,21 +51,21 @@ later port — a model whose forward pass, attention, and normalization are
 written directly against `ttnn.Tensor`, with the hot inner loops hand-authored
 in TT-Lang.
 
-> **Before you start — the one heavy prerequisite.** The final lab, [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]), trains on real hardware with **`ttml` (tt-train)** — which is **not** a pip install. It needs a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73); a TT-QuietBox<sup>®</sup> 2 image has no `tt-metal` source tree — and no host-side TT-NN<sup>™</sup> or vLLM either, since both arrive as containers — so there's nothing to build against until you make one. It's a one-time build (~5 min with a warm ccache, much longer cold) — so kick it off early via [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) then the **Install tt-train** step in [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]). Labs 1–4 don't need it; Lab 5 does.
+> **Before you start — the one heavy prerequisite.** The final lab, [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]), trains on real hardware with **`ttml` (tt-train)** — which is **not** a pip install. It needs a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73); a TT-QuietBox<sup>®</sup> 2 image has no `tt-metal` source tree — and no host-side TT-NN<sup>™</sup> or vLLM either, since both arrive as containers — so there's nothing to build against until you make one. It's a one-time build (~5 min with a warm ccache, much longer cold) — so kick it off early via [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) then the **Install tt-train** step in [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]). Labs 1–4 don't need it; Lab 5 does.
 
 Five labs follow this one:
 
-1. **[Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"])** — A BPE tokenizer from scratch, encode/decode,
+1. **[Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"])** — A BPE tokenizer from scratch, encode/decode,
    batching — the raw material every model needs.
-2. **[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])** — Token embeddings and
+2. **[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])** — Token embeddings and
    **RoPE** (rotary positional embeddings — no learned position table), plus
    your first TT-native kernel: elementwise add.
-3. **[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])** — Multi-head self-attention extended to
+3. **[Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])** — Multi-head self-attention extended to
    **grouped-query attention (GQA)**, written out fully — Q·Kᵀ, scale, mask,
    softmax, ·V, KV-head sharing — and re-expressed as a TT-Lang kernel.
-4. **[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])** — **SwiGLU** MLP, RMSNorm, residuals, and
+4. **[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])** — **SwiGLU** MLP, RMSNorm, residuals, and
    the full transformer block stacked into a model you can actually run.
-5. **[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])** — A from-scratch training loop —
+5. **[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])** — A from-scratch training loop —
    cross-entropy, AdamW, backprop — that we ran for real on Blackhole<sup>®</sup>
    hardware.
 
@@ -111,7 +111,7 @@ The reference code for this whole arc lives in
 in the labs ahead runs out of that folder. Scaffold it once now and follow
 along in your own copy:
 
-[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.llmFromScratch.createProject)
+[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.lfs.createProject)
 
 The button copies the arc's reference files into that folder and opens it. If
 you land in a later lab first, the same button appears there — run it whenever
@@ -165,7 +165,7 @@ This shows up directly in `ttnn`. When you convert a PyTorch tensor with
   This is the layout matmul, attention, and virtually every fused op expect.
 
 You'll see `ttnn.Tensor` objects and `TILE_LAYOUT` conversions constantly,
-starting in [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]).
+starting in [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"]).
 Every embedding table, every attention score matrix, every
 hidden-state activation in this arc is, underneath, a grid of 32×32 tiles
 moving between DRAM and each Tensix core's local memory.
@@ -204,7 +204,7 @@ buffers (Dataflow Buffers). Two primitives drive it — `reserve()` claims a
 slot to fill, `wait()` blocks until a slot is ready to consume.
 
 That's the shape of every hand-authored kernel in this arc, starting with the
-elementwise-add kernel in [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]).
+elementwise-add kernel in [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"]).
 Hold onto this mental picture — reader,
 compute, writer, three threads, explicit handoff — because from here on,
 "writing a TT-Lang kernel" just means writing those three functions.
@@ -255,11 +255,11 @@ wrong expectations. Here's exactly what runs where:
 
 | Lab | What you build | Runs on |
 |---|---|---|
-| **[Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"])** | BPE tokenizer, batching | Pure Python, anywhere — no device, no simulator |
-| **[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])** | PyTorch **RoPE** reference + first TT-Lang inception kernel (elementwise add) | Functional simulator + the browser-based TT-Lang playground |
-| **[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])** | PyTorch reference (**GQA** — KV-head sharing) + TT-Lang attention/softmax kernel | Kernel is **authored, faithful to the vendor kernel, and torch-verified via oracle** (correlation gate wired, pending first execution) — not sim-run yet, the functional simulator can't execute attention's softmax reduction |
-| **[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])** | PyTorch reference (**SwiGLU**) + TT-Lang RMSNorm/matmul kernels, wired in as drop-in `ttnn.Tensor` ops | Matmul kernel is sim-validated; RMSNorm hits the same sim gap as attention — authored and torch-verified |
-| **[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])** | A real from-scratch training loop for the nano Llama model (RoPE, RMSNorm, SwiGLU, GQA) — cross-entropy, AdamW, backprop | **Real hardware.** `ttml` built from source, `train_nanogpt.py` (llama path) run on a Blackhole p300c — loss dropped monotonically from **4.69 to 3.23** over 20 steps, ~65 ms/step, 16.5 TFLOPS, on-device, exit 0 |
+| **[Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"])** | BPE tokenizer, batching | Pure Python, anywhere — no device, no simulator |
+| **[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])** | PyTorch **RoPE** reference + first TT-Lang inception kernel (elementwise add) | Functional simulator + the browser-based TT-Lang playground |
+| **[Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])** | PyTorch reference (**GQA** — KV-head sharing) + TT-Lang attention/softmax kernel | Kernel is **authored, faithful to the vendor kernel, and torch-verified via oracle** (correlation gate wired, pending first execution) — not sim-run yet, the functional simulator can't execute attention's softmax reduction |
+| **[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])** | PyTorch reference (**SwiGLU**) + TT-Lang RMSNorm/matmul kernels, wired in as drop-in `ttnn.Tensor` ops | Matmul kernel is sim-validated; RMSNorm hits the same sim gap as attention — authored and torch-verified |
+| **[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])** | A real from-scratch training loop for the nano Llama model (RoPE, RMSNorm, SwiGLU, GQA) — cross-entropy, AdamW, backprop | **Real hardware.** `ttml` built from source, `train_nanogpt.py` (llama path) run on a Blackhole p300c — loss dropped monotonically from **4.69 to 3.23** over 20 steps, ~65 ms/step, 16.5 TFLOPS, on-device, exit 0 |
 
 The gap for **Attention from Scratch** and **The Transformer Block & the Model**
 has one honest cause: **the functional simulator runs
@@ -291,4 +291,4 @@ You've got the map: the altitude ladder, the tile, the reader→compute→writer
 pipeline, and an honest picture of what runs where. Time to build the first
 real piece — the tokenizer.
 
-[→ Continue to Lab 1: Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"])
+[→ Continue to Lab 1: Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"])

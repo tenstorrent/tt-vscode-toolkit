@@ -2,7 +2,7 @@
 id: qb2-local-agents
 title: Local AI Agents on TT-QuietBox 2
 description: Build real AI agents in pure Python — web research, codebase navigation, multi-agent pipelines, and stateful text adventures — all running locally on your TT-QuietBox 2's 32B/70B models
-category: applications
+category: connect
 tags:
   - qb2
   - p300x2
@@ -78,12 +78,25 @@ A 3-step loop with 7B succeeds barely half the time. The same loop with 32B work
 
 **Which model, and how much of each you get:**
 
-| Model | Tool parser | Context | Concurrency (`max_num_seqs`) | Verdict |
-|-------|-------------|---------|-------------------------------|---------|
-| Qwen3-32B | `hermes` | 131K | up to 8 | RELIABLE default; ships pre-cached on QB2 (zero download) |
-| Llama-3.3-70B-Instruct | `llama3_json` | 131K | up to 8 | max quality, slower |
-| gemma-4-31B-it | `gemma4` | 49K | 1 (single-stream) | EXPERIMENTAL — accurate for short/interactive use, but observed **crashing the tt-metal runtime** under sustained agentic load. Don't reach for it in these demos yet. |
-| Qwen3.6-27B | `qwen3_coder` | 262K | 1 | reasoning-first: it *reasons about* tools instead of calling them — unreliable in multi-step agent loops |
+| Model | Where | Tool parser | Context | Concurrency (`max_num_seqs`) | Verdict |
+|-------|-------|-------------|---------|-------------------------------|---------|
+| Qwen3-Coder-30B-A3B | community bundle `raahemnabeel/qwen3-coder-30b-a3b` | `qwen3_coder` | 256K | up to 32 | FASTEST: 3B parameters active per token. Measured 80 tok/s on two dies (2026-10-30); the bundle card reports 95 tok/s on four. Validated for this lesson (below). |
+| Qwen3-Coder-Next | community bundle `raahemnabeel/qwen3-coder-next` | `qwen3_coder` | 262K | up to 32 | 80B total, 3B active. 148 GB of weights. Measured 107 tok/s on two dies (2026-10-30). |
+| Qwen3-32B | catalog | `hermes` | 131K | up to 8 | RELIABLE default; the demos were built against it; ships pre-cached on QB2 (zero download) |
+| Llama-3.3-70B-Instruct | catalog | `llama3_json` | 131K | up to 8 | max quality, slower |
+| gemma-4-31B-it | catalog | `gemma4` | 49K | 1 (single-stream) | EXPERIMENTAL — accurate for short/interactive use, but observed **crashing the tt-metal runtime** under sustained agentic load. Don't reach for it in these demos yet. |
+| Qwen3.6-27B | catalog | `qwen3_coder` | 262K | 1 | reasoning-first: it *reasons about* tools instead of calling them — unreliable in multi-step agent loops |
+
+The first two rows come from the **community catalog**: bundles published by whoever
+brought the model up, with the serving recipe, the engine build and the tool-call parser
+inside. `tt model list --community --hw p300x2` lists the ones that declare a TT-QuietBox 2
+profile. Both are mixture-of-experts models. 30B or 80B parameters sit on disk, but only
+3B are active per token, and decode speed tracks the active count: a response that takes
+Qwen3-32B eight seconds takes Qwen3-Coder-30B-A3B about one. Tenstorrent does not test or
+maintain community bundles, so the speeds are the author's measurements and ours, and
+`tt launch` prints `not in the model catalog` for them. The demos read the model name from
+the server (`/v1/models`), so switching between any of these rows is one serve command;
+no script changes.
 
 Concurrency is **per-model**, not a single fixed number for the box — a 32B or 70B model here supports up to 8 concurrent sequences, while the two experimental/reasoning models are single-stream only. The practical takeaway: Qwen3-32B and Llama-3.3-70B-Instruct are the two models these demos are built and validated against. Treat the other two as exploratory — not because they're worse models in the abstract, but because one is known to crash under agentic load and the other fights the agent loop itself (see the "non-thinking vs. reasoning-first" note below).
 
@@ -93,7 +106,9 @@ Concurrency is **per-model**, not a single fixed number for the box — a 32B or
 
 | What | Time | Model |
 |------|------|-------|
+| Single tool call | ~1–2 s | Qwen3-Coder-30B-A3B (community, two dies) |
 | Single tool call | ~8–14 s | Qwen3-32B / Llama-3.3-70B |
+| Research agent (11 steps) | ~3 min | Qwen3-Coder-30B-A3B (community, two dies) |
 | Research agent (5 steps) | ~3–5 min | Qwen3-32B |
 | Code explorer (3 hops) | ~1–2 min | Qwen3-32B or Llama-3.3-70B |
 | Writing pipeline (3 agents) | ~5–15 min | Qwen3-32B |
@@ -107,8 +122,8 @@ Concurrency is **per-model**, not a single fixed number for the box — a 32B or
 ## Prerequisites
 
 - TT-QuietBox 2 hardware healthy: `tt-smi -s` shows 4 chips
-- `~/code/tt-inference-server` cloned and working
-- Docker running
+- `tt` installed ([Install the Tenstorrent Software](command:tenstorrent.lesson.show?["tt-installer"]))
+- Docker running (`tt serve` runs the model in a container)
 - Internet access (for the web-search demo and model downloads)
 
 **Verify your TT-QuietBox 2:**
@@ -118,59 +133,83 @@ tt-smi -s | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'{len(d[
 # Should print: 4 chips detected
 ```
 
-[Run Hardware Detection](command:tenstorrent.runHardwareDetection)
+[Run Hardware Detection](command:tenstorrent.setup.hardwareDetection)
+
+The button opens `tt-smi`'s own view; the one-liner above prints just the count.
 
 ---
 
 ## Step 1: Start the Inference Server
 
-The demos need a vLLM endpoint running on port 8000. Use **Qwen3-32B** for the fastest iteration, or **Llama-3.3-70B-Instruct** for maximum output quality — especially for the Dungeon Master demo.
+The demos need an OpenAI-compatible endpoint on port 8000 with tool calling. Three ways
+to get one, fastest first. `tt serve` runs each in a container with the right tool-call
+parser (`qwen3_coder`, `hermes` or `llama3_json`) set from the catalog or the bundle, and
+`--port 8000` puts it where the scripts look. The weights come from the Hugging Face cache
+or a pre-seeded volume, so the second start downloads nothing.
 
-> **Reset the board before every (re)start.** QB2's ethernet fabric doesn't cleanly cycle when a container just stops and restarts — the first serve after a reset or reboot works fine, but the *next* one can fault with an ethernet core error (see Troubleshooting below). Run `tt-smi -r` immediately before each command in this step, including the very first time:
->
-> ```bash
-> tt-smi -r
-> ```
->
-> Right after a reset, `tt-smi -s` may transiently report a failure even though the reset itself succeeded — give it a few seconds and check again before assuming something is wrong.
+> **If a restart faults with an ethernet core error**, reset the board and serve again:
+> QB2's ethernet fabric does not always cycle cleanly when a container stops and another
+> starts. `tt model stop` first, then `tt-smi -r`, then the serve command. Right after a
+> reset, `tt-smi -s` may transiently report a failure even though the reset succeeded;
+> give it a few seconds and check again.
 
-### Option A — Qwen3-32B (~8 s/response, recommended for most demos)
+### Option A — Qwen3-Coder-30B-A3B from the community catalog (~1 s/response)
 
-```bash
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Qwen3-32B \
-    --tt-device p300x2 \
-    --workflow server \
-    --docker-server \
-    --no-auth \
-    --host-hf-cache \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "hermes"}'
-```
-
-[Start Qwen3-32B Server](command:tenstorrent.startQb2AgentsServerQwen)
-
-### Option B — Llama-3.3-70B-Instruct (~14 s/response, best for Dungeon Master)
+See what the community has published for a TT-QuietBox 2, then serve the coder:
 
 ```bash
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Llama-3.3-70B-Instruct \
-    --tt-device p300x2 \
-    --workflow server \
-    --docker-server \
-    --no-auth \
-    --host-hf-cache \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
+tt model list --community --hw p300x2
+tt serve raahemnabeel/qwen3-coder-30b-a3b --profile p300x2 --port 8000
 ```
 
-[Start Llama-3.3-70B Server](command:tenstorrent.startQb2AgentsServerLlama)
+[📋 Community models for a TT-QuietBox 2](command:tenstorrent.model.listCommunityQb2)
+[🚀 Serve Qwen3-Coder-30B-A3B on port 8000](command:tenstorrent.model.serveQb2AgentsCoder)
 
-> `--host-hf-cache` points `run.py` at your existing HuggingFace cache on the host instead of re-downloading weights into the container — for a 32B or 70B model that's tens of GB you only want to pull once. `--no-auth` skips the JWT_SECRET requirement for local-only use.
+`--profile p300x2` spreads the experts over all four dies, the bundle's fastest profile;
+the bundle's own default is one p300 board. We validated on one board (`--profile p300`)
+while the other was busy: ready in 20 minutes from a cold cache, 80 tok/s on a real
+prompt, `00_verify_tools.py` passing all three checks in 5 seconds, and the research
+agent finishing an 11-step run in 3 minutes 17 seconds. The first start pulls the image, downloads the weights (about 60 GB) and
+compiles kernels for ten minutes or so; later starts take a few minutes. Preview it with
+`tt serve raahemnabeel/qwen3-coder-30b-a3b --dry-run`: the image, the `qwen3_coder`
+parser and the weights id. The server reports the model as
+`Qwen/Qwen3-Coder-30B-A3B-Instruct`, the weights id, which is what the scripts and
+`tt launch` use.
 
-> **`--enable_auto_tool_choice` is not optional.** Without it, the model will respond in prose instead of making tool calls. The `tool_call_parser` must match the model — `hermes` for Qwen, `llama3_json` for Llama.
+> **Two things look wrong and are not.** `tt serve` says `not in the model catalog —
+> serving it as a tt-model bundle`, and `tt launch` shows `tool-call parser —` with a
+> warning that it cannot confirm tool calling. Both mean the same thing: the model is a
+> community bundle, outside the released catalog, so `tt` has no row to check against.
+> The bundle card and the dry run show the parser is set. If a bundle you pulled earlier
+> lacks a profile its card now lists (`no serve profile named ...`), add `-- --refresh`
+> to the serve command to fetch the current revision.
+
+### Option B — Qwen3-32B (~8 s/response; the demos were built against it)
+
+```bash
+tt serve Qwen3-32B --port 8000
+```
+
+[Serve Qwen3-32B on port 8000](command:tenstorrent.model.serveQb2AgentsQwen)
+
+### Option C — Llama-3.3-70B-Instruct (~14 s/response, best for Dungeon Master)
+
+```bash
+tt serve Llama-3.3-70B-Instruct --port 8000
+```
+
+[Serve Llama-3.3-70B-Instruct on port 8000](command:tenstorrent.model.serveQb2AgentsLlama)
+
+> Both catalog models are `FUNCTIONAL` on a p300x2 (`tt model info <name>` shows the row). The
+> 70B model needs 160 GB of disk and 175 GB of RAM; its first serve downloads 140 GB.
+> Preview either with `--dry-run` to see the image, weights and parser before anything
+> starts.
+
+> **Serving by hand instead?** The `run.py` command `tt serve` wraps is in
+> [tt-inference-server by Hand](command:tenstorrent.lesson.show?["tt-inference-server"]).
+> The two flags that matter for agents are `--vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "hermes"}'`
+> (or `llama3_json` for Llama); without them the model answers in prose instead of
+> calling tools. `tt serve` sets both for you.
 
 **Wait for warmup** (5 minutes on a warm cache, up to 20 minutes if downloading for the first time). The server is ready when:
 
@@ -179,7 +218,7 @@ curl http://localhost:8000/v1/models
 # → {"data":[{"id":"Qwen/Qwen3-32B",...}]}
 ```
 
-[Check Server Health](command:tenstorrent.checkAgentServerHealth)
+[Check Server Health](command:tenstorrent.launch.checkAgentServerHealth)
 
 ---
 
@@ -201,7 +240,7 @@ pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 ```
 
-[Clone tt-agents](command:tenstorrent.cloneTtAgents)
+[Clone tt-agents](command:tenstorrent.launch.cloneTtAgents)
 
 **What gets installed** (pinned to latest as of 2026-08 — see `requirements.txt` in the repo for the exact versions):
 
@@ -228,7 +267,7 @@ cp ~/code/tt-agents/requirements.txt ~/tt-scratchpad/agents/
 cp ~/code/tt-agents/world.json ~/tt-scratchpad/agents/
 ```
 
-[Copy Scripts to Scratchpad](command:tenstorrent.copyAgentsToScratchpad)
+[Copy Scripts to Scratchpad](command:tenstorrent.launch.copyAgentsToScratchpad)
 
 > Scripts in `~/tt-scratchpad/agents/` are yours to hack. The originals in `~/code/tt-agents/` stay clean.
 
@@ -242,7 +281,7 @@ Before running any demos, confirm inference and tool calling are both functionin
 python3 ~/code/tt-agents/00_verify_tools.py
 ```
 
-[Run Tool Verification](command:tenstorrent.runAgentsVerify)
+[Run Tool Verification](command:tenstorrent.launch.runAgentsVerify)
 
 **Expected output:**
 
@@ -303,7 +342,7 @@ An agent that searches the web, reads pages, and synthesizes a cited report. Thi
 python3 ~/code/tt-agents/01_research_agent.py
 ```
 
-[Run Research Agent](command:tenstorrent.runResearchAgent)
+[Run Research Agent](command:tenstorrent.launch.runResearchAgent)
 
 The script opens a **topic picker** — eight research prompts across tech, travel, philosophy, gaming, and more. Pick a number, paste your own query, or just press Enter to accept today's highlighted suggestion. It auto-continues after 10 seconds if you walk away.
 
@@ -442,7 +481,7 @@ cd ~/code/tt-agents
 python3 02_code_explorer.py
 ```
 
-[Run Code Explorer](command:tenstorrent.runCodeExplorer)
+[Run Code Explorer](command:tenstorrent.launch.runCodeExplorer)
 
 **Point it at a specific directory:**
 
@@ -578,7 +617,7 @@ python3 ~/code/tt-agents/01_research_agent.py   # saves last_research.txt
 python3 ~/code/tt-agents/03_writing_pipeline.py  # picks it up automatically
 ```
 
-[Run Writing Pipeline](command:tenstorrent.runWritingPipeline)
+[Run Writing Pipeline](command:tenstorrent.launch.runWritingPipeline)
 
 The pipeline opens a **format picker** — choose how the piece is written, not just what it covers:
 
@@ -730,7 +769,7 @@ python3 ~/code/tt-agents/04_dungeon_master.py --reset
 
 > If you started Qwen3-32B (Option A) in Step 1, pass `--model "Qwen/Qwen3-32B"` to all DM commands. The default assumes Llama-3.3-70B-Instruct is loaded. Both work well — 70B has richer narrative prose, 32B responds in ~8 s.
 
-[Start Dungeon Master](command:tenstorrent.runDungeonMaster)
+[Start Dungeon Master](command:tenstorrent.launch.runDungeonMaster)
 
 > **State persists between sessions** in `world_session.json`. Quit and come back — the DM remembers where you were.
 
@@ -948,7 +987,7 @@ The Dungeon Master is the smallest possible version of all of these. Once you un
 
 **Frameworks:** CrewAI (Stage 1) + smolagents ToolCallingAgent (Stage 2) | **~280 lines** | **Models:** Llama-3.3-70B → Qwen3-32B
 
-[Run Storyboard Pipeline](command:tenstorrent.runStoryboardPipeline)
+[Run Storyboard Pipeline](command:tenstorrent.launch.runStoryboardPipeline)
 
 > The VSCode button runs with `--simulate` so it works even when your TT-QuietBox 2 is busy. Remove that flag when you want to see the full server lifecycle.
 
@@ -1545,13 +1584,13 @@ The scripts are short on purpose. Each one is a skeleton you can grow. The code 
 
 **See how OpenClaw packages these patterns into a production service:**
 
-[OpenClaw AI Assistant on TT-QuietBox 2](command:tenstorrent.showLesson?["qb2-openclaw-assistant"])
+[OpenClaw AI Assistant on TT-QuietBox 2](command:tenstorrent.lesson.show?["qb2-openclaw-assistant"])
 
 OpenClaw is what you'd build if you took the dungeon master pattern seriously: persistent memory, multi-agent routing, a WebSocket API, and a terminal UI. Now that you've seen the raw version, the architecture makes more sense.
 
 **Generate video on your TT-QuietBox 2:**
 
-[Generating Video on TT-QuietBox 2](command:tenstorrent.showLesson?["qb2-video-generation"])
+[Generating Video on TT-QuietBox 2](command:tenstorrent.lesson.show?["qb2-video-generation"])
 
 **Explore the framework comparison** (included in the tt-agents repo):
 
@@ -1564,6 +1603,7 @@ cat ~/code/tt-agents/framework_comparison.md
 **Resources:**
 
 - [smolagents docs](https://huggingface.co/docs/smolagents)
+- [tt-cli community models](https://github.com/tenstorrent/tt-cli/blob/main/docs/community-models.md)
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/)
 - [CrewAI docs](https://docs.crewai.com)
 - [TT-Inference-Server](https://github.com/tenstorrent/tt-inference-server)

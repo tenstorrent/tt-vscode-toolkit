@@ -1,10 +1,14 @@
 ---
 id: interactive-chat
-title: Interactive Chat with Direct API
-description: Build a custom chat application using TT-Metalium's Generator API directly.
-category: first-inference
+title: Serve a Model
+description: >-
+  tt serve starts a model in a container, waits until it answers, and gives you
+  an OpenAI-compatible endpoint. Preview, serve, ask it a question, watch logs,
+  stop it.
+category: serve
 tags:
-  - chat
+  - inference
+  - model
   - api
 supportedHardware:
   - n150
@@ -17,416 +21,192 @@ supportedHardware:
 status: validated
 validatedOn:
   - n150
-estimatedMinutes: 10
+  - p300c
+estimatedMinutes: 15
+order: 2
 ---
 
-# Interactive Chat with Direct API
+# Serve a Model
 
-Build your own interactive chat application using TT-Metalium<sup>™</sup>'s Generator API directly.
+One command. `tt serve` downloads or finds the weights, starts the model in a container,
+waits until it answers, and tells you the address. What you get is an OpenAI-compatible
+HTTP API on your own hardware, which every chat app, coding agent and SDK already knows
+how to talk to.
 
-> **⚠️ Llama + tt-metal source required.** The Generator API used in this lesson is Llama-specific and requires `~/tt-metal` cloned and built from source. If you:
-> - Haven't accepted [Meta's data terms](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) for Llama access, or
-> - Don't have `~/tt-metal` built (TT-QuietBox<sup>®</sup> 2 and pre-configured images don't ship it)
->
-> → Use the **[vLLM path with Qwen3-0.6B](command:tenstorrent.showLesson?["vllm-production"])** instead — no source build, no license gate, works on all hardware.
+> **This lesson needs Docker.** `tt serve` runs the model in a container. The cloud pod
+> has no Docker, so on the pod go to
+> [Serve Without Containers](command:tenstorrent.lesson.show?["api-server"]) instead; it
+> ends at the same endpoint, and every later lesson works the same way.
 
-## Why Use the Direct API?
+Two models, one per machine. Press the buttons for yours; `tt device status` told you
+which you have in [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"]).
 
-The Generator API is the foundation for building real AI applications. This lesson teaches you how to:
+| You have | Serve | Why |
+|---|---|---|
+| one chip (n150, p150) | `Llama-3.1-8B-Instruct` | COMPLETE on n150, calls tools, 64K context. Accept Meta's license on Hugging Face first. |
+| a TT-QuietBox 2 (p300x2) | `Qwen3-32B` | Ships on the box. Weights and compiled cache are local, so the first serve downloads nothing. |
 
-- ✅ **Load model once** - subsequent queries are fast (1-3 seconds)
-- ✅ **Full control** - customize sampling, temperature, max tokens
-- ✅ **Production-ready pattern** - this is how you'd build real apps
-- ✅ **Educational** - understand how inference actually works
+## Preview First
 
-Instead of running inference once and exiting, you'll keep the model in memory and chat with it interactively - the same pattern used by ChatGPT and other conversational AI systems.
-
-## How It Works
-
-The Generator API pattern:
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Generator
-    participant Model
-    participant Hardware
-
-    Note over User,Hardware: Setup - 2-5 min, once
-    User->>Generator: create_tt_model()
-    Generator->>Model: Load weights
-    Model->>Hardware: Allocate DRAM
-
-    Note over User,Hardware: Chat Loop - 1-3 sec each
-    loop Each Query
-        User->>Generator: Input prompt
-        Generator->>Model: Prefill forward
-        Model->>Hardware: Process prompt
-        Hardware-->>Model: Logits
-
-        loop Token Generation
-            Generator->>Model: Decode forward
-            Model->>Hardware: Next token
-            Hardware-->>Generator: Token
-        end
-
-        Generator-->>User: Response
-    end
-```
-
-**Code pattern:**
-
-```python
-# 1. Load model once (slow - 2-5 minutes)
-from models.tt_transformers.tt.generator import Generator
-from models.tt_transformers.tt.common import create_tt_model
-
-model_args, model, tt_kv_cache, _ = create_tt_model(mesh_device, ...)
-generator = Generator([model], [model_args], mesh_device, ...)
-
-# 2. Chat loop - reuse the loaded model! (fast - 1-3 seconds per response)
-while True:
-    prompt = input("> ")
-
-    # Preprocess
-    tokens, encoded, pos, lens = preprocess_inputs_prefill([prompt], ...)
-
-    # Prefill (process the prompt)
-    logits = generator.prefill_forward_text(tokens, ...)
-
-    # Decode (generate response token by token)
-    for _ in range(max_tokens):
-        logits = generator.decode_forward_text(...)
-        next_token = sample(logits)
-        if is_end_token(next_token):
-            break
-
-    response = tokenizer.decode(all_tokens)
-    print(response)
-```
-
-**Key insight:** The model stays in memory between queries!
-
----
-
-## Starting Fresh?
-
-If you're jumping directly to this lesson, verify your setup:
-
-### Quick Prerequisite Checks
+`--dry-run` starts nothing. It shows what `tt serve` found and what it would run:
 
 ```bash
-# Hardware detected?
-tt-smi -s
-
-# tt-metal installed?
-python3 -c "import ttnn; print('✓ tt-metal ready')"
-
-# Model downloaded (Meta format)?
-ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
+tt serve Llama-3.1-8B-Instruct --dry-run    # one chip
+tt serve Qwen3-32B --dry-run                 # TT-QuietBox 2
 ```
 
-**All checks passed?** Continue to Step 1 below.
+[👀 Dry run: Llama-3.1-8B-Instruct](command:tenstorrent.model.serveDryRunN150)
+[👀 Dry run: Qwen3-32B](command:tenstorrent.model.serveDryRunQb2)
 
-**If any checks fail, complete these lessons first:**
+On a TT-QuietBox 2:
 
-| Issue | Solution |
-|-------|----------|
-| No hardware detected | [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) |
-| No TT-Metalium installed | [Verify Installation](command:tenstorrent.showLesson?["verify-installation"]) or [installation guide](https://github.com/tenstorrent/tt-metal/blob/main/INSTALLING.md) |
-| No model downloaded | [Download Model](command:tenstorrent.showLesson?["download-model"]) |
-
-**Quick model download:**
-```bash
-hf auth login --token "$HF_TOKEN"
-hf download meta-llama/Llama-3.1-8B-Instruct --local-dir ~/models/Llama-3.1-8B-Instruct
+```
+✓ Detecting device configuration  p300x2 (override with --device)
+                    tt serve Qwen3-32B — dry run
+┌──────────────────┬──────────────────────────────────────────────────────────┐
+│ backend          │ tt-inference-server                                      │
+│ workflow         │ server                                                   │
+│ device           │ p300x2                                                   │
+│ engines          │ vLLM                                                     │
+│ status           │ FUNCTIONAL                                               │
+│ docker image     │ ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-…  │
+│ tool-call parser │ hermes                                                   │
+│ reasoning parser │ qwen3                                                    │
+│ weights          │ /home/ttuser/data/tt-cache                               │
+│                  │ pre-seeded volume — weights and tt_metal_cache reused;   │
+│                  │ the HF cache is not consulted                            │
+│ HF token         │ from the Hugging Face login store                        │
+│ port             │ 20000  (server default)                                  │
+└──────────────────┴──────────────────────────────────────────────────────────┘
 ```
 
-### Dependencies Required
+Read the `weights` row. **`pre-seeded volume`** means `tt` found the shipped weights and
+the compiled kernel cache, so the first start takes minutes. `~/.cache/huggingface` means
+it will use (or download into) the Hugging Face cache. `HF token` says where your login
+came from without printing it.
 
-This lesson uses the Generator API which needs:
-
-```bash
-pip install pi  # Required for Generator API
-pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag
-```
-
-**Already installed?** Check with:
-```bash
-python3 -c "import pi; print('✓ pi installed')"
-```
-
-**Not installed?** Run the commands above or use the button in Step 1.
-
----
-
-## Prerequisites
-
-This lesson requires the same setup as Lesson 3. Make sure you have:
-- TT-Metalium installed and working
-- Model downloaded (Llama-3.1-8B-Instruct) in **Meta format** (`original/` subdirectory)
-- `LLAMA_DIR` environment variable pointing to `original/` subdirectory
-- Dependencies: `pi` and `llama-models` packages
-
----
-
-## Step 1: Install Dependencies (If Not Already Done)
-
-The Direct API needs specific Python packages:
+## Serve It
 
 ```bash
-pip install pi && pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag
+tt serve Llama-3.1-8B-Instruct    # one chip
+tt serve Qwen3-32B                 # TT-QuietBox 2
 ```
 
-[🔧 Install Direct API Dependencies](command:tenstorrent.installInferenceDeps)
+[🚀 Serve Llama-3.1-8B-Instruct](command:tenstorrent.model.serveN150)
+[🚀 Serve Qwen3-32B](command:tenstorrent.model.serveQb2)
 
-**What this installs:**
-- `pi` - Required by Generator API for inference
-- `llama-models` - Tenstorrent's fork with TT-Metalium support
+`tt serve` shows the boot as a live checklist: host ready, weights ready, image ready,
+container started, engine started, device opened, KV cache configured, model warmed up,
+endpoint answering. It returns once the endpoint answers, so whatever you run next will
+work. When it finishes you get a box with the endpoint (`http://127.0.0.1:20000/v1`) and
+the commands to look at logs and stop the model.
 
-**Already installed?** The command will skip packages that are already present.
-
----
-
-## Step 2: Create the Direct API Chat Script
-
-This command creates `~/tt-scratchpad/tt-chat-direct.py` - a standalone chat client using the Generator API:
+To watch the raw server log while it boots, run this in a second terminal:
 
 ```bash
-# Creates the direct API chat script
-mkdir -p ~/tt-scratchpad && cp template ~/tt-scratchpad/tt-chat-direct.py && chmod +x ~/tt-scratchpad/tt-chat-direct.py
+tt model logs                  # names the model when more than one is running --follow
 ```
 
-[📝 Create Direct API Chat Script](command:tenstorrent.createChatScriptDirect)
+Pressing Ctrl-C in the `tt serve` terminal stops *watching*. The server is a separate
+container and keeps booting; `tt model stop <model>` ends it.
 
-**What this does:**
-- Creates `~/tt-scratchpad/tt-chat-direct.py` with full Generator API implementation
-- **Opens the file in your editor** so you can see how it works!
-- Makes it executable
+> **A first serve of a model you have not run before takes longer.** The image (about
+> 18 GB) and the weights are downloaded, then the model is compiled for your chips and
+> warmed up. A first serve of a 27B model on a TT-QuietBox 2 took about 15 minutes, 7 of
+> them downloading weights. The shipped Qwen3-32B skips the download and the compile.
 
-**What's inside:**
-- `prepare_generator()` - Loads model once at startup
-- `generate_response()` - Fast inference using loaded model
-- `chat_loop()` - Interactive REPL for chatting
-- Full control over sampling, temperature, max tokens
+> **⚠️ The endpoint has no password.** `tt serve` starts the server with authentication
+> off, and the server's default bind address is `0.0.0.0` (every network interface). Anyone
+> who can reach port 20000 can use your model. Serve only on a network you trust or behind
+> a firewall, and do not forward the port to the internet. To bind to loopback only, or to
+> turn authentication on, run `tt-inference-server` yourself as shown in
+> [tt-inference-server by Hand](command:tenstorrent.lesson.show?["tt-inference-server"]).
 
----
-
-## Step 3: Start Interactive Chat
-
-Now launch the chat session:
+## Ask It a Question
 
 ```bash
-cd ~/tt-metal && \
-  export HF_MODEL=~/models/Llama-3.1-8B-Instruct && \
-  export PYTHONPATH=$(pwd) && \
-  python3 ~/tt-scratchpad/tt-chat-direct.py
+tt model curl "Explain what an API is in one sentence." --max-tokens 256
 ```
 
-[💬 Start Direct API Chat](command:tenstorrent.startChatSessionDirect)
+[💬 Ask the model](command:tenstorrent.model.curl)
 
-**What you'll see:**
+`tt model curl` asks the server which model it is serving, sends your prompt as a chat
+completion, and prints the JSON reply. The text is in `choices[0].message.content`.
+Unknown options become fields of the request, so `--max-tokens 256` sets `max_tokens`.
+Add `--print` to see the equivalent `curl` command.
 
-```text
-🔄 Importing tt-metal libraries (this may take a moment)...
-📥 Loading model (this will take 2-5 minutes on first run)...
-✅ Model loaded and ready!
+Qwen3-32B is a **reasoning model** (the dry run shows a `qwen3` reasoning parser): it
+thinks first, in a separate `reasoning` field, and then answers in `content`. A small
+token budget can be used up by the thinking, so give it room (`--max-tokens 2048`) when
+`content` comes back empty.
 
-🤖 Direct API Chat with Llama on Tenstorrent
-============================================================
-This version loads the model once and keeps it in memory.
-After initial load, responses will be much faster!
+> **Pick prompts that do not depend on the model knowing about Tenstorrent.** We asked
+> Llama-3.1-8B "In one sentence, what is Tenstorrent?" and it replied with a confident,
+> invented company history. Small models do not know recent or niche facts. That is a
+> property of the model and says nothing about your hardware.
 
-Commands:
-  • Type your prompt and press ENTER
-  • Type 'exit' or 'quit' to end
-  • Press Ctrl+C to interrupt
+The same endpoint speaks the standard OpenAI API, so any client works. Note the model
+name: the server reports the **full Hugging Face id**, which differs from the short name
+you gave `tt serve`.
 
->
-```
-
-**First run:** 2-5 minutes to load (kernel compilation + model loading)
-**Subsequent queries:** 1-3 seconds per response!
-
-## Step 3: Chat with Your Model
-
-Try asking questions:
-
-```text
-> What is machine learning?
-
-🤖 Generating response...
-
-Machine learning is a subset of artificial intelligence (AI) that
-involves training algorithms to learn from data and make predictions
-or decisions without being explicitly programmed...
-
-------------------------------------------------------------
-
-> Explain transformers in simple terms
-
-🤖 Generating response...
-
-Transformers are a type of neural network architecture that's really
-good at understanding relationships in sequential data like text...
-
-------------------------------------------------------------
-
-> exit
-
-👋 Chat session ended
-```
-
-**Notice:**
-- First query after load: ~1-3 seconds
-- Second query: ~1-3 seconds (model already loaded!)
-- No 2-5 minute reload between queries
-
-## Understanding the Code
-
-**Open `~/tt-scratchpad/tt-chat-direct.py` in your editor** (it was opened automatically when you created it). Key sections:
-
-### Model Loading (Lines ~80-120)
-
-```python
-def prepare_generator(mesh_device, max_batch_size=1, ...):
-    # Create the model with optimizations
-    model_args, model, tt_kv_cache, _ = create_tt_model(
-        mesh_device,
-        instruct=True,
-        max_batch_size=max_batch_size,
-        optimizations=DecodersPrecision.performance,
-        paged_attention_config=PagedAttentionConfig(...),
-    )
-
-    # Create the generator
-    generator = Generator([model], [model_args], mesh_device, ...)
-
-    return generator, model_args, model, ...
-```
-
-**This happens once at startup!**
-
-### Inference (Lines ~125-180)
-
-```python
-def generate_response(generator, prompt, max_tokens=128):
-    # 1. Tokenize and preprocess
-    tokens, encoded, pos, lens = preprocess_inputs_prefill([prompt], ...)
-
-    # 2. Prefill - process the prompt
-    logits = generator.prefill_forward_text(tokens, ...)
-
-    # 3. Decode - generate tokens one by one
-    for iteration in range(max_tokens):
-        logits = generator.decode_forward_text(out_tok, current_pos, ...)
-        next_token = sample(logits)
-        if next_token is end_token:
-            break
-
-    # 4. Decode tokens to text
-    response = tokenizer.decode(all_tokens)
-    return response
-```
-
-**This runs for each query - fast because model is already loaded!**
-
-## Customization Ideas
-
-Now that you have the code, try modifying it:
-
-**1. Change temperature (creativity)**
-```python
-# In generate_response():
-response = generate_response(..., temperature=0.7)  # More creative
-# vs
-response = generate_response(..., temperature=0.0)  # Deterministic
-```
-
-**2. Increase max tokens**
-```python
-response = generate_response(..., max_generated_tokens=256)
-```
-
-**3. Add streaming output**
-```python
-# Print tokens as they're generated
-for iteration in range(max_tokens):
-    logits = generator.decode_forward_text(...)
-    next_token = sample(logits)
-    print(tokenizer.decode([next_token]), end='', flush=True)
-```
-
-**4. Multi-turn conversations**
-```python
-# Keep conversation history
-conversation_history = []
-while True:
-    prompt = input("> ")
-    conversation_history.append(f"User: {prompt}")
-    full_prompt = "\n".join(conversation_history)
-    response = generate_response(generator, full_prompt, ...)
-    conversation_history.append(f"Assistant: {response}")
-```
-
-## Performance Notes
-
-- **First load:** 2-5 minutes (kernel compilation + model load)
-- **Subsequent queries:** 1-3 seconds each
-- **Token generation speed:** ~20-40 tokens/second
-- **Memory:** Model stays in memory (~8GB for Llama-3.1-8B)
-
-**What makes it fast:**
-- Model stays loaded between queries
-- Direct GPU/NPU access
-- Optimized kernel reuse
-- Efficient memory management
-
-## Troubleshooting
-
-**Import errors:**
 ```bash
-export PYTHONPATH=~/tt-metal
+curl -s http://localhost:20000/v1/models | python3 -m json.tool | grep '"id"'
 ```
 
-**MESH_DEVICE errors:**
 ```bash
-# Let tt-metal auto-detect (default behavior)
-# Or explicitly set:
-export MESH_DEVICE=N150  # or N300, T3K, etc.
+curl -s http://localhost:20000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "messages": [{"role": "user", "content": "Explain what an API is in one sentence."}],
+    "max_tokens": 256
+  }' | python3 -m json.tool
 ```
 
-**Out of memory:**
-- Close other programs
-- Reduce `max_batch_size` to 1
-- Reduce `max_seq_len` to 1024
+## Manage What Is Running
 
-**Slow first query:**
-- This is normal - kernels compile on first run
-- Subsequent runs use cached kernels
+```bash
+tt model ps                          # what is served, on which port, and whether it is healthy
+tt model logs Llama-3.1-8B-Instruct  # the newest server log
+```
 
-## What You Learned
+[📊 What is running](command:tenstorrent.model.ps)
+[📜 Server log](command:tenstorrent.model.logs)
 
-- ✅ How to use the Generator API directly
-- ✅ Model loading vs. inference phases
-- ✅ Prefill (process prompt) vs. decode (generate tokens)
-- ✅ Token sampling and stopping conditions
-- ✅ How to build custom chat applications
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓
+┃ name                  ┃ backend          ┃ container                    ┃ port  ┃ health  ┃ uptime ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩
+│ Llama-3.1-8B-Instruct │ inference-server │ tt-inference-server-162a825f │ 20000 │ healthy │ 5m     │
+└───────────────────────┴──────────────────┴──────────────────────────────┴───────┴─────────┴────────┘
+```
 
-**Key takeaway:** Real AI applications load the model once and reuse it. This is the foundation for everything from chat apps to API servers.
+`healthy` means the server answers `GET /v1/models`. `starting` means the container is
+running and not answering yet. Keep the model running for the Connect Software lessons.
+When you are finished with it:
 
-## What's Next?
+```bash
+tt model stop                  # names the model when more than one is running
+```
 
-Now that you can chat interactively, let's wrap this in an HTTP API so you can:
-- Query from any programming language
-- Build web applications
-- Test with curl
-- Deploy as a microservice
+[⏹ Stop the model](command:tenstorrent.model.stop)
 
-Continue to Lesson 5: HTTP API Server!
+`tt model stop` stops only the named model's container.
 
-## Learn More
+## Serving on Half the Machine
 
-- [TT-Metalium Generator API](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/generator.py)
-- [Model Configuration](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/model_config.py)
-- [Common Utilities](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/common.py)
+A TT-QuietBox 2 is two p300 boards. A model with a `p300` profile uses one board (two
+chips). `tt serve Llama-3.1-8B-Instruct --device p300` runs it that way. `tt serve` does
+not let you choose *which* board: the container is given every Tenstorrent device node on
+the machine, so run a half-machine model only when nothing else is using the chips. How to
+pin a server to specific chips is in
+[tt-inference-server by Hand](command:tenstorrent.lesson.show?["tt-inference-server"]).
+
+## What Just Happened
+
+`tt serve` ran `tt-inference-server`, which started a container holding vLLM and the
+Tenstorrent plugin. The container opened a mesh across your chips, loaded the weights into
+device memory, compiled and warmed up the kernels, and published the API. The detail of
+each stage, and how to run `tt-inference-server` yourself, is under Go Deeper.
+
+**Next:** [Launch Software →](command:tenstorrent.lesson.show?["launch-software"])

@@ -1,13 +1,16 @@
 ---
 id: api-server
-title: HTTP API Server with Direct API
-description: Create a production-ready Flask API with the model loaded in memory.
-category: first-inference
+title: Serve Without Containers
+description: >-
+  The cloud pod has no Docker. Serve Llama-3.1-8B-Instruct from the vLLM
+  environment the pod already has, and get the same OpenAI-compatible endpoint
+  tt serve gives everywhere else.
+category: serve
 tags:
-  - production
-  - api
-  - flask
+  - inference
   - model
+  - api
+  - cloud
 supportedHardware:
   - n150
   - n300
@@ -19,598 +22,112 @@ supportedHardware:
 status: validated
 validatedOn:
   - n150
-estimatedMinutes: 10
+  - p300c
+estimatedMinutes: 20
+order: 3
 ---
 
-# HTTP API Server with Direct API
+# Serve Without Containers
 
-Transform your interactive chat into a production-ready HTTP API using the Generator API - perfect for building applications that need fast, reliable inference.
+`tt serve` runs a model in a Docker container. The Tenstorrent Cloud pod has no Docker, so
+this lesson serves the same model from what the pod already has: a built tt-metal and a
+vLLM environment with the Tenstorrent plugin installed, at
+`~/tt-metal/build/python_env_vllm`. It ends at the same `/v1` endpoint, so the Connect
+Software lessons work the same way afterwards.
 
-## From Chat to API
+This is also the route on any machine without Docker, provided it has a built tt-metal
+and the plugin; [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
+and the plugin's own README cover that.
 
-In Lesson 4, you built an interactive terminal chat. Now you'll wrap that same Generator API pattern in an HTTP server, enabling:
+## Log In to Hugging Face
 
-- Query the model from any programming language
-- Build web applications with AI features
-- Create microservices architectures
-- Test with simple curl commands
-- Deploy to production with proper scaling
-
-The key advantage: **model stays loaded in memory between HTTP requests** for fast responses.
-
-**What you'll build:** A production-grade Flask server with the model loaded once on startup.
-
-## Architecture
-
-```mermaid
-graph TB
-    Clients[HTTP Clients]
-
-    subgraph Flask["Flask Server"]
-        Generator[Generator API<br/>stays in memory]
-        Chat[POST /chat]
-        Health[GET /health]
-
-        Chat --> Generator
-        Health -.-> Generator
-    end
-
-    Clients <--> Chat
-    Clients <--> Health
-
-    style Clients fill:#5347a4,stroke:#fff,color:#fff
-    style Generator fill:#3293b2,stroke:#fff,color:#fff
-    style Chat fill:#499c8d,stroke:#fff,color:#fff
-    style Health fill:#499c8d,stroke:#fff,color:#fff
-```
-
-**Performance:**
-- Load time (startup): 2-5 minutes
-- Per-request latency: 1-3 seconds (model already loaded!)
-- Scales efficiently for multiple concurrent requests
-
----
-
-## Starting Fresh?
-
-This lesson builds on Lesson 4. If you're jumping here directly, verify your setup:
-
-### Quick Prerequisite Checks
+Llama-3.1-8B-Instruct is gated. Accept the license on
+[its Hugging Face page](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct), then:
 
 ```bash
-# Hardware detected?
-tt-smi -s
-
-# TT-Metalium working?
-python3 -c "import ttnn; print('✓ tt-metal ready')"
-
-# Model downloaded (Meta format)?
-ls ~/models/Llama-3.1-8B-Instruct/original/consolidated.00.pth
-
-# Dependencies installed?
-python3 -c "import pi; print('✓ pi installed')"
-python3 -c "import flask; print('✓ flask installed')"
+tt model login
 ```
 
-**All checks passed?** Continue to Step 1 below.
+[🔑 Log in to Hugging Face](command:tenstorrent.model.login)
 
-**If any checks fail:**
+On the pod, `HF_HOME` is `~/models`, so the token and the weights both land there, where
+`hf`, the plugin and `tt` all look.
 
-**No hardware or TT-Metalium<sup>™</sup>?**
-- See [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"]) and [Verify Installation](command:tenstorrent.showLesson?["verify-installation"])
-
-**No model?**
-- See [Download Model](command:tenstorrent.showLesson?["download-model"])
-- Quick download:
-  ```bash
-  hf auth login --token "$HF_TOKEN"
-  hf download meta-llama/Llama-3.1-8B-Instruct \
-    --local-dir ~/models/Llama-3.1-8B-Instruct
-  ```
-
-**No dependencies?**
-- Install Direct API dependencies:
-  ```bash
-  pip install pi flask
-  pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag
-  ```
-
----
-
-## Prerequisites
-
-Same as Lesson 4:
-- TT-Metalium installed and working
-- Model downloaded (Llama-3.1-8B-Instruct) in **Meta format** (`original/` subdirectory)
-- Dependencies: `pi`, `llama-models`, and `flask` packages
-
----
-
-## Step 1: Install Flask (If Not Already Done)
-
-Flask is a lightweight Python web framework:
+## Serve
 
 ```bash
-pip install flask
+source ~/tt-metal/build/python_env_vllm/bin/activate
+export PYTHONPATH=$HOME/tt-metal/tools:$HOME/tt-metal/ttnn:$PYTHONPATH
+MESH_DEVICE=N150 HF_MODEL=meta-llama/Llama-3.1-8B-Instruct \
+  vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --max-num-seqs 32 --block-size 64 --host 127.0.0.1 --port 20000
 ```
 
-[📦 Install Flask](command:tenstorrent.installFlask)
+[🚀 Serve Llama-3.1-8B-Instruct (vLLM, no container)](command:tenstorrent.vllm.serveCloudN150)
 
-**What this does:**
-- Installs Flask and its dependencies
-- Takes just a few seconds
-- Only needed once per environment
+`HF_MODEL` repeats the model name because tt-metal's model code reads it from the
+environment. `--max-num-seqs 32 --block-size 64` are the plugin's own example settings; the
+vLLM default of 256 sequences is refused on Tenstorrent hardware.
 
-## Step 2: Create the API Server Script
+> **⚠️ Image version matters.** This route works on tt-code-server images built from
+> tt-metal **v0.80.0** or later with the plugin pinned to match (verified 2026-10-29 with a
+> chat completion on hardware). On the v0.63.0 image, which pairs tt-metal v0.69.0 with
+> vLLM 0.30, the server fails at `Model architectures ['TTLlamaForCausalLM'] failed to be
+> inspected`, and no flag fixes it. Check with `cd ~/tt-metal && git describe --tags`. If
+> you are on the old image, the Build on the Stack lessons do not need a server; come back
+> to this one after the pod is refreshed.
 
-This command creates `~/tt-scratchpad/tt-api-server-direct.py`:
+`MESH_DEVICE` names the board the plugin should open: `N150` on the pod, `N300`, `T3K`,
+`P100`, `P150` and so on elsewhere. `--max-model-len 32768` is the plugin's documented
+setting for Llama 3.1 8B on an n150. `--host 127.0.0.1 --port 20000` matches where `tt serve`
+puts a model, so the Connect Software lessons find it in the same place.
+
+The first run downloads the weights (16 GB) and compiles the kernels for your chip; both
+are cached, so the next start is minutes. The server is ready when the log says
+`Application startup complete` and `Uvicorn running on http://0.0.0.0:20000`.
+
+> **⚠️ The endpoint has no password.** `--host 127.0.0.1` keeps it on this machine, which
+> is where `tt launch` and the Connect Software lessons reach it. Without that flag
+> `vllm serve` binds every interface. If another machine must reach it, set `--api-key`
+> to require a key and treat the host with the same care as in
+> [Serve a Model](command:tenstorrent.lesson.show?["interactive-chat"]).
+
+## Ask It a Question
+
+In a second terminal:
 
 ```bash
-# Creates the API server with direct Generator API
-mkdir -p ~/tt-scratchpad && cp template ~/tt-scratchpad/tt-api-server-direct.py && chmod +x ~/tt-scratchpad/tt-api-server-direct.py
+curl -s http://localhost:20000/v1/models | python3 -m json.tool | grep '"id"'
 ```
-
-[🌐 Create API Server Script](command:tenstorrent.createApiServerDirect)
-
-**What this does:**
-- Creates `~/tt-scratchpad/tt-api-server-direct.py` with Flask + Generator API
-- **Opens the file in your editor** so you can see the implementation!
-- Makes it executable
-
-**What's inside:**
-- `initialize_model()` - Loads model once at server startup
-- `generate_response()` - Fast inference using the loaded model
-- Flask routes for `/health` and `/chat`
-- Proper error handling and JSON responses
-
-## Step 3: Start the API Server
-
-Now start the server (this takes 2-5 minutes to load the model):
 
 ```bash
-cd ~/tt-metal && \
-  export HF_MODEL=~/models/Llama-3.1-8B-Instruct && \
-  export PYTHONPATH=$(pwd) && \
-  python3 ~/tt-scratchpad/tt-api-server-direct.py --port 8080
-```
-
-[🚀 Start API Server (Direct API)](command:tenstorrent.startApiServerDirect)
-
-**What you'll see:**
-
-```text
-🔄 Importing TT-Metalium libraries and loading model...
-   This will take 2-5 minutes on first run...
-
-📥 Initializing Tenstorrent mesh device...
-📥 Loading model into memory...
-✅ Model loaded successfully!
-
-🌐 Llama API Server (Direct API) on Tenstorrent
-============================================================
-Model: meta-llama/Llama-3.1-8B-Instruct
-
-🚀 Server ready on http://127.0.0.1:8080
-
-Available endpoints:
-  • GET  http://127.0.0.1:8080/health
-  • POST http://127.0.0.1:8080/chat
-
-Note: Model is loaded in memory - inference is fast!
-      No reloading between requests.
-
-Press CTRL+C to stop the server
-
- * Running on http://127.0.0.1:8080
-```
-
-**The model is now loaded and ready!** Leave this terminal open.
-
-## Step 4: Test with curl
-
-Open a **second terminal** and test the API.
-
-### Health Check
-
-Verify the server is running and the model is loaded:
-
-```bash
-curl http://localhost:8080/health
-```
-
-Response:
-```json
-{
-  "status": "healthy",
-  "model": "meta-llama/Llama-3.1-8B-Instruct",
-  "model_loaded": true,
-  "note": "Model is loaded in memory for fast inference"
-}
-```
-
-### Basic Inference Query
-
-Send your first prompt (**notice how fast it is!**):
-
-```bash
-curl -X POST http://localhost:8080/chat \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "What is machine learning?"}'
-```
-
-[💬 Test: Basic Inference](command:tenstorrent.testApiBasicDirect)
-
-**Response:**
-```json
-{
-  "prompt": "What is machine learning?",
-  "response": "Machine learning is a subset of artificial intelligence...",
-  "tokens_generated": 45,
-  "time_seconds": 1.23,
-  "tokens_per_second": 36.6
-}
-```
-
-**Notice:** Only 1-3 seconds! The model was already loaded.
-
-### Try Multiple Queries
-
-Send several requests to see the speed:
-
-```bash
-# Question about AI
-curl -X POST http://localhost:8080/chat \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Explain neural networks in simple terms"}'
-
-# Creative writing
-curl -X POST http://localhost:8080/chat \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Write a haiku about programming"}'
-
-# Technical question
-curl -X POST http://localhost:8080/chat \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "What are transformers in AI?"}'
-```
-
-[🔄 Test: Multiple Queries](command:tenstorrent.testApiMultipleDirect)
-
-**Each request takes ~1-3 seconds** because the model stays loaded!
-
-### Custom Parameters
-
-Control generation with optional parameters:
-
-```bash
-# Longer response
-curl -X POST http://localhost:8080/chat \
+curl -s http://localhost:20000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "Explain quantum computing",
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "messages": [{"role": "user", "content": "Explain what an API is in one sentence."}],
     "max_tokens": 256
-  }'
-
-# More creative (higher temperature)
-curl -X POST http://localhost:8080/chat \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prompt": "Write a creative story",
-    "max_tokens": 200,
-    "temperature": 0.7
-  }'
+  }' | python3 -m json.tool
 ```
 
-## API Reference
+[💬 Ask the model](command:tenstorrent.vllm.curlCloud)
 
-### POST /chat
+The text is in `choices[0].message.content`. The endpoint speaks the standard OpenAI API,
+so any client works. `tt launch` in the next group finds servers `tt` started; for this
+one you give the client the URL yourself (`http://127.0.0.1:20000/v1`), which each Connect
+Software lesson shows.
 
-Generates text using the loaded model.
+## Stop
 
-**Request Body (JSON):**
-```json
-{
-  "prompt": "Your question here",
-  "max_tokens": 128,        // Optional, default: 128
-  "temperature": 0.0        // Optional, default: 0.0 (greedy)
-}
-```
+Ctrl-C in the terminal running `vllm serve`. There is no container to clean up.
 
-**Response (JSON):**
-```json
-{
-  "prompt": "Your question here",
-  "response": "Generated response...",
-  "tokens_generated": 45,
-  "time_seconds": 1.23,
-  "tokens_per_second": 36.6
-}
-```
+## Go Deeper
 
-**Parameters:**
-- `prompt` (required): Your input text
-- `max_tokens` (optional): Maximum tokens to generate (1-2048, default: 128)
-- `temperature` (optional): Sampling temperature (0.0-2.0, default: 0.0)
-  - 0.0 = deterministic (greedy)
-  - 0.7 = balanced creativity
-  - 1.0+ = very creative
+`tt-inference-server` can also run without Docker (`run.py --local-server`), pointed at a
+built tt-metal and this same venv; that is how `tt serve` would run on a host without
+Docker, with its model specs and warm-up. It is covered in
+[tt-inference-server by Hand](command:tenstorrent.lesson.show?["tt-inference-server"]).
+The plugin's own options (`MESH_DEVICE`, `--additional-config '{"tt": {...}}'`, vision
+models, speculative decoding) are in the
+[vllm-tt-plugin README](https://github.com/tenstorrent/vllm-tt-plugin#readme).
 
-**Error Response:**
-```json
-{
-  "error": "Error message here"
-}
-```
-
-### GET /health
-
-Health check endpoint.
-
-**Response (JSON):**
-```json
-{
-  "status": "healthy",
-  "model": "meta-llama/Llama-3.1-8B-Instruct",
-  "model_loaded": true,
-  "note": "Model is loaded in memory for fast inference"
-}
-```
-
-## Using from Python
-
-Query the API from Python scripts:
-
-```python
-import requests
-
-response = requests.post(
-    "http://localhost:8080/chat",
-    json={
-        "prompt": "What is machine learning?",
-        "max_tokens": 128,
-        "temperature": 0.0
-    }
-)
-
-data = response.json()
-print(f"Response: {data['response']}")
-print(f"Speed: {data['tokens_per_second']:.1f} tokens/sec")
-```
-
-## Using from JavaScript
-
-Query from a web application:
-
-```javascript
-fetch('http://localhost:8080/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    prompt: 'What is machine learning?',
-    max_tokens: 128
-  })
-})
-.then(res => res.json())
-.then(data => {
-  console.log('Response:', data.response);
-  console.log('Speed:', data.tokens_per_second, 'tok/s');
-});
-```
-
-## Understanding the Code
-
-**Open `~/tt-scratchpad/tt-api-server-direct.py` in your editor** (it opened automatically). Key sections:
-
-### Initialization (Lines ~80-135)
-
-```python
-def initialize_model():
-    """Load model once at startup"""
-    global GENERATOR, MODEL_ARGS, ...
-
-    # Open mesh device
-    MESH_DEVICE = ttnn.open_mesh_device(...)
-
-    # Create model
-    MODEL_ARGS, MODEL, TT_KV_CACHE, _ = create_tt_model(
-        MESH_DEVICE,
-        instruct=True,
-        optimizations=DecodersPrecision.performance,
-        ...
-    )
-
-    # Create generator
-    GENERATOR = Generator([MODEL], [MODEL_ARGS], MESH_DEVICE, ...)
-```
-
-**This runs once when the server starts!**
-
-### Request Handling (Lines ~140-200)
-
-```python
-def generate_response(prompt, max_tokens=128, temperature=0.0):
-    """Use the loaded model for fast inference"""
-    # Preprocess
-    tokens, encoded, pos, lens = preprocess_inputs_prefill([prompt], ...)
-
-    # Prefill and decode using the GLOBAL model
-    logits = GENERATOR.prefill_forward_text(...)
-    for _ in range(max_tokens):
-        logits = GENERATOR.decode_forward_text(...)
-
-    return response, tokens_generated
-```
-
-**This runs for each HTTP request - fast!**
-
-### Flask Routes (Lines ~205-250)
-
-```python
-@app.route('/chat', methods=['POST'])
-def chat():
-    data = request.get_json()
-    prompt = data['prompt']
-    max_tokens = data.get('max_tokens', 128)
-    temperature = data.get('temperature', 0.0)
-
-    response, tokens = generate_response(prompt, max_tokens, temperature)
-
-    return jsonify({
-        "prompt": prompt,
-        "response": response,
-        "tokens_generated": tokens,
-        ...
-    })
-```
-
-## Performance Metrics
-
-Watch the server logs to see real-time performance:
-
-```text
-📝 Request: What is machine learning?...
-✓ Generated 45 tokens in 1.23s (36.6 tok/s)
-
-📝 Request: Explain neural networks...
-✓ Generated 52 tokens in 1.41s (36.9 tok/s)
-```
-
-**Typical performance:**
-- Latency: 1-3 seconds per request
-- Throughput: 20-40 tokens/second
-- Memory: ~8GB (model stays loaded)
-
-## Customization Ideas
-
-**1. Add authentication**
-```python
-@app.route('/chat', methods=['POST'])
-def chat():
-    auth_token = request.headers.get('Authorization')
-    if auth_token != 'Bearer your-secret-token':
-        return jsonify({"error": "Unauthorized"}), 401
-    ...
-```
-
-**2. Rate limiting**
-```python
-from flask_limiter import Limiter
-
-limiter = Limiter(app, default_limits=["10 per minute"])
-
-@app.route('/chat', methods=['POST'])
-@limiter.limit("5 per minute")
-def chat():
-    ...
-```
-
-**3. Streaming responses**
-```python
-from flask import stream_with_context
-
-@app.route('/chat/stream', methods=['POST'])
-def chat_stream():
-    def generate():
-        for token in generate_tokens(prompt):
-            yield f"data: {token}\n\n"
-
-    return Response(stream_with_context(generate()),
-                   mimetype='text/event-stream')
-```
-
-**4. Request logging**
-```python
-import logging
-
-logging.basicConfig(filename='api.log', level=logging.INFO)
-
-@app.route('/chat', methods=['POST'])
-def chat():
-    logging.info(f"Request from {request.remote_addr}: {prompt[:50]}")
-    ...
-```
-
-## Deployment Considerations
-
-**For production:**
-
-1. **Use a production WSGI server:**
-```bash
-pip install gunicorn
-gunicorn -w 1 -b 0.0.0.0:8080 tt-api-server-direct:app
-```
-
-2. **Add HTTPS:**
-```bash
-# Use nginx or Apache as reverse proxy with SSL
-```
-
-3. **Monitor and scale:**
-- Track latency and throughput
-- Use load balancer for multiple instances
-- Monitor GPU/NPU memory usage
-
-4. **Add proper error handling:**
-- Timeout protection
-- Input validation
-- Request queuing
-
-## Stopping the Server
-
-To stop the server:
-1. Switch to the server terminal
-2. Press `Ctrl+C`
-
-The model will unload and cleanup happens automatically.
-
-## Troubleshooting
-
-**Port already in use:**
-```bash
-python3 ~/tt-scratchpad/tt-api-server-direct.py --port 8081
-```
-
-**Connection refused:**
-- Check server is running (look for "Server ready" message)
-- Verify correct port
-- Try `http://127.0.0.1:8080` instead of `localhost`
-
-**Slow responses:**
-- First request may be slightly slower (cache warming)
-- Check server logs for performance metrics
-- Reduce `max_tokens` for faster responses
-
-**Out of memory:**
-- Only run one server instance at a time
-- Close other programs
-- Use smaller `max_seq_len` during initialization
-
-## What You Learned
-
-- ✅ How to build HTTP APIs with the Generator API
-- ✅ Model initialization vs. request handling
-- ✅ Flask server patterns for AI inference
-- ✅ API design with proper JSON responses
-- ✅ Performance monitoring and optimization
-
-**Key takeaway:** Production AI APIs load the model once and handle many requests efficiently. This is the foundation for building scalable AI services.
-
-## What's Next?
-
-You now have:
-- ✅ Interactive chat (Lesson 4)
-- ✅ HTTP API server (Lesson 5)
-
-Want to go even further? **Lesson 6** introduces **vLLM** - a production-grade inference engine with:
-- OpenAI-compatible API
-- Continuous batching (serve multiple users efficiently)
-- Advanced optimizations
-- Battle-tested at scale
-
-Continue to Lesson 6: Production Inference with vLLM!
-
-## Learn More
-
-- [Flask Documentation](https://flask.palletsprojects.com/)
-- [REST API Best Practices](https://restfulapi.net/)
-- [TT-Metalium Generator API](https://github.com/tenstorrent/tt-metal/blob/main/models/tt_transformers/tt/generator.py)
+**Next:** [Launch Software →](command:tenstorrent.lesson.show?["launch-software"])

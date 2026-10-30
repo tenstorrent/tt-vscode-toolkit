@@ -5,7 +5,7 @@ description: >-
   Run JAX and PyTorch/XLA computations directly on TT hardware — no install
   needed. venv-forge ships pjrt_plugin_tt, JAX 0.7.1, and torch-xla
   pre-installed. Activate, import, and start dispatching tensors to silicon.
-category: compilers
+category: build
 tags:
   - production
   - xla
@@ -46,7 +46,7 @@ pre-installed. There is no installation step — just activate and start computi
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
 # tt-forge                                         # QB2 — only if you opted into the Forge container
-# source /opt/venv-forge/bin/activate             # cloud / custom install
+# source ~/tt-forge-venv/bin/activate              # cloud pod (tt-forge 1.4.0, JAX 0.7.1) / custom install
 ```
 
 > **On a QB2, Forge is not preinstalled.** `tt-installer`'s
@@ -64,7 +64,7 @@ tt-forge                                          # tt-developer-image / Docker
 > TT shared libraries are loaded first. The verify command handles this automatically.
 > If you call `import jax` without importing `tt_torch` first, JAX will fall back to CPU.
 
-[▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
+[▶ Activate Forge Environment](command:tenstorrent.forge.activateEnv)
 
 Expected output:
 
@@ -74,7 +74,7 @@ TT devices: [TtDevice(id=0)]          # n150 / p300c
 TT devices: [TtDevice(id=0), TtDevice(id=1), TtDevice(id=2), TtDevice(id=3)]   # TT-QuietBox 2
 ```
 
-[▶ Check TT Devices](command:tenstorrent.runHardwareDetection)
+[▶ Check TT Devices](command:tenstorrent.setup.hardwareDetection)
 
 ---
 
@@ -98,7 +98,7 @@ print(c.devices())        # {TtDevice(id=0)}
 print(c[0, 0])            # 1024.0
 ```
 
-[▶ Run JAX Quickstart](command:tenstorrent.runJaxQuickstart)
+[▶ Run JAX Quickstart](command:tenstorrent.xla.runJaxQuickstart)
 
 ---
 
@@ -183,7 +183,7 @@ print(result.shape)       # (4, 512, 512) on TT-QuietBox 2
 print(result.sharding)    # shows per-device placement
 ```
 
-[▶ Run Multi-Device pmap Demo](command:tenstorrent.runJaxPmapDemo)
+[▶ Run Multi-Device pmap Demo](command:tenstorrent.xla.runJaxPmapDemo)
 
 ---
 
@@ -210,7 +210,7 @@ print(z.shape)            # torch.Size([256, 256])
 print(z.device)           # xla:0
 ```
 
-[▶ Run PyTorch/XLA Demo](command:tenstorrent.runPytorchXlaDemo)
+[▶ Run PyTorch/XLA Demo](command:tenstorrent.xla.runPytorchDemo)
 
 ### PyTorch model inference
 
@@ -235,7 +235,7 @@ print(output.shape)       # torch.Size([1, 1000])
 
 > **Note:** torch-xla (without `forge.compile()`) runs models via the XLA JIT path.
 > For the full TT-Forge<sup>™</sup> compiler pipeline with MLIR optimization, see the
-> [TT-Forge Image Classification lesson](command:tenstorrent.showLesson?["forge-image-classification"]).
+> [TT-Forge Image Classification lesson](command:tenstorrent.lesson.show?["forge-image-classification"]).
 
 ---
 
@@ -261,7 +261,7 @@ export TT_METAL_ARCH_NAME=wormhole_b0 # n150 / n300 / T3000 / Galaxy
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
 # tt-forge                                         # QB2 — only if you opted into the Forge container
-# source /opt/venv-forge/bin/activate             # cloud / custom install
+# source ~/tt-forge-venv/bin/activate              # cloud pod / custom install
 ```
 
 ---
@@ -277,7 +277,7 @@ cd ~/tt-forge/demos/tt-xla/nlp/jax
 # Activate TT-Forge environment (choose for your setup):
 tt-forge                                          # tt-developer-image / Docker
 # tt-forge                                         # QB2 — only if you opted into the Forge container
-# source /opt/venv-forge/bin/activate             # cloud / custom install
+# source ~/tt-forge-venv/bin/activate              # cloud pod / custom install
 pip install -r requirements.txt
 python3 gpt_demo.py
 ```
@@ -300,7 +300,7 @@ Other demos in `~/tt-forge/demos/tt-xla/`:
 | OPT | `nlp/jax/opt_demo.py` | Meta OPT language model |
 | ResNet | `cnn/` | Image classification with JAX/Flax |
 
-[▶ Clone and Run TT-Forge Demos](command:tenstorrent.runTtXlaDemo)
+[▶ Clone and Run TT-Forge Demos](command:tenstorrent.xla.runDemo)
 
 ---
 
@@ -319,10 +319,17 @@ No new venv, no pip install, no Python version change, no library compilation.
 
 ---
 
+## Where to go next
+
+- **[tt-awesome: Compilers & Frontends](https://docs.tenstorrent.com/tt-awesome/?cat=compilers)**
+  — [tt-xla](https://docs.tenstorrent.com/tt-awesome/entry/tt-xla/),
+  [tt-mlir](https://docs.tenstorrent.com/tt-awesome/entry/tt-mlir/) and the projects that
+  target them.
+
 ## Next steps
 
-- [TT-Forge Image Classification →](command:tenstorrent.showLesson?["forge-image-classification"]) — `forge.compile()` for PyTorch
+- [TT-Forge Image Classification →](command:tenstorrent.lesson.show?["forge-image-classification"]) — `forge.compile()` for PyTorch
   models via the full MLIR compiler pipeline
-- [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — LLM serving (Qwen3, Llama)
+- [vLLM Production →](command:tenstorrent.lesson.show?["vllm-production"]) — LLM serving (Qwen3, Llama)
 - [JAX documentation](https://jax.readthedocs.io/) — comprehensive JAX tutorials
 - [TT-Forge demos](https://github.com/tenstorrent/tt-forge/tree/main/demos/tt-xla) — validated JAX and PyTorch/XLA examples

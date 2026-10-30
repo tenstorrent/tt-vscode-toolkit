@@ -808,4 +808,4 @@ We explored:
 
 **Next:** We dive deep into the Network-on-Chip that makes 880-core communication possible.
 
-[→ Continue to Module 4: Networks and Communication](command:tenstorrent.showLesson?["cs-fundamentals-04-networks"])
+[→ Continue to Module 4: Networks and Communication](command:tenstorrent.lesson.show?["cs-fundamentals-04-networks"])

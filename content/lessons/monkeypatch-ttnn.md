@@ -7,7 +7,7 @@ description: >-
   or register a model, all while staying upgrade-safe. Built for TT-QuietBox 2,
   where ttnn is an installed package with no source tree — reached via the
   tt-metalium container, not a host-level install.
-category: advanced
+category: deeper
 tags:
   - ttnn
   - metalium
@@ -28,6 +28,9 @@ estimatedMinutes: 25
 ---
 
 # Monkeypatching TT-NN<sup>™</sup>
+
+`tt` never changes TT-NN; it runs whichever copy a container or venv holds. When
+you want to, this is the route that keeps `tt serve` and `tt update` working afterwards.
 
 You want to change how **TT-NN** or **TT-Metalium<sup>™</sup>** behaves — add a log line, work
 around a bug, bump a default, register a new model — but you *don't* want to fork
@@ -481,7 +484,7 @@ reach for a wrapper when you're *adding* it.
 
 > 🛑 **This is the heaviest, least TT-QuietBox 2-friendly option.** It requires a cloned and
 > built `tt-metal` — which a stock TT-QuietBox 2 does **not** have. See
-> [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+> [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
 > if you need one. Exhaust Goals 1–4 first.
 
 Some changes a runtime patch simply can't reach: compiled C++ / kernel behavior,

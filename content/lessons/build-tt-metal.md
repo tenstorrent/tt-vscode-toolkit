@@ -6,7 +6,7 @@ description: >-
   lessons and for running TT-Metalium examples directly. TT-QuietBox 2 and pre-configured
   images do not ship with ~/tt-metal — start here if Check 3 in Verify Your
   Setup failed.
-category: first-inference
+category: deeper
 tags:
   - installation
   - build
@@ -28,9 +28,13 @@ estimatedMinutes: 60
 
 # Build TT-Metalium<sup>™</sup> from Source
 
+You do not need this to run models: `tt serve` uses a container with tt-metal built in,
+and the cloud pod ships a built `~/tt-metal`. Build from source when you need a commit no
+image has, want to change TT-NN itself, or are on a machine with neither.
+
 This lesson walks you through cloning and building TT-Metalium from source on your
 Tenstorrent hardware. Once complete, return to
-[Verify Your Setup](command:tenstorrent.showLesson?["verify-installation"]) to
+[Verify Your Setup](command:tenstorrent.lesson.show?["verify-installation"]) to
 confirm Check 3 is green.
 
 ---
@@ -52,7 +56,7 @@ You need a local TT-Metalium source build if any of the following apply:
   (tt-train)** needs a from-source `tt-metal` **built with tt-train enabled** — an
   extra step beyond a stock build — on a **recent version** (verified on v0.73).
   After this lesson, run the **Install tt-train** step in
-  [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) to
+  [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) to
   add it (it reconfigures `tt-metal` with tt-train and rebuilds `_ttnn.so`).
 
 You do **not** need a source build for:
@@ -260,7 +264,7 @@ python3 -m ttnn.examples.usage.run_op_on_device
 A successful run prints device open/close messages and a result tensor without
 any Python tracebacks. If it passes, your build is good.
 
-Return to [Verify Your Setup](command:tenstorrent.showLesson?["verify-installation"])
+Return to [Verify Your Setup](command:tenstorrent.lesson.show?["verify-installation"])
 and re-run the checks — Check 3 should now be green.
 
 ---
@@ -310,5 +314,5 @@ config. If you copy example scripts from TT-Metalium and they hardcode
 ---
 
 Once the smoke test passes, return to
-[Verify Your Setup](command:tenstorrent.showLesson?["verify-installation"]) to
+[Verify Your Setup](command:tenstorrent.lesson.show?["verify-installation"]) to
 confirm all checks are green before continuing with the lessons.

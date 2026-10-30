@@ -9,15 +9,6 @@
  * When updating commands, update them here and they'll automatically sync everywhere.
  */
 
-import { MODEL_REGISTRY, DEFAULT_MODEL_KEY, type ModelConfig } from '../config';
-
-/**
- * Get the default model config
- */
-function getDefaultModel(): ModelConfig {
-  return MODEL_REGISTRY[DEFAULT_MODEL_KEY];
-}
-
 /**
  * Command template that can include variables to be replaced at runtime
  */
@@ -91,42 +82,80 @@ const JAX_DEVICE_CHECK_PY =
  */
 export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // ========================================
-  // Lesson 0: Modern Setup with tt-installer 2.0
+  // Set Up: Where Am I? / Install and Upgrade with tt
   // ========================================
+  // Templates are the bare command the reader types. Environment guards live in the
+  // handler (src/utils/environment.ts), never here, so the docs site prints the
+  // command as written.
 
-  QUICK_INSTALL: {
-    id: 'quick-install',
-    name: 'Quick Install with tt-installer',
-    template: '/bin/bash -c "$(curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh)"',
-    description: 'One-command installation of the full Tenstorrent stack (interactive prompts)',
+  SETUP_WHERE_AM_I: {
+    id: 'setup-where-am-i',
+    name: 'Where am I?',
+    template: 'echo "uv:       $(uv --version 2>/dev/null || echo none)"; echo "tt:       $(which -a tt 2>/dev/null | tr \'\\n\' \' \')"; echo "chips:    $(tt-smi -s 2>/dev/null | python3 -c \'import sys,json; print(len(json.load(sys.stdin)["device_info"]))\' 2>/dev/null || echo 0)"; echo "tt-metal: $([ -d ~/tt-metal ] && echo ~/tt-metal || echo none)"; echo "docker:   $(docker --version 2>/dev/null || echo none)"',
+    description: 'Reports uv, tt, chip count, tt-metal source and Docker so the reader knows which lessons apply',
   },
 
-  DOWNLOAD_INSTALLER: {
-    id: 'download-installer',
-    name: 'Download tt-installer Script',
-    template: 'cd ~ && curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh -O && chmod +x install.sh',
-    description: 'Downloads the tt-installer script for inspection and customization',
+  SETUP_INSTALL_TT: {
+    id: 'setup-install-tt',
+    name: 'Install tt',
+    template: 'uv tool install --python 3.12 tenstorrent',
+    description: 'Installs the tt CLI (PyPI package "tenstorrent") as a uv tool on Python 3.12 (3.10 resolves an old release)',
   },
 
-  RUN_INTERACTIVE_INSTALL: {
-    id: 'run-interactive-install',
-    name: 'Run Interactive Installation',
-    template: 'cd ~ && ./install.sh',
-    description: 'Runs tt-installer with interactive prompts for customization',
+  SETUP_USE_INSTALLED_TOOLS: {
+    id: 'setup-use-installed-tools',
+    name: "Use the pod's tt-smi and tt-flash",
+    template: 'tt config set tools.override.tt-smi ~/.tt-installer-venv/bin/tt-smi && tt config set tools.override.tt-flash ~/.tt-installer-venv/bin/tt-flash',
+    description: 'Cloud pod: points tt at the tt-smi/tt-flash tt-installer already put in ~/.tt-installer-venv, since tt update is not for the pod',
   },
 
-  RUN_NON_INTERACTIVE_INSTALL: {
-    id: 'run-non-interactive-install',
-    name: 'Run Non-Interactive Installation',
-    template: 'cd ~ && ./install.sh --mode-non-interactive --python-choice=new-venv --install-metalium-models-container=off --reboot-option=never',
-    description: 'Runs tt-installer in automated mode with recommended defaults',
+  SETUP_DEVICE_STATUS: {
+    id: 'setup-device-status',
+    name: 'Device status',
+    template: 'tt --version && tt device status',
+    description: 'One row per chip: board, bus id, temperature, power, clock, DRAM state',
   },
 
-  TEST_METALIUM_CONTAINER: {
-    id: 'test-metalium-container',
-    name: 'Test tt-metalium Container',
+  SETUP_DEVICE_INFO: {
+    id: 'setup-device-info',
+    name: 'Device info',
+    template: 'tt device info',
+    description: 'Board ids, PCIe speed and width, firmware versions, one column per chip',
+  },
+
+  SETUP_UPDATE_DRY_RUN: {
+    id: 'setup-update-dry-run',
+    name: 'Preview upgrade',
+    template: 'tt update --dry-run',
+    description: 'Shows the golden-set update plan without changing anything (safe on the cloud pod)',
+  },
+
+  SETUP_UPDATE: {
+    id: 'setup-update',
+    name: 'Upgrade to the golden set',
+    template: 'tt update',
+    description: 'Installs or upgrades tools, driver, firmware and HugePages to the tested golden set (guarded on the cloud pod)',
+  },
+
+  SETUP_SELF_UPDATE: {
+    id: 'setup-self-update',
+    name: 'Upgrade tt',
+    template: 'tt self update --check && tt self update',
+    description: 'Upgrades the tt command itself to the newest release',
+  },
+
+  SETUP_VERIFY_TTNN_CLOUD: {
+    id: 'setup-verify-ttnn-cloud',
+    name: 'Check TT-NN (Python env)',
+    template: 'python3 -c "import ttnn; print(\'✓ TTNN\', getattr(ttnn, \'__version__\', \'(source build)\'), ttnn.__file__)"',
+    description: 'Imports ttnn in the active Python environment (cloud pod: ~/tt-metal/python_env)',
+  },
+
+  SETUP_VERIFY_TTNN_QB2: {
+    id: 'setup-verify-ttnn-qb2',
+    name: 'Check TT-NN (container)',
     template: 'tt-metalium -c "python3 -c \'import ttnn; print(getattr(ttnn, \\"__version__\\", \\"import OK\\"))\'"',
-    description: 'Verifies tt-metalium container is installed and TTNN is accessible',
+    description: 'Imports ttnn inside the tt-metalium container (TT-QuietBox 2)',
   },
 
   // ========================================
@@ -151,26 +180,8 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Runs a test operation to verify tt-metal is working correctly',
   },
 
-  INSTALL_DEPENDENCIES: {
-    id: 'install-dependencies',
-    name: 'Install System Dependencies',
-    template: 'cd ~/tt-metal && sudo ./install_dependencies.sh',
-    description: 'Installs required system libraries, drivers, and dependencies for tt-metal',
-  },
 
-  COPY_ENVIRONMENT_SETUP: {
-    id: 'copy-environment-setup',
-    name: 'Copy Environment Setup Commands',
-    template: 'export TT_METAL_HOME=~/tt-metal\nexport PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\nexport LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH',
-    description: 'Sets up environment variables for tt-metal (TT_METAL_HOME, PYTHONPATH, LD_LIBRARY_PATH)',
-  },
 
-  PERSIST_ENVIRONMENT: {
-    id: 'persist-environment',
-    name: 'Add Environment Variables to ~/.bashrc',
-    template: '(grep -q "export TT_METAL_HOME=~/tt-metal" ~/.bashrc || echo \'export TT_METAL_HOME=~/tt-metal\' >> ~/.bashrc) && (grep -q "export PYTHONPATH=\\$TT_METAL_HOME:\\$PYTHONPATH" ~/.bashrc || echo \'export PYTHONPATH=$TT_METAL_HOME:$PYTHONPATH\' >> ~/.bashrc) && (grep -q "export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:\\$LD_LIBRARY_PATH" ~/.bashrc || echo \'export LD_LIBRARY_PATH=/opt/openmpi-v5.0.7-ulfm/lib:$LD_LIBRARY_PATH\' >> ~/.bashrc) && echo "✓ Environment variables added to ~/.bashrc. Restart your terminal or run: source ~/.bashrc"',
-    description: 'Permanently adds tt-metal environment variables to ~/.bashrc (idempotent - safe to run multiple times)',
-  },
 
   // Hugging Face Authentication
   SET_HF_TOKEN: {
@@ -184,23 +195,11 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   LOGIN_HF: {
     id: 'login-hf',
     name: 'Login to Hugging Face',
-    template: 'hf auth login --token "$HF_TOKEN"',
+    template: 'tt model login',
     description: 'Authenticates with Hugging Face using your token',
   },
 
   // Model Download
-  DOWNLOAD_MODEL: {
-    id: 'download-model',
-    name: 'Download Llama Model',
-    template: (() => {
-      const model = getDefaultModel();
-      return `mkdir -p ~/models && hf download ${model.huggingfaceId} --local-dir ~/models/${model.localDirName}`;
-    })(),
-    description: (() => {
-      const model = getDefaultModel();
-      return `Creates ~/models directory and downloads ${model.displayName} model (full model with all formats, ~16GB)`;
-    })(),
-  },
 
   // Clone TT-Metal
   CLONE_TT_METAL: {
@@ -222,79 +221,290 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   },
 
   // Run Inference
-  RUN_INFERENCE: {
-    id: 'run-inference',
-    name: 'Run Llama Inference',
-    template:
-      'cd "{{ttMetalPath}}" && export HF_MODEL="meta-llama/Llama-3.1-8B-Instruct" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && pytest models/tt_transformers/demo/simple_text_demo.py -k performance-batch-1 --max_seq_len 1024 --max_generated_tokens 128',
-    description: 'Runs Llama inference demo with HF_MODEL and LLAMA_DIR set to the downloaded model',
-    variables: ['ttMetalPath', 'modelPath'],
-  },
 
   // Interactive Chat (Lesson 4)
-  INSTALL_INFERENCE_DEPS: {
-    id: 'install-inference-deps',
-    name: 'Install Inference Dependencies',
-    template: 'pip install pi && pip install git+https://github.com/tenstorrent/llama-models.git@tt_metal_tag',
-    description: 'Installs pi package and llama-models from Tenstorrent GitHub for inference',
-  },
 
-  CREATE_CHAT_SCRIPT: {
-    id: 'create-chat-script',
-    name: 'Create Interactive Chat Script',
-    template: 'mkdir -p ~/tt-scratchpad && cp "{{templatePath}}" ~/tt-scratchpad/tt-chat.py && chmod +x ~/tt-scratchpad/tt-chat.py',
-    description: 'Copies the chat script template to ~/tt-scratchpad and makes it executable',
-    variables: ['templatePath'],
-  },
 
-  START_CHAT_SESSION: {
-    id: 'start-chat-session',
-    name: 'Start Interactive Chat',
-    template:
-      'cd "{{ttMetalPath}}" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-chat.py',
-    description: 'Starts the interactive chat REPL with the Llama model on tt-metal',
-    variables: ['ttMetalPath', 'modelPath'],
-  },
 
   // HTTP API Server (Lesson 5)
-  CREATE_API_SERVER: {
-    id: 'create-api-server',
-    name: 'Create API Server Script',
-    template: 'mkdir -p ~/tt-scratchpad && cp "{{templatePath}}" ~/tt-scratchpad/tt-api-server.py && chmod +x ~/tt-scratchpad/tt-api-server.py',
-    description: 'Copies the API server script template to ~/tt-scratchpad and makes it executable',
-    variables: ['templatePath'],
+
+
+
+
+
+  // ========================================
+  // Serve Models: tt model / tt serve
+  // ========================================
+
+  MODEL_LIST: {
+    id: 'model-list',
+    name: 'Models for this hardware',
+    template: 'tt model list',
+    description: 'Models with a serving profile for the detected board',
   },
 
-  INSTALL_FLASK: {
-    id: 'install-flask',
-    name: 'Install Flask',
-    template: 'pip install flask',
-    description: 'Installs Flask web framework for the API server',
+  MODEL_LIST_CATALOG: {
+    id: 'model-list-catalog',
+    name: 'Released catalog',
+    template: 'tt model list --catalog',
+    description: 'Only the released catalog Tenstorrent ships and tests through tt-inference-server',
   },
 
-  START_API_SERVER: {
-    id: 'start-api-server',
-    name: 'Start API Server',
-    template:
-      'cd "{{ttMetalPath}}" && export LLAMA_DIR="{{modelPath}}" && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-api-server.py --port 8080',
-    description: 'Starts the Flask API server with the Llama model on tt-metal',
-    variables: ['ttMetalPath', 'modelPath'],
+  MODEL_INFO: {
+    id: 'model-info',
+    name: 'Model info',
+    template: 'tt model info Llama-3.1-8B-Instruct',
+    description: 'What a model needs (disk, RAM) and its validation status per board',
   },
 
-  TEST_API_BASIC: {
-    id: 'test-api-basic',
-    name: 'Test API with Basic Query',
-    template:
-      'curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d \'{"prompt": "What is machine learning?"}\'',
-    description: 'Tests the API server with a basic curl request',
+  MODEL_SEARCH: {
+    id: 'model-search',
+    name: 'Search the Hub',
+    template: 'tt model search qwen3 --limit 5',
+    description: 'Community tt-model bundles on the Hugging Face Hub matching a name (untested by Tenstorrent)',
   },
 
-  TEST_API_MULTIPLE: {
-    id: 'test-api-multiple',
-    name: 'Test API with Multiple Queries',
-    template:
-      'echo "Testing Tenstorrent query..." && curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d \'{"prompt": "Tell me about Tenstorrent hardware"}\' && echo "\n\nTesting haiku..." && curl -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d \'{"prompt": "Write a haiku about AI"}\'',
-    description: 'Tests the API server with multiple sequential curl requests',
+  MODEL_PULL: {
+    id: 'model-pull',
+    name: 'Pull weights',
+    template: 'tt model pull Llama-3.1-8B-Instruct',
+    description: 'Downloads the weights into the Hugging Face cache ahead of serving',
+  },
+
+  MODEL_SERVE_DRY_RUN_N150: {
+    id: 'model-serve-dry-run-n150',
+    name: 'Dry run: Llama-3.1-8B-Instruct',
+    template: 'tt serve Llama-3.1-8B-Instruct --dry-run',
+    description: 'Shows what tt serve would run for the one-chip model; starts nothing',
+  },
+
+  MODEL_SERVE_N150: {
+    id: 'model-serve-n150',
+    name: 'Serve Llama-3.1-8B-Instruct',
+    template: 'tt serve Llama-3.1-8B-Instruct',
+    description: 'Serves the one-chip model in a container (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_SERVE_DRY_RUN_QB2: {
+    id: 'model-serve-dry-run-qb2',
+    name: 'Dry run: Qwen3-32B',
+    template: 'tt serve Qwen3-32B --dry-run',
+    description: 'Shows what tt serve would run for the TT-QuietBox 2 model; starts nothing',
+  },
+
+  MODEL_SERVE_QB2: {
+    id: 'model-serve-qb2',
+    name: 'Serve Qwen3-32B',
+    template: 'tt serve Qwen3-32B',
+    description: 'Serves the model a TT-QuietBox 2 ships with (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_PS: {
+    id: 'model-ps',
+    name: 'What is running',
+    template: 'tt model ps',
+    description: 'Every server tt started: backend, container, port, health, uptime',
+  },
+
+  MODEL_LOGS: {
+    id: 'model-logs',
+    name: 'Server log',
+    template: 'tt model logs',
+    description: 'The newest server log (add --follow to tail it)',
+  },
+
+  MODEL_CURL: {
+    id: 'model-curl',
+    name: 'Ask the model',
+    template: 'tt model curl "Explain what an API is in one sentence." --max-tokens 256',
+    description: 'Sends one chat completion to the served model and prints the JSON reply',
+  },
+
+  MODEL_STOP: {
+    id: 'model-stop',
+    name: 'Stop the model',
+    template: 'tt model stop',
+    description: 'Stops the served model (name it when more than one is running)',
+  },
+
+  VLLM_SERVE_CLOUD_N150: {
+    id: 'vllm-serve-cloud-n150',
+    name: 'Serve Llama-3.1-8B-Instruct (vLLM, no container)',
+    template: 'source ~/tt-metal/build/python_env_vllm/bin/activate && export PYTHONPATH=$HOME/tt-metal/tools:$HOME/tt-metal/ttnn:$PYTHONPATH && MESH_DEVICE=N150 HF_MODEL=meta-llama/Llama-3.1-8B-Instruct vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 32768 --max-num-seqs 32 --block-size 64 --host 127.0.0.1 --port 20000',
+    description: "Cloud pod: serves from the pod's vLLM environment with the Tenstorrent plugin, same /v1 endpoint as tt serve",
+  },
+
+  VLLM_CURL_CLOUD: {
+    id: 'vllm-curl-cloud',
+    name: 'Ask the model (curl)',
+    template: 'curl -s http://localhost:20000/v1/chat/completions -H "Content-Type: application/json" -d \'{"model": "meta-llama/Llama-3.1-8B-Instruct", "messages": [{"role": "user", "content": "Explain what an API is in one sentence."}], "max_tokens": 256}\' | python3 -m json.tool',
+    description: 'One chat completion against the no-container server',
+  },
+
+  // ========================================
+  // Connect Software: tt launch (launch-software lesson)
+  // ========================================
+  // Templates stay bare tt commands; the cloud guard lives in the handlers.
+
+  LAUNCH_LIST: {
+    id: 'launch-list',
+    name: 'What can connect',
+    template: 'tt launch list',
+    description: 'Every client tt can connect to the served model, and whether each is usable now',
+  },
+
+  LAUNCH_OPENWEBUI_DRY_RUN: {
+    id: 'launch-openwebui-dry-run',
+    name: 'Dry run: Open WebUI',
+    template: 'tt launch openwebui --dry-run',
+    description: 'Shows the model, endpoint and container tt launch would use for Open WebUI; changes nothing',
+  },
+
+  LAUNCH_OPENWEBUI: {
+    id: 'launch-openwebui',
+    name: 'Launch Open WebUI',
+    template: 'tt launch openwebui',
+    description: 'Runs Open WebUI in a container pointed at the served model (needs Docker; guarded on the cloud pod)',
+  },
+
+  LAUNCH_STOP_OPENWEBUI: {
+    id: 'launch-stop-openwebui',
+    name: 'Stop Open WebUI',
+    template: 'tt launch stop openwebui',
+    description: 'Stops the Open WebUI container and keeps its chats and settings (needs Docker; guarded on the cloud pod)',
+  },
+
+  LAUNCH_INSTALL_AIDER: {
+    id: 'launch-install-aider',
+    name: 'Install Aider',
+    template: 'uv tool install aider-chat',
+    description: 'Installs Aider as a uv tool; works on the cloud pod, which has uv and no Node.js',
+  },
+
+  LAUNCH_AIDER_DRY_RUN: {
+    id: 'launch-aider-dry-run',
+    name: 'Dry run: Aider',
+    template: 'tt launch aider --dry-run',
+    description: 'Shows the exact aider command tt launch would run against the served model',
+  },
+
+  LAUNCH_AIDER: {
+    id: 'launch-aider',
+    name: 'Launch Aider',
+    template: 'tt launch aider',
+    description: 'Starts Aider in this terminal, pointed at the served model',
+  },
+
+  LAUNCH_QWENCODE_DRY_RUN: {
+    id: 'launch-qwencode-dry-run',
+    name: 'Dry run: Qwen Code',
+    template: 'tt launch qwencode --dry-run',
+    description: 'Shows the exact qwen command tt launch would run against the served model',
+  },
+
+  LAUNCH_QWENCODE: {
+    id: 'launch-qwencode',
+    name: 'Launch Qwen Code',
+    template: 'tt launch qwencode',
+    description: 'Starts Qwen Code in this terminal, pointed at the served model (needs Node.js and @qwen-code/qwen-code)',
+  },
+
+  LAUNCH_STUDIO_N150: {
+    id: 'launch-studio-n150',
+    name: 'TT-Studio: Llama-3.1-8B-Instruct',
+    template: 'tt serve Llama-3.1-8B-Instruct --studio',
+    description: 'Serves the one-chip model through TT-Studio, which brings its own web UI on port 3000 (needs Docker; guarded on the cloud pod)',
+  },
+
+  LAUNCH_STUDIO_QB2: {
+    id: 'launch-studio-qb2',
+    name: 'TT-Studio: Qwen3-32B',
+    template: 'tt serve Qwen3-32B --studio',
+    description: 'Serves the TT-QuietBox 2 model through TT-Studio, which brings its own web UI on port 3000 (needs Docker; guarded on the cloud pod)',
+  },
+
+  // Agent lessons (qb2-local-agents, qb2-openclaw-assistant) keep their scripts on
+  // port 8000, so these serve there instead of tt's default 20000. Tool calling and the
+  // parser come from the model catalog; nothing to pass.
+  MODEL_SERVE_QB2_AGENTS_QWEN: {
+    id: 'model-serve-qb2-agents-qwen',
+    name: 'Serve Qwen3-32B on port 8000',
+    template: 'tt serve Qwen3-32B --port 8000',
+    description: 'Serves Qwen3-32B on port 8000, where the agent lessons expect it (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_SERVE_QB2_AGENTS_LLAMA: {
+    id: 'model-serve-qb2-agents-llama',
+    name: 'Serve Llama-3.3-70B-Instruct on port 8000',
+    template: 'tt serve Llama-3.3-70B-Instruct --port 8000',
+    description: 'Serves Llama-3.3-70B-Instruct on port 8000, where the agent lessons expect it (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_LIST_COMMUNITY_QB2: {
+    id: 'model-list-community-qb2',
+    name: 'Community models for a TT-QuietBox 2',
+    template: 'tt model list --community --hw p300x2',
+    description: 'Lists the community bundles that declare a p300x2 profile, without touching the hardware',
+  },
+
+  MODEL_SERVE_QB2_AGENTS_CODER: {
+    id: 'model-serve-qb2-agents-coder',
+    name: 'Serve Qwen3-Coder-30B-A3B (community) on port 8000',
+    template: 'tt serve raahemnabeel/qwen3-coder-30b-a3b --profile p300x2 --port 8000',
+    description: 'Serves the community Qwen3-Coder-30B-A3B bundle on all four dies, port 8000, for the agent lessons (needs Docker; guarded on the cloud pod)',
+  },
+
+  MODEL_SERVE_QB2_CLAW_CODER_NEXT: {
+    id: 'model-serve-qb2-claw-coder-next',
+    name: 'Serve Qwen3-Coder-Next (community) on port 8000',
+    template: 'tt serve raahemnabeel/qwen3-coder-next --profile p300x2 --port 8000',
+    description: 'Serves the community Qwen3-Coder-Next bundle on all four dies, port 8000, for OpenClaw (needs Docker; guarded on the cloud pod)',
+  },
+
+  // ========================================
+  // Build on the Stack: environment-aware first steps
+  // ========================================
+
+  METAL_RUN_ADD_TENSORS: {
+    id: 'metal-run-add-tensors',
+    name: 'Run the first TT-NN tutorial',
+    template: 'cd ~/tt-metal && python3 ttnn/tutorials/basic_python/ttnn_add_tensors.py',
+    description: 'Adds two tensors on the device with the tutorial script in ~/tt-metal (cloud pod: python_env is already active)',
+  },
+
+  TTLANG_SETUP_CLOUD: {
+    id: 'ttlang-setup-cloud',
+    name: 'Activate TT-Lang and copy the tutorials',
+    template: 'source ~/tt-lang-venv/bin/activate && tt-lang-setup-tutorials -t ~/ttlang-tutorials',
+    description: "Activates the pod's TT-Lang venv and copies its bundled tutorials to ~/ttlang-tutorials",
+  },
+
+  TTLANG_RUN_TUTORIAL_SIM: {
+    id: 'ttlang-run-tutorial-sim',
+    name: 'Run a TT-Lang tutorial on the simulator',
+    template: 'source ~/tt-lang-venv/bin/activate && ttlang-sim ~/ttlang-tutorials/elementwise/step_4_multinode_grid_auto.py',
+    description: 'Runs the elementwise tutorial on the functional simulator; no hardware is touched',
+  },
+
+  INFERENCE_SERVER_CLONE: {
+    id: 'inference-server-clone',
+    name: 'Clone tt-inference-server v0.25.0',
+    template: 'git clone --depth 1 --branch v0.25.0 https://github.com/tenstorrent/tt-inference-server.git ~/tt-inference-server && cd ~/tt-inference-server && uv venv --python 3.10 .venv && uv pip install --python .venv/bin/python pyyaml packaging',
+    description: "Clones the release tt 1.2.1 pins and makes the small venv run.py itself needs (the cloud pod has no tt-managed copy)",
+  },
+
+  INFERENCE_SERVER_RUN_SERVER_LOCAL: {
+    id: 'inference-server-run-server-local',
+    name: 'Run the server without a container (cloud pod)',
+    template: 'cd ~/tt-inference-server && source .venv/bin/activate && export HF_TOKEN=$(cat ~/models/token) && python run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --local-server --tt-metal-home ~/tt-metal --tt-metal-python-venv-dir ~/tt-metal/build/python_env_vllm --host-hf-cache ~/models --no-auth --service-port 20000',
+    description: "run.py --local-server against the pod's built tt-metal and its vLLM venv; same port as tt serve so tt launch finds it",
+  },
+
+  SETUP_LIST_TOOLS: {
+    id: 'setup-list-tools',
+    name: 'What tt installed',
+    template: 'cat ~/.local/share/tenstorrent/installed.toml; echo; ls ~/.local/share/tenstorrent/tools/',
+    description: "tt's installed-tools manifest (version, path, date) and the tools directory",
   },
 
   // ========================================
@@ -304,29 +514,29 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   VERIFY_INFERENCE_SERVER_PREREQS: {
     id: 'verify-inference-server-prereqs',
     name: 'Verify tt-inference-server Prerequisites',
-    template: 'echo "=== Checking Prerequisites ===" && which docker && docker --version && ls ~/.local/lib/tt-inference-server/run.py && tt-smi -s | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f\'  board: {c[\"board_type\"]}\') for c in d[\"device_info\"]]" 2>/dev/null || tt-smi && echo "=== ✓ Prerequisites OK ==="',
+    template: 'echo "=== Checking Prerequisites ===" && which docker && docker --version && ls ~/.local/share/tenstorrent/tools/tt-inference-server-*/src/run.py ~/tt-inference-server/run.py 2>/dev/null | tail -1 && tt-smi -s | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f\'  board: {c[\"board_type\"]}\') for c in d[\"device_info\"]]" 2>/dev/null || tt-smi && echo "=== ✓ Prerequisites OK ==="',
     description: 'Verifies Docker is installed, tt-inference-server run.py exists, and hardware is detected',
   },
 
   START_TT_INFERENCE_SERVER: {
     id: 'start-tt-inference-server',
     name: 'Start tt-inference-server (auto-detect hardware)',
-    // --tt-device omitted: run.py auto-detects via tt-smi. --no-auth skips JWT_SECRET requirement.
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --workflow server --docker-server --no-auth',
-    description: 'Starts vLLM server via tt-inference-server; hardware is auto-detected by run.py via tt-smi (no --tt-device flag needed)',
+    // --device omitted: run.py auto-detects via tt-smi. --no-auth skips JWT_SECRET requirement.
+    template: 'cd $(ls -d ~/.local/share/tenstorrent/tools/tt-inference-server-*/src 2>/dev/null | sort -V | tail -1) && ../venv/bin/python run.py --model Llama-3.1-8B-Instruct --workflow server --docker-server --no-auth',
+    description: 'Starts vLLM server via tt-inference-server; hardware is auto-detected by run.py via tt-smi (no --device flag needed)',
   },
 
   START_TT_INFERENCE_SERVER_N150: {
     id: 'start-tt-inference-server-n150',
     name: 'Start tt-inference-server (N150)',
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --tt-device n150 --workflow server --docker-server --no-auth',
+    template: 'cd $(ls -d ~/.local/share/tenstorrent/tools/tt-inference-server-*/src 2>/dev/null | sort -V | tail -1) && ../venv/bin/python run.py --model Llama-3.1-8B-Instruct --device n150 --workflow server --docker-server --no-auth',
     description: 'Starts vLLM server for Llama-3.1-8B-Instruct on N150 (Wormhole, 64K context)',
   },
 
   START_TT_INFERENCE_SERVER_N300: {
     id: 'start-tt-inference-server-n300',
     name: 'Start tt-inference-server (N300)',
-    template: 'cd ~/.local/lib/tt-inference-server && python3 run.py --model Llama-3.1-8B-Instruct --tt-device n300 --workflow server --docker-server --no-auth',
+    template: 'cd $(ls -d ~/.local/share/tenstorrent/tools/tt-inference-server-*/src 2>/dev/null | sort -V | tail -1) && ../venv/bin/python run.py --model Llama-3.1-8B-Instruct --device n300 --workflow server --docker-server --no-auth',
     description: 'Starts vLLM server for Llama-3.1-8B-Instruct on N300 (Wormhole dual-chip, 128K context)',
   },
 
@@ -397,27 +607,8 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     variables: ['ttMetalPath'],
   },
 
-  // Coding Assistant with Prompt Engineering (Lesson 9)
-  VERIFY_CODING_MODEL: {
-    id: 'verify-coding-model',
-    name: 'Verify Llama 3.1 8B',
-    template: 'ls -lh ~/models/Llama-3.1-8B-Instruct/original/',
-    description: 'Verifies Llama 3.1 8B model is downloaded (should be from Lesson 3)',
-  },
 
-  CREATE_CODING_ASSISTANT_SCRIPT: {
-    id: 'create-coding-assistant-script',
-    name: 'Create Coding Assistant Script',
-    template: 'mkdir -p ~/tt-scratchpad',
-    description: 'Creates the coding assistant script with prompt engineering in ~/tt-scratchpad',
-  },
 
-  START_CODING_ASSISTANT: {
-    id: 'start-coding-assistant',
-    name: 'Start Coding Assistant',
-    template: 'cd ~/tt-metal && export LLAMA_DIR=~/models/Llama-3.1-8B-Instruct/original && export PYTHONPATH=$(pwd) && python3 ~/tt-scratchpad/tt-coding-assistant.py',
-    description: 'Starts interactive CLI coding assistant with Llama 3.1 8B using Direct API and prompt engineering',
-  },
 
   // Image Classification with TT-Forge (Lesson 11)
   // forge + torch-xla live in ~/tt-forge-venv (symlink → /opt/venv-forge in developer images).
@@ -442,20 +633,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
   },
 
-  TEST_FORGE_INSTALL_WHEEL: {
-    id: 'test-forge-install-wheel',
-    name: 'Verify Forge Stack',
-    template: `source ~/tt-forge-venv/bin/activate && python3 -c "\n${FORGE_FULL_VERIFY_PY}\n"`,
-    description: 'Imports forge, jax, and torch_xla and prints their versions + visible TT devices',
-  },
 
-  CREATE_FORGE_CLASSIFIER: {
-    id: 'create-forge-classifier',
-    name: 'Create Image Classifier Script',
-    template: 'mkdir -p ~/tt-scratchpad && cp \"{{templatePath}}\" ~/tt-scratchpad/tt-forge-classifier.py && chmod +x ~/tt-scratchpad/tt-forge-classifier.py',
-    description: 'Copies tt-forge-classifier.py template to ~/tt-scratchpad',
-    variables: ['templatePath'],
-  },
 
   RUN_FORGE_CLASSIFIER: {
     id: 'run-forge-classifier',
@@ -464,20 +642,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Activates venv-forge and runs MobileNetV2 image classification on TT hardware',
   },
 
-  RUN_FORGE_CLASSIFIER_WHEEL: {
-    id: 'run-forge-classifier-wheel',
-    name: 'Run Image Classifier (legacy)',
-    template: 'source ~/tt-forge-venv/bin/activate && cd ~/tt-scratchpad && python3 tt-forge-classifier.py',
-    description: 'Activates venv-forge and runs MobileNetV2 image classifier (alias)',
-  },
 
-  RUN_FORGE_CUSTOM_IMAGE: {
-    id: 'run-forge-custom-image',
-    name: 'Classify Custom Image',
-    template: 'source ~/tt-forge-venv/bin/activate && cd ~/tt-scratchpad && python3 tt-forge-classifier.py --image {{imagePath}}',
-    description: 'Classifies a user-provided image with TT-Forge compiled model',
-    variables: ['imagePath'],
-  },
 
   // ──────────────────────────────────────────────────────────────────────────
   // venv-forge activation & verification (shared by forge + XLA lessons)
@@ -638,12 +803,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // Lesson 17: Native Video Animation with AnimateDiff
   // ========================================
 
-  INSTALL_ANIMATEDIFF: {
-    id: 'install-animatediff',
-    name: 'Install AnimateDiff Package',
-    template: 'cd ~/tt-scratchpad/tt-animatediff && pip install -e . && python3 -c "import animatediff_ttnn; print(\'✓ AnimateDiff package installed successfully\')"',
-    description: 'Install the animatediff-ttnn standalone package',
-  },
 
   RUN_ANIMATEDIFF_2FRAME: {
     id: 'run-animatediff-phase1',
@@ -659,12 +818,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Generate frames using TTNN UNet + cross-frame temporal attention on Blackhole hardware (P100/P300C/QB2)',
   },
 
-  VIEW_ANIMATEDIFF_OUTPUT: {
-    id: 'view-animatediff-output',
-    name: 'View Generated Frames',
-    template: 'ls -lh ~/tt-projects/tt-animatediff/output/ 2>/dev/null || echo "No output yet — run Phase 1 or Phase 2.5 first"',
-    description: 'List generated GIF files in the output directory',
-  },
 
   SETUP_ANIMATEDIFF_PROJECT: {
     id: 'setup-animatediff-project',
@@ -721,12 +874,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Download and prepare tiny-shakespeare dataset for training from scratch',
   },
 
-  CREATE_NANO_TRICKSTER: {
-    id: 'create-nano-trickster',
-    name: 'Create Nano-Trickster Architecture',
-    template: 'cd ~/tt-scratchpad/training && python nano_trickster.py',
-    description: 'Test the nano-trickster architecture (11M parameters)',
-  },
 
   TRAIN_FROM_SCRATCH: {
     id: 'train-from-scratch',
@@ -735,12 +882,6 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
     description: 'Train nano-trickster from random initialization on tiny-shakespeare',
   },
 
-  TEST_NANO_TRICKSTER: {
-    id: 'test-nano-trickster',
-    name: 'Test Nano-Trickster',
-    template: 'cd ~/tt-scratchpad/training && python -c "import torch; from nano_trickster import NanoTrickster; model = NanoTrickster(); model.load_state_dict(torch.load(\'output/nano_trickster/final_model.pt\')); model.eval(); tokenizer = torch.load(\'data/tokenizer.pt\'); stoi = tokenizer[\'stoi\']; itos = tokenizer[\'itos\']; prompt = \'ROMEO:\'; input_ids = torch.tensor([[stoi.get(c, 0) for c in prompt]]); generated = model.generate(input_ids, max_new_tokens=200, temperature=0.8); text = \'\'.join([itos.get(int(t), \'?\') for t in generated[0]]); print(text)"',
-    description: 'Generate text with the trained nano-trickster model',
-  },
 
   // ========================================
   // QB2 Video Generation (qb2-video-generation)
@@ -813,27 +954,7 @@ export const TERMINAL_COMMANDS: Record<string, CommandTemplate> = {
   // QB2 Local Agents (qb2-local-agents lesson)
   // ========================================
 
-  START_QB2_AGENTS_SERVER_QWEN: {
-    id: 'start-qb2-agents-server-qwen',
-    name: 'Start Qwen3-32B Agent Server',
-    // The reset is deliberately non-fatal (`|| echo ...;` rather than `&&`). `tt-smi -r`
-    // legitimately fails in cases where we still want the server to come up: tt-smi not on
-    // PATH (exit 127 — the case this lesson's own troubleshooting section documents), or the
-    // device still held by a previously running container. Chaining with `&&` would make the
-    // button appear to do nothing at all in exactly those situations.
-    template: "tt-smi -r || echo '⚠️  Board reset failed (tt-smi missing, or device still in use) — starting the server anyway'; cd ~/code/tt-inference-server && python3 run.py --model Qwen3-32B --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"hermes\"}'",
-    description: 'Attempts a board reset (tt-smi -r, non-fatal) then starts vLLM with Qwen3-32B and tool calling enabled via tt-inference-server (hermes parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
-  },
 
-  START_QB2_AGENTS_SERVER_LLAMA: {
-    id: 'start-qb2-agents-server-llama',
-    name: 'Start Llama-3.3-70B Agent Server',
-    // Non-fatal reset — see the note on START_QB2_AGENTS_SERVER_QWEN above. This button is
-    // the most likely to hit a busy device, since it is typically clicked while the Qwen
-    // container still owns the hardware.
-    template: "tt-smi -r || echo '⚠️  Board reset failed (tt-smi missing, or device still in use) — starting the server anyway'; cd ~/code/tt-inference-server && python3 run.py --model Llama-3.3-70B-Instruct --tt-device p300x2 --workflow server --docker-server --no-auth --host-hf-cache --vllm-override-args '{\"enable_auto_tool_choice\": true, \"tool_call_parser\": \"llama3_json\"}'",
-    description: 'Attempts a board reset (tt-smi -r, non-fatal) then starts vLLM with Llama-3.3-70B-Instruct and tool calling enabled via tt-inference-server (llama3_json parser); --host-hf-cache reuses the host HF cache instead of re-downloading weights',
-  },
 
   CHECK_AGENT_SERVER_HEALTH: {
     id: 'check-agent-server-health',

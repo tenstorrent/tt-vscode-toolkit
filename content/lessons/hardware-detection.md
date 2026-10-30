@@ -2,9 +2,9 @@
 id: hardware-detection
 title: Hardware Detection
 description: >-
-  Scan for connected Tenstorrent devices and verify they're properly recognized
-  by the system.
-category: first-inference
+  Confirm the hardware is alive and the software can see it: tt device status
+  first, then tt-smi for the raw fields and the diagnosis steps.
+category: setup
 tags:
   - hardware
 supportedHardware:
@@ -24,40 +24,40 @@ estimatedMinutes: 5
 
 # Hardware Detection
 
-Detect and verify your Tenstorrent hardware using the `tt-smi` command-line tool.
+Confirm the hardware is alive and the software can see it. `tt` answers first; `tt-smi`,
+which `tt` runs for you, has the raw fields for when you are diagnosing.
 
-## Before You Begin: Is Your System Already Set Up?
-
-**If you're using:**
-- ✅ **Tenstorrent Cloud** - Your environment is pre-configured
-- ✅ **Quietbox with preinstalled image** - tt-smi and drivers are already installed
-- ✅ **Managed system** - Your sysadmin likely ran TT-Installer already
-
-**You can skip directly to running tt-smi below!**
-
-### Need to Install? Use TT-Installer 2.0
-
-If `tt-smi` is not found on your system, the fastest way to set up is with **TT-Installer 2.0** (recommended for 95% of users):
+## Ask `tt`
 
 ```bash
-# One-command installation (5-15 minutes)
-/bin/bash -c "$(curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh)"
+tt --version && tt device status
 ```
 
-**What it installs:**
-- ✅ tt-smi (this tool)
-- ✅ Kernel drivers
-- ✅ Firmware updates
-- ✅ HugePages configuration
-- ✅ TT-Metalium<sup>™</sup> containers (1GB standard, optional 10GB with demos)
-- ✅ Python environment
+[🔍 Device status](command:tenstorrent.setup.deviceStatus)
 
+One row per chip, `DRAM True` on each: the machine is healthy. A cloud pod shows one
+n150; a TT-QuietBox 2 shows four `p300c` rows. (If you get `tt: command not found`, go
+back to [Install and Upgrade with tt](command:tenstorrent.lesson.show?["tt-installer"]).)
 
-Consult the [TT-Installer](https://github.com/tenstorrent/tt-installer) repo for more information.
+Two more `tt` commands answer the next questions:
+
+```bash
+tt device info      # board ids, PCIe speed and width, firmware versions, one column per chip
+tt smi              # hands the terminal to the live tt-smi dashboard (q to quit)
+```
+
+[🪪 Device info](command:tenstorrent.setup.deviceInfo)
+
+`tt device info` shows the firmware bundle on each chip (`fw.fw_bundle_version`), which
+is the first thing support asks for. `tt device status --json` gives the same data as
+JSON, plus the host's OS, kernel, memory and driver version, so scripts do not have to
+parse a table.
+
+The rest of this lesson looks one level lower, at `tt-smi`.
 
 ---
 
-## What This Does
+## What `tt-smi` Does
 
 The `tt-smi` command scans your system for connected Tenstorrent devices and displays their status, including:
 - Device model and ID
@@ -73,7 +73,7 @@ This command will scan for connected Tenstorrent devices:
 tt-smi
 ```
 
-[🔍 Detect Tenstorrent Hardware](command:tenstorrent.runHardwareDetection)
+[🔍 Detect Tenstorrent Hardware](command:tenstorrent.setup.hardwareDetection)
 
 ## Understanding Your Hardware
 
@@ -310,7 +310,7 @@ TT-QuietBox is a Tenstorrent multi-chip development system. The TT-QuietBox 2 (B
   each like a p100 (device 0, `MESH_DEVICE=P100`) is correct and is what most lessons want
 - But the machine's actual shape is **one four-chip ring mesh** (`P300_X2`, a 2×2 mesh) —
   multi-chip work (e.g. tt-train DDP) scales near-linearly across it rather than running as
-  4 unrelated devices; see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])
+  4 unrelated devices; see [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"])
 
 **Device Enumeration:**
 ```bash
@@ -351,9 +351,7 @@ tt-smi -s  # Shows all 4 devices
 - ✅ TT-QuietBox multi-device system configuration
 - ✅ Troubleshooting hardware detection issues
 
-**Next step:** Now that you know your hardware, verify your TT-Metalium installation works correctly.
-
-Continue to Lesson 2: Verify Installation!
+**Next:** [Verify Your Setup →](command:tenstorrent.lesson.show?["verify-installation"])
 
 ---
 

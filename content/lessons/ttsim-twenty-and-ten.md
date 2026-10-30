@@ -7,7 +7,7 @@ description: >-
   Includes N300 and Blackhole two-chip mesh simulation (v1.10.1). Escalates
   from first kernel to DSP prototyping to a cliffhanger only real hardware
   can resolve.
-category: advanced
+category: deeper
 tags:
   - ttsim
   - simulator
@@ -46,13 +46,13 @@ This lesson is self-contained. Setup is below. No Tenstorrent hardware required.
 ## Setup
 
 > **No hardware?** The
-> [ttsim QEMU Bridge](command:tenstorrent.showLesson?["ttsim-qemu-bridge"])
+> [ttsim QEMU Bridge](command:tenstorrent.lesson.show?["ttsim-qemu-bridge"])
 > boots a Linux VM with a virtual Tenstorrent PCI device. Prerequisites: `libttsim_wh.so`
 > on the host (downloaded via the Setup button below), an Ubuntu 24.04 cloud image, and `tt-kmd`
 > built and loaded inside the VM. See the QEMU Bridge lesson for current status and
 > driver version requirements — this path is still in active development.
 
-[⚙ Set Up ttsim](command:tenstorrent.setupTtsim)
+[⚙ Set Up ttsim](command:tenstorrent.ttsim.setup)
 
 Or manually:
 
@@ -102,7 +102,7 @@ export TT_METAL_DISABLE_SFPLOADMACRO=1
 
 **Prerequisite:** tt-metal must be installed and built.
 If you haven't done that yet, start with the
-[build tt-metal lesson](command:tenstorrent.showLesson?["build-tt-metal"]) first.
+[build tt-metal lesson](command:tenstorrent.lesson.show?["build-tt-metal"]) first.
 
 All examples below run from `$TT_METAL_HOME` unless noted.
 
@@ -866,7 +866,7 @@ one of these is a confirmed working TTNN operation in slow dispatch mode. The fo
 script implements one attention head — no model download, no HuggingFace token, no
 weight file.
 
-[▶ Run Transformer Attention on ttsim](command:tenstorrent.runTtsimAttention)
+[▶ Run Transformer Attention on ttsim](command:tenstorrent.ttsim.runAttention)
 
 Or manually:
 
@@ -1040,5 +1040,5 @@ added in ttsim v1.10.0 and downloaded by the Setup block above — point
 - ✅ **Architecture exploration**: Wormhole vs Blackhole vs N300 without owning any of them
 
 **Ready for hardware?** Start with
-[verifying your installation](command:tenstorrent.showLesson?["verify-installation"])
+[verifying your installation](command:tenstorrent.lesson.show?["verify-installation"])
 to confirm your device is operational, then return here and run entries 30–31 again.

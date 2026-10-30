@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.42] - 2026-10-30
+
+- Removed the "Teach `tt launch` Your Own Tool" section and its two buttons
+  (`tenstorrent.launch.ttCliDevSetup`, `tenstorrent.launch.ttCliTestLaunchers`) added in
+  0.1.41, along with the saved tt-cli adapter patch. A client written as a Python module
+  needs a tt-cli pull request per tool; a definition-based plugin system is proposed
+  separately, and the lesson can return once something like it exists.
+
+## [0.1.41] - 2026-10-30
+
+### Community models on the TT-QuietBox 2 lessons, and `tt launch` for your own tool
+
+- **Local AI Agents**: Step 1 leads with a community bundle,
+  `tt serve raahemnabeel/qwen3-coder-30b-a3b --profile p300x2 --port 8000` (3B active
+  parameters, `qwen3_coder` parser). Validated on one p300 board: 80 tok/s on a real
+  prompt, `00_verify_tools.py` green in 5 s, the research agent's 11-step run in 3 min 17 s.
+  The model table gains the two community coders and explains why mixture-of-experts
+  bundles answer in a second where Qwen3-32B takes eight. New buttons
+  `tenstorrent.model.listCommunityQb2` and `tenstorrent.model.serveQb2AgentsCoder`.
+- **OpenClaw**: a "Faster: Qwen3-Coder-Next from the community catalog" option (measured
+  107 tok/s on two dies; 148 GB of weights) with the `openclaw.json` provider entry, a
+  three-column performance comparison, and a "`tt launch openclaw`?" section describing
+  the adapter tt 1.2.1 lacks. Button `tenstorrent.model.serveQb2ClawCoderNext`.
+- **Launch Software**: how `tt launch` treats a community bundle (the `not in the model
+  catalog` warning is expected; the dry run shows the parser) and a pointer to the adapter
+  walkthrough.
+
+## [0.1.40] - 2026-10-29
+
+Every command id is now `tenstorrent.<feature>.<action>` (`tenstorrent.setup.quickInstall`,
+`tenstorrent.lesson.show`, `tenstorrent.cookbook.gameOfLife`, ...). The old flat ids are
+removed, with no aliases. If you bound one in `keybindings.json`, re-bind it: the full
+old-to-new table is `scripts/command-rename-map.json`.
+
+Also in this release:
+
+- `npm test` now fails on a lesson button whose command is not declared, a declared
+  command nobody registers, a `completionEvent` naming a command that does not exist,
+  or a `TERMINAL_COMMANDS` entry no handler reads (`test/lesson-tests/command-links.test.ts`).
+  Reconciling the existing drift declared 19 commands lessons already used, removed 5
+  never registered, deleted 10 handlers nothing called, dropped 6 CS Fundamentals
+  completion events that could never fire, and removed 15 unused templates.
+- The docs-site command map reads dotted ids, so the command under each button on the
+  published site survives the rename.
+- **Connect Software** is now `tt launch`. New lesson *Launch Software* (`tt launch
+  list`, Open WebUI with its no-sign-in warning, Aider via `uv tool install`, Qwen Code,
+  the `tt agent` preview, TT-Studio via `tt serve --studio`). *Coding Assistant with
+  Aider* starts with `tt launch aider`; the two TT-QuietBox 2 agent lessons serve with
+  `tt serve <model> --port 8000`, replacing the hand-typed `run.py` commands. Open WebUI
+  and TT-Studio buttons refuse on the cloud pod (no Docker) and say so. Removed the
+  pre-Aider coding-assistant script commands and the `run.py` server starters.
+- **Build on the Stack** lessons say which environment to use where. The cloud pod
+  needs no activation for TT-NN (`python_env` is active in every shell) and ships
+  TT-Lang in `~/tt-lang-venv` and Forge/XLA in `~/tt-forge-venv` (tt-forge 1.4.0);
+  TT-Lang's install section now matches the package's own instructions (`tt-lang-setup`
+  is a command, `tt-lang-sim` is the simulator-only package, 1.1.6 current). New buttons
+  run the first TT-NN tutorial and a TT-Lang tutorial on the simulator. Each lesson ends
+  with the matching tt-awesome category (`?cat=kernels`, `compilers`, `games-demos`,
+  `media`, `guides`) and a developer-blog post where one fits.
+- **Go Deeper**: *tt-inference-server by Hand* and *vLLM Production* open by saying what
+  `tt serve` does for you and what the by-hand route adds (`--device-id`, `--bind-host`,
+  another release, `--local-server`). The `run.py` buttons use `tt`'s pinned copy under
+  `~/.local/share/tenstorrent/tools/` instead of the retired `~/.local/lib` path; a clone
+  button and a `--local-server` button cover the cloud pod. New short lesson *Mix and
+  Match Versions*: where each copy of the software lives, and how an image tag pins the
+  tt-metal and vLLM commits a model was validated on.
+- README learning paths and `llms.txt` describe the four paths; the README catalog is
+  regenerated for the new groups (57 lessons). Stale cloud activation lines
+  (`/opt/venv-metal`) in the cookbook and video lessons now say the pod needs none.
+
+---
+
 ## [0.1.29] - 2026-09-07
 
 Correctness pass on what a TT-QuietBox 2 actually ships. The three-path venv

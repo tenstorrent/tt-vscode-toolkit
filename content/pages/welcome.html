@@ -205,13 +205,13 @@
     <div class="section">
         <h2>🔗 Quick Links</h2>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0;">
-            <button class="quick-link" onclick="executeCommand('tenstorrent.showStepZero')">
+            <button class="quick-link" onclick="executeCommand('tenstorrent.lesson.stepZero')">
                 🧭 Step Zero: Choose Your Path
             </button>
-            <button class="quick-link" onclick="executeCommand('tenstorrent.showFaq')">
+            <button class="quick-link" onclick="executeCommand('tenstorrent.lesson.faq')">
                 📖 FAQ - Frequently Asked Questions
             </button>
-            <button class="quick-link" onclick="executeCommand('tenstorrent.showWelcome')">
+            <button class="quick-link" onclick="executeCommand('tenstorrent.lesson.welcome')">
                 🏠 Welcome Page
             </button>
         </div>
@@ -226,8 +226,8 @@
             <p style="margin: 0 0 10px 0;"><strong>Quick Install:</strong></p>
             <code style="font-size: 12px;">/bin/bash -c "$(curl -fsSL https://github.com/tenstorrent/tt-installer/releases/latest/download/install.sh)"</code>
             <p style="margin: 10px 0 0 0; font-size: 13px;">
-                📖 <a href="#" onclick="executeCommand('tenstorrent.runQuickInstall'); return false;">Run Quick Install</a> |
-                📥 <a href="#" onclick="executeCommand('tenstorrent.downloadInstaller'); return false;">Download Script</a> |
+                📖 <a href="#" onclick="executeCommand('tenstorrent.setup.quickInstall'); return false;">Run Quick Install</a> |
+                📥 <a href="#" onclick="executeCommand('tenstorrent.setup.downloadInstaller'); return false;">Download Script</a> |
                 📚 <a href="https://github.com/tenstorrent/tt-installer" style="color: var(--tt-cyan);">Full Documentation</a>
             </p>
         </div>
@@ -447,16 +447,16 @@
     <div class="section">
         <h2>⚡ Quick Actions</h2>
         <div class="quick-links">
-            <div class="quick-link" onclick="executeCommand('tenstorrent.installAllScripts')" style="grid-column: 1 / -1; background-color: var(--tt-cyan-light); font-size: 15px;">
+            <div class="quick-link" onclick="executeCommand('tenstorrent.vllm.installAllScripts')" style="grid-column: 1 / -1; background-color: var(--tt-cyan-light); font-size: 15px;">
                 📦 Create my ~/tt-scratchpad
             </div>
             <div class="quick-link" onclick="executeCommand('workbench.view.extension.tenstorrent-sidebar')">
                 📚 Open Lessons Sidebar
             </div>
-            <div class="quick-link" onclick="executeCommand('tenstorrent.runHardwareDetection')">
+            <div class="quick-link" onclick="executeCommand('tenstorrent.setup.hardwareDetection')">
                 🔍 Detect Hardware
             </div>
-            <div class="quick-link" onclick="executeCommand('tenstorrent.openWalkthrough')">
+            <div class="quick-link" onclick="executeCommand('tenstorrent.lesson.walkthrough')">
                 📖 Open Legacy Walkthrough
             </div>
         </div>

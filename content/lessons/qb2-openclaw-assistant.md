@@ -2,7 +2,7 @@
 id: qb2-openclaw-assistant
 title: OpenClaw AI Assistant on TT-QuietBox 2
 description: Deploy a local AI assistant with Tenstorrent expertise, memory search, and 70B reasoning powered by your TT-QuietBox 2 hardware
-category: applications
+category: connect
 tags:
   - qb2
   - p300x2
@@ -110,7 +110,7 @@ free -h
 
 ```bash
 # TT-Inference-Server available?
-ls ~/code/tt-inference-server/run.py
+tt --version    # tt installed (Install the Tenstorrent Software lesson)
 
 # OpenClaw installed?
 which openclaw || ls ~/openclaw/openclaw.sh
@@ -139,88 +139,90 @@ The first step is getting Llama-3.3-70B-Instruct running on your TT-QuietBox 2 w
 
 ### The Deployment Command
 
-This exact configuration is validated and working:
+```bash
+tt serve Llama-3.3-70B-Instruct --port 8000
+```
+
+[🚀 Serve Llama-3.3-70B-Instruct on port 8000](command:tenstorrent.model.serveQb2AgentsLlama)
+
+`tt serve` runs tt-inference-server in a container with the settings OpenClaw needs, all
+of them read from the model catalog:
+
+- **tool calling on, parser `llama3_json`** (REQUIRED for OpenClaw). Without these you get
+  `400 auto tool choice requires...` errors, and the memory_search, file and system tools
+  never fire. The dry run shows them: `tt serve Llama-3.3-70B-Instruct --dry-run`.
+- **the validated image** for the model, so you never pin a tag by hand.
+- **weights from your Hugging Face cache** or a pre-seeded volume, so a 140 GB download
+  happens once.
+- **`--port 8000`**, where `~/tt-claw/runtime/openclaw.json` points. Leave it off and the
+  server lands on 20000; then change `baseUrl` in that file instead.
+
+If the board is busy or faulting, `tt model stop` first and, if the fabric does not
+cycle cleanly, `tt-smi -r` before serving again.
+
+### Faster: Qwen3-Coder-Next from the community catalog
+
+The 70B model is the quality choice and the slow one: 14 seconds a turn. The community
+catalog (`tt model list --community --hw p300x2`) has mixture-of-experts coding models
+with 3B parameters active per token that answer in two to four seconds and call tools
+with the `qwen3_coder` parser. Qwen3-Coder-Next (80B total, 3B active, 262K context)
+measured 107 tok/s on two dies on 2026-10-30; its card reports 178 tok/s on four.
 
 ```bash
-# Clean environment
-docker stop $(docker ps -q) 2>/dev/null || true
-tt-smi -r
-sleep 5
-
-# Deploy 70B with tool calling
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Llama-3.3-70B-Instruct \
-    --tt-device p300x2 \
-    --workflow server \
-    --docker-server \
-    --dev-mode \
-    --host-hf-cache ~/.cache/huggingface \
-    --skip-system-sw-validation \
-    --no-auth \
-    --override-docker-image ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-dev-ubuntu-22.04-amd64:0.9.0-e867533-22be241 \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
+tt serve raahemnabeel/qwen3-coder-next --profile p300x2 --port 8000
 ```
 
-**🚀 Deploy 70B Model**
+[🚀 Serve Qwen3-Coder-Next on port 8000](command:tenstorrent.model.serveQb2ClawCoderNext)
 
-### Critical Flags Explained
+The first start downloads 148 GB of weights. The smaller
+`raahemnabeel/qwen3-coder-30b-a3b` (60 GB, 256K context) is the same shape and the one
+the [Local AI Agents](command:tenstorrent.lesson.show?["qb2-local-agents"]) lesson
+validates. `tt serve` and `tt launch` both say the model is `not in the model catalog`;
+that is what a community bundle is, and the dry run shows the parser is set.
 
-**`--enable-auto-tool-choice`** (REQUIRED for OpenClaw)
-- Allows agents to automatically select which tools to use
-- Without this, you get "400 auto tool choice requires..." errors
-- Enables the memory_search, file operations, and system commands
+OpenClaw needs to know the model, so add it to the `vllm` provider in
+`~/tt-claw/runtime/openclaw.json` and make it the primary:
 
-**`--tool-call-parser llama3_json`** (REQUIRED for OpenClaw)
-- Uses Llama 3's native JSON tool calling format
-- Ensures reliable tool invocation parsing
-- Matches OpenClaw's expected tool response format
-
-**`--override-docker-image`** (Exact version)
-- This specific image (0.9.0-e867533-22be241) is validated
-- Includes necessary patches for P300X2 multi-chip support
-- Different versions may have compatibility issues
-
-**`--no-auth`** (Simplifies local setup)
-- No API keys needed for local-only deployment
-- Safe for single-user local deployments
-- Safe for single-user systems
-
-**`--dev-mode`** (Enables advanced features)
-- Allows mounting of custom model specs
-- Provides more verbose logging
-- Useful for troubleshooting
-
-### Interactive Prompts
-
-During deployment, you'll see prompts:
-
-**1. Model source:**
-```
-Select model source:
-  1. Download from HuggingFace (requires HF_TOKEN)
-  2. Use local model files
-
-Choice: 1 or 2
+```json
+{
+  "models": {
+    "providers": {
+      "vllm": {
+        "baseUrl": "http://127.0.0.1:8000/v1",
+        "api": "openai-completions",
+        "models": [{
+          "id": "Qwen/Qwen3-Coder-Next",
+          "name": "Qwen3 Coder Next",
+          "reasoning": false,
+          "input": ["text"],
+          "cost": {"input": 0, "output": 0},
+          "contextWindow": 262144,
+          "maxTokens": 4096
+        }]
+      }
+    }
+  },
+  "agents": {"defaults": {"model": {"primary": "vllm/Qwen/Qwen3-Coder-Next"}}}
+}
 ```
 
-Choose **1** for first run (will download 140 GB), **2** for subsequent runs if model is cached.
+The `id` is the weights id the server reports in `/v1/models`, which is what OpenClaw
+sends back in every request.
 
-**2. JWT secret:**
-```
-Enter JWT secret (press Enter for default):
-```
 
-Just press **Enter** (we're using `--no-auth`).
+### Logging In
+
+The first serve asks for a Hugging Face token when none is stored (`tt model login`
+stores one; the model is gated, so accept Meta's license on its Hugging Face page first).
+There is no JWT prompt: local serving through `tt` needs no API key.
 
 ### Monitoring Deployment
 
 **Watch for these phases:**
 
 ```bash
-# In another terminal, monitor container logs
-docker logs -f $(docker ps -q --filter ancestor=*vllm-tt-metal*)
+# tt serve shows the boot as a checklist; for the server's own output:
+tt model logs
 
 # Key messages to watch for:
 # "Fabric initialized" - Hardware ready
@@ -234,7 +236,7 @@ docker logs -f $(docker ps -q --filter ancestor=*vllm-tt-metal*)
 
 ### Verify Deployment
 
-Once you see "Readiness file created", test the endpoint:
+`tt serve` returns when the endpoint answers (`tt model ps` shows `healthy`). Test it:
 
 ```bash
 # Check model is loaded
@@ -253,7 +255,7 @@ curl http://localhost:8000/v1/completions \
   }'
 ```
 
-**✅ Test vLLM**
+[✅ Check the endpoint](command:tenstorrent.launch.checkAgentServerHealth)
 
 ---
 
@@ -560,6 +562,29 @@ Source: ../../code/tt-vscode-toolkit/content/lessons/cookbook-overview.md#L28-L8
 
 ---
 
+## `tt launch openclaw`?
+
+Not in tt 1.2.1. `tt launch` points a client at the model you are serving and writes the
+smallest config it needs; OpenCode and pi get a `tenstorrent` provider in their JSON
+config, and that is exactly the shape OpenClaw's `openclaw.json` has. An `openclaw`
+adapter would:
+
+1. read `openclaw.json` (the path from `OPENCLAW_CONFIG_PATH`, else `~/.openclaw/openclaw.json`),
+2. add a `tenstorrent` entry under `models.providers` with `baseUrl` from the running
+   server and one `models[]` row for its reported id and context length,
+3. set `agents.defaults.model.primary` to `tenstorrent/<id>`, after showing the change and
+   asking once,
+4. hand the terminal to `openclaw tui`, and on `tt launch disconnect openclaw` remove only
+   the block it wrote.
+
+Today each client is a Python module inside tt-cli, so this would be a tt-cli change. A
+lighter route, a client described by a small YAML or JSON definition that `tt` loads from
+a user directory, is proposed separately. Until one of those lands, the edit to
+`openclaw.json` above is the connection, and `tt model ps` plus `curl /v1/models` are
+the check.
+
+---
+
 ## Alternative: n150 with 8B Model
 
 If you have an n150 (single chip) instead of TT-QuietBox 2, you can run OpenClaw with a smaller model.
@@ -576,20 +601,13 @@ If you have an n150 (single chip) instead of TT-QuietBox 2, you can run OpenClaw
 ### Deployment for n150
 
 ```bash
-# Same process, different model and device
-cd ~/code/tt-inference-server
-
-python3 run.py \
-    --model Llama-3.1-8B-Instruct \
-    --tt-device n150 \
-    --workflow server \
-    --docker-server \
-    --dev-mode \
-    --host-hf-cache ~/.cache/huggingface \
-    --no-auth \
-    --override-docker-image ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-dev-ubuntu-22.04-amd64:0.9.0-e867533-22be241 \
-    --vllm-override-args '{"enable_auto_tool_choice": true, "tool_call_parser": "llama3_json"}'
+tt serve Llama-3.1-8B-Instruct --port 8000
 ```
+
+`tt` detects the n150 and serves the 8B model with the same tool-calling settings. On the
+cloud pod, which has no Docker, use the no-container route in
+[Serve Without Containers](command:tenstorrent.lesson.show?["api-server"]) and add
+`--port 8000` to its `vllm serve` command.
 
 ### Update OpenClaw Configuration
 
@@ -619,17 +637,17 @@ Edit `~/tt-claw/runtime/openclaw.json`:
 }
 ```
 
-### Performance Comparison: 70B vs 8B
+### Performance Comparison: 70B vs community vs 8B
 
-| Feature              | TT-QuietBox 2 (70B)          | n150 (8B)         |
-|----------------------|--------------------|-------------------|
-| Response time        | 14+ seconds        | 2-3 seconds       |
-| Context window       | 131K tokens        | 8K tokens         |
-| Reasoning depth      | Excellent          | Good              |
-| Hardware required    | 4x p300c           | 1x n150           |
-| Power consumption    | ~300W              | ~75W              |
-| Model loading time   | 10-20 minutes      | 2-5 minutes       |
-| Best for             | Complex reasoning  | Fast responses    |
+| Feature              | TT-QuietBox 2 (70B) | TT-QuietBox 2 (Qwen3-Coder-Next, community) | n150 (8B)         |
+|----------------------|--------------------|---------------------------------------------|-------------------|
+| Response time        | 14+ seconds        | 2-4 seconds (107 tok/s measured on two dies) | 2-3 seconds       |
+| Context window       | 131K tokens        | 262K tokens                                 | 8K tokens         |
+| Reasoning depth      | Excellent          | Very good for code and tools; 3B active     | Good              |
+| Hardware required    | 2x p300c           | 2x p300c (or one, `--profile p300`)         | 1x n150           |
+| Power consumption    | ~300W              | ~300W                                       | ~75W              |
+| Model loading time   | 10-20 minutes      | 10 minutes first start, then minutes         | 2-5 minutes       |
+| Best for             | Complex reasoning  | Fast agents and coding                      | Fast responses    |
 
 **When to use 8B:**
 - ✅ Quick Q&A and chat
@@ -926,8 +944,8 @@ See OpenClaw docs: https://openclaw.io/docs/channels
 - OpenClaw GitHub: https://github.com/OpenClawIO/openclaw
 
 **Support:**
-- Hardware Detection: [Hardware Detection](command:tenstorrent.showLesson?["hardware-detection"])
-- Model Deployment: [Deploy Models](command:tenstorrent.showLesson?["model-deployment"])
+- Hardware Detection: [Hardware Detection](command:tenstorrent.lesson.show?["hardware-detection"])
+- Serving: [Serve a Model](command:tenstorrent.lesson.show?["interactive-chat"]) and [Launch Software](command:tenstorrent.lesson.show?["launch-software"])
 
 ---
 

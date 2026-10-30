@@ -387,11 +387,12 @@ async function main() {
 function generateLessonCatalog(registry) {
   const categoryIcons = {
     'welcome': '👋',
-    'first-inference': '🚀',
-    'serving': '🏭',
-    'compilers': '🔧',
+    'setup': '🧭',
+    'serve': '🤖',
+    'connect': '🔌',
+    'build': '🛠️',
+    'deeper': '🔬',
     'applications': '🎯',
-    'advanced': '🎓',
     'custom-training': '🎓',
     'deployment': '☁️',
     'cookbook': '👨‍🍳',
