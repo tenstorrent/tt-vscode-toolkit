@@ -154,7 +154,7 @@ a machine of your own follow the same lessons with the differences called out.
 ```
 1. Launch Software             → tt launch list; Open WebUI; Aider or Qwen Code; TT-Studio
 2. Coding Assistant with Aider → tt launch aider, then a system prompt of your own
-3. Local AI Agents / OpenClaw  → tt serve --port 8000, then agent frameworks on top
+3. Local AI Agents / OpenClaw  → tt serve <model> --port 8000, then agent frameworks on top
 ```
 
 ### 🛠️ Build on the Stack (1-2 hours)

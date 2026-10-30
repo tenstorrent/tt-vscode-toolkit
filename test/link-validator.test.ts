@@ -2,7 +2,7 @@
  * Internal Link Validation Test
  *
  * Validates that all internal links in content files point to valid targets:
- * - Command links (command:tenstorrent.showLesson?{...}) reference existing lessons
+ * - Command links (command:tenstorrent.lesson.show?{...}) reference existing lessons
  * - File paths reference existing files
  * - Lesson cross-references are valid
  *
@@ -48,14 +48,14 @@ describe('Internal Link Validation', () => {
 
     /**
      * Extract command links from markdown content
-     * Format: [Link Text](command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22lesson-id%22%7D)
+     * Format: [Link Text](command:tenstorrent.lesson.show?%7B%22lessonId%22%3A%22lesson-id%22%7D)
      */
     function extractCommandLinks(content: string, filePath: string): LinkValidationError[] {
         const errors: LinkValidationError[] = [];
         const lines = content.split('\n');
 
         // Regex to match command links
-        const commandLinkRegex = /\[([^\]]+)\]\(command:tenstorrent\.showLesson\?([^)]+)\)/g;
+        const commandLinkRegex = /\[([^\]]+)\]\(command:tenstorrent\.lesson\.show\?([^)]+)\)/g;
 
         lines.forEach((line, index) => {
             let match;

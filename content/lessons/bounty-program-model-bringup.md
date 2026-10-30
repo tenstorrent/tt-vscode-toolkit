@@ -21,7 +21,7 @@ estimatedMinutes: 10
 
 # Bounty Program: Model Bring-Up from Scratch
 
-A model `tt serve` can run got there because someone brought it up in tt-metal first.
+Every model `tt serve` can run was first brought up in tt-metal by someone.
 This is that work.
 
 Learn how to tackle open bounties in the **Tenstorrent Bounty Program** by bringing up a new model on TT hardware. We'll use the successful **Phi-3-mini-128k-instruct** bounty (Issue #19416) as a real-world case study.

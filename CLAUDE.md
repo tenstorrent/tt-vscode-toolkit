@@ -188,6 +188,11 @@ All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy
   Use `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` pattern to honour user-supplied values.
 - **Qwen3-0.6B first**: n150 and p300c reliably run Qwen3-0.6B. Llama-3.1-8B-Instruct
   exhausts n150 DRAM and requires n300+ or P-series hardware. Lead with Qwen.
+  **Corrected 2026-10-29:** that finding was the v0.0.9x hand-run `vllm serve` with default
+  settings. tt-inference-server v0.25.0 lists Llama-3.1-8B-Instruct on N150 in
+  `release_model_spec.json`, and `tt serve Llama-3.1-8B-Instruct` uses that spec's settings
+  (`--max-num-seqs 32`, `--block-size 64`, 32k context). The lessons now lead with
+  Llama-3.1-8B-Instruct on an n150 through `tt serve` or the no-container vLLM route.
 
 ### WH/BH Compatibility Checklist
 
