@@ -19,7 +19,7 @@
   "homepage": "https://github.com/tenstorrent/tt-vscode-toolkit#readme",
   "engines": {
     "vscode": "^1.93.0",
-    "node": ">=20.9.0"
+    "node": ">=20.19.0"
   },
   "categories": [
     "Education",

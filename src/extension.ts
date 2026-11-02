@@ -5037,57 +5037,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       showWelcome(context);
     }, 2000); // Small delay to ensure extension is fully activated
 
-    // Prompt to install scripts to ~/tt-scratchpad (first run only)
-    setTimeout(async () => {
-      const choice = await vscode.window.showInformationMessage(
-        '📦 Would you like to set up your ~/tt-scratchpad directory? This installs helper scripts used by the lessons.',
-        'Yes, Set It Up',
-        'Not Now',
-        'Don\'t Ask Again'
-      );
-
-      if (choice === 'Yes, Set It Up') {
-        await vscode.commands.executeCommand('tenstorrent.vllm.installAllScripts');
-        context.globalState.update('hasAskedAboutScratchpad', true);
-      } else if (choice === 'Don\'t Ask Again') {
-        context.globalState.update('dontAskScratchpad', true);
-        context.globalState.update('hasAskedAboutScratchpad', true);
-      }
-      // Note: If dismissed (undefined), don't set flag - may ask again later
-    }, 3000); // After welcome page opens
   }
 
-  // Check if user has tt-scratchpad and hasn't been asked yet (for existing users only)
-  const dontAskScratchpad = context.globalState.get<boolean>('dontAskScratchpad', false);
-  const hasAskedAboutScratchpad = context.globalState.get<boolean>('hasAskedAboutScratchpad', false);
-
-  // Only show this prompt for existing users (hasSeenWelcome was already true before this activation)
-  if (hasSeenWelcome && !dontAskScratchpad && !hasAskedAboutScratchpad) {
-    const path = await import('path');
-    const fs = await import('fs');
-    const os = await import('os');
-    const scratchpadPath = path.join(os.homedir(), 'tt-scratchpad');
-
-    // Only ask if the directory doesn't exist or is empty
-    if (!fs.existsSync(scratchpadPath) || fs.readdirSync(scratchpadPath).length === 0) {
-      context.globalState.update('hasAskedAboutScratchpad', true);
-
-      setTimeout(async () => {
-        const choice = await vscode.window.showInformationMessage(
-          '📦 Set up your ~/tt-scratchpad directory with helper scripts for the lessons?',
-          'Yes, Set It Up',
-          'Not Now',
-          'Don\'t Ask Again'
-        );
-
-        if (choice === 'Yes, Set It Up') {
-          await vscode.commands.executeCommand('tenstorrent.vllm.installAllScripts');
-        } else if (choice === 'Don\'t Ask Again') {
-          context.globalState.update('dontAskScratchpad', true);
-        }
-      }, 5000); // Give existing users some time after activation
-    }
-  }
 }
 
 /**
