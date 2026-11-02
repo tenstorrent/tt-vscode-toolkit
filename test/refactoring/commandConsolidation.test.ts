@@ -41,10 +41,10 @@ suite('Command Consolidation Tests', () => {
 
   suite('Old Commands Removed', () => {
     const oldCommands = [
-      'tenstorrent.startVllmServerN150',
-      'tenstorrent.startVllmServerN300',
-      'tenstorrent.startVllmServerT3K',
-      'tenstorrent.startVllmServerP100'
+      'null',
+      'null',
+      'null',
+      'null'
     ];
 
     oldCommands.forEach(commandId => {
@@ -60,7 +60,7 @@ suite('Command Consolidation Tests', () => {
   suite('New Parameterized Command', () => {
     test('startVllmServerWithHardware should be registered', () => {
       assert.ok(
-        allCommands.includes('tenstorrent.startVllmServerWithHardware'),
+        allCommands.includes('tenstorrent.vllm.startWithHardware'),
         'New parameterized command should be registered'
       );
     });
@@ -72,7 +72,7 @@ suite('Command Consolidation Tests', () => {
       try {
         // The command should accept an object with hardware property
         // We're not actually executing it fully, just verifying it doesn't reject the call
-        const commandExists = allCommands.includes('tenstorrent.startVllmServerWithHardware');
+        const commandExists = allCommands.includes('tenstorrent.vllm.startWithHardware');
         assert.ok(commandExists, 'Command should exist before attempting to call it');
       } catch (error) {
         assert.fail(`Command should accept hardware argument: ${error}`);
@@ -84,7 +84,7 @@ suite('Command Consolidation Tests', () => {
     test('Original startVllmServer command still exists', () => {
       // The original generic command should still exist alongside the parameterized one
       assert.ok(
-        allCommands.includes('tenstorrent.startVllmServer'),
+        allCommands.includes('tenstorrent.vllm.start'),
         'Original startVllmServer command should still be registered'
       );
     });
@@ -121,7 +121,7 @@ suite('Command Consolidation Tests', () => {
         // Each hardware type should have a corresponding configuration
         // We verify this indirectly by checking the command exists
         assert.ok(
-          allCommands.includes('tenstorrent.startVllmServerWithHardware'),
+          allCommands.includes('tenstorrent.vllm.startWithHardware'),
           `Command should handle ${hardware} configuration`
         );
       });

@@ -366,8 +366,8 @@ export class LessonWebviewManager {
 
     return `
       <div class="lesson-nav">
-        ${prevLesson ? `<button class="nav-prev tt-command-button" data-command="tenstorrent.showLesson" data-lesson="${prevLesson.id}">← ${this.escapeHtml(prevLesson.title)}</button>` : '<div></div>'}
-        ${nextLesson ? `<button class="nav-next tt-command-button" data-command="tenstorrent.showLesson" data-lesson="${nextLesson.id}">${this.escapeHtml(nextLesson.title)} →</button>` : '<div></div>'}
+        ${prevLesson ? `<button class="nav-prev tt-command-button" data-command="tenstorrent.lesson.show" data-lesson="${prevLesson.id}">← ${this.escapeHtml(prevLesson.title)}</button>` : '<div></div>'}
+        ${nextLesson ? `<button class="nav-next tt-command-button" data-command="tenstorrent.lesson.show" data-lesson="${nextLesson.id}">${this.escapeHtml(nextLesson.title)} →</button>` : '<div></div>'}
       </div>
     `;
   }

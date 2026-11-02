@@ -27,7 +27,7 @@ The reference code for this arc lives in `~/tt-scratchpad/llm-from-scratch/`,
 and every command below runs out of that folder. If you haven't scaffolded it
 yet — or you landed here before Lab 0 — set it up now:
 
-[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.llmFromScratch.createProject)
+[🧪 Create the LLM-from-Scratch Project](command:tenstorrent.lfs.createProject)
 
 **You are here:**
 
@@ -170,7 +170,7 @@ because "First Citizen" and "speak" both showed up (and got merged) during
 training.
 
 **This is the tokenizer for the ~80M-parameter / TinyStories-scale target**
-this arc frames as its "hero" run (see [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"])). It's the same family of
+this arc frames as its "hero" run (see [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"])). It's the same family of
 tokenizer used by the r/LocalLLaMA build that inspired this whole arc. To
 point it at a real dataset instead of the tiny inline sample, you'd pull the
 data with the `hf` CLI, not `huggingface-cli`:
@@ -323,14 +323,14 @@ tt_tokens = ttnn.from_torch(
 )
 ```
 
-Recall from [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]): Tensix hardware doesn't compute on scalars or arbitrary
+Recall from [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]): Tensix hardware doesn't compute on scalars or arbitrary
 rows. It computes on **32×32 tiles** — 1,024 elements addressed as a single
 unit. `ttnn.TILE_LAYOUT` performs that reshuffle.
 
 At nano scale (`block_size=256`), a `[2, 256]` token tensor already divides
 evenly into 32-wide tiles along the sequence axis. Padding only becomes a
 concern once `seq` or the embedding width isn't a multiple of 32 — which
-[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]) runs into directly.
+[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"]) runs into directly.
 
 The token tensor is still just IDs. It doesn't become a *meaningful* tensor to
 the model until each ID is looked up in an embedding table and turned into an
@@ -384,4 +384,4 @@ your first TT-Lang kernel gets written.
 
 ## Next
 
-[→ Continue to Lab 2: Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+[→ Continue to Lab 2: Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])

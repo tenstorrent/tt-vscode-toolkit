@@ -31,7 +31,7 @@ export class TelemetryMonitor {
             vscode.StatusBarAlignment.Right,
             100
         );
-        this.statusBarItem.command = 'tenstorrent.showDeviceActions';
+        this.statusBarItem.command = 'tenstorrent.setup.deviceActions';
         context.subscriptions.push(this.statusBarItem);
 
         // Paths (use system Python - script only needs subprocess and json)

@@ -30,7 +30,7 @@ estimatedMinutes: 20
 
 # Model Architecture Basics
 
-Every field you've been editing under `transformer_config:` in [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) — `num_heads`, `embedding_dim`, `num_blocks`, `num_groups`, `theta` — names a real piece of the model. This lesson is the map: what each piece does, and why it exists, so those fields stop being magic numbers before you set your own for a from-scratch run in [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]).
+Every field you've been editing under `transformer_config:` in [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) — `num_heads`, `embedding_dim`, `num_blocks`, `num_groups`, `theta` — names a real piece of the model. This lesson is the map: what each piece does, and why it exists, so those fields stop being magic numbers before you set your own for a from-scratch run in [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"]).
 
 This is a **conceptual tour**, not a build. If you want to write every one of these components by hand — RoPE, grouped-query attention, SwiGLU, a TT-Lang kernel — that's the from-scratch arc, linked throughout and again at the end.
 
@@ -40,7 +40,7 @@ This is a **conceptual tour**, not a build. If you want to write every one of th
 - Why modern models favor RoPE over learned position tables, GQA over plain multi-head attention, SwiGLU over ReLU, and RMSNorm over LayerNorm
 - How each concept maps to a real `transformer_config:` field you'll set in the next lesson
 
-**Time:** 20 minutes | **Prerequisites:** [Understanding Custom Training](command:tenstorrent.showLesson?["ct1-understanding-training"]) and [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"])
+**Time:** 20 minutes | **Prerequisites:** [Understanding Custom Training](command:tenstorrent.lesson.show?["ct1-understanding-training"]) and [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"])
 
 ---
 
@@ -98,7 +98,7 @@ A model can't consume raw text — it consumes integer IDs from a fixed vocabula
 - **Character-level** — tiny vocabulary (a few dozen–hundred IDs), long sequences. What the tiny models in this track use.
 - **Byte-Pair Encoding (BPE)** — a learned vocabulary of common subwords (tens of thousands of IDs), short sequences. What production models like Llama use.
 
-The trade-off is direct: vocabulary size sets the size of the embedding table (below) and the final output layer — both scale with `vocab_size`. Want to see a BPE tokenizer built from raw bytes, merges and all? That's [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) in the from-scratch arc.
+The trade-off is direct: vocabulary size sets the size of the embedding table (below) and the final output layer — both scale with `vocab_size`. Want to see a BPE tokenizer built from raw bytes, merges and all? That's [Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"]) in the from-scratch arc.
 
 ## 2. Embeddings and Position
 
@@ -109,7 +109,7 @@ Two lookups feed every model, combined into one vector per token:
 
 Older models (GPT-2, BERT) learned a fixed table of position vectors, added to the token embedding. Modern models — Llama and its descendants — use **RoPE (Rotary Position Embeddings)** instead: position is encoded as a rotation applied directly to the query and key vectors inside attention, not as a separate table added up front. RoPE generalizes better to sequence lengths longer than anything seen in training, and it's why `theta` (RoPE's base frequency) is a `transformer_config:` field instead of a learned parameter.
 
-Build the embedding table and RoPE's rotation math by hand in [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]).
+Build the embedding table and RoPE's rotation math by hand in [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"]).
 
 ## 3. Attention
 
@@ -119,7 +119,7 @@ Attention is how a token gathers context from every other token in the sequence 
 
 Modern models add one more move: **grouped-query attention (GQA)**. Instead of giving every query head its own key/value heads, several query heads share one KV head — `num_groups` of them instead of `num_heads`. Fewer KV heads means a smaller KV cache at inference time, for a small accuracy cost. It's why Llama-3 and the models in this track use GQA, and why `num_groups` is a field you set alongside `num_heads` rather than a fixed multiple of it.
 
-Full derivation — Q·Kᵀ, scaling, causal masking, softmax, the GQA head-sharing, and a hand-authored TT-Lang kernel for the whole thing — lives in [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]).
+Full derivation — Q·Kᵀ, scaling, causal masking, softmax, the GQA head-sharing, and a hand-authored TT-Lang kernel for the whole thing — lives in [Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"]).
 
 > **`num_groups` quietly decides which hardware you can serve on.** This is the one place in this tour where an architecture choice reaches all the way into deployment, so it's worth knowing before you pick a number rather than after.
 >
@@ -164,12 +164,12 @@ Normalization has almost no parameters (one scale value per dimension), so it do
 
 ## Build It Yourself: The From-Scratch Arc
 
-Everything above is the concept. If you want the *code* — every matrix multiply, every rotation, every softmax, written out and then re-expressed as a TT-Lang kernel — that's a different track, starting from [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]):
+Everything above is the concept. If you want the *code* — every matrix multiply, every rotation, every softmax, written out and then re-expressed as a TT-Lang kernel — that's a different track, starting from [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]):
 
-- [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"]) — the token embedding table and RoPE's rotation math, hand-written.
-- [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]) — grouped-query attention with RoPE'd Q/K, derived fully and authored as a TT-Lang kernel.
-- [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"]) — the SwiGLU MLP, RMSNorm, and residuals assembled into a full, runnable model.
-- [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) — a from-scratch training loop (cross-entropy, backprop, AdamW), run for real on Blackhole<sup>®</sup> hardware.
+- [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"]) — the token embedding table and RoPE's rotation math, hand-written.
+- [Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"]) — grouped-query attention with RoPE'd Q/K, derived fully and authored as a TT-Lang kernel.
+- [The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"]) — the SwiGLU MLP, RMSNorm, and residuals assembled into a full, runnable model.
+- [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]) — a from-scratch training loop (cross-entropy, backprop, AdamW), run for real on Blackhole<sup>®</sup> hardware.
 
 That arc builds the exact same `nanollama3` architecture — RoPE, GQA, SwiGLU, RMSNorm — that `ttml` runs for you in this track. Same design, two altitudes: use the framework, or write the framework's insides yourself.
 
@@ -177,7 +177,7 @@ That arc builds the exact same `nanollama3` architecture — RoPE, GQA, SwiGLU, 
 
 ## From Concepts to Config
 
-Every concept above already has a name in `transformer_config:` — that mapping, plus the full field reference, safety checks, and worked examples, lives in [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]):
+Every concept above already has a name in `transformer_config:` — that mapping, plus the full field reference, safety checks, and worked examples, lives in [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]):
 
 | Concept | Field |
 |---|---|
@@ -188,7 +188,7 @@ Every concept above already has a name in `transformer_config:` — that mapping
 | RoPE base frequency | `theta` |
 | Vocabulary size | `vocab_size` |
 
-Bigger `embedding_dim` and more `num_blocks` mean more parameters, more memory, and more compute — in roughly the trade-offs you'd expect: width scales every matrix in a block, depth scales linearly. In [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]), you'll pick actual values for these fields and watch a model this small learn from nothing.
+Bigger `embedding_dim` and more `num_blocks` mean more parameters, more memory, and more compute — in roughly the trade-offs you'd expect: width scales every matrix in a block, depth scales linearly. In [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"]), you'll pick actual values for these fields and watch a model this small learn from nothing.
 
 ---
 
@@ -202,15 +202,15 @@ Bigger `embedding_dim` and more `num_blocks` mean more parameters, more memory, 
 
 ✅ **The MLP holds most of the parameters** — attention decides *what* to look at, the MLP does most of the actual work.
 
-✅ **Every concept here is a `transformer_config:` field** — this lesson explains the "why," [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) is the authoritative "how."
+✅ **Every concept here is a `transformer_config:` field** — this lesson explains the "why," [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) is the authoritative "how."
 
 ---
 
 ## Next Steps
 
-**Next: [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"])** — set real values for `num_heads`, `embedding_dim`, and `num_blocks`, initialize a model from random weights, and watch it learn from nothing.
+**Next: [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"])** — set real values for `num_heads`, `embedding_dim`, and `num_blocks`, initialize a model from random weights, and watch it learn from nothing.
 
-**Or build every piece by hand:** start the from-scratch arc at [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) and work through the embedding table, attention kernel, and transformer block yourself, TT-Lang and all.
+**Or build every piece by hand:** start the from-scratch arc at [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) and work through the embedding table, attention kernel, and transformer block yourself, TT-Lang and all.
 
 ---
 

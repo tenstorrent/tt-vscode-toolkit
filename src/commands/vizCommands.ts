@@ -1,7 +1,7 @@
 /**
  * vizCommands.ts — Tensix Grid Visualizer VSCode commands
  *
- * Registers `tenstorrent.showTensixViz` which opens a webview panel
+ * Registers `tenstorrent.viz.tensix` which opens a webview panel
  * containing the tensix-viz.js Canvas visualizer. The panel loads scene
  * JSON from the extension's bundled scenes directory or accepts a custom
  * script passed as a command argument.
@@ -21,7 +21,7 @@ const SCENES: Record<string, string> = {
 export function registerVizCommands(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      'tenstorrent.showTensixViz',
+      'tenstorrent.viz.tensix',
       (opts?: { scene?: string; arch?: string; script?: unknown[] }) =>
         showTensixVizPanel(context, opts)
     )

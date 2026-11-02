@@ -43,27 +43,27 @@ suite('Lesson System Test Suite', () => {
   });
 
   suite('TreeView Registration', () => {
-    test('showLesson command should be registered', async () => {
+    test('lesson.show command should be registered', async () => {
       const commands = await vscode.commands.getCommands();
       assert.ok(
-        commands.includes('tenstorrent.showLesson'),
-        'showLesson command not registered'
+        commands.includes('tenstorrent.lesson.show'),
+        'lesson.show command not registered'
       );
     });
 
-    test('refreshLessons command should be registered', async () => {
+    test('lesson.refresh command should be registered', async () => {
       const commands = await vscode.commands.getCommands();
       assert.ok(
-        commands.includes('tenstorrent.refreshLessons'),
-        'refreshLessons command not registered'
+        commands.includes('tenstorrent.lesson.refresh'),
+        'lesson.refresh command not registered'
       );
     });
 
-    test('filterLessons command should be registered', async () => {
+    test('lesson.filter command should be registered', async () => {
       const commands = await vscode.commands.getCommands();
       assert.ok(
-        commands.includes('tenstorrent.filterLessons'),
-        'filterLessons command not registered'
+        commands.includes('tenstorrent.lesson.filter'),
+        'lesson.filter command not registered'
       );
     });
   });
@@ -151,7 +151,7 @@ suite('Lesson System Test Suite', () => {
   });
 
   suite('Integration Tests', () => {
-    test('Should execute showLesson command with valid lesson ID', async () => {
+    test('Should execute lesson.show command with valid lesson ID', async () => {
       // Load registry to get a valid lesson ID
       const registry = new LessonRegistry(context);
       await registry.load();
@@ -162,23 +162,23 @@ suite('Lesson System Test Suite', () => {
 
         // This should not throw
         await vscode.commands.executeCommand(
-          'tenstorrent.showLesson',
+          'tenstorrent.lesson.show',
           firstLesson.id
         );
 
-        assert.ok(true, 'showLesson command executed successfully');
+        assert.ok(true, 'lesson.show command executed successfully');
       }
     });
 
     test('Core extension commands should be registered', async () => {
       const commands = await vscode.commands.getCommands();
       const requiredCommands = [
-        'tenstorrent.showWelcome',
-        'tenstorrent.showFaq',
-        'tenstorrent.openWalkthrough',
-        'tenstorrent.showLesson',
-        'tenstorrent.refreshLessons',
-        'tenstorrent.filterLessons'
+        'tenstorrent.lesson.welcome',
+        'tenstorrent.lesson.faq',
+        'tenstorrent.lesson.walkthrough',
+        'tenstorrent.lesson.show',
+        'tenstorrent.lesson.refresh',
+        'tenstorrent.lesson.filter'
       ];
 
       requiredCommands.forEach(cmd => {

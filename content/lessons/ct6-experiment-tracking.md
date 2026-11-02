@@ -30,7 +30,7 @@ estimatedMinutes: 15
 
 # Experiment Tracking
 
-You've been running real `tt-train` jobs since [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) — each one printing a wall of `Step: N, Loss: X` lines to your terminal and then scrolling out of view. This lesson is about not losing that signal: capturing it to a file, plotting it, comparing it across runs, and — if you want a dashboard instead of a CSV — bridging it to Weights & Biases.
+You've been running real `tt-train` jobs since [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) — each one printing a wall of `Step: N, Loss: X` lines to your terminal and then scrolling out of view. This lesson is about not losing that signal: capturing it to a file, plotting it, comparing it across runs, and — if you want a dashboard instead of a CSV — bridging it to Weights & Biases.
 
 ## What You'll Learn
 
@@ -40,7 +40,7 @@ You've been running real `tt-train` jobs since [Fine-tuning Basics](command:tens
 - Wiring your own runs up to Weights & Biases — honestly, given what `tt-train` does and doesn't do natively
 - Naming, organizing, and not losing track of your checkpoints
 
-**Time:** 10-15 minutes | **Prerequisites:** [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) (produces the runs you'll track) and [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) (the YAML this lesson's comparisons build on)
+**Time:** 10-15 minutes | **Prerequisites:** [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) (produces the runs you'll track) and [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) (the YAML this lesson's comparisons build on)
 
 ---
 
@@ -82,7 +82,7 @@ What config produced that checkpoint sitting in ~/tt-metal/tt-train/checkpoints?
 Before building anything, it's worth being precise about what `train_nanogpt.py` does on its own, because it's less than you might expect:
 
 - **Per-step stdout, nothing more.** There's no `training.log`, no `validation.txt`, no auto-generated plot. Everything the trainer produces during a run, it prints to your terminal.
-- **Checkpoints, on a schedule you control.** Pass `--model_save_path`, and the trainer writes a `.pkl` checkpoint every `model_save_interval` steps (set in the training config's YAML) — see [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) for how that field works.
+- **Checkpoints, on a schedule you control.** Pass `--model_save_path`, and the trainer writes a `.pkl` checkpoint every `model_save_interval` steps (set in the training config's YAML) — see [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) for how that field works.
 - **No wandb calls in the code path you're running.** More on this below — it matters for what "tracking" honestly means here.
 
 So the object you're building in this lesson is exactly one thing: **capture the stdout stream, and everything else (files, curves, dashboards) is something you construct from it.**
@@ -104,7 +104,7 @@ print(
 
 `TPS` (tokens/sec) and `TFLOPS` always print once the trainer can compute them; `MFU` (model FLOPs utilization) only appears for architectures where per-token FLOPs are known — Llama-family configs get it, some others don't. If FLOPs-per-token isn't available for a model, the trainer falls back to a shorter line with just `Step`, `Loss`, `Time`, and `TPS`.
 
-Here's a line reconstructed from a real run, [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])'s captured 20-step training loop of a 9.81M-parameter Llama-style model on a Blackhole<sup>®</sup> p300c against tt-metal v0.73 (`config: training_shakespeare_nanollama3_char.yaml`, `batch_size: 64`, `max_sequence_length: 256`):
+Here's a line reconstructed from a real run, [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])'s captured 20-step training loop of a 9.81M-parameter Llama-style model on a Blackhole<sup>®</sup> p300c against tt-metal v0.73 (`config: training_shakespeare_nanollama3_char.yaml`, `batch_size: 64`, `max_sequence_length: 256`):
 
 ```
 Step: 20, Loss: 3.234400, Time: 65.00 ms, TPS: 252061, TFLOPS: 16.50, MFU: 11.2%
@@ -206,7 +206,7 @@ python plot_run.py ~/tt-scratchpad/runs/2026-07-09_baseline.log
 
 ## Comparing Hyperparameter Runs
 
-[Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) established which fields `train_nanogpt.py` actually lets you override from the command line: `--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, `--model_save_path`. **Learning rate is not one of them** — `lr` only lives in the training config YAML's `optimizer:` block.
+[Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) established which fields `train_nanogpt.py` actually lets you override from the command line: `--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, `--model_save_path`. **Learning rate is not one of them** — `lr` only lives in the training config YAML's `optimizer:` block.
 
 That split determines how you run a comparison:
 
@@ -228,7 +228,7 @@ Two log files, one plot, one command each — no config edits needed.
 
 ### Learning rate — needs a second config file
 
-Since `lr` can't be overridden on the command line, comparing learning rates means copying the training config and editing `optimizer.lr` in the copy, the same pattern [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) walks through for the model/training config split:
+Since `lr` can't be overridden on the command line, comparing learning rates means copying the training config and editing `optimizer.lr` in the copy, the same pattern [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) walks through for the model/training config split:
 
 ```bash
 cp ~/tt-metal/tt-train/configs/training_configs/training_shakespeare_nanollama3_char.yaml \
@@ -251,7 +251,7 @@ Once you've got two or more logs, the comparison is just: lower final loss, at t
 
 `tt-train`'s top-level README does describe wandb integration, and tells you how to opt *out* of it: pass `-w 0`, or run `wandb offline` beforehand. There's even a vendored `wandb-cpp` library in `tt-train/3rd_party/`.
 
-Here's the honest part: **that flag and that vendored library aren't wired into the trainer you're actually running.** Neither `train_nanogpt.py`'s argument parser nor its training loop calls into wandb anywhere — `-w` isn't a recognized flag on the Python trainer, and `project_name` in the training config is used only to name the checkpoint directory (as [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) found when it went looking for a wandb field in the YAML schema and came up empty). The README describes an integration point that exists in the repo's history and docs, not in this code path today.
+Here's the honest part: **that flag and that vendored library aren't wired into the trainer you're actually running.** Neither `train_nanogpt.py`'s argument parser nor its training loop calls into wandb anywhere — `-w` isn't a recognized flag on the Python trainer, and `project_name` in the training config is used only to name the checkpoint directory (as [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) found when it went looking for a wandb field in the YAML schema and came up empty). The README describes an integration point that exists in the repo's history and docs, not in this code path today.
 
 That doesn't make wandb pointless here — it means you build the bridge yourself, which is a dozen lines on top of the exact log you're already capturing:
 
@@ -357,7 +357,7 @@ Loss
   1 |___________________
     0   100   200   300   400   500
 ```
-Barely moving. Try a higher `lr`, more steps, or a larger model — [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) is where the "larger model" knobs actually live.
+Barely moving. Try a higher `lr`, more steps, or a larger model — [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"]) is where the "larger model" knobs actually live.
 
 ---
 
@@ -401,11 +401,11 @@ git tag exp-lr1e-4
 
 ## Next Steps
 
-You've covered the full loop: configure ([Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"])), run ([Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]), [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])), and now track.
+You've covered the full loop: configure ([Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"])), run ([Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]), [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"])), and now track.
 
-**Next: [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"])** — once you're comparing runs and asking "would a bigger model help here?", this is where you learn what's actually inside the `transformer_config:` block you've been editing: attention heads, embedding dimensions, block counts, and the trade-offs behind each.
+**Next: [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"])** — once you're comparing runs and asking "would a bigger model help here?", this is where you learn what's actually inside the `transformer_config:` block you've been editing: attention heads, embedding dimensions, block counts, and the trade-offs behind each.
 
-**Or go all the way down:** if you'd rather see the loss curve you just plotted come from a training loop you wrote yourself — cross-entropy, backprop, `AdamW`, no framework hiding the mechanics — [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) is the from-scratch counterpart to this whole lesson: the exact captured run quoted above, built line by line.
+**Or go all the way down:** if you'd rather see the loss curve you just plotted come from a training loop you wrote yourself — cross-entropy, backprop, `AdamW`, no framework hiding the mechanics — [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]) is the from-scratch counterpart to this whole lesson: the exact captured run quoted above, built line by line.
 
 ---
 

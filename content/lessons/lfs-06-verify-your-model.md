@@ -28,7 +28,7 @@ estimatedMinutes: 35
 
 # Prove It's Right: Verifying a Model You Trained
 
-[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])
 ended where most from-scratch write-ups end: **you trained it.** The loss
 dropped, the process exited 0, the chips got warm. That's a real
 accomplishment, and it is also the exact moment the arc stops being able to
@@ -111,7 +111,7 @@ The cheapest check in this entire lab, and it costs **one training step**.
 A freshly initialized model's output distribution is close to uniform over the
 vocabulary, and cross-entropy against a uniform distribution over `V` classes
 is exactly `ln(V)`.
-[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
 already used this to check the forward pass; the point here is that it also
 verifies something no shape assertion can — that **your model, your tokenizer,
 and your vocabulary all agree with each other.**
@@ -224,7 +224,7 @@ Knowing exactly where your floor sits is the difference between a test and a rit
 
 And that last row is the punchline of the whole lab. Swapping two RMSNorm
 layers changed the loss by **exactly zero** — because, as
-[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])
 established, all thirteen gammas were frozen at exactly 1.0. **No
 value-comparison check can validate a tensor whose values are all identical.**
 Swapping two indistinguishable tensors is undetectable by construction. If you
@@ -298,7 +298,7 @@ device kernel applies one 32×32 matrix per tile independently, so with
 `i + 32` — **across a tile boundary**, which is structurally impossible for
 that kernel. Evidence from the hardware's own constraints beats evidence from
 documentation. (Tiles, again — the 32×32 unit from
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) turns out
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) turns out
 to be a correctness argument, not just a performance one.)
 
 ## Checks and what they cannot see
@@ -425,17 +425,17 @@ someone had to remember to run, instead of in the test suite.
 
 You've now done the full arc, plus the part that comes after "it trains":
 
-- [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) — the
+- [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) — the
   TT-NN<sup>™</sup> ↔ TT-Lang ladder and the 32×32 tile.
-- [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) — a
+- [Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"]) — a
   tokenizer from scratch.
-- [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+- [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
   — embeddings, the residual stream, RoPE.
-- [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+- [Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])
   — grouped-query attention and a from-scratch TT-Lang kernel.
-- [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+- [The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
   — SwiGLU, RMSNorm, and the full six-block model.
-- [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+- [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])
   — the from-scratch training loop, run on Blackhole hardware.
 - **Prove It's Right** (this lab) — the instruments that tell you whether any
   of it is correct.
@@ -448,15 +448,15 @@ Where to take it from here:
   including the pure-NumPy `ttml` forward reference and every ablation quoted
   above.
 - **Serve what you converted.** Once a model is in Hugging Face format and you
-  trust it, [Production Inference with vLLM](command:tenstorrent.showLesson?["vllm-production"])
-  and [Production Inference with TT-Inference-Server](command:tenstorrent.showLesson?["tt-inference-server"])
+  trust it, [Production Inference with vLLM](command:tenstorrent.lesson.show?["vllm-production"])
+  and [Production Inference with TT-Inference-Server](command:tenstorrent.lesson.show?["tt-inference-server"])
   are the paths that put it behind an endpoint. One thing to carry over from the
   field notes: pin your serving context length from `max_position_embeddings` in
   the model config, never from the tokenizer — `model_max_length` in
   `tokenizer_config.json` is frequently the "no limit" sentinel, which yields a
   stack that cheerfully accepts 4k contexts from a model trained to 256.
 - **Track the numbers properly.**
-  [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"])
+  [Experiment Tracking](command:tenstorrent.lesson.show?["ct6-experiment-tracking"])
   is where the held-out loss in Technique 2 stops being a number you remember
   and becomes a number you recorded. One caveat from the field notes that
   applies directly: check whether your framework actually *computes* validation

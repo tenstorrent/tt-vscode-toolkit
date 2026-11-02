@@ -48,11 +48,11 @@ Particle Life is an emergent complexity simulator where different particle speci
 
 ## Deploy the Project
 
-> **⚡ Sim-ready (single-chip path):** `particle_life.py` runs on the [ttsim simulator](command:tenstorrent.showLesson?["ttsim-twenty-and-ten"]) — no hardware required.
+> **⚡ Sim-ready (single-chip path):** `particle_life.py` runs on the [ttsim simulator](command:tenstorrent.lesson.show?["ttsim-twenty-and-ten"]) — no hardware required.
 > Set `TT_METAL_SIMULATOR=~/sim/libttsim_wh.so` and run `particle_life.py`.
 > The multi-chip `particle_life_multi_device.py` requires a real multi-device system (T3000, TT-QuietBox 2).
 
-[📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
+[📦 Deploy All Cookbook Projects](command:tenstorrent.cookbook.createProjects)
 
 This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 
@@ -79,7 +79,7 @@ This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 
 **Quick start:**
 
-[🌌 Run Particle Life Simulation](command:tenstorrent.runParticleLife)
+[🌌 Run Particle Life Simulation](command:tenstorrent.cookbook.particleLife)
 
 **Manual commands:**
 
@@ -87,7 +87,7 @@ This creates the project in `~/tt-scratchpad/cookbook/particle_life/`.
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 
 # cd after activating — tt-metalium opens a new shell, so a cd before it
 # would be lost when you land back at /home/user inside the container
@@ -366,4 +366,4 @@ This approach could achieve near-linear scaling (3.5-4x on 4 devices) by elimina
 - ✅ **Multi-device acceleration**: Distributed workloads across multiple TT chips
 - ✅ **Parallel computing mastery**: Production-scale parallel algorithms on TT hardware
 
-**Congratulations!** You've completed all 5 cookbook recipes. Ready for more? Check out the [Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"]) for ideas on combining projects, or explore production models in the Advanced Topics section.
+**Congratulations!** You've completed all 5 cookbook recipes. Ready for more? Check out the [Cookbook Overview](command:tenstorrent.lesson.show?["cookbook-overview"]) for ideas on combining projects, or explore production models in the Advanced Topics section.

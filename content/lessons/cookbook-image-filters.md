@@ -47,7 +47,7 @@ Build a library of creative image filters and effects using TT-NN<sup>™</sup> 
 
 ## Deploy the Project
 
-[📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
+[📦 Deploy All Cookbook Projects](command:tenstorrent.cookbook.createProjects)
 
 This creates the project in `~/tt-scratchpad/cookbook/image_filters/`.
 
@@ -308,7 +308,7 @@ if __name__ == "__main__":
 
 **Quick Start - Click to Run:**
 
-[🖼️ Run Image Filters Demo](command:tenstorrent.runImageFilters)
+[🖼️ Run Image Filters Demo](command:tenstorrent.cookbook.imageFilters)
 
 **Manual Commands:**
 
@@ -316,7 +316,7 @@ if __name__ == "__main__":
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 
 # cd after activating — tt-metalium opens a new shell, so a cd before it
 # would be lost when you land back at /home/user inside the container
@@ -385,4 +385,4 @@ Combine multiple exposures.
 - ✅ **Image processing**: From edge detection to artistic effects
 - ✅ **Foundation for CV models**: Same techniques in ResNet50, MobileNetV2, ViT
 
-[Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])
+[Return to Cookbook Overview](command:tenstorrent.lesson.show?["cookbook-overview"])

@@ -13,10 +13,10 @@ estimatedMinutes: 40
 
 # The Transformer Block & the Model
 
-> **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
+> **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.lesson.show?["lfs-00-intro"]).
 
 
-[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+[Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])
 ended with a working attention output — GQA'd, RoPE'd, causal-masked, projected
 back through `o_proj`. But attention is only half of what a transformer block
 does to `x`. The other half is a feed-forward transformation applied
@@ -28,9 +28,9 @@ every earlier lab has quoted inside `Block` without explaining), and the
 residual wiring that turns `x = x + attn(...)` and `x = x + mlp(...)` into a
 repeatable unit you stack six times. That's the exact `nanollama3` shape this
 arc has been building toward since
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]). By the
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]). By the
 end, you will have read, line by line, every component of the model
-[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])
 trains for real on Blackhole<sup>®</sup>.
 
 **You are here:**
@@ -44,7 +44,7 @@ graph LR
 
 ## Coming from CUDA: kernel fusion, one more time
 
-[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+[Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])
 built the case that TT-Lang's reader → compute → writer pipeline *is*
 FlashAttention's memory-traffic argument, made textual: every intermediate
 stays in L1, nothing round-trips DRAM between QKᵀ and ·V. That same argument
@@ -152,7 +152,7 @@ understand the math), and, on the real training path, the single fused device
 op `ttml.ops.swiglu`, which composes `ttml.ops.unary.silu` and
 `ttml.ops.binary.mul` around the three projections — i.e. exactly `silu(gate)
 · up`, expressed as ops you already know the *shape* of from the elementwise add
-in [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+in [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
 (`binary.mul` is the multiply cousin of the add you already wrote) rather than
 as a new hand-authored reader/compute/writer pipeline. The
 matmuls underneath `gate`, `up`, and `down` are ordinary matmuls — the same
@@ -251,7 +251,7 @@ fusion this lab's CUDA callout promised.
 
 **This kernel does not run in the bundled functional simulator, for the exact
 same reason attention's softmax didn't in
-[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]).**
+[Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"]).**
 RMSNorm's `reduce_sum`
 collapses the feature dimension to a per-row scalar, then `ttl.math.broadcast`
 has to fan that scalar back out across a full 32×32 tile — and the pinned
@@ -284,7 +284,7 @@ on a real device — this is a simulator-ahead-of-compiler gap, not a
 correctness problem with the tile math. On the real training path, this
 normalization is `ttml.ops.rmsnorm` — the op `ttml.models.llama` calls before
 every attention and MLP sub-layer, and the op this lab's hero training run in
-[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])
 actually exercises on Blackhole.
 
 ## Assembling the block
@@ -314,9 +314,9 @@ class Block(nn.Module):
 
 Two lines, two identical shapes: `x = x + sublayer(norm(x))`. The first line is
 the residual stream from
-[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
 and the `GroupedQueryAttention` from
-[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+[Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])
 meeting for the first time — `attention_norm` (RMSNorm) runs on `x`, `attn`
 (GQA, RoPE'd Q/K, causal softmax) turns the normalized `x` into an attention
 output, and the residual add — the exact `eltwise_add` kernel from
@@ -332,7 +332,7 @@ add from **Embeddings & the Residual Stream**.
 ## Stacking blocks into the model
 
 `NanoLlama` is the same class
-[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
 quoted when it introduced the residual stream — but back then it asked you to
 take `Block`'s internals on faith. Now that you've read every line inside
 `Block`, here's the whole model again, verbatim from `reference_gpt.py`, with
@@ -397,7 +397,7 @@ and `mlp` weights, all reading and writing the same running `x`.
 Step back from the PyTorch reference for a moment and ask what "TT-native"
 actually means for this model on device. The boundary is `ttnn.Tensor` in
 `ttnn.TILE_LAYOUT`, sitting in DRAM or L1 — the 32×32 tile from
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]), still
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]), still
 doing all the work. Anything that consumes and produces that type can sit inside an
 otherwise-`ttnn` forward pass, whether it's a library op (`ttnn.matmul`,
 `ttnn.softmax`) or a hand-authored TT-Lang kernel like the two this lab has
@@ -481,7 +481,7 @@ uses a broadcast the functional simulator doesn't support yet (vendor marks
 it `xfail`). This lab's kernel drops the bias and teaches the pure
 accumulation loop, which is the pedagogical heart of matmul anyway; a bias
 add, when you need one, is the same `eltwise_add` kernel from
-[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
 applied afterward.
 
 Put the two kernels side by side and you get the honest picture the runtime
@@ -520,10 +520,10 @@ later without touching anything else in the forward pass.
 
 Every number in this arc so far has been the **nano** `nanollama3_char`
 config — the one that actually trains in
-[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]).
+[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]).
 The **~80M** number is the scale of
 [Mini-LLM by Ashx098](https://github.com/Ashx098/Mini-LLM), the project this arc
-credits in [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]):
+credits in [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]):
 80M parameters, 361M training tokens,
 ~5 hours on one A100, final loss ~3.25. Same code, same architecture — every
 class in this lab — with the config knobs turned up:
@@ -548,7 +548,7 @@ final `ln_f`, and `head` — lands at **9,810,816 parameters**, matching
 model, small enough to add up on paper.
 
 **The params/DRAM reasoning, done the same way this project's own hardware
-notes do it ([Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"]) has the training-memory breakdown):**
+notes do it ([Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"]) has the training-memory breakdown):**
 bf16 weights cost 2 bytes/parameter, bf16 gradients another 2 bytes/parameter,
 and AdamW's two fp32 moment buffers cost roughly 8 bytes/parameter more — call
 it ~12 bytes/parameter for weights + gradients + optimizer state, before
@@ -560,7 +560,7 @@ parameter count).
 
 Both totals are tiny next to even the most DRAM-constrained device this arc
 supports: this repo's own lessons document **n150 at 12 GB DRAM** (see
-[Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]), [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"])) as the tight case —
+[Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]), [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"])) as the tight case —
 tight enough that a real Llama-3.1-8B-Instruct model (8B parameters, ~100×
 this lab's 80M target) reliably exhausts it, per this project's own hardware
 notes. An 80M-parameter model is nowhere near that ceiling on any single
@@ -622,7 +622,7 @@ initial loss near `ln(vocab)` tell you the wiring is correct; watching that
 loss actually drop needs a backward pass, an optimizer, and real data — the
 from-scratch training loop (cross-entropy, AdamW, backprop) that is the entire
 subject of
-[Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]),
+[Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]),
 run for real on Blackhole hardware.
 
 ## Graduate box
@@ -642,7 +642,7 @@ TT-Lang kernel like `matmul` (sim-validated) or `rmsnorm_kernel`
 
 And you know precisely what changes, and what doesn't, on the way to the
 ~80M "hero" scale this arc has pointed at since
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]): the same
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]): the same
 classes, bigger config knobs, a real BPE vocabulary instead of char-level —
 and, worked through above, nowhere near enough parameters to need more than one
 chip.
@@ -654,7 +654,7 @@ is the part that turns a freshly-initialized 9.81M-parameter model into one
 that actually predicts text: a from-scratch training loop — cross-entropy,
 AdamW, backprop — run for real on Blackhole<sup>®</sup> hardware, watching the
 loss drop the way the honest runtime matrix in
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) already
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) already
 previewed (4.69 → 3.23 over 20 steps, on a p300c, exit 0).
 
-[→ Continue to Lab 5: Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])
+[→ Continue to Lab 5: Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])

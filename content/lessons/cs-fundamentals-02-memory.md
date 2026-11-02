@@ -325,7 +325,7 @@ cd ~/tt-metal
 ./build_metal.sh --build-programming-examples
 ```
 
-[🔨 Build Examples](command:tenstorrent.buildProgrammingExamples)
+[🔨 Build Examples](command:tenstorrent.metal.buildProgrammingExamples)
 
 ### Experiment 1: Latency - Random Access
 
@@ -767,4 +767,4 @@ We explored:
 
 **Next:** We take what we've learned and scale to 880 cores in parallel.
 
-[→ Continue to Module 3: Parallel Computing](command:tenstorrent.showLesson?["cs-fundamentals-03-parallelism"])
+[→ Continue to Module 3: Parallel Computing](command:tenstorrent.lesson.show?["cs-fundamentals-03-parallelism"])

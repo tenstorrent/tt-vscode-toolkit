@@ -38,3 +38,9 @@ styles/Google/
 # here so local runs stop re-committing them.
 generated/
 
+tmp/
+
+# local working notes, never shipped
+experience_notes.md
+VLLM_INSTALLATION_DRIFT.md
+report-*.md

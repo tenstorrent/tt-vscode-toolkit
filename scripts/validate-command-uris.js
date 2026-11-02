@@ -4,9 +4,9 @@
  * Validation script for VSCode command URIs in markdown files
  *
  * Checks that command URIs use the correct format:
- * ✅ CORRECT: command:tenstorrent.showLesson?["lesson-id"]
+ * ✅ CORRECT: command:tenstorrent.lesson.show?["lesson-id"]
  * ✅ CORRECT: command:tenstorrent.startServer?[{"hardware":"N150"}]
- * ❌ WRONG: command:tenstorrent.showLesson?%7B%22lessonId%22%3A%22lesson-id%22%7D
+ * ❌ WRONG: command:tenstorrent.lesson.show?%7B%22lessonId%22%3A%22lesson-id%22%7D
  *
  * VSCode command URI format:
  * - No arguments: command:commandName

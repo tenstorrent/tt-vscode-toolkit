@@ -31,7 +31,7 @@ minTTMetalVersion: v0.73.1
 
 This lesson's title says "fine-tuning." Let's be precise about what that word means before running anything: **fine-tuning is continuing training from weights you already have, instead of starting from random numbers.** Mechanically, that's it — load a checkpoint, keep taking gradient steps, save a new checkpoint.
 
-`train_nanogpt.py` (the trainer this whole track runs — see [Understanding Custom Training](command:tenstorrent.showLesson?["ct1-understanding-training"])) supports that mechanic directly: `--resume <checkpoint>` loads a saved model and keeps training it; `--fresh` throws that away and starts from random initialization. There's no pretrained checkpoint for this particular architecture sitting on the internet waiting to be downloaded, so this lesson builds one first with a short run, then does the thing the title promises: **continues training that checkpoint instead of restarting it.** That continue-from-a-checkpoint command is exactly what you'd run against a real pretrained model, too — same flags, same mechanic, different starting weights.
+`train_nanogpt.py` (the trainer this whole track runs — see [Understanding Custom Training](command:tenstorrent.lesson.show?["ct1-understanding-training"])) supports that mechanic directly: `--resume <checkpoint>` loads a saved model and keeps training it; `--fresh` throws that away and starts from random initialization. There's no pretrained checkpoint for this particular architecture sitting on the internet waiting to be downloaded, so this lesson builds one first with a short run, then does the thing the title promises: **continues training that checkpoint instead of restarting it.** That continue-from-a-checkpoint command is exactly what you'd run against a real pretrained model, too — same flags, same mechanic, different starting weights.
 
 Every number and every generated sample below is copied verbatim from a real training run against this extension's verified `ttml` build, on a Blackhole<sup>®</sup> p300c. Nothing here is projected or rounded to a nicer-looking curve.
 
@@ -43,7 +43,7 @@ Every number and every generated sample below is copied verbatim from a real tra
 - Reading generated text honestly: what a ~10.8M-parameter character model can and can't do after a few thousand steps
 - The one flag people expect that doesn't exist (`--learning_rate`), and where `lr` actually lives
 
-**Time:** 20-25 minutes | **Prerequisites:** [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) (the YAML this lesson runs), a Shakespeare corpus from [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"])
+**Time:** 20-25 minutes | **Prerequisites:** [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) (the YAML this lesson runs), a Shakespeare corpus from [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"])
 
 ---
 
@@ -66,15 +66,15 @@ graph LR
 
 ## Install `ttml`
 
-`ttml` is source-only — there's no pip wheel. If you don't already have a built `~/tt-metal` source tree, do [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.showLesson?["build-tt-metal"]) first. This matters especially on a TT-QuietBox<sup>®</sup> 2: those images have no `~/tt-metal` at all — TT-NN<sup>™</sup> arrives as a container (`tt-metalium`) rather than on the host, so there's nothing to build `ttml` against until you make a source tree yourself.
+`ttml` is source-only — there's no pip wheel. If you don't already have a built `~/tt-metal` source tree, do [Build TT-Metalium<sup>™</sup> from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) first. This matters especially on a TT-QuietBox<sup>®</sup> 2: those images have no `~/tt-metal` at all — TT-NN<sup>™</sup> arrives as a container (`tt-metalium`) rather than on the host, so there's nothing to build `ttml` against until you make a source tree yourself.
 
 Once you have a tt-metal build, this extension's **Install tt-train** command builds `ttml` for you:
 
-[📦 Install tt-train](command:tenstorrent.installTtTrain)
+[📦 Install tt-train](command:tenstorrent.training.installTtTrain)
 
 Behind that button: configuring tt-train as a tt-metal subproject, building the `_ttml` Python bindings, then **rebuilding `ttnn`'s `_ttnn.so`** and wiring `ttml` onto your Python environment with a `.pth` file (there's no `tt-train/pyproject.toml`, so `pip install .` doesn't apply). That rebuild step is the fix for `import ttml` raising `std::bad_cast` — every pre-built tt-metal image, including TT-QuietBox 2's, ships an `_ttnn.so` built before `tt-train` was enabled, and the two binaries disagree about the shape of `ttnn`'s enum registry until you rebuild one against the other. The full recipe, with every gotcha hit during verification, lives in [`content/templates/llm-from-scratch/BUILD_TTML.md`](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/content/templates/llm-from-scratch/BUILD_TTML.md).
 
-**How long this takes:** with a warm ccache, this build takes about 5 minutes. If this is your first-ever `tt-metal` build — no ccache yet — budget far longer; see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) before you start the clock.
+**How long this takes:** with a warm ccache, this build takes about 5 minutes. If this is your first-ever `tt-metal` build — no ccache yet — budget far longer; see [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) before you start the clock.
 
 Verify it worked:
 
@@ -86,7 +86,7 @@ python -c "import ttnn, ttml; print('ttml + ttnn OK')"
 
 ## The Config This Lesson Runs
 
-[Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) already walked the real YAML files `train_nanogpt.py` reads. This lesson runs the one it falls back to when you pass no `--config` at all: `training_shakespeare_nanogpt_char.yaml`, paired with the model config `nanogpt_char.yaml`.
+[Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) already walked the real YAML files `train_nanogpt.py` reads. This lesson runs the one it falls back to when you pass no `--config` at all: `training_shakespeare_nanogpt_char.yaml`, paired with the model config `nanogpt_char.yaml`.
 
 The shapes that matter:
 
@@ -100,7 +100,7 @@ The shapes that matter:
 | Checkpoint interval | every 500 steps (`model_save_interval: 500`) |
 | Device mesh | `[1, 1]` — single chip. p300c and p100 both count as one chip here, exactly like n150 |
 
-Set your environment the way [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) does — honoring a user-supplied `TT_METAL_ARCH_NAME` instead of overwriting it:
+Set your environment the way [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]) does — honoring a user-supplied `TT_METAL_ARCH_NAME` instead of overwriting it:
 
 ```bash
 export TT_METAL_HOME="${TT_METAL_HOME:-$HOME/tt-metal}"
@@ -111,7 +111,7 @@ export TT_LOGGER_LEVEL=FATAL
 cd ~/tt-metal/tt-train/sources/examples/nano_gpt
 ```
 
-You'll also want the Shakespeare corpus from [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"]) at `~/tt-scratchpad/training/data/shakespeare.txt`. (`tt-metal` also ships its own copy of the same tiny-shakespeare corpus at `tt-train/data/shakespeare.txt`, which is what the verified run below actually used — either path works, it's the same text.)
+You'll also want the Shakespeare corpus from [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"]) at `~/tt-scratchpad/training/data/shakespeare.txt`. (`tt-metal` also ships its own copy of the same tiny-shakespeare corpus at `tt-train/data/shakespeare.txt`, which is what the verified run below actually used — either path works, it's the same text.)
 
 ---
 
@@ -260,7 +260,7 @@ If you see a loss spike right after your own `--resume` run, don't panic and don
 
 ### There is still no `--learning_rate` flag
 
-If you want to try mitigating the spike above with a lower learning rate, you can't do it on the command line — as [Configuration Patterns](command:tenstorrent.showLesson?["ct3-configuration-patterns"]) already established, `train_nanogpt.py` has no `--learning_rate` override. `lr` lives in the training config YAML's `optimizer:` block. To resume with a different learning rate, copy `training_shakespeare_nanogpt_char.yaml`, edit `optimizer.lr`, and point `--config` at your copy.
+If you want to try mitigating the spike above with a lower learning rate, you can't do it on the command line — as [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) already established, `train_nanogpt.py` has no `--learning_rate` override. `lr` lives in the training config YAML's `optimizer:` block. To resume with a different learning rate, copy `training_shakespeare_nanogpt_char.yaml`, edit `optimizer.lr`, and point `--config` at your copy.
 
 ---
 
@@ -268,7 +268,7 @@ If you want to try mitigating the spike above with a lower learning rate, you ca
 
 This lesson resumed the **same** checkpoint on the **same** Shakespeare corpus — that's "continued pretraining," a clean way to see the resume mechanic without a second dataset in the way. Real fine-tuning usually swaps in a *different*, smaller, task-specific dataset at the `--resume` step — same three flags, same mechanic, just a different `--data_path`. Once you're comfortable with the loss curve above, that swap is the only thing that changes.
 
-If you want the deeper story — a transformer built and trained entirely from random initialization, with the architecture-capacity questions that come with it — that's [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]). And if you want to build the trainer itself, gradient by gradient, instead of calling into `ttml`, that's [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"]) in the Build an LLM from Scratch track.
+If you want the deeper story — a transformer built and trained entirely from random initialization, with the architecture-capacity questions that come with it — that's [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"]). And if you want to build the trainer itself, gradient by gradient, instead of calling into `ttml`, that's [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]) in the Build an LLM from Scratch track.
 
 ---
 
@@ -313,7 +313,7 @@ That flag doesn't exist — see **There is still no `--learning_rate` flag** abo
 
 ## What's Next
 
-Now that a single-chip run and the resume mechanic are both concrete, [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]) scales the same `train_nanogpt.py` entry point across chips with Data Parallel. Or, if you'd rather stop guessing at loss numbers scrolling past in a terminal, [Experiment Tracking](command:tenstorrent.showLesson?["ct6-experiment-tracking"]) captures runs like the two above to a file (or Weights & Biases) so you can compare them properly.
+Now that a single-chip run and the resume mechanic are both concrete, [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]) scales the same `train_nanogpt.py` entry point across chips with Data Parallel. Or, if you'd rather stop guessing at loss numbers scrolling past in a terminal, [Experiment Tracking](command:tenstorrent.lesson.show?["ct6-experiment-tracking"]) captures runs like the two above to a file (or Weights & Biases) so you can compare them properly.
 
 ---
 

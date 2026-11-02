@@ -840,4 +840,4 @@ We explored:
 
 **Next:** We explore synchronization and coordination across 880 cores.
 
-[→ Continue to Module 5: Synchronization](command:tenstorrent.showLesson?["cs-fundamentals-05-synchronization"])
+[→ Continue to Module 5: Synchronization](command:tenstorrent.lesson.show?["cs-fundamentals-05-synchronization"])

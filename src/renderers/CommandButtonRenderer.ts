@@ -2,7 +2,7 @@
  * Command Button Renderer
  *
  * Transforms markdown command links into clickable buttons.
- * Converts: [Button Text](command:tenstorrent.commandName)
+ * Converts: [Button Text](command:tenstorrent.feature.action)
  * Into: <button data-command="..." class="tt-command-button">Button Text</button>
  */
 

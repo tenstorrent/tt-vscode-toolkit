@@ -13,6 +13,149 @@ VSCode extension for Tenstorrent hardware development:
 5. **Auto-config** - Solarized Dark + terminal on activation
 6. **Lesson Metadata** - Hardware compatibility and validation tracking (see LESSON_METADATA.md)
 
+## tt CLI leads the way (2026-10-29)
+
+**Prompt:** apply the tt-first rework done on tt-quietbox2-guide (PR #27) and
+tenstorrent.github.io to the whole toolkit corpus, one sidebar group at a time, with
+Taylor reviewing each. Spec: `docs/superpowers/specs/2026-10-29-tt-cli-leads-the-way-design.md`,
+plan: `docs/superpowers/plans/2026-10-29-tt-cli-leads-the-way.md`, ledger under
+`.superpowers/sdd/2026-10-29-tt-cli-leads-the-way/`.
+
+**Decisions:** four golden paths as sidebar groups (Set Up, Serve Models, Connect
+Software, Build on the Stack), then Go Deeper, Applications and the series. Every
+command id is `tenstorrent.<feature>.<action>`, hard cut, map in
+`scripts/command-rename-map.json`. Templates stay the bare command; the cloud-pod guard
+lives in the handler (`src/utils/environment.ts`, keyed on the tt-code-server image's
+`TT_VLLM_VENV` + `TT_INSTALLER_VENV`). `tt` is verified against the `v1.2.1` tag on the
+QuietBox (`~/code/tt-cli`, editable install, pinned); `tt agent` is unreleased and gets
+one sentence.
+
+**Shape of the change:** 3 new lessons (`arrive`, `launch-software`, `mix-and-match`),
+1 moved (`tt-installer-by-hand`), 6 rewritten (tt-installer, hardware-detection,
+verify-installation, download-model, interactive-chat, api-server), ~20 edited; 57
+lessons in 11 groups. Templates +40 / -20; package.json commands reconciled against
+registrations and lesson links by `test/lesson-tests/command-links.test.ts`. The docs
+site prints the `tt` command under every button (checked on every built page: button
+count equals rendered-command count). README learning paths and `llms.txt` describe the
+four paths. Versions 0.1.32 → 0.1.40 across the branch.
+
+**Still unverified at PR time:** a real `tt serve` on the QuietBox host (`tt serve` maps
+every device node and the other boards were held all day); `tt update` and `tt self
+update` on the host (interactive sudo, pinned editable install); the extension's cloud
+guard inside a real code-server (unit-tested, markers present); Open WebUI launch/stop
+(dry run only; the box's container belongs to another session); `run.py --device-id`
+as a real boot; every pod route on an actual n150 (the rig's chip is a p300c, run as
+P100/P150). tt-code-server branch `tt-cli-ready` (0f5193d: tt-metal v0.80.0, plugin
+pinned, tt 1.2.1 baked in) is **not pushed**; the pod routes in Serve Without Containers
+and tt-inference-server by Hand need it.
+
+**Final review (fresh reviewer, after PR #53 opened) found and this branch fixed:**
+`scripts/build-web.js` still tested `tenstorrent.showLesson`, so every in-body
+cross-lesson link on the docs site (371 of them) rendered as a dead
+`tt-unknown-command` span after the rename; the site's page map had the old
+`showStepZero/showFaq/showWelcome` ids. `command-map-parser`'s function regex could start
+a match on the word "function" inside a comment ("one function per command") and bind
+`LAUNCH_LIST` to the name `per`; the name must now be followed by a parameter list, with
+a regression test seen red on the old regex. Three `src/extension.ts.bak*` files had been
+committed (removed). Registry prev/next chains made reciprocal; a dead `vscode-chat`
+lesson link replaced; `--tt-device` unified to `--device` in the tt-inference-server
+lesson; fences aligned with their buttons; a no-auth warning beside the `--local-server`
+block; the rename map annotated with the 29 targets later commits deleted. Lesson:
+**the rename test checks ids against package.json, and nothing checked the docs-site
+renderer, which keys on an id string of its own.** The site build is now in the
+pre-commit hook's link test, but a renderer comparison against a literal id still needs
+a grep whenever an id changes.
+
+**Test rig for the cloud pod:** `tt-code-server:local`, built on the QuietBox from
+`~/code/tt-code-server/tt-code-server` (the pull from ghcr was denied; the build takes
+about an hour, 55 GB). Run it with one leased chip:
+`docker run -d --name tt-cloud-rig --entrypoint sleep --device /dev/tenstorrent/N -v /dev/hugepages-1G:/dev/hugepages-1G tt-code-server:local infinity`,
+then `docker exec -u user -w /home/user tt-cloud-rig bash -lc '...'`. One difference
+from the real pod: the rig's chip is a p300c, so `tt model list` detects p300 there and
+n150 on the pod.
+
+**Set Up group (Task 5), what was run where:**
+- QuietBox host (`tt` 1.2.1, lease 4b159e, chips 2-3): Where-am-I block, `tt --version &&
+  tt device status`, `tt device info`, `tt update --dry-run`, `tt self update --check`,
+  `tt-metalium -c "python3 -c 'import ttnn...'"`. All as the lessons show. **Not run:**
+  `tt update` (interactive sudo, reflashes a shared box) and `tt self update` (would
+  overwrite the pinned editable install).
+- Cloud rig: `uv tool install tenstorrent` on the pod's default Python 3.10 resolved
+  **tt 1.0.1**; `--python 3.12` gives 1.2.1, and the lesson and template say so.
+  `tt device status` then failed with TOOL_MISSING because `tt` wants its own pinned
+  tt-smi, which only `tt update` installs; `tt config set tools.override.tt-smi
+  ~/.tt-installer-venv/bin/tt-smi` (and tt-flash) resolves it (`registry.py` checks env
+  `TT_TOOL_BIN_<NAME>`, then `tools.override.<name>`, then the pinned copy, then
+  `~/.tenstorrent-venv/bin`). After that: `tt device status` (one chip), `tt device
+  info`, `tt model list`, `tt update --dry-run` (tt-smi/tt-flash rows read `external`),
+  `import ttnn` in `python_env`, all pass. The guard markers are present in the image's
+  env. The extension itself was not opened inside the rig's code-server; the guard is
+  proven by its unit test plus the markers.
+
+**Serve Models group (Task 6), what was run where:**
+- QuietBox host (lease ab99ec, chips 2-3, so `tt` detected `p300`): `tt model list`,
+  `tt model list --catalog`, `tt model info Llama-3.1-8B-Instruct` (pasted into the
+  lesson), `tt model search qwen3|coder`, `tt serve Llama-3.1-8B-Instruct --dry-run`
+  (prints the full run.py command), `tt serve Qwen3-32B --dry-run` (refuses on one board:
+  "no support entry for p300", as the lesson says). **Not run:** a real `tt serve` on the
+  host. `tt serve` maps every `/dev/tenstorrent` node, and the other two boards were held by
+  other agents the whole day; the serve buttons are proven by dry run only.
+- Cloud rig: `tt model list/info/search` pass. **The no-container vLLM route does not
+  start on image v0.63.0.** Three defects, each found after fixing the previous one: (1)
+  `import ttnn` in `python_env_vllm` fails, `No module named 'tracy'` (needs
+  `~/tt-metal/tools` on `PYTHONPATH`; the template now exports it); (2) torchvision 0.26.0
+  vs torch 2.14.1, `operator torchvision::nms does not exist` (0.29.2 cpu wheel fixes
+  it); (3) with both fixed, vLLM cannot load `TTLlamaForCausalLM`: tt-metal v0.69.0's
+  `generator_vllm.py` imports `vllm.multimodal.inputs.MultiModalDataDict`, gone from vLLM
+  0.30.0. The image pairs an April tt-metal with an October plugin. (1) and (2) are fixed
+  on tt-code-server branch `tt-cli-ready` (local commit 25b0fe2, image
+  `tt-code-server:tt-cli` built); (3) needs a matched tt-metal/plugin pair.
+  **Fixed the same day** (subagent, tt-code-server commit 0f5193d on `tt-cli-ready`, not
+  pushed): `TT_METAL_VERSION=v0.80.0` (latest non-prerelease; the compat import landed in
+  v0.74.0) and the plugin pinned to `82322af` as a build ARG. Image
+  `tt-code-server:tt-cli-metal` (59.7 GB) built on the QuietBox; under a gozer lease
+  `vllm serve meta-llama/Llama-3.1-8B-Instruct` answered a chat completion (200, 50
+  tokens, `system_fingerprint vllm-0.30.0`), log `~/logs/tt-code-server-vllm-serve-metal.log`.
+  Two runtime requirements came out of it and are now in the template and lesson:
+  `HF_MODEL=<name>` must be set (tt_transformers' `ModelArgs` raises without it) and
+  `--max-num-seqs 32 --block-size 64` (vLLM's default 256 is refused; 1..32 supported).
+  The HF cache mount also needs `~/.cache/huggingface/hub/blobs`, since the model's
+  snapshot symlinks point there. The rig's chip is a p300c, so the run used
+  `MESH_DEVICE=P100`; the pod is an n150, and the lesson is not yet proven on one.
+- **Connect Software (Task 7, a6ec41e..):** host: `tt launch list` (qwencode/hermes
+  `ready`, Node.js on the box), `tt launch qwencode|aider --dry-run` against another
+  session's bundle server on 8011 (shows the non-catalog warning path),
+  `tt serve Qwen3-32B --port 8000 --dry-run` (`--service-port 8000`, parser `hermes` from
+  the catalog), `tt serve Qwen3-32B --studio --dry-run`. Rig (pod image, no Docker):
+  web UIs read `needs docker or podman`, `uv tool install aider-chat` makes aider `ready`,
+  `tt launch aider --dry-run` with no server names port 20000. **Not run:** Open WebUI
+  launch/stop (the box's container is another session's, pinned to 20000) and the
+  extension's guard inside a code-server (unit-tested in `environment.test.ts`; the rig
+  carries both `TT_*_VENV` markers).
+  Later, under lease 45212d: vLLM on 20000 in the rig, `tt launch list` → aider `ready`,
+  `tt launch aider --dry-run` resolved the model and `llama3_json`, chat answered.
+- **Build on the Stack (Task 8, 5879aa7):** rig (no hardware): `import ttnn` in the
+  default shell (`~/tt-metal/python_env`, TT_METAL_HOME set), tutorial files present at
+  v0.80.0; `~/tt-lang-venv` = tt-lang 1.1.1 (module `ttl`), `tt-lang-setup-tutorials`
+  copied 15 scripts and `ttlang-sim elementwise/step_4` printed tensors (nanobind leak
+  lines at exit are noise); `~/tt-forge-venv` = tt-forge 1.4.0, pjrt-plugin-tt 1.4.0,
+  JAX 0.7.1, `import tt_torch` ok. PyPI tt-lang 1.1.6; `tt-lang-setup` is a command,
+  not a package (404 on PyPI). tt-awesome category links use `?cat=<id>`. **Not run:**
+  `ttnn_add_tensors.py` on a chip (boards held; lease queued). Later, under lease
+  58051b: ran on a p300c chip from the pod image, exit 0.
+- **Go Deeper (Task 9, 7e9d302..):** host: tt's pinned copy at
+  `~/.local/share/tenstorrent/tools/tt-inference-server-v0.25.0/src` + `../venv`
+  (packaging, pyyaml only) runs `run.py --help`; `installed.toml` and `tt update
+  --dry-run` captured (goldens v4.0.0: metal-version v0.78.0, firmware 19.15.0). Rig
+  (image `tt-code-server:deeper-rig` = tt-cli-metal + a v0.25.0 clone with the same
+  two-package venv): `run.py --local-server --device p150 --tt-metal-home ~/tt-metal
+  --tt-metal-python-venv-dir ~/tt-metal/build/python_env_vllm` ready in ~210 s, chat
+  answered, `tt launch list` found it. Findings: v0.25.0 prod catalog has Llama-3.1-8B on
+  P150 and N150, not P100; run.py prompts for HF_TOKEN (exported from `~/models/token`).
+  Image tag format `0.2.0-9b67e09-a91b644` = spec-ttmetal-vllm, also in
+  `release_model_spec.json` (`tt_metal_commit`, `vllm_commit`). **Not run:** a
+  `--device-id` boot on the host (no single-board spec for the catalog models).
+
 ## Hardware Compatibility Goal: Wormhole<sup>™</sup> + Blackhole (TT-QuietBox<sup>®</sup> 2 Readiness, Apr 2026)
 
 All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy) and
@@ -45,6 +188,11 @@ All lessons and templates must work on both **Wormhole** (n150/n300/T3000/Galaxy
   Use `: "${TT_METAL_ARCH_NAME:=wormhole_b0}"` pattern to honour user-supplied values.
 - **Qwen3-0.6B first**: n150 and p300c reliably run Qwen3-0.6B. Llama-3.1-8B-Instruct
   exhausts n150 DRAM and requires n300+ or P-series hardware. Lead with Qwen.
+  **Corrected 2026-10-29:** that finding was the v0.0.9x hand-run `vllm serve` with default
+  settings. tt-inference-server v0.25.0 lists Llama-3.1-8B-Instruct on N150 in
+  `release_model_spec.json`, and `tt serve Llama-3.1-8B-Instruct` uses that spec's settings
+  (`--max-num-seqs 32`, `--block-size 64`, 32k context). The lessons now lead with
+  Llama-3.1-8B-Instruct on an n150 through `tt serve` or the no-container vLLM route.
 
 ### WH/BH Compatibility Checklist
 
@@ -629,3 +777,43 @@ async function createQwenSymlink(qwenPath: string): Promise<string> {
 Prior to v0.0.268, this file contained extensive changelog entries spanning 500+ lines. This has been consolidated to improve maintainability and reduce duplication. All historical version information remains available in `CHANGELOG.md`.
 
 **See [CHANGELOG.md](CHANGELOG.md) for complete version history.**
+
+## Community models in the QB2 lessons; `tt launch smolagent` (2026-10-30)
+
+**Prompt:** make the qb2 lessons aware of the community model list (fast models for the
+agents and OpenClaw lessons), note the `tt launch openclaw` idea, and add a lesson on
+adding a `tt launch` command for a tool of your own, such as smolagents.
+
+**What the community catalog gives a QB2.** `tt model list --community --hw p300x2`
+lists bundles with a p300x2 profile. The fast ones are mixture-of-experts coders with 3B
+active parameters: `raahemnabeel/qwen3-coder-30b-a3b` (60 GB of weights, `qwen3_coder`
+parser, 256K context) and `raahemnabeel/qwen3-coder-next` (148 GB, 262K). Measured
+2026-10-30: coder-next 107 tok/s on two dies (another agent's server on port 8011);
+coder-30b-a3b 80 tok/s on two dies under our own lease, `00_verify_tools.py` all three
+checks in 5 s, `01_research_agent.py` 11 steps in 3 min 17 s. Qwen3-32B in the same
+lesson takes ~8 s a response.
+
+**Gotchas.**
+- `tt launch` prints `not in the model catalog` and `tool-call parser —` for every
+  bundle. It is a warning, not a refusal; the parser is in the bundle and `tt serve
+  --dry-run` shows it.
+- An installed bundle keeps the revision it was pulled at. The box's copy of
+  qwen3-coder-30b-a3b had only a `default` (p300x2) profile while the card listed
+  `p300`; `tt serve ... -- --refresh` fetched the current one. `--device-id 2,3` also
+  passes through `--` to tt-model, which is how the proof ran beside another agent's
+  server on chips 0,1 (lease via `gozer run`, with `sleep` after `tt serve` so the lease
+  outlived the detached container).
+- `pkill -f "sleep 10800"` over ssh kills the `bash -lc` that carries the pattern. Kill
+  the holder by pid.
+
+**`tt launch` has no plugin point.** Clients are modules in
+`src/tenstorrent/launchers/apps/` registered in `LAUNCHERS`; adding one is a tt-cli PR per
+tool. A smolagent adapter was written and run end to end (task answered in one 2 s step;
+smolagents 1.26 names the class `OpenAIModel`, and its CLI needs the `openai` extra), and
+an OpenClaw adapter was drafted in the opencode shape. Neither is in a PR, by decision
+(2026-10-30): the smolagent one needed a `typer.prompt` inside `handoff()`, which no
+shipped adapter does and which breaks `--yes`/`--json`, and a PR per client does not
+scale. The micro-lesson that showed the adapter shipped in 0.1.41 and was removed in
+0.1.42. Instead a design proposal for YAML/JSON launcher definitions lives in the Claude
+Docs page "tt launch plugin definitions"; the toolkit can gain a lesson on it once tt-cli
+has something like it.

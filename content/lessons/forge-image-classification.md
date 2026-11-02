@@ -5,7 +5,7 @@ description: >-
   Compile a PyTorch MobileNetV2 model for Tenstorrent hardware using
   forge.compile() — no build required. The forge env is pre-installed: one
   command to activate, then classify images on real TT silicon.
-category: compilers
+category: build
 tags:
   - hardware
   - image
@@ -61,18 +61,19 @@ That's the entire setup. No LLVM build, no Python version juggling, no CMake.
 > sudo ln -s ~/tt-forge-venv /opt/venv-forge
 > ```
 
-> **n150 cloud environment note:** `~/tt-forge-venv` ships `tt-forge 1.0.0` (Python 3.12)
-> which provides the `tt_torch` API (`torch.compile(model, backend='tt')`) rather than
-> `forge.compile()`. JAX and the PJRT plugin work correctly when `tt_torch` is imported
-> first (which pre-loads the TT shared libraries). The verify command handles this
-> automatically. The Python compilation script above uses `forge.compile()` — on
-> n150 cloud, you would use `torch.compile(model, backend='tt')` instead.
+> **Cloud pod note:** `~/tt-forge-venv` on the pod ships `tt-forge 1.4.0` with
+> `pjrt-plugin-tt 1.4.0`, JAX 0.7.1 and torch-xla (Python 3.12; checked 2026-10-29). It
+> provides the `tt_torch` API (`torch.compile(model, backend='tt')`); `forge.compile()` as
+> used in the script below may not be present. JAX and the PJRT plugin work when
+> `tt_torch` is imported first (it pre-loads the TT shared libraries); the verify command
+> does that. On the pod, use `torch.compile(model, backend='tt')` where the script says
+> `forge.compile()`.
 
-[▶ Activate Forge Environment](command:tenstorrent.activateForgeEnv)
+[▶ Activate Forge Environment](command:tenstorrent.forge.activateEnv)
 
 Verify the full stack is ready:
 
-[✓ Verify Forge Stack](command:tenstorrent.verifyForgeStack)
+[✓ Verify Forge Stack](command:tenstorrent.forge.verifyStack)
 
 Expected output:
 
@@ -168,9 +169,9 @@ for i in range(5):
     print(f"  {top5_probs[i]:.1%}  {labels[top5_idx[i]]}")
 ```
 
-[📝 Create Classifier Script](command:tenstorrent.createForgeClassifier)
+[📝 Create Classifier Script](command:tenstorrent.forge.createClassifier)
 
-[▶ Run Forge Classifier](command:tenstorrent.runForgeClassifier)
+[▶ Run Forge Classifier](command:tenstorrent.forge.runClassifier)
 
 Expected output:
 
@@ -278,11 +279,19 @@ That's the point of TT-Forge.
 
 ---
 
+## Where to go next
+
+- **[tt-awesome: Compilers & Frontends](https://docs.tenstorrent.com/tt-awesome/?cat=compilers)**
+  — [tt-forge](https://docs.tenstorrent.com/tt-awesome/entry/tt-forge/),
+  [tt-forge-models](https://docs.tenstorrent.com/tt-awesome/entry/tt-forge-models/),
+  [tt-torch](https://docs.tenstorrent.com/tt-awesome/entry/tt-torch/) and the rest of the
+  compiler stack, with the community projects built on them.
+
 ## Next steps
 
-- [JAX Inference with TT-XLA →](command:tenstorrent.showLesson?["tt-xla-jax"]) — use JAX and pmap for
+- [JAX Inference with TT-XLA →](command:tenstorrent.lesson.show?["tt-xla-jax"]) — use JAX and pmap for
   multi-device workloads on TT-QuietBox 2's four chips
-- [vLLM Production →](command:tenstorrent.showLesson?["vllm-production"]) — serving Qwen3 and Llama
+- [vLLM Production →](command:tenstorrent.lesson.show?["vllm-production"]) — serving Qwen3 and Llama
   at scale
 - [tt-forge-models](https://github.com/tenstorrent/tt-forge-models) — 169 validated
   model implementations ready to run

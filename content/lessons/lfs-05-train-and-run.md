@@ -16,7 +16,7 @@ minTTMetalVersion: v0.73.1
 
 # Train It & Run for Real
 
-> **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.showLesson?["lfs-00-intro"]).
+> **Following along?** The code in this lab lives in your `~/tt-scratchpad/llm-from-scratch/` workspace. If you haven't created it yet, use the **Create the LLM-from-Scratch Project** button in [Lab 0](command:tenstorrent.lesson.show?["lfs-00-intro"]).
 
 
 This is it. The hero lab.
@@ -32,7 +32,7 @@ predictions are close to uniform.
 Now you make it learn. Not on a GPU, not in a simulator — on real Tenstorrent
 Blackhole<sup>®</sup> silicon, watching the loss drop step by step.
 
-[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
 finished the model. This lab closes the last gap. You'll:
 
 - **Write the training loop from scratch** — cross-entropy loss,
@@ -43,7 +43,7 @@ finished the model. This lab closes the last gap. You'll:
   Blackhole chip, loss dropping step by step, exit 0, verified.
 
 Everything from
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) onward has
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) onward has
 been building toward this one run.
 
 **You are here:**
@@ -83,7 +83,7 @@ update:    θ ← θ − optimizer_step(grad)         (AdamW)
 ```
 
 **Cross-entropy loss** is the same quantity the `smoke()` check in
-[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
 already computed: `F.cross_entropy(logits.view(-1, vocab), targets.view(-1))`.
 A freshly initialized model's loss sits near `ln(vocab_size)` because its output
 distribution is close to uniform over the vocabulary, and cross-entropy of a
@@ -95,7 +95,7 @@ the actual next character.
 nudge every one of the model's 9.81M parameters." It's the chain rule, applied
 mechanically from the loss backward through every matmul, RMSNorm, and SwiGLU
 gate you read across
-[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
 through **The Transformer Block & the Model**, in reverse order.
 
 On CUDA, autograd builds this chain for you automatically. On Tenstorrent
@@ -104,7 +104,7 @@ forward. `ttml.ops.cross_entropy_loss` isn't just a forward computation of the
 loss value — it's an op with a matching backward that seeds the gradient chain.
 And every op it calls into underneath (`ttml.ops.rmsnorm`, `ttml.ops.rope`,
 `ttml.ops.swiglu`, the attention and linear ops
-[Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+[Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])
 and **The Transformer Block & the Model** named) carries its own backward the
 same way.
 
@@ -116,7 +116,7 @@ pass.
 
 **There is no single-file "Llama primitives" example for this stack.** That's
 worth being honest about, because the GPT-2-era cousin of
-[Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) through
+[Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"]) through
 **The Transformer Block & the Model** *does* have one:
 `nanogpt_primitives_example.py` hand-assembles a GPT-2-shape model directly from
 `ttml.ops` calls, forward and backward, inside one readable script. The modern
@@ -143,7 +143,7 @@ sets is explained inline and again in the build section below.
 `ttml` is **source-only** — there is no pip wheel or `.deb` for it, on any
 platform, as of this writing. If you don't already have a working tt-metal
 source-and-build tree, stop here and do the
-[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+[Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
 lesson first — everything below assumes `install_dependencies.sh` and
 `build_metal.sh` already work on your machine.
 
@@ -158,7 +158,7 @@ source tree, and not a host-side TT-NN<sup>™</sup> or vLLM either. TT-NN reach
 you as a container (`tt-metalium`), and `~/.tenstorrent-venv` holds only
 `tt-smi` and `tt-flash`. So there is nothing to build `ttml` against until you
 clone and build tt-metal yourself. Don't assume `~/tt-metal` exists; if it's missing, the
-[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]) is exactly the gap-filler.
+[Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) is exactly the gap-filler.
 
 The full, verified recipe lives in
 [`content/templates/llm-from-scratch/BUILD_TTML.md`](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/content/templates/llm-from-scratch/BUILD_TTML.md)
@@ -251,9 +251,9 @@ every line of: RoPE (`theta=500000`), RMSNorm, grouped-query attention (6
 heads, 3 KV groups), SwiGLU, embedding dim 384, 6 blocks, block size 256,
 char-level tokenizer. **This is the same `nanollama3` shape as the PyTorch
 reference across
-[Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+[Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
 through
-[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
 — now training on-device instead of running one forward pass on CPU.**
 
 **Here is what actually happened when we ran it, on this p300c, against
@@ -283,7 +283,7 @@ timing the compiler, not the model.
 
 Loss dropped **monotonically** — 4.6875 → 3.56 → 3.375 → 3.2344 — the same shape
 of curve the `smoke()` output in
-[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
 would predict, now with a real gradient signal instead of random initialization
 pulling the number down.
 
@@ -294,7 +294,7 @@ measurably lower loss, entirely on Tenstorrent Blackhole hardware**, with a
 from-scratch training loop (cross-entropy → backprop → AdamW) instead of a
 pre-trained checkpoint. That is the payoff this whole arc has been pointing at
 since the altitude ladder in
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]).
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]).
 
 And there's a physical dimension to this that a cloud endpoint never gives you.
 Leave a real job running — scale past twenty steps into the thousands, or up to
@@ -308,14 +308,14 @@ listening to silicon on your own desk train a language model you built from noth
 
 **One chip, and you can see it.** This run is `mesh_shape [1, 1]` — single-device,
 no DDP. On a multi-board host that is visible in the telemetry: run
-[`tt-smi -s`](command:tenstorrent.showLesson?["hardware-detection"]) or a monitor
+[`tt-smi -s`](command:tenstorrent.lesson.show?["hardware-detection"]) or a monitor
 like `tt-toplike` mid-run and one device shows a clear power and temperature lead
 while the others idle. Measured on a TT-QuietBox<sup>®</sup> 2 (four Blackhole chips)
 during a real training run: **82 W / 73 °C on the working chip against
 61–73 W / 63–68 °C on the idle three.**
 Idle Blackhole<sup>®</sup> still holds its clock at 1350 MHz, so the idle boards
 are warm rather than cold — the *power* gap is the clearer tell. Spreading that
-load is what [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"])
+load is what [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"])
 is for.
 
 ### The honest caveat, stated plainly
@@ -492,12 +492,12 @@ measurable but doesn't announce itself in a single sample. Past roughly step
 10,000 the curve flattened into a noisy 1.46–1.59 band, which is the signature
 of a **data**-bound model rather than a compute-bound one: more steps over the
 same corpus stopped paying. That matches what
-[Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"])
+[Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"])
 found at ~80M parameters, and it's the argument for reaching for more or better
 data rather than a longer run.
 
 The next lab, [Prove It's Right: Verifying a Model You
-Trained](command:tenstorrent.showLesson?["lfs-06-verify-your-model"]), is
+Trained](command:tenstorrent.lesson.show?["lfs-06-verify-your-model"]), is
 entirely about this class of problem — checks that pass while the model is
 wrong — and this gotcha is its opening exhibit.
 
@@ -505,7 +505,7 @@ wrong — and this gotcha is its opening exhibit.
 
 This arc has credited [Mini-LLM by
 Ashx098](https://github.com/Ashx098/Mini-LLM) since
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) as the
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) as the
 project whose component choices this whole build follows: RoPE, RMSNorm, SwiGLU,
 GQA, SentencePiece BPE 32K. Its real, published numbers: **~80M parameters, 361M
 training tokens, ~5 hours on a single A100, final loss ~3.25.**
@@ -528,7 +528,7 @@ Mini-LLM scales up** — same code path, same `ttml.models.llama`, same
 training loop shape — not that a 20-step demo run and a 5-hour production
 run landed at "the same" loss.
 
-[The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+[The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
 already worked through the config knobs (`embedding_dim`, `num_heads`,
 `num_groups`, `num_blocks`, `block_size`, vocab) and the params/DRAM math for
 scaling nano toward the ~80M target, so this lab won't repeat that table —
@@ -551,16 +551,16 @@ config.
 
 You've now done the whole arc:
 
-- [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) — picked
+- [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) — picked
   your altitude on the TT-NN ↔ TT-Lang ladder.
-- [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) —
+- [Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"]) —
   built a tokenizer from scratch.
-- [Embeddings & the Residual Stream](command:tenstorrent.showLesson?["lfs-02-embeddings"])
+- [Embeddings & the Residual Stream](command:tenstorrent.lesson.show?["lfs-02-embeddings"])
   — wired up embeddings and the residual stream, with RoPE waiting in the wings.
-- [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+- [Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])
   — authored attention with grouped-query sharing and a from-scratch TT-Lang
   kernel.
-- [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])
+- [The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])
   — assembled SwiGLU and RMSNorm into a full six-block Llama-shape model.
 - **Train It & Run for Real** (this lab) — trained that exact model from
   scratch, on real Blackhole hardware, watching the loss actually drop.
@@ -571,12 +571,12 @@ run with a falsifiable result.
 **And there's one more lab, because a dropping loss is not the same as a
 correct model** — the frozen-gamma gotcha above is proof of that, and it is the
 mildest example. [Prove It's Right: Verifying a Model You
-Trained](command:tenstorrent.showLesson?["lfs-06-verify-your-model"]) is the
+Trained](command:tenstorrent.lesson.show?["lfs-06-verify-your-model"]) is the
 verification lab: how to tell whether the thing you just trained (or converted,
 or resumed) is computing the function you think it is, with the measured
 numbers from a model that passed four independent checks and was still wrong.
 
-[→ Continue to Lab 6: Prove It's Right](command:tenstorrent.showLesson?["lfs-06-verify-your-model"])
+[→ Continue to Lab 6: Prove It's Right](command:tenstorrent.lesson.show?["lfs-06-verify-your-model"])
 
 If you want to go deeper into `ttml`-based training beyond this arc's nano
 scope — different architectures, longer runs, the full custom-training
@@ -584,17 +584,17 @@ workflow — this project's Custom Training track (re-authored and verified
 against the same `ttml` build recipe used above — `ct4` and `ct8` are
 validated on Blackhole p300c) is where that continues:
 
-- [Model Architecture Basics](command:tenstorrent.showLesson?["ct7-architecture-basics"])
+- [Model Architecture Basics](command:tenstorrent.lesson.show?["ct7-architecture-basics"])
   — embeddings, attention, feed-forward design, before training from
   scratch.
-- [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"])
+- [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"])
   — a full nano-trickster (11M params) training run against Shakespeare, with
   scaling-law discussion.
 
 And if you haven't already built your own tt-metal source tree, or want to
 revisit the build steps this lab's `ttml` recipe depends on:
 
-- [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+- [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
 
 ## You built an LLM from scratch, TT-native, on Tenstorrent hardware
 

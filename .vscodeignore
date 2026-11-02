@@ -122,3 +122,10 @@ VERSION_UPDATE_*.md
 
 dist/src/webview/scripts/lesson-web.js
 dist/src/webview/styles/lesson-web-vars.css
+
+# local working notes and scratch dirs, never shipped
+tmp/**
+experience_notes.md
+VLLM_INSTALLATION_DRIFT.md
+report-*.md
+q

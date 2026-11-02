@@ -114,6 +114,21 @@ describe('command-map parser', () => {
       expect(map['__ext__runGameOfLife']).to.equal('python3 game_of_life.py');
     });
 
+    it('maps a namespaced (dotted) command suffix too', () => {
+      // Every id is tenstorrent.<feature>.<action> since the 2026-10-29 rename;
+      // a \w-only suffix regex silently drops all of them from the site.
+      const ext = [
+        'function runGameOfLife() {',
+        '  const command = TERMINAL_COMMANDS.GAME_OF_LIFE.template;',
+        '  runInTerminal(command);',
+        '}',
+        "registerCommand('tenstorrent.cookbook.gameOfLife', runGameOfLife);",
+      ].join('\n');
+
+      const map = buildCommandMap(term, ext);
+      expect(map['__ext__cookbook.gameOfLife']).to.equal('python3 game_of_life.py');
+    });
+
     it('does NOT let a keyless function steal the next function\'s key', () => {
       // openKernelSource has no TERMINAL_COMMANDS reference. Before the boundary
       // guard, its body scan bled into runGameOfLife and grabbed GAME_OF_LIFE.
@@ -223,5 +238,22 @@ describe('command-map parser', () => {
       expect(unresolved, `unresolved TERMINAL_COMMANDS keys: ${unresolved.join(', ')}`).to.deep
         .equal([]);
     });
+  });
+});
+
+describe('command-map-parser: comments cannot start a function match', () => {
+  it('does not let the word "function" in a comment swallow the next handler', () => {
+    // Regression: "One function per command so ..." in a comment bound LAUNCH_LIST to the
+    // bogus name "per", leaving launch.list with no command text on the docs site.
+    const extSrc = [
+      '// One function per command so the docs-site map can pair each id with its template.',
+      'function launchList(): void {',
+      '  runInTerminal(getOrCreateSimpleTerminal(), TERMINAL_COMMANDS.LAUNCH_LIST.template);',
+      '}',
+      "vscode.commands.registerCommand('tenstorrent.launch.list', launchList),",
+    ].join('\n');
+    const tcSrc = "export const TERMINAL_COMMANDS = {\n  LAUNCH_LIST: {\n    id: 'launch-list',\n    name: 'What can connect',\n    template: 'tt launch list',\n  },\n};\n";
+    const map = buildCommandMap(tcSrc, extSrc);
+    expect(map["__ext__launch.list"]).to.equal("tt launch list");
   });
 });

@@ -55,7 +55,7 @@ Build a real-time audio processing pipeline using TT-NN<sup>™</sup> for signal
 
 ## Deploy the Project
 
-[📦 Deploy All Cookbook Projects](command:tenstorrent.createCookbookProjects)
+[📦 Deploy All Cookbook Projects](command:tenstorrent.cookbook.createProjects)
 
 This creates the project in `~/tt-scratchpad/cookbook/audio_processor/`.
 
@@ -741,7 +741,7 @@ class SpectrogramVisualizer:
 
 **Quick Start - Click to Run:**
 
-[🎵 Run Audio Processor Demo](command:tenstorrent.runAudioProcessor)
+[🎵 Run Audio Processor Demo](command:tenstorrent.cookbook.audioProcessor)
 
 **Manual Commands:**
 
@@ -749,7 +749,7 @@ class SpectrogramVisualizer:
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
 # tt-metalium                                      # QB2 — TTNN is in this container
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 
 # cd after activating — tt-metalium opens a new shell, so a cd before it
 # would be lost when you land back at /home/user inside the container
@@ -951,4 +951,4 @@ def process_block(self, audio_block):
 - ✅ **Foundation for ML**: Same techniques used in Whisper and speech recognition
 - ✅ **Creative applications**: Music, podcasts, voice processing
 
-[Return to Cookbook Overview](command:tenstorrent.showLesson?["cookbook-overview"])
+[Return to Cookbook Overview](command:tenstorrent.lesson.show?["cookbook-overview"])

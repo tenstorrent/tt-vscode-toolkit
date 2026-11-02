@@ -472,7 +472,7 @@ Install Dependencies
 command:tenstorrent.buildMetal
 Build TT-Metalium
 
-command:tenstorrent.verifyInstallation
+command:tenstorrent.setup.verifyInstallation
 Verify Installation
 ```
 

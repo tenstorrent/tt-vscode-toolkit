@@ -32,7 +32,7 @@ estimatedMinutes: 15
 
 `tt-train` — the training library that ships inside `tt-metal`, with Python bindings called `ttml` — drives every training job from two YAML files: one describing the model's architecture, one describing how to train it. No Python code changes between runs. Change a number in a file, rerun, compare.
 
-This lesson grounds you in the **real** config files that ship in `tt-metal/tt-train/configs/` — the same ones [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) runs against real hardware. Every YAML snippet below is quoted verbatim from a file in that directory, not a hypothetical schema.
+This lesson grounds you in the **real** config files that ship in `tt-metal/tt-train/configs/` — the same ones [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) runs against real hardware. Every YAML snippet below is quoted verbatim from a file in that directory, not a hypothetical schema.
 
 ## What You'll Learn
 
@@ -43,7 +43,7 @@ This lesson grounds you in the **real** config files that ship in `tt-metal/tt-t
 - Checkpointing (`model_save_interval`, `--model_save_path`)
 - How `train_nanogpt.py --config <yaml>` actually loads, resolves, and overrides these files
 
-**Time:** 15 minutes | **Prerequisites:** [Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"])
+**Time:** 15 minutes | **Prerequisites:** [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"])
 
 ---
 
@@ -112,7 +112,7 @@ Per `tt-train/configs/README.md`, there are four config *types*, though most fil
 - **Training Config** (`training_config:`) — hyperparameters and optimizer settings
 - **Device Config** (`device_config:`) — device mesh and distributed training setup; *expected in the same file as the training config*
 - **Model Config** (`transformer_config:`) — model type and architecture, in a **separate file**
-- **MultiHost Config** (`multihost_config:`) — multi-process / pipeline-parallel settings (see [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]))
+- **MultiHost Config** (`multihost_config:`) — multi-process / pipeline-parallel settings (see [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]))
 
 ---
 
@@ -262,7 +262,7 @@ More parameters exist for RoPE scaling (`rope_scaling.scaling_factor`, `high_fre
 
 ### `num_heads`, `embedding_dim`, `num_blocks` — the size dials
 
-**Bigger isn't automatically better on your hardware.** The nano models in this lesson — 6 heads, 384-dim embeddings, 6 blocks — are deliberately tiny (a few million parameters), sized to compile and train fast enough for iteration on a single chip. [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) walks through designing a slightly larger architecture (nano-trickster, ~11M params) and what changes when you scale these three numbers up.
+**Bigger isn't automatically better on your hardware.** The nano models in this lesson — 6 heads, 384-dim embeddings, 6 blocks — are deliberately tiny (a few million parameters), sized to compile and train fast enough for iteration on a single chip. [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"]) walks through designing a slightly larger architecture (nano-trickster, ~11M params) and what changes when you scale these three numbers up.
 
 ---
 
@@ -362,9 +362,9 @@ Per `tt-train/configs/README.md`, the real device mesh shapes are:
 | LoudBox | `[1, 8]` |
 | Single Galaxy | `[1, 32]` |
 
-For this lesson — and for [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) right after it — `[1, 1]` is the answer. p300c and p150 are both single Blackhole<sup>®</sup> chips; treat them exactly like a single-chip Wormhole<sup>™</sup> board here. Notice, too, that the LLaMA/char config earlier in this lesson **omits `device_config:` entirely** — when you don't specify it, `tt-train` defaults to `mesh_shape: [1, 1]`, `enable_ddp: false` anyway. Leaving it out on purpose for a single-chip run is a legitimate, minimal config.
+For this lesson — and for [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) right after it — `[1, 1]` is the answer. p300c and p150 are both single Blackhole<sup>®</sup> chips; treat them exactly like a single-chip Wormhole<sup>™</sup> board here. Notice, too, that the LLaMA/char config earlier in this lesson **omits `device_config:` entirely** — when you don't specify it, `tt-train` defaults to `mesh_shape: [1, 1]`, `enable_ddp: false` anyway. Leaving it out on purpose for a single-chip run is a legitimate, minimal config.
 
-Turning on `enable_ddp: true` with a `[1, 2]` or larger mesh splits the batch across devices and requires `batch_size` to be divisible by the device count — real constraints, real gradient synchronization, and a real gotcha if `enable_ddp` and `mesh_shape` disagree (`enable_ddp: true` on `[1, 1]` has nothing to synchronize with). The full story — data parallelism, tensor parallelism, and how they combine on a 2D mesh — belongs to [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]); this lesson stays single-chip on purpose.
+Turning on `enable_ddp: true` with a `[1, 2]` or larger mesh splits the batch across devices and requires `batch_size` to be divisible by the device count — real constraints, real gradient synchronization, and a real gotcha if `enable_ddp` and `mesh_shape` disagree (`enable_ddp: true` on `[1, 1]` has nothing to synchronize with). The full story — data parallelism, tensor parallelism, and how they combine on a 2D mesh — belongs to [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]); this lesson stays single-chip on purpose.
 
 ---
 
@@ -390,7 +390,7 @@ Checkpoints are written as `.pkl` files, named from that path plus the step numb
 - `--resume <path>` — resume from a specific checkpoint (auto-detects the latest if you omit the path and don't pass `--fresh`)
 - `--fresh` — start over, ignoring any existing checkpoint
 
-[Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) runs through several checkpoint-then-resume cycles as it trains in progressive stages — that's where `model_save_interval` and `--model_save_path` actually get exercised end to end.
+[Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) runs through several checkpoint-then-resume cycles as it trains in progressive stages — that's where `model_save_interval` and `--model_save_path` actually get exercised end to end.
 
 ---
 
@@ -437,13 +437,13 @@ The real overridable flags are `--data_path`, `--batch_size`, `--max_steps`, `--
 
 If you'd rather not touch Python at all, the same YAML files also drive a native C++ binary (`nano_gpt`, built by `build_metal.sh` alongside everything else) with its own `--config`/`-c` flag — same config format, same two-file split, no `ttml` Python bindings required.
 
-**A word on timing before you actually run one of these:** the first time any of these ops execute on your hardware, TT-Metalium compiles the kernels they need — a one-time pause of anywhere from a few seconds up to around twenty seconds, depending on the model config. Every step after that runs at steady-state speed, which is orders of magnitude faster. [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"]) captures this concretely: about 7.5 seconds on step 1, then ~74 ms/step for the rest of a 3,000-step run. Don't judge a config's speed — or benchmark anything — off step 1.
+**A word on timing before you actually run one of these:** the first time any of these ops execute on your hardware, TT-Metalium compiles the kernels they need — a one-time pause of anywhere from a few seconds up to around twenty seconds, depending on the model config. Every step after that runs at steady-state speed, which is orders of magnitude faster. [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) captures this concretely: about 7.5 seconds on step 1, then ~74 ms/step for the rest of a 3,000-step run. Don't judge a config's speed — or benchmark anything — off step 1.
 
 ---
 
 ### A Note on `tt-blacksmith`
 
-If that name is familiar: [tt-blacksmith](https://github.com/tenstorrent/tt-blacksmith) is a separate, actively maintained collection of optimized training recipes on the **TT-Forge<sup>™</sup>/TT-XLA compiler stack** — a different config format, a different project, unrelated to the `tt-train`/`ttml` files this lesson covers. [Understanding Custom Training](command:tenstorrent.showLesson?["ct1-understanding-training"]) has the full breakdown if you're deciding between the two stacks.
+If that name is familiar: [tt-blacksmith](https://github.com/tenstorrent/tt-blacksmith) is a separate, actively maintained collection of optimized training recipes on the **TT-Forge<sup>™</sup>/TT-XLA compiler stack** — a different config format, a different project, unrelated to the `tt-train`/`ttml` files this lesson covers. [Understanding Custom Training](command:tenstorrent.lesson.show?["ct1-understanding-training"]) has the full breakdown if you're deciding between the two stacks.
 
 ---
 
@@ -490,7 +490,7 @@ device_config:
   mesh_shape: [1, 1]  # ...only one device
 ```
 
-**Fix:** `enable_ddp: false` for `[1, 1]`; `enable_ddp: true` only once `mesh_shape` names more than one device. See [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]) before flipping this on.
+**Fix:** `enable_ddp: false` for `[1, 1]`; `enable_ddp: true` only once `mesh_shape` names more than one device. See [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]) before flipping this on.
 
 ### ❌ Saving every step
 
@@ -525,9 +525,9 @@ training_config:
 
 ## Next Steps
 
-You've prepared your dataset ([Dataset Fundamentals](command:tenstorrent.showLesson?["ct2-dataset-fundamentals"])) and now know exactly what's in a `tt-train` config and how it's loaded. Time to actually run one.
+You've prepared your dataset ([Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"])) and now know exactly what's in a `tt-train` config and how it's loaded. Time to actually run one.
 
-**Next: [Fine-tuning Basics](command:tenstorrent.showLesson?["ct4-finetuning-basics"])** — launch `train_nanogpt.py` for real, watch loss drop stage by stage, and generate text from your own checkpoints.
+**Next: [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])** — launch `train_nanogpt.py` for real, watch loss drop stage by stage, and generate text from your own checkpoints.
 
 ---
 
@@ -536,5 +536,5 @@ You've prepared your dataset ([Dataset Fundamentals](command:tenstorrent.showLes
 - **The real schema:** `tt-train/configs/README.md` — every field, type, and default, generated from the actual implementation
 - **The real configs:** `tt-train/configs/model_configs/` and `tt-train/configs/training_configs/` — dozens of examples beyond the nano pair covered here, including LLaMA-8B, Galaxy pipeline-parallel, and MoE configs
 - **The real trainer:** `tt-train/sources/examples/nano_gpt/train_nanogpt.py`
-- [Multi-Device Training](command:tenstorrent.showLesson?["ct5-multi-device-training"]) — the full `mesh_shape`/`enable_ddp`/`enable_tp` story
-- [Training from Scratch](command:tenstorrent.showLesson?["ct8-training-from-scratch"]) — designing a model config's architecture fields instead of borrowing the nano ones
+- [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]) — the full `mesh_shape`/`enable_ddp`/`enable_tp` story
+- [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"]) — designing a model config's architecture fields instead of borrowing the nano ones

@@ -87,7 +87,7 @@ pip install -e ".[dev]"
 
 **Or use the button:**
 
-[📦 Setup AnimateDiff Project](command:tenstorrent.setupAnimateDiffProject)
+[📦 Setup AnimateDiff Project](command:tenstorrent.apps.setupAnimateDiffProject)
 
 **Project structure:**
 
@@ -131,7 +131,7 @@ hf download guoyww/animatediff-motion-adapter-v1-5-2
 
 The `diffusers` `AnimateDiffPipeline` loads SD 1.4, injects the MotionAdapter at every transformer block, and denoises all frames simultaneously with temporal attention. This is the **reference implementation** — correct output to compare against hardware results.
 
-[🎬 Run Phase 1 (CPU)](command:tenstorrent.runAnimateDiff2Frame)
+[🎬 Run Phase 1 (CPU)](command:tenstorrent.apps.runAnimateDiff2Frame)
 
 ```bash
 cd ~/tt-projects/tt-animatediff
@@ -157,12 +157,12 @@ Replaces the PyTorch UNet with the TT-NN UNet, running natively on Blackhole sil
 
 **Requires:** Blackhole hardware (p100/p150/p300c/TT-QuietBox<sup>®</sup> 2) and `~/tt-metal` built.
 
-[⚡ Run Phase 2.5 (Blackhole)](command:tenstorrent.runAnimateDiff16Frame)
+[⚡ Run Phase 2.5 (Blackhole)](command:tenstorrent.apps.runAnimateDiff16Frame)
 
 ```bash
 # Activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 cd ~/tt-projects/tt-animatediff
 
 python3 examples/generate.py \
@@ -176,7 +176,7 @@ python3 examples/generate.py \
 > `Path.home() / "tt-metal"` and imports
 > `models.demos.vision.generative.stable_diffusion...` straight from that source
 > tree, which the container doesn't have. This needs a real `~/tt-metal` build
-> — see [Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"])
+> — see [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"])
 > — with Step 1's `pip install -e ".[dev]"` run in a venv against that build.
 
 **Expected:**
@@ -259,7 +259,7 @@ A point-and-click interface for all modes. Models stay loaded between generation
 ```bash
 # Blackhole hardware — activate TT environment (choose for your setup):
 tt-metal                                          # tt-developer-image / Docker
-# source /opt/venv-metal/bin/activate             # cloud / custom install
+#                                                  # cloud pod: python_env is already active
 cd ~/tt-projects/tt-animatediff
 
 pip install -e ".[ui]"

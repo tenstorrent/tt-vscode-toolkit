@@ -2,10 +2,9 @@
 id: coding-assistant
 title: Coding Assistant with Aider
 description: >-
-  Run a real AI coding assistant (Aider) against your local Tenstorrent
-  vLLM server. One install, one command — then pair-program with your own
-  on-device LLM. Also covers prompt engineering to customize behavior.
-category: applications
+  Pair-program with Aider against the model tt is serving: one uv install,
+  one tt launch. Then shape how it codes with a system prompt.
+category: connect
 tags:
   - coding
   - assistant
@@ -20,8 +19,11 @@ supportedHardware:
   - p150
   - p300c
   - galaxy
-status: draft
+status: validated
+validatedOn:
+  - p300c
 estimatedMinutes: 15
+order: 2
 ---
 
 # Coding Assistant with Aider
@@ -29,56 +31,60 @@ estimatedMinutes: 15
 ## Overview
 
 [Aider](https://aider.chat/) is an open source AI pair programming tool that runs in
-your terminal. It reads your codebase, edits files, and auto-commits changes — and it
-speaks the OpenAI API, so you can point it directly at your Tenstorrent vLLM server.
+your terminal. It reads your codebase, edits files, and auto-commits changes. It speaks
+the OpenAI API, so `tt launch` can point it at the model you are serving.
 
-**Works on all hardware** — n150/n300/T3000/p100/p300c/Galaxy. No `~/tt-metal` required.
+**Works on all hardware**, and on the cloud pod. No `~/tt-metal` required.
 
-> **Prerequisites:**
-> Your vLLM server must be running before launching Aider.
-> See [vLLM Production](command:tenstorrent.showLesson?["vllm-production"]) to start it.
+> **Prerequisite:** a model is being served. On your own machine that is
+> [Serve a Model](command:tenstorrent.lesson.show?["interactive-chat"]) (`tt serve`); on
+> the cloud pod it is
+> [Serve Without Containers](command:tenstorrent.lesson.show?["api-server"]). Aider needs
+> a model that calls tools; `Llama-3.1-8B-Instruct` and `Qwen3-32B` both do.
 
 ---
 
 ## Step 1: Install Aider
 
 ```bash
-pip install aider-chat
+uv tool install aider-chat
 ```
 
-That's the only install. Aider is a self-contained Python package with no TT-Metalium<sup>™</sup>
-dependencies. Install it in any environment — your system Python, a separate venv,
-or even `pipx`:
+[📦 Install Aider](command:tenstorrent.launch.installAider)
 
-```bash
-# Isolated install (keeps dependencies separate from tt-metal venv)
-pipx install aider-chat
-```
+That is the only install. Aider is a self-contained Python package with no TT-Metalium<sup>™</sup>
+dependencies, and `uv tool` keeps it in its own environment, away from the tt-metal venv.
+`pipx install aider-chat` does the same where you prefer pipx.
 
 ---
 
 ## Step 2: Connect to Your Local LLM
 
-Set two environment variables to point Aider at your running vLLM server:
-
 ```bash
-export OPENAI_API_BASE=http://localhost:8000/v1
-export OPENAI_API_KEY=fake       # vLLM doesn't check the key; any value works
+tt launch aider --dry-run
+tt launch aider
 ```
 
-Then launch Aider with the model you started in vLLM:
+[👀 Dry run: Aider](command:tenstorrent.launch.aiderDryRun)
+[🤖 Launch Aider](command:tenstorrent.launch.aider)
+
+The dry run prints the model `tt` found, its endpoint, and the exact `aider` command it
+would run. `tt launch` sets `OPENAI_API_BASE` and `OPENAI_API_KEY` for that one run and
+passes `--model openai/<served model>`, so nothing lands on disk. If `tt` finds no server,
+it says so and names the port it tried; `--port 8000` or `--url http://host:port/v1`
+points it elsewhere.
+
+By hand, the same thing is two environment variables and a flag:
 
 ```bash
-# If you started vLLM with Qwen3-0.6B (works on all hardware):
-aider --model openai/Qwen3-0.6B
-
-# If you started vLLM with Qwen3-8B or Llama 3.1 8B:
-aider --model openai/Qwen3-8B
-aider --model openai/Llama-3.1-8B-Instruct
+export OPENAI_API_BASE=http://localhost:20000/v1
+export OPENAI_API_KEY=tt-local       # vLLM does not check the key; any value works
+aider --model openai/meta-llama/Llama-3.1-8B-Instruct
 ```
 
 > The `openai/` prefix tells Aider to use your custom API base instead of
-> calling OpenAI's servers.
+> calling OpenAI's servers. The model name must match what the server reports at
+> `/v1/models`, which is the Hugging Face name for a catalog model.
 
 ---
 
@@ -89,9 +95,9 @@ every launch:
 
 ```yaml
 # .aider.conf.yml  (commit this to your repo!)
-openai-api-base: http://localhost:8000/v1
-openai-api-key: fake
-model: openai/Qwen3-0.6B
+openai-api-base: http://localhost:20000/v1
+openai-api-key: tt-local
+model: openai/meta-llama/Llama-3.1-8B-Instruct
 ```
 
 Now in that project directory, just run:
@@ -137,9 +143,9 @@ with your own instructions in `.aider.conf.yml`:
 
 ```yaml
 # .aider.conf.yml
-openai-api-base: http://localhost:8000/v1
-openai-api-key: fake
-model: openai/Qwen3-0.6B
+openai-api-base: http://localhost:20000/v1
+openai-api-key: tt-local
+model: openai/meta-llama/Llama-3.1-8B-Instruct
 system-prompt: |
   You are a Python expert. Always include:
   - Type hints on all functions
@@ -202,9 +208,9 @@ cat suspicious_code.py | aider --message "Review this for security issues" -
 
 | Approach | When to Use |
 |----------|-------------|
-| **Aider + vLLM (this lesson)** | Day-to-day coding; editing actual project files |
-| **Direct API (Lessons 4–5)** | Learning TT-Metalium internals; building custom tools |
-| **vLLM chat interface** | Quick Q&A; no file editing needed |
+| **Aider (this lesson)** | Day-to-day coding; editing actual project files |
+| **Open WebUI** ([Launch Software](command:tenstorrent.lesson.show?["launch-software"])) | Quick Q&A in a browser; no file editing needed |
+| **Your own code against the endpoint** | Agents and pipelines, as in the next two lessons |
 
 **Key insight:** Aider's system prompt + your local Tenstorrent LLM gives you ~80–90% of
 a hosted coding assistant at zero API cost. The model runs on your hardware, your code
@@ -215,14 +221,13 @@ stays private, and you can swap models in seconds.
 ## Troubleshooting
 
 **"Model not found" or API errors:**
-- Verify vLLM is running: `curl http://localhost:8000/v1/models`
-- Check the model name in the response matches what you passed to `--model`
-- The model name must match exactly: `openai/Qwen3-0.6B` where `Qwen3-0.6B` matches
-  the model slug in vLLM's response
+- Check the server: `tt model ps`, or `curl http://localhost:20000/v1/models`
+- `tt launch aider` reads the model name from the server, so a mismatch only happens by
+  hand: `openai/` plus the exact `id` the server reports
 
 **"No response" or very slow responses:**
-- Check vLLM server logs for errors
-- Qwen3-0.6B is fastest; larger models take longer per token
+- Check the server log: `tt model logs`
+- An 8B model answers faster than a 32B one; larger models take longer per token
 - Reduce context by starting Aider in a subdirectory rather than the repo root
 
 **Aider edits files unexpectedly:**
@@ -230,15 +235,16 @@ stays private, and you can swap models in seconds.
 - Use `--dry-run` to preview changes without applying them
 - All edits are git commits — `git log` and `git diff HEAD~1` let you review everything
 
-**n150 / TT-QuietBox<sup>®</sup> 2 model recommendation:**
-- Use `Qwen3-0.6B` — it's fast, reasoning-capable, and fits comfortably in n150 DRAM
+**Which model:**
+- One chip: `Llama-3.1-8B-Instruct`. TT-QuietBox<sup>®</sup> 2: `Qwen3-32B` (see the
+  thinking caveat in [Launch Software](command:tenstorrent.lesson.show?["launch-software"]))
 - The prompting techniques here work identically regardless of model size
 
 ---
 
 ## Key Takeaways
 
-✅ **Aider is zero-conf** — one install, two env vars, then `aider`
+✅ **Aider is zero-conf** — one `uv tool install`, then `tt launch aider`
 
 ✅ **Your hardware, your data** — the LLM runs on-device, nothing leaves your machine
 
@@ -247,4 +253,4 @@ stays private, and you can swap models in seconds.
 
 ✅ **Persistent config** — `.aider.conf.yml` in your repo makes it permanent
 
-✅ **All hardware supported** — Qwen3-0.6B via vLLM works on n150, n300, p300c, and above
+✅ **All hardware supported** — any model `tt serve` or the pod's vLLM can serve, on n150 and above

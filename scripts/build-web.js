@@ -243,8 +243,8 @@ function commandTextForId(commandId) {
     ? commandId.slice('tenstorrent.'.length)
     : commandId;
 
-  // Handle showLesson — not a terminal command
-  if (suffix.startsWith('showLesson')) return null;
+  // lesson.show opens another lesson — not a terminal command
+  if (suffix.startsWith('lesson.show')) return null;
 
   // 1. Direct extension.ts mapping (most accurate — handles naming mismatches)
   if (COMMAND_MAP['__ext__' + suffix]) return COMMAND_MAP['__ext__' + suffix];
@@ -291,7 +291,7 @@ if (hljsExtension) {
  *                                                                     *
  * We override marked's link renderer to intercept command: URIs.      *
  *                                                                     *
- *  showLesson?["id"]  →  <a href="/lessons/id/">Label</a>             *
+ *  lesson.show?["id"] →  <a href="/lessons/id/">Label</a>             *
  *  other command:...  →  <div class="tt-web-command"> ... </div>      *
  * ------------------------------------------------------------------ */
 
@@ -409,8 +409,8 @@ WEB_RENDERER.link = function ({ href, title, tokens }) {
     } catch (_) {}
   }
 
-  // showLesson → internal navigation link
-  if (commandId === 'tenstorrent.showLesson' && parsedArgs && parsedArgs[0]) {
+  // lesson.show → internal navigation link
+  if (commandId === 'tenstorrent.lesson.show' && parsedArgs && parsedArgs[0]) {
     // Validate the lesson ID before embedding in a URL/HTML attribute.
     let lessonId;
     try {
@@ -620,12 +620,13 @@ function renderLesson(markdownPath) {
  * ------------------------------------------------------------------ */
 
 const CATEGORY_LABELS = {
-  'first-inference': 'Your First Inference',
-  'serving':         'Serving & APIs',
-  'compilers':       'Compilers & Frameworks',
+  'setup':           'Set Up',
+  'serve':           'Serve Models',
+  'connect':         'Connect Software',
+  'build':           'Build on the Stack',
+  'deeper':          'Go Deeper',
   'cookbook':        'Cookbook',
   'applications':    'Applications',
-  'advanced':        'Advanced',
   'cs-fundamentals': 'CS Fundamentals',
   'custom-training': 'Custom Training',
 };
@@ -2089,9 +2090,9 @@ body.sidebar-body-lock {
 
 /** VSCode commands that correspond to reference pages on this site. */
 const COMMAND_PAGE_MAP = {
-  'tenstorrent.showStepZero': siteUrl('/step-zero/'),
-  'tenstorrent.showFaq':      siteUrl('/faq/'),
-  'tenstorrent.showWelcome':  siteUrl('/welcome/'),
+  'tenstorrent.lesson.stepZero': siteUrl('/step-zero/'),
+  'tenstorrent.lesson.faq':      siteUrl('/faq/'),
+  'tenstorrent.lesson.welcome':  siteUrl('/welcome/'),
 };
 
 function transformWelcomeHtml(rawHtml) {

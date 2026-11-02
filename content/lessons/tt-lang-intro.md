@@ -4,7 +4,7 @@ title: "Introduction to TT-Lang"
 description: >-
   Write your first TT-Lang kernel: a concurrent compute + data-movement program
   that runs on the Tensix grid. Try it live in the browser via ttlang-sim-lite.
-category: compilers
+category: build
 tags:
   - TT-Lang
   - sim
@@ -460,18 +460,46 @@ partitioning.
 The playground above is the browser path. No install, no hardware. Use it to
 prototype and explore before setting up a local environment.
 
-### Install via pip
+### On the cloud pod: already installed
 
-TT-Lang is on PyPI. Create an isolated environment and install:
+The Tenstorrent Cloud pod ships TT-Lang in its own environment, `~/tt-lang-venv`
+(tt-lang 1.1.1 on Python 3.12 at the time of writing; the venv bundles the `ttnn` it was
+built against). Activate it, copy the bundled tutorials somewhere you can edit, and run
+one on the functional simulator; no chip is touched:
 
 ```bash
-python3 -m venv --prompt ttlang ttlang-venv
-source ttlang-venv/bin/activate
-pip install tt-lang tt-lang-setup
+source ~/tt-lang-venv/bin/activate
+tt-lang-setup-tutorials -t ~/ttlang-tutorials      # elementwise, matmul, broadcast: 15 scripts
+ttlang-sim ~/ttlang-tutorials/elementwise/step_4_multinode_grid_auto.py
 ```
 
-`tt-lang-setup` installs the matching sfpi runtime and copies bundled tutorials
-to `./tutorials/`. Run one to verify the install:
+[▶ Activate TT-Lang and copy the tutorials](command:tenstorrent.ttlang.setupCloud)
+[🧪 Run a tutorial on the simulator](command:tenstorrent.ttlang.runTutorialSim)
+
+The simulator prints the input and output tensors; a handful of `nanobind` "leaked
+function" lines at exit are a known teardown warning and not an error. The same script
+runs on the chip with `python` in place of `ttlang-sim`. To move the venv to the current
+release, `pip install -U tt-lang` inside it, then `tt-lang-setup` again so the sfpi
+runtime matches.
+
+### Install via pip
+
+TT-Lang is on PyPI as two packages. `tt-lang` is the compiler with hardware support (it
+depends on `ttnn` and `torch`); `tt-lang-sim` is the functional simulator alone, for a
+laptop with no card. The latest release was **1.1.6** when this lesson was last checked
+(2026-10-29); `pip index versions tt-lang` shows the current one. Wheels exist for Python
+3.10 and 3.12.
+
+```bash
+uv venv --python 3.12 ~/ttlang-venv
+source ~/ttlang-venv/bin/activate
+uv pip install tt-lang          # or tt-lang-sim for the simulator only
+tt-lang-setup                   # installs the matching sfpi runtime, copies tutorials to ./tutorials/
+```
+
+`tt-lang-setup` is a command the package installs, and it is idempotent. On a
+TT-QuietBox 2 this is the route: the box has `uv` and no TT-Lang environment of its own.
+Run a tutorial to verify the install:
 
 ```bash
 ttlang-sim tutorials/elementwise/step_4_multinode_grid_auto.py   # simulator, no hardware needed
@@ -623,6 +651,10 @@ simulator behaves unexpectedly.
   Zork I (and more) running on a Tenstorrent Blackhole accelerator, with an LLM
   remix layer and AI auto-play mode. A proof of what the hardware can do when
   it's fast enough to run a game and a language model simultaneously.
-- **[tt-awesome](https://docs.tenstorrent.com/tt-awesome/)** — curated directory
-  of Tenstorrent projects, tools, models, and research contributed by the
-  community and the team.
+- **[tt-awesome: Custom Kernels & Low-Level](https://docs.tenstorrent.com/tt-awesome/?cat=kernels)**
+  — every curated kernel project, TT-Lang ones included
+  ([tt-lang](https://docs.tenstorrent.com/tt-awesome/entry/tt-lang/),
+  [tt-lang-models](https://docs.tenstorrent.com/tt-awesome/entry/tt-lang-models/),
+  [TensixFuse](https://docs.tenstorrent.com/tt-awesome/entry/tensixfuse/)), and the
+  [AI & Models](https://docs.tenstorrent.com/tt-awesome/?cat=ai-models) category for
+  the models written in it (DFlash, Engram, Gemma 4, open-oasis).

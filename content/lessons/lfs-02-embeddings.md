@@ -47,7 +47,7 @@ CUDA gives every thread block a pool of fast `__shared__` memory, scoped to
 the block and the one Streaming Multiprocessor it runs on. Tensix has a direct
 analog: **L1 SRAM**, scoped to one Tensix core. That's 1,464 KB per core on
 both Wormhole<sup>™</sup> and Blackhole<sup>®</sup>, the exact figure
-[Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"])
+[Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"])
 verified against the TT-Lang specification. Same idea — fast, local,
 explicitly managed — just owned by a core instead of an SM.
 
@@ -158,7 +158,7 @@ never appear in an optimizer's parameter list. That's the tell that RoPE,
 precomputed once in `__init__`, isn't something the model ever learns. More on
 what it computes later in this lab.
 
-**A tile-alignment note, since [Tokenizer & Data](command:tenstorrent.showLesson?["lfs-01-tokenizer"]) flagged it and this is where it shows
+**A tile-alignment note, since [Tokenizer & Data](command:tenstorrent.lesson.show?["lfs-01-tokenizer"]) flagged it and this is where it shows
 up.** `LlamaConfig.vocab_size` defaults to 96 — not because Shakespeare's raw
 character set lands there, but because 96 is a clean multiple of 32 (3×32
 tiles). **Tokenizer & Data**'s `CharTokenizer` counts the actual distinct characters in
@@ -168,7 +168,7 @@ holds `vocab_size` at a tile-friendly constant instead.
 
 `n_embd=384` (12×32) and `block_size=256` (8×32) are already clean multiples
 too. Vocab is the one axis at nano scale where tile alignment is a deliberate
-config choice. Same rule as [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]) either way: Tensix moves and computes in
+config choice. Same rule as [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) either way: Tensix moves and computes in
 whole 32×32 tiles, so shapes get chosen (or rounded up) to fit.
 
 ## The residual stream: the model's spine
@@ -202,7 +202,7 @@ class Block(nn.Module):
 
 That's the whole idea: `x` is a running sum, never overwritten, only added to.
 Every block reads the current `x`, computes something (grouped-query attention
-in [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]), a SwiGLU MLP in [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"])), and **adds its output back into `x`**
+in [Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"]), a SwiGLU MLP in [The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"])), and **adds its output back into `x`**
 rather than replacing it. Information from every earlier block stays directly
 reachable in later blocks because it was never erased, only accumulated.
 
@@ -222,12 +222,12 @@ is exactly where a from-scratch TT-Lang arc should hand you your first kernel.
 
 ## First inception kernel: the residual add
 
-Recall from [Pick Your Altitude](command:tenstorrent.showLesson?["lfs-00-intro"]): this arc descends from TT-NN<sup>™</sup> altitude to
+Recall from [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]): this arc descends from TT-NN<sup>™</sup> altitude to
 TT-Lang for the hot kernels, and that descent is **inception, not
 conversion**. There's no existing CUDA or Triton `add` kernel being ported
 here. You're writing the TT-Lang expression of `x + sublayer(x)` directly, as
 its original TT-native form — the exact add that fires at every block, for
-every sub-layer, all the way through [The Transformer Block & the Model](command:tenstorrent.showLesson?["lfs-04-block-and-model"]).
+every sub-layer, all the way through [The Transformer Block & the Model](command:tenstorrent.lesson.show?["lfs-04-block-and-model"]).
 
 ---
 
@@ -249,7 +249,7 @@ core.
 
 Read it as `eltwise_add(a_in, b_in, out)`, where `a_in` is `x` (the residual
 stream entering the block), `b_in` is a sub-layer's output (`self.attn(...)`
-in [Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"]), or `self.mlp(...)` in **The Transformer Block & the Model**), and `out` is the updated residual
+in [Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"]), or `self.mlp(...)` in **The Transformer Block & the Model**), and `out` is the updated residual
 stream:
 
 ```python
@@ -367,7 +367,7 @@ nn.Embedding(block_size, n_embd)` — right alongside `tok_emb`, and summed it
 into the residual stream before the first block. Modern Llama-3-style models,
 including the `nanollama3` config this arc trains, drop that table entirely.
 Position isn't looked up and added. It's applied later, inside attention
-([Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])), as a **rotation**: **RoPE, Rotary Position Embeddings**.
+([Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])), as a **rotation**: **RoPE, Rotary Position Embeddings**.
 
 The idea: take the Q and K vectors inside each attention layer (never the
 residual stream `x` itself, and never V) and rotate each adjacent pair of
@@ -499,7 +499,7 @@ not split the head dimension into pairs, call `rotate_half`, or add the `sin`
 term. That's the simplified, elementwise-multiply cut of RoPE this sim build
 can execute today. The full math — `x * cos + rotate_half(x) * sin` — is the
 `apply_rope` function you just read in `reference_gpt.py`, and it's the version
-the arc's hero training run ([Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])) uses on hardware via `ttml.ops.rope`.
+the arc's hero training run ([Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])) uses on hardware via `ttml.ops.rope`.
 
 This kernel exists to make the *data-movement* shape of a RoPE-style op
 concrete — DRAM → L1 → rotate → L1 → DRAM — not to be a drop-in replacement for
@@ -575,7 +575,7 @@ Pyodide, no install) and — if you ran the command above — the standalone
 functional simulator (same DFB engine, from a terminal). Not one line of the
 kernel changes between those two environments.
 
-**TT-Lang's own design goes further still.** As [Introduction to TT-Lang](command:tenstorrent.showLesson?["tt-lang-intro"]) puts it: "if you
+**TT-Lang's own design goes further still.** As [Introduction to TT-Lang](command:tenstorrent.lesson.show?["tt-lang-intro"]) puts it: "if you
 installed via pip and have a Tenstorrent card, skip the `TT_METAL_SIMULATOR`
 and `TT_METAL_SLOW_DISPATCH_MODE` variables — everything else is identical. The
 same kernel source runs bit-exact on simulation and silicon." That's the
@@ -587,7 +587,7 @@ a torch reference today. But — as its own file says outright — it's the
 simplified cos-only cut of rotary embeddings, not the full `x * cos +
 rotate_half(x) * sin` math your model actually needs. That full math runs on
 Blackhole<sup>®</sup> today, just not via this hand-authored kernel: it's
-`ttml.ops.rope`, exercised for real in [Train It & Run for Real](command:tenstorrent.showLesson?["lfs-05-train-and-run"])'s hero training run. Two
+`ttml.ops.rope`, exercised for real in [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])'s hero training run. Two
 different levels of "verified," named honestly rather than blurred together.
 
 One honest scope note for both. This lab doesn't re-run either kernel on a
@@ -607,4 +607,4 @@ end. Next: the mechanism that lets every position in the residual stream
 look at every other position — attention, where the RoPE rotation you just
 met gets applied to Q and K for real, inside grouped-query attention.
 
-[→ Continue to Lab 3: Attention from Scratch](command:tenstorrent.showLesson?["lfs-03-attention"])
+[→ Continue to Lab 3: Attention from Scratch](command:tenstorrent.lesson.show?["lfs-03-attention"])

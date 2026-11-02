@@ -4,7 +4,7 @@ title: Image Generation with Stable Diffusion XL
 description: >-
   Generate high-resolution 1024x1024 images using Stable Diffusion XL Base
   running natively on your Tenstorrent hardware!
-category: serving
+category: serve
 tags:
   - hardware
   - image
@@ -26,6 +26,26 @@ estimatedMinutes: 20
 # Image Generation with Stable Diffusion XL
 
 Generate images on your Tenstorrent hardware using Stable Diffusion XL Base - turn text prompts into high-resolution images powered by your hardware!
+
+## Serve It with `tt`
+
+The catalog has image models with a serving profile for your hardware, and `tt serve`
+runs them the same way it runs an LLM:
+
+```bash
+tt model list --catalog --type image
+```
+
+On a TT-QuietBox 2 that lists `FLUX.1-dev` and `FLUX.1-schnell` (`p300`, `p300x2`); on an
+n150 it lists `stable-diffusion-xl-base-1.0` (`tt model list --all --type image` shows
+every board). `tt serve FLUX.1-schnell` or `tt serve stable-diffusion-xl-base-1.0` gives
+you an endpoint, and `tt serve <model> --studio` puts TT-Studio's image UI in front of it.
+`tt serve` needs Docker, so on the cloud pod this section does not apply; the rest of the
+lesson, which runs the model demo from the tt-metal source tree, does.
+
+## Go Deeper: Run the Demo by Hand
+
+Everything below runs Stable Diffusion XL from the tt-metal source tree, outside `tt`.
 
 ## What is Stable Diffusion XL?
 
@@ -101,7 +121,7 @@ Stable Diffusion XL Base runs on Tenstorrent hardware with native TT-NN<sup>™<
 
 **Quick Check:** Not sure which hardware you have?
 
-[🔍 Detect Hardware](command:tenstorrent.runHardwareDetection)
+[🔍 Detect Hardware](command:tenstorrent.setup.hardwareDetection)
 
 Look for the "Board Type" field in the output (e.g., n150, n300, T3000, p100).
 
@@ -145,7 +165,7 @@ The model will be automatically downloaded from Hugging Face the first time you 
 hf auth login --token "$HF_TOKEN"
 ```
 
-[🔐 Login to Hugging Face](command:tenstorrent.loginHuggingFace)
+[🔐 Login to Hugging Face](command:tenstorrent.model.login)
 
 **Note:** SDXL Base 1.0 is publicly available and doesn't require special access permissions.
 
@@ -215,7 +235,7 @@ Use `MESH_DEVICE=P100` for all single-chip Blackhole lessons.
 
 **TT-QuietBox 2 note:** TT-QuietBox 2 ships without `~/tt-metal`. You must clone and build
 TT-Metalium from source before running SDXL. See
-[Build TT-Metalium from Source](command:tenstorrent.showLesson?["build-tt-metal"]).
+[Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]).
 
 **⚠️ Note:** Blackhole SDXL support is experimental. Please report any issues!
 
@@ -242,7 +262,7 @@ export PYTHONPATH=~/tt-metal:$PYTHONPATH
 pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo.py
 ```
 
-[🎨 Generate Sample Image](command:tenstorrent.generateRetroImage)
+[🎨 Generate Sample Image](command:tenstorrent.apps.generateRetroImage)
 
 **What you'll see:**
 
@@ -423,7 +443,7 @@ pytest ~/tt-metal/models/experimental/stable_diffusion_xl_base/demo/demo_base_an
 
 **Ready to go beyond button-pressing?** Copy the demo to your scratchpad and modify it:
 
-[📝 Copy Demo to Scratchpad](command:tenstorrent.copyImageGenDemo)
+[📝 Copy Demo to Scratchpad](command:tenstorrent.apps.copyImageGenDemo)
 
 This copies `demo.py` to `~/tt-scratchpad/sdxl_demo.py` and opens it for editing.
 
