@@ -218,14 +218,11 @@ export class ProgressTracker {
     vscode.window
       .showInformationMessage(
         `🎉 Lesson completed: ${lesson.title}`,
-        'Next Lesson',
-        'View Progress'
+        'Next Lesson'
       )
       .then(selection => {
         if (selection === 'Next Lesson' && lesson.nextLesson) {
           vscode.commands.executeCommand('tenstorrent.lesson.show', lesson.nextLesson);
-        } else if (selection === 'View Progress') {
-          vscode.commands.executeCommand('tenstorrent.showProgress');
         }
       });
   }

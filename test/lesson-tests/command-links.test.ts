@@ -37,6 +37,16 @@ describe('command links', () => {
     expect([...pkg].filter((id) => !reg.has(id)).sort()).to.deep.equal([]);
   });
 
+  it('every executeCommand id and webview command: reference in src/ resolves to contributes.commands', () => {
+    // A call to an id nobody registers fails silently in the editor (VS Code rejects the
+    // promise and the button does nothing), which is how the first-run scratchpad prompt
+    // kept calling a deleted command after the rename.
+    // `tenstorrent.feature.action` is the placeholder in CommandButtonRenderer's doc comment.
+    const PLACEHOLDER = 'tenstorrent.feature.action';
+    const missing = [...new Set(inv.srcRefs.filter((r: any) => r.id !== PLACEHOLDER && !pkg.has(r.id)).map((r: any) => `${r.id} (${r.file})`))].sort();
+    expect(missing).to.deep.equal([]);
+  });
+
   it('every TERMINAL_COMMANDS key is used by a handler', () => {
     const uses = new Set<string>(inv.templateUses);
     expect(inv.templateKeys.filter((k: string) => !uses.has(k))).to.deep.equal([]);
