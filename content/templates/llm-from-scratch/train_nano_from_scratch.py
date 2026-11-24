@@ -7,7 +7,7 @@
 # This is a THIN, documented runner. It does NOT reinvent the model or the
 # training loop — it drives the VERIFIED upstream Llama trainer:
 #
-#     $TT_METAL_HOME/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
+#     $TT_METAL_HOME/tt-train/sources/examples/train/train.py \
 #         --config training_shakespeare_nanollama3_char.yaml
 #
 # ...with the env vars the run requires, and passes through --max_steps /
@@ -21,7 +21,7 @@
 # single-file `nanogpt_primitives_example.py` that hand-assembles the model
 # from `ttml.ops` primitives), there is NO single-file Llama "primitives"
 # example. The canonical, supported way to train the Llama stack from scratch is
-# `train_nanogpt.py` + the `training_shakespeare_nanollama3_char.yaml` config
+# `train.py` + the `training_shakespeare_nanollama3_char.yaml` config
 # driving `ttml.models.llama`. So this runner is a launcher around that command,
 # not a primitives reimplementation. (reference_gpt.py is the pure-PyTorch
 # mirror of the same components, for the "understand" half of the labs.)
@@ -31,7 +31,7 @@
 # `std::bad_cast` ABI fix). There is NO pip wheel for ttml.
 #
 # VERIFIED on 2026-07-08 on a Blackhole p300c against tt-metal v0.73:
-#     train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml \
+#     train.py --config training_shakespeare_nanollama3_char.yaml \
 #         --max_steps 20
 #   -> loss 4.69 -> 3.23 over 20 steps, ~65 ms/step, 16.5 TFLOPS, MFU ~11%,
 #      exit 0. This is the arc's HERO run. Upstream does NOT CI Llama training
@@ -57,7 +57,7 @@ import sys
 
 
 # The training config that selects the modern Llama-3 stack (model_type=llama).
-# train_nanogpt.py resolves --config relative to
+# train.py resolves --config relative to
 # $TT_METAL_HOME/tt-train/configs/training_configs, so we pass the bare name.
 NANOLLAMA3_CONFIG = "training_shakespeare_nanollama3_char.yaml"
 
@@ -69,7 +69,7 @@ def _default_tt_metal_home() -> str:
 def _build_env(tt_metal_home: str, arch: str | None) -> dict:
     """Return an environment dict with the vars ttml/ttnn need.
 
-    - TT_METAL_HOME / TT_METAL_RUNTIME_ROOT: train_nanogpt.py aborts immediately
+    - TT_METAL_HOME / TT_METAL_RUNTIME_ROOT: train.py aborts immediately
       without TT_METAL_RUNTIME_ROOT (it needs it to find runtime kernels).
     - TT_METAL_ARCH_NAME: `blackhole` for P-series, `wormhole_b0` for N-series.
       An explicit --arch (arch is not None) always wins. Otherwise we honour
@@ -113,39 +113,25 @@ def main() -> int:
     args = parser.parse_args()
 
     tt_metal_home = args.tt_metal_home
-    # The Python trainer moved, and the move is not a clean swap. tt-metal through
-    # ~v0.66 shipped sources/examples/nano_gpt/train_nanogpt.py, which is what this
-    # launcher drives. Newer checkouts removed it: the nano_gpt example there is C++
-    # (main.cpp, char-tokenizer only), and its Python successor
-    # sources/examples/python/transformers/training.py is currently stale — it does
-    # `from trainer import train` with no such module on its sys.path, and calls
-    # ttml.common.trainer.train() with a val_ids argument that signature does not
-    # accept. So we require the older script and explain the situation, rather than
-    # silently repointing at something that will not run either.
-    train_script = os.path.join(
-        tt_metal_home, "tt-train", "sources", "examples", "nano_gpt", "train_nanogpt.py"
-    )
-    if not os.path.isfile(train_script):
-        successor = os.path.join(
-            tt_metal_home, "tt-train", "sources", "examples", "python",
-            "transformers", "training.py",
-        )
-        print(f"ERROR: trainer not found at {train_script}")
-        if os.path.isfile(successor):
-            print()
-            print("This tt-metal checkout is newer than this lab was written against.")
-            print(f"  It ships {successor}")
-            print("  instead, but that example is currently stale: it imports a")
-            print("  top-level `trainer` module that is not on its sys.path, and it")
-            print("  calls ttml.common.trainer.train() with a val_ids argument that")
-            print("  signature does not take.")
-            print()
-            print("  Until that is fixed upstream, either point --tt_metal_home at a")
-            print("  checkout that still ships train_nanogpt.py, or drive")
-            print("  ttml.common.trainer.train() directly.")
-        else:
-            print("Set --tt_metal_home / TT_METAL_HOME to a tt-metal source tree "
-                  "and build ttml (see BUILD_TTML.md).")
+    # Where the Python trainer lives depends on the tt-metal version:
+    #   * v0.80 and later (verified on v0.82.0): sources/examples/train/train.py,
+    #     added in tt-metal #45599 (2026-06-23). It keeps the old underscore flags
+    #     (--max_steps, --data_path, ...) working, so the command below is valid
+    #     for both scripts.
+    #   * through ~v0.73: sources/examples/nano_gpt/train_nanogpt.py.
+    # Prefer the new script and fall back to the old one.
+    examples = os.path.join(tt_metal_home, "tt-train", "sources", "examples")
+    candidates = [
+        os.path.join(examples, "train", "train.py"),
+        os.path.join(examples, "nano_gpt", "train_nanogpt.py"),
+    ]
+    train_script = next((c for c in candidates if os.path.isfile(c)), None)
+    if train_script is None:
+        print("ERROR: no trainer found. Looked for:")
+        for c in candidates:
+            print(f"  {c}")
+        print("Set --tt_metal_home / TT_METAL_HOME to a tt-metal source tree "
+              "and build ttml (see BUILD_TTML.md).")
         return 1
 
     cmd = [
@@ -159,7 +145,7 @@ def main() -> int:
     env = _build_env(tt_metal_home, args.arch)
 
     print("=" * 70)
-    print("nanollama3 from-scratch training (thin launcher over train_nanogpt.py)")
+    print("nanollama3 from-scratch training (thin launcher over " + os.path.basename(train_script) + ")")
     print(f"  model: Llama-3 stack (RoPE theta=500000 + RMSNorm + GQA 6h/3kv + SwiGLU)")
     print(f"  arch={env['TT_METAL_ARCH_NAME']}  "
           f"runtime_root={env['TT_METAL_RUNTIME_ROOT']}")

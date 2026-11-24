@@ -11,7 +11,7 @@ status: draft
 validatedOn:
   - p300c
 estimatedMinutes: 45
-minTTMetalVersion: v0.73.1
+minTTMetalVersion: v0.82.0
 ---
 
 # Train It & Run for Real
@@ -129,7 +129,7 @@ What it has instead is a canonical, supported training path:
   read across **Embeddings & the Residual Stream** through **The Transformer
   Block & the Model**, expressed against `ttml`'s autograd-aware ops instead of
   PyTorch's.
-- **`train_nanogpt.py`** — the upstream trainer script that drives it.
+- **`train.py`** — the upstream trainer script that drives it.
 - **A YAML config** that selects `model_type: llama`.
 
 This lab's runner, `~/tt-scratchpad/llm-from-scratch/train_nano_from_scratch.py`,
@@ -147,10 +147,11 @@ source-and-build tree, stop here and do the
 lesson first — everything below assumes `install_dependencies.sh` and
 `build_metal.sh` already work on your machine.
 
-**Time budget:** with a warm ccache, the whole recipe below — configure,
-build `_ttml`, rebuild `_ttnn.so` — takes about **5 minutes** on this
-hardware. A first-ever tt-metal build from cold (no ccache) is much longer;
-budget accordingly.
+**Time budget:** on a fresh v0.82.0 checkout with a warm ccache, the one-pass
+build below took **13 minutes** on a 16-core machine (measured 2026-11-24). On
+an existing build tree that only needs tt-train added, the two-step recipe
+takes about 5 minutes. A first-ever tt-metal build with a cold ccache is much
+longer; budget accordingly.
 
 **This matters especially if you're on a TT-QuietBox<sup>®</sup> 2.** A
 pre-configured TT-QuietBox 2 image has **no `~/tt-metal` at all** — not the
@@ -159,6 +160,21 @@ you as a container (`tt-metalium`), and `~/.tenstorrent-venv` holds only
 `tt-smi` and `tt-flash`. So there is nothing to build `ttml` against until you
 clone and build tt-metal yourself. Don't assume `~/tt-metal` exists; if it's missing, the
 [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]) is exactly the gap-filler.
+
+**On a fresh checkout of tt-metal v0.80 or later, build tt-train in the same
+pass as everything else.** This is the path we verified on v0.82.0:
+
+```bash
+git clone --branch v0.82.0 https://github.com/tenstorrent/tt-metal.git
+cd tt-metal && git submodule update --init --recursive
+export TT_METAL_HOME=$PWD CMAKE_POLICY_VERSION_MINIMUM=3.5
+./build_metal.sh --build-tt-train --enable-ccache
+./create_venv.sh        # creates python_env/ and writes the ttml .pth files
+```
+
+Because `ttnn` and `ttml` are built together, the `std::bad_cast` problem
+described below does not appear. The rest of this section covers a tree that
+was built *before* tt-train was enabled.
 
 The full, verified recipe lives in
 [`content/templates/llm-from-scratch/BUILD_TTML.md`](https://github.com/tenstorrent/tt-vscode-toolkit/blob/main/content/templates/llm-from-scratch/BUILD_TTML.md)
@@ -232,7 +248,7 @@ trainer, with the Llama config:
 ```bash
 python ~/tt-scratchpad/llm-from-scratch/train_nano_from_scratch.py \
     --max_steps 20 \
-    --data_path $TT_METAL_HOME/tt-train/data/shakespeare.txt
+    --data_path $TT_METAL_HOME/data/shakespeare.txt
 ```
 
 Which resolves, under the hood, to:
@@ -240,10 +256,10 @@ Which resolves, under the hood, to:
 ```bash
 TT_METAL_HOME=$TT_METAL_HOME TT_METAL_RUNTIME_ROOT=$TT_METAL_HOME \
 TT_METAL_ARCH_NAME=blackhole TT_LOGGER_LEVEL=FATAL \
-python $TT_METAL_HOME/tt-train/sources/examples/nano_gpt/train_nanogpt.py \
+python $TT_METAL_HOME/tt-train/sources/examples/train/train.py \
     --config training_shakespeare_nanollama3_char.yaml \
     --max_steps 20 \
-    --data_path $TT_METAL_HOME/tt-train/data/shakespeare.txt
+    --data_path $TT_METAL_HOME/data/shakespeare.txt
 ```
 
 That config selects `model_type: llama` — the exact architecture you've read
@@ -257,28 +273,31 @@ through
 — now training on-device instead of running one forward pass on CPU.**
 
 **Here is what actually happened when we ran it, on this p300c, against
-tt-metal v0.73:**
+tt-metal v0.82.0 (2026-11-24):**
 
 | Step | Loss |
 |---|---|
-| 1 | 4.6875 |
-| 5 | 3.56 |
-| 10 | 3.375 |
+| 1 | 4.8438 |
+| 5 | 3.75 |
+| 10 | 3.3594 |
 | 20 | 3.2344 |
 
-Step 1 took **12.3 seconds** — that's not a slow training step, that's the
+Step 1 took **28.1 seconds** — that's not a slow training step, that's the
 one-time on-device kernel compile every fresh op shape pays the first time it
-runs (you saw the same effect described in earlier labs' honest-flag
-sections). Every step after that ran in **~65 ms**, at roughly **16.5
-TFLOPS** and **~11% model FLOPS utilization (MFU)**. All 20 steps, compile
-included, finished in **13.6 seconds**, and the process exited **0**.
+runs on a cold kernel cache (you saw the same effect described in earlier
+labs' honest-flag sections). Every step after that ran in about **59 ms**, at
+roughly **18.3 TFLOPS** and **~12.3% model FLOPS utilization (MFU)**. All 20
+steps, compile included, finished in **29.2 seconds**, and the process exited
+**0**. (On tt-metal v0.73 the same run took ~65 ms/step at 16.5 TFLOPS, and
+step 1 took 12.3 seconds.)
 
 **The general rule underneath that first-step number, worth carrying past
 this lab:** the first time any op runs against a new tensor shape, the
-device compiles kernels for it — roughly **12–20 seconds** on this
-hardware — and caches the result. Every later step against that same shape
-just runs the cached kernel, which is why step 2 onward drops straight to
-~65 ms. **Never benchmark the first step of anything on this stack** — it's
+device compiles kernels for it — roughly **10–30 seconds** on this
+hardware when the kernel cache is cold — and caches the result. Every later
+step against that same shape just runs the cached kernel, which is why step 2
+onward drops straight to ~59 ms. (A repeat run on the same machine took 3.2
+seconds for step 1, because the cache was warm.) **Never benchmark the first step of anything on this stack** — it's
 timing the compiler, not the model.
 
 Loss dropped **monotonically** — 4.6875 → 3.56 → 3.375 → 3.2344 — the same shape
@@ -320,30 +339,31 @@ is for.
 
 ### The honest caveat, stated plainly
 
-**Upstream tt-metal does not run continuous-integration training tests for
-Blackhole.** `tt-train`'s own CI `GTEST_SKIP`s the `softmax`,
-`cross_entropy` (forward and backward), `rmsnorm`, and scaled-dot-product-
-attention training-op tests on p100/p150 — so there is no upstream guarantee
-that any of this works on Blackhole. What you just read above is not an
-upstream claim; it's **this project's own verification**: we built `ttml`
-from source against `~/tt-metal` **v0.73** and actually ran the loop on a
-p300c, and every one of those "skipped" ops executed correctly and produced
-a real, monotonically decreasing loss curve. Two practical consequences
-follow directly from that:
+**Upstream does not promise that training works on Blackhole.** When we first
+wrote this lab against tt-metal v0.73, `tt-train`'s own tests `GTEST_SKIP`ped
+the `softmax`, `cross_entropy` (forward and backward), `rmsnorm`, and
+scaled-dot-product-attention training ops on p100/p150. In the v0.82.0-rc2 test
+sources those files no longer carry a Blackhole skip. We did not check which
+tests upstream CI runs on Blackhole hardware, so treat what you read above as
+**this project's own verification**: we built `ttml` from source against
+tt-metal **v0.73** and again against **v0.82.0**, ran the loop on a p300c both
+times, and got a monotonically decreasing loss curve both times. Two practical
+consequences follow:
 
-- **Pin your tt-metal version.** This was verified at v0.73 specifically. A
-  different version of a fast-moving stack may hit a different edge case —
-  don't assume an arbitrary tt-metal checkout reproduces this run unchanged.
+- **Pin your tt-metal version.** This was verified at v0.73 and v0.82.0
+  specifically. A different version of a fast-moving stack may hit a different
+  edge case, so don't assume an arbitrary tt-metal checkout reproduces this
+  run unchanged.
 - **If the board times out at device open, reset it.** The first run against
-  this p300c hit an ethernet-core timeout opening the device; `tt-smi -r`
-  cleared it, and the retry succeeded. This is common enough on p300c and
+  this p300c at v0.73 hit an ethernet-core timeout opening the device; `tt-smi -r`
+  cleared it, and the retry succeeded. The v0.82.0 runs did not hit it. This is common enough on p300c and
   TT-QuietBox 2 hardware to be worth trying first, before assuming something
   is actually broken.
 
 One more small but real detail: **let `ttml` close the device.** A killed or
 malformed script that touches the device without a clean shutdown triggers a
 benign-but-alarming-looking teardown abort in
-`MetalContext::destroy_all_instances`. `train_nanogpt.py` closes the device
+`MetalContext::destroy_all_instances`. `train.py` closes the device
 in a `finally` block for exactly this reason — if you're scripting around
 it, don't bypass that.
 
@@ -403,9 +423,22 @@ is exactly what RMSNorm gains are.
 **This is not a "use a newer `tt-metal`" fix.** `stochastic_rounding{false}` is
 the default in `AdamWConfig`
 (`tt-train/sources/ttml/optimizers/adamw.hpp`), and it is still the default as
-of **v0.75.0**. The shipped `training_shakespeare_nanollama3_char.yaml` this
+of **v0.82.0**. The shipped `training_shakespeare_nanollama3_char.yaml` this
 lab drives sets it explicitly to `false`, so following this lab as written
 gets you frozen norms.
+
+**We reproduced this on tt-metal v0.82.0.** Same `nanollama3` char config, 1,500
+steps each, three optimizer settings, then a look at the 13 RMSNorm `gamma`
+tensors in each `_final.pkl` checkpoint (2026-11-24, one p300c chip):
+
+| Optimizer setting | Gammas with sd exactly 0.0 | Gamma sd range | Mean loss, last 100 steps |
+|---|---|---|---|
+| `AdamW`, `stochastic_rounding: false` (shipped config) | **13 of 13** | 0.0 | 0.749 |
+| `AdamW`, `stochastic_rounding: true` | 0 of 13 | 0.017 to 0.051 | 0.621 |
+| `AdamWFullPrecision` | 0 of 13 | 0.009 to 0.037 | 0.616 |
+
+The loss in the last column comes from the training batches, not a held-out set,
+so it shows the direction and not a quality measurement.
 
 **Two remedies exist today.** The first is one line:
 
@@ -429,8 +462,8 @@ configs that ship in `tt-train/configs/training_configs/` already set it**:
 `training_shakespeare_tiny_deepseek_char.yaml` and
 `training_shakespeare_tinyllama_muon.yaml`.
 
-The second remedy keeps fp32 master weights, sidestepping the ulp problem
-entirely:
+The second remedy keeps fp32 master weights, which removes the ulp problem
+entirely. On tt-metal v0.82.0, select the full-precision optimizer by name:
 
 ```yaml
   optimizer:
@@ -443,10 +476,33 @@ entirely:
     amsgrad: false
 ```
 
-`AdamWFullPrecision` is a first-class registered optimizer, selectable by name
-from YAML exactly like `AdamW`. Note that its config doesn't take a
-`stochastic_rounding` key — it doesn't need one, because the master copy of
-each parameter is fp32.
+`AdamWFullPrecision` is a registered optimizer, selectable by name from YAML
+exactly like `AdamW`. Its config takes no `stochastic_rounding` key. It does
+not need one, because the master copy of each parameter is fp32.
+
+**Newer tt-metal.** tenstorrent/tt-metal#62083 (merged 2026-11-03) removes
+`AdamWFullPrecision`. v0.82.0 does not include it. It first appears in the
+v0.83.0 development builds. From the first release that includes it, fused
+`AdamW` keeps the fp32 master weights in the parameters themselves, and a
+type of `AdamWFullPrecision` stops with an unknown-optimizer error. Use this
+instead, with the same optimizer keys:
+
+```yaml
+training_config:
+  precision:
+    master_dtype: float32
+  optimizer:
+    type: AdamW
+    lr: 0.0003
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    weight_decay: 0.01
+    amsgrad: false
+```
+
+`stochastic_rounding` still exists on `AdamW`, but it applies to bf16
+parameters only, so fp32 master weights do not need it.
 
 **How to check that your own run didn't hit this.** Not by reading the loss —
 the loss is a liar here. Load a checkpoint and look at parameter statistics:

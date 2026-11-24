@@ -20,8 +20,8 @@ supportedHardware:
   - galaxy
 status: draft
 note: >-
-  ttml (tt-train) builds and trains from source on Blackhole p300c as of
-  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  ttml (tt-train) builds and trains from source on Blackhole p300c; verified on
+  2026-07-08 (tt-metal v0.73) and again on 2026-11-24 (tt-metal v0.82.0) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
 validatedOn: []
@@ -43,7 +43,7 @@ This lesson lays the groundwork before you touch a dataset or a training loop: w
 
 **Time:** 10-15 minutes | **Prerequisites:** Basic understanding of machine learning concepts
 
-> **What the whole track needs (built once).** Every *hands-on* lesson from [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) onward runs on **`ttml` (tt-train)**, which has **no pip wheel**. You'll need a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73). On a TT-QuietBox<sup>®</sup> 2 the `tt-metal` source tree isn't pre-installed, so budget a one-time build — ct4 walks the exact recipe behind an **Install tt-train** button. The concept lessons before it (this one, Datasets, Configuration) need no hardware, so you can start the build now and keep reading.
+> **What the whole track needs (built once).** Every *hands-on* lesson from [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) onward runs on **`ttml` (tt-train)**, which has **no pip wheel**. You'll need a **recent `tt-metal` built from source with tt-train enabled** (verified on v0.73 and v0.82.0). On a TT-QuietBox<sup>®</sup> 2 the `tt-metal` source tree isn't pre-installed, so budget a one-time build — ct4 walks the exact recipe behind an **Install tt-train** button. The concept lessons before it (this one, Datasets, Configuration) need no hardware, so you can start the build now and keep reading.
 
 ---
 
@@ -122,7 +122,7 @@ There isn't one training stack on Tenstorrent hardware — there are three, and 
 
 `tt-train` is the autograd training framework that lives inside TT-Metalium<sup>™</sup>'s source tree. Its Python bindings are called `ttml`. It supplies the piece TT-NN<sup>™</sup> doesn't have on its own: a backward pass. TT-NN's ops (`ttnn.matmul`, `ttnn.rms_norm`, and so on) are forward-only — each one computes a result and hands it back, with nothing recording how to differentiate that computation. `ttml` wraps operations like these with a matching backward pass and an on-device `AdamW` optimizer, so a real training loop — forward, loss, backward, update — can run on Tenstorrent hardware instead of just inference.
 
-**This is the framework the rest of this track uses.** Later lessons run `train_nanogpt.py` against it: real gradient descent, real loss curves dropping step by step, on real Tenstorrent silicon.
+**This is the framework the rest of this track uses.** Later lessons run `train.py` against it: real gradient descent, real loss curves dropping step by step, on real Tenstorrent silicon.
 
 `ttml` is source-only — no pip wheel — and builds as a cmake subproject of TT-Metalium. If you don't already have a built `~/tt-metal` source tree (TT-QuietBox<sup>®</sup> 2 images have none — TT-NN arrives as a container, not on the host), start with [Build TT-Metalium from Source](command:tenstorrent.lesson.show?["build-tt-metal"]). Once that tree exists, the **Install tt-train** command in this extension automates the `ttml` build.
 

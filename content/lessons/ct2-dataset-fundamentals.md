@@ -20,8 +20,8 @@ supportedHardware:
   - galaxy
 status: draft
 note: >-
-  ttml (tt-train) builds and trains from source on Blackhole p300c as of
-  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  ttml (tt-train) builds and trains from source on Blackhole p300c; verified on
+  2026-07-08 (tt-metal v0.73) and again on 2026-11-24 (tt-metal v0.82.0) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
 validatedOn: []
@@ -57,7 +57,7 @@ graph LR
     style B fill:#1B8EB1,stroke:#092221,stroke-width:3px
 ```
 
-**A quick note on scope before you start:** this lesson teaches dataset curation the way most of the fine-tuning world does it — JSONL prompt/response pairs, validated and versioned. That skill transfers everywhere. But the trainer this track actually runs, `train_nanogpt.py` (`ttml`/tt-train's Python entry point, see [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])), doesn't take JSONL directly — it takes a plain-text corpus. The "How Your Data Reaches tt-train" section below closes that gap honestly, with a real script to get from one to the other.
+**A quick note on scope before you start:** this lesson teaches dataset curation the way most of the fine-tuning world does it — JSONL prompt/response pairs, validated and versioned. That skill transfers everywhere. But the trainer this track actually runs, `train.py` (`ttml`/tt-train's Python entry point, see [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])), doesn't take JSONL directly — it takes a plain-text corpus. The "How Your Data Reaches tt-train" section below closes that gap honestly, with a real script to get from one to the other.
 
 ---
 
@@ -532,31 +532,31 @@ Fix these issues and run validation again.
 
 Once your dataset is validated JSONL, the natural next question is: how does it actually get to a model? For a lot of the fine-tuning ecosystem — Hugging Face's `trl`, hosted fine-tuning APIs — JSONL prompt/response pairs *are* the direct input. This track's own trainer is more specific about what it wants.
 
-[Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) runs `train_nanogpt.py`, the trainer script that ships with `ttml` (tt-train's Python bindings), against real Tenstorrent hardware. Its data argument looks like this:
+[Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) runs `train.py`, the trainer script that ships with `ttml` (tt-train's Python bindings), against real Tenstorrent hardware. Its data argument looks like this:
 
 ```bash
-python train_nanogpt.py \
+python train.py \
   --data_path ~/tt-scratchpad/training/data/shakespeare.txt \
-  --num_epochs 30 \
+  --epochs 30 \
   --batch_size 4 \
-  --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare_stage2.pkl \
+  --checkpoint-dir ~/tt-metal/tt-train/checkpoints --checkpoint-prefix shakespeare_stage2 \
   --fresh
 ```
 
-`--data_path` points at **one plain-text file** — not JSONL, not a `prompt`/`response` schema. By default, `train_nanogpt.py` tokenizes that file one character at a time (`ttml.common.data.CharTokenizer`) and trains next-character prediction on it. That's exactly why the tiny-shakespeare corpus you downloaded earlier in this lesson works as-is: `input.txt` is already the shape the trainer wants, no conversion needed.
+`--data_path` points at **one plain-text file** — not JSONL, not a `prompt`/`response` schema. By default, `train.py` tokenizes that file one character at a time (`ttml.common.data.CharTokenizer`) and trains next-character prediction on it. That's exactly why the tiny-shakespeare corpus you downloaded earlier in this lesson works as-is: `input.txt` is already the shape the trainer wants, no conversion needed.
 
 tt-train also supports subword tokenization: set `tokenizer_type: bpe` in the training config and point `tokenizer_path` at a saved Hugging Face tokenizer, and the corpus gets byte-pair-encoded instead of split into characters. Either way — char-level or BPE — the trainer wants **already-tokenizable text**, not a JSON schema of examples.
 
 ### Bridging JSONL to a plain-text corpus
 
-If you've curated a JSONL dataset above and want to point `train_nanogpt.py` at it, flatten it into text first. `prompt`/`response` fields don't survive the trip — the trainer just sees characters — so the flattening step is where you decide how those fields get joined:
+If you've curated a JSONL dataset above and want to point `train.py` at it, flatten it into text first. `prompt`/`response` fields don't survive the trip — the trainer just sees characters — so the flattening step is where you decide how those fields get joined:
 
 ```python
 import json
 
 def jsonl_to_plain_text(jsonl_path, output_path, separator="\n\n"):
     """Flatten a JSONL prompt/response dataset into the single plain-text
-    stream train_nanogpt.py's --data_path expects.
+    stream train.py's --data_path expects.
 
     tt-train's default tokenizer has no concept of a "prompt" or "response"
     field -- it reads characters (or BPE tokens, if tokenizer_type: bpe is
@@ -582,14 +582,14 @@ n = jsonl_to_plain_text("my_dataset.jsonl", "my_dataset.txt")
 print(f"Flattened {n} examples into my_dataset.txt")
 ```
 
-Then hand the flattened file to `train_nanogpt.py` the same way [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) hands it `shakespeare.txt`:
+Then hand the flattened file to `train.py` the same way [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) hands it `shakespeare.txt`:
 
 ```bash
-python train_nanogpt.py \
+python train.py \
   --data_path ~/tt-scratchpad/training/data/my_dataset.txt \
-  --num_epochs 100 \
+  --epochs 100 \
   --batch_size 4 \
-  --model_save_path ~/tt-metal/tt-train/checkpoints/my_model.pkl \
+  --checkpoint-dir ~/tt-metal/tt-train/checkpoints --checkpoint-prefix my_model \
   --fresh
 ```
 
@@ -681,7 +681,7 @@ graph TD
 
 ## Understanding Tokenization
 
-Your dataset goes through several transformations before reaching the model. The exact shape of the early stages depends on which trainer you're targeting (JSONL for curation-friendly tools, a flattened plain-text corpus for `train_nanogpt.py` — see the section above) but every path converges on the same last three steps:
+Your dataset goes through several transformations before reaching the model. The exact shape of the early stages depends on which trainer you're targeting (JSONL for curation-friendly tools, a flattened plain-text corpus for `train.py` — see the section above) but every path converges on the same last three steps:
 
 ```mermaid
 graph LR
@@ -701,9 +701,9 @@ graph LR
 
 **Each stage matters:**
 - **Raw Text:** Your domain knowledge and creativity
-- **Curated Dataset:** Makes it machine-readable while staying human-readable — JSONL if a schema helps you review it, plain text if `train_nanogpt.py` is the destination
+- **Curated Dataset:** Makes it machine-readable while staying human-readable — JSONL if a schema helps you review it, plain text if `train.py` is the destination
 - **Validation:** Catches errors before expensive training
-- **Tokenization:** Converts text to numbers the model understands — character-by-character by default in `train_nanogpt.py`, or via a Hugging Face tokenizer if `tokenizer_type: bpe` is configured
+- **Tokenization:** Converts text to numbers the model understands — character-by-character by default in `train.py`, or via a Hugging Face tokenizer if `tokenizer_type: bpe` is configured
 - **Batching:** Groups examples for efficient processing
 - **Training:** Where the model actually learns
 
@@ -751,7 +751,7 @@ print(f"Total: {len(prompt_tokens) + len(response_tokens)} tokens")
 
 **Rule of thumb:** Keep total (prompt + response) under 512 tokens for fine-tuning.
 
-**Where this applies to tt-train:** `train_nanogpt.py`'s default `CharTokenizer` doesn't need any of this — one character is one token, and there's no external vocabulary to load. This section matters once you're on the `tokenizer_type: bpe` path (a real subword tokenizer, loaded from `tokenizer_path`) or working with datasets destined for other, tokenizer-based fine-tuning tools.
+**Where this applies to tt-train:** `train.py`'s default `CharTokenizer` doesn't need any of this — one character is one token, and there's no external vocabulary to load. This section matters once you're on the `tokenizer_type: bpe` path (a real subword tokenizer, loaded from `tokenizer_path`) or working with datasets destined for other, tokenizer-based fine-tuning tools.
 
 ---
 
@@ -775,7 +775,7 @@ from datasets import load_dataset
 # Load your own JSONL file
 dataset = load_dataset("json", data_files="my_dataset.jsonl")
 
-# Or load a plain-text corpus the same way train_nanogpt.py would read it
+# Or load a plain-text corpus the same way train.py would read it
 # (each line becomes one example, so this doesn't apply a schema at all)
 text_dataset = load_dataset("text", data_files="my_dataset.txt")
 
@@ -799,7 +799,7 @@ for example in dataset["train"]:
 - ✅ Integration with HuggingFace ecosystem
 - ✅ Pulling an existing corpus from the Hub instead of writing one by hand
 
-**For `train_nanogpt.py` specifically:** none of this is required. It reads a single text file directly — HuggingFace `datasets` is a convenience for building or downloading that file, not a dependency of the trainer itself.
+**For `train.py` specifically:** none of this is required. It reads a single text file directly — HuggingFace `datasets` is a convenience for building or downloading that file, not a dependency of the trainer itself.
 
 ---
 
@@ -1003,7 +1003,7 @@ Pick a task you know well. Spend 3-4 hours creating 100 prompt/response pairs. F
 
 ✅ **Tokenization determines cost** and length limits
 
-✅ **`train_nanogpt.py` wants plain text, not JSONL** — flatten curated examples into a text corpus before handing them to `--data_path`
+✅ **`train.py` wants plain text, not JSONL** — flatten curated examples into a text corpus before handing them to `--data_path`
 
 ✅ **Version your datasets** like code
 
