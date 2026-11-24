@@ -80,7 +80,7 @@ export TT_LOGGER_LEVEL=FATAL
 cd ~/tt-metal/tt-train/sources/examples/train
 ```
 
-You'll need a Shakespeare corpus — either the one you built in [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"]), or the copy `tt-metal` ships at `tt-train/data/shakespeare.txt`, which is what the run below actually used.
+You'll need a Shakespeare corpus — either the one you built in [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"]), or the copy `tt-metal` ships at `$TT_METAL_HOME/data/shakespeare.txt` (not under `tt-train/`), which is what the run below actually used.
 
 ---
 
@@ -223,7 +223,7 @@ Check the data actually loaded — `train.py` prints dataset size and vocabulary
 
 Three real causes, in order of how often they bite:
 
-- **Parent dir missing** — `train.py` doesn't create it. `mkdir -p $(dirname <model_save_path>)` first.
+- **No `--checkpoint-dir`** — without it the v0.82.0 trainer saves nothing. Pass `--checkpoint-dir <dir> --checkpoint-prefix <name>`; the trainer creates the directory itself, so no `mkdir` is needed.
 - **`model_save_interval` too large** — if a run dies before its first save, you get nothing. Keep it small (500–1000). A run killed 42 steps before an interval-1500 save leaves zero checkpoints — learned the hard way.
 - **DDP save throws** — under multi-chip DDP the stock saver hits `Can't get a single buffer from host storage distributed over mesh`. The weights are replicated across chips; pull them through `ttml.core.distributed.concat_mesh_to_tensor_composer(device, 0)` and keep the first replica.
 

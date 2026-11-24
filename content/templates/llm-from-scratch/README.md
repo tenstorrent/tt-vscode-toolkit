@@ -117,10 +117,10 @@ single-file `nanogpt_primitives_example.py`), there is **no** single-file Llama
 `train.py` + the `training_shakespeare_nanollama3_char.yaml` config
 driving `ttml.models.llama`.
 
-**Verified hero run (p300c, tt-metal v0.73, 2026-07-08):**
+**Verified hero run (p300c, tt-metal v0.82.0, 2026-11-24):**
 `train.py --config training_shakespeare_nanollama3_char.yaml
---max_steps 20` — **loss 4.69 → 3.23 over 20 steps, ~65 ms/step, 16.5 TFLOPS,
-MFU ~11%, exit 0.**
+--max_steps 20` — **loss 4.84 → 3.23 over 20 steps, ~59 ms/step, 18.3 TFLOPS,
+MFU ~12%, exit 0.** (On v0.73 the trainer was `nano_gpt/train_nanogpt.py`: 4.69 → 3.23, ~65 ms/step.)
 
 ## Nano baseline config (nanollama3)
 
@@ -158,7 +158,7 @@ sources before publishing (same spirit as `scripts/check-sim-lite-drift.py`):
 | `kernels/matmul.py` | `vendor/tt-lang/examples/matmul.py` (bias term dropped — sim-unsupported broadcast) | `a19aaa8` |
 | `kernels/attention.py` | `attention_kernel` in `vendor/tt-lang/examples/test_transformer_block.py` | `a19aaa8` |
 | `kernels/rmsnorm.py` | RMSNorm block of `norm_qkv_kernel` / `norm_mlp_residual_kernel`, same file | `a19aaa8` |
-| `train_nano_from_scratch.py` | launches `$TT_METAL_HOME/tt-train/sources/examples/train/train.py --config training_shakespeare_nanollama3_char.yaml` (`model_type: llama`) | tt-metal v0.73 |
+| `train_nano_from_scratch.py` | launches `$TT_METAL_HOME/tt-train/sources/examples/train/train.py --config training_shakespeare_nanollama3_char.yaml` (`model_type: llama`) | tt-metal v0.82.0 |
 | `reference_gpt.py` | independent pure-PyTorch mirror of `ttml.models.llama` / `nanollama3_char.yaml` (RoPE + RMSNorm + GQA + SwiGLU) | — |
 | `tokenizer_bpe.py` | independent from-scratch implementation of Sennrich et al. 2016 byte-pair encoding (same core loop as Karpathy's `minbpe`, not copied from it) | — |
 

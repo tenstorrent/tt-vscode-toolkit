@@ -111,7 +111,7 @@ export TT_LOGGER_LEVEL=FATAL
 cd ~/tt-metal/tt-train/sources/examples/train
 ```
 
-You'll also want the Shakespeare corpus from [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"]) at `~/tt-scratchpad/training/data/shakespeare.txt`. (`tt-metal` also ships its own copy of the same tiny-shakespeare corpus at `tt-train/data/shakespeare.txt`, which is what the verified run below actually used — either path works, it's the same text.)
+You'll also want the Shakespeare corpus from [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"]) at `~/tt-scratchpad/training/data/shakespeare.txt`. (`tt-metal` also ships its own copy of the same tiny-shakespeare corpus at `$TT_METAL_HOME/data/shakespeare.txt`, which is what the verified run below actually used — either path works, it's the same text.)
 
 ---
 

@@ -30,10 +30,11 @@
 # See BUILD_TTML.md in this directory for the verified recipe (including the
 # `std::bad_cast` ABI fix). There is NO pip wheel for ttml.
 #
-# VERIFIED on 2026-07-08 on a Blackhole p300c against tt-metal v0.73:
+# VERIFIED on 2026-11-24 on a Blackhole p300c against tt-metal v0.82.0
+# (on v0.73, 2026-07-08, the trainer was nano_gpt/train_nanogpt.py: 4.69 -> 3.23, ~65 ms/step):
 #     train.py --config training_shakespeare_nanollama3_char.yaml \
 #         --max_steps 20
-#   -> loss 4.69 -> 3.23 over 20 steps, ~65 ms/step, 16.5 TFLOPS, MFU ~11%,
+#   -> loss 4.84 -> 3.23 over 20 steps, ~59 ms/step, 18.3 TFLOPS, MFU ~12%,
 #      exit 0. This is the arc's HERO run. Upstream does NOT CI Llama training
 #   on Blackhole, so pin your tt-metal version and reset the board (`tt-smi -r`)
 #   if device open times out.
@@ -41,7 +42,7 @@
 # Run (Blackhole p300c):
 #
 #     python content/templates/llm-from-scratch/train_nano_from_scratch.py \
-#         --max_steps 20 --data_path ~/tt-metal/tt-train/data/shakespeare.txt
+#         --max_steps 20 --data_path ~/tt-metal/data/shakespeare.txt
 #
 # (Arch resolution: an explicit --arch always wins; otherwise the runner
 #  honours an already-exported TT_METAL_ARCH_NAME; otherwise it defaults to

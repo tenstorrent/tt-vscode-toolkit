@@ -481,11 +481,12 @@ exactly like `AdamW`. Its config takes no `stochastic_rounding` key. It does
 not need one, because the master copy of each parameter is fp32.
 
 **Newer tt-metal.** tenstorrent/tt-metal#62083 (merged 2026-11-03) removes
-`AdamWFullPrecision`. v0.82.0 does not include it. It first appears in the
-v0.83.0 development builds. From the first release that includes it, fused
-`AdamW` keeps the fp32 master weights in the parameters themselves, and a
-type of `AdamWFullPrecision` stops with an unknown-optimizer error. Use this
-instead, with the same optimizer keys:
+`AdamWFullPrecision`. v0.82.0 predates that change and still supports it, so
+the run above is correct as written. The removal first appears in the v0.83.0
+development builds. From the first release that includes it, fused `AdamW`
+keeps the fp32 master weights in the parameters themselves, and a type of
+`AdamWFullPrecision` stops with an unknown-optimizer error. On those builds
+use this instead, with the same optimizer keys:
 
 ```yaml
 training_config:

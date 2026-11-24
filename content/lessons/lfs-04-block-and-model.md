@@ -655,6 +655,6 @@ that actually predicts text: a from-scratch training loop — cross-entropy,
 AdamW, backprop — run for real on Blackhole<sup>®</sup> hardware, watching the
 loss drop the way the honest runtime matrix in
 [Pick Your Altitude](command:tenstorrent.lesson.show?["lfs-00-intro"]) already
-previewed (4.69 → 3.23 over 20 steps, on a p300c, exit 0).
+previewed (4.84 → 3.23 over 20 steps on tt-metal v0.82.0, on a p300c, exit 0).
 
 [→ Continue to Lab 5: Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])

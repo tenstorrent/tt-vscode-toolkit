@@ -273,7 +273,7 @@ These live under `training_config:` in a `training_configs/*.yaml` file:
 | `project_name` | A label for this run. Not required for training to work — useful for keeping checkpoints and logs straight across experiments |
 | `seed` | Random seed for reproducibility — same seed, same data order, same initialization |
 | `batch_size` | Examples per training step. `64` in the LLaMA/char config, `2` in the GPT-2/BPE config — the right value depends on model size and sequence length, not a universal constant |
-| `num_epochs` | Passes through the full dataset. Defaults to 1 when omitted; the shipped v0.82.0 Shakespeare configs leave it out, and `--epochs` overrides it |
+| `num_epochs` | Passes through the full dataset. When omitted it is `0`, which means no epoch cap; the shipped v0.82.0 Shakespeare configs leave it out, so `max_steps` ends the run, and `--epochs` sets a cap |
 | `max_steps` | Hard cap on training steps, regardless of epoch count |
 | `data_path` | Path to training data — raw text (char tokenizer) or a `.yaml`/`.yml` pre-tokenized file (BPE) |
 | `model_config` | Path to the paired model config file (see above) |
@@ -283,7 +283,7 @@ These live under `training_config:` in a `training_configs/*.yaml` file:
 | `tokenizer_type` | `"char"` (default) or `"bpe"` — in practice this tracks the `data_path` extension check described above |
 | `gradient_accumulation_steps` | Accumulate gradients over N steps before an optimizer update, simulating a larger effective batch. Defaults to `1`; none of the shipped Shakespeare configs use it, but it's real and documented |
 
-**Note on `max_steps` and `num_epochs`:** the shipped v0.82.0 configs set `max_steps` and leave `num_epochs` out, so it takes its default of 1. (Earlier releases wrote `num_epochs: 1` into each config.) `max_steps` is the hard stop. For a tiny dataset like Shakespeare's ~1.1M characters, one epoch at `batch_size: 64` and `max_sequence_length: 256` covers only about 70 steps' worth of unique windows, yet the runs in these lessons go for thousands of steps. The loader wraps and re-samples, so `max_steps` is the number that determines training length here, not `num_epochs`.
+**Note on `max_steps` and `num_epochs`:** the shipped v0.82.0 configs set `max_steps` and leave `num_epochs` out. The trainer treats an omitted value as `0` and applies an epoch cap only when it is above zero, so there is no epoch cap. (Earlier releases wrote `num_epochs: 1` into each config.) `max_steps` is the stop. For a tiny dataset like Shakespeare's ~1.1M characters, one epoch at `batch_size: 64` and `max_sequence_length: 256` covers only about 70 steps' worth of unique windows, yet the runs in these lessons go for thousands of steps. The loader wraps and re-samples, so `max_steps` is the number that determines training length here, not `num_epochs`.
 
 ### `batch_size` — sized to the model, not the hardware in the abstract
 
@@ -329,11 +329,11 @@ training_config:
 | `SGD` / `SGDComposite` | Fused or composite SGD |
 | `NoOp` | No parameter updates — useful for debugging a forward/backward pass in isolation |
 
-tenstorrent/tt-metal#62083 (merged 2026-11-03) removes `AdamWFullPrecision`. v0.82.0 does not
-include it, so `type: AdamWFullPrecision` works there. It first appears in the v0.83.0 development
-builds. From the first release that includes it, fused `AdamW` keeps the fp32 master weights in
-the parameters themselves, and `type: AdamWFullPrecision` stops with an unknown-optimizer error.
-Use this instead:
+tenstorrent/tt-metal#62083 (merged 2026-11-03) removes `AdamWFullPrecision`. v0.82.0 predates
+that change and still supports `type: AdamWFullPrecision`, so use it there. The removal first
+appears in the v0.83.0 development builds. From the first release that includes it, fused
+`AdamW` keeps the fp32 master weights in the parameters themselves, and `type: AdamWFullPrecision`
+stops with an unknown-optimizer error. On those builds use this instead:
 
 ```yaml
 training_config:

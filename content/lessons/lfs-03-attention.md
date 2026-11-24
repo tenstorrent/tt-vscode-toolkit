@@ -535,7 +535,7 @@ That on-device run is
 [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]).
 There, the arc's hero run — `nanollama3_char`, the same 6-head, 3-KV-group GQA
 and RoPE θ=500000 this lab just walked — trains via `ttml.models.llama` on a
-Blackhole p300c, with the loss dropping monotonically from 4.69 to 3.23 over 20
+Blackhole p300c, with the loss dropping from 4.84 to 3.23 over 20
 steps, on-device, exit 0. That's where the GQA + softmax path this lab authored
 gets exercised for real on silicon, closing the loop this honest flag opens.
 
