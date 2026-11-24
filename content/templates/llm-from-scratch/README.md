@@ -32,7 +32,7 @@ contrast the arc footnotes.
 |---|---|---|---|
 | `tokenizer_bpe.py` | Minimal from-scratch byte-pair-encoding (BPE) tokenizer -- train merges, encode, decode. No external tokenizer libs. Frames the SentencePiece BPE 32K that production/Mini-LLM uses; the nano hero run itself uses `CharTokenizer`. | `python tokenizer_bpe.py` | ✅ CPU: vocab 306 (256 bytes + 50 merges), round-trip on seen + unseen text, exit 0 |
 | `reference_gpt.py` | Pure-PyTorch nano **Llama-3** (char tokenizer, RoPE, RMSNorm, GQA, SwiGLU block, forward). No TT deps, CPU-runnable. Mirrors ttml `nanollama3`. The "understand" half of Labs 1-4. | `python reference_gpt.py --smoke` | ✅ CPU: logits `[2, 32, 96]`, 9.81M params, exit 0 |
-| `train_nano_from_scratch.py` | Thin launcher that drives the verified upstream `train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml` (the Llama path) with the right env vars; passes through `--max_steps` / `--data_path`. Requires `ttml`. | see below | ✅ Blackhole p300c: loss 4.69 → 3.23 in 20 steps, ~65 ms/step, exit 0 |
+| `train_nano_from_scratch.py` | Thin launcher that drives the verified upstream `train.py --config training_shakespeare_nanollama3_char.yaml` (the Llama path) with the right env vars; passes through `--max_steps` / `--data_path`. Requires `ttml`. | see below | ✅ Blackhole p300c: loss 4.69 → 3.23 in 20 steps, ~65 ms/step, exit 0 |
 | `BUILD_TTML.md` | The verified `ttml`-from-source recipe (incl. the `std::bad_cast` ABI fix, env vars, board-reset note). Prerequisite for the training launcher. | — | ✅ p300c, tt-metal v0.73 |
 | `kernels/eltwise_add.py` | TT-Lang inception kernel: residual-stream elementwise add. Lab 2. | `python kernels/eltwise_add.py` | ✅ functional sim: max err 0.0 |
 | `kernels/rope.py` | TT-Lang inception kernel: **simplified** rotary embedding on Q/K (cos-only multiply). Lab 2. | `python kernels/rope.py` | ✅ functional sim: max err ~5e-4 |
@@ -100,7 +100,7 @@ first (see `BUILD_TTML.md`), then:
 ```bash
 python content/templates/llm-from-scratch/train_nano_from_scratch.py \
     --max_steps 20 \
-    --data_path /home/ttuser/tt-metal/tt-train/data/shakespeare.txt
+    --data_path /home/ttuser/tt-metal/data/shakespeare.txt
 ```
 
 The launcher sets `TT_METAL_HOME`, `TT_METAL_RUNTIME_ROOT`, and
@@ -114,13 +114,13 @@ the board errors at device open, `tt-smi -r` once and retry.
 **Why a launcher, not a primitives script:** unlike GPT-2 (which has a
 single-file `nanogpt_primitives_example.py`), there is **no** single-file Llama
 "primitives" example. The canonical from-scratch Llama path is
-`train_nanogpt.py` + the `training_shakespeare_nanollama3_char.yaml` config
+`train.py` + the `training_shakespeare_nanollama3_char.yaml` config
 driving `ttml.models.llama`.
 
-**Verified hero run (p300c, tt-metal v0.73, 2026-07-08):**
-`train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml
---max_steps 20` — **loss 4.69 → 3.23 over 20 steps, ~65 ms/step, 16.5 TFLOPS,
-MFU ~11%, exit 0.**
+**Verified hero run (p300c, tt-metal v0.82.0, 2026-11-24):**
+`train.py --config training_shakespeare_nanollama3_char.yaml
+--max_steps 20` — **loss 4.84 → 3.23 over 20 steps, ~59 ms/step, 18.3 TFLOPS,
+MFU ~12%, exit 0.** (On v0.73 the trainer was `nano_gpt/train_nanogpt.py`: 4.69 → 3.23, ~65 ms/step.)
 
 ## Nano baseline config (nanollama3)
 
@@ -158,7 +158,7 @@ sources before publishing (same spirit as `scripts/check-sim-lite-drift.py`):
 | `kernels/matmul.py` | `vendor/tt-lang/examples/matmul.py` (bias term dropped — sim-unsupported broadcast) | `a19aaa8` |
 | `kernels/attention.py` | `attention_kernel` in `vendor/tt-lang/examples/test_transformer_block.py` | `a19aaa8` |
 | `kernels/rmsnorm.py` | RMSNorm block of `norm_qkv_kernel` / `norm_mlp_residual_kernel`, same file | `a19aaa8` |
-| `train_nano_from_scratch.py` | launches `$TT_METAL_HOME/tt-train/sources/examples/nano_gpt/train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml` (`model_type: llama`) | tt-metal v0.73 |
+| `train_nano_from_scratch.py` | launches `$TT_METAL_HOME/tt-train/sources/examples/train/train.py --config training_shakespeare_nanollama3_char.yaml` (`model_type: llama`) | tt-metal v0.82.0 |
 | `reference_gpt.py` | independent pure-PyTorch mirror of `ttml.models.llama` / `nanollama3_char.yaml` (RoPE + RMSNorm + GQA + SwiGLU) | — |
 | `tokenizer_bpe.py` | independent from-scratch implementation of Sennrich et al. 2016 byte-pair encoding (same core loop as Karpathy's `minbpe`, not copied from it) | — |
 

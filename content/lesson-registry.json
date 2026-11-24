@@ -570,7 +570,7 @@
     {
       "id": "ct3-configuration-patterns",
       "title": "Configuration Patterns",
-      "description": "Learn YAML-driven training configuration for tt-train: the model-config and training-config split, hyperparameters, device (mesh) configuration, checkpointing, and logging — grounded in the real nanogpt/nanollama configs train_nanogpt.py runs.",
+      "description": "Learn YAML-driven training configuration for tt-train: the model-config and training-config split, hyperparameters, device (mesh) configuration, checkpointing, and logging — grounded in the real nanogpt/nanollama configs train.py runs.",
       "category": "custom-training",
       "tags": [
         "configuration",
@@ -599,7 +599,7 @@
     {
       "id": "ct4-finetuning-basics",
       "title": "Fine-tuning Basics",
-      "description": "Run your first real tt-train job on Tenstorrent hardware: build a checkpoint with train_nanogpt.py, then continue training it with --resume — the load-weights-and-keep-going mechanic real fine-tuning uses. Real loss curves and generation samples captured on Blackhole p300c, with an honest account of what a 10M-parameter model actually outputs at this scale.",
+      "description": "Run your first real tt-train job on Tenstorrent hardware: build a checkpoint with train.py, then continue training it with --resume — the load-weights-and-keep-going mechanic real fine-tuning uses. Real loss curves and generation samples captured on Blackhole p300c, with an honest account of what a 10M-parameter model actually outputs at this scale.",
       "category": "custom-training",
       "tags": [
         "fine-tuning",
@@ -628,8 +628,8 @@
       "previousLesson": "ct3-configuration-patterns",
       "nextLesson": "ct5-multi-device-training",
       "markdownFile": "content/lessons/ct4-finetuning-basics.md",
-      "recommended_metal_version": "v0.73.1",
-      "minTTMetalVersion": "v0.73.1"
+      "recommended_metal_version": "v0.82.0",
+      "minTTMetalVersion": "v0.82.0"
     },
     {
       "id": "ct5-multi-device-training",
@@ -720,7 +720,7 @@
     {
       "id": "ct8-training-from-scratch",
       "title": "Training from Scratch",
-      "description": "Configure, launch, monitor, checkpoint, and scale a from-scratch training job with ttml's train_nanogpt.py — the modern nanollama3_char config (RoPE/RMSNorm/SwiGLU/GQA), a real 3000-step loss curve on Blackhole p300c, and an honest look at what driving loss to 0.18 on a tiny corpus actually buys you.",
+      "description": "Configure, launch, monitor, checkpoint, and scale a from-scratch training job with ttml's train.py — the modern nanollama3_char config (RoPE/RMSNorm/SwiGLU/GQA), a real 3000-step loss curve on Blackhole p300c, and an honest look at what driving loss to 0.16 on a tiny corpus actually buys you.",
       "category": "custom-training",
       "tags": [
         "from-scratch",
@@ -753,8 +753,8 @@
         "onCommand:tenstorrent.training.trainFromScratch"
       ],
       "markdownFile": "content/lessons/ct8-training-from-scratch.md",
-      "recommended_metal_version": "v0.73.1",
-      "minTTMetalVersion": "v0.73.1"
+      "recommended_metal_version": "v0.82.0",
+      "minTTMetalVersion": "v0.82.0"
     },
     {
       "id": "cookbook-overview",
@@ -1782,7 +1782,7 @@
       "nextLesson": "lfs-06-verify-your-model",
       "completionEvents": [],
       "markdownFile": "content/lessons/lfs-05-train-and-run.md",
-      "minTTMetalVersion": "v0.73.1"
+      "minTTMetalVersion": "v0.82.0"
     },
     {
       "id": "lfs-06-verify-your-model",

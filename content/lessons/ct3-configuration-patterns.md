@@ -2,7 +2,7 @@
 id: ct3-configuration-patterns
 title: Configuration Patterns
 description: >-
-  Learn YAML-driven training configuration for tt-train: the model-config and training-config split, hyperparameters, device (mesh) configuration, checkpointing, and logging — grounded in the real nanogpt/nanollama configs train_nanogpt.py runs.
+  Learn YAML-driven training configuration for tt-train: the model-config and training-config split, hyperparameters, device (mesh) configuration, checkpointing, and logging — grounded in the real nanogpt/nanollama configs train.py runs.
 category: custom-training
 tags:
   - configuration
@@ -20,8 +20,8 @@ supportedHardware:
   - galaxy
 status: draft
 note: >-
-  ttml (tt-train) builds and trains from source on Blackhole p300c as of
-  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  ttml (tt-train) builds and trains from source on Blackhole p300c; verified on
+  2026-07-08 (tt-metal v0.73) and again on 2026-11-24 (tt-metal v0.82.0) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
 validatedOn: []
@@ -40,8 +40,8 @@ This lesson grounds you in the **real** config files that ship in `tt-metal/tt-t
 - Model architecture fields and their effects — `num_heads`, `num_groups`, `embedding_dim`, `num_blocks`, `vocab_size`, `max_sequence_length`, `theta`, `runner_type`
 - Training hyperparameters and their effects — `batch_size`, `num_epochs`, `max_steps`, `data_path`, and the nested `optimizer` block (`AdamW`'s `lr`, `beta1`/`beta2`, `epsilon`, `weight_decay`)
 - Single-chip vs. multi-chip device configuration (`mesh_shape`, `enable_ddp`)
-- Checkpointing (`model_save_interval`, `--model_save_path`)
-- How `train_nanogpt.py --config <yaml>` actually loads, resolves, and overrides these files
+- Checkpointing (`model_save_interval`, `--checkpoint-dir`, `--checkpoint-prefix`)
+- How `train.py --config <yaml>` actually loads, resolves, and overrides these files
 
 **Time:** 15 minutes | **Prerequisites:** [Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"])
 
@@ -141,7 +141,6 @@ training_config:
   seed: 5489
   model_save_interval: 500
   batch_size: 64
-  num_epochs: 1
   max_steps: 5000
   use_clip_grad_norm: false
   clip_grad_norm_max_norm: 1.0
@@ -197,7 +196,6 @@ training_config:
   seed: 5489
   model_save_interval: 500
   batch_size: 2
-  num_epochs: 1
   max_steps: 5000
   data_path: "data/tokenized_shakespeare.yaml"
   model_config: "${TT_METAL_RUNTIME_ROOT}/tt-train/configs/model_configs/nanogpt.yaml"
@@ -229,7 +227,7 @@ eval_config:
 | `vocab_size` in model config | *omitted* | `50257` |
 | Tokenizer | Built-in `CharTokenizer`, vocab derived from the text | Hugging Face BPE, pre-tokenized by `tools/dataset_to_tokens.py` |
 
-That's not a coincidence — it's how `train_nanogpt.py` actually decides which path to take. The trainer checks the **file extension** of `data_path`:
+That's not a coincidence — it's how `train.py` actually decides which path to take. The trainer checks the **file extension** of `data_path`:
 
 ```python
 is_pretokenized = training_config.data_path.endswith((".yaml", ".yml"))
@@ -275,7 +273,7 @@ These live under `training_config:` in a `training_configs/*.yaml` file:
 | `project_name` | A label for this run. Not required for training to work — useful for keeping checkpoints and logs straight across experiments |
 | `seed` | Random seed for reproducibility — same seed, same data order, same initialization |
 | `batch_size` | Examples per training step. `64` in the LLaMA/char config, `2` in the GPT-2/BPE config — the right value depends on model size and sequence length, not a universal constant |
-| `num_epochs` | Passes through the full dataset |
+| `num_epochs` | Passes through the full dataset. When omitted it is `0`, which means no epoch cap; the shipped v0.82.0 Shakespeare configs leave it out, so `max_steps` ends the run, and `--epochs` sets a cap |
 | `max_steps` | Hard cap on training steps, regardless of epoch count |
 | `data_path` | Path to training data — raw text (char tokenizer) or a `.yaml`/`.yml` pre-tokenized file (BPE) |
 | `model_config` | Path to the paired model config file (see above) |
@@ -285,7 +283,7 @@ These live under `training_config:` in a `training_configs/*.yaml` file:
 | `tokenizer_type` | `"char"` (default) or `"bpe"` — in practice this tracks the `data_path` extension check described above |
 | `gradient_accumulation_steps` | Accumulate gradients over N steps before an optimizer update, simulating a larger effective batch. Defaults to `1`; none of the shipped Shakespeare configs use it, but it's real and documented |
 
-**Note on `max_steps` and `num_epochs` both being set:** every shipped config here sets both. `max_steps` wins as the hard stop; `num_epochs: 1` just means the trainer won't cycle back through the dataset more than once before that cap. For a tiny dataset like Shakespeare's ~1.1M characters, one epoch at `batch_size: 64` and `max_sequence_length: 256` covers far fewer than 5,000 steps' worth of unique windows — in practice the loader wraps and re-samples, so `max_steps` is the number that actually determines training length here, not `num_epochs`.
+**Note on `max_steps` and `num_epochs`:** the shipped v0.82.0 configs set `max_steps` and leave `num_epochs` out. The trainer treats an omitted value as `0` and applies an epoch cap only when it is above zero, so there is no epoch cap. (Earlier releases wrote `num_epochs: 1` into each config.) `max_steps` is the stop. For a tiny dataset like Shakespeare's ~1.1M characters, one epoch at `batch_size: 64` and `max_sequence_length: 256` covers only about 70 steps' worth of unique windows, yet the runs in these lessons go for thousands of steps. The loader wraps and re-samples, so `max_steps` is the number that determines training length here, not `num_epochs`.
 
 ### `batch_size` — sized to the model, not the hardware in the abstract
 
@@ -325,11 +323,25 @@ training_config:
 | `type` | What it is |
 |---|---|
 | `AdamW` | Fused AdamW, bf16 state, single kernel per step. Default and recommended |
-| `AdamWFullPrecision` | fp32 master weights/state, casts to bf16 for the forward pass — use if bf16 accumulation causes instability |
+| `AdamWFullPrecision` | fp32 master weights/state, casts to bf16 for the forward pass — use if bf16 accumulation causes instability. Removed in tt-metal releases after v0.82.0 (see the note below the table) |
 | `MorehAdamW` | AdamW via the Moreh team's `ttnn::moreh_adamw` kernel |
 | `AdamWComposite` | AdamW built from individual TTNN ops (no custom kernel); supports Kahan summation |
 | `SGD` / `SGDComposite` | Fused or composite SGD |
 | `NoOp` | No parameter updates — useful for debugging a forward/backward pass in isolation |
+
+tenstorrent/tt-metal#62083 (merged 2026-11-03) removes `AdamWFullPrecision`. v0.82.0 predates
+that change and still supports `type: AdamWFullPrecision`, so use it there. The removal first
+appears in the v0.83.0 development builds. From the first release that includes it, fused
+`AdamW` keeps the fp32 master weights in the parameters themselves, and `type: AdamWFullPrecision`
+stops with an unknown-optimizer error. On those builds use this instead:
+
+```yaml
+training_config:
+  precision:
+    master_dtype: float32
+  optimizer:
+    type: AdamW
+```
 
 ### Gradient Clipping — the real default is *off*
 
@@ -377,20 +389,20 @@ training_config:
   model_save_interval: 500
 ```
 
-That's the config-file half. The other half is a command-line flag on `train_nanogpt.py` itself — `--model_save_path`, which sets *where* checkpoints land:
+That's the config-file half. The other half is a pair of command-line flags on `train.py` itself — `--checkpoint-dir` sets *where* checkpoints land, and `--checkpoint-prefix` sets what they are called:
 
 ```bash
-python train_nanogpt.py \
+python train.py \
   --config training_shakespeare_nanollama3_char.yaml \
-  --model_save_path ~/tt-metal/tt-train/checkpoints/shakespeare
+  --checkpoint-dir ~/tt-metal/tt-train/checkpoints --checkpoint-prefix shakespeare
 ```
 
-Checkpoints are written as `.pkl` files, named from that path plus the step number (`shakespeare_step_500.pkl`) or `_final.pkl` when training completes. Two more real flags round this out:
+Checkpoints are written as `.pkl` files, named from the prefix plus the step number (`shakespeare_step_500.pkl`) or `_final.pkl` when training completes. Without `--checkpoint-dir` the trainer saves nothing. Older tutorials pass a single `--model_save_path <dir>/<prefix>`; that flag still works on v0.82.0 but prints a deprecation warning. Two more real flags round this out:
 
-- `--resume <path>` — resume from a specific checkpoint (auto-detects the latest if you omit the path and don't pass `--fresh`)
+- `--resume <path>` — resume from a specific checkpoint. Leave `--resume` off, give the same `--checkpoint-dir` and `--checkpoint-prefix`, and don't pass `--fresh`, and the trainer picks up the latest checkpoint in that directory
 - `--fresh` — start over, ignoring any existing checkpoint
 
-[Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) runs through several checkpoint-then-resume cycles as it trains in progressive stages — that's where `model_save_interval` and `--model_save_path` actually get exercised end to end.
+[Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"]) runs through several checkpoint-then-resume cycles as it trains in progressive stages — that's where `model_save_interval` and `--checkpoint-dir` actually get exercised end to end.
 
 ---
 
@@ -406,34 +418,34 @@ eval_config:
   top_p: 1.0
 ```
 
-**But `train_nanogpt.py` never reads it.** Grep the script and `eval_config` doesn't appear — it's present in the YAML schema but not wired into the generation path. The periodic text samples you'll see in Fine-tuning Basics come from `train_nanogpt.py`'s own `--temperature`/`--top_k` command-line flags, which default to `0.8` and `40` respectively (`--top_p` and `--repetition_penalty` aren't exposed as generation controls at all). If you want to change what those periodic samples look like, pass `--temperature`/`--top_k` on the command line — editing `eval_config:` in the YAML won't do anything.
+**But `train.py` never reads it.** Grep the script and `eval_config` doesn't appear — it's present in the YAML schema but not wired into the generation path. The periodic text samples you'll see in Fine-tuning Basics come from `train.py`'s own `--temperature`/`--top_k` command-line flags, which default to `0.8` and `40` respectively (`--top_p` and `--repetition_penalty` aren't exposed as generation controls at all). If you want to change what those periodic samples look like, pass `--temperature`/`--top_k` on the command line — editing `eval_config:` in the YAML won't do anything.
 
-**On logging:** there's no WandB or dashboard field in `tt-train`'s YAML schema — don't reach for `use_wandb:` or similar, it isn't real. Training progress today is stdout: per-step loss and timing, printed directly by `train_nanogpt.py`, plus whatever you capture yourself by redirecting output to a file. `project_name` in the training config is just a label; it doesn't wire up an external tracking service on its own.
+**On logging:** there's no WandB or dashboard field in `tt-train`'s YAML schema — don't reach for `use_wandb:` or similar, it isn't real. Training progress today is stdout: per-step loss and timing, printed directly by `train.py`, plus whatever you capture yourself by redirecting output to a file. `project_name` in the training config is just a label; it doesn't wire up an external tracking service on its own.
 
 ---
 
-## Running It: `train_nanogpt.py --config <yaml>`
+## Running It: `train.py --config <yaml>`
 
-This is the payoff — how the files above actually get consumed. `train_nanogpt.py` lives at `tt-metal/tt-train/sources/examples/nano_gpt/train_nanogpt.py` and takes `-c`/`--config`, a path resolved relative to `configs/training_configs/`:
+This is the payoff — how the files above actually get consumed. `train.py` lives at `tt-metal/tt-train/sources/examples/train/train.py` and takes `-c`/`--config`, a path resolved relative to `configs/training_configs/`:
 
 ```bash
-cd ~/tt-metal/tt-train/sources/examples/nano_gpt
-python train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml
+cd ~/tt-metal/tt-train/sources/examples/train
+python train.py --config training_shakespeare_nanollama3_char.yaml
 ```
 
-Leave `--config` off entirely and it falls back to a real default: `training_shakespeare_nanogpt_char.yaml` (paired with `nanogpt_char.yaml` — a GPT-2 architecture trained on plain-text, char-tokenized Shakespeare, no pre-tokenization step required). That's genuinely the config that runs if you type `python train_nanogpt.py` with no arguments at all.
+Leave `--config` off entirely and it falls back to a real default: `training_shakespeare_nanogpt_char.yaml` (paired with `nanogpt_char.yaml` — a GPT-2 architecture trained on plain-text, char-tokenized Shakespeare, no pre-tokenization step required). That's genuinely the config that runs if you type `python train.py` with no arguments at all.
 
 A handful of fields can also be overridden directly on the command line, without editing the YAML — useful for one-off experiments:
 
 ```bash
-python train_nanogpt.py \
+python train.py \
   --config training_shakespeare_nanollama3_char.yaml \
-  --batch_size 8 \
-  --max_steps 1000 \
-  --data_path ~/tt-scratchpad/training/data/my_corpus.txt
+  --batch-size 8 \
+  --max-steps 1000 \
+  --data-path ~/tt-scratchpad/training/data/my_corpus.txt
 ```
 
-The real overridable flags are `--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, and `--model_save_path`. **There is no `--learning_rate` flag** — to change `lr`, edit `optimizer.lr` in the training config YAML itself, or point `--config` at a different file. This matters because it's easy to assume every training-config field has a matching CLI override; only the seven listed above do.
+The real overridable flags are `--data-path`, `--batch-size`, `--max-steps`, `--epochs`, `--max-grad-norm`, `--sequence-length`, and `--checkpoint-dir`. The old underscore spellings (`--max_steps`, `--data_path`, and so on) are still accepted without a warning. **There is no learning-rate flag** — to change `lr`, edit `optimizer.lr` in the training config YAML itself, or point `--config` at a different file. This matters because it's easy to assume every training-config field has a matching CLI override; only the seven listed above do.
 
 If you'd rather not touch Python at all, the same YAML files also drive a native C++ binary (`nano_gpt`, built by `build_metal.sh` alongside everything else) with its own `--config`/`-c` flag — same config format, same two-file split, no `ttml` Python bindings required.
 
@@ -517,7 +529,7 @@ training_config:
 
 ✅ **Gradient clipping defaults to off** in every shipped Shakespeare config — it's a safety net, not a mandatory setting
 
-✅ **`train_nanogpt.py --config <yaml>`** is the real entry point; seven fields (`--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, `--model_save_path`) can be overridden on the command line — `lr` cannot
+✅ **`train.py --config <yaml>`** is the real entry point; seven fields (`--data-path`, `--batch-size`, `--max-steps`, `--epochs`, `--max-grad-norm`, `--sequence-length`, `--checkpoint-dir`) can be overridden on the command line — `lr` cannot
 
 ✅ **`tt-blacksmith` is a different project** on the TT-Forge/TT-XLA stack — not a config layer over `tt-train`
 
@@ -527,7 +539,7 @@ training_config:
 
 You've prepared your dataset ([Dataset Fundamentals](command:tenstorrent.lesson.show?["ct2-dataset-fundamentals"])) and now know exactly what's in a `tt-train` config and how it's loaded. Time to actually run one.
 
-**Next: [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])** — launch `train_nanogpt.py` for real, watch loss drop stage by stage, and generate text from your own checkpoints.
+**Next: [Fine-tuning Basics](command:tenstorrent.lesson.show?["ct4-finetuning-basics"])** — launch `train.py` for real, watch loss drop stage by stage, and generate text from your own checkpoints.
 
 ---
 
@@ -535,6 +547,6 @@ You've prepared your dataset ([Dataset Fundamentals](command:tenstorrent.lesson.
 
 - **The real schema:** `tt-train/configs/README.md` — every field, type, and default, generated from the actual implementation
 - **The real configs:** `tt-train/configs/model_configs/` and `tt-train/configs/training_configs/` — dozens of examples beyond the nano pair covered here, including LLaMA-8B, Galaxy pipeline-parallel, and MoE configs
-- **The real trainer:** `tt-train/sources/examples/nano_gpt/train_nanogpt.py`
+- **The real trainer:** `tt-train/sources/examples/train/train.py`
 - [Multi-Device Training](command:tenstorrent.lesson.show?["ct5-multi-device-training"]) — the full `mesh_shape`/`enable_ddp`/`enable_tp` story
 - [Training from Scratch](command:tenstorrent.lesson.show?["ct8-training-from-scratch"]) — designing a model config's architecture fields instead of borrowing the nano ones

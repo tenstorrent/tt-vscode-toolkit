@@ -20,8 +20,8 @@ supportedHardware:
   - galaxy
 status: draft
 note: >-
-  ttml (tt-train) builds and trains from source on Blackhole p300c as of
-  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  ttml (tt-train) builds and trains from source on Blackhole p300c; verified on
+  2026-07-08 (tt-metal v0.73) and again on 2026-11-24 (tt-metal v0.82.0) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
 validatedOn: []
@@ -34,7 +34,7 @@ You've been running real `tt-train` jobs since [Fine-tuning Basics](command:tens
 
 ## What You'll Learn
 
-- What `train_nanogpt.py` actually prints, and how to capture it to a file
+- What `train.py` actually prints, and how to capture it to a file
 - Turning captured logs into a loss-curve plot
 - Comparing hyperparameter runs (and which knobs you can actually vary from the CLI)
 - Wiring your own runs up to Weights & Biases — honestly, given what `tt-train` does and doesn't do natively
@@ -79,10 +79,10 @@ What config produced that checkpoint sitting in ~/tt-metal/tt-train/checkpoints?
 
 ## What `tt-train` Actually Gives You
 
-Before building anything, it's worth being precise about what `train_nanogpt.py` does on its own, because it's less than you might expect:
+Before building anything, it's worth being precise about what `train.py` does on its own, because it's less than you might expect:
 
 - **Per-step stdout, nothing more.** There's no `training.log`, no `validation.txt`, no auto-generated plot. Everything the trainer produces during a run, it prints to your terminal.
-- **Checkpoints, on a schedule you control.** Pass `--model_save_path`, and the trainer writes a `.pkl` checkpoint every `model_save_interval` steps (set in the training config's YAML) — see [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) for how that field works.
+- **Checkpoints, on a schedule you control.** Pass `--checkpoint-dir`, and the trainer writes a `.pkl` checkpoint every `model_save_interval` steps (set in the training config's YAML) — see [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) for how that field works.
 - **No wandb calls in the code path you're running.** More on this below — it matters for what "tracking" honestly means here.
 
 So the object you're building in this lesson is exactly one thing: **capture the stdout stream, and everything else (files, curves, dashboards) is something you construct from it.**
@@ -93,48 +93,50 @@ So the object you're building in this lesson is exactly one thing: **capture the
 
 ### The real print statement
 
-This is the actual line `train_nanogpt.py` emits per optimizer step (quoted verbatim from the trainer):
+This is the code that prints the per-step line. It lives in `tt-train/sources/examples/train/callbacks.py` (tt-metal v0.82.0):
 
 ```python
-print(
-    f"Step: {global_step}, Loss: {avg_loss:.6f}, Time: {step_time:.2f} ms, "
-    f"TPS: {tps:.0f}, TFLOPS: {achieved_tflops:.2f}{mfu_str}"
-)
+line = f"Step: {step}, Loss: {step_loss:.6f}, Time: {elapsed_ms:.2f} ms, TPS: {tps:.0f}"
+if self._flops_per_token > 0 and elapsed_ms > 0:
+    achieved = tps * self._flops_per_token / 1e12
+    line += f", TFLOPS: {achieved:.3g}"
+    if self._peak_tflops > 0:
+        mfu = achieved / self._peak_tflops * 100.0
+        line += f", MFU: {mfu:.3g}%"
+print(line)
 ```
 
-`TPS` (tokens/sec) and `TFLOPS` always print once the trainer can compute them; `MFU` (model FLOPs utilization) only appears for architectures where per-token FLOPs are known — Llama-family configs get it, some others don't. If FLOPs-per-token isn't available for a model, the trainer falls back to a shorter line with just `Step`, `Loss`, `Time`, and `TPS`.
+`Step`, `Loss`, `Time` and `TPS` always print. `TFLOPS` and `MFU` (model FLOPs utilization) only appear for architectures where per-token FLOPs are known. Llama-family configs get both, and some other model types get a shorter line.
 
-Here's a line reconstructed from a real run, [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"])'s captured 20-step training loop of a 9.81M-parameter Llama-style model on a Blackhole<sup>®</sup> p300c against tt-metal v0.73 (`config: training_shakespeare_nanollama3_char.yaml`, `batch_size: 64`, `max_sequence_length: 256`):
+Here is the last line of a real 20-step run of the 9.81M-parameter Llama-style model from [Train It & Run for Real](command:tenstorrent.lesson.show?["lfs-05-train-and-run"]), on a Blackhole<sup>®</sup> p300c with tt-metal v0.82.0 (`config: training_shakespeare_nanollama3_char.yaml`, `batch_size: 64`, `max_sequence_length: 256`):
 
 ```
-Step: 20, Loss: 3.234400, Time: 65.00 ms, TPS: 252061, TFLOPS: 16.50, MFU: 11.2%
+Step: 20, Loss: 3.234375, Time: 60.76 ms, TPS: 269659, TFLOPS: 17.7, MFU: 11.9%
 ```
 
-*(Time/TPS/TFLOPS/MFU here are reconstructed from that lesson's reported "~65 ms/step, ~16.5 TFLOPS, ~11% MFU" plus its real `batch_size × sequence_length`, formatted to match the trainer's actual print pattern — the Loss values below are the exact ones it captured.)*
-
-The full loss trajectory from that run:
+The loss values at four steps of that run:
 
 | Step | Loss |
 |---|---|
-| 1 | 4.6875 |
-| 5 | 3.5600 |
-| 10 | 3.3750 |
-| 20 | 3.2344 |
+| 1 | 4.843750 |
+| 5 | 3.750000 |
+| 10 | 3.359375 |
+| 20 | 3.234375 |
 
-Monotonically down, over 20 steps, on real hardware. Step 1 took 12.3 seconds — one-time kernel compile, not a slow training step — and every step after ran in ~65 ms. That's the shape of signal this lesson is about capturing and comparing.
+The loss goes down over 20 steps on real hardware. Step 1 took 28.1 seconds because of the one-time kernel compile on a cold kernel cache. A repeat run later the same day took 3.2 seconds for step 1. Every step after the first ran in about 59 ms. The lesson is about capturing and comparing this signal.
 
 ### Capture it
 
 Redirect stdout with `tee` so you see the run live *and* keep a copy:
 
 ```bash
-cd ~/tt-metal/tt-train/sources/examples/nano_gpt
+cd ~/tt-metal/tt-train/sources/examples/train
 
 mkdir -p ~/tt-scratchpad/runs
-python train_nanogpt.py \
+python train.py \
   --config training_shakespeare_nanollama3_char.yaml \
   --max_steps 500 \
-  --model_save_path ~/tt-metal/tt-train/checkpoints/tracking_baseline \
+  --checkpoint-dir ~/tt-metal/tt-train/checkpoints --checkpoint-prefix tracking_baseline \
   2>&1 | tee ~/tt-scratchpad/runs/2026-07-09_baseline.log
 ```
 
@@ -156,7 +158,7 @@ A small, dependency-light script that pulls `Step`/`Loss`/`TPS`/`TFLOPS` out of 
 
 ```python
 #!/usr/bin/env python3
-"""plot_run.py — parse train_nanogpt.py stdout and plot the loss curve.
+"""plot_run.py — parse train.py stdout and plot the loss curve.
 
 Usage: python plot_run.py run1.log [run2.log ...]
 """
@@ -206,18 +208,18 @@ python plot_run.py ~/tt-scratchpad/runs/2026-07-09_baseline.log
 
 ## Comparing Hyperparameter Runs
 
-[Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) established which fields `train_nanogpt.py` actually lets you override from the command line: `--data_path`, `--batch_size`, `--max_steps`, `--num_epochs`, `--clip_grad_norm`, `--sequence_length`, `--model_save_path`. **Learning rate is not one of them** — `lr` only lives in the training config YAML's `optimizer:` block.
+[Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) established which fields `train.py` actually lets you override from the command line: `--data_path`, `--batch_size`, `--max_steps`, `--epochs`, `--max-grad-norm`, `--sequence_length`, `--checkpoint-dir`. **Learning rate is not one of them** — `lr` only lives in the training config YAML's `optimizer:` block.
 
 That split determines how you run a comparison:
 
 ### Batch size — a CLI flag away
 
 ```bash
-python train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml \
+python train.py --config training_shakespeare_nanollama3_char.yaml \
   --batch_size 32 --max_steps 200 \
   2>&1 | tee ~/tt-scratchpad/runs/batch32.log
 
-python train_nanogpt.py --config training_shakespeare_nanollama3_char.yaml \
+python train.py --config training_shakespeare_nanollama3_char.yaml \
   --batch_size 64 --max_steps 200 \
   2>&1 | tee ~/tt-scratchpad/runs/batch64.log
 
@@ -235,7 +237,7 @@ cp ~/tt-metal/tt-train/configs/training_configs/training_shakespeare_nanollama3_
    ~/tt-scratchpad/runs/lr_1e-4.yaml
 # edit optimizer.lr: 0.0001 in the copy
 
-python train_nanogpt.py --config ~/tt-scratchpad/runs/lr_1e-4.yaml --max_steps 200 \
+python train.py --config ~/tt-scratchpad/runs/lr_1e-4.yaml --max_steps 200 \
   2>&1 | tee ~/tt-scratchpad/runs/lr_1e-4.log
 ```
 
@@ -251,13 +253,13 @@ Once you've got two or more logs, the comparison is just: lower final loss, at t
 
 `tt-train`'s top-level README does describe wandb integration, and tells you how to opt *out* of it: pass `-w 0`, or run `wandb offline` beforehand. There's even a vendored `wandb-cpp` library in `tt-train/3rd_party/`.
 
-Here's the honest part: **that flag and that vendored library aren't wired into the trainer you're actually running.** Neither `train_nanogpt.py`'s argument parser nor its training loop calls into wandb anywhere — `-w` isn't a recognized flag on the Python trainer, and `project_name` in the training config is used only to name the checkpoint directory (as [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) found when it went looking for a wandb field in the YAML schema and came up empty). The README describes an integration point that exists in the repo's history and docs, not in this code path today.
+Here's the honest part: **that flag and that vendored library aren't wired into the trainer you're actually running.** Neither `train.py`'s argument parser nor its training loop calls into wandb anywhere — `-w` isn't a recognized flag on the Python trainer, and `project_name` in the training config is used only to name the checkpoint directory (as [Configuration Patterns](command:tenstorrent.lesson.show?["ct3-configuration-patterns"]) found when it went looking for a wandb field in the YAML schema and came up empty). The README describes an integration point that exists in the repo's history and docs, not in this code path today.
 
 That doesn't make wandb pointless here — it means you build the bridge yourself, which is a dozen lines on top of the exact log you're already capturing:
 
 ```python
 #!/usr/bin/env python3
-"""wandb_bridge.py — tail a train_nanogpt.py log and mirror it into wandb.
+"""wandb_bridge.py — tail a train.py log and mirror it into wandb.
 
 Usage: python wandb_bridge.py run.log --project my-tt-train-project
 """
@@ -387,7 +389,7 @@ git tag exp-lr1e-4
 
 ## Key Takeaways
 
-✅ **`train_nanogpt.py` gives you stdout and checkpoints — nothing else is automatic.** Files, curves, and dashboards are things you build on top of the print statement above.
+✅ **`train.py` gives you stdout and checkpoints — nothing else is automatic.** Files, curves, and dashboards are things you build on top of the print statement above.
 
 ✅ **Capture with `tee`, parse with a small regex, plot with matplotlib.** That's the whole file-based baseline, and it's the one guaranteed to work.
 
@@ -416,7 +418,7 @@ You've covered the full loop: configure ([Configuration Patterns](command:tensto
 - [WandB Offline Mode](https://docs.wandb.ai/guides/technical-faq/setup/#can-i-run-wandb-offline) — the mode used in this lesson's bridge script
 
 ### The real source
-- `tt-train/sources/examples/nano_gpt/train_nanogpt.py` — the trainer this lesson's log format comes from, verbatim
+- `tt-train/sources/examples/train/callbacks.py` — the code that prints this lesson's log format, verbatim
 - `tt-train/README.md` — documents the `-w 0`/`wandb offline` opt-out this lesson cross-checked against the actual code
 
 ### Visualization

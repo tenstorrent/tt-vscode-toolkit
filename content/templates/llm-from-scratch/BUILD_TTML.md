@@ -2,13 +2,14 @@
 
 `ttml` (tt-train) is the training library the "Build an LLM from Scratch,
 TT-Native" arc uses for Lab 5's real on-device training. **It is source-only —
-there is no pip wheel or `.deb`.** This recipe was verified end-to-end on
-**2026-07-08 on a Blackhole p300c against tt-metal v0.73**: after building, the
-canonical `train_nanogpt.py` ran a real forward + backward + AdamW loop
+there is no pip wheel or `.deb`.** This recipe was verified end-to-end twice on
+a Blackhole p300c: on **2026-07-08 against tt-metal v0.73**, and on
+**2026-11-24 against tt-metal v0.82.0** (the latest stable release at that date).
+After building, the canonical `train.py` ran a real forward + backward + AdamW loop
 on-device for the **modern Llama-3 stack** (`--config
 training_shakespeare_nanollama3_char.yaml`, `model_type: llama` — RoPE +
-RMSNorm + GQA + SwiGLU) with loss dropping 4.69 → 3.23 over 20 steps, ~65 ms/step,
-16.5 TFLOPS, exit 0.
+RMSNorm + GQA + SwiGLU). On v0.82.0 the loss dropped 4.84 → 3.23 over 20 steps at
+about 59 ms/step, 18.3 TFLOPS, exit 0. (v0.73: 4.69 → 3.23, ~65 ms/step, 16.5 TFLOPS.)
 
 > This retires the `ct7`/`ct8` "no way to get ttml" blocker for anyone willing
 > to build from source. If you do not already have a tt-metal source tree, do
@@ -26,7 +27,34 @@ RMSNorm + GQA + SwiGLU) with loss dropping 4.69 → 3.23 over 20 steps, ~65 ms/s
   and is activated in every login shell on a QB2 — a bad dependency resolution
   in there costs you your hardware tooling.
 
-## Recipe
+## Recipe, fresh checkout (tt-metal v0.80 and later; verified on v0.82.0)
+
+Build everything, tt-train included, in one pass, then let `create_venv.sh`
+create the environment and the `.pth` files for you:
+
+```bash
+git clone --branch v0.82.0 https://github.com/tenstorrent/tt-metal.git ~/tt-metal-v0.82.0
+cd ~/tt-metal-v0.82.0
+git submodule update --init --recursive
+export TT_METAL_HOME=$PWD CMAKE_POLICY_VERSION_MINIMUM=3.5
+./build_metal.sh --build-tt-train --enable-ccache   # 13 min on 16 cores, warm ccache
+./create_venv.sh                                    # python_env/ with ttnn + ttml wired in
+```
+
+Measured 2026-11-24: the build finished in about 13 minutes and
+`python_env/lib/python3.12/site-packages/` ended up with `ttml.pth` and
+`_ttml.pth`. No `std::bad_cast` appeared, because `ttnn` and `ttml` were built
+together. Check it on a machine where you hold a device lease (the import
+opens the device):
+
+```bash
+python_env/bin/python -c "import ttml, ttnn; print('ttml + ttnn OK')"
+```
+
+## Recipe, existing build tree (built before tt-train was enabled)
+
+Use this one when you already have a tt-metal build without tt-train, such as a
+pre-built image.
 
 ```bash
 export TT_METAL_HOME=/home/ttuser/tt-metal
@@ -62,7 +90,7 @@ python -c "import ttml, ttnn; print('ttml + ttnn OK')"
 
 - **No `tt-train/pyproject.toml` in this tree.** The `pip install .` path does
   **not** apply — tt-train builds as a tt-metal subproject and `ttml` is wired
-  via the `.pth` above.
+  via `.pth` files (`create_venv.sh` writes them, or write them by hand as above).
 
 - **`std::bad_cast` on `import ttml`.** Happens whenever `ttnn` was built
   *before* tt-train was enabled — i.e. every pre-built tt-metal image, including
@@ -96,8 +124,8 @@ binary, dropout, multi_head_utils, reshape), `optimizers`, `models`, `modules`,
 
 Upstream CI `GTEST_SKIP`s tt-train's `softmax`, `cross_entropy` (fwd+bwd),
 `rmsnorm`, and `sdpa` tests on P100/P150, so upstream makes **no** Blackhole
-training guarantee. We built `ttml` against `~/tt-metal` v0.73 and actually ran
-the from-scratch loop on the p300c — those "skipped" ops all executed
-correctly. So the lesson can claim from-scratch training works on Blackhole
-p300c, framed honestly: **upstream doesn't CI this on BH; we verified it at
-v0.73 — pin your version and reset the board if needed.**
+training guarantee. We built `ttml` against tt-metal v0.73 and again against v0.82.0,
+and actually ran the from-scratch loop on the p300c both times — those "skipped" ops
+all executed correctly. So the lesson can claim from-scratch training works on Blackhole
+p300c, with the limits stated: **upstream doesn't CI this on BH; we verified it at
+v0.73 and v0.82.0 — pin your version and reset the board if needed.**

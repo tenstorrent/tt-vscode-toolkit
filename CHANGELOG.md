@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.43] - 2026-11-24
+
+### Training track moved to tt-metal v0.82.0 (the latest stable release)
+
+Re-validated on a Blackhole p300c: a fresh v0.82.0 build with tt-train, the `ct4`, `ct5` and
+`ct8` runs, the `lfs-05` frozen-norm check, and the launcher. Closes #58.
+
+- **Trainer script**: `train_nanogpt.py` no longer exists upstream (removed in tt-metal #45599).
+  The lessons, templates, `llms.txt` and the lesson registry now use
+  `tt-train/sources/examples/train/train.py`. The launcher in `llm-from-scratch/` prefers it
+  and falls back to the old script on older checkouts. Before this change the launcher
+  refused to run on v0.82.0.
+- **Flags**: `--model_save_path`, `--num_epochs` and `--clip_grad_norm` are deprecated (they
+  still run and print a warning). The lessons use `--checkpoint-dir` with `--checkpoint-prefix`,
+  `--epochs` and `--max-grad-norm`. The shipped Shakespeare configs no longer set `num_epochs`.
+- **Data path**: `shakespeare.txt` lives at `$TT_METAL_HOME/data/`, not `tt-train/data/`.
+- **Optimizer (#58)**: `AdamWFullPrecision` is still the working form on v0.82.0. tt-metal
+  #62083 (merged 2026-11-03, first in v0.83.0 development builds) removes it in favour of
+  `training_config.precision.master_dtype: float32` on fused `AdamW`. `lfs-05` and `ct3` show
+  both and say which release each applies to.
+- **Resume**: on v0.82.0 `--resume` restores the optimizer and RNG state, so the loss spike
+  that `ct4` documented on v0.73 no longer happens. `ct4` now shows the no-spike curve and
+  explains the difference.
+- **Multi-chip (`ct5`)**: re-measured 1, 2 and 4 chips (235k, 453k, 883k tokens/s; 96% and 94%
+  efficiency). The 4-chip run now works with no mesh graph descriptor. A 2-chip run still
+  needs the shipped `p300` descriptor when the process can see all four chips.
+- **Measurements refreshed** in `ct4` (loss table, three samples), `ct6` (the real
+  `callbacks.py` print code and a captured line), `ct8` (loss table and sample) and `lfs-05`
+  (20-step table, frozen-norm reproduction on v0.82.0).
+- **Build**: `lfs-05` and `BUILD_TTML.md` lead with the one-pass
+  `build_metal.sh --build-tt-train` plus `create_venv.sh` recipe (13 minutes on 16 cores).
+  The two-step ABI recipe remains for trees built before tt-train was enabled.
+- **Corrected claim**: the lessons said upstream skips softmax, cross-entropy, RMSNorm and
+  SDPA training tests on Blackhole. The v0.82.0-rc2 test sources no longer do; the text now
+  says we did not check CI.
+- `minTTMetalVersion` for `ct4`, `ct8` and `lfs-05` is now v0.82.0.
+
 ## [0.1.42] - 2026-10-30
 
 - Removed the "Teach `tt launch` Your Own Tool" section and its two buttons

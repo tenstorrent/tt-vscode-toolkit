@@ -20,8 +20,8 @@ supportedHardware:
   - galaxy
 status: draft
 note: >-
-  ttml (tt-train) builds and trains from source on Blackhole p300c as of
-  2026-07-08 (tt-metal v0.73) — see the build-tt-metal lesson plus the
+  ttml (tt-train) builds and trains from source on Blackhole p300c; verified on
+  2026-07-08 (tt-metal v0.73) and again on 2026-11-24 (tt-metal v0.82.0) — see the build-tt-metal lesson plus the
   "Install tt-train" command for the verified recipe. This lesson is being
   re-authored around that verified workflow.
 validatedOn: []
