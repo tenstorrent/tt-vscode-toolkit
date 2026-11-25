@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.43] - 2026-11-25
+
+### Fixed
+
+- **Direct API templates** (`tt-chat-direct.py`, `tt-api-server-direct.py`) crashed on the
+  first prompt with `AttributeError: 'Generator' object has no attribute
+  'decode_forward_text'` on tt-metal v0.67.0 and later. They now call `decode_forward`
+  with the reload flags tt-metal v0.80.0 requires, sample on the host, and import from
+  `models.ttt_compat` on tt-metal v0.82.0 and later.
+
 ## [0.1.42] - 2026-10-30
 
 - Removed the "Teach `tt launch` Your Own Tool" section and its two buttons
