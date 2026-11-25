@@ -920,7 +920,7 @@ while True:
 
     # Decode (generate response)
     for _ in range(max_tokens):
-        logits = generator.decode_forward_text(out_tok, current_pos, ...)
+        logits, _ = generator.decode_forward(out_tok, current_pos, ...)
         next_token = sample(logits)
         if is_end_token(next_token):
             break

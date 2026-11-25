@@ -39,7 +39,7 @@ if not pythonpath:
     sys.exit(1)
 
 # Check if we're in the tt-metal directory
-if not os.path.exists('models/tt_transformers'):
+if not (os.path.exists('models/ttt_compat') or os.path.exists('models/tt_transformers')):
     print("❌ Not running from tt-metal directory")
     print('   Run: cd ~/tt-metal')
     sys.exit(1)
@@ -52,14 +52,29 @@ import torch
 import ttnn
 from loguru import logger
 
-from models.tt_transformers.tt.common import (
-    PagedAttentionConfig,
-    create_tt_model,
-    preprocess_inputs_prefill,
-    sample_host,
-)
-from models.tt_transformers.tt.generator import Generator, SamplingParams, create_submeshes
-from models.tt_transformers.tt.model_config import DecodersPrecision
+from importlib.util import find_spec
+
+# tt-metal PR #62523 (2026-10-30) renamed models.tt_transformers to models.ttt_compat.
+# The old name still imports there but prints a DeprecationWarning; older tt-metal
+# has only the old name.
+if find_spec("models.ttt_compat") is not None:
+    from models.ttt_compat.tt.common import (
+        PagedAttentionConfig,
+        create_tt_model,
+        preprocess_inputs_prefill,
+        sample_host,
+    )
+    from models.ttt_compat.tt.generator import Generator, create_submeshes
+    from models.ttt_compat.tt.model_config import DecodersPrecision
+else:
+    from models.tt_transformers.tt.common import (
+        PagedAttentionConfig,
+        create_tt_model,
+        preprocess_inputs_prefill,
+        sample_host,
+    )
+    from models.tt_transformers.tt.generator import Generator, create_submeshes
+    from models.tt_transformers.tt.model_config import DecodersPrecision
 
 logger.remove()  # Remove default handler
 logger.add(sys.stderr, level="WARNING")  # Only show warnings and errors
@@ -157,30 +172,27 @@ def generate_response(prompt, max_tokens=128, temperature=0.0):
     current_pos = torch.tensor([decoding_pos[0]])
     out_tok = prefilled_token
 
-    # Setup sampling
-    if temperature == 0.0:
-        device_sampling_params = SamplingParams(temperature=0.0, top_k=-1, top_p=1.0)
-    else:
-        device_sampling_params = None
-
     tokens_generated = 0
 
     for iteration in range(max_tokens):
         # Generate next token
-        logits = GENERATOR.decode_forward_text(
+        # decode_forward was decode_forward_text before tt-metal PR #37447 (v0.67.0).
+        # It returns (logits, log_probs); PR #51646 made the reload_* flags required.
+        logits, _ = GENERATOR.decode_forward(
             out_tok,
             current_pos,
             enable_trace=False,  # Tracing disabled for simplicity (requires trace region allocation)
             page_table=PAGE_TABLE,
             kv_cache=[TT_KV_CACHE],  # Generator expects a list of kv_caches
-            sampling_params=device_sampling_params,
+            sampling_params=None,  # Sample on host below
+            reload_inputs=True,  # Required when enable_trace=False
+            reload_page_table=False,
+            reload_sampling_params=False,
+            reset_sampling_state=False,
         )
 
         # Sample
-        if device_sampling_params is not None:
-            out_tok = logits.unsqueeze(1)
-        else:
-            _, out_tok = sample_host(logits, temperature=temperature, top_p=0.9, on_host=True)
+        _, out_tok = sample_host(logits, temperature=temperature, top_p=0.9, on_host=True)
 
         user_tok = out_tok[0].item()
 
